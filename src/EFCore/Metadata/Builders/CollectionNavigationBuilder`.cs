@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
     /// </remarks>
-    /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
-    /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
     public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNavigationBuilder
         where TEntity : class
         where TRelatedEntity : class
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             string? navigationName = null)
             => new(
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression)
             => new(
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName">
         ///     The name of the collection navigation property on the other end of this relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string navigationName)
         {
             if (Builder != null
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on the other end of the relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>> navigationExpression)
         {

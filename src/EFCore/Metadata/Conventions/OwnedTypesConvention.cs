@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="OwnedTypesConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public OwnedTypesConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -34,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type is removed from the model.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="entityType"> The removed entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="entityType">The removed entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeRemoved(
             IConventionModelBuilder modelBuilder,
             IConventionEntityType entityType,

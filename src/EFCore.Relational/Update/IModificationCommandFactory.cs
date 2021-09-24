@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new database CUD command.
         /// </summary>
-        /// <param name="modificationCommandParameters"> The creation parameters. </param>
-        /// <returns> A new <see cref="IModificationCommand" /> instance. </returns>
+        /// <param name="modificationCommandParameters">The creation parameters.</param>
+        /// <returns>A new <see cref="IModificationCommand" /> instance.</returns>
         IModificationCommand CreateModificationCommand(
             in ModificationCommandParameters modificationCommandParameters);
     }

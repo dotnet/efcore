@@ -51,19 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be added. </param>
-        /// <param name="type"> The CLR class that is used to represent instances of this type. </param>
-        /// <param name="sharedClrType"> Whether this entity type can share its ClrType with other entities. </param>
-        /// <param name="baseType"> The base type of this entity type. </param>
-        /// <param name="discriminatorProperty"> The name of the property that will be used for storing a discriminator value. </param>
-        /// <param name="changeTrackingStrategy"> The change tracking strategy for this entity type </param>
-        /// <param name="indexerPropertyInfo"> The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists. </param>
+        /// <param name="name">The name of the entity type to be added.</param>
+        /// <param name="type">The CLR class that is used to represent instances of this type.</param>
+        /// <param name="sharedClrType">Whether this entity type can share its ClrType with other entities.</param>
+        /// <param name="baseType">The base type of this entity type.</param>
+        /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
+        /// <param name="changeTrackingStrategy">The change tracking strategy for this entity type</param>
+        /// <param name="indexerPropertyInfo">The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</param>
         /// <param name="propertyBag">
         ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
         ///     and a method that can be used to determine whether a given indexer property contains a value.
         /// </param>
-        /// <param name="discriminatorValue">the discriminator value for this entity type.</param>
-        /// <returns> The new entity type. </returns>
+        /// <param name="discriminatorValue">The discriminator value for this entity type.</param>
+        /// <returns>The new entity type.</returns>
         public virtual RuntimeEntityType AddEntityType(
             string name,
             Type type,
@@ -110,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeEntityType? FindEntityType(string name)
             => _entityTypes.TryGetValue(name, out var entityType)
                 ? entityType
@@ -141,16 +141,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds configuration for a scalar type.
         /// </summary>
-        /// <param name="clrType"> The type of value the property will hold. </param>
-        /// <param name="maxLength"> The maximum length of data that is allowed in this property type. </param>
-        /// <param name="unicode"> A value indicating whether or not the property can persist Unicode characters. </param>
-        /// <param name="precision"> The precision of data that is allowed in this property type. </param>
-        /// <param name="scale"> The scale of data that is allowed in this property type. </param>
+        /// <param name="clrType">The type of value the property will hold.</param>
+        /// <param name="maxLength">The maximum length of data that is allowed in this property type.</param>
+        /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+        /// <param name="precision">The precision of data that is allowed in this property type.</param>
+        /// <param name="scale">The scale of data that is allowed in this property type.</param>
         /// <param name="providerPropertyType">
         ///     The type that the property value will be converted to before being sent to the database provider.
         /// </param>
-        /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> for this type. </param>
-        /// <returns> The newly created property. </returns>
+        /// <param name="valueConverter">The custom <see cref="ValueConverter" /> for this type.</param>
+        /// <returns>The newly created property.</returns>
         public virtual RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(
             Type clrType,
             int? maxLength = null,

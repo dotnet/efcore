@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcPointInTime"><see cref="DateTime" /> representing a point in time for which the results should be returned.</param>
-        /// <returns> An <see cref="IQueryable" /> representing the entities at a given point in time.</returns>
+        /// <returns>An <see cref="IQueryable" /> representing the entities at a given point in time.</returns>
         public static IQueryable<TEntity> TemporalAsOf<TEntity>(
             this DbSet<TEntity> source,
             DateTime utcPointInTime)
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
         /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalFromTo<TEntity>(
             this DbSet<TEntity> source,
             DateTime utcFrom,
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
         /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalBetween<TEntity>(
             this DbSet<TEntity> source,
             DateTime utcFrom,
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
         /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalContainedIn<TEntity>(
             this DbSet<TEntity> source,
             DateTime utcFrom,
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     for more information.
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the entities and their historical versions.</returns>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the entities and their historical versions.</returns>
         public static IQueryable<TEntity> TemporalAll<TEntity>(
             this DbSet<TEntity> source)
             where TEntity : class

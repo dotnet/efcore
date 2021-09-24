@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
     /// </remarks>
-    /// <typeparam name="TInterceptor"> The interceptor type. </typeparam>
+    /// <typeparam name="TInterceptor">The interceptor type.</typeparam>
     public abstract class InterceptorAggregator<TInterceptor> : IInterceptorAggregator
         where TInterceptor : class, IInterceptor
     {
@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         the <see cref="DbContext" /> or in the internal service provider.
         ///     </para>
         /// </summary>
-        /// <param name="interceptors"> The interceptors to combine. </param>
-        /// <returns> The combined interceptor. </returns>
+        /// <param name="interceptors">The interceptors to combine.</param>
+        /// <returns>The combined interceptor.</returns>
         public virtual IInterceptor? AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Must be implemented by the inheriting type to create a single interceptor from the given list.
         /// </summary>
-        /// <param name="interceptors"> The interceptors to combine. </param>
-        /// <returns> The combined interceptor. </returns>
+        /// <param name="interceptors">The interceptors to combine.</param>
+        /// <returns>The combined interceptor.</returns>
         protected abstract TInterceptor CreateChain(IEnumerable<TInterceptor> interceptors);
     }
 }

@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
+        /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
         bool Exists();
 
         /// <summary>
@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Queries the history table for all migrations that have been applied.
         /// </summary>
-        /// <returns> The list of applied migrations, as <see cref="HistoryRow" /> entities. </returns>
+        /// <returns>The list of applied migrations, as <see cref="HistoryRow" /> entities.</returns>
         IReadOnlyList<HistoryRow> GetAppliedMigrations();
 
         /// <summary>
@@ -60,56 +60,56 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Generates a SQL script that will create the history table.
         /// </summary>
-        /// <returns> The SQL script. </returns>
+        /// <returns>The SQL script.</returns>
         string GetCreateScript();
 
         /// <summary>
         ///     Generates a SQL script that will create the history table if and only if it does not already exist.
         /// </summary>
-        /// <returns> The SQL script. </returns>
+        /// <returns>The SQL script.</returns>
         string GetCreateIfNotExistsScript();
 
         /// <summary>
         ///     Generates a SQL script to insert a row into the history table.
         /// </summary>
-        /// <param name="row"> The row to insert, represented as a <see cref="HistoryRow" /> entity. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="row">The row to insert, represented as a <see cref="HistoryRow" /> entity.</param>
+        /// <returns>The generated SQL.</returns>
         string GetInsertScript(HistoryRow row);
 
         /// <summary>
         ///     Generates a SQL script to delete a row from the history table.
         /// </summary>
-        /// <param name="migrationId"> The migration identifier of the row to delete. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="migrationId">The migration identifier of the row to delete.</param>
+        /// <returns>The generated SQL.</returns>
         string GetDeleteScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL Script that will <c>BEGIN</c> a block
         ///     of SQL if and only if the migration with the given identifier does not already exist in the history table.
         /// </summary>
-        /// <param name="migrationId"> The migration identifier. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="migrationId">The migration identifier.</param>
+        /// <returns>The generated SQL.</returns>
         string GetBeginIfNotExistsScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL Script that will <c>BEGIN</c> a block
         ///     of SQL if and only if the migration with the given identifier already exists in the history table.
         /// </summary>
-        /// <param name="migrationId"> The migration identifier. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="migrationId">The migration identifier.</param>
+        /// <returns>The generated SQL.</returns>
         string GetBeginIfExistsScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL script to <c>END</c> the SQL block.
         /// </summary>
-        /// <returns> The generated SQL. </returns>
+        /// <returns>The generated SQL.</returns>
         string GetEndIfScript();
     }
 }

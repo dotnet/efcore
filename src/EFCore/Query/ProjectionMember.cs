@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Append given MemberInfo to existing chain at the end.
         /// </summary>
-        /// <param name="member"> The MemberInfo to append. </param>
-        /// <returns> A new projection member with given member info appended to existing chain. </returns>
+        /// <param name="member">The MemberInfo to append.</param>
+        /// <returns>A new projection member with given member info appended to existing chain.</returns>
         public ProjectionMember Append(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Prepend given MemberInfo to existing chain at the start.
         /// </summary>
-        /// <param name="member"> The MemberInfo to prepend. </param>
-        /// <returns> A new projection member with given member info prepended to existing chain. </returns>
+        /// <param name="member">The MemberInfo to prepend.</param>
+        /// <returns>A new projection member with given member info prepended to existing chain.</returns>
         public ProjectionMember Prepend(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));

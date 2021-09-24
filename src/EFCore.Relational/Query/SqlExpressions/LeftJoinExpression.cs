@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="LeftJoinExpression" /> class.
         /// </summary>
-        /// <param name="table"> A table source to LEFT JOIN with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        /// <param name="table">A table source to LEFT JOIN with.</param>
+        /// <param name="joinPredicate">A predicate to use for the join.</param>
         public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
             : base(table, joinPredicate)
         {
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="table"> The <see cref="P:Table" /> property of the result. </param>
-        /// <param name="joinPredicate"> The <see cref="P:JoinPredicate" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="table">The <see cref="P:Table" /> property of the result.</param>
+        /// <param name="joinPredicate">The <see cref="P:JoinPredicate" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         {
             Check.NotNull(table, nameof(table));

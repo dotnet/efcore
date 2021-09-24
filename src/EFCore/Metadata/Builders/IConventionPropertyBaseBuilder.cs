@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the backing field to use for this property-like object.
         /// </summary>
-        /// <param name="fieldName"> The field name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the backing field to use for this property-like object.
         /// </summary>
-        /// <param name="fieldInfo"> The field. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fieldInfo">The field.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -50,25 +50,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the backing field can be set for this property-like object
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="fieldName"> The field name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property-like object. </returns>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the backing field can be set for this property-like object.</returns>
         bool CanSetField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the backing field can be set for this property-like object
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="fieldInfo"> The field. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the backing field can be set for this property-like object. </returns>
+        /// <param name="fieldInfo">The field.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the backing field can be set for this property-like object.</returns>
         bool CanSetField(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property-like object.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property-like object. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property-like object.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the <see cref="PropertyAccessMode" /> can be set for this property-like object
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property-like object. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="PropertyAccessMode" /> can be set for this property-like object. </returns>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property-like object.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the <see cref="PropertyAccessMode" /> can be set for this property-like object.</returns>
         bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
     }
 }

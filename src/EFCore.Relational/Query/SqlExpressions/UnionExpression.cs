@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="UnionExpression" /> class.
         /// </summary>
-        /// <param name="alias"> A string alias for the table source. </param>
-        /// <param name="source1"> A table source which is first source in the set operation. </param>
-        /// <param name="source2"> A table source which is second source in the set operation. </param>
-        /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
+        /// <param name="alias">A string alias for the table source.</param>
+        /// <param name="source1">A table source which is first source in the set operation.</param>
+        /// <param name="source2">A table source which is second source in the set operation.</param>
+        /// <param name="distinct">A bool value indicating whether result will remove duplicate rows.</param>
         public UnionExpression(
             string alias,
             SelectExpression source1,
@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="source1"> The <see cref="P:Source1" /> property of the result. </param>
-        /// <param name="source2"> The <see cref="P:Source2" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="source1">The <see cref="P:Source1" /> property of the result.</param>
+        /// <param name="source2">The <see cref="P:Source2" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual UnionExpression Update(SelectExpression source1, SelectExpression source2)
         {
             Check.NotNull(source1, nameof(source1));

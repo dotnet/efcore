@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
         ///     </para>
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
+        /// <param name="context">The context on which the operations will be invoked.</param>
         public SqlServerRetryingExecutionStrategy(
             DbContext context)
             : this(context, DefaultMaxRetryCount)
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
+        /// <param name="dependencies">Parameter object containing service dependencies.</param>
         public SqlServerRetryingExecutionStrategy(
             ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         A default value 30 seconds for the maximum default delay is used.
         ///     </para>
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
+        /// <param name="context">The context on which the operations will be invoked.</param>
+        /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
         public SqlServerRetryingExecutionStrategy(
             DbContext context,
             int maxRetryCount)
@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         A default value 30 seconds for the maximum default delay is used.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
+        /// <param name="dependencies">Parameter object containing service dependencies.</param>
+        /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
         public SqlServerRetryingExecutionStrategy(
             ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
@@ -90,10 +90,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
-        /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
-        /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
+        /// <param name="context">The context on which the operations will be invoked.</param>
+        /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+        /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+        /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
         public SqlServerRetryingExecutionStrategy(
             DbContext context,
             int maxRetryCount,
@@ -108,10 +108,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing service dependencies. </param>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
-        /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
+        /// <param name="dependencies">Parameter object containing service dependencies.</param>
+        /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+        /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+        /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
         public SqlServerRetryingExecutionStrategy(
             ExecutionStrategyDependencies dependencies,
             int maxRetryCount,
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Determines whether the specified exception represents a transient failure that can be
         ///     compensated by a retry. Additional exceptions to retry on can be passed to the constructor.
         /// </summary>
-        /// <param name="exception"> The exception object to be verified. </param>
+        /// <param name="exception">The exception object to be verified.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Determines whether the operation should be retried and the delay before the next attempt.
         /// </summary>
-        /// <param name="lastException"> The exception thrown during the last execution attempt. </param>
+        /// <param name="lastException">The exception thrown during the last execution attempt.</param>
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
         ///     <see langword="null" /> otherwise

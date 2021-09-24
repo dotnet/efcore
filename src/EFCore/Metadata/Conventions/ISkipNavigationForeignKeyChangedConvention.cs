@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a skip navigation inverse is changed.
         /// </summary>
-        /// <param name="skipNavigationBuilder"> The builder for the skip navigation. </param>
-        /// <param name="foreignKey"> The current skip navigation foreign key. </param>
-        /// <param name="oldForeignKey"> The old skip navigation foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="skipNavigationBuilder">The builder for the skip navigation.</param>
+        /// <param name="foreignKey">The current skip navigation foreign key.</param>
+        /// <param name="oldForeignKey">The old skip navigation foreign key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessSkipNavigationForeignKeyChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             IConventionForeignKey? foreignKey,

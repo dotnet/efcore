@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Applies supplied type mapping to this expression.
         /// </summary>
-        /// <param name="typeMapping"> A relational type mapping to apply. </param>
-        /// <returns> A new expression which has supplied type mapping. </returns>
+        /// <param name="typeMapping">A relational type mapping to apply.</param>
+        /// <returns>A new expression which has supplied type mapping.</returns>
         public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping);
 

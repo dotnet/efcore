@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="CosmosRuntimeModelConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public CosmosRuntimeModelConvention(
             ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
@@ -32,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the model annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="model"> The source model. </param>
-        /// <param name="runtimeModel"> The target model that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="model">The source model.</param>
+        /// <param name="runtimeModel">The target model that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessModelAnnotations(
             Dictionary<string, object?> annotations,
             IModel model,
@@ -53,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the entity type annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="entityType"> The source entity type. </param>
-        /// <param name="runtimeEntityType"> The target entity type that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="entityType">The source entity type.</param>
+        /// <param name="runtimeEntityType">The target entity type that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessEntityTypeAnnotations(
             IDictionary<string, object?> annotations,
             IEntityType entityType,

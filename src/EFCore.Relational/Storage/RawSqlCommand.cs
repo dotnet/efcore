@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RawSqlCommand" /> class.
         /// </summary>
-        /// <param name="relationalCommand"> The command to be executed. </param>
-        /// <param name="parameterValues"> The values to be assigned to parameters. </param>
+        /// <param name="relationalCommand">The command to be executed.</param>
+        /// <param name="parameterValues">The values to be assigned to parameters.</param>
         public RawSqlCommand(
             IRelationalCommand relationalCommand,
             IReadOnlyDictionary<string, object?> parameterValues)

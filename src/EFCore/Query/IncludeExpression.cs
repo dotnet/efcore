@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new instance of the <see cref="IncludeExpression" /> class. The navigation will be set
         ///     as loaded after completing the Include.
         /// </summary>
-        /// <param name="entityExpression"> An expression to get entity which is performing include. </param>
-        /// <param name="navigationExpression"> An expression to get included navigation element. </param>
-        /// <param name="navigation"> The navigation for this include operation. </param>
+        /// <param name="entityExpression">An expression to get entity which is performing include.</param>
+        /// <param name="navigationExpression">An expression to get included navigation element.</param>
+        /// <param name="navigation">The navigation for this include operation.</param>
         public IncludeExpression(
             Expression entityExpression,
             Expression navigationExpression,
@@ -109,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="entityExpression"> The <see cref="EntityExpression" /> property of the result. </param>
-        /// <param name="navigationExpression"> The <see cref="NavigationExpression" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="entityExpression">The <see cref="EntityExpression" /> property of the result.</param>
+        /// <param name="navigationExpression">The <see cref="NavigationExpression" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual IncludeExpression Update(Expression entityExpression, Expression navigationExpression)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));

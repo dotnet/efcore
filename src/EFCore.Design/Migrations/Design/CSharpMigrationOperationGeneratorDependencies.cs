@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
-        /// <param name="csharpHelper"> The C# helper. </param>
+        /// <param name="csharpHelper">The C# helper.</param>
         [EntityFrameworkInternal]
         public CSharpMigrationOperationGeneratorDependencies(ICSharpHelper csharpHelper)
         {

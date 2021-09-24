@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

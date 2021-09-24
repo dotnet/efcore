@@ -32,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Replaces one expression with another in given expression tree.
         /// </summary>
-        /// <param name="original"> The expression to replace. </param>
-        /// <param name="replacement"> The expression to be used as replacement. </param>
-        /// <param name="tree"> The expression tree in which replacement is going to be performed. </param>
-        /// <returns> An expression tree with replacements made. </returns>
+        /// <param name="original">The expression to replace.</param>
+        /// <param name="replacement">The expression to be used as replacement.</param>
+        /// <param name="tree">The expression tree in which replacement is going to be performed.</param>
+        /// <returns>An expression tree with replacements made.</returns>
         public static Expression Replace(Expression original, Expression replacement, Expression tree)
         {
             Check.NotNull(original, nameof(original));
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="ReplacingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="originals"> A list of original expressions to replace. </param>
-        /// <param name="replacements"> A list of expressions to be used as replacements. </param>
+        /// <param name="originals">A list of original expressions to replace.</param>
+        /// <param name="replacements">A list of expressions to be used as replacements.</param>
         public ReplacingExpressionVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
         {
             Check.NotNull(originals, nameof(originals));

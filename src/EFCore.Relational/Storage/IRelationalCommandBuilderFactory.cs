@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="IRelationalCommandBuilder" />.
         /// </summary>
-        /// <returns> The newly created builder. </returns>
+        /// <returns>The newly created builder.</returns>
         IRelationalCommandBuilder Create();
     }
 }

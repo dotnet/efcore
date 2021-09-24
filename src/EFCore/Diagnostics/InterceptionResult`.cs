@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
     /// </remarks>
-    /// <typeparam name="TResult"> The new result to use. </typeparam>
+    /// <typeparam name="TResult">The new result to use.</typeparam>
     public readonly struct InterceptionResult<TResult>
     {
         private readonly TResult _result;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates a new <see cref="InterceptionResult{TResult}" /> instance indicating that
         ///     execution should be suppressed and the given result should be used instead.
         /// </summary>
-        /// <param name="result"> The result to use. </param>
+        /// <param name="result">The result to use.</param>
         public static InterceptionResult<TResult> SuppressWithResult(TResult result)
             => new(result);
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         is the same as <see cref="Nullable{T}.Value" /> and <see cref="Nullable{T}.HasValue" />
         ///     </para>
         /// </summary>
-        /// <exception cref="InvalidOperationException"> when <see cref="Result" /> is <see langword="false" />.</exception>
+        /// <exception cref="InvalidOperationException">when <see cref="Result" /> is <see langword="false" />.</exception>
         public TResult Result
         {
             get

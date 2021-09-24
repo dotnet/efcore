@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <see langword="true" /> if SQL Server is being used; <see langword="false" /> otherwise. </returns>
+        /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>
+        /// <returns><see langword="true" /> if SQL Server is being used; <see langword="false" /> otherwise.</returns>
         public static bool IsSqlServer(this DatabaseFacade database)
             => database.ProviderName == typeof(SqlServerOptionsExtension).Assembly.GetName().Name;
     }

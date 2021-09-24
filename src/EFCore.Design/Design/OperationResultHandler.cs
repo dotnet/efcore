@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Invoked when a result is available.
         /// </summary>
-        /// <param name="value"> The result. </param>
+        /// <param name="value">The result.</param>
         public virtual void OnResult(object? value)
         {
             _hasResult = true;
@@ -74,9 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Invoked when an error occurs.
         /// </summary>
-        /// <param name="type"> The exception type. </param>
-        /// <param name="message"> The error message. </param>
-        /// <param name="stackTrace"> The stack trace. </param>
+        /// <param name="type">The exception type.</param>
+        /// <param name="message">The error message.</param>
+        /// <param name="stackTrace">The stack trace.</param>
         public virtual void OnError(string type, string message, string stackTrace)
         {
             _errorType = type;

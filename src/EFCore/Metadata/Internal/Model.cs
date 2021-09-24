@@ -894,10 +894,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
         /// </summary>
-        /// <param name="name"> The key of the set annotation. </param>
-        /// <param name="annotation"> The annotation set. </param>
-        /// <param name="oldAnnotation"> The old annotation. </param>
-        /// <returns> The annotation that was set. </returns>
+        /// <param name="name">The key of the set annotation.</param>
+        /// <param name="annotation">The annotation set.</param>
+        /// <param name="oldAnnotation">The old annotation.</param>
+        /// <returns>The annotation that was set.</returns>
         protected override IConventionAnnotation? OnAnnotationSet(
             string name,
             IConventionAnnotation? annotation,
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Gets a value indicating whether the given MethodInfo reprensents an indexer access.
         /// </summary>
-        /// <param name="methodInfo"> The MethodInfo to check for. </param>
+        /// <param name="methodInfo">The MethodInfo to check for.</param>
         public virtual bool IsIndexerMethod(MethodInfo methodInfo)
             => !methodInfo.IsStatic
                 && methodInfo.IsSpecialName

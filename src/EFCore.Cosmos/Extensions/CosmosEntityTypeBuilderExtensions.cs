@@ -30,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the container. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the container.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder ToContainer(
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
@@ -52,10 +52,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the container. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the container.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> ToContainer<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             string? name)
@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the container. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the container.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -99,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the container. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the container.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         public static bool CanSetContainer(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -121,9 +121,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the parent property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the parent property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder ToJsonProperty(
             this OwnedNavigationBuilder entityTypeBuilder,
             string? name)
@@ -140,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the parent property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the parent property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJsonProperty<TOwnerEntity, TDependentEntity>(
             this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> entityTypeBuilder,
             string? name)
@@ -161,9 +161,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the parent property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the parent property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -191,10 +191,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the parent property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the parent property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         public static bool CanSetJsonProperty(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -213,9 +213,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the partition key property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the partition key property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder HasPartitionKey(
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the partition key property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the partition key property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> HasPartitionKey<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             string? name)
@@ -252,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="propertyExpression"> The  partition key property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="propertyExpression">The  partition key property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> HasPartitionKey<TEntity, TProperty>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -274,9 +274,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the partition key property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the partition key property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -304,10 +304,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the partition key property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="name">The name of the partition key property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         public static bool CanSetPartitionKey(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -326,8 +326,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder UseETagConcurrency(this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -345,8 +345,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
             where TEntity : class
         {
@@ -362,9 +362,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder HasAnalyticalStoreTimeToLive(
             this EntityTypeBuilder entityTypeBuilder,
             int? seconds)
@@ -381,9 +381,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> HasAnalyticalStoreTimeToLive<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? seconds)
@@ -401,9 +401,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -431,10 +431,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         public static bool CanSetAnalyticalStoreTimeToLive(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? seconds,
@@ -452,9 +452,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder HasDefaultTimeToLive(
             this EntityTypeBuilder entityTypeBuilder,
             int? seconds)
@@ -471,9 +471,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> HasDefaultTimeToLive<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? seconds)
@@ -491,9 +491,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -521,10 +521,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="seconds"> The time to live. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="seconds">The time to live.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         public static bool CanSetDefaultTimeToLive(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? seconds,
@@ -542,8 +542,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static EntityTypeBuilder HasManualThroughput(this EntityTypeBuilder entityTypeBuilder, int? throughput)
         {
             entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: false);
@@ -558,8 +558,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static EntityTypeBuilder<TEntity> HasManualThroughput<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? throughput)
@@ -577,8 +577,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static EntityTypeBuilder HasAutoscaleThroughput(this EntityTypeBuilder entityTypeBuilder, int? throughput)
         {
             entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: true);
@@ -593,8 +593,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static EntityTypeBuilder<TEntity> HasAutoscaleThroughput<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? throughput)
@@ -612,10 +612,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static IConventionEntityTypeBuilder? HasThroughput(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? throughput,
@@ -639,11 +639,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given container name can be set as default.</returns>
         public static bool CanSetThroughput(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? throughput,

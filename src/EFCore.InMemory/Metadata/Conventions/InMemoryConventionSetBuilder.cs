@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         /// <summary>
         ///     Creates a new <see cref="InMemoryConventionSetBuilder" /> instance.
         /// </summary>
-        /// <param name="dependencies"> The core dependencies for this service. </param>
+        /// <param name="dependencies">The core dependencies for this service.</param>
         public InMemoryConventionSetBuilder(
             ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ConventionSet Build()
         {
             using var serviceScope = CreateServiceScope();
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();

@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyName"> The property to access information and operations for. </param>
-        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
+        /// <param name="propertyName">The property to access information and operations for.</param>
+        /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual MemberEntry Member(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -189,8 +189,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The property to access information and operations for. </param>
-        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
+        /// <param name="propertyName">The property to access information and operations for.</param>
+        /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual NavigationEntry Navigation(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -247,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyName"> The property to access information and operations for. </param>
-        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
+        /// <param name="propertyName">The property to access information and operations for.</param>
+        /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual PropertyEntry Property(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <returns> The store values, or <see langword="null" /> if the entity does not exist in the database. </returns>
+        /// <returns>The store values, or <see langword="null" /> if the entity does not exist in the database.</returns>
         public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);
@@ -434,12 +434,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the store values,
         ///     or <see langword="null" /> if the entity does not exist in the database.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
             var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
@@ -480,9 +480,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
             => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         public override string ToString()
             => InternalEntry.ToString();
 
@@ -537,8 +537,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

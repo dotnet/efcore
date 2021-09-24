@@ -22,24 +22,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
     ///     for more information.
     /// </remarks>
-    /// <typeparam name="TKey"> The generic type of the key. </typeparam>
+    /// <typeparam name="TKey">The generic type of the key.</typeparam>
     public interface IDependentKeyValueFactory<TKey>
     {
         /// <summary>
         ///     Attempts to create a key instance using foreign key values from the given <see cref="ValueBuffer" />.
         /// </summary>
-        /// <param name="valueBuffer"> The value buffer representing the entity instance. </param>
-        /// <param name="key"> The key instance. </param>
-        /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="valueBuffer">The value buffer representing the entity instance.</param>
+        /// <param name="key">The key instance.</param>
+        /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance using foreign key values from the given <see cref="IUpdateEntry" />.
         /// </summary>
-        /// <param name="entry"> The entry tracking an entity instance. </param>
-        /// <param name="key"> The key instance. </param>
-        /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entry">The entry tracking an entity instance.</param>
+        /// <param name="key">The key instance.</param>
+        /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
@@ -47,18 +47,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Attempts to create a key instance from the given <see cref="IUpdateEntry" />
         ///     using foreign key values that were set before any store-generated values were propagated.
         /// </summary>
-        /// <param name="entry"> The entry tracking an entity instance. </param>
-        /// <param name="key"> The key instance. </param>
-        /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entry">The entry tracking an entity instance.</param>
+        /// <param name="key">The key instance.</param>
+        /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance using original foreign key values from the given <see cref="IUpdateEntry" />.
         /// </summary>
-        /// <param name="entry"> The entry tracking an entity instance. </param>
-        /// <param name="key"> The key instance. </param>
-        /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entry">The entry tracking an entity instance.</param>
+        /// <param name="key">The key instance.</param>
+        /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Attempts to create a key instance from the given <see cref="IUpdateEntry" />
         ///     using foreign key values from the previously known relationship.
         /// </summary>
-        /// <param name="entry"> The entry tracking an entity instance. </param>
-        /// <param name="key"> The key instance. </param>
-        /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entry">The entry tracking an entity instance.</param>
+        /// <param name="key">The key instance.</param>
+        /// <returns><see langword="true" /> if the key instance was created; <see langword="false" /> otherwise.</returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
         bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 

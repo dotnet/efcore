@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="entityEntry"> The entity entry for the entity that is being deleted. </param>
-        /// <param name="parentEntityTypes"> The entity type to which the relationship was severed. </param>
-        /// <param name="state"> The state that the child is transitioning to--usually 'Deleted'. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="entityEntry">The entity entry for the entity that is being deleted.</param>
+        /// <param name="parentEntityTypes">The entity type to which the relationship was severed.</param>
+        /// <param name="state">The state that the child is transitioning to--usually 'Deleted'.</param>
         public CascadeDeleteOrphanEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalCollectionShaperExpression" /> class.
         /// </summary>
-        /// <param name="collectionId"> A unique id for the collection being shaped. </param>
-        /// <param name="parentIdentifier"> An identifier for the parent element. </param>
-        /// <param name="childIdentifier"> An identifier for the child element. </param>
-        /// <param name="identifierValueComparers"> A list of value comparers to compare identifiers. </param>
-        /// <param name="selectExpression"> A SQL query to get values for this collection from database. </param>
-        /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
-        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
-        /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        /// <param name="collectionId">A unique id for the collection being shaped.</param>
+        /// <param name="parentIdentifier">An identifier for the parent element.</param>
+        /// <param name="childIdentifier">An identifier for the child element.</param>
+        /// <param name="identifierValueComparers">A list of value comparers to compare identifiers.</param>
+        /// <param name="selectExpression">A SQL query to get values for this collection from database.</param>
+        /// <param name="innerShaper">An expression used to create individual elements of the collection.</param>
+        /// <param name="navigation">A navigation associated with this collection, if any.</param>
+        /// <param name="elementType">The clr type of individual elements in the collection.</param>
         [Obsolete("Use ctor without collectionId")]
         public RelationalSplitCollectionShaperExpression(
             int collectionId,
@@ -64,13 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalCollectionShaperExpression" /> class.
         /// </summary>
-        /// <param name="parentIdentifier"> An identifier for the parent element. </param>
-        /// <param name="childIdentifier"> An identifier for the child element. </param>
-        /// <param name="identifierValueComparers"> A list of value comparers to compare identifiers. </param>
-        /// <param name="selectExpression"> A SQL query to get values for this collection from database. </param>
-        /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
-        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
-        /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        /// <param name="parentIdentifier">An identifier for the parent element.</param>
+        /// <param name="childIdentifier">An identifier for the child element.</param>
+        /// <param name="identifierValueComparers">A list of value comparers to compare identifiers.</param>
+        /// <param name="selectExpression">A SQL query to get values for this collection from database.</param>
+        /// <param name="innerShaper">An expression used to create individual elements of the collection.</param>
+        /// <param name="navigation">A navigation associated with this collection, if any.</param>
+        /// <param name="elementType">The clr type of individual elements in the collection.</param>
         public RelationalSplitCollectionShaperExpression(
             Expression parentIdentifier,
             Expression childIdentifier,
@@ -161,11 +161,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="parentIdentifier"> The <see cref="ParentIdentifier" /> property of the result. </param>
-        /// <param name="childIdentifier"> The <see cref="ChildIdentifier" /> property of the result. </param>
-        /// <param name="selectExpression"> The <see cref="SelectExpression" /> property of the result. </param>
-        /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="parentIdentifier">The <see cref="ParentIdentifier" /> property of the result.</param>
+        /// <param name="childIdentifier">The <see cref="ChildIdentifier" /> property of the result.</param>
+        /// <param name="selectExpression">The <see cref="SelectExpression" /> property of the result.</param>
+        /// <param name="innerShaper">The <see cref="InnerShaper" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual RelationalSplitCollectionShaperExpression Update(
             Expression parentIdentifier,
             Expression childIdentifier,

@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="columnModificationParameters"> Creation parameters. </param>
+        /// <param name="columnModificationParameters">Creation parameters.</param>
         public ColumnModification(in ColumnModificationParameters columnModificationParameters)
         {
             ColumnName = columnModificationParameters.ColumnName;
@@ -64,16 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="column"> The column to be modified. </param>
-        /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
-        /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="isRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="entry">The <see cref="IUpdateEntry" /> that represents the entity that is being modified.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="column">The column to be modified.</param>
+        /// <param name="generateParameterName">A delegate for generating parameter names for the update SQL.</param>
+        /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+        /// <param name="isRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="isWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="isKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="isCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
         [Obsolete("Use the constructor with columnModificationParameters")]
         public ColumnModification(
             IUpdateEntry entry,
@@ -112,15 +112,15 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
-        /// <param name="isRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="isConcurrencyToken"> Indicates whether the column is acting as an optimistic concurrency token. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="entry">The <see cref="IUpdateEntry" /> that represents the entity that is being modified.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="generateParameterName">A delegate for generating parameter names for the update SQL.</param>
+        /// <param name="isRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="isWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="isKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="isCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="isConcurrencyToken">Indicates whether the column is acting as an optimistic concurrency token.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
         [Obsolete("Use the constructor with columnModificationParameters")]
         public ColumnModification(
             IUpdateEntry entry,
@@ -149,18 +149,18 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="columnName"> The name of the column. </param>
-        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
-        /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="columnType"> The database type of the column. </param>
-        /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="isRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="isNullable"> A value indicating whether the value could be null. </param>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="originalValue">The original value of the property mapped to this column.</param>
+        /// <param name="value">Gets or sets the current value of the property mapped to this column.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="columnType">The database type of the column.</param>
+        /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+        /// <param name="isRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="isWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="isKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="isCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+        /// <param name="isNullable">A value indicating whether the value could be null.</param>
         [Obsolete("Use the constructor with columnModificationParameters")]
         public ColumnModification(
             string columnName,
@@ -195,16 +195,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="columnName"> The name of the column. </param>
-        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
-        /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="columnType"> The database type of the column. </param>
-        /// <param name="isRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="originalValue">The original value of the property mapped to this column.</param>
+        /// <param name="value">Gets or sets the current value of the property mapped to this column.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="columnType">The database type of the column.</param>
+        /// <param name="isRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="isWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="isKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="isCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
         [Obsolete("Use the constructor with columnModificationParameters")]
         public ColumnModification(
             string columnName,
@@ -235,15 +235,15 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
-        /// <param name="columnName"> The name of the column. </param>
-        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
-        /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="isRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="isWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="isKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="isCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="originalValue">The original value of the property mapped to this column.</param>
+        /// <param name="value">Gets or sets the current value of the property mapped to this column.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="isRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="isWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="isKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="isCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
         [Obsolete("Use the constructor with columnModificationParameters")]
         public ColumnModification(
             string columnName,
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Adds a modification affecting the same database value.
         /// </summary>
-        /// <param name="modification"> The modification for the shared column. </param>
+        /// <param name="modification">The modification for the shared column.</param>
         public virtual void AddSharedColumnModification(IColumnModification modification)
         {
             Check.DebugAssert(Entry is not null, "Entry is not null");

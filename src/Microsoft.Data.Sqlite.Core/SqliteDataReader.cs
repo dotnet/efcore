@@ -119,7 +119,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Advances to the next row in the result set.
         /// </summary>
-        /// <returns><see langword="true" /> if there are more rows; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if there are more rows; otherwise, <see langword="false" />.</returns>
         public override bool Read()
             => _closed
                 ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(Read)))
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Advances to the next result set for batched statements.
         /// </summary>
-        /// <returns><see langword="true" /> if there are more result sets; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if there are more result sets; otherwise, <see langword="false" />.</returns>
         /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/batching">Batching</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the specified column is <see cref="DBNull" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
-        /// <returns><see langword="true" /> if the specified column is <see cref="DBNull" />; otherwise, <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if the specified column is <see cref="DBNull" />; otherwise, <see langword="false" />.</returns>
         public override bool IsDBNull(int ordinal)
             => _closed
                 ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(IsDBNull)))

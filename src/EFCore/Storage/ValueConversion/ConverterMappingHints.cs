@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="size"> The suggested size of the mapped data type.</param>
-        /// <param name="precision"> The suggested precision of the mapped data type. </param>
-        /// <param name="scale"> The suggested scale of the mapped data type. </param>
-        /// <param name="unicode"> Whether or not the mapped data type should support Unicode. </param>
-        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
+        /// <param name="size">The suggested size of the mapped data type.</param>
+        /// <param name="precision">The suggested precision of the mapped data type.</param>
+        /// <param name="scale">The suggested scale of the mapped data type.</param>
+        /// <param name="unicode">Whether or not the mapped data type should support Unicode.</param>
+        /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
         public ConverterMappingHints(
             int? size = null,
             int? precision = null,
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="hints"> The hints to add. </param>
-        /// <returns> The combined hints. </returns>
+        /// <param name="hints">The hints to add.</param>
+        /// <returns>The combined hints.</returns>
         public virtual ConverterMappingHints With(ConverterMappingHints? hints)
             => hints == null
                 ? this

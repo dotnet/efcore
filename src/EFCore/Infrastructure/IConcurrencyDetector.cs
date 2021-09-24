@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Enters a critical section.
         /// </summary>
-        /// <returns> A disposer that will exit the critical section when disposed. </returns>
+        /// <returns>A disposer that will exit the critical section when disposed.</returns>
         ConcurrencyDetectorCriticalSectionDisposer EnterCriticalSection();
 
         /// <summary>

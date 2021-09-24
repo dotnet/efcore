@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public CSharpRuntimeAnnotationCodeGenerator(CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations using literals.
         /// </summary>
-        /// <param name="parameters"> Parameters used during code generation. </param>
+        /// <param name="parameters">Parameters used during code generation.</param>
         protected virtual void GenerateSimpleAnnotations(CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             foreach (var (name, value) in parameters.Annotations.OrderBy(a => a.Key))
@@ -241,9 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotation.
         /// </summary>
-        /// <param name="annotationName"> The annotation name. </param>
-        /// <param name="valueString"> The annotation value as a literal. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="annotationName">The annotation name.</param>
+        /// <param name="valueString">The annotation value as a literal.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         protected virtual void GenerateSimpleAnnotation(
             string annotationName,
             string valueString,
@@ -267,8 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Adds the namespaces for the given type.
         /// </summary>
-        /// <param name="type"> A type. </param>
-        /// <param name="namespaces"> The set of namespaces to add to. </param>
+        /// <param name="type">A type.</param>
+        /// <param name="namespaces">The set of namespaces to add to.</param>
         protected virtual void AddNamespace(Type type, ISet<string> namespaces)
         {
             if (type.IsNested)

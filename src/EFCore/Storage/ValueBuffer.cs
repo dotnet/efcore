@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueBuffer" /> class.
         /// </summary>
-        /// <param name="values"> The list of values for this buffer. </param>
+        /// <param name="values">The list of values for this buffer.</param>
         public ValueBuffer(object?[] values)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the value at a requested index.
         /// </summary>
-        /// <param name="index"> The index of the value to get. </param>
-        /// <returns> The value at the requested index. </returns>
+        /// <param name="index">The index of the value to get.</param>
+        /// <returns>The value at the requested index.</returns>
         public object? this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

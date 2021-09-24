@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
-        /// <param name="node"> The node that is being visited. </param>
-        /// <param name="handleNode"> A delegate to call to handle the node. </param>
-        /// <typeparam name="TState"> The type of the state object. </typeparam>
+        /// <param name="node">The node that is being visited.</param>
+        /// <param name="handleNode">A delegate to call to handle the node.</param>
+        /// <typeparam name="TState">The type of the state object.</typeparam>
         void TraverseGraph<TState>(
             EntityEntryGraphNode<TState> node,
             Func<EntityEntryGraphNode<TState>, bool> handleNode);
@@ -36,12 +36,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Traverses a graph of entities allowing an action to be taken at each node.
         /// </summary>
-        /// <param name="node"> The node that is being visited. </param>
-        /// <param name="handleNode"> A delegate to call to handle the node. </param>
-        /// <param name="cancellationToken">  A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <typeparam name="TState"> The type of the state object. </typeparam>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="node">The node that is being visited.</param>
+        /// <param name="handleNode">A delegate to call to handle the node.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <typeparam name="TState">The type of the state object.</typeparam>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task TraverseGraphAsync<TState>(
             EntityEntryGraphNode<TState> node,
             Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,

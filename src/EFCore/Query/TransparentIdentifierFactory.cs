@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates new transparent identifier type for given types.
         /// </summary>
-        /// <param name="outerType"> The outer type of the transparent identifier. </param>
-        /// <param name="innerType"> The inner type of the transparent identifier. </param>
-        /// <returns> The created transparent identifier type. </returns>
+        /// <param name="outerType">The outer type of the transparent identifier.</param>
+        /// <param name="innerType">The inner type of the transparent identifier.</param>
+        /// <returns>The created transparent identifier type.</returns>
         public static Type Create(Type outerType, Type innerType)
         {
             Check.NotNull(outerType, nameof(outerType));

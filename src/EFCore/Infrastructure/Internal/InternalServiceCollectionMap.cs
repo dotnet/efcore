@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///         point release without making binary breaking changes.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TService"> The service contract. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The service contract.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual InternalServiceCollectionMap DoPatchInjection<TService>()
             where TService : class
         {

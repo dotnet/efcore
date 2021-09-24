@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="extension"> The extension. </param>
+        /// <param name="extension">The extension.</param>
         protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
         {
             Check.NotNull(extension, nameof(extension));
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <returns> A hash over options that require a new service provider when changed. </returns>
+        /// <returns>A hash over options that require a new service provider when changed.</returns>
         public abstract int GetServiceProviderHashCode();
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="other"> The other extension. </param>
-        /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
+        /// <param name="other">The other extension.</param>
+        /// <returns>A value indicating whether all of the options that require a new service provider are the same.</returns>
         public abstract bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other);
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="debugInfo"> The dictionary to populate. </param>
+        /// <param name="debugInfo">The dictionary to populate.</param>
         public abstract void PopulateDebugInfo(IDictionary<string, string> debugInfo);
     }
 }

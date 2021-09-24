@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this service.</param>
         public RelationalCompiledQueryCacheKeyGenerator(
             CompiledQueryCacheKeyGeneratorDependencies dependencies,
             RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
@@ -51,18 +51,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Generates the cache key for the given query.
         /// </summary>
-        /// <param name="query"> The query to get the cache key for. </param>
-        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
-        /// <returns> The cache key. </returns>
+        /// <param name="query">The query to get the cache key for.</param>
+        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+        /// <returns>The cache key.</returns>
         public override object GenerateCacheKey(Expression query, bool async)
             => GenerateCacheKeyCore(query, async);
 
         /// <summary>
         ///     Generates the cache key for the given query.
         /// </summary>
-        /// <param name="query"> The query to get the cache key for. </param>
-        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
-        /// <returns> The cache key. </returns>
+        /// <param name="query">The query to get the cache key for.</param>
+        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+        /// <returns>The cache key.</returns>
         protected new RelationalCompiledQueryCacheKey
             GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
         {
@@ -95,10 +95,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <summary>
             ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
             /// </summary>
-            /// <param name="compiledQueryCacheKey"> The non-relational cache key. </param>
-            /// <param name="useRelationalNulls"> True to use relational null logic. </param>
-            /// <param name="querySplittingBehavior"> <see cref="QuerySplittingBehavior" /> to use when loading related collections. </param>
-            /// <param name="shouldBuffer"> <see langword="true" /> if the query should be buffered. </param>
+            /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
+            /// <param name="useRelationalNulls">True to use relational null logic.</param>
+            /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
+            /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
             public RelationalCompiledQueryCacheKey(
                 CompiledQueryCacheKey compiledQueryCacheKey,
                 bool useRelationalNulls,

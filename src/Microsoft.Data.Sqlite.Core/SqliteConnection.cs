@@ -550,7 +550,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Enables extension loading on the connection.
         /// </summary>
-        /// <param name="enable"> <see langword="true" /> to enable; <see langword="false" /> to disable. </param>
+        /// <param name="enable"><see langword="true" /> to enable; <see langword="false" /> to disable.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {

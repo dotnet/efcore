@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <returns> The <see cref="CosmosClient" /> </returns>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns>The <see cref="CosmosClient" /></returns>
         public static CosmosClient GetCosmosClient(this DatabaseFacade databaseFacade)
             => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <see langword="true" /> if the Cosmos provider is being used. </returns>
+        /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>
+        /// <returns><see langword="true" /> if the Cosmos provider is being used.</returns>
         public static bool IsCosmos(this DatabaseFacade database)
             => database.ProviderName == typeof(CosmosOptionsExtension).Assembly.GetName().Name;
     }

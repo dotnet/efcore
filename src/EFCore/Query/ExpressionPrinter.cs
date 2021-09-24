@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Visit given readonly collection of expression for printing.
         /// </summary>
-        /// <param name="items"> A collection of items to print. </param>
-        /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
+        /// <param name="items">A collection of items to print.</param>
+        /// <param name="joinAction">A join action to use when joining printout of individual item in the collection.</param>
         public virtual void VisitCollection<T>(
             IReadOnlyCollection<T> items,
             Action<ExpressionPrinter>? joinAction = null)
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Appends a new line to current output being built.
         /// </summary>
-        /// <returns> This printer so additional calls can be chained. </returns>
+        /// <returns>This printer so additional calls can be chained.</returns>
         public virtual ExpressionPrinter AppendLine()
         {
             _stringBuilder.AppendLine();
@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Appends the given string and a new line to current output being built.
         /// </summary>
-        /// <param name="value"> The string to append. </param>
-        /// <returns> This printer so additional calls can be chained. </returns>
+        /// <param name="value">The string to append.</param>
+        /// <returns>This printer so additional calls can be chained.</returns>
         public virtual ExpressionVisitor AppendLine(string value)
         {
             _stringBuilder.AppendLine(value);
@@ -132,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Appends all the lines to current output being built.
         /// </summary>
-        /// <param name="value"> The string to append. </param>
-        /// <param name="skipFinalNewline"> If true, then a terminating new line is not added. </param>
-        /// <returns> This printer so additional calls can be chained. </returns>
+        /// <param name="value">The string to append.</param>
+        /// <param name="skipFinalNewline">If true, then a terminating new line is not added.</param>
+        /// <returns>This printer so additional calls can be chained.</returns>
         public virtual ExpressionPrinter AppendLines(string value, bool skipFinalNewline = false)
         {
             _stringBuilder.AppendLines(value, skipFinalNewline);
@@ -144,15 +144,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a scoped indenter that will increment the indent, then decrement it when disposed.
         /// </summary>
-        /// <returns> An indenter. </returns>
+        /// <returns>An indenter.</returns>
         public virtual IDisposable Indent()
             => _stringBuilder.Indent();
 
         /// <summary>
         ///     Appends the given string to current output being built.
         /// </summary>
-        /// <param name="value"> The string to append. </param>
-        /// <returns> This printer so additional calls can be chained. </returns>
+        /// <param name="value">The string to append.</param>
+        /// <returns>This printer so additional calls can be chained.</returns>
         public virtual ExpressionPrinter Append(string value)
         {
             _stringBuilder.Append(value);
@@ -162,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a printable string representation of the given expression.
         /// </summary>
-        /// <param name="expression"> The expression to print. </param>
-        /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
-        /// <returns> The printable representation. </returns>
+        /// <param name="expression">The expression to print.</param>
+        /// <param name="characterLimit">An optional limit to the number of characters included. Additional output will be truncated.</param>
+        /// <returns>The printable representation.</returns>
         public virtual string Print(
             Expression expression,
             int? characterLimit = null)
@@ -173,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a printable verbose string representation of the given expression.
         /// </summary>
-        /// <param name="expression"> The expression to print. </param>
-        /// <returns> The printable representation. </returns>
+        /// <param name="expression">The expression to print.</param>
+        /// <returns>The printable representation.</returns>
         public virtual string PrintDebug(
             Expression expression)
             => PrintCore(expression, characterLimit: null, verbose: true);
@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Returns binary operator string corresponding to given <see cref="ExpressionType" />.
         /// </summary>
-        /// <param name="expressionType"> The expression type to generate binary operator for. </param>
-        /// <returns> The binary operator string. </returns>
+        /// <param name="expressionType">The expression type to generate binary operator for.</param>
+        /// <returns>The binary operator string.</returns>
         public virtual string GenerateBinaryOperator(ExpressionType expressionType)
         {
             return _binaryOperandMap[expressionType];

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this key.
         /// </summary>
-        /// <exception cref="InvalidOperationException"> If the index has been removed from the model. </exception>
+        /// <exception cref="InvalidOperationException">If the index has been removed from the model.</exception>
         new IConventionKeyBuilder Builder { get; }
 
         /// <summary>
@@ -43,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for this key.
         /// </summary>
-        /// <returns> The configuration source. </returns>
+        /// <returns>The configuration source.</returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
         ///     Gets all foreign keys that target a given primary or alternate key.
         /// </summary>
-        /// <returns> The foreign keys that reference the given key. </returns>
+        /// <returns>The foreign keys that reference the given key.</returns>
         new IEnumerable<IConventionForeignKey> GetReferencingForeignKeys()
             => ((IReadOnlyKey)this).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
     }

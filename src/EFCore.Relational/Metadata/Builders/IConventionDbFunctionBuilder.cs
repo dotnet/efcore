@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the name of the database function.
         /// </summary>
-        /// <param name="name"> The name of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="name">The name of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -35,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given name can be set for the database function.
         /// </summary>
-        /// <param name="name"> The name of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name can be set for the database function. </returns>
+        /// <param name="name">The name of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name can be set for the database function.</returns>
         bool CanSetName(string? name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
-        /// <param name="schema"> The schema of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="schema">The schema of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -54,16 +54,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given schema can be set for the database function.
         /// </summary>
-        /// <param name="schema"> The schema of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given schema can be set for the database function. </returns>
+        /// <param name="schema">The schema of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given schema can be set for the database function.</returns>
         bool CanSetSchema(string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the value indicating whether the database function is built-in or not.
         /// </summary>
-        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="builtIn">The value indicating whether the database function is built-in or not.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -73,16 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given built-in can be set for the database function.
         /// </summary>
-        /// <param name="builtIn"> The value indicating whether the database function is built-in or not. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given schema can be set for the database function. </returns>
+        /// <param name="builtIn">The value indicating whether the database function is built-in or not.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given schema can be set for the database function.</returns>
         bool CanSetIsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the value indicating whether the database function can return null value or not.
         /// </summary>
-        /// <param name="nullable"> The value indicating whether the database function is built-in or not. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="nullable">The value indicating whether the database function is built-in or not.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -92,16 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given nullable can be set for the database function.
         /// </summary>
-        /// <param name="nullable"> The value indicating whether the database function can return null value or not. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given schema can be set for the database function. </returns>
+        /// <param name="nullable">The value indicating whether the database function can return null value or not.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given schema can be set for the database function.</returns>
         bool CanSetIsNullable(bool nullable, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the store type of the function in the database.
         /// </summary>
-        /// <param name="storeType"> The store type of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="storeType">The store type of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -111,16 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given store type can be set for the database function.
         /// </summary>
-        /// <param name="storeType"> The store type of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given store type can be set for the database function. </returns>
+        /// <param name="storeType">The store type of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given store type can be set for the database function.</returns>
         bool CanSetStoreType(string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the return type mapping of the database function.
         /// </summary>
-        /// <param name="typeMapping"> The return type mapping of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="typeMapping">The return type mapping of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -130,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given return type mapping can be set for the database function.
         /// </summary>
-        /// <param name="typeMapping"> The return type mapping of the function in the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given return type mapping can be set for the database function. </returns>
+        /// <param name="typeMapping">The return type mapping of the function in the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given return type mapping can be set for the database function.</returns>
         bool CanSetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -146,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
         ///     </para>
         /// </summary>
-        /// <param name="translation"> The translation to use. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="translation">The translation to use.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -159,9 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given translation can be set for the database function.
         /// </summary>
-        /// <param name="translation"> The translation to use. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given translation can be set for the database function. </returns>
+        /// <param name="translation">The translation to use.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given translation can be set for the database function.</returns>
         bool CanSetTranslation(
             Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);
@@ -169,9 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns an object that can be used to configure a parameter with the given name.
         /// </summary>
-        /// <param name="name"> The parameter name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The builder to use for further parameter configuration. </returns>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The builder to use for further parameter configuration.</returns>
         IConventionDbFunctionParameterBuilder HasParameter(string name, bool fromDataAnnotation = false);
     }
 }

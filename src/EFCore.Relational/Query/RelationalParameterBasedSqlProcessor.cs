@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryTranslationPostprocessor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="useRelationalNulls">A bool value indicating if relational nulls should be used.</param>
         public RelationalParameterBasedSqlProcessor(
             RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Optimizes the <see cref="SelectExpression" /> for given parameter values.
         /// </summary>
-        /// <param name="selectExpression"> A select expression to optimize. </param>
-        /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
-        /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
-        /// <returns> An optimized select expression. </returns>
+        /// <param name="selectExpression">A select expression to optimize.</param>
+        /// <param name="parametersValues">A dictionary of parameter values to use.</param>
+        /// <param name="canCache">A bool value indicating if the select expression can be cached.</param>
+        /// <returns>An optimized select expression.</returns>
         public virtual SelectExpression Optimize(
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,
@@ -73,10 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Processes the <see cref="SelectExpression" /> based on nullability of nodes to apply null semantics in use and
         ///     optimize it for given parameter values.
         /// </summary>
-        /// <param name="selectExpression"> A select expression to optimize. </param>
-        /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
-        /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
-        /// <returns> A processed select expression. </returns>
+        /// <param name="selectExpression">A select expression to optimize.</param>
+        /// <param name="parametersValues">A dictionary of parameter values to use.</param>
+        /// <param name="canCache">A bool value indicating if the select expression can be cached.</param>
+        /// <returns>A processed select expression.</returns>
         protected virtual SelectExpression ProcessSqlNullability(
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,
@@ -91,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the <see cref="SelectExpression" /> for given parameter values.
         /// </summary>
-        /// <param name="selectExpression"> A select expression to optimize. </param>
-        /// <param name="parametersValues"> A dictionary of parameter values to use. </param>
-        /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
-        /// <returns> A processed select expression. </returns>
+        /// <param name="selectExpression">A select expression to optimize.</param>
+        /// <param name="parametersValues">A dictionary of parameter values to use.</param>
+        /// <param name="canCache">A bool value indicating if the select expression can be cached.</param>
+        /// <returns>A processed select expression.</returns>
         protected virtual SelectExpression ExpandFromSqlParameter(
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context instance that this key is for.
         /// </param>
-        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <param name="designTime">Whether the model should contain design-time configuration.</param>
         public ModelCacheKey(DbContext context, bool designTime)
         {
             _dbContextType = context.GetType();

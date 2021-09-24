@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the name of the container to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the container name for. </param>
-        /// <returns> The name of the container to which the entity type is mapped. </returns>
+        /// <param name="entityType">The entity type to get the container name for.</param>
+        /// <returns>The name of the container to which the entity type is mapped.</returns>
         public static string? GetContainer(this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetContainer()
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the container name for. </param>
-        /// <param name="name"> The name to set. </param>
+        /// <param name="entityType">The entity type to set the container name for.</param>
+        /// <param name="name">The name to set.</param>
         public static void SetContainer(this IMutableEntityType entityType, string? name)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ContainerName,
@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the container name for. </param>
-        /// <param name="name"> The name to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type to set the container name for.</param>
+        /// <param name="name">The name to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetContainer(
             this IConventionEntityType entityType,
             string? name,
@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the container to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the container to which the entity type is mapped. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the container to which the entity type is mapped.</returns>
         public static ConfigurationSource? GetContainerConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.ContainerName)
                 ?.GetConfigurationSource();
@@ -72,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the name of the parent property to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the containing property name for. </param>
-        /// <returns> The name of the parent property to which the entity type is mapped. </returns>
+        /// <param name="entityType">The entity type to get the containing property name for.</param>
+        /// <returns>The name of the parent property to which the entity type is mapped.</returns>
         public static string? GetContainingPropertyName(this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.PropertyName] as string
                 ?? GetDefaultContainingPropertyName(entityType);
@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the parent property to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the containing property name for. </param>
-        /// <param name="name"> The name to set. </param>
+        /// <param name="entityType">The entity type to set the containing property name for.</param>
+        /// <param name="name">The name to set.</param>
         public static void SetContainingPropertyName(this IMutableEntityType entityType, string? name)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
@@ -96,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the parent property to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the containing property name for. </param>
-        /// <param name="name"> The name to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type to set the containing property name for.</param>
+        /// <param name="name">The name to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetContainingPropertyName(
             this IConventionEntityType entityType,
             string? name,
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the parent property to which the entity type is mapped.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the parent property to which the entity type is mapped. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the parent property to which the entity type is mapped.</returns>
         public static ConfigurationSource? GetContainingPropertyNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PropertyName)
                 ?.GetConfigurationSource();
@@ -120,16 +120,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the name of the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property name for.</param>
+        /// <returns>The name of the partition key property.</returns>
         public static string? GetPartitionKeyPropertyName(this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.PartitionKeyName] as string;
 
         /// <summary>
         ///     Sets the name of the property that is used to store the partition key key.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the partition key property name for. </param>
-        /// <param name="name"> The name to set. </param>
+        /// <param name="entityType">The entity type to set the partition key property name for.</param>
+        /// <param name="name">The name to set.</param>
         public static void SetPartitionKeyPropertyName(this IMutableEntityType entityType, string? name)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PartitionKeyName,
@@ -138,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the partition key property name for. </param>
-        /// <param name="name"> The name to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type to set the partition key property name for.</param>
+        /// <param name="name">The name to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetPartitionKeyPropertyName(
             this IConventionEntityType entityType,
             string? name,
@@ -153,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the partition key property. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the partition key property.</returns>
         public static ConfigurationSource? GetPartitionKeyPropertyNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.PartitionKeyName)
                 ?.GetConfigurationSource();
@@ -162,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property for.</param>
+        /// <returns>The name of the partition key property.</returns>
         public static IReadOnlyProperty? GetPartitionKeyProperty(this IReadOnlyEntityType entityType)
         {
             var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
@@ -175,8 +175,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property for.</param>
+        /// <returns>The name of the partition key property.</returns>
         public static IMutableProperty? GetPartitionKeyProperty(this IMutableEntityType entityType)
         {
             var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
@@ -188,8 +188,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property for.</param>
+        /// <returns>The name of the partition key property.</returns>
         public static IConventionProperty? GetPartitionKeyProperty(this IConventionEntityType entityType)
         {
             var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
@@ -201,8 +201,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property for.</param>
+        /// <returns>The name of the partition key property.</returns>
         public static IProperty? GetPartitionKeyProperty(this IEntityType entityType)
         {
             var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
@@ -214,16 +214,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the name of the property that is used to store the ETag.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the etag property name for. </param>
-        /// <returns> The name of the etag property. </returns>
+        /// <param name="entityType">The entity type to get the etag property name for.</param>
+        /// <returns>The name of the etag property.</returns>
         public static string? GetETagPropertyName(this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.ETagName] as string;
 
         /// <summary>
         ///     Sets the name of the property that is used to store the ETag key.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the etag property name for. </param>
-        /// <param name="name"> The name to set. </param>
+        /// <param name="entityType">The entity type to set the etag property name for.</param>
+        /// <param name="name">The name to set.</param>
         public static void SetETagPropertyName(this IMutableEntityType entityType, string? name)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.ETagName,
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the name of the property that is used to store the ETag.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the ETag property name for. </param>
-        /// <param name="name"> The name to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type to set the ETag property name for.</param>
+        /// <param name="name">The name to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetETagPropertyName(
             this IConventionEntityType entityType,
             string? name,
@@ -247,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the etag.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the etag property. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the etag property.</returns>
         public static ConfigurationSource? GetETagPropertyNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.ETagName)
                 ?.GetConfigurationSource();
@@ -256,8 +256,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the ETag property for. </param>
-        /// <returns> The property mapped to ETag, or <see langword="null" /> if no property is mapped to ETag. </returns>
+        /// <param name="entityType">The entity type to get the ETag property for.</param>
+        /// <returns>The property mapped to ETag, or <see langword="null" /> if no property is mapped to ETag.</returns>
         public static IReadOnlyProperty? GetETagProperty(this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -268,16 +268,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the ETag property for. </param>
-        /// <returns> The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag. </returns>
+        /// <param name="entityType">The entity type to get the ETag property for.</param>
+        /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
         public static IProperty? GetETagProperty(this IEntityType entityType)
             => (IProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
 
         /// <summary>
         ///     Returns the time to live for analytical store in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The time to live. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The time to live.</returns>
         public static int? GetAnalyticalStoreTimeToLive(this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetAnalyticalStoreTimeToLive()
@@ -286,8 +286,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the time to live for analytical store in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="seconds"> The time to live to set. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="seconds">The time to live to set.</param>
         public static void SetAnalyticalStoreTimeToLive(this IMutableEntityType entityType, int? seconds)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.AnalyticalStoreTimeToLive,
@@ -296,9 +296,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the time to live for analytical store in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="seconds"> The time to live to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="seconds">The time to live to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetAnalyticalStoreTimeToLive(
             this IConventionEntityType entityType,
             int? seconds,
@@ -311,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the time to live for analytical store in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity typer. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the time to live for analytical store. </returns>
+        /// <param name="entityType">The entity typer.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the time to live for analytical store.</returns>
         public static ConfigurationSource? GetAnalyticalStoreTimeToLiveConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.AnalyticalStoreTimeToLive)
                 ?.GetConfigurationSource();
@@ -320,8 +320,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the default time to live in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The time to live. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The time to live.</returns>
         public static int? GetDefaultTimeToLive(this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetDefaultTimeToLive()
@@ -330,8 +330,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the default time to live in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="seconds"> The time to live to set. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="seconds">The time to live to set.</param>
         public static void SetDefaultTimeToLive(this IMutableEntityType entityType, int? seconds)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.DefaultTimeToLive,
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the default time to live in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="seconds"> The time to live to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="seconds">The time to live to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetDefaultTimeToLive(
             this IConventionEntityType entityType,
             int? seconds,
@@ -355,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the default time to live in seconds at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the default time to live. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the default time to live.</returns>
         public static ConfigurationSource? GetDefaultTimeToLiveConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.DefaultTimeToLive)
                 ?.GetConfigurationSource();
@@ -364,8 +364,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the provisioned throughput at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The throughput. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The throughput.</returns>
         public static ThroughputProperties? GetThroughput(this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetThroughput()
@@ -374,9 +374,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the provisioned throughput at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
         public static void SetThroughput(this IMutableEntityType entityType, int? throughput, bool? autoscale)
             => entityType.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.Throughput,
@@ -389,10 +389,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the provisioned throughput at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static void SetThroughput(
             this IConventionEntityType entityType,
             int? throughput,
@@ -410,8 +410,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the provisioned throughput at container scope.
         /// </summary>
-        /// <param name="entityType"> The entity type to find configuration source for. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the throughput. </returns>
+        /// <param name="entityType">The entity type to find configuration source for.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the throughput.</returns>
         public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CosmosAnnotationNames.Throughput)
                 ?.GetConfigurationSource();

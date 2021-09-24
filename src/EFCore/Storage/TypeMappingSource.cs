@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected TypeMappingSource(TypeMappingSourceDependencies dependencies)
             : base(dependencies)
         {
@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note: providers should typically not need to override this method.
         ///     </para>
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
         {
             var principals = property.GetPrincipals();
@@ -172,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note: providers should typically not need to override this method.
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
@@ -186,9 +186,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         otherwise call <see cref="FindMapping(IProperty)" />.
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(Type type, IModel model)
         {
             type = type.UnwrapNullableType();
@@ -228,8 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note: providers should typically not need to override this method.
         ///     </para>
         /// </summary>
-        /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="member">The field or property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(MemberInfo member)
             => FindMappingWithConversion(new TypeMappingInfo(member), null);
     }

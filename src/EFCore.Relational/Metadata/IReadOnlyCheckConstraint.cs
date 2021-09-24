@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the default database name that would be used for this check constraint.
         /// </summary>
-        /// <returns> The default name that would be used for this check constraint. </returns>
+        /// <returns>The default name that would be used for this check constraint.</returns>
         string? GetDefaultName()
         {
             var table = StoreObjectIdentifier.Create(EntityType, StoreObjectType.Table);
@@ -37,15 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the database name of the check constraint.
         /// </summary>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> The database name of the check constraint for the given store object. </returns>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns>The database name of the check constraint for the given store object.</returns>
         string? GetName(in StoreObjectIdentifier storeObject);
 
         /// <summary>
         ///     Returns the default database name that would be used for this check constraint.
         /// </summary>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> The default name that would be used for this check constraint. </returns>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns>The default name that would be used for this check constraint.</returns>
         string GetDefaultName(in StoreObjectIdentifier storeObject)
         {
             var prefix = $"CK_{storeObject.Name}_";

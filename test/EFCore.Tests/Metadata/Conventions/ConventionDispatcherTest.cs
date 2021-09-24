@@ -1672,11 +1672,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <summary>
             ///     Called after an annotation is changed on a foreign key.
             /// </summary>
-            /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-            /// <param name="name"> The annotation name. </param>
-            /// <param name="annotation"> The new annotation. </param>
-            /// <param name="oldAnnotation"> The old annotation.  </param>
-            /// <param name="context"> Additional information associated with convention execution. </param>
+            /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+            /// <param name="name">The annotation name.</param>
+            /// <param name="annotation">The new annotation.</param>
+            /// <param name="oldAnnotation">The old annotation.</param>
+            /// <param name="context">Additional information associated with convention execution.</param>
             public void ProcessForeignKeyAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 string name,

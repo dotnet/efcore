@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SetOperationBase" /> class.
         /// </summary>
-        /// <param name="alias"> A string alias for the table source. </param>
-        /// <param name="source1"> A table source which is first source in the set operation. </param>
-        /// <param name="source2"> A table source which is second source in the set operation. </param>
-        /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
+        /// <param name="alias">A string alias for the table source.</param>
+        /// <param name="source1">A table source which is first source in the set operation.</param>
+        /// <param name="source2">A table source which is second source in the set operation.</param>
+        /// <param name="distinct">A bool value indicating whether result will remove duplicate rows.</param>
         protected SetOperationBase(
             string alias,
             SelectExpression source1,

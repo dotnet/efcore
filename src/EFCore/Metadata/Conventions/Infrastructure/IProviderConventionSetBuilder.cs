@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        /// <returns> The convention set for the current database provider. </returns>
+        /// <returns>The convention set for the current database provider.</returns>
         ConventionSet CreateConventionSet();
     }
 }

@@ -125,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public abstract Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
-        /// <returns> The query to load related entities. </returns>
+        /// <returns>The query to load related entities.</returns>
         public abstract IQueryable Query();
 
         /// <summary>

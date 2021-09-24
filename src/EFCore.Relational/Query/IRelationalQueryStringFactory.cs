@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Returns a formatted query string for the given command.
         /// </summary>
-        /// <param name="command"> The command that represents the query. </param>
-        /// <returns> The formatted string. </returns>
+        /// <param name="command">The command that represents the query.</param>
+        /// <returns>The formatted string.</returns>
         string Create(DbCommand command);
     }
 }

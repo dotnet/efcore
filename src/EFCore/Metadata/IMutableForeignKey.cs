@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the foreign key properties and that target principal key.
         /// </summary>
-        /// <param name="properties"> Foreign key properties in the dependent entity. </param>
-        /// <param name="principalKey"> The primary or alternate key to target. </param>
+        /// <param name="properties">Foreign key properties in the dependent entity.</param>
+        /// <param name="principalKey">The primary or alternate key to target.</param>
         void SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey);
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly set navigation property. </returns>
+        /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetDependentToPrincipal(string? name);
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly set navigation property. </returns>
+        /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetDependentToPrincipal(MemberInfo? property);
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly created navigation property. </returns>
+        /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
         IMutableNavigation? HasDependentToPrincipal(string? name)
             => SetDependentToPrincipal(name);
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly created navigation property. </returns>
+        /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
         IMutableNavigation? HasDependentToPrincipal(MemberInfo? property)
             => SetDependentToPrincipal(property);
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly set navigation property. </returns>
+        /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetPrincipalToDependent(string? name);
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly set navigation property. </returns>
+        /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetPrincipalToDependent(MemberInfo? property);
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly created navigation property. </returns>
+        /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
         IMutableNavigation? HasPrincipalToDependent(string? name)
             => SetPrincipalToDependent(name);
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
         /// </param>
-        /// <returns> The newly created navigation property. </returns>
+        /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
         IMutableNavigation? HasPrincipalToDependent(MemberInfo? property)
             => SetPrincipalToDependent(property);
@@ -184,15 +184,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets all skip navigations using this foreign key.
         /// </summary>
-        /// <returns> The skip navigations using this foreign key. </returns>
+        /// <returns>The skip navigations using this foreign key.</returns>
         new IEnumerable<IMutableSkipNavigation> GetReferencingSkipNavigations()
             => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
 
         /// <summary>
         ///     Gets the entity type related to the given one.
         /// </summary>
-        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
-        /// <returns> The entity type related to the given one. </returns>
+        /// <param name="entityType">One of the entity types related by the foreign key.</param>
+        /// <returns>The entity type related to the given one.</returns>
         new IMutableEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
             => (IMutableEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
 

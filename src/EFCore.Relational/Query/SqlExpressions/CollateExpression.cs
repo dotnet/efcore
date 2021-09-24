@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="CollateExpression" /> class.
         /// </summary>
-        /// <param name="operand"> An expression on which collation is applied. </param>
-        /// <param name="collation"> A collation value to use. </param>
+        /// <param name="operand">An expression on which collation is applied.</param>
+        /// <param name="collation">A collation value to use.</param>
         public CollateExpression(SqlExpression operand, string collation)
             : base(operand.Type, operand.TypeMapping)
         {
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="operand">The <see cref="Operand" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual CollateExpression Update(SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));

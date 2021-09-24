@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this index.
         /// </summary>
-        /// <exception cref="InvalidOperationException"> If the index has been removed from the model. </exception>
+        /// <exception cref="InvalidOperationException">If the index has been removed from the model.</exception>
         new IConventionIndexBuilder Builder { get; }
 
         /// <summary>
@@ -42,21 +42,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for this index.
         /// </summary>
-        /// <returns> The configuration source. </returns>
+        /// <returns>The configuration source.</returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
         ///     Sets a value indicating whether the values assigned to the index properties are unique.
         /// </summary>
-        /// <param name="unique"> A value indicating whether the values assigned to the index properties are unique. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured uniqueness. </returns>
+        /// <param name="unique">A value indicating whether the values assigned to the index properties are unique.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The configured uniqueness.</returns>
         bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyIndex.IsUnique" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IReadOnlyIndex.IsUnique" />. </returns>
+        /// <returns>The configuration source for <see cref="IReadOnlyIndex.IsUnique" />.</returns>
         ConfigurationSource? GetIsUniqueConfigurationSource();
     }
 }

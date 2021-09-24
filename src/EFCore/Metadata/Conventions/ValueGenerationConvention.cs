@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="ValueGenerationConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public ValueGenerationConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyAdded(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<IConventionForeignKeyBuilder> context)
@@ -60,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a foreign key is removed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="foreignKey"> The removed foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="foreignKey">The removed foreign key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionForeignKey foreignKey,
@@ -74,10 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the foreign key properties or principal key are changed.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="oldDependentProperties"> The old foreign key properties. </param>
-        /// <param name="oldPrincipalKey"> The old principal key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="oldDependentProperties">The old foreign key properties.</param>
+        /// <param name="oldPrincipalKey">The old principal key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyPropertiesChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
@@ -125,10 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the primary key for an entity type is changed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newPrimaryKey"> The new primary key. </param>
-        /// <param name="previousPrimaryKey"> The old primary key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="newPrimaryKey">The new primary key.</param>
+        /// <param name="previousPrimaryKey">The old primary key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionKey? newPrimaryKey,
@@ -158,10 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the base type of an entity type changes.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base entity type. </param>
-        /// <param name="oldBaseType"> The old base entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="newBaseType">The new base entity type.</param>
+        /// <param name="oldBaseType">The old base entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType? newBaseType,
@@ -182,16 +182,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The store value generation strategy to set for the given property. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The store value generation strategy to set for the given property.</returns>
         protected virtual ValueGenerated? GetValueGenerated(IConventionProperty property)
             => GetValueGenerated((IReadOnlyProperty)property);
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The store value generation strategy to set for the given property. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The store value generation strategy to set for the given property.</returns>
         public static ValueGenerated? GetValueGenerated(IReadOnlyProperty property)
             => !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                 && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
@@ -209,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Indicates whether the specified property can have the value generated by the store or by a non-temporary value generator
         ///     when not set.
         /// </summary>
-        /// <param name="property"> The key property that might be store generated. </param>
-        /// <returns> A value indicating whether the specified property should have the value generated by the store. </returns>
+        /// <param name="property">The key property that might be store generated.</param>
+        /// <returns>A value indicating whether the specified property should have the value generated by the store.</returns>
         private static bool CanBeGenerated(IReadOnlyProperty property)
         {
             var propertyType = property.ClrType.UnwrapNullableType();
@@ -222,8 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the ownership value for a foreign key is changed.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)

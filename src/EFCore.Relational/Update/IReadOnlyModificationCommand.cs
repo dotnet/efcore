@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     propagates them back to into the appropriate <see cref="IColumnModification" />
         ///     from which the values can be propagated on to tracked entities.
         /// </summary>
-        /// <param name="valueBuffer"> The buffer containing the values read from the database. </param>
+        /// <param name="valueBuffer">The buffer containing the values read from the database.</param>
         public void PropagateResults(ValueBuffer valueBuffer);
     }
 }

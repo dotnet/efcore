@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
         /// </summary>
-        /// <param name="alias"> A string alias for the table source. </param>
+        /// <param name="alias">A string alias for the table source.</param>
         protected TableExpressionBase(string? alias)
         {
             Check.NullButNotEmpty(alias, nameof(alias));
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
-        /// <param name="expressionPrinter"> The expression printer to use. </param>
+        /// <param name="expressionPrinter">The expression printer to use.</param>
         protected abstract void Print(ExpressionPrinter expressionPrinter);
 
         /// <inheritdoc />

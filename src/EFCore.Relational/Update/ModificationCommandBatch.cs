@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.
         /// </summary>
-        /// <param name="modificationCommand"> The command to add. </param>
+        /// <param name="modificationCommand">The command to add.</param>
         /// <returns>
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
@@ -42,16 +42,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Sends insert/update/delete commands to the database.
         /// </summary>
-        /// <param name="connection"> The database connection to use. </param>
+        /// <param name="connection">The database connection to use.</param>
         public abstract void Execute(IRelationalConnection connection);
 
         /// <summary>
         ///     Sends insert/update/delete commands to the database.
         /// </summary>
-        /// <param name="connection"> The database connection to use. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A task that represents the asynchronous save operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="connection">The database connection to use.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous save operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public abstract Task ExecuteAsync(
             IRelationalConnection connection,
             CancellationToken cancellationToken = default);

@@ -24,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
         /// </summary>
-        /// <param name="tableName"> The name of the table containing the data to be modified. </param>
-        /// <param name="schemaName"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="comparer"> An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />. </param>
-        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
-        /// <param name="logger"> An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />. </param>
+        /// <param name="tableName">The name of the table containing the data to be modified.</param>
+        /// <param name="schemaName">The schema containing the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+        /// <param name="comparer">An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />.</param>
+        /// <param name="generateParameterName">A delegate to generate parameter names.</param>
+        /// <param name="logger">An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />.</param>
         public ModificationCommandParameters(
             string tableName,
             string? schemaName,

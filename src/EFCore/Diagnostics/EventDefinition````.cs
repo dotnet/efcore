@@ -22,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
-        /// <param name="loggingOptions"> Logging options. </param>
-        /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
+        /// <param name="loggingOptions">Logging options.</param>
+        /// <param name="eventId">The <see cref="EventId" />.</param>
+        /// <param name="level">The <see cref="LogLevel" /> at which the event will be logged.</param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
         /// </param>
-        /// <param name="logActionFunc"> Function to create a cached delegate for logging the event. </param>
+        /// <param name="logActionFunc">Function to create a cached delegate for logging the event.</param>
         public EventDefinition(
             ILoggingOptions loggingOptions,
             EventId eventId,
@@ -46,11 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Generates the message that would be logged without logging it.
         ///     Typically used for throwing an exception in warning-as-error cases.
         /// </summary>
-        /// <param name="arg1"> The first message argument. </param>
-        /// <param name="arg2"> The second message argument. </param>
-        /// <param name="arg3"> The third message argument. </param>
-        /// <param name="arg4"> The fourth message argument. </param>
-        /// <returns> The message string. </returns>
+        /// <param name="arg1">The first message argument.</param>
+        /// <param name="arg2">The second message argument.</param>
+        /// <param name="arg3">The third message argument.</param>
+        /// <param name="arg4">The fourth message argument.</param>
+        /// <returns>The message string.</returns>
         public virtual string GenerateMessage(
             TParam1 arg1,
             TParam2 arg2,
@@ -65,12 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs the event, or throws if the event has been configured to be treated as an error.
         /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
-        /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="arg1"> The first message argument. </param>
-        /// <param name="arg2"> The second message argument. </param>
-        /// <param name="arg3"> The third message argument. </param>
-        /// <param name="arg4"> The fourth message argument. </param>
+        /// <typeparam name="TLoggerCategory">The <see cref="DbLoggerCategory" />.</typeparam>
+        /// <param name="logger">The logger to which the event should be logged.</param>
+        /// <param name="arg1">The first message argument.</param>
+        /// <param name="arg2">The second message argument.</param>
+        /// <param name="arg3">The third message argument.</param>
+        /// <param name="arg4">The fourth message argument.</param>
         public virtual void Log<TLoggerCategory>(
             IDiagnosticsLogger<TLoggerCategory> logger,
             TParam1 arg1,

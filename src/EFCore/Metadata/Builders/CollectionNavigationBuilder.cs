@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public virtual ReferenceCollectionBuilder WithOne(string? navigationName = null)
             => new(
                 DeclaringEntityType,
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName">
         ///     The name of the collection navigation property on the other end of this relationship.
         /// </param>
-        /// <returns> An object to further configure the relationship. </returns>
+        /// <returns>An object to further configure the relationship.</returns>
         public virtual CollectionCollectionBuilder WithMany(string navigationName)
         {
             if (Builder != null
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -361,8 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object? obj)
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

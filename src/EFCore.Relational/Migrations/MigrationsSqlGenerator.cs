@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Creates a new <see cref="MigrationsSqlGenerator" /> instance using the given dependencies.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public MigrationsSqlGenerator(MigrationsSqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -118,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates commands from a list of operations.
         /// </summary>
-        /// <param name="operations"> The operations. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="options"> The options to use when generating commands. </param>
-        /// <returns> The list of commands to be executed or scripted. </returns>
+        /// <param name="operations">The operations.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="options">The options to use when generating commands.</param>
+        /// <returns>The list of commands to be executed or scripted.</returns>
         public virtual IReadOnlyList<MigrationCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
             IModel? model = null,
@@ -159,9 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         this methods to handle provider-specific operations.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             MigrationOperation operation,
             IModel? model,
@@ -183,10 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AddColumnOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             AddColumnOperation operation,
             IModel? model,
@@ -219,10 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AddForeignKeyOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             AddForeignKeyOperation operation,
             IModel? model,
@@ -250,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AddPrimaryKeyOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             AddPrimaryKeyOperation operation,
             IModel? model,
@@ -280,9 +280,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AddUniqueConstraintOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AddUniqueConstraintOperation operation,
             IModel? model,
@@ -304,9 +304,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AddCheckConstraintOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AddCheckConstraintOperation operation,
             IModel? model,
@@ -334,9 +334,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AlterColumnOperation operation,
             IModel? model,
@@ -353,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AlterDatabaseOperation operation,
             IModel? model,
@@ -373,9 +373,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             RenameIndexOperation operation,
             IModel? model,
@@ -386,9 +386,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="AlterSequenceOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AlterSequenceOperation operation,
             IModel? model,
@@ -419,9 +419,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         annotations that must be handled.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             AlterTableOperation operation,
             IModel? model,
@@ -439,9 +439,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             RenameTableOperation operation,
             IModel? model,
@@ -452,10 +452,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="CreateIndexOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             CreateIndexOperation operation,
             IModel? model,
@@ -502,9 +502,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             EnsureSchemaOperation operation,
             IModel? model,
@@ -515,9 +515,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="CreateSequenceOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             CreateSequenceOperation operation,
             IModel? model,
@@ -557,10 +557,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="CreateTableOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             CreateTableOperation operation,
             IModel? model,
@@ -595,10 +595,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropColumnOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             DropColumnOperation operation,
             IModel? model,
@@ -625,10 +625,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropForeignKeyOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             DropForeignKeyOperation operation,
             IModel? model,
@@ -661,10 +661,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             DropIndexOperation operation,
             IModel? model,
@@ -676,10 +676,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropPrimaryKeyOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             DropPrimaryKeyOperation operation,
             IModel? model,
@@ -706,9 +706,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropSchemaOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             DropSchemaOperation operation,
             IModel? model,
@@ -729,9 +729,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropSequenceOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             DropSequenceOperation operation,
             IModel? model,
@@ -752,10 +752,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropTableOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             DropTableOperation operation,
             IModel? model,
@@ -780,9 +780,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropUniqueConstraintOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             DropUniqueConstraintOperation operation,
             IModel? model,
@@ -805,9 +805,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DropCheckConstraintOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             DropCheckConstraintOperation operation,
             IModel? model,
@@ -836,9 +836,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             RenameColumnOperation operation,
             IModel? model,
@@ -855,9 +855,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         must override if they are to support this kind of operation.
         ///     </para>
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             RenameSequenceOperation operation,
             IModel? model,
@@ -868,9 +868,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="RestartSequenceOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             RestartSequenceOperation operation,
             IModel? model,
@@ -895,9 +895,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="SqlOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             SqlOperation operation,
             IModel? model,
@@ -915,10 +915,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="InsertDataOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
+        /// <param name="terminate">Indicates whether or not to terminate the command after generating SQL for the operation.</param>
         protected virtual void Generate(
             InsertDataOperation operation,
             IModel? model,
@@ -948,9 +948,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates the commands that correspond to the given operation.
         /// </summary>
-        /// <param name="operation"> The data operation to generate commands for. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The commands that correspond to the given operation. </returns>
+        /// <param name="operation">The data operation to generate commands for.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The commands that correspond to the given operation.</returns>
         protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             InsertDataOperation operation,
             IModel? model)
@@ -1013,9 +1013,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="DeleteDataOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             DeleteDataOperation operation,
             IModel? model,
@@ -1040,9 +1040,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates the commands that correspond to the given operation.
         /// </summary>
-        /// <param name="operation"> The data operation to generate commands for. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The commands that correspond to the given operation. </returns>
+        /// <param name="operation">The data operation to generate commands for.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The commands that correspond to the given operation.</returns>
         protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             DeleteDataOperation operation,
             IModel? model)
@@ -1105,9 +1105,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds commands for the given <see cref="UpdateDataOperation" /> by making calls on the given
         ///     <see cref="MigrationCommandListBuilder" />, and then terminates the final command.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to build the commands.</param>
         protected virtual void Generate(
             UpdateDataOperation operation,
             IModel? model,
@@ -1132,9 +1132,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates the commands that correspond to the given operation.
         /// </summary>
-        /// <param name="operation"> The data operation to generate commands for. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The commands that correspond to the given operation. </returns>
+        /// <param name="operation">The data operation to generate commands for.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The commands that correspond to the given operation.</returns>
         protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             UpdateDataOperation operation,
             IModel? model)
@@ -1275,9 +1275,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment configuring a sequence in a <see cref="AlterSequenceOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void SequenceOptions(
             AlterSequenceOperation operation,
             IModel? model,
@@ -1292,9 +1292,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment configuring a sequence in a <see cref="CreateSequenceOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void SequenceOptions(
             CreateSequenceOperation operation,
             IModel? model,
@@ -1309,11 +1309,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment configuring a sequence with the given options.
         /// </summary>
-        /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="name"> The sequence name. </param>
-        /// <param name="operation"> The sequence options. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="name">The sequence name.</param>
+        /// <param name="operation">The sequence options.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void SequenceOptions(
             string? schema,
             string name,
@@ -1360,9 +1360,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the column definitions in a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTableColumns(
             CreateTableOperation operation,
             IModel? model,
@@ -1385,9 +1385,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void ColumnDefinition(
             AddColumnOperation operation,
             IModel? model,
@@ -1403,12 +1403,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
         /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="operation"> The column metadata. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="table">The table that contains the column.</param>
+        /// <param name="name">The column name.</param>
+        /// <param name="operation">The column metadata.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void ColumnDefinition(
             string? schema,
             string table,
@@ -1449,12 +1449,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a computed column definition for the given column metadata.
         /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="operation"> The column metadata. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="table">The table that contains the column.</param>
+        /// <param name="name">The column name.</param>
+        /// <param name="operation">The column metadata.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void ComputedColumnDefinition(
             string? schema,
             string table,
@@ -1467,12 +1467,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Gets the store/database type of a column given the provided metadata.
         /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="tableName"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="operation"> The column metadata. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <returns> The database/store type for the column. </returns>
+        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="tableName">The table that contains the column.</param>
+        /// <param name="name">The column name.</param>
+        /// <param name="operation">The column metadata.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <returns>The database/store type for the column.</returns>
         protected virtual string? GetColumnType(
             string? schema,
             string tableName,
@@ -1521,10 +1521,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the default constraint of a column.
         /// </summary>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="columnType"> Store/database type of the column. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="defaultValue">The default value for the column.</param>
+        /// <param name="defaultValueSql">The SQL expression to use for the column's default constraint.</param>
+        /// <param name="columnType">Store/database type of the column.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void DefaultValue(
             object? defaultValue,
             string? defaultValueSql,
@@ -1559,9 +1559,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the constraints of a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTableConstraints(
             CreateTableOperation operation,
             IModel? model,
@@ -1579,9 +1579,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the foreign key constraints of a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTableForeignKeys(
             CreateTableOperation operation,
             IModel? model,
@@ -1600,9 +1600,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a foreign key constraint of an <see cref="AddForeignKeyOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void ForeignKeyConstraint(
             AddForeignKeyOperation operation,
             IModel? model,
@@ -1649,9 +1649,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the primary key constraint of a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTablePrimaryKeyConstraint(
             CreateTableOperation operation,
             IModel? model,
@@ -1670,9 +1670,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a primary key constraint of an <see cref="AddPrimaryKeyOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void PrimaryKeyConstraint(
             AddPrimaryKeyOperation operation,
             IModel? model,
@@ -1702,9 +1702,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the unique constraints of a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTableUniqueConstraints(
             CreateTableOperation operation,
             IModel? model,
@@ -1723,9 +1723,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a unique constraint of an <see cref="AddUniqueConstraintOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void UniqueConstraint(
             AddUniqueConstraintOperation operation,
             IModel? model,
@@ -1755,9 +1755,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the check constraints of a <see cref="CreateTableOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CreateTableCheckConstraints(
             CreateTableOperation operation,
             IModel? model,
@@ -1776,9 +1776,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for a check constraint of an <see cref="AddCheckConstraintOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void CheckConstraint(
             AddCheckConstraintOperation operation,
             IModel? model,
@@ -1807,9 +1807,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Generates a SQL fragment for traits of an index from a <see cref="CreateIndexOperation" />,
         ///     <see cref="AddPrimaryKeyOperation" />, or <see cref="AddUniqueConstraintOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void IndexTraits(
             MigrationOperation operation,
             IModel? model,
@@ -1820,9 +1820,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for extras (filter, included columns, options) of an index from a <see cref="CreateIndexOperation" />.
         /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void IndexOptions(
             CreateIndexOperation operation,
             IModel? model,
@@ -1839,8 +1839,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment for the given referential action.
         /// </summary>
-        /// <param name="referentialAction"> The referential action. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="referentialAction">The referential action.</param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         protected virtual void ForeignKeyAction(
             ReferentialAction referentialAction,
             MigrationCommandListBuilder builder)
@@ -1872,10 +1872,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Finds all <see cref="IEntityType" />s that are mapped to the given table.
         /// </summary>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="tableName"> The table name. </param>
-        /// <returns> The list of types, which may be empty if no types are mapped to the given table. </returns>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="tableName">The table name.</param>
+        /// <returns>The list of types, which may be empty if no types are mapped to the given table.</returns>
         [Obsolete("Use model?.GetRelationalModel().FindTable()")]
         protected virtual IEnumerable<IEntityType>? FindEntityTypes(
             IModel? model,
@@ -1894,11 +1894,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         have consistent configuration.
         ///     </para>
         /// </summary>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
-        /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="tableName"> The name of the table that contains the column. </param>
-        /// <param name="columnName"> The column name. </param>
-        /// <returns> The property found, or <see langword="null" /> if no property maps to the given column. </returns>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
+        /// <param name="tableName">The name of the table that contains the column.</param>
+        /// <param name="columnName">The column name.</param>
+        /// <returns>The property found, or <see langword="null" /> if no property maps to the given column.</returns>
         [Obsolete("Use model?.GetRelationalModel().FindTable().FindColumn()")]
         protected virtual IProperty? FindProperty(
             IModel? model,
@@ -1911,7 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Generates a SQL fragment to terminate the SQL command.
         /// </summary>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        /// <param name="builder">The command builder to use to add the SQL fragment.</param>
         /// <param name="suppressTransaction">
         ///     Indicates whether or not transactions should be suppressed while executing the built command.
         /// </param>
@@ -1928,8 +1928,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Concatenates the given column names into a <see cref="ISqlGenerationHelper.DelimitIdentifier(string)" />
         ///     separated list.
         /// </summary>
-        /// <param name="columns"> The column names. </param>
-        /// <returns> The column list. </returns>
+        /// <param name="columns">The column names.</param>
+        /// <returns>The column list.</returns>
         protected virtual string ColumnList(string[] columns)
             => string.Join(", ", columns.Select(Dependencies.SqlGenerationHelper.DelimitIdentifier));
 
@@ -1937,7 +1937,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Checks whether or not <see cref="AddColumnOperation" /> supports the passing in the
         ///     old column, which was only added in EF Core 1.1.
         /// </summary>
-        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
+        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <returns>
         ///     <see langword="true" /> If the model was generated by EF Core 1.1 or later; <see langword="false" /> if the model is
         ///     <see langword="null" />, has
@@ -1950,8 +1950,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Checks whether or not <see cref="RenameTableOperation" /> and <see cref="RenameSequenceOperation" /> use
         ///     the legacy behavior of setting the new name and schema to null when unchanged.
         /// </summary>
-        /// <param name="model"> The target model. </param>
-        /// <returns> <see langword="true" /> if the legacy behavior is used. </returns>
+        /// <param name="model">The target model.</param>
+        /// <returns><see langword="true" /> if the legacy behavior is used.</returns>
         protected virtual bool HasLegacyRenameOperations(IModel? model)
             => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.1.0") < 0;
 
@@ -1959,9 +1959,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Gets the product version used to generate the current migration. Providers can use this to preserve
         ///     compatibility with migrations generated using previous versions.
         /// </summary>
-        /// <param name="model"> The target model. </param>
-        /// <param name="version"> The version. </param>
-        /// <returns> <see langword="true" /> if the version could be retrieved. </returns>
+        /// <param name="model">The target model.</param>
+        /// <param name="version">The version.</param>
+        /// <returns><see langword="true" /> if the version could be retrieved.</returns>
         protected virtual bool TryGetVersion([NotNullWhen(true)] IModel? model, [NotNullWhen(true)] out string? version)
         {
             if (!(model?.GetProductVersion() is string versionString))

@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new <see cref="SqliteConventionSetBuilder" /> instance.
         /// </summary>
-        /// <param name="dependencies"> The core dependencies for this service. </param>
-        /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
+        /// <param name="dependencies">The core dependencies for this service.</param>
+        /// <param name="relationalDependencies">The relational dependencies for this service.</param>
         public SqliteConventionSetBuilder(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        /// <returns> The convention set for the current database provider. </returns>
+        /// <returns>The convention set for the current database provider.</returns>
         public override ConventionSet CreateConventionSet()
         {
             var conventionSet = base.CreateConventionSet();
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ConventionSet Build()
         {
             using var serviceScope = CreateServiceScope();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();

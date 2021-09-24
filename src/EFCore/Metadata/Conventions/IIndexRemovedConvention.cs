@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an index is removed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="index"> The removed index. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="index">The removed index.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessIndexRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionIndex index,

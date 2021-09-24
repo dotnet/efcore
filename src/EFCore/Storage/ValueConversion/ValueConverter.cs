@@ -168,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Checks that the type used with a value converter is supported by that converter and throws if not.
         /// </summary>
-        /// <param name="type"> The type to check. </param>
-        /// <param name="converterType"> The value converter type. </param>
-        /// <param name="supportedTypes"> The types that are supported. </param>
-        /// <returns> The given type. </returns>
+        /// <param name="type">The type to check.</param>
+        /// <param name="converterType">The value converter type.</param>
+        /// <param name="supportedTypes">The types that are supported.</param>
+        /// <returns>The given type.</returns>
         protected static Type CheckTypeSupported(
             Type type,
             Type converterType,
@@ -200,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="secondConverter"> The second converter. </param>
-        /// <returns> The composed converter. </returns>
+        /// <param name="secondConverter">The second converter.</param>
+        /// <returns>The composed converter.</returns>
         public virtual ValueConverter ComposeWith(
             ValueConverter? secondConverter)
         {

@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5));
         ///     </code>
         /// </example>
-        /// <typeparam name="TProperty"> The type of the property being referenced. </typeparam>
-        /// <param name="entity"> The entity to access the property on. </param>
-        /// <param name="propertyName"> The name of the property. </param>
-        /// <returns> The value assigned to the property. </returns>
+        /// <typeparam name="TProperty">The type of the property being referenced.</typeparam>
+        /// <param name="entity">The entity to access the property on.</param>
+        /// <param name="propertyName">The name of the property.</param>
+        /// <returns>The value assigned to the property.</returns>
         public static TProperty Property<TProperty>(
             object entity,
             [NotParameterized] string propertyName)

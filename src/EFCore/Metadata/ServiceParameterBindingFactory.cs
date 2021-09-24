@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="ServiceParameterBindingFactory" /> instance for the given service type.
         /// </summary>
-        /// <param name="serviceType"> The service type. </param>
+        /// <param name="serviceType">The service type.</param>
         public ServiceParameterBindingFactory(Type serviceType)
         {
             Check.NotNull(serviceType, nameof(serviceType));
@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Checks whether or not this factory can bind a parameter with the given type and name.
         /// </summary>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> <see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise. </returns>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns><see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise.</returns>
         public virtual bool CanBind(
             Type parameterType,
             string parameterName)
@@ -51,10 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public virtual ParameterBinding Bind(
             IMutableEntityType entityType,
             Type parameterType,
@@ -64,10 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public virtual ParameterBinding Bind(
             IConventionEntityType entityType,
             Type parameterType,
@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public virtual ParameterBinding Bind(
             IReadOnlyEntityType entityType,
             Type parameterType,

@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
         /// </summary>
-        /// <param name="sql"> A user-provided custom SQL for the table source. </param>
-        /// <param name="arguments"> A user-provided parameters to pass to the custom SQL. </param>
-        /// <param name="alias"> A string alias for the table source. </param>
+        /// <param name="sql">A user-provided custom SQL for the table source.</param>
+        /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
+        /// <param name="alias">A string alias for the table source.</param>
         [Obsolete("Use the constructor which takes alias as first argument.")]
         public FromSqlExpression(string sql, Expression arguments, string alias)
             : base(alias)
@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
         /// </summary>
-        /// <param name="alias"> A string alias for the table source. </param>
-        /// <param name="sql"> A user-provided custom SQL for the table source. </param>
-        /// <param name="arguments"> A user-provided parameters to pass to the custom SQL. </param>
+        /// <param name="alias">A string alias for the table source.</param>
+        /// <param name="sql">A user-provided custom SQL for the table source.</param>
+        /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
         public FromSqlExpression(string alias, string sql, Expression arguments)
             : base(alias)
         {
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="arguments"> The <see cref="Arguments" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual FromSqlExpression Update(Expression arguments)
         {
             Check.NotNull(arguments, nameof(arguments));

@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Finds the type mapping for a given <see cref="IProperty" />.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         CoreTypeMapping? FindMapping(IProperty property);
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         call <see cref="FindMapping(IProperty)" />
         ///     </para>
         /// </summary>
-        /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="member">The field or property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         CoreTypeMapping? FindMapping(MemberInfo member);
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         CoreTypeMapping? FindMapping(Type type);
 
         /// <summary>
@@ -76,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         otherwise call <see cref="FindMapping(IProperty)" />.
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         CoreTypeMapping? FindMapping(Type type, IModel model);
     }
 }

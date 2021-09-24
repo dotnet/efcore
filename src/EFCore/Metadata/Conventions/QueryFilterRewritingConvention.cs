@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="QueryFilterRewritingConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <summary>
             ///     Creates a new instance of <see cref="DbSetAccessRewritingExpressionVisitor" />.
             /// </summary>
-            /// <param name="contextType"> The clr type of derived DbContext. </param>
+            /// <param name="contextType">The clr type of derived DbContext.</param>
             public DbSetAccessRewritingExpressionVisitor(Type contextType)
             {
                 _contextType = contextType;
@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <summary>
             ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression" />.
             /// </summary>
-            /// <param name="model"> The model to look for entity types. </param>
-            /// <param name="expression"> The query expression to rewrite. </param>
+            /// <param name="model">The model to look for entity types.</param>
+            /// <param name="expression">The query expression to rewrite.</param>
             public Expression Rewrite(IReadOnlyModel model, Expression expression)
             {
                 _model = model;

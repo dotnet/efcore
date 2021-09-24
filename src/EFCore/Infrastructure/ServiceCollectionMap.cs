@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates a new <see cref="ServiceCollectionMap" /> to operate on the given <see cref="IServiceCollection" />.
         /// </summary>
-        /// <param name="serviceCollection"> The collection to work with. </param>
+        /// <param name="serviceCollection">The collection to work with.</param>
         public ServiceCollectionMap(IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransient<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -64,9 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScoped<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -76,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -88,9 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransient(Type serviceType, Type implementationType)
             => TryAdd(serviceType, implementationType, ServiceLifetime.Transient);
 
@@ -98,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScoped(Type serviceType, Type implementationType)
             => TryAdd(serviceType, implementationType, ServiceLifetime.Scoped);
 
@@ -108,9 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton(Type serviceType, Type implementationType)
             => TryAdd(serviceType, implementationType, ServiceLifetime.Singleton);
 
@@ -118,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a service implemented by the given concrete type if no service for the given service
         ///     type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <param name="lifetime"> The service lifetime. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <param name="lifetime">The service lifetime.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAdd(
             Type serviceType,
             Type implementationType,
@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransient<TService>(Func<IServiceProvider, TService> factory)
             where TService : class
             => TryAdd(typeof(TService), factory, ServiceLifetime.Transient);
@@ -156,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScoped<TService>(Func<IServiceProvider, TService> factory)
             where TService : class
             => TryAdd(typeof(TService), factory, ServiceLifetime.Scoped);
@@ -167,9 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton<TService>(Func<IServiceProvider, TService> factory)
             where TService : class
             => TryAdd(typeof(TService), factory, ServiceLifetime.Singleton);
@@ -178,10 +178,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that the given factory creates. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that the given factory creates.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransient<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -192,10 +192,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that the given factory creates. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that the given factory creates.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScoped<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -206,10 +206,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that the given factory creates. </typeparam>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that the given factory creates.</typeparam>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -220,9 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransient(Type serviceType, Func<IServiceProvider, object> factory)
             => TryAdd(serviceType, factory, ServiceLifetime.Transient);
 
@@ -230,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Scoped" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScoped(Type serviceType, Func<IServiceProvider, object> factory)
             => TryAdd(serviceType, factory, ServiceLifetime.Scoped);
 
@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given factory
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton(Type serviceType, Func<IServiceProvider, object> factory)
             => TryAdd(serviceType, factory, ServiceLifetime.Singleton);
 
@@ -250,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a service implemented by the given factory if no service for the given service type
         ///     has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="factory"> The factory that implements the service. </param>
-        /// <param name="lifetime"> The service lifetime. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="factory">The factory that implements the service.</param>
+        /// <param name="lifetime">The service lifetime.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAdd(
             Type serviceType,
             Func<IServiceProvider, object> factory,
@@ -277,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="implementation"> The object that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="implementation">The object that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton<TService>(TService implementation)
             where TService : class
             => TryAddSingleton(typeof(TService), implementation);
@@ -288,9 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a <see cref="ServiceLifetime.Singleton" /> service implemented by the given instance
         ///     if no service for the given service type has already been registered.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementation"> The object that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementation">The object that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton(Type serviceType, object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
@@ -311,9 +311,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransientEnumerable<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -324,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScopedEnumerable<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -337,9 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -350,9 +350,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransientEnumerable(Type serviceType, Type implementationType)
             => TryAddEnumerable(serviceType, implementationType, ServiceLifetime.Transient);
 
@@ -361,9 +361,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScopedEnumerable(Type serviceType, Type implementationType)
             => TryAddEnumerable(serviceType, implementationType, ServiceLifetime.Scoped);
 
@@ -372,9 +372,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable(Type serviceType, Type implementationType)
             => TryAddEnumerable(serviceType, implementationType, ServiceLifetime.Singleton);
 
@@ -383,10 +383,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     type to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <param name="lifetime"> The service lifetime. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <param name="lifetime">The service lifetime.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddEnumerable(
             Type serviceType,
             Type implementationType,
@@ -411,10 +411,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <param name="factory"> The factory that implements this service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <param name="factory">The factory that implements this service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddTransientEnumerable<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -426,10 +426,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <param name="factory"> The factory that implements this service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <param name="factory">The factory that implements this service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddScopedEnumerable<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -441,10 +441,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <param name="factory"> The factory that implements this service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <param name="factory">The factory that implements this service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -456,11 +456,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <param name="factory"> The factory that implements this service. </param>
-        /// <param name="lifetime"> The service lifetime. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <param name="factory">The factory that implements this service.</param>
+        /// <param name="lifetime">The service lifetime.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddEnumerable(
             Type serviceType,
             Type implementationType,
@@ -487,9 +487,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="implementation"> The object that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="implementation">The object that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable<TService>(TService implementation)
             where TService : class
             => TryAddSingletonEnumerable(typeof(TService), implementation);
@@ -499,9 +499,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     to the list of services that implement the given contract. The service is only added
         ///     if the collection contains no other registration for the same service and implementation type.
         /// </summary>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementation"> The object that implements the service. </param>
-        /// <returns> The map, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementation">The object that implements the service.</param>
+        /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable(Type serviceType, object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this navigation.
         /// </summary>
-        /// <exception cref="InvalidOperationException"> If the property has been removed from the model. </exception>
+        /// <exception cref="InvalidOperationException">If the property has been removed from the model.</exception>
         new IConventionNavigationBuilder Builder { get; }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for this navigation property.
         /// </summary>
-        /// <returns> The configuration source. </returns>
+        /// <returns>The configuration source.</returns>
         ConfigurationSource IConventionPropertyBase.GetConfigurationSource()
             => (ConfigurationSource)(IsOnDependent
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the inverse navigation property. Passing <see langword="null" /> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The new inverse navigation. </returns>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The new inverse navigation.</returns>
         IConventionNavigation? SetInverse(string? inverseName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -91,14 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name of the inverse navigation property. Passing <see langword="null" /> will result in there being
         ///     no inverse navigation property defined.
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The new inverse navigation. </returns>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The new inverse navigation.</returns>
         IConventionNavigation? SetInverse(MemberInfo? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="Inverse" />. </returns>
+        /// <returns>The configuration source for <see cref="Inverse" />.</returns>
         ConfigurationSource? GetInverseConfigurationSource();
     }
 }

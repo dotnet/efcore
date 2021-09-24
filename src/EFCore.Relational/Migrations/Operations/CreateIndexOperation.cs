@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     Creates a new <see cref="CreateIndexOperation" /> from the specified index.
         /// </summary>
-        /// <param name="index"> The index. </param>
-        /// <returns> The operation. </returns>
+        /// <param name="index">The index.</param>
+        /// <returns>The operation.</returns>
         public static CreateIndexOperation CreateFrom(ITableIndex index)
         {
             Check.NotNull(index, nameof(index));

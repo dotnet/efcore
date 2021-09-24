@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="PrecisionAttribute" /> class.
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
-        /// <param name="scale"> The scale of the property. </param>
+        /// <param name="precision">The precision of the property.</param>
+        /// <param name="scale">The scale of the property.</param>
         public PrecisionAttribute(int precision, int scale)
         {
             if (precision < 0)
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="PrecisionAttribute" /> class.
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="precision">The precision of the property.</param>
         public PrecisionAttribute(int precision)
         {
             if (precision < 0)

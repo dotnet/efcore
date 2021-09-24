@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type being materialized. </param>
-        /// <param name="entityInstanceName"> The name of the instance being materialized. </param>
-        /// <param name="materializationExpression"> The materialization expression to build on. </param>
-        /// <returns> An expression to read the value. </returns>
+        /// <param name="entityType">The entity type being materialized.</param>
+        /// <param name="entityInstanceName">The name of the instance being materialized.</param>
+        /// <param name="materializationExpression">The materialization expression to build on.</param>
+        /// <returns>An expression to read the value.</returns>
         Expression CreateMaterializeExpression(
             IEntityType entityType,
             string entityInstanceName,
@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="entityType"> The entity type being materialized. </param>
-        /// <returns> A delegate to create instances. </returns>
+        /// <param name="entityType">The entity type being materialized.</param>
+        /// <returns>A delegate to create instances.</returns>
         Func<MaterializationContext, object> GetMaterializer(IEntityType entityType);
     }
 }

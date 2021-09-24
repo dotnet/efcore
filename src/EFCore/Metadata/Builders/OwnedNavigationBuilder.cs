@@ -115,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Adds or updates an annotation on the owned entity type. If an annotation with the key specified in
         ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnedNavigationBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the properties that make up the primary key for this owned entity type.
         /// </summary>
-        /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
-        /// <returns> An object that can be used to configure the primary key. </returns>
+        /// <param name="propertyNames">The names of the properties that make up the primary key.</param>
+        /// <returns>An object that can be used to configure the primary key.</returns>
         public virtual KeyBuilder HasKey(params string[] propertyNames)
             => new(
                 DependentEntityType.Builder.PrimaryKey(
@@ -148,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         add a new shadow state property.
         ///     </para>
         /// </summary>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <param name="propertyName">The name of the property to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder Property(string propertyName)
             => UpdateBuilder(
                 () => new PropertyBuilder(
@@ -170,9 +170,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+        /// <param name="propertyName">The name of the property to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>(string propertyName)
             => UpdateBuilder(
                 () => new PropertyBuilder<TProperty>(
@@ -193,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
         ///     </para>
         /// </summary>
-        /// <param name="propertyType"> The type of the property to be configured. </param>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <param name="propertyType">The type of the property to be configured.</param>
+        /// <param name="propertyName">The name of the property to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder Property(Type propertyType, string propertyName)
             => new(
                 DependentEntityType.Builder.Property(
@@ -213,9 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         supplying the provided property name.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+        /// <param name="propertyName">The name of the property to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => new(
                 DependentEntityType.Builder.IndexerProperty(
@@ -233,9 +233,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         supplying the provided property name.
         ///     </para>
         /// </summary>
-        /// <param name="propertyType"> The type of the property to be configured. </param>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <param name="propertyType">The type of the property to be configured.</param>
+        /// <param name="propertyName">The name of the property to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder IndexerProperty(Type propertyType, string propertyName)
             => new(
                 DependentEntityType.Builder.IndexerProperty(
@@ -249,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         not to exist.
         ///     </para>
         /// </summary>
-        /// <param name="navigationName"> The name of the navigation property to be configured. </param>
-        /// <returns> An object that can be used to configure the navigation property. </returns>
+        /// <param name="navigationName">The name of the navigation property to be configured.</param>
+        /// <returns>An object that can be used to configure the navigation property.</returns>
         public virtual NavigationBuilder Navigation(string navigationName)
             => new(
                 DependentEntityType.Builder.Navigation(
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
         ///     or navigations from the owned entity type that were added by convention.
         /// </summary>
-        /// <param name="propertyName"> The name of the property to be removed from the entity type. </param>
+        /// <param name="propertyName">The name of the property to be removed from the entity type.</param>
         public virtual OwnedNavigationBuilder Ignore(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -274,8 +274,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>
-        /// <param name="propertyNames"> The names of the properties that make up the index. </param>
-        /// <returns> An object that can be used to configure the index. </returns>
+        /// <param name="propertyNames">The names of the properties that make up the index.</param>
+        /// <returns>An object that can be used to configure the index.</returns>
         public virtual IndexBuilder HasIndex(params string[] propertyNames)
             => new(
                 DependentEntityType.Builder.HasIndex(
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property pointing to the owner.
         ///     If null or not specified, there is no navigation property pointing to the owner.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnershipBuilder WithOwner(
             string? ownerReference = null)
         {
@@ -328,11 +328,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
             string navigationName)
@@ -358,12 +358,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
+        /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
             Type ownedType,
@@ -390,11 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             Type ownedType,
             string navigationName)
@@ -420,12 +420,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
             string navigationName,
@@ -460,13 +460,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
+        /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
             Type ownedType,
@@ -503,12 +503,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             Type ownedType,
             string navigationName,
@@ -556,11 +556,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
+        /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
             string navigationName)
@@ -585,12 +585,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
+        /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
+        /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
             Type ownedType,
@@ -616,11 +616,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
+        /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             Type ownedType,
             string navigationName)
@@ -645,12 +645,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
             string navigationName,
@@ -684,13 +684,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedTypeName"> The name of the entity type that this relationship targets. </param>
-        /// <param name="ownedType"> The CLR type of the entity type that this relationship targets. </param>
+        /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
+        /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
             Type ownedType,
@@ -726,12 +726,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
-        /// <param name="ownedType"> The entity type that this relationship targets. </param>
+        /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
-        /// <returns> An object that can be used to configure the entity type. </returns>
+        /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
+        /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             Type ownedType,
             string navigationName,
@@ -780,13 +780,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         produce a valid relationship.
         ///     </para>
         /// </summary>
-        /// <param name="relatedTypeName"> The name of the entity type that this relationship targets. </param>
+        /// <param name="relatedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(
             string relatedTypeName,
             string? navigationName)
@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(string navigationName)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
@@ -854,13 +854,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         produce a valid relationship.
         ///     </para>
         /// </summary>
-        /// <param name="relatedType"> The entity type that this relationship targets. </param>
+        /// <param name="relatedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
         /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(
             Type relatedType,
             string? navigationName = null)
@@ -947,8 +947,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.
         ///     This strategy indicates how the context detects changes to properties for an instance of the entity type.
         /// </summary>
-        /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnedNavigationBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
             DependentEntityType.Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
@@ -971,8 +971,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         set on the model.
         ///     </para>
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this entity type. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this entity type.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnedNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {
             DependentEntityType.Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="data">
         ///     An array of seed data represented by anonymous types.
         /// </param>
-        /// <returns> An object that can be used to configure the model data. </returns>
+        /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder HasData(params object[] data)
         {
             Check.NotNull(data, nameof(data));
@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="data">
         ///     A collection of seed data represented by anonymous types.
         /// </param>
-        /// <returns> An object that can be used to configure the model data. </returns>
+        /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder HasData(IEnumerable<object> data)
         {
             Check.NotNull(data, nameof(data));

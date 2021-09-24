@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public SqlServerValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
             : base(dependencies)
         {

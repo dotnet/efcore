@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context to get the model cache key for.
         /// </param>
-        /// <returns> The created key. </returns>
+        /// <returns>The created key.</returns>
         [Obsolete("Use the overload with most parameters")]
         object Create(DbContext context)
             => Create(context, true);
@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context to get the model cache key for.
         /// </param>
-        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
-        /// <returns> The created key. </returns>
+        /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+        /// <returns>The created key.</returns>
         object Create(DbContext context, bool designTime)
 #pragma warning disable CS0618 // Type or member is obsolete
             => Create(context);

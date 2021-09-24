@@ -36,15 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object.
             /// </summary>
-            /// <param name="coreParameters"> Parameters for the <see cref="CoreTypeMapping" /> base class. </param>
-            /// <param name="storeType"> The name of the database type. </param>
-            /// <param name="storeTypePostfix"> Indicates which values should be appended to the store type name. </param>
-            /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-            /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-            /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-            /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
-            /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
-            /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
+            /// <param name="coreParameters">Parameters for the <see cref="CoreTypeMapping" /> base class.</param>
+            /// <param name="storeType">The name of the database type.</param>
+            /// <param name="storeTypePostfix">Indicates which values should be appended to the store type name.</param>
+            /// <param name="dbType">The <see cref="System.Data.DbType" /> to be used.</param>
+            /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
+            /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
+            /// <param name="fixedLength">A value indicating whether the type is constrained to fixed-length data.</param>
+            /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
+            /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
             public RelationalTypeMappingParameters(
                 CoreTypeMappingParameters coreParameters,
                 string storeType,
@@ -120,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
             ///     mapping info.
             /// </summary>
-            /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithTypeMappingInfo(in RelationalTypeMappingInfo mappingInfo)
                 => new(
                     CoreParameters,
@@ -138,10 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
             ///     store type and size.
             /// </summary>
-            /// <param name="storeType"> The new store type name. </param>
-            /// <param name="size"> The new size. </param>
-            /// <param name="storeTypePostfix"> The new postfix, or null to leave unchanged. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="storeType">The new store type name.</param>
+            /// <param name="size">The new size.</param>
+            /// <param name="storeTypePostfix">The new postfix, or null to leave unchanged.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithStoreTypeAndSize(
                 string storeType,
                 int? size,
@@ -160,9 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given precision and scale
             /// </summary>
-            /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
-            /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
+            /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithPrecisionAndScale(
                 int? precision,
                 int? scale)
@@ -180,8 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given precision.
             /// </summary>
-            /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithPrecision(int? precision)
                 => new(
                     CoreParameters,
@@ -197,8 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <summary>
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given scale.
             /// </summary>
-            /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithScale(int? scale)
                 => new(
                     CoreParameters,
@@ -215,8 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     Creates a new <see cref="RelationalTypeMappingParameters" /> parameter object with the given
             ///     converter composed with any existing converter and set on the new parameter object.
             /// </summary>
-            /// <param name="converter"> The converter. </param>
-            /// <returns> The new parameter object. </returns>
+            /// <param name="converter">The converter.</param>
+            /// <returns>The new parameter object.</returns>
             public RelationalTypeMappingParameters WithComposedConverter(ValueConverter? converter)
                 => new(
                     CoreParameters.WithComposedConverter(converter),
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
+        /// <param name="parameters">The parameters for this mapping.</param>
         protected RelationalTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters.CoreParameters)
         {
@@ -288,10 +288,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Processes the store type name to add appropriate postfix/prefix text as needed.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <param name="storeType"> The specified store type name. </param>
-        /// <param name="storeTypeNameBase"> The calculated based name</param>
-        /// <returns> The store type name to use. </returns>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <param name="storeType">The specified store type name.</param>
+        /// <param name="storeTypeNameBase">The calculated based name</param>
+        /// <returns>The store type name to use.</returns>
         protected virtual string ProcessStoreType(
             RelationalTypeMappingParameters parameters,
             string storeType,
@@ -340,14 +340,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="clrType"> The .NET type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the type has fixed length data or not. </param>
-        /// <param name="precision"> The precision of data the property is configured to store, or null if no precision is configured. </param>
-        /// <param name="scale"> The scale of data the property is configured to store, or null if no scale is configured. </param>
+        /// <param name="storeType">The name of the database type.</param>
+        /// <param name="clrType">The .NET type.</param>
+        /// <param name="dbType">The <see cref="System.Data.DbType" /> to be used.</param>
+        /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
+        /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
+        /// <param name="fixedLength">A value indicating whether the type has fixed length data or not.</param>
+        /// <param name="precision">The precision of data the property is configured to store, or null if no precision is configured.</param>
+        /// <param name="scale">The scale of data the property is configured to store, or null if no scale is configured.</param>
         protected RelationalTypeMapping(
             string storeType,
             Type clrType,
@@ -372,25 +372,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <returns>The newly created mapping.</returns>
         protected abstract RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters);
 
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="storeType">The name of the database type.</param>
+        /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
+        /// <returns>The newly created mapping.</returns>
         public virtual RelationalTypeMapping Clone(string storeType, int? size)
             => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
 
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
-        /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
+        /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
+        /// <returns>The newly created mapping.</returns>
         public virtual RelationalTypeMapping Clone(int? precision, int? scale)
             => Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
@@ -398,16 +398,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
         ///     added.
         /// </summary>
-        /// <param name="converter"> The converter to use. </param>
-        /// <returns> A new type mapping </returns>
+        /// <param name="converter">The converter to use.</param>
+        /// <returns>A new type mapping</returns>
         public override CoreTypeMapping Clone(ValueConverter? converter)
             => Clone(Parameters.WithComposedConverter(converter));
 
         /// <summary>
         ///     Clones the type mapping to update facets from the mapping info, if needed.
         /// </summary>
-        /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
-        /// <returns> The cloned mapping, or the original mapping if no clone was needed. </returns>
+        /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
+        /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
         public virtual RelationalTypeMapping Clone(in RelationalTypeMappingInfo mappingInfo)
             => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
 
@@ -471,11 +471,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
         /// </summary>
-        /// <param name="command"> The command the parameter should be created on. </param>
-        /// <param name="name"> The name of the parameter. </param>
-        /// <param name="value"> The value to be assigned to the parameter. </param>
-        /// <param name="nullable"> A value indicating whether the parameter should be a nullable type. </param>
-        /// <returns> The newly created parameter. </returns>
+        /// <param name="command">The command the parameter should be created on.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="value">The value to be assigned to the parameter.</param>
+        /// <param name="nullable">A value indicating whether the parameter should be a nullable type.</param>
+        /// <returns>The newly created parameter.</returns>
         public virtual DbParameter CreateParameter(
             DbCommand command,
             string name,
@@ -539,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.
         /// </summary>
-        /// <param name="parameter"> The parameter to be configured. </param>
+        /// <param name="parameter">The parameter to be configured.</param>
         protected virtual void ConfigureParameter(DbParameter parameter)
         {
         }
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The method to use when reading values of the given type. The method must be defined
         ///     on <see cref="DbDataReader" /> or one of its subclasses.
         /// </summary>
-        /// <returns> The method to use to read the value. </returns>
+        /// <returns>The method to use to read the value.</returns>
         public virtual MethodInfo GetDataReaderMethod()
         {
             var type = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The method to use when reading values of the given type. The method must be defined
         ///     on <see cref="DbDataReader" />.
         /// </summary>
-        /// <returns> The method to use to read the value. </returns>
+        /// <returns>The method to use to read the value.</returns>
         public static MethodInfo GetDataReaderMethod(Type type)
             => _getXMethods.TryGetValue(type, out var method)
                 ? method
@@ -611,8 +611,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets a custom expression tree for reading the value from the input data reader
         ///     expression that contains the database value.
         /// </summary>
-        /// <param name="expression"> The input expression, containing the database value. </param>
-        /// <returns> The expression with customization added. </returns>
+        /// <param name="expression">The input expression, containing the database value.</param>
+        /// <returns>The expression with customization added.</returns>
         public virtual Expression CustomizeDataReaderExpression(Expression expression)
             => expression;
     }

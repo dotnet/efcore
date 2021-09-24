@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
-        /// <param name="fieldName"> The name of the field to use. </param>
+        /// <param name="fieldName">The name of the field to use.</param>
         void SetField(string? fieldName);
 
         /// <summary>

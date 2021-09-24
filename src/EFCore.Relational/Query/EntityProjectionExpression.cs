@@ -30,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
         /// </summary>
-        /// <param name="entityType"> The entity type to shape. </param>
-        /// <param name="innerTable"> The table from which entity columns are being projected out. </param>
-        /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
+        /// <param name="entityType">The entity type to shape.</param>
+        /// <param name="innerTable">The table from which entity columns are being projected out.</param>
+        /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
         [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
         public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
         /// </summary>
-        /// <param name="entityType"> The entity type to shape. </param>
-        /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
-        /// <param name="discriminatorExpression"> A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy. </param>
+        /// <param name="entityType">The entity type to shape.</param>
+        /// <param name="propertyExpressionMap">A dictionary of column expressions corresponding to properties of the entity type.</param>
+        /// <param name="discriminatorExpression">A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy.</param>
         public EntityProjectionExpression(
             IEntityType entityType,
             IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Makes entity instance in projection nullable.
         /// </summary>
-        /// <returns> A new entity projection expression which can project nullable entity. </returns>
+        /// <returns>A new entity projection expression which can project nullable entity.</returns>
         public virtual EntityProjectionExpression MakeNullable()
         {
             var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Updates the entity type being projected out to one of the derived type.
         /// </summary>
-        /// <param name="derivedType"> A derived entity type which should be projected. </param>
-        /// <returns> A new entity projection expression which has the derived type being projected. </returns>
+        /// <param name="derivedType">A derived entity type which should be projected.</param>
+        /// <returns>A new entity projection expression which has the derived type being projected.</returns>
         public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
             Check.NotNull(derivedType, nameof(derivedType));
@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Binds a property with this entity projection to get the SQL representation.
         /// </summary>
-        /// <param name="property"> A property to bind. </param>
-        /// <returns> A column which is a SQL representation of the property. </returns>
+        /// <param name="property">A property to bind.</param>
+        /// <returns>A column which is a SQL representation of the property.</returns>
         public virtual ColumnExpression BindProperty(IProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -178,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Adds a navigation binding for this entity projection when the target entity type of the navigation is owned or weak.
         /// </summary>
-        /// <param name="navigation"> A navigation to add binding for. </param>
-        /// <param name="entityShaper"> An entity shaper expression for the target type. </param>
+        /// <param name="navigation">A navigation to add binding for.</param>
+        /// <param name="entityShaper">An entity shaper expression for the target type.</param>
         public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Binds a navigation with this entity projection to get entity shaper for the target entity type of the navigation which was
         ///     previously added using <see cref="AddNavigationBinding(INavigation, EntityShaperExpression)" /> method.
         /// </summary>
-        /// <param name="navigation"> A navigation to bind. </param>
-        /// <returns> An entity shaper expression for the target entity type of the navigation. </returns>
+        /// <param name="navigation">A navigation to bind.</param>
+        /// <returns>An entity shaper expression for the target entity type of the navigation.</returns>
         public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));

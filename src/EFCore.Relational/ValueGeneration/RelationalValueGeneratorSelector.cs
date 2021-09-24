@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
             : base(dependencies)
         {
@@ -45,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Creates a new value generator for the given property.
         /// </summary>
-        /// <param name="property"> The property to get the value generator for. </param>
+        /// <param name="property">The property to get the value generator for.</param>
         /// <param name="entityType">
         ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
         /// </param>
-        /// <returns> The newly created value generator. </returns>
+        /// <returns>The newly created value generator.</returns>
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));

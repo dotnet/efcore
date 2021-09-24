@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="CollectionShaperExpression" /> class.
         /// </summary>
-        /// <param name="projection"> An expression reprensenting how to get value from query to create the collection. </param>
-        /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
-        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
-        /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        /// <param name="projection">An expression reprensenting how to get value from query to create the collection.</param>
+        /// <param name="innerShaper">An expression used to create individual elements of the collection.</param>
+        /// <param name="navigation">A navigation associated with this collection, if any.</param>
+        /// <param name="elementType">The clr type of individual elements in the collection.</param>
         public CollectionShaperExpression(
             Expression projection,
             Expression innerShaper,
@@ -90,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="projection"> The <see cref="Projection" /> property of the result. </param>
-        /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="projection">The <see cref="Projection" /> property of the result.</param>
+        /// <param name="innerShaper">The <see cref="InnerShaper" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual CollectionShaperExpression Update(
             Expression projection,
             Expression innerShaper)

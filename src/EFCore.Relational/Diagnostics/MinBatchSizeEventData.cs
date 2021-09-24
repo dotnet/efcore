@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="entries"> The entries being updated. </param>
-        /// <param name="commandCount"> The command count. </param>
-        /// <param name="minBatchSize"> The minimum batch size. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="entries">The entries being updated.</param>
+        /// <param name="commandCount">The command count.</param>
+        /// <param name="minBatchSize">The minimum batch size.</param>
         public MinBatchSizeEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

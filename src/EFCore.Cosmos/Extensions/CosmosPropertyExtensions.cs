@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> Returns the property name that the property is mapped to when targeting Cosmos. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>Returns the property name that the property is mapped to when targeting Cosmos.</returns>
         public static string GetJsonPropertyName(this IReadOnlyProperty property)
             => (string?)property[CosmosAnnotationNames.PropertyName]
                 ?? GetDefaultJsonPropertyName(property);
@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="name"> The name to set. </param>
+        /// <param name="property">The property.</param>
+        /// <param name="name">The name to set.</param>
         public static void SetJsonPropertyName(this IMutableProperty property, string? name)
             => property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <param name="name"> The name to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured value. </returns>
+        /// <param name="property">The property.</param>
+        /// <param name="name">The name to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The configured value.</returns>
         public static string? SetJsonPropertyName(
             this IConventionProperty property,
             string? name,
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
-        /// <param name="property"> The property. </param>
+        /// <param name="property">The property.</param>
         /// <returns>
         ///     The <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
         /// </returns>

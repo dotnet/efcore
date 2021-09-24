@@ -22,17 +22,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the key constraint name for this key.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <returns> The key constraint name for this key. </returns>
+        /// <param name="key">The key.</param>
+        /// <returns>The key constraint name for this key.</returns>
         public static string? GetName(this IReadOnlyKey key)
             => key.GetName(StoreObjectIdentifier.Table(key.DeclaringEntityType.GetTableName()!, key.DeclaringEntityType.GetSchema()));
 
         /// <summary>
         ///     Returns the key constraint name for this key for a particular table.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The key constraint name for this key. </returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The key constraint name for this key.</returns>
         public static string? GetName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
             => (string?)key[RelationalAnnotationNames.Name]
                 ?? key.GetDefaultName(storeObject);
@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the default key constraint name that would be used for this key.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <returns> The default key constraint name that would be used for this key. </returns>
+        /// <param name="key">The key.</param>
+        /// <returns>The default key constraint name that would be used for this key.</returns>
         public static string GetDefaultName(this IReadOnlyKey key)
         {
             var tableName = key.DeclaringEntityType.GetTableName();
@@ -60,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the default key constraint name that would be used for this key for a particular table.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The default key constraint name that would be used for this key. </returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The default key constraint name that would be used for this key.</returns>
         public static string? GetDefaultName(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             string? name;
@@ -146,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the key constraint name for this key.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="name"> The value to set. </param>
+        /// <param name="key">The key.</param>
+        /// <param name="name">The value to set.</param>
         public static void SetName(this IMutableKey key, string? name)
             => key.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
@@ -156,10 +156,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the key constraint name for this key.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="name"> The value to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured name. </returns>
+        /// <param name="key">The key.</param>
+        /// <param name="name">The value to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The configured name.</returns>
         public static string? SetName(this IConventionKey key, string? name, bool fromDataAnnotation = false)
         {
             key.SetOrRemoveAnnotation(
@@ -173,16 +173,16 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the constraint name. </returns>
+        /// <param name="key">The key.</param>
+        /// <returns>The <see cref="ConfigurationSource" /> for the constraint name.</returns>
         public static ConfigurationSource? GetNameConfigurationSource(this IConventionKey key)
             => key.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
 
         /// <summary>
         ///     Gets the unique constraints to which the key is mapped.
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <returns> The unique constraints to which the key is mapped. </returns>
+        /// <param name="key">The key.</param>
+        /// <returns>The unique constraints to which the key is mapped.</returns>
         public static IEnumerable<IUniqueConstraint> GetMappedConstraints(this IKey key)
             => (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
                     RelationalAnnotationNames.UniqueConstraintMappings)
@@ -197,9 +197,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The key found, or <see langword="null" /> if none was found.</returns>
         public static IReadOnlyKey? FindSharedObjectRootKey(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(key, nameof(key));
@@ -243,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The key found, or <see langword="null" /> if none was found.</returns>
         public static IMutableKey? FindSharedObjectRootKey(
             this IMutableKey key,
             in StoreObjectIdentifier storeObject)
@@ -260,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The key found, or <see langword="null" /> if none was found.</returns>
         public static IConventionKey? FindSharedObjectRootKey(
             this IConventionKey key,
             in StoreObjectIdentifier storeObject)
@@ -277,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="key"> The key. </param>
-        /// <param name="storeObject"> The identifier of the containing store object. </param>
-        /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
+        /// <param name="key">The key.</param>
+        /// <param name="storeObject">The identifier of the containing store object.</param>
+        /// <returns>The key found, or <see langword="null" /> if none was found.</returns>
         public static IKey? FindSharedObjectRootKey(
             this IKey key,
             in StoreObjectIdentifier storeObject)

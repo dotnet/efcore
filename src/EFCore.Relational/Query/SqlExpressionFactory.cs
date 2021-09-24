@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlExpressionFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
         public SqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

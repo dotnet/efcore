@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes new <see cref="DbSetProperty" /> with given values.
         /// </summary>
-        /// <param name="name"> The name of DbSet. </param>
-        /// <param name="type"> The entity clr type of DbSet. </param>
-        /// <param name="setter"> The setter for DbSet property. </param>
+        /// <param name="name">The name of DbSet.</param>
+        /// <param name="type">The entity clr type of DbSet.</param>
+        /// <param name="setter">The setter for DbSet property.</param>
         public DbSetProperty(
             string name,
             Type type,

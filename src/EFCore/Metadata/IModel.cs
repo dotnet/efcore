@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         new IEntityType? FindEntityType(string name);
 
         /// <summary>
@@ -53,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
-        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the entity type to find.</param>
+        /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
+        /// <param name="definingEntityType">The defining entity type of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IEntityType? FindEntityType(
             string name,
             string definingNavigationName,
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="type">The type to find the corresponding entity type for.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IEntityType? FindRuntimeEntityType(Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <returns> All entity types defined in the model. </returns>
+        /// <returns>All entity types defined in the model.</returns>
         new IEnumerable<IEntityType> GetEntityTypes();
 
         /// <summary>
@@ -124,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="type">The type to find the corresponding entity type for.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         new IEntityType? FindEntityType(Type type);
 
         /// <summary>
@@ -135,10 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type of the entity type to find. </param>
-        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
-        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="type">The type of the entity type to find.</param>
+        /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
+        /// <param name="definingEntityType">The defining entity type of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IEntityType? FindEntityType(
             Type type,
             string definingNavigationName,
@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type of the entity type to find. </param>
-        /// <returns> The entity types found. </returns>
+        /// <param name="type">The type of the entity type to find.</param>
+        /// <returns>The entity types found.</returns>
         [DebuggerStepThrough]
         new IEnumerable<IEntityType> FindEntityTypes(Type type);
 
@@ -162,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The base type. </param>
-        /// <param name="condition"> An optional condition for filtering entity types. </param>
-        /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
+        /// <param name="type">The base type.</param>
+        /// <param name="condition">An optional condition for filtering entity types.</param>
+        /// <returns>List of entity types corresponding to the least derived types from the given.</returns>
         new IEnumerable<IEntityType> FindLeastDerivedEntityTypes(
             Type type,
             Func<IReadOnlyEntityType, bool>? condition = null)
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="methodInfo"> The <see cref="MethodInfo" /> to check. </param>
+        /// <param name="methodInfo">The <see cref="MethodInfo" /> to check.</param>
         bool IsIndexerMethod(MethodInfo methodInfo);
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <returns> The pre-convention configurations. </returns>
+        /// <returns>The pre-convention configurations.</returns>
         IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations();
 
         /// <summary>
@@ -195,8 +195,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="scalarType"> The CLR type. </param>
-        /// <returns> The pre-convention configuration or <see langword="null" /> if none is found. </returns>
+        /// <param name="scalarType">The CLR type.</param>
+        /// <returns>The pre-convention configuration or <see langword="null" /> if none is found.</returns>
         ITypeMappingConfiguration? FindTypeMappingConfiguration(Type scalarType);
     }
 }

@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder UseHiLo(
             this ModelBuilder modelBuilder,
             string? name = null,
@@ -68,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> A builder to further configure the sequence. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>A builder to further configure the sequence.</returns>
         public static IConventionSequenceBuilder? HasHiLoSequence(
             this IConventionModelBuilder modelBuilder,
             string? name,
@@ -98,11 +98,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name and schema can be set for the hi-lo sequence. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name and schema can be set for the hi-lo sequence.</returns>
         public static bool CanSetHiLoSequence(
             this IConventionModelBuilder modelBuilder,
             string? name,
@@ -127,10 +127,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder UseIdentityColumns(
             this ModelBuilder modelBuilder,
             long seed = 1,
@@ -159,10 +159,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder UseIdentityColumns(
             this ModelBuilder modelBuilder,
             int seed,
@@ -177,9 +177,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -206,10 +206,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY.</returns>
         public static bool CanSetIdentityColumnSeed(
             this IConventionModelBuilder modelBuilder,
             long? seed,
@@ -228,9 +228,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -257,10 +257,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY.</returns>
         public static bool CanSetIdentityColumnIncrement(
             this IConventionModelBuilder modelBuilder,
             int? increment,
@@ -280,9 +280,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="valueGenerationStrategy">The value generation strategy.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -320,10 +320,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the default value generation strategy. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="valueGenerationStrategy">The value generation strategy.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the default value generation strategy.</returns>
         public static bool CanSetValueGenerationStrategy(
             this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
@@ -348,9 +348,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="maxSize"> The maximum size of the database. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="maxSize">The maximum size of the database.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasDatabaseMaxSize(this ModelBuilder modelBuilder, string maxSize)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -374,9 +374,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="maxSize"> The maximum size of the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="maxSize">The maximum size of the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -403,10 +403,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="maxSize"> The maximum size of the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the maximum size of the database. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="maxSize">The maximum size of the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the maximum size of the database.</returns>
         public static bool CanSetDatabaseMaxSize(
             this IConventionModelBuilder modelBuilder,
             string? maxSize,
@@ -430,9 +430,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="serviceTier"> The service tier of the database as a string literal. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="serviceTier">The service tier of the database as a string literal.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasServiceTier(this ModelBuilder modelBuilder, string serviceTier)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -456,9 +456,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="serviceTier"> The expression for the service tier of the database. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="serviceTier">The expression for the service tier of the database.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasServiceTierSql(this ModelBuilder modelBuilder, string serviceTier)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -482,9 +482,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="serviceTier"> The expression for the service tier of the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="serviceTier">The expression for the service tier of the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -511,10 +511,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="serviceTier"> The expression for the service tier of the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the service tier of the database. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="serviceTier">The expression for the service tier of the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the service tier of the database.</returns>
         public static bool CanSetServiceTierSql(
             this IConventionModelBuilder modelBuilder,
             string? serviceTier,
@@ -538,9 +538,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="performanceLevel"> The performance level of the database as a string literal. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="performanceLevel">The performance level of the database as a string literal.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasPerformanceLevel(this ModelBuilder modelBuilder, string performanceLevel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -564,9 +564,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="performanceLevel"> The expression for the performance level of the database. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="performanceLevel">The expression for the performance level of the database.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasPerformanceLevelSql(this ModelBuilder modelBuilder, string performanceLevel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -590,9 +590,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="performanceLevel"> The expression for the performance level of the database. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="performanceLevel">The expression for the performance level of the database.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -619,10 +619,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="performanceLevel"> The performance level of the database expression. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the performance level of the database. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="performanceLevel">The performance level of the database expression.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the performance level of the database.</returns>
         public static bool CanSetPerformanceLevelSql(
             this IConventionModelBuilder modelBuilder,
             string? performanceLevel,

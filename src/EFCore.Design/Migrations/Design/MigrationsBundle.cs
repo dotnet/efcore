@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The entry point for Migrations bundles.
         /// </summary>
-        /// <param name="context"> The DbContext to use. </param>
-        /// <param name="assembly"> The Migrations assembly. </param>
-        /// <param name="startupAssembly"> The startup assembly. </param>
-        /// <param name="args"> The command-line arguments. </param>
-        /// <returns> Zero if the command succeeds; otherwise, one. </returns>
+        /// <param name="context">The DbContext to use.</param>
+        /// <param name="assembly">The Migrations assembly.</param>
+        /// <param name="startupAssembly">The startup assembly.</param>
+        /// <param name="args">The command-line arguments.</param>
+        /// <returns>Zero if the command succeeds; otherwise, one.</returns>
         public static int Execute(string? context, Assembly assembly, Assembly startupAssembly, string[] args)
         {
             _context = context;

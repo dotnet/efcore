@@ -26,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates a LINQ <see cref="MethodCallExpression" /> to a SQL equivalent.
         /// </summary>
-        /// <param name="model"> A model to use for translation. </param>
-        /// <param name="instance"> A SQL representation of <see cref="MethodCallExpression.Object" />. </param>
-        /// <param name="method"> The method info from <see cref="MethodCallExpression.Method" />. </param>
-        /// <param name="arguments"> SQL representations of <see cref="MethodCallExpression.Arguments" />. </param>
-        /// <param name="logger"> The query logger to use. </param>
-        /// <returns> A SQL translation of the <see cref="MethodCallExpression" />. </returns>
+        /// <param name="model">A model to use for translation.</param>
+        /// <param name="instance">A SQL representation of <see cref="MethodCallExpression.Object" />.</param>
+        /// <param name="method">The method info from <see cref="MethodCallExpression.Method" />.</param>
+        /// <param name="arguments">SQL representations of <see cref="MethodCallExpression.Arguments" />.</param>
+        /// <param name="logger">The query logger to use.</param>
+        /// <returns>A SQL translation of the <see cref="MethodCallExpression" />.</returns>
         SqlExpression? Translate(
             IModel model,
             SqlExpression? instance,

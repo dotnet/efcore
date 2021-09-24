@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates the next unique parameter name.
         /// </summary>
-        /// <returns> The generated name. </returns>
+        /// <returns>The generated name.</returns>
         public virtual string GenerateNext()
             => "p" + _count++;
 

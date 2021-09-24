@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="CollectionShaperExpression" /> class.
         /// </summary>
-        /// <param name="subquery"> An expression reprensenting how to get value from query to create the collection. </param>
-        /// <param name="navigation"> A navigation associated with this collection. </param>
+        /// <param name="subquery">An expression reprensenting how to get value from query to create the collection.</param>
+        /// <param name="navigation">A navigation associated with this collection.</param>
         public MaterializeCollectionNavigationExpression(Expression subquery, INavigationBase navigation)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="subquery">The <see cref="Subquery" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));

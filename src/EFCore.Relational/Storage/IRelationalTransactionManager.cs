@@ -34,41 +34,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Begins a new transaction.
         /// </summary>
-        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
-        /// <returns> The newly created transaction. </returns>
+        /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
+        /// <returns>The newly created transaction.</returns>
         IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
         /// </summary>
-        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation. The task result contains the newly created transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the newly created transaction.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
-        /// <param name="transaction"> The transaction to be used. </param>
-        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
+        /// <param name="transaction">The transaction to be used.</param>
+        /// <returns>An instance of <see cref="IDbTransaction" /> that wraps the provided transaction.</returns>
         IDbContextTransaction? UseTransaction(DbTransaction? transaction);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
-        /// <param name="transaction"> The transaction to be used. </param>
-        /// <param name="transactionId"> The unique identifier for the transaction. </param>
-        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
+        /// <param name="transaction">The transaction to be used.</param>
+        /// <param name="transactionId">The unique identifier for the transaction.</param>
+        /// <returns>An instance of <see cref="IDbTransaction" /> that wraps the provided transaction.</returns>
         IDbContextTransaction? UseTransaction(DbTransaction? transaction, Guid transactionId);
 
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
-        /// <param name="transaction"> The transaction to be used. </param>
+        /// <param name="transaction">The transaction to be used.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>An instance of <see cref="IDbTransaction" /> that wraps the provided transaction.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IDbContextTransaction?> UseTransactionAsync(
             DbTransaction? transaction,
             CancellationToken cancellationToken = default);
@@ -76,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Specifies an existing <see cref="DbTransaction" /> to be used for database operations.
         /// </summary>
-        /// <param name="transaction"> The transaction to be used. </param>
-        /// <param name="transactionId"> The unique identifier for the transaction. </param>
+        /// <param name="transaction">The transaction to be used.</param>
+        /// <param name="transactionId">The unique identifier for the transaction.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>An instance of <see cref="IDbTransaction" /> that wraps the provided transaction.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IDbContextTransaction?> UseTransactionAsync(
             DbTransaction? transaction,
             Guid transactionId,

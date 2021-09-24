@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     obtained from <see cref="DbContext.Database" /> and it is not designed to be directly constructed
         ///     in your application code.
         /// </summary>
-        /// <param name="context"> The context this database API belongs to. </param>
+        /// <param name="context">The context this database API belongs to.</param>
         public DatabaseFacade(DbContext context)
         {
             Check.NotNull(context, nameof(context));
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
         ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
         /// </remarks>
-        /// <returns> <see langword="true" /> if the database is created, <see langword="false" /> if it already existed. </returns>
+        /// <returns><see langword="true" /> if the database is created, <see langword="false" /> if it already existed.</returns>
         public virtual bool EnsureCreated()
             => Dependencies.DatabaseCreator.EnsureCreated();
 
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
         ///     <see langword="false" /> if it already existed.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
         ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
         /// </remarks>
-        /// <returns> <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist. </returns>
+        /// <returns><see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist.</returns>
         public virtual bool EnsureDeleted()
             => Dependencies.DatabaseCreator.EnsureDeleted();
 
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
         ///     <see langword="false" /> if it did not exist.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see> for more information.
         /// </remarks>
-        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
+        /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
         public virtual bool CanConnect()
             => Dependencies.DatabaseCreator.CanConnect();
 
@@ -252,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.CanConnectAsync(cancellationToken);
 
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.BeginTransactionAsync(cancellationToken);
 
@@ -315,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.CommitTransactionAsync(cancellationToken);
 
@@ -345,8 +345,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A Task representing the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.RollbackTransactionAsync(cancellationToken);
 
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -517,8 +517,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

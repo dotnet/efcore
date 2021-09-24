@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="transaction"> The <see cref="Transaction" />. </param>
-        /// <param name="connection"> The <see cref="DbConnection" />. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="transaction">The <see cref="Transaction" />.</param>
+        /// <param name="connection">The <see cref="DbConnection" />.</param>
         /// <param name="connectionId">
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>

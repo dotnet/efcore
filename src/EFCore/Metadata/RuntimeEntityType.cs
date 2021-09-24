@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the primary key for this entity type.
         /// </summary>
-        /// <param name="key"> The new primary key. </param>
+        /// <param name="key">The new primary key.</param>
         public virtual void SetPrimaryKey(RuntimeKey key)
         {
             foreach (var property in key.Properties)
@@ -170,8 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a new alternate key to this entity type.
         /// </summary>
-        /// <param name="properties"> The properties that make up the alternate key. </param>
-        /// <returns> The newly created key. </returns>
+        /// <param name="properties">The properties that make up the alternate key.</param>
+        /// <returns>The newly created key.</returns>
         public virtual RuntimeKey AddKey(IReadOnlyList<RuntimeProperty> properties)
         {
             var key = new RuntimeKey(properties);
@@ -196,8 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the primary or alternate key that is defined on the given properties.
         ///     Returns <see langword="null" /> if no key is defined for the given properties.
         /// </summary>
-        /// <param name="properties"> The properties that make up the key. </param>
-        /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
+        /// <param name="properties">The properties that make up the key.</param>
+        /// <returns>The key, or <see langword="null" /> if none is defined.</returns>
         public virtual RuntimeKey? FindKey(IReadOnlyList<IReadOnlyProperty> properties)
             => _keys.TryGetValue(properties, out var key)
                 ? key
@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a new relationship to this entity type.
         /// </summary>
-        /// <param name="properties"> The properties that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="properties">The properties that the foreign key is defined on.</param>
+        /// <param name="principalKey">The primary or alternate key that is referenced.</param>
         /// <param name="principalEntityType">
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
@@ -223,11 +223,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A value indicating how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </param>
-        /// <param name="unique"> A value indicating whether the values assigned to the foreign key properties are unique. </param>
-        /// <param name="required"> A value indicating whether the principal entity is required. </param>
-        /// <param name="requiredDependent"> A value indicating whether the dependent entity is required. </param>
-        /// <param name="ownership"> A value indicating whether this relationship defines an ownership. </param>
-        /// <returns> The newly created foreign key. </returns>
+        /// <param name="unique">A value indicating whether the values assigned to the foreign key properties are unique.</param>
+        /// <param name="required">A value indicating whether the principal entity is required.</param>
+        /// <param name="requiredDependent">A value indicating whether the dependent entity is required.</param>
+        /// <param name="ownership">A value indicating whether this relationship defines an ownership.</param>
+        /// <returns>The newly created foreign key.</returns>
         public virtual RuntimeForeignKey AddForeignKey(
             IReadOnlyList<RuntimeProperty> properties,
             RuntimeKey principalKey,
@@ -288,14 +288,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
         ///     Returns <see langword="null" /> if no foreign key is found.
         /// </summary>
-        /// <param name="properties"> The properties that the foreign key is defined on. </param>
-        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="properties">The properties that the foreign key is defined on.</param>
+        /// <param name="principalKey">The primary or alternate key that is referenced.</param>
         /// <param name="principalEntityType">
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
-        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
+        /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         public virtual RuntimeForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
             IReadOnlyKey principalKey,
@@ -318,8 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the foreign keys declared on this entity type using the given properties.
         /// </summary>
-        /// <param name="properties"> The properties to find the foreign keys on. </param>
-        /// <returns> Declared foreign keys. </returns>
+        /// <param name="properties">The properties to find the foreign keys on.</param>
+        /// <returns>Declared foreign keys.</returns>
         public virtual IEnumerable<RuntimeForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
             => _foreignKeys.Count == 0
                 ? Enumerable.Empty<RuntimeForeignKey>()
@@ -362,17 +362,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a new navigation property to this entity type.
         /// </summary>
-        /// <param name="name"> The name of the skip navigation property to add. </param>
-        /// <param name="foreignKey"> The foreign key that defines the relationship this navigation property will navigate. </param>
+        /// <param name="name">The name of the skip navigation property to add.</param>
+        /// <param name="foreignKey">The foreign key that defines the relationship this navigation property will navigate.</param>
         /// <param name="onDependent">
         ///     A value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
-        /// <param name="clrType"> The type of value that this navigation holds. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
-        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
-        /// <returns> The newly created navigation property. </returns>
+        /// <param name="clrType">The type of value that this navigation holds.</param>
+        /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow navigation.</param>
+        /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow navigation.</param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
+        /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
+        /// <returns>The newly created navigation property.</returns>
         public virtual RuntimeNavigation AddNavigation(
             string name,
             RuntimeForeignKey foreignKey,
@@ -395,8 +395,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
         /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the navigation property on the entity class.</param>
+        /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeNavigation? FindNavigation(string name)
             => (RuntimeNavigation?)((IReadOnlyEntityType)this).FindNavigation(name);
 
@@ -416,19 +416,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a new skip navigation property to this entity type.
         /// </summary>
-        /// <param name="name"> The name of the skip navigation property to add. </param>
-        /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
-        /// <param name="foreignKey"> The foreign key to the join type. </param>
-        /// <param name="collection"> Whether the navigation property is a collection property. </param>
+        /// <param name="name">The name of the skip navigation property to add.</param>
+        /// <param name="targetEntityType">The entity type that the skip navigation property will hold an instance(s) of.</param>
+        /// <param name="foreignKey">The foreign key to the join type.</param>
+        /// <param name="collection">Whether the navigation property is a collection property.</param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
-        /// <param name="clrType"> The type of value that this navigation holds. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
-        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
-        /// <returns> The newly created skip navigation property. </returns>
+        /// <param name="clrType">The type of value that this navigation holds.</param>
+        /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow navigation.</param>
+        /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow navigation.</param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
+        /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
+        /// <returns>The newly created skip navigation property.</returns>
         public virtual RuntimeSkipNavigation AddSkipNavigation(
             string name,
             RuntimeEntityType targetEntityType,
@@ -462,8 +462,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
         /// </summary>
-        /// <param name="name"> The name of the navigation property on the entity class. </param>
-        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the navigation property on the entity class.</param>
+        /// <returns>The navigation property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeSkipNavigation? FindSkipNavigation(string name)
             => FindDeclaredSkipNavigation(name) ?? _baseType?.FindSkipNavigation(name);
 
@@ -493,10 +493,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds an index to this entity type.
         /// </summary>
-        /// <param name="properties"> The properties that are to be indexed. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="unique"> A value indicating whether the values assigned to the indexed properties are unique. </param>
-        /// <returns> The newly created index. </returns>
+        /// <param name="properties">The properties that are to be indexed.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="unique">A value indicating whether the values assigned to the indexed properties are unique.</param>
+        /// <returns>The newly created index.</returns>
         public virtual RuntimeIndex AddIndex(
             IReadOnlyList<RuntimeProperty> properties,
             string? name = null,
@@ -535,8 +535,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         Named indexes will not be returned even if the list of properties matches.
         ///     </para>
         /// </summary>
-        /// <param name="properties"> The properties to find the index on. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <param name="properties">The properties to find the index on.</param>
+        /// <returns>The index, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
             => _unnamedIndexes.TryGetValue(properties, out var index)
                 ? index
@@ -545,8 +545,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
         /// </summary>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the index.</param>
+        /// <returns>The index, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeIndex? FindIndex(string name)
             => _namedIndexes.TryGetValue(name, out var index)
                 ? index
@@ -572,33 +572,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a property to this entity type.
         /// </summary>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="clrType"> The type of value the property will hold. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow property. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow property. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this property. </param>
-        /// <param name="nullable"> A value indicating whether this property can contain <see langword="null" />. </param>
-        /// <param name="concurrencyToken"> A value indicating whether this property is used as a concurrency token. </param>
-        /// <param name="valueGenerated"> A value indicating when a value for this property will be generated by the database. </param>
+        /// <param name="name">The name of the property to add.</param>
+        /// <param name="clrType">The type of value the property will hold.</param>
+        /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
+        /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
+        /// <param name="nullable">A value indicating whether this property can contain <see langword="null" />.</param>
+        /// <param name="concurrencyToken">A value indicating whether this property is used as a concurrency token.</param>
+        /// <param name="valueGenerated">A value indicating when a value for this property will be generated by the database.</param>
         /// <param name="beforeSaveBehavior">
         ///     A value indicating whether or not this property can be modified before the entity is saved to the database.
         /// </param>
         /// <param name="afterSaveBehavior">
         ///     A value indicating whether or not this property can be modified after the entity is saved to the database.
         /// </param>
-        /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
-        /// <param name="unicode"> A value indicating whether or not the property can persist Unicode characters. </param>
-        /// <param name="precision"> The precision of data that is allowed in this property. </param>
-        /// <param name="scale"> The scale of data that is allowed in this property. </param>
+        /// <param name="maxLength">The maximum length of data that is allowed in this property.</param>
+        /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+        /// <param name="precision">The precision of data that is allowed in this property.</param>
+        /// <param name="scale">The scale of data that is allowed in this property.</param>
         /// <param name="providerPropertyType">
         ///     The type that the property value will be converted to before being sent to the database provider.
         /// </param>
-        /// <param name="valueGeneratorFactory"> The factory that has been set to generate values for this property, if any. </param>
-        /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> set for this property. </param>
-        /// <param name="valueComparer"> The <see cref="ValueComparer" /> for this property. </param>
-        /// <param name="keyValueComparer"> The <see cref="ValueComparer" /> to use with keys for this property. </param>
-        /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
-        /// <returns> The newly created property. </returns>
+        /// <param name="valueGeneratorFactory">The factory that has been set to generate values for this property, if any.</param>
+        /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
+        /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
+        /// <param name="keyValueComparer">The <see cref="ValueComparer" /> to use with keys for this property.</param>
+        /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
+        /// <returns>The newly created property.</returns>
         public virtual RuntimeProperty AddProperty(
             string name,
             Type clrType,
@@ -658,8 +658,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         <see cref="FindNavigation(string)" /> to find a navigation property.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the property. </param>
-        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the property.</param>
+        /// <returns>The property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeProperty? FindProperty(string name)
             => FindDeclaredProperty(name) ?? _baseType?.FindProperty(name);
 
@@ -684,8 +684,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         This API only finds scalar properties and does not find navigations or service properties.
         ///     </para>
         /// </summary>
-        /// <param name="propertyNames"> The property names. </param>
-        /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
+        /// <param name="propertyNames">The property names.</param>
+        /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
         public virtual IReadOnlyList<RuntimeProperty>? FindProperties(IEnumerable<string> propertyNames)
         {
             var properties = new List<RuntimeProperty>();
@@ -716,11 +716,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a service property to this entity type.
         /// </summary>
-        /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow property. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow property. </param>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this property. </param>
-        /// <returns> The newly created service property. </returns>
+        /// <param name="name">The name of the property to add.</param>
+        /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
+        /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
+        /// <returns>The newly created service property.</returns>
         public virtual RuntimeServiceProperty AddServiceProperty(
             string name,
             PropertyInfo? propertyInfo = null,
@@ -748,8 +748,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         This API only finds service properties and does not find scalar or navigation properties.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the service property. </param>
-        /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the service property.</param>
+        /// <returns>The service property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeServiceProperty? FindServiceProperty(string name)
             => FindDeclaredServiceProperty(name) ?? _baseType?.FindServiceProperty(name);
 
@@ -812,15 +812,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the default indexer property that takes a <see cref="string" /> value if one exists.
         /// </summary>
-        /// <param name="type">The type to look for the indexer on. </param>
-        /// <returns> An indexer property or <see langword="null" />. </returns>
+        /// <param name="type">The type to look for the indexer on.</param>
+        /// <returns>An indexer property or <see langword="null" />.</returns>
         public static PropertyInfo? FindIndexerProperty(Type type)
             => type.FindIndexerProperty();
 
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         public override string ToString()
             => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 

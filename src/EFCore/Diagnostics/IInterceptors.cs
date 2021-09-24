@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Resolves a single <typeparamref name="TInterceptor" /> from all those registered on
         ///     the <see cref="DbContext" /> or in the internal service provider.
         /// </summary>
-        /// <typeparam name="TInterceptor"> The interceptor type to resolve. </typeparam>
-        /// <returns> The resolved interceptor, which may be <see langword="null" /> if none are registered.</returns>
+        /// <typeparam name="TInterceptor">The interceptor type to resolve.</typeparam>
+        /// <returns>The resolved interceptor, which may be <see langword="null" /> if none are registered.</returns>
         TInterceptor? Aggregate<TInterceptor>()
             where TInterceptor : class, IInterceptor;
     }

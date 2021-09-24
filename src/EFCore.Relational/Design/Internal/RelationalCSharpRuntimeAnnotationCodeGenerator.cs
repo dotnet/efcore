@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this service.</param>
         public RelationalCSharpRuntimeAnnotationCodeGenerator(
             CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies,
             RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies relationalDependencies)
@@ -198,8 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
-        /// <param name="function"> The function to which the annotations are applied. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="function">The function to which the annotations are applied.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         public virtual void Generate(IDbFunction function, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
@@ -239,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
-        /// <param name="functionParameter"> The function parameter to which the annotations are applied. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="functionParameter">The function parameter to which the annotations are applied.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         public virtual void Generate(IDbFunctionParameter functionParameter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
@@ -311,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
-        /// <param name="sequence"> The sequence to which the annotations are applied. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="sequence">The sequence to which the annotations are applied.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         public virtual void Generate(ISequence sequence, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
@@ -351,8 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
-        /// <param name="constraint"> The check constraint to which the annotations are applied. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="constraint">The check constraint to which the annotations are applied.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         public virtual void Generate(ICheckConstraint constraint, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
@@ -450,8 +450,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
-        /// <param name="overrides"> The property overrides to which the annotations are applied. </param>
-        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        /// <param name="overrides">The property overrides to which the annotations are applied.</param>
+        /// <param name="parameters">Additional parameters used during code generation.</param>
         public virtual void GenerateOverrides(IAnnotatable overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);

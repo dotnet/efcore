@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteDbContextOptionsBuilder" /> class.
         /// </summary>
-        /// <param name="optionsBuilder"> The options builder. </param>
+        /// <param name="optionsBuilder">The options builder.</param>
         public SqliteDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {

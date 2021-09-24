@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity.
         /// </summary>
-        /// <param name="navigation"> The navigation property to check. </param>
+        /// <param name="navigation">The navigation property to check.</param>
         /// <returns>
         ///     <see langword="true" /> if the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity, otherwise <see langword="false" />.
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets a value indicating whether the given navigation property is a collection property.
         /// </summary>
-        /// <param name="navigation"> The navigation property to check. </param>
+        /// <param name="navigation">The navigation property to check.</param>
         /// <returns>
         ///     <see langword="true" /> if this is a collection property, false if it is a reference property.
         /// </returns>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the navigation property on the other end of the relationship. Returns null if
         ///     there is no navigation property defined on the other end of the relationship.
         /// </summary>
-        /// <param name="navigation"> The navigation property to find the inverse of. </param>
+        /// <param name="navigation">The navigation property to find the inverse of.</param>
         /// <returns>
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the entity type that a given navigation property will hold an instance of
         ///     (or hold instances of if it is a collection navigation).
         /// </summary>
-        /// <param name="navigation"> The navigation property to find the target entity type of. </param>
-        /// <returns> The target entity type. </returns>
+        /// <param name="navigation">The navigation property to find the target entity type of.</param>
+        /// <returns>The target entity type.</returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.TargetEntityType")]
         public static IEntityType GetTargetType(this INavigation navigation)
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets a value indicating whether this navigation should be eager loaded by default.
         /// </summary>
-        /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
-        /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
+        /// <param name="navigation">The navigation property to find whether it should be eager loaded.</param>
+        /// <returns>A value indicating whether this navigation should be eager loaded by default.</returns>
         [Obsolete("Use IReadOnlyNavigation.IsEagerLoaded")]
         public static bool IsEagerLoaded(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;

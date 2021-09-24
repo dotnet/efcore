@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type is ignored.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="name"> The name of the ignored entity type. </param>
-        /// <param name="type"> The ignored entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="name">The name of the ignored entity type.</param>
+        /// <param name="type">The ignored entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessEntityTypeIgnored(
             IConventionModelBuilder modelBuilder,
             string name,

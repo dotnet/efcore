@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for creating an <see cref="IModel" />.
         /// </summary>
-        /// <param name="builderName"> The <see cref="ModelBuilder" /> variable name. </param>
-        /// <param name="model"> The model. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="builderName">The <see cref="ModelBuilder" /> variable name.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         void Generate(
             string builderName,
             IModel model,

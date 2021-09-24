@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Adds or updates an annotation on the property.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveAnnotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the maximum length of data that can be stored in this property.
         ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
         /// </summary>
-        /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveMaxLength(int maxLength)
         {
             Configuration.SetMaxLength(maxLength);
@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the precision and scale of the property.
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
-        /// <param name="scale"> The scale of the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="precision">The precision of the property.</param>
+        /// <param name="scale">The scale of the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HavePrecision(int precision, int scale)
         {
             Configuration.SetPrecision(precision);
@@ -95,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Configures the precision of the property.
         ///     </para>
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="precision">The precision of the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HavePrecision(int precision)
         {
             Configuration.SetPrecision(precision);
@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures whether the property as capable of persisting unicode characters.
         ///     Can only be set on <see cref="string" /> properties.
         /// </summary>
-        /// <param name="unicode"> A value indicating whether the property can contain unicode characters. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="unicode">A value indicating whether the property can contain unicode characters.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder AreUnicode(bool unicode = true)
         {
             Configuration.SetIsUnicode(unicode);
@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </typeparam>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveConversion<TConversion>()
             => HaveConversion(typeof(TConversion));
 
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType)
         {
             Check.NotNull(conversionType, nameof(conversionType));
@@ -152,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </typeparam>
-        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer" />. </typeparam>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+        /// <typeparam name="TComparer">A type that derives from <see cref="ValueComparer" />.</typeparam>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveConversion<TConversion, TComparer>()
             where TComparer : ValueComparer
             => HaveConversion(typeof(TConversion), typeof(TComparer));
@@ -163,9 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </param>
-        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer" />. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+        /// <param name="comparerType">A type that derives from <see cref="ValueComparer" />.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType, Type? comparerType)
         {
             Check.NotNull(conversionType, nameof(conversionType));
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -197,8 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object? obj)
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

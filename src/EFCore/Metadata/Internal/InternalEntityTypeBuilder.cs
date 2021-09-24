@@ -5620,10 +5620,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
-        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
+        /// <param name="targetEntityType">The entity type that this relationship targets.</param>
+        /// <param name="navigationName">The name of the navigation property on this entity type that is part of the relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>An object that can be used to configure the relationship.</returns>
         [DebuggerStepThrough]
         IConventionForeignKeyBuilder? IConventionEntityTypeBuilder.HasOwnership(
             IConventionEntityType targetEntityType,
@@ -5653,9 +5653,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
-        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="targetEntityType">The entity type that this relationship targets.</param>
+        /// <param name="navigation">The navigation property on this entity type that is part of the relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
@@ -5689,13 +5689,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
-        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="targetEntityType">The entity type that this relationship targets.</param>
+        /// <param name="navigationName">The name of the navigation property on this entity type that is part of the relationship.</param>
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
@@ -5730,13 +5730,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
-        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
-        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="targetEntityType">The entity type that this relationship targets.</param>
+        /// <param name="navigation">The navigation property on this entity type that is part of the relationship.</param>
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.

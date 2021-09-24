@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="SharedTableConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
         public SharedTableConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -335,10 +335,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Gets a value indicating whether two key mapped to the same constraint are compatible.
         /// </summary>
-        /// <param name="key"> A key. </param>
-        /// <param name="duplicateKey"> Another key. </param>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true" /> if compatible </returns>
+        /// <param name="key">A key.</param>
+        /// <param name="duplicateKey">Another key.</param>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns><see langword="true" /> if compatible</returns>
         protected virtual bool AreCompatible(
             IReadOnlyKey key,
             IReadOnlyKey duplicateKey,
@@ -405,10 +405,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Gets a value indicating whether two indexes mapped to the same table index are compatible.
         /// </summary>
-        /// <param name="index"> An index. </param>
-        /// <param name="duplicateIndex"> Another index. </param>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true" /> if compatible </returns>
+        /// <param name="index">An index.</param>
+        /// <param name="duplicateIndex">Another index.</param>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns><see langword="true" /> if compatible</returns>
         protected virtual bool AreCompatible(
             IReadOnlyIndex index,
             IReadOnlyIndex duplicateIndex,
@@ -496,10 +496,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Gets a value indicating whether two foreign keys mapped to the same foreign key constraint are compatible.
         /// </summary>
-        /// <param name="foreignKey"> A foreign key. </param>
-        /// <param name="duplicateForeignKey"> Another foreign key. </param>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true" /> if compatible </returns>
+        /// <param name="foreignKey">A foreign key.</param>
+        /// <param name="duplicateForeignKey">Another foreign key.</param>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns><see langword="true" /> if compatible</returns>
         protected virtual bool AreCompatible(
             IReadOnlyForeignKey foreignKey,
             IReadOnlyForeignKey duplicateForeignKey,
@@ -567,10 +567,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Gets a value indicating whether two check constraints with the same name are compatible.
         /// </summary>
-        /// <param name="checkConstraint"> An check constraints. </param>
-        /// <param name="duplicateCheckConstraint"> Another check constraints. </param>
-        /// <param name="storeObject"> The identifier of the store object. </param>
-        /// <returns> <see langword="true" /> if compatible </returns>
+        /// <param name="checkConstraint">An check constraints.</param>
+        /// <param name="duplicateCheckConstraint">Another check constraints.</param>
+        /// <param name="storeObject">The identifier of the store object.</param>
+        /// <returns><see langword="true" /> if compatible</returns>
         protected virtual bool AreCompatible(
             IReadOnlyCheckConstraint checkConstraint,
             IReadOnlyCheckConstraint duplicateCheckConstraint,
