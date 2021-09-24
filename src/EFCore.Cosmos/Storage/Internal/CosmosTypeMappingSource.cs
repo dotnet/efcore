@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             return _clrTypeMappings.TryGetValue(clrType, out var mapping)
                 ? mapping
-                : FindPrimitiveMapping(mappingInfo)
-                ?? FindCollectionMapping(mappingInfo)
-                ?? base.FindMapping(mappingInfo);
+                : (FindPrimitiveMapping(mappingInfo)
+                    ?? FindCollectionMapping(mappingInfo)
+                    ?? base.FindMapping(mappingInfo));
         }
 
         private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)

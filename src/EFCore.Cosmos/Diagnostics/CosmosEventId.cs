@@ -6,21 +6,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
-        /// <summary>
-        ///     <para>
-        ///         Event IDs for Cosmos events that correspond to messages logged to an <see cref="ILogger" />
-        ///         and events sent to a <see cref="DiagnosticSource" />.
-        ///     </para>
-        ///     <para>
-        ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
-        ///         behavior of warnings.
-        ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
-        /// </remarks>
-        public static class CosmosEventId
+    /// <summary>
+    ///     <para>
+    ///         Event IDs for Cosmos events that correspond to messages logged to an <see cref="ILogger" />
+    ///         and events sent to a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
+    ///         behavior of warnings.
+    ///     </para>
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
+    public static class CosmosEventId
     {
         // Warning: These values must not change between releases.
         // Only add new values to the end of sections, never in the middle.
