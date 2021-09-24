@@ -20,18 +20,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Connects to the database using the given connection string and creates a <see cref="DatabaseModel" />
         ///     for the database.
         /// </summary>
-        /// <param name="connectionString"> The connection string for the database to reverse engineer. </param>
-        /// <param name="options"> The options specifying which metadata to read. </param>
-        /// <returns> The database model. </returns>
+        /// <param name="connectionString">The connection string for the database to reverse engineer.</param>
+        /// <param name="options">The options specifying which metadata to read.</param>
+        /// <returns>The database model.</returns>
         DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options);
 
         /// <summary>
         ///     Connects to the database using the given connection and creates a <see cref="DatabaseModel" />
         ///     for the database.
         /// </summary>
-        /// <param name="connection"> The connection to the database to reverse engineer. </param>
-        /// <param name="options"> The options specifying which metadata to read. </param>
-        /// <returns> The database model. </returns>
+        /// <param name="connection">The connection to the database to reverse engineer.</param>
+        /// <param name="options">The options specifying which metadata to read.</param>
+        /// <returns>The database model.</returns>
         DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options);
     }
 }

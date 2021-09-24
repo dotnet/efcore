@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="sqlServerValueGenerationStrategy"> The SQL Server value generation strategy. </param>
-        /// <param name="otherValueGenerationStrategy"> The other value generation strategy. </param>
-        /// <param name="property"> The property. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="sqlServerValueGenerationStrategy">The SQL Server value generation strategy.</param>
+        /// <param name="otherValueGenerationStrategy">The other value generation strategy.</param>
+        /// <param name="property">The property.</param>
         public ConflictingValueGenerationStrategiesEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

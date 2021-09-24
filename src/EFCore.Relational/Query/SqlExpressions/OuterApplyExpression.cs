@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="OuterApplyExpression" /> class.
         /// </summary>
-        /// <param name="table"> A table source to OUTER APPLY with. </param>
+        /// <param name="table">A table source to OUTER APPLY with.</param>
         public OuterApplyExpression(TableExpressionBase table)
             : base(table)
         {
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="table"> The <see cref="P:Table" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="table">The <see cref="P:Table" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual OuterApplyExpression Update(TableExpressionBase table)
         {
             Check.NotNull(table, nameof(table));

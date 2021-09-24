@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="contextType"> The type of the current <see cref="DbContext" />. </param>
-        /// <param name="exception"> The exception that triggered this event. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="contextType">The type of the current <see cref="DbContext" />.</param>
+        /// <param name="exception">The exception that triggered this event.</param>
         public DbContextTypeErrorEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

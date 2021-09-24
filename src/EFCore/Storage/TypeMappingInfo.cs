@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
-        /// <param name="property"> The property for which mapping is needed. </param>
+        /// <param name="property">The property for which mapping is needed.</param>
         public TypeMappingInfo(IProperty property)
             : this(property.GetPrincipals())
         {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
-        /// <param name="principals"> The principal property chain for the property for which mapping is needed. </param>
+        /// <param name="principals">The principal property chain for the property for which mapping is needed.</param>
         /// <param name="fallbackUnicode">
         ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
         ///     level, or <see langword="null" /> for default.
@@ -126,11 +126,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
-        /// <param name="member"> The property or field for which mapping is needed. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="member">The property or field for which mapping is needed.</param>
+        /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
+        /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
         public TypeMappingInfo(
             MemberInfo member,
             bool? unicode = null,
@@ -148,13 +148,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
-        /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
-        /// <param name="keyOrIndex"> If <see langword="true" />, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="rowVersion"> Specifies a row-version, or <see langword="null" /> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+        /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
+        /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
+        /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
+        /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
         public TypeMappingInfo(
             Type? type = null,
             bool keyOrIndex = false,
@@ -177,12 +177,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="ValueConverterInfo" />.
         /// </summary>
-        /// <param name="source"> The source info. </param>
-        /// <param name="converter"> The converter to apply. </param>
-        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <see langword="null" /> for default. </param>
-        /// <param name="size"> Specifies a size for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
-        /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
+        /// <param name="source">The source info.</param>
+        /// <param name="converter">The converter to apply.</param>
+        /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
+        /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
+        /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
         public TypeMappingInfo(
             TypeMappingInfo source,
             ValueConverterInfo converter,
@@ -209,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
         /// </summary>
-        /// <param name="converterInfo"> The converter to apply. </param>
-        /// <returns> The new mapping info. </returns>
+        /// <param name="converterInfo">The converter to apply.</param>
+        /// <returns>The new mapping info.</returns>
         public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
             => new(this, converterInfo);
 

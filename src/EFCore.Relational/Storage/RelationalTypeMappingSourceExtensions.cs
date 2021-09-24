@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the relational database type for a given object, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="value"> The object to get the mapping for. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="value">The object to get the mapping for.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMappingForValue(
             this IRelationalTypeMappingSource typeMappingSource,
             object? value)
@@ -35,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the relational database type for a given object, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="value"> The object to get the mapping for. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="value">The object to get the mapping for.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMappingForValue(
             this IRelationalTypeMappingSource typeMappingSource,
             object? value,
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="property"> The property to get the mapping for. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="property">The property to get the mapping for.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMapping(
             this IRelationalTypeMappingSource typeMappingSource,
             IProperty property)
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="clrType"> The type to get the mapping for. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="clrType">The type to get the mapping for.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMapping(
             this IRelationalTypeMappingSource typeMappingSource,
             Type clrType)
@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="clrType"> The type to get the mapping for. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="clrType">The type to get the mapping for.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMapping(
             this IRelationalTypeMappingSource typeMappingSource,
             Type clrType,
@@ -128,9 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that sometimes the same store type can have different mappings; this method returns the default.
         ///     </para>
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapping source. </param>
-        /// <param name="typeName"> The type to get the mapping for. </param>
-        /// <returns> The type mapping to be used. </returns>
+        /// <param name="typeMappingSource">The type mapping source.</param>
+        /// <param name="typeName">The type to get the mapping for.</param>
+        /// <returns>The type mapping to be used.</returns>
         public static RelationalTypeMapping GetMapping(
             this IRelationalTypeMappingSource typeMappingSource,
             string typeName)

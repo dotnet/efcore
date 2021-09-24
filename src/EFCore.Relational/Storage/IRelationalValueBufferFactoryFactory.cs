@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
-        /// <param name="types"> Types and mapping for the values to be read. </param>
-        /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
+        /// <param name="types">Types and mapping for the values to be read.</param>
+        /// <returns>The newly created <see cref="IRelationalValueBufferFactoryFactory" />.</returns>
         IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types);
     }
 }

@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Constructs a new <see cref="DebugView" /> with delegates for short and long debug strings.
         /// </summary>
-        /// <param name="toShortDebugString"> Delegate to create the short debug string. </param>
-        /// <param name="toLongDebugString"> Delegate to create the long debug string. </param>
+        /// <param name="toShortDebugString">Delegate to create the short debug string.</param>
+        /// <param name="toLongDebugString">Delegate to create the long debug string.</param>
         public DebugView(
             Func<string> toShortDebugString,
             Func<string> toLongDebugString)

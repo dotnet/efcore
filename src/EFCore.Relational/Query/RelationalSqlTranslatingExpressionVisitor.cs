@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
-        /// <param name="queryableMethodTranslatingExpressionVisitor"> A parent queryable method translating expression visitor to translate subquery. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="queryCompilationContext">The query compilation context object to use.</param>
+        /// <param name="queryableMethodTranslatingExpressionVisitor">A parent queryable method translating expression visitor to translate subquery.</param>
         public RelationalSqlTranslatingExpressionVisitor(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext,
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Adds detailed information about error encountered during translation.
         /// </summary>
-        /// <param name="details"> Detailed information about error encountered during translation. </param>
+        /// <param name="details">Detailed information about error encountered during translation.</param>
         protected virtual void AddTranslationErrorDetails(string details)
         {
             Check.NotNull(details, nameof(details));
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="expression"> An expression to translate. </param>
-        /// <returns> A SQL translation of the given expression. </returns>
+        /// <param name="expression">An expression to translate.</param>
+        /// <returns>A SQL translation of the given expression.</returns>
         public virtual SqlExpression? Translate(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Average over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate Average over. </param>
-        /// <returns> A SQL translation of Average over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate Average over.</param>
+        /// <returns>A SQL translation of Average over the given expression.</returns>
         public virtual SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
@@ -189,8 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Count over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate Count over. </param>
-        /// <returns> A SQL translation of Count over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate Count over.</param>
+        /// <returns>A SQL translation of Count over the given expression.</returns>
         public virtual SqlExpression? TranslateCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
@@ -207,8 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates LongCount over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate LongCount over. </param>
-        /// <returns> A SQL translation of LongCount over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate LongCount over.</param>
+        /// <returns>A SQL translation of LongCount over the given expression.</returns>
         public virtual SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
@@ -225,8 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Max over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate Max over. </param>
-        /// <returns> A SQL translation of Max over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate Max over.</param>
+        /// <returns>A SQL translation of Max over the given expression.</returns>
         public virtual SqlExpression? TranslateMax(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
@@ -245,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Min over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate Min over. </param>
-        /// <returns> A SQL translation of Min over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate Min over.</param>
+        /// <returns>A SQL translation of Min over the given expression.</returns>
         public virtual SqlExpression? TranslateMin(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
@@ -265,8 +265,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Translates Sum over an expression to an equivalent SQL representation.
         /// </summary>
-        /// <param name="sqlExpression"> An expression to translate Sum over. </param>
-        /// <returns> A SQL translation of Sum over the given expression. </returns>
+        /// <param name="sqlExpression">An expression to translate Sum over.</param>
+        /// <returns>A SQL translation of Sum over the given expression.</returns>
         public virtual SqlExpression? TranslateSum(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));

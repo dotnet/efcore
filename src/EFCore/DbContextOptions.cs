@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the extension of the specified type. Returns <see langword="null" /> if no extension of the specified type is configured.
         /// </summary>
-        /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
-        /// <returns> The extension, or <see langword="null" /> if none was found. </returns>
+        /// <typeparam name="TExtension">The type of the extension to get.</typeparam>
+        /// <returns>The extension, or <see langword="null" /> if none was found.</returns>
         public virtual TExtension? FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
             => _extensionsMap.TryGetValue(typeof(TExtension), out var value) ? (TExtension)value.Extension : null;
@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the extension of the specified type. Throws if no extension of the specified type is configured.
         /// </summary>
-        /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
-        /// <returns> The extension. </returns>
+        /// <typeparam name="TExtension">The type of the extension to get.</typeparam>
+        /// <returns>The extension.</returns>
         public virtual TExtension GetExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
         {
@@ -103,9 +103,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Adds the given extension to the underlying options and creates a new
         ///     <see cref="DbContextOptions" /> with the extension added.
         /// </summary>
-        /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
-        /// <param name="extension"> The extension to be added. </param>
-        /// <returns> The new options instance with the given extension added. </returns>
+        /// <typeparam name="TExtension">The type of extension to be added.</typeparam>
+        /// <param name="extension">The extension to be added.</param>
+        /// <returns>The new options instance with the given extension added.</returns>
         public abstract DbContextOptions WithExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="other"> The object to compare with the current object. </param>
+        /// <param name="other">The object to compare with the current object.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.
         /// </returns>

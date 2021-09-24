@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
     /// </remarks>
-    /// <typeparam name="TEntity"> The type of entity being tracked by this entry. </typeparam>
+    /// <typeparam name="TEntity">The type of entity being tracked by this entry.</typeparam>
     public class EntityEntry<TEntity> : EntityEntry
         where TEntity : class
     {
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
         /// </param>
-        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
+        /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
         {
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the navigation property. </param>
+        /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
@@ -170,9 +170,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property. </typeparam>
-        /// <param name="propertyName"> The property to access information and operations for. </param>
-        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
+        /// <typeparam name="TProperty">The type of the property.</typeparam>
+        /// <param name="propertyName">The property to access information and operations for.</param>
+        /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             string propertyName)
         {

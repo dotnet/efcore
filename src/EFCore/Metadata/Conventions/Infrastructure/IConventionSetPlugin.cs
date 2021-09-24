@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Called to customize or otherwise modify the given convention set.
         /// </summary>
-        /// <param name="conventionSet"> The convention set to customize. </param>
-        /// <returns> The customized convention set. </returns>
+        /// <param name="conventionSet">The convention set to customize.</param>
+        /// <returns>The customized convention set.</returns>
         ConventionSet ModifyConventions(ConventionSet conventionSet);
     }
 }

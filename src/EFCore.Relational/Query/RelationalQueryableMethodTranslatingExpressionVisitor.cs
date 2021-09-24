@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
-        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
+        /// <param name="queryCompilationContext">The query compilation context object to use.</param>
         public RelationalQueryableMethodTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="parentVisitor"> A parent visitor to create subquery visitor for. </param>
+        /// <param name="parentVisitor">A parent visitor to create subquery visitor for.</param>
         protected RelationalQueryableMethodTranslatingExpressionVisitor(
             RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)

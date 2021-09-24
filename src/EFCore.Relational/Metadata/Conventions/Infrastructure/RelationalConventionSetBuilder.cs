@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConventionSetBuilder" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this service.</param>
         protected RelationalConventionSetBuilder(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        /// <returns> The convention set for the current database provider. </returns>
+        /// <returns>The convention set for the current database provider.</returns>
         public override ConventionSet CreateConventionSet()
         {
             var conventionSet = base.CreateConventionSet();

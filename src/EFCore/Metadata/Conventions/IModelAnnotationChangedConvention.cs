@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an annotation is changed on an model.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="annotation"> The new annotation. </param>
-        /// <param name="oldAnnotation"> The old annotation.  </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="name">The annotation name.</param>
+        /// <param name="annotation">The new annotation.</param>
+        /// <param name="oldAnnotation">The old annotation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessModelAnnotationChanged(
             IConventionModelBuilder modelBuilder,
             string name,

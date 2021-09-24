@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlExpression" /> class.
         /// </summary>
-        /// <param name="type"> The <see cref="System.Type" /> of the expression. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         protected SqlExpression(Type type, RelationalTypeMapping? typeMapping)
         {
             Check.NotNull(type, nameof(type));
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
-        /// <param name="expressionPrinter"> The expression printer to use. </param>
+        /// <param name="expressionPrinter">The expression printer to use.</param>
         protected abstract void Print(ExpressionPrinter expressionPrinter);
 
         /// <inheritdoc />

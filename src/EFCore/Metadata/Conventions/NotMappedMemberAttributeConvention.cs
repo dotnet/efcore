@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="NotMappedMemberAttributeConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public NotMappedMemberAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type is added to the model.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns a value indicating whether the given CLR member should be ignored.
         /// </summary>
-        /// <param name="memberInfo"> The member. </param>
-        /// <returns> <see langword="true" /> if the member should be ignored. </returns>
+        /// <param name="memberInfo">The member.</param>
+        /// <returns><see langword="true" /> if the member should be ignored.</returns>
         protected virtual bool ShouldIgnore(MemberInfo memberInfo)
             => true;
     }

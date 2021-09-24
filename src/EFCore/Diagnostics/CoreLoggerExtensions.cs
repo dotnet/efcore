@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesFailed" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context in use. </param>
-        /// <param name="exception"> The exception that caused this event. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context in use.</param>
+        /// <param name="exception">The exception that caused this event.</param>
         public static void SaveChangesFailed(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -76,12 +76,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesFailed" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context in use. </param>
-        /// <param name="exception"> The exception that caused this event. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A <see cref="Task" /> for the async result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context in use.</param>
+        /// <param name="exception">The exception that caused this event.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A <see cref="Task" /> for the async result.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task SaveChangesFailedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -131,9 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context in use. </param>
-        /// <param name="exception"> The exception that caused this event. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context in use.</param>
+        /// <param name="exception">The exception that caused this event.</param>
         public static void OptimisticConcurrencyException(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -161,9 +161,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.OldModelVersionWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="contextOptions"> The context options being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="contextOptions">The context options being used.</param>
         public static void OldModelVersionWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context,
@@ -206,12 +206,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context in use. </param>
-        /// <param name="exception"> The exception that caused this event. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A <see cref="Task" /> for the async result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context in use.</param>
+        /// <param name="exception">The exception that caused this event.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A <see cref="Task" /> for the async result.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task OptimisticConcurrencyExceptionAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -262,9 +262,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.DuplicateDependentEntityTypeInstanceWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="dependent1"> The first dependent type. </param>
-        /// <param name="dependent2"> The second dependent type. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="dependent1">The first dependent type.</param>
+        /// <param name="dependent2">The second dependent type.</param>
         public static void DuplicateDependentEntityTypeInstanceWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             IEntityType dependent1,
@@ -299,9 +299,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryIterationFailed" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
-        /// <param name="exception"> The exception that caused this failure. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+        /// <param name="exception">The exception that caused this failure.</param>
         public static void QueryIterationFailed(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             Type contextType,
@@ -339,9 +339,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryCompilationStarting" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="expressionPrinter"> Used to create a human-readable representation of the expression tree. </param>
-        /// <param name="queryExpression"> The query expression tree. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
+        /// <param name="queryExpression">The query expression tree.</param>
         public static void QueryCompilationStarting(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             ExpressionPrinter expressionPrinter,
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.FirstWithoutOrderByAndFilterWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         public static void FirstWithoutOrderByAndFilterWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RowLimitingOperationWithoutOrderByWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         public static void RowLimitingOperationWithoutOrderByWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         public static void DistinctAfterOrderByWithoutRowLimitingOperatorWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
@@ -466,8 +466,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NavigationBaseIncluded" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation being included. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation being included.</param>
         public static void NavigationBaseIncluded(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             INavigationBase navigation)
@@ -500,8 +500,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NavigationBaseIncludeIgnored" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation being included. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation being included.</param>
         public static void NavigationBaseIncludeIgnored(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             INavigationBase navigation)
@@ -534,9 +534,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="expressionPrinter"> Used to create a human-readable representation of the expression tree. </param>
-        /// <param name="queryExecutorExpression"> The query expression tree. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
+        /// <param name="queryExecutorExpression">The query expression tree.</param>
         public static void QueryExecutionPlanned(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             ExpressionPrinter expressionPrinter,
@@ -571,8 +571,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SensitiveDataLoggingEnabledWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <typeparam name="TLoggerCategory"> The logger category for which to log the warning. </typeparam>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <typeparam name="TLoggerCategory">The logger category for which to log the warning.</typeparam>
         public static void SensitiveDataLoggingEnabledWarning<TLoggerCategory>(
             this IDiagnosticsLogger<TLoggerCategory> diagnostics)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
@@ -597,8 +597,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///// <summary>
         /////     Logs for the <see cref="CoreEventId.IncludeIgnoredWarning" /> event.
         ///// </summary>
-        ///// <param name="diagnostics"> The diagnostics logger to use. </param>
-        ///// <param name="includeResultOperator"> The result operator for the Include. </param>
+        ///// <param name="diagnostics">The diagnostics logger to use.</param>
+        ///// <param name="includeResultOperator">The result operator for the Include.</param>
         //public static void IncludeIgnoredWarning(
         //    this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
         //    IncludeResultOperator includeResultOperator)
@@ -635,8 +635,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation being used.</param>
         public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             INavigation navigation)
@@ -671,9 +671,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PossibleUnintendedReferenceComparisonWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="left"> The left side expression. </param>
-        /// <param name="right"> The right side expression. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="left">The left side expression.</param>
+        /// <param name="right">The right side expression.</param>
         public static void PossibleUnintendedReferenceComparisonWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             Expression left,
@@ -708,12 +708,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.InvalidIncludePathError" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         /// <param name="navigationChain">
         ///     The navigation chain used in the
         ///     <see cref="EntityFrameworkQueryableExtensions.Include{TEntity}(IQueryable{TEntity}, string)" />
         /// </param>
-        /// <param name="navigationName"> The navigation name which was not found in the model. </param>
+        /// <param name="navigationName">The navigation name which was not found in the model.</param>
         public static void InvalidIncludePathError(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
             string navigationChain,
@@ -748,8 +748,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ServiceProviderCreated" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="serviceProvider"> The service provider. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         public static void ServiceProviderCreated(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             IServiceProvider serviceProvider)
@@ -775,8 +775,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ManyServiceProvidersCreatedWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="serviceProviders"> The service providers that have been created. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="serviceProviders">The service providers that have been created.</param>
         public static void ManyServiceProvidersCreatedWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             ICollection<IServiceProvider> serviceProviders)
@@ -802,9 +802,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ServiceProviderDebugInfo" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="newDebugInfo"> Debug information for the new service providers. </param>
-        /// <param name="cachedDebugInfos"> Debug information for existing service providers. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="newDebugInfo">Debug information for the new service providers.</param>
+        /// <param name="cachedDebugInfos">Debug information for existing service providers.</param>
         public static void ServiceProviderDebugInfo(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             IDictionary<string, string> newDebugInfo,
@@ -883,9 +883,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ContextInitialized" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="contextOptions"> The context options being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="contextOptions">The context options being used.</param>
         public static void ContextInitialized(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context,
@@ -934,10 +934,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ExecutionStrategyRetrying" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="exceptionsEncountered"> The exceptions(s) that caused the failure. </param>
-        /// <param name="delay"> The delay that before the next retry. </param>
-        /// <param name="async"> Indicates whether execution is asynchronous or not. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="exceptionsEncountered">The exceptions(s) that caused the failure.</param>
+        /// <param name="delay">The delay that before the next retry.</param>
+        /// <param name="async">Indicates whether execution is asynchronous or not.</param>
         public static void ExecutionStrategyRetrying(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             IReadOnlyList<Exception> exceptionsEncountered,
@@ -979,10 +979,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.LazyLoadOnDisposedContextWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="navigationName"> The name of the navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="navigationName">The name of the navigation property.</param>
         public static void LazyLoadOnDisposedContextWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context,
@@ -1019,10 +1019,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NavigationLazyLoading" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="navigationName"> The name of the navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="navigationName">The name of the navigation property.</param>
         public static void NavigationLazyLoading(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context,
@@ -1059,10 +1059,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.DetachedLazyLoadingWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="navigationName"> The name of the navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="navigationName">The name of the navigation property.</param>
         public static void DetachedLazyLoadingWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context,
@@ -1099,8 +1099,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RedundantAddServicesCallWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="serviceProvider"> The service provider used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="serviceProvider">The service provider used.</param>
         public static void RedundantAddServicesCallWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             IServiceProvider serviceProvider)
@@ -1126,9 +1126,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ShadowForeignKeyPropertyCreated" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="basePropertyName"> The property name that was uniquified. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="basePropertyName">The property name that was uniquified.</param>
         public static void ShadowForeignKeyPropertyCreated(
             this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             IProperty property,
@@ -1163,8 +1163,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ShadowPropertyCreated" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="property"> The property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="property">The property.</param>
         public static void ShadowPropertyCreated(
             this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             IProperty property)
@@ -1197,8 +1197,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CollectionWithoutComparer" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="property"> The property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="property">The property.</param>
         public static void CollectionWithoutComparer(
             this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             IProperty property)
@@ -1231,9 +1231,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RedundantIndexRemoved" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="redundantIndex"> The redundant index. </param>
-        /// <param name="otherIndex"> The other index. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="redundantIndex">The redundant index.</param>
+        /// <param name="otherIndex">The other index.</param>
         public static void RedundantIndexRemoved(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyList<IReadOnlyPropertyBase> redundantIndex,
@@ -1275,8 +1275,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RedundantForeignKeyWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="redundantForeignKey"> The redundant foreign key. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="redundantForeignKey">The redundant foreign key.</param>
         public static void RedundantForeignKeyWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             IForeignKey redundantForeignKey)
@@ -1314,7 +1314,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.IncompatibleMatchingForeignKeyProperties" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         /// <param name="dependentToPrincipalNavigationSpecification">
         ///     The name of the navigation property or entity type on the dependent end of the
         ///     relationship.
@@ -1323,8 +1323,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The name of the navigation property or entity type on the principal end of the
         ///     relationship.
         /// </param>
-        /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
-        /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
+        /// <param name="foreignKeyProperties">The properties that make up the foreign key.</param>
+        /// <param name="principalKeyProperties">The corresponding keys on the principal side.</param>
         public static void IncompatibleMatchingForeignKeyProperties(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             string dependentToPrincipalNavigationSpecification,
@@ -1372,8 +1372,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.AmbiguousEndRequiredWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="foreignKey"> The foreign key. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="foreignKey">The foreign key.</param>
         public static void AmbiguousEndRequiredWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IForeignKey foreignKey)
@@ -1411,8 +1411,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeInverted" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         [Obsolete]
         public static void RequiredAttributeInverted(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1447,8 +1447,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NonNullableInverted" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         [Obsolete]
         public static void NonNullableInverted(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1483,9 +1483,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnBothNavigations" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstNavigation"> The first navigation property. </param>
-        /// <param name="secondNavigation"> The second navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstNavigation">The first navigation property.</param>
+        /// <param name="secondNavigation">The second navigation property.</param>
         [Obsolete]
         public static void RequiredAttributeOnBothNavigations(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1533,9 +1533,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NonNullableReferenceOnBothNavigations" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstNavigation"> The first navigation property. </param>
-        /// <param name="secondNavigation"> The second navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstNavigation">The first navigation property.</param>
+        /// <param name="secondNavigation">The second navigation property.</param>
         [Obsolete]
         public static void NonNullableReferenceOnBothNavigations(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1583,8 +1583,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnDependent" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         [Obsolete]
         public static void RequiredAttributeOnDependent(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1621,8 +1621,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NonNullableReferenceOnDependent" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         [Obsolete]
         public static void NonNullableReferenceOnDependent(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1660,8 +1660,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnCollection" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         public static void RequiredAttributeOnCollection(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyNavigation navigation)
@@ -1694,8 +1694,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.RequiredAttributeOnSkipNavigation" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
         public static void RequiredAttributeOnSkipNavigation(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlySkipNavigation navigation)
@@ -1728,8 +1728,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ConflictingShadowForeignKeysWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="foreignKey"> The foreign key. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="foreignKey">The foreign key.</param>
         public static void ConflictingShadowForeignKeysWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyForeignKey foreignKey)
@@ -1770,9 +1770,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.MultiplePrimaryKeyCandidates" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstProperty"> The first property. </param>
-        /// <param name="secondProperty"> The second property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstProperty">The first property.</param>
+        /// <param name="secondProperty">The second property.</param>
         public static void MultiplePrimaryKeyCandidates(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyProperty firstProperty,
@@ -1816,9 +1816,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.MultipleNavigationProperties" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstPropertyCollection"> The first set of properties. </param>
-        /// <param name="secondPropertyCollection"> The second set of properties. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstPropertyCollection">The first set of properties.</param>
+        /// <param name="secondPropertyCollection">The second set of properties.</param>
         public static void MultipleNavigationProperties(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
@@ -1862,10 +1862,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.MultipleInversePropertiesSameTargetWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="conflictingNavigations"> The list of conflicting navigation properties. </param>
-        /// <param name="inverseNavigation"> The inverse navigation property. </param>
-        /// <param name="targetType"> The target type. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="conflictingNavigations">The list of conflicting navigation properties.</param>
+        /// <param name="inverseNavigation">The inverse navigation property.</param>
+        /// <param name="targetType">The target type.</param>
         public static void MultipleInversePropertiesSameTargetWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IEnumerable<Tuple<MemberInfo?, Type>> conflictingNavigations,
@@ -1907,12 +1907,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NonDefiningInverseNavigationWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="declaringType"> The declaring entity type. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="targetType"> The target type. </param>
-        /// <param name="inverseNavigation"> The inverse navigation property. </param>
-        /// <param name="definingNavigation"> The defining navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="declaringType">The declaring entity type.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="targetType">The target type.</param>
+        /// <param name="inverseNavigation">The inverse navigation property.</param>
+        /// <param name="definingNavigation">The defining navigation property.</param>
         [Obsolete]
         public static void NonDefiningInverseNavigationWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
@@ -1969,12 +1969,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.NonOwnershipInverseNavigationWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="declaringType"> The declaring entity type. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="targetType"> The target type. </param>
-        /// <param name="inverseNavigation"> The inverse navigation property. </param>
-        /// <param name="ownershipNavigation"> The ownership navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="declaringType">The declaring entity type.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="targetType">The target type.</param>
+        /// <param name="inverseNavigation">The inverse navigation property.</param>
+        /// <param name="ownershipNavigation">The ownership navigation property.</param>
         public static void NonOwnershipInverseNavigationWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyEntityType declaringType,
@@ -2030,11 +2030,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstNavigation"> The first navigation property. </param>
-        /// <param name="secondNavigation"> The second navigation property. </param>
-        /// <param name="firstProperty"> The first property. </param>
-        /// <param name="secondProperty"> The second property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstNavigation">The first navigation property.</param>
+        /// <param name="secondNavigation">The second navigation property.</param>
+        /// <param name="firstProperty">The first property.</param>
+        /// <param name="secondProperty">The second property.</param>
         public static void ForeignKeyAttributesOnBothPropertiesWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyNavigation firstNavigation,
@@ -2098,9 +2098,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="firstNavigation"> The first navigation property. </param>
-        /// <param name="secondNavigation"> The second navigation property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="firstNavigation">The first navigation property.</param>
+        /// <param name="secondNavigation">The second navigation property.</param>
         public static void ForeignKeyAttributesOnBothNavigationsWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyNavigation firstNavigation,
@@ -2146,9 +2146,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="property"> The property. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="property">The property.</param>
         public static void ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyNavigation navigation,
@@ -2196,8 +2196,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.DetectChangesStarting" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
         public static void DetectChangesStarting(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             DbContext context)
@@ -2230,8 +2230,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.DetectChangesCompleted" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
         public static void DetectChangesCompleted(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             DbContext context)
@@ -2264,11 +2264,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PropertyChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         public static void PropertyChangeDetected(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2309,11 +2309,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PropertyChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         public static void PropertyChangeDetectedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2363,11 +2363,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ForeignKeyChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> the new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">the new value.</param>
         public static void ForeignKeyChangeDetected(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2411,11 +2411,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ForeignKeyChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         public static void ForeignKeyChangeDetectedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2465,11 +2465,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="added"> The added values. </param>
-        /// <param name="removed"> The removed values. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="added">The added values.</param>
+        /// <param name="removed">The removed values.</param>
         public static void CollectionChangeDetected(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2517,11 +2517,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="added"> The added values. </param>
-        /// <param name="removed"> The removed values. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="added">The added values.</param>
+        /// <param name="removed">The removed values.</param>
         public static void CollectionChangeDetectedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2571,11 +2571,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="added"> The added values. </param>
-        /// <param name="removed"> The removed values. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="added">The added values.</param>
+        /// <param name="removed">The removed values.</param>
         public static void SkipCollectionChangeDetected(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2623,11 +2623,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CollectionChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="added"> The added values. </param>
-        /// <param name="removed"> The removed values. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="added">The added values.</param>
+        /// <param name="removed">The removed values.</param>
         public static void SkipCollectionChangeDetectedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2677,11 +2677,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ReferenceChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         public static void ReferenceChangeDetected(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2722,11 +2722,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ReferenceChangeDetected" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="oldValue"> The old value. </param>
-        /// <param name="newValue"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="oldValue">The old value.</param>
+        /// <param name="newValue">The new value.</param>
         public static void ReferenceChangeDetectedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2772,8 +2772,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.StartedTracking" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
         public static void StartedTracking(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry)
@@ -2811,8 +2811,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.StartedTracking" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
         public static void StartedTrackingSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry)
@@ -2852,10 +2852,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.StateChanged" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="oldState"> The old value. </param>
-        /// <param name="newState"> The new value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="oldState">The old value.</param>
+        /// <param name="newState">The new value.</param>
         public static void StateChanged(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2901,10 +2901,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.StateChanged" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="oldState"> The old state. </param>
-        /// <param name="newState"> The new state. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="oldState">The old state.</param>
+        /// <param name="newState">The new state.</param>
         public static void StateChangedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -2952,11 +2952,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ValueGenerated" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="value"> The value generated. </param>
-        /// <param name="temporary"> Indicates whether or not the value is a temporary or permanent value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="value">The value generated.</param>
+        /// <param name="temporary">Indicates whether or not the value is a temporary or permanent value.</param>
         public static void ValueGenerated(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -3003,11 +3003,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ValueGenerated" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalEntityEntry"> The internal entity entry. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="value"> The value generated. </param>
-        /// <param name="temporary"> Indicates whether or not the value is a temporary or permanent value. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalEntityEntry">The internal entity entry.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="value">The value generated.</param>
+        /// <param name="temporary">Indicates whether or not the value is a temporary or permanent value.</param>
         public static void ValueGeneratedSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             InternalEntityEntry internalEntityEntry,
@@ -3056,10 +3056,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CascadeDelete" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalChildEntry"> The child internal entity entry. </param>
-        /// <param name="internalParentEntry"> The parent internal entity entry. </param>
-        /// <param name="state"> The target state. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalChildEntry">The child internal entity entry.</param>
+        /// <param name="internalParentEntry">The parent internal entity entry.</param>
+        /// <param name="state">The target state.</param>
         public static void CascadeDelete(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             InternalEntityEntry internalChildEntry,
@@ -3103,10 +3103,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CascadeDelete" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalChildEntry"> The child internal entity entry. </param>
-        /// <param name="internalParentEntry"> The parent internal entity entry. </param>
-        /// <param name="state"> The target state. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalChildEntry">The child internal entity entry.</param>
+        /// <param name="internalParentEntry">The parent internal entity entry.</param>
+        /// <param name="state">The target state.</param>
         public static void CascadeDeleteSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             InternalEntityEntry internalChildEntry,
@@ -3155,10 +3155,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CascadeDeleteOrphan" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalChildEntry"> The child internal entity entry. </param>
-        /// <param name="parentEntityType"> The parent entity type. </param>
-        /// <param name="state"> The target state. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalChildEntry">The child internal entity entry.</param>
+        /// <param name="parentEntityType">The parent entity type.</param>
+        /// <param name="state">The target state.</param>
         public static void CascadeDeleteOrphan(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             InternalEntityEntry internalChildEntry,
@@ -3202,10 +3202,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.CascadeDeleteOrphan" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="internalChildEntry"> The child internal entity entry. </param>
-        /// <param name="parentEntityType"> The parent entity type. </param>
-        /// <param name="state"> The target state. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="internalChildEntry">The child internal entity entry.</param>
+        /// <param name="parentEntityType">The parent entity type.</param>
+        /// <param name="state">The target state.</param>
         public static void CascadeDeleteOrphanSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             InternalEntityEntry internalChildEntry,
@@ -3251,9 +3251,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesStarting" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <returns> The, possibly intercepted, result. </returns>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <returns>The, possibly intercepted, result.</returns>
         public static InterceptionResult<int> SaveChangesStarting(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context)
@@ -3285,11 +3285,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesStarting" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> The, possibly intercepted, result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The, possibly intercepted, result.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static ValueTask<InterceptionResult<int>> SaveChangesStartingAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -3335,10 +3335,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesCompleted" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="entitiesSavedCount"> The number of entities saved. </param>
-        /// <returns> The, possibly intercepted, result. </returns>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="entitiesSavedCount">The number of entities saved.</param>
+        /// <returns>The, possibly intercepted, result.</returns>
         public static int SaveChangesCompleted(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -3371,12 +3371,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.SaveChangesCompleted" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
-        /// <param name="entitiesSavedCount"> The number of entities saved. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> The, possibly intercepted, result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
+        /// <param name="entitiesSavedCount">The number of entities saved.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The, possibly intercepted, result.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static ValueTask<int> SaveChangesCompletedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -3429,8 +3429,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ContextDisposed" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="context"> The context being used. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="context">The context being used.</param>
         public static void ContextDisposed(
             this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
             DbContext context)
@@ -3463,8 +3463,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ConflictingKeylessAndKeyAttributesWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="property"> The property which is being defined as part of a key. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="property">The property which is being defined as part of a key.</param>
         public static void ConflictingKeylessAndKeyAttributesWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             IReadOnlyProperty property)
@@ -3499,8 +3499,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="foreignKey"> Foreign key which is used in the incorrectly setup navigation. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
+        /// <param name="foreignKey">Foreign key which is used in the incorrectly setup navigation.</param>
         public static void PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             IForeignKey foreignKey)

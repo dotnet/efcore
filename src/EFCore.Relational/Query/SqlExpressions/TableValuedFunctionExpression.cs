@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
         /// </summary>
-        /// <param name="storeFunction"> The <see cref="IStoreFunction" /> associated this function. </param>
-        /// <param name="arguments"> The arguments of the function. </param>
+        /// <param name="storeFunction">The <see cref="IStoreFunction" /> associated this function.</param>
+        /// <param name="arguments">The arguments of the function.</param>
         public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
             : this(
                 storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="arguments"> The <see cref="Arguments" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         {
             Check.NotNull(arguments, nameof(arguments));

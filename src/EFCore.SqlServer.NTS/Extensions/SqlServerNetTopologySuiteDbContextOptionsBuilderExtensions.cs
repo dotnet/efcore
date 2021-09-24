@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Use NetTopologySuite to access SQL Server spatial data.
         /// </summary>
-        /// <param name="optionsBuilder"> The build being used to configure SQL Server. </param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
+        /// <param name="optionsBuilder">The build being used to configure SQL Server.</param>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static SqlServerDbContextOptionsBuilder UseNetTopologySuite(
             this SqlServerDbContextOptionsBuilder optionsBuilder)
         {

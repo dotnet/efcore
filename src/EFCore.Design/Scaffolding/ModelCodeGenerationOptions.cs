@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Gets or sets the connection string.
         /// </summary>
-        /// <value name="connectionString"> The connection string. </value>
+        /// <value name="connectionString">The connection string. </value>
         public virtual string? ConnectionString { get; set; }
     }
 }

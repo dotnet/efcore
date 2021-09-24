@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="SingularModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="dependencies"> Service dependencies. </param>
+        /// <param name="dependencies">Service dependencies.</param>
         public SingularModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
             : base(dependencies)
         {
@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Only returns <see langword="true" /> if the no command has already been added.
         /// </summary>
-        /// <param name="modificationCommand"> The command to potentially add. </param>
-        /// <returns> <see langword="true" /> if no command has already been added. </returns>
+        /// <param name="modificationCommand">The command to potentially add.</param>
+        /// <returns><see langword="true" /> if no command has already been added.</returns>
         protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;
 

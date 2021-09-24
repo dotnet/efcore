@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     Generates the commands that correspond to this operation.
         /// </summary>
-        /// <returns> The commands that correspond to this operation. </returns>
+        /// <returns>The commands that correspond to this operation.</returns>
         [Obsolete]
         public virtual IEnumerable<ModificationCommand> GenerateModificationCommands(IModel? model)
         {

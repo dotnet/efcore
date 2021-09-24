@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="firstEntityType"> The first <see cref="IEntityType" />. </param>
-        /// <param name="secondEntityType"> The second <see cref="IEntityType" />. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="firstEntityType">The first <see cref="IEntityType" />.</param>
+        /// <param name="secondEntityType">The second <see cref="IEntityType" />.</param>
         public SharedDependentEntityEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

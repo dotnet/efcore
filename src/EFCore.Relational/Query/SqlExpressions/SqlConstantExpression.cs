@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
         /// </summary>
-        /// <param name="constantExpression"> A <see cref="ConstantExpression" />. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="constantExpression">A <see cref="ConstantExpression" />.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
             : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type.UnwrapNullableType(), typeMapping)
         {
@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Applies supplied type mapping to this expression.
         /// </summary>
-        /// <param name="typeMapping"> A relational type mapping to apply. </param>
-        /// <returns> A new expression which has supplied type mapping. </returns>
+        /// <param name="typeMapping">A relational type mapping to apply.</param>
+        /// <returns>A new expression which has supplied type mapping.</returns>
         public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
             => new SqlConstantExpression(_constantExpression, typeMapping);
 

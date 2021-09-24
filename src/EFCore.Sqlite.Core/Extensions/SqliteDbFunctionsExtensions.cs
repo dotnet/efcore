@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
-        /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>
+        /// <param name="startIndex">The 1-based starting index. If negative, the index is relative to the end of the value.</param>
         /// <returns>The subarray.</returns>
         /// <remarks>
         ///     Use <see cref="string.Substring(int)" /> for string values.
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
-        /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>
+        /// <param name="startIndex">The 1-based starting index. If negative, the index is relative to the end of the value.</param>
         /// <param name="length">
         ///     The length of the subarray. If negative, bytes preceding <paramref name="startIndex" /> are returned.
         /// </param>

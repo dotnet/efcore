@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="ManyToManyJoinEntityTypeConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public ManyToManyJoinEntityTypeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -102,8 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Checks whether a new join antity type is needed.
         /// </summary>
-        /// <param name="skipNavigation"> The target skip navigation. </param>
-        /// <returns> A value indicating whether a new join antity type is needed. </returns>
+        /// <param name="skipNavigation">The target skip navigation.</param>
+        /// <returns>A value indicating whether a new join antity type is needed.</returns>
         protected virtual bool ShouldCreateJoinType(IConventionSkipNavigation skipNavigation)
         {
             var inverseSkipNavigation = skipNavigation.Inverse;
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Generates a unique name for the new joint entity type.
         /// </summary>
-        /// <param name="skipNavigation"> The target skip navigation. </param>
-        /// <returns> A unique entity type name. </returns>
+        /// <param name="skipNavigation">The target skip navigation.</param>
+        /// <returns>A unique entity type name.</returns>
         protected virtual string GenerateJoinTypeName(IConventionSkipNavigation skipNavigation)
         {
             var inverseSkipNavigation = skipNavigation.Inverse;
@@ -150,8 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Create a join entity type and configures the corresponding foreign keys.
         /// </summary>
-        /// <param name="joinEntityTypeName"> The name for the new entity type. </param>
-        /// <param name="skipNavigation"> The target skip navigation. </param>
+        /// <param name="joinEntityTypeName">The name for the new entity type.</param>
+        /// <param name="skipNavigation">The target skip navigation.</param>
         protected virtual void CreateJoinEntityType(
             string joinEntityTypeName,
             IConventionSkipNavigation skipNavigation)
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a foreign key on the given entity type to be used by the given skip navigation.
         /// </summary>
-        /// <param name="skipNavigation"> The target skip navigation. </param>
-        /// <param name="joinEntityTypeBuilder"> The join entity type. </param>
-        /// <returns> The created foreign key. </returns>
+        /// <param name="skipNavigation">The target skip navigation.</param>
+        /// <param name="joinEntityTypeBuilder">The join entity type.</param>
+        /// <returns>The created foreign key.</returns>
         protected virtual IConventionForeignKey CreateSkipNavigationForeignKey(
             IConventionSkipNavigation skipNavigation,
             IConventionEntityTypeBuilder joinEntityTypeBuilder)

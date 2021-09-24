@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the foreign key properties or principal key are changed.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="oldDependentProperties"> The old foreign key properties. </param>
-        /// <param name="oldPrincipalKey"> The old principal key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="oldDependentProperties">The old foreign key properties.</param>
+        /// <param name="oldPrincipalKey">The old principal key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessForeignKeyPropertiesChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,

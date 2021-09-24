@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerIndexConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        /// <param name="sqlGenerationHelper"> SQL command generation helper service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+        /// <param name="sqlGenerationHelper">SQL command generation helper service.</param>
         public SqlServerIndexConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies,
@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the base type of an entity type changes.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base entity type. </param>
-        /// <param name="oldBaseType"> The old base entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="newBaseType">The new base entity type.</param>
+        /// <param name="oldBaseType">The old base entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType? newBaseType,
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an index is added to the entity type.
         /// </summary>
-        /// <param name="indexBuilder"> The builder for the index. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="indexBuilder">The builder for the index.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessIndexAdded(
             IConventionIndexBuilder indexBuilder,
             IConventionContext<IConventionIndexBuilder> context)
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the uniqueness for an index is changed.
         /// </summary>
-        /// <param name="indexBuilder"> The builder for the index. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="indexBuilder">The builder for the index.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessIndexUniquenessChanged(
             IConventionIndexBuilder indexBuilder,
             IConventionContext<bool?> context)
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the nullability for a property is changed.
         /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="propertyBuilder">The builder for the property.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<bool?> context)
@@ -118,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an annotation is changed on an index.
         /// </summary>
-        /// <param name="indexBuilder"> The builder for the index. </param>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="annotation"> The new annotation. </param>
-        /// <param name="oldAnnotation"> The old annotation.  </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="indexBuilder">The builder for the index.</param>
+        /// <param name="name">The annotation name.</param>
+        /// <param name="annotation">The new annotation.</param>
+        /// <param name="oldAnnotation">The old annotation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessIndexAnnotationChanged(
             IConventionIndexBuilder indexBuilder,
             string name,
@@ -139,11 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an annotation is changed on a property.
         /// </summary>
-        /// <param name="propertyBuilder"> The builder for the property. </param>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="annotation"> The new annotation. </param>
-        /// <param name="oldAnnotation"> The old annotation.  </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="propertyBuilder">The builder for the property.</param>
+        /// <param name="name">The annotation name.</param>
+        /// <param name="annotation">The new annotation.</param>
+        /// <param name="oldAnnotation">The old annotation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,

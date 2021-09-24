@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="ColumnExpression" /> class.
         /// </summary>
-        /// <param name="type"> The <see cref="System.Type" /> of the expression. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         protected ColumnExpression(Type type, RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Makes this column nullable.
         /// </summary>
-        /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
+        /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
         public abstract ColumnExpression MakeNullable();
 
         /// <inheritdoc />

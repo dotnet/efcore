@@ -12,26 +12,26 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
     /// </remarks>
-    /// <typeparam name="T"> The logger category type. </typeparam>
+    /// <typeparam name="T">The logger category type.</typeparam>
     public abstract class LoggerCategory<T>
     {
         /// <summary>
         ///     The logger category name, for use with <see cref="ILoggerProvider" />, etc.
         /// </summary>
-        /// <returns> The category name. </returns>
+        /// <returns>The category name.</returns>
         public static string Name { get; } = ToName(typeof(T));
 
         /// <summary>
         ///     The logger category name.
         /// </summary>
-        /// <returns> The logger category name. </returns>
+        /// <returns>The logger category name.</returns>
         public override string ToString()
             => Name;
 
         /// <summary>
         ///     The logger category name.
         /// </summary>
-        /// <param name="loggerCategory"> The category. </param>
+        /// <param name="loggerCategory">The category.</param>
         public static implicit operator string(LoggerCategory<T> loggerCategory)
             => loggerCategory.ToString();
 

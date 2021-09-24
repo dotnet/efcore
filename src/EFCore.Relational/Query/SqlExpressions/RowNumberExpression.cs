@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="RowNumberExpression" /> class.
         /// </summary>
-        /// <param name="partitions"> A list expressions to partition by. </param>
-        /// <param name="orderings"> A list of ordering expressions to order by. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="partitions">A list expressions to partition by.</param>
+        /// <param name="orderings">A list of ordering expressions to order by.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public RowNumberExpression(
             IReadOnlyList<SqlExpression>? partitions,
             IReadOnlyList<OrderingExpression> orderings,
@@ -80,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="partitions"> The <see cref="Partitions" /> property of the result. </param>
-        /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="partitions">The <see cref="Partitions" /> property of the result.</param>
+        /// <param name="orderings">The <see cref="Orderings" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual RowNumberExpression Update(
             IReadOnlyList<SqlExpression>? partitions,
             IReadOnlyList<OrderingExpression> orderings)

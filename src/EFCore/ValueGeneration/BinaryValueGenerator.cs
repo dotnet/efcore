@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <returns>The value to be assigned to a property.</returns>
         public override byte[] Next(EntityEntry entry)
             => Guid.NewGuid().ToByteArray();
     }

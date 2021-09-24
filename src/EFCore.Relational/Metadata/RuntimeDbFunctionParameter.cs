@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the type mapping for this parameter.
         /// </summary>
-        /// <returns> The type mapping. </returns>
+        /// <returns>The type mapping.</returns>
         public virtual RelationalTypeMapping? TypeMapping
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         public override string ToString()
             => ((IDbFunctionParameter)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 

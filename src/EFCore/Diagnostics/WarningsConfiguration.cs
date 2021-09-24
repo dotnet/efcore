@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
-        /// <param name="copyFrom"> The instance that is being cloned. </param>
+        /// <param name="copyFrom">The instance that is being cloned.</param>
         protected WarningsConfiguration(WarningsConfiguration copyFrom)
         {
             _defaultBehavior = copyFrom._defaultBehavior;
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Override this method in a derived class to ensure that any clone created is also of that class.
         /// </summary>
-        /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
+        /// <returns>A clone of this instance, which can be modified before being returned as immutable.</returns>
         protected virtual WarningsConfiguration Clone()
             => new(this);
 
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
-        /// <param name="warningBehavior"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="warningBehavior">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual WarningsConfiguration WithDefaultBehavior(WarningBehavior warningBehavior)
         {
             var clone = Clone();
@@ -84,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     all given event IDs.
         ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
         /// </summary>
-        /// <param name="eventIds"> The event IDs for which the behavior should be set. </param>
-        /// <param name="warningBehavior"> The behavior to set. </param>
-        /// <returns> A new instance with the behaviors set. </returns>
+        /// <param name="eventIds">The event IDs for which the behavior should be set.</param>
+        /// <param name="warningBehavior">The behavior to set.</param>
+        /// <returns>A new instance with the behaviors set.</returns>
         public virtual WarningsConfiguration WithExplicit(
             IEnumerable<EventId> eventIds,
             WarningBehavior warningBehavior)
@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates a new instance with the given log level set for all given event IDs.
         ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
         /// </summary>
-        /// <param name="eventsAndLevels"> The event IDs and corresponding log levels to set. </param>
-        /// <returns> A new instance with the behaviors set. </returns>
+        /// <param name="eventsAndLevels">The event IDs and corresponding log levels to set.</param>
+        /// <returns>A new instance with the behaviors set.</returns>
         public virtual WarningsConfiguration WithExplicit(
             IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
         {
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Gets the <see cref="LogLevel" /> set for the given event ID, or <see langword="null" />
         ///     if no explicit behavior has been set.
         /// </summary>
-        /// <returns> The <see cref="LogLevel" /> set for the given event ID. </returns>
+        /// <returns>The <see cref="LogLevel" /> set for the given event ID.</returns>
         public virtual LogLevel? GetLevel(EventId eventId)
             => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? warningBehavior.Level
@@ -162,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the given event ID, but only if no explicit behavior has already been set.
         ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
         /// </summary>
-        /// <param name="eventId"> The event ID for which the behavior should be set. </param>
-        /// <param name="warningBehavior"> The behavior to set. </param>
-        /// <returns> A new instance with the behavior set, or this instance if a behavior was already set. </returns>
+        /// <param name="eventId">The event ID for which the behavior should be set.</param>
+        /// <param name="warningBehavior">The behavior to set.</param>
+        /// <returns>A new instance with the behavior set, or this instance if a behavior was already set.</returns>
         public virtual WarningsConfiguration TryWithExplicit(EventId eventId, WarningBehavior warningBehavior)
             => _explicitBehaviors.ContainsKey(eventId.Id)
                 ? this
@@ -174,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
         ///     are the same as in the given extension.
         /// </summary>
-        /// <param name="other"> The other configuration object. </param>
-        /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
+        /// <param name="other">The other configuration object.</param>
+        /// <returns>A value indicating whether all of the options that require a new service provider are the same.</returns>
         public virtual bool ShouldUseSameServiceProvider(WarningsConfiguration other)
             => _defaultBehavior == other._defaultBehavior
                 && _explicitBehaviors.Count == other._explicitBehaviors.Count
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
         ///     to be needed.
         /// </summary>
-        /// <returns> A hash over options that require a new service provider when changed. </returns>
+        /// <returns>A hash over options that require a new service provider when changed.</returns>
         public virtual int GetServiceProviderHashCode()
         {
             if (_serviceProviderHash == null)

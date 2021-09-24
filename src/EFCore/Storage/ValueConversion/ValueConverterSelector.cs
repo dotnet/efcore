@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ValueConverterSelector(ValueConverterSelectorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -84,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     used to convert the given model type. Converters nearer the front of
         ///     the list should be used in preference to converters nearer the end.
         /// </summary>
-        /// <param name="modelClrType"> The type for which a converter is needed. </param>
-        /// <param name="providerClrType"> The database provider type to target, or null for any. </param>
-        /// <returns> The converters available. </returns>
+        /// <param name="modelClrType">The type for which a converter is needed.</param>
+        /// <param name="providerClrType">The database provider type to target, or null for any.</param>
+        /// <returns>The converters available.</returns>
         public virtual IEnumerable<ValueConverterInfo> Select(
             Type modelClrType,
             Type? providerClrType = null)

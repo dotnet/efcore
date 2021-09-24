@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="Annotation" /> class.
         /// </summary>
-        /// <param name="name"> The key of this annotation. </param>
-        /// <param name="value"> The value assigned to this annotation. </param>
+        /// <param name="name">The key of this annotation.</param>
+        /// <param name="value">The value assigned to this annotation.</param>
         public Annotation(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));

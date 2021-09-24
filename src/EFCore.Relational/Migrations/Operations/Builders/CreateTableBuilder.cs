@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
     /// <summary>
     ///     A builder for <see cref="CreateTableOperation" /> operations.
     /// </summary>
-    /// <typeparam name="TColumns"> Type of a typically anonymous type for building columns. </typeparam>
+    /// <typeparam name="TColumns">Type of a typically anonymous type for building columns.</typeparam>
     public class CreateTableBuilder<TColumns> : OperationBuilder<CreateTableOperation>
     {
         private readonly IReadOnlyDictionary<PropertyInfo, AddColumnOperation> _columnMap;
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         ///     Constructs a new builder for the given <see cref="CreateTableOperation" /> and
         ///     with the given map of <see cref="AddColumnOperation" /> operations for columns.
         /// </summary>
-        /// <param name="operation"> The <see cref="CreateTableOperation" />. </param>
-        /// <param name="columnMap"> The map of CLR properties to <see cref="AddColumnOperation" />s. </param>
+        /// <param name="operation">The <see cref="CreateTableOperation" />.</param>
+        /// <param name="columnMap">The map of CLR properties to <see cref="AddColumnOperation" />s.</param>
         public CreateTableBuilder(
             CreateTableOperation operation,
             IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
@@ -38,14 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Configures a single-column foreign key on the table.
         /// </summary>
-        /// <param name="name"> The foreign key constraint name. </param>
-        /// <param name="column"> The column used for the foreign key. </param>
-        /// <param name="principalTable"> The table to which the foreign key is constrained. </param>
-        /// <param name="principalColumn"> The column to which the foreign key column is constrained. </param>
-        /// <param name="principalSchema"> The schema that contains the table to which the foreign key is constrained. </param>
-        /// <param name="onUpdate"> The <see cref="ReferentialAction" /> to use for updates. </param>
-        /// <param name="onDelete"> The <see cref="ReferentialAction" /> to use for deletes. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The foreign key constraint name.</param>
+        /// <param name="column">The column used for the foreign key.</param>
+        /// <param name="principalTable">The table to which the foreign key is constrained.</param>
+        /// <param name="principalColumn">The column to which the foreign key column is constrained.</param>
+        /// <param name="principalSchema">The schema that contains the table to which the foreign key is constrained.</param>
+        /// <param name="onUpdate">The <see cref="ReferentialAction" /> to use for updates.</param>
+        /// <param name="onDelete">The <see cref="ReferentialAction" /> to use for deletes.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
             string name,
             Expression<Func<TColumns, object>> column,
@@ -66,14 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Configures a multiple-column (composite) foreign key on the table.
         /// </summary>
-        /// <param name="name"> The foreign key constraint name. </param>
-        /// <param name="columns"> The columns used for the foreign key. </param>
-        /// <param name="principalTable"> The table to which the foreign key is constrained. </param>
-        /// <param name="principalColumns"> The columns to which the foreign key column is constrained. </param>
-        /// <param name="principalSchema"> The schema that contains the table to which the foreign key is constrained. </param>
-        /// <param name="onUpdate"> The <see cref="ReferentialAction" /> to use for updates. </param>
-        /// <param name="onDelete"> The <see cref="ReferentialAction" /> to use for deletes. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The foreign key constraint name.</param>
+        /// <param name="columns">The columns used for the foreign key.</param>
+        /// <param name="principalTable">The table to which the foreign key is constrained.</param>
+        /// <param name="principalColumns">The columns to which the foreign key column is constrained.</param>
+        /// <param name="principalSchema">The schema that contains the table to which the foreign key is constrained.</param>
+        /// <param name="onUpdate">The <see cref="ReferentialAction" /> to use for updates.</param>
+        /// <param name="onDelete">The <see cref="ReferentialAction" /> to use for deletes.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
             string name,
             Expression<Func<TColumns, object>> columns,
@@ -107,9 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Configures a primary key on the table.
         /// </summary>
-        /// <param name="name"> The primary key constraint name. </param>
-        /// <param name="columns"> The columns that make up the primary key. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The primary key constraint name.</param>
+        /// <param name="columns">The columns that make up the primary key.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual OperationBuilder<AddPrimaryKeyOperation> PrimaryKey(
             string name,
             Expression<Func<TColumns, object>> columns)
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Configures a unique constraint on the table.
         /// </summary>
-        /// <param name="name"> The constraint name. </param>
-        /// <param name="columns"> The columns that make up the constraint. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The constraint name.</param>
+        /// <param name="columns">The columns that make up the constraint.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual OperationBuilder<AddUniqueConstraintOperation> UniqueConstraint(
             string name,
             Expression<Func<TColumns, object>> columns)
@@ -158,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Configures a check constraint on the table.
         /// </summary>
-        /// <param name="name"> The constraint name. </param>
-        /// <param name="sql"> The sql expression used in the CHECK constraint. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The constraint name.</param>
+        /// <param name="sql">The sql expression used in the CHECK constraint.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual OperationBuilder<AddCheckConstraintOperation> CheckConstraint(
             string name,
             string sql)
@@ -183,9 +183,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <summary>
         ///     Annotates the operation with the given name/value pair.
         /// </summary>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="value"> The annotation value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="name">The annotation name.</param>
+        /// <param name="value">The annotation value.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public new virtual CreateTableBuilder<TColumns> Annotation(string name, object value)
             => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 

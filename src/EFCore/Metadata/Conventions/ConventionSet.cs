@@ -250,11 +250,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Replaces an existing convention with a derived convention.
         /// </summary>
-        /// <typeparam name="TConvention"> The type of convention being replaced. </typeparam>
-        /// <typeparam name="TImplementation"> The type of the old convention. </typeparam>
-        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
-        /// <param name="newConvention"> The new convention. </param>
-        /// <returns> <see langword="true" /> if the convention was replaced. </returns>
+        /// <typeparam name="TConvention">The type of convention being replaced.</typeparam>
+        /// <typeparam name="TImplementation">The type of the old convention.</typeparam>
+        /// <param name="conventionsList">The list of existing convention instances to scan.</param>
+        /// <param name="newConvention">The new convention.</param>
+        /// <returns><see langword="true" /> if the convention was replaced.</returns>
         public static bool Replace<TConvention, TImplementation>(
             IList<TConvention> conventionsList,
             TImplementation newConvention)
@@ -279,11 +279,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Adds a convention before an existing convention.
         /// </summary>
-        /// <typeparam name="TConvention"> The type of convention being added. </typeparam>
-        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
-        /// <param name="newConvention"> The new convention. </param>
-        /// <param name="existingConventionType"> The type of the existing convention. </param>
-        /// <returns> <see langword="true" /> if the convention was added. </returns>
+        /// <typeparam name="TConvention">The type of convention being added.</typeparam>
+        /// <param name="conventionsList">The list of existing convention instances to scan.</param>
+        /// <param name="newConvention">The new convention.</param>
+        /// <param name="existingConventionType">The type of the existing convention.</param>
+        /// <returns><see langword="true" /> if the convention was added.</returns>
         public static bool AddBefore<TConvention>(
             IList<TConvention> conventionsList,
             TConvention newConvention,
@@ -307,11 +307,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Adds a convention after an existing convention.
         /// </summary>
-        /// <typeparam name="TConvention"> The type of convention being added. </typeparam>
-        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
-        /// <param name="newConvention"> The new convention. </param>
-        /// <param name="existingConventionType"> The type of the existing convention. </param>
-        /// <returns> <see langword="true" /> if the convention was added. </returns>
+        /// <typeparam name="TConvention">The type of convention being added.</typeparam>
+        /// <param name="conventionsList">The list of existing convention instances to scan.</param>
+        /// <param name="newConvention">The new convention.</param>
+        /// <param name="existingConventionType">The type of the existing convention.</param>
+        /// <returns><see langword="true" /> if the convention was added.</returns>
         public static bool AddAfter<TConvention>(
             IList<TConvention> conventionsList,
             TConvention newConvention,
@@ -335,10 +335,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Removes an existing convention.
         /// </summary>
-        /// <typeparam name="TConvention"> The type of convention being removed. </typeparam>
-        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
-        /// <param name="existingConventionType"> The type of the existing convention. </param>
-        /// <returns> <see langword="true" /> if the convention was removed. </returns>
+        /// <typeparam name="TConvention">The type of convention being removed.</typeparam>
+        /// <param name="conventionsList">The list of existing convention instances to scan.</param>
+        /// <param name="existingConventionType">The type of the existing convention.</param>
+        /// <returns><see langword="true" /> if the convention was removed.</returns>
         public static bool Remove<TConvention>(
             IList<TConvention> conventionsList,
             Type existingConventionType)
@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ConventionSet CreateConventionSet(DbContext context)
             => context.GetService<IConventionSetBuilder>().CreateConventionSet();
     }

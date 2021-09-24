@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="context"> The current <see cref="DbContext" />. </param>
-        /// <param name="entity"> The entity instance on which lazy loading was initiated. </param>
-        /// <param name="navigationPropertyName"> The navigation property name of the relationship to be loaded. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="context">The current <see cref="DbContext" />.</param>
+        /// <param name="entity">The entity instance on which lazy loading was initiated.</param>
+        /// <param name="navigationPropertyName">The navigation property name of the relationship to be loaded.</param>
         public LazyLoadingEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

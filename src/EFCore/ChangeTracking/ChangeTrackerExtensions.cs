@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="changeTracker"> The metadata item. </param>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="changeTracker">The metadata item.</param>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         public static string ToDebugString(
             this ChangeTracker changeTracker,
             ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,

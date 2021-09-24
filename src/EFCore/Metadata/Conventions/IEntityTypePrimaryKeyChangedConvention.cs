@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the primary key for an entity type is changed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newPrimaryKey"> The new primary key. </param>
-        /// <param name="previousPrimaryKey"> The old primary key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="newPrimaryKey">The new primary key.</param>
+        /// <param name="previousPrimaryKey">The old primary key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionKey? newPrimaryKey,

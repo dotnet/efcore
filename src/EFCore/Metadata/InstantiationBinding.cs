@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="InstantiationBinding" /> instance.
         /// </summary>
-        /// <param name="parameterBindings"> The parameter bindings to use. </param>
+        /// <param name="parameterBindings">The parameter bindings to use.</param>
         protected InstantiationBinding(
             IReadOnlyList<ParameterBinding> parameterBindings)
         {
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     information. For example, this might be a <see cref="NewExpression" /> to call a constructor,
         ///     or a <see cref="MethodCallExpression" /> to call a factory method.
         /// </summary>
-        /// <param name="bindingInfo"> Information needed to create the expression. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">Information needed to create the expression.</param>
+        /// <returns>The expression tree.</returns>
         public abstract Expression CreateConstructorExpression(ParameterBindingInfo bindingInfo);
 
         /// <summary>
@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a copy that contains the given parameter bindings.
         /// </summary>
-        /// <param name="parameterBindings"> The new parameter bindings. </param>
-        /// <returns> A copy with replaced parameter bindings. </returns>
+        /// <param name="parameterBindings">The new parameter bindings.</param>
+        /// <returns>A copy with replaced parameter bindings.</returns>
         public abstract InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings);
     }
 }

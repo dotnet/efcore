@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

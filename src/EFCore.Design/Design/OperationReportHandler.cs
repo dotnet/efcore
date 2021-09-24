@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Initializes a new instance of the <see cref="OperationReportHandler" /> class.
         /// </summary>
-        /// <param name="errorHandler"> A callback for <see cref="OnError(string)" />. </param>
-        /// <param name="warningHandler"> A callback for <see cref="OnWarning(string)" />. </param>
-        /// <param name="informationHandler"> A callback for <see cref="OnInformation(string)" />. </param>
-        /// <param name="verboseHandler"> A callback for <see cref="OnVerbose(string)" />. </param>
+        /// <param name="errorHandler">A callback for <see cref="OnError(string)" />.</param>
+        /// <param name="warningHandler">A callback for <see cref="OnWarning(string)" />.</param>
+        /// <param name="informationHandler">A callback for <see cref="OnInformation(string)" />.</param>
+        /// <param name="verboseHandler">A callback for <see cref="OnVerbose(string)" />.</param>
         public OperationReportHandler(
             Action<string>? errorHandler = null,
             Action<string>? warningHandler = null,
@@ -44,28 +44,28 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Invoked when an error is reported.
         /// </summary>
-        /// <param name="message"> The message. </param>
+        /// <param name="message">The message.</param>
         public virtual void OnError(string message)
             => _errorHandler?.Invoke(message);
 
         /// <summary>
         ///     Invoked when a warning is reported.
         /// </summary>
-        /// <param name="message"> The message. </param>
+        /// <param name="message">The message.</param>
         public virtual void OnWarning(string message)
             => _warningHandler?.Invoke(message);
 
         /// <summary>
         ///     Invoked when information is reported.
         /// </summary>
-        /// <param name="message"> The message. </param>
+        /// <param name="message">The message.</param>
         public virtual void OnInformation(string message)
             => _informationHandler?.Invoke(message);
 
         /// <summary>
         ///     Invoked when verbose information is reported.
         /// </summary>
-        /// <param name="message"> The message. </param>
+        /// <param name="message">The message.</param>
         public virtual void OnVerbose(string message)
             => _verboseHandler?.Invoke(message);
     }

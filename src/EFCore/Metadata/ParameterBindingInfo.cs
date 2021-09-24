@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="ParameterBindingInfo" /> to define a parameter binding.
         /// </summary>
-        /// <param name="entityType"> The entity type for this binding. </param>
-        /// <param name="materializationContextExpression"> The expression tree from which the parameter value will come. </param>
+        /// <param name="entityType">The entity type for this binding.</param>
+        /// <param name="materializationContextExpression">The expression tree from which the parameter value will come.</param>
         public ParameterBindingInfo(
             IEntityType entityType,
             Expression materializationContextExpression)
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the index into the <see cref="ValueBuffer" /> where the property value can be found.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The index where its value can be found. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The index where its value can be found.</returns>
         public int GetValueBufferIndex(IPropertyBase property)
             => property.GetIndex();
     }

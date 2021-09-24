@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates event arguments for the <see cref="M:DbContext.SavingChanges" /> event.
         /// </summary>
-        /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
+        /// <param name="acceptAllChangesOnSuccess">The value passed to SaveChanges.</param>
         public SavingChangesEventArgs(bool acceptAllChangesOnSuccess)
             : base(acceptAllChangesOnSuccess)
         {

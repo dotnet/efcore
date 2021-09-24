@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         ///         Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
-        /// <returns> The convention set. </returns>
+        /// <returns>The convention set.</returns>
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();

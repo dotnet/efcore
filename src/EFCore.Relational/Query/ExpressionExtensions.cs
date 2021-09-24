@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Infers type mapping from given <see cref="SqlExpression" />s.
         /// </summary>
-        /// <param name="expressions"> Expressions to search for to find the type mapping. </param>
-        /// <returns> A relational type mapping inferred from the expressions. </returns>
+        /// <param name="expressions">Expressions to search for to find the type mapping.</param>
+        /// <returns>A relational type mapping inferred from the expressions.</returns>
         public static RelationalTypeMapping? InferTypeMapping(params SqlExpression[] expressions)
         {
             Check.NotNull(expressions, nameof(expressions));

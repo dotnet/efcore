@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
-        /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
+        /// <returns>The first associated principal property, or <see langword="null" /> if none exists.</returns>
         new IMutableProperty? FindFirstPrincipal()
             => (IMutableProperty?)((IReadOnlyProperty)this).FindFirstPrincipal();
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Finds the list of principal properties including the given property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
-        /// <returns> The list of all associated principal properties including the given property. </returns>
+        /// <returns>The list of all associated principal properties including the given property.</returns>
         new IReadOnlyList<IMutableProperty> GetPrincipals()
             => ((IReadOnlyProperty)this).GetPrincipals().Cast<IMutableProperty>().ToList();
 
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" />
         ///     then this is the maximum number of characters.
         /// </summary>
-        /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
+        /// <param name="maxLength">The maximum length of data that is allowed in this property.</param>
         void SetMaxLength(int? maxLength);
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     For example, if the property is a <see cref="decimal" />
         ///     then this is the maximum number of digits.
         /// </summary>
-        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        /// <param name="precision">The maximum number of digits that is allowed in this property.</param>
         void SetPrecision(int? precision);
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     For example, if the property is a <see cref="decimal" />
         ///     then this is the maximum number of decimal places.
         /// </summary>
-        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        /// <param name="scale">The maximum number of decimal places that is allowed in this property.</param>
         void SetScale(int? scale);
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
-        /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
+        /// <param name="converter">The converter, or <see langword="null" /> to remove any previously set converter.</param>
         void SetValueConverter(ValueConverter? converter);
 
         /// <summary>
@@ -224,19 +224,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
-        /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
+        /// <param name="providerClrType">The type to use, or <see langword="null" /> to remove any previously set type.</param>
         void SetProviderClrType(Type? providerClrType);
 
         /// <summary>
         ///     Sets the <see cref="CoreTypeMapping" /> for the given property
         /// </summary>
-        /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
+        /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
         void SetTypeMapping(CoreTypeMapping typeMapping);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
-        /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
+        /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
         void SetValueComparer(ValueComparer? comparer);
 
         /// <summary>

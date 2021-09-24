@@ -31,15 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds the parameter as a <see cref="DbParameter" /> to a <see cref="DbCommand" />.
         /// </summary>
-        /// <param name="command"> The command to add the parameter to. </param>
-        /// <param name="value"> The value to be assigned to the parameter. </param>
+        /// <param name="command">The command to add the parameter to.</param>
+        /// <param name="value">The value to be assigned to the parameter.</param>
         void AddDbParameter(DbCommand command, object? value);
 
         /// <summary>
         ///     Adds the parameter as a <see cref="DbParameter" /> to a <see cref="DbCommand" />.
         /// </summary>
-        /// <param name="command"> The command to add the parameter to. </param>
-        /// <param name="parameterValues"> The map of parameter values </param>
+        /// <param name="command">The command to add the parameter to.</param>
+        /// <param name="parameterValues">The map of parameter values</param>
         void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?> parameterValues);
     }
 }

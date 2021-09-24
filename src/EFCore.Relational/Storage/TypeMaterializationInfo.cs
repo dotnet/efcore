@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="TypeMaterializationInfo" /> instance.
         /// </summary>
-        /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
-        /// <param name="property"> The property associated with the type, or <see langword="null" /> if none. </param>
-        /// <param name="mapping"> The type mapping to use or <see langword="null" /> to infer one. </param>
-        /// <param name="nullable"> A value indicating whether the value could be null. </param>
+        /// <param name="modelClrType">The type that is needed in the model after conversion.</param>
+        /// <param name="property">The property associated with the type, or <see langword="null" /> if none.</param>
+        /// <param name="mapping">The type mapping to use or <see langword="null" /> to infer one.</param>
+        /// <param name="nullable">A value indicating whether the value could be null.</param>
         public TypeMaterializationInfo(
             Type modelClrType,
             IProperty? property,
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="other"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="other">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         protected virtual bool Equals(TypeMaterializationInfo other)
             => ProviderClrType == other.ProviderClrType
                 && ModelClrType == other.ModelClrType
@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         public override bool Equals(object? obj)
             => !(obj is null)
                 && (ReferenceEquals(this, obj)
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
 #pragma warning disable CS0612 // Type or member is obsolete
             => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin, IsNullable);

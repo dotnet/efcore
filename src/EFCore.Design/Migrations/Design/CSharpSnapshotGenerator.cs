@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The dependencies. </param>
+        /// <param name="dependencies">The dependencies.</param>
         public CSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for creating an <see cref="IModel" />.
         /// </summary>
-        /// <param name="modelBuilderName"> The <see cref="ModelBuilder" /> variable name. </param>
-        /// <param name="model"> The model. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The <see cref="ModelBuilder" /> variable name.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         public virtual void Generate(string modelBuilderName, IModel model, IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
@@ -82,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IEntityType" /> objects.
         /// </summary>
-        /// <param name="modelBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityTypes"> The entity types. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The name of the builder variable.</param>
+        /// <param name="entityTypes">The entity types.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateEntityTypes(
             string modelBuilderName,
             IEnumerable<IEntityType> entityTypes,
@@ -125,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="modelBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateEntityType(
             string modelBuilderName,
             IEntityType entityType,
@@ -231,9 +231,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for owned entity types.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="ownerships"> The foreign keys identifying each entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="ownerships">The foreign keys identifying each entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateOwnedTypes(
             string entityTypeBuilderName,
             IEnumerable<IForeignKey> ownerships,
@@ -254,9 +254,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an owned entity types.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="ownership"> The foreign key identifying the entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="ownership">The foreign key identifying the entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateOwnedType(
             string entityTypeBuilderName,
             IForeignKey ownership,
@@ -272,9 +272,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="modelBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateEntityTypeRelationships(
             string modelBuilderName,
             IEntityType entityType,
@@ -306,9 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateRelationships(
             string entityTypeBuilderName,
             IEntityType entityType,
@@ -331,9 +331,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the base type of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="baseType"> The base entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="baseType">The base entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateBaseType(
             string entityTypeBuilderName,
             IEntityType? baseType,
@@ -356,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="ISequence" />.
         /// </summary>
-        /// <param name="modelBuilderName"> The name of the builder variable. </param>
-        /// <param name="sequence"> The sequence. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The name of the builder variable.</param>
+        /// <param name="sequence">The sequence.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateSequence(
             string modelBuilderName,
             ISequence sequence,
@@ -443,9 +443,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IProperty" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="properties"> The properties. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="properties">The properties.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateProperties(
             string entityTypeBuilderName,
             IEnumerable<IProperty> properties,
@@ -464,9 +464,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="IProperty" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateProperty(
             string entityTypeBuilderName,
             IProperty property,
@@ -522,9 +522,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on an <see cref="IProperty" />.
         /// </summary>
-        /// <param name="propertyBuilderName"> The name of the builder variable. </param>
-        /// <param name="property"> The property. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="propertyBuilderName">The name of the builder variable.</param>
+        /// <param name="property">The property.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GeneratePropertyAnnotations(
             string propertyBuilderName,
             IProperty property,
@@ -568,10 +568,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="keys"> The keys. </param>
-        /// <param name="primaryKey"> The primary key. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="keys">The keys.</param>
+        /// <param name="primaryKey">The primary key.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateKeys(
             string entityTypeBuilderName,
             IEnumerable<IKey> keys,
@@ -602,10 +602,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="IKey" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="key"> The key. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        /// <param name="primary">A value indicating whether the key is primary. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
+        /// <param name="primary">A value indicating whether the key is primary.</param>
         protected virtual void GenerateKey(
             string entityTypeBuilderName,
             IKey key,
@@ -636,9 +636,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on a key.
         /// </summary>
-        /// <param name="keyBuilderName"> The name of the builder variable. </param>
-        /// <param name="key"> The key. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="keyBuilderName">The name of the builder variable.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateKeyAnnotations(string keyBuilderName, IKey key, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(keyBuilderName, nameof(keyBuilderName));
@@ -655,9 +655,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IIndex" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="indexes"> The indexes. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="indexes">The indexes.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateIndexes(
             string entityTypeBuilderName,
             IEnumerable<IIndex> indexes,
@@ -676,9 +676,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code an <see cref="IIndex" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="index"> The index. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateIndex(
             string entityTypeBuilderName,
             IIndex index,
@@ -718,9 +718,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on an index.
         /// </summary>
-        /// <param name="indexBuilderName"> The name of the builder variable. </param>
-        /// <param name="index"> The index. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="indexBuilderName">The name of the builder variable.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateIndexAnnotations(
             string indexBuilderName,
             IIndex index,
@@ -740,9 +740,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on an entity type.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateEntityTypeAnnotations(
             string entityTypeBuilderName,
             IEntityType entityType,
@@ -972,9 +972,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="ICheckConstraint" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateCheckConstraints(
             string entityTypeBuilderName,
             IEntityType entityType,
@@ -997,9 +997,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="ICheckConstraint" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="checkConstraint"> The check constraint. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="checkConstraint">The check constraint.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateCheckConstraint(
             string entityTypeBuilderName,
             ICheckConstraint checkConstraint,
@@ -1030,9 +1030,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IForeignKey" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="foreignKeys"> The foreign keys. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="foreignKeys">The foreign keys.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateForeignKeys(
             string entityTypeBuilderName,
             IEnumerable<IForeignKey> foreignKeys,
@@ -1053,9 +1053,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="IForeignKey" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="foreignKey"> The foreign key. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="foreignKey">The foreign key.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateForeignKey(
             string entityTypeBuilderName,
             IForeignKey foreignKey,
@@ -1191,9 +1191,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on a foreign key.
         /// </summary>
-        /// <param name="foreignKeyBuilderName"> The name of the builder variable. </param>
-        /// <param name="foreignKey"> The foreign key. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="foreignKeyBuilderName">The name of the builder variable.</param>
+        /// <param name="foreignKey">The foreign key.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateForeignKeyAnnotations(
             string foreignKeyBuilderName,
             IForeignKey foreignKey,
@@ -1213,9 +1213,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the navigations of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="modelBuilderName"> The name of the builder variable. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="modelBuilderName">The name of the builder variable.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateEntityTypeNavigations(
             string modelBuilderName,
             IEntityType entityType,
@@ -1249,9 +1249,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="INavigation" /> objects.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="navigations"> The navigations. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="navigations">The navigations.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateNavigations(
             string entityTypeBuilderName,
             IEnumerable<INavigation> navigations,
@@ -1272,9 +1272,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="INavigation" />.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="navigation">The navigation.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateNavigation(
             string entityTypeBuilderName,
             INavigation navigation,
@@ -1306,9 +1306,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the annotations on a navigation.
         /// </summary>
-        /// <param name="navigationBuilderName"> The name of the builder variable. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="navigationBuilderName">The name of the builder variable.</param>
+        /// <param name="navigation">The navigation.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateNavigationAnnotations(
             string navigationBuilderName,
             INavigation navigation,
@@ -1328,10 +1328,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for data seeding.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
-        /// <param name="properties"> The properties to generate. </param>
-        /// <param name="data"> The data to be seeded. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
+        /// <param name="entityTypeBuilderName">The name of the builder variable.</param>
+        /// <param name="properties">The properties to generate.</param>
+        /// <param name="data">The data to be seeded.</param>
+        /// <param name="stringBuilder">The builder code is added to.</param>
         protected virtual void GenerateData(
             string entityTypeBuilderName,
             IEnumerable<IProperty> properties,

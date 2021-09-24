@@ -16,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
-    /// <typeparam name="TAttribute"> The attribute type to look for. </typeparam>
+    /// <typeparam name="TAttribute">The attribute type to look for.</typeparam>
     public abstract class EntityTypeAttributeConventionBase<TAttribute> : IEntityTypeAddedConvention
         where TAttribute : Attribute
     {
         /// <summary>
         ///     Creates a new instance of <see cref="EntityTypeAttributeConventionBase{TAttribute}" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         protected EntityTypeAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type is added to the model.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type is added to the model if it has an attribute.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         protected abstract void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             TAttribute attribute,

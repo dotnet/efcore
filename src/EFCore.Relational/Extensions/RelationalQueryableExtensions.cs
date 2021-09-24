@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
         /// </remarks>
-        /// <param name="source"> The query source. </param>
-        /// <returns> The query string for debugging. </returns>
+        /// <param name="source">The query source.</param>
+        /// <returns>The query string for debugging.</returns>
         public static DbCommand CreateDbCommand(this IQueryable source)
         {
             Check.NotNull(source, nameof(source));
@@ -88,13 +88,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">
         ///     An <see cref="IQueryable{T}" /> to use as the base of the raw SQL query (typically a <see cref="DbSet{TEntity}" />).
         /// </param>
-        /// <param name="sql"> The raw SQL query. </param>
-        /// <param name="parameters"> The values to be assigned to parameters. </param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
+        /// <param name="sql">The raw SQL query.</param>
+        /// <param name="parameters">The values to be assigned to parameters.</param>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the raw SQL query.</returns>
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
             this DbSet<TEntity> source,
@@ -134,12 +134,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the elements of <paramref name="source" />. </typeparam>
+        /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">
         ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
         /// </param>
-        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
+        /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
             this DbSet<TEntity> source,
             [NotParameterized] FormattableString sql)
@@ -196,9 +196,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
-        /// <param name="source"> The source query. </param>
-        /// <returns> A new query where collections will be loaded through single database query. </returns>
+        /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+        /// <param name="source">The source query.</param>
+        /// <returns>A new query where collections will be loaded through single database query.</returns>
         public static IQueryable<TEntity> AsSingleQuery<TEntity>(
             this IQueryable<TEntity> source)
             where TEntity : class
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
-        /// <param name="source"> The source query. </param>
-        /// <returns> A new query where collections will be loaded through separate database queries. </returns>
+        /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
+        /// <param name="source">The source query.</param>
+        /// <returns>A new query where collections will be loaded through separate database queries.</returns>
         public static IQueryable<TEntity> AsSplitQuery<TEntity>(
             this IQueryable<TEntity> source)
             where TEntity : class

@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the backing field to use for this property.
         /// </summary>
-        /// <param name="fieldName"> The field name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fieldName">The field name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the backing field to use for this property.
         /// </summary>
-        /// <param name="fieldInfo"> The field. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fieldInfo">The field.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
-        /// <param name="parameterBinding"> The parameter binding. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="parameterBinding">The parameter binding.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -76,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the <see cref="ServiceParameterBinding" /> can be set for this property.
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="parameterBinding"> The parameter binding. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the <see cref="ServiceParameterBinding" /> can be set for this property. </returns>
+        /// <param name="parameterBinding">The parameter binding.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the <see cref="ServiceParameterBinding" /> can be set for this property.</returns>
         bool CanSetParameterBinding(ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
     }
 }

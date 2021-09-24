@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Selects an <see cref="ICompiledModelCodeGenerator" /> service for given generation options.
         /// </summary>
-        /// <param name="options"> The generation options. </param>
-        /// <returns> The <see cref="ICompiledModelCodeGenerator" />. </returns>
+        /// <param name="options">The generation options.</param>
+        /// <returns>The <see cref="ICompiledModelCodeGenerator" />.</returns>
         ICompiledModelCodeGenerator Select(CompiledModelCodeGenerationOptions options);
     }
 }

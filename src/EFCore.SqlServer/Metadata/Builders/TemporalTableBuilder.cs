@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="name"> The name of the history table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="name">The name of the history table.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TemporalTableBuilder UseHistoryTable(string name)
         {
             _entityType.SetHistoryTableName(name);
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="name"> The name of the history table. </param>
-        /// <param name="schema"> The schema of the history table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="name">The name of the history table.</param>
+        /// <param name="schema">The schema of the history table.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TemporalTableBuilder UseHistoryTable(string name, string? schema)
         {
             _entityType.SetHistoryTableName(name);
@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the period start property. </param>
-        /// <returns> An object that can be used to configure the period start property. </returns>
+        /// <param name="propertyName">The name of the period start property.</param>
+        /// <returns>An object that can be used to configure the period start property.</returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
         {
             _entityType.SetPeriodStartPropertyName(propertyName);
@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyName"> The name of the period end property. </param>
-        /// <returns> An object that can be used to configure the period end property. </returns>
+        /// <param name="propertyName">The name of the period end property.</param>
+        /// <returns>An object that can be used to configure the period end property.</returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
         {
             _entityType.SetPeriodEndPropertyName(propertyName);
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

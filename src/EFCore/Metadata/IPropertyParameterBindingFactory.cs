@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Finds a <see cref="ParameterBinding" /> specifically for an <see cref="IPropertyBase" /> in the model.
         /// </summary>
-        /// <param name="entityType"> The entity type on which the <see cref="IPropertyBase" /> is defined. </param>
-        /// <param name="parameterType"> The parameter name. </param>
-        /// <param name="parameterName"> The parameter type. </param>
-        /// <returns> The parameter binding, or <see langword="null" /> if none was found. </returns>
+        /// <param name="entityType">The entity type on which the <see cref="IPropertyBase" /> is defined.</param>
+        /// <param name="parameterType">The parameter name.</param>
+        /// <param name="parameterName">The parameter type.</param>
+        /// <returns>The parameter binding, or <see langword="null" /> if none was found.</returns>
         ParameterBinding? FindParameter(
             IEntityType entityType,
             Type parameterType,

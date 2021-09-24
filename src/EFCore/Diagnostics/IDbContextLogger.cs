@@ -27,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         being logged. See <see cref="CoreEventId" /> for the type of event data used for each core event.
         ///     </para>
         /// </summary>
-        /// <param name="eventData"> The event to log. </param>
+        /// <param name="eventData">The event to log.</param>
         void Log(EventData eventData);
 
         /// <summary>
         ///     Determines whether or not the given event should be logged.
         /// </summary>
-        /// <param name="eventId"> The ID of the event. </param>
-        /// <param name="logLevel"> The level of the event. </param>
-        /// <returns> Returns <see langword="true" /> if the event should be logged; <see langword="false" /> if it should be filtered out. </returns>
+        /// <param name="eventId">The ID of the event.</param>
+        /// <param name="logLevel">The level of the event.</param>
+        /// <returns>Returns <see langword="true" /> if the event should be logged; <see langword="false" /> if it should be filtered out.</returns>
         bool ShouldLog(EventId eventId, LogLevel logLevel);
     }
 }

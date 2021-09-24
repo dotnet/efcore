@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryTranslationPostprocessor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="queryCompilationContext">The query compilation context object to use.</param>
         public QueryTranslationPostprocessor(
             QueryTranslationPostprocessorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Applies postprocessing transformations to the translated query.
         /// </summary>
-        /// <param name="query"> The query to process. </param>
-        /// <returns> A query expression after transformations. </returns>
+        /// <param name="query">The query to process.</param>
+        /// <returns>A query expression after transformations.</returns>
         public virtual Expression Process(Expression query)
         {
             Check.NotNull(query, nameof(query));

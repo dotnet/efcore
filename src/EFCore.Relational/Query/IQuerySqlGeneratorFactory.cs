@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new <see cref="QuerySqlGenerator" />.
         /// </summary>
-        /// <returns> A SQL generator. </returns>
+        /// <returns>A SQL generator.</returns>
         QuerySqlGenerator Create();
     }
 }

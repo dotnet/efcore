@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         Warning: this string may not be suitable for direct execution is intended only for use in debugging.
         ///     </para>
         /// </summary>
-        /// <returns> The query string. </returns>
+        /// <returns>The query string.</returns>
         string ToQueryString();
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="Database" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected Database(DatabaseDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -53,20 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Persists changes from the supplied entries to the database.
         /// </summary>
-        /// <param name="entries"> Entries representing the changes to be persisted. </param>
-        /// <returns> The number of state entries persisted to the database. </returns>
+        /// <param name="entries">Entries representing the changes to be persisted.</param>
+        /// <returns>The number of state entries persisted to the database.</returns>
         public abstract int SaveChanges(IList<IUpdateEntry> entries);
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
         /// </summary>
-        /// <param name="entries"> Entries representing the changes to be persisted. </param>
+        /// <param name="entries">Entries representing the changes to be persisted.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of entries persisted to the database.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public abstract Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);

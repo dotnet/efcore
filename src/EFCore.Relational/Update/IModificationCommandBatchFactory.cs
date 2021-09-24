@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ModificationCommandBatch" /> instance.
         /// </summary>
-        /// <returns> The new instance. </returns>
+        /// <returns>The new instance.</returns>
         ModificationCommandBatch Create();
     }
 }

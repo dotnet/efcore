@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder{TContext}" />
     ///     to create instances of this class and it is not designed to be directly constructed in your application code.
     /// </summary>
-    /// <typeparam name="TContext"> The type of the context these options apply to. </typeparam>
+    /// <typeparam name="TContext">The type of the context these options apply to.</typeparam>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
     /// </remarks>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder{TContext}" />
         ///     to create instances of this class and it is not designed to be directly constructed in your application code.
         /// </summary>
-        /// <param name="extensions"> The extensions that store the configured options. </param>
+        /// <param name="extensions">The extensions that store the configured options.</param>
         public DbContextOptions(
             IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
             : base(extensions)

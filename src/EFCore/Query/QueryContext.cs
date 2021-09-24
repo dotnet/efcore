@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="dependencies">The dependencies to use.</param>
         protected QueryContext(
             QueryContextDependencies dependencies)
         {
@@ -65,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Sets the navigation for given entity as loaded.
         /// </summary>
-        /// <param name="entity"> The entity instance. </param>
-        /// <param name="navigation"> The navigation property. </param>
+        /// <param name="entity">The entity instance.</param>
+        /// <param name="navigation">The navigation property.</param>
         public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
@@ -128,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
-        /// <param name="name"> The name. </param>
-        /// <param name="value"> The value. </param>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
         public virtual void AddParameter(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.
         /// </summary>
-        /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
+        /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
         public virtual void InitializeStateManager(bool standAlone = false)
         {
             Check.DebugAssert(

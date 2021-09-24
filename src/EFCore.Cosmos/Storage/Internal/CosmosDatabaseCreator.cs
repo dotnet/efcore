@@ -223,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// <summary>
         ///     Returns the store name of the property that is used to store the partition key.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the partition key property name for. </param>
-        /// <returns> The name of the partition key property. </returns>
+        /// <param name="entityType">The entity type to get the partition key property name for.</param>
+        /// <returns>The name of the partition key property.</returns>
         private static string GetPartitionKeyStoreName(IEntityType entityType)
         {
             var name = entityType.GetPartitionKeyPropertyName();

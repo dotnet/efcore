@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the runtime annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
-        /// <param name="name"> The name of the annotation to find. </param>
+        /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The existing runtime annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the value of the runtime annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
-        /// <param name="name"> The name of the annotation to find. </param>
+        /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
@@ -49,33 +49,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Adds a runtime annotation to this object. Throws if an annotation with the specified name already exists.
         /// </summary>
-        /// <param name="name"> The name of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The newly added annotation. </returns>
+        /// <param name="name">The name of the annotation to be added.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The newly added annotation.</returns>
         IAnnotation AddRuntimeAnnotation(string name, object? value);
 
         /// <summary>
         ///     Sets the runtime annotation stored under the given key. Overwrites the existing annotation if an
         ///     annotation with the specified name already exists.
         /// </summary>
-        /// <param name="name"> The name of the annotation to be added. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The newly added annotation. </returns>
+        /// <param name="name">The name of the annotation to be added.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The newly added annotation.</returns>
         IAnnotation SetRuntimeAnnotation(string name, object? value);
 
         /// <summary>
         ///     Removes the given runtime annotation from this object.
         /// </summary>
-        /// <param name="name"> The name of the annotation to remove. </param>
-        /// <returns> The annotation that was removed. </returns>
+        /// <param name="name">The name of the annotation to remove.</param>
+        /// <returns>The annotation that was removed.</returns>
         IAnnotation? RemoveRuntimeAnnotation(string name);
 
         /// <summary>
         ///     Gets the value of the runtime annotation with the given name, adding it if one does not exist.
         /// </summary>
-        /// <param name="name"> The name of the annotation. </param>
-        /// <param name="valueFactory"> The factory used to create the value if the annotation doesn't exist. </param>
-        /// <param name="factoryArgument"> An argument for the factory method. </param>
+        /// <param name="name">The name of the annotation.</param>
+        /// <param name="valueFactory">The factory used to create the value if the annotation doesn't exist.</param>
+        /// <param name="factoryArgument">An argument for the factory method.</param>
         /// <returns>
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise a newly created value.

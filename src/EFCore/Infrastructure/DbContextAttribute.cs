@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContextAttribute" /> class.
         /// </summary>
-        /// <param name="contextType"> The associated context. </param>
+        /// <param name="contextType">The associated context.</param>
         public DbContextAttribute(Type contextType)
         {
             Check.NotNull(contextType, nameof(contextType));

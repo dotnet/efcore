@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a skip navigation inverse is changed.
         /// </summary>
-        /// <param name="skipNavigationBuilder"> The builder for the skip navigation. </param>
-        /// <param name="inverse"> The current inverse skip navigation. </param>
-        /// <param name="oldInverse"> The old inverse skip navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="skipNavigationBuilder">The builder for the skip navigation.</param>
+        /// <param name="inverse">The current inverse skip navigation.</param>
+        /// <param name="oldInverse">The old inverse skip navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessSkipNavigationInverseChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             IConventionSkipNavigation? inverse,

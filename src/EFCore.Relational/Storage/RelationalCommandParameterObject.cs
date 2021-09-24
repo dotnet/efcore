@@ -31,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="connection"> The connection on which the command will execute. </param>
-        /// <param name="parameterValues"> The SQL parameter values to use, or <see langword="null" /> if none. </param>
-        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or <see langword="null" /> otherwise. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance, or <see langword="null" /> if it is not known. </param>
-        /// <param name="logger"> A logger, or <see langword="null" /> if no logger is available. </param>
+        /// <param name="connection">The connection on which the command will execute.</param>
+        /// <param name="parameterValues">The SQL parameter values to use, or <see langword="null" /> if none.</param>
+        /// <param name="readerColumns">The expected columns if the reader needs to be buffered, or <see langword="null" /> otherwise.</param>
+        /// <param name="context">The current <see cref="DbContext" /> instance, or <see langword="null" /> if it is not known.</param>
+        /// <param name="logger">A logger, or <see langword="null" /> if no logger is available.</param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,
@@ -55,12 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="connection"> The connection on which the command will execute. </param>
-        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
-        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
-        /// <param name="logger"> A logger, or null if no logger is available. </param>
-        /// <param name="commandSource"> Source of the command. </param>
+        /// <param name="connection">The connection on which the command will execute.</param>
+        /// <param name="parameterValues">The SQL parameter values to use, or null if none.</param>
+        /// <param name="readerColumns">The expected columns if the reader needs to be buffered, or null otherwise.</param>
+        /// <param name="context">The current <see cref="DbContext" /> instance, or null if it is not known.</param>
+        /// <param name="logger">A logger, or null if no logger is available.</param>
+        /// <param name="commandSource">Source of the command.</param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,
@@ -81,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="connection"> The connection on which the command will execute. </param>
-        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
-        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
-        /// <param name="logger"> A logger, or null if no logger is available. </param>
-        /// <param name="detailedErrorsEnabled"> A value indicating if detailed errors are enabled. </param>
+        /// <param name="connection">The connection on which the command will execute.</param>
+        /// <param name="parameterValues">The SQL parameter values to use, or null if none.</param>
+        /// <param name="readerColumns">The expected columns if the reader needs to be buffered, or null otherwise.</param>
+        /// <param name="context">The current <see cref="DbContext" /> instance, or null if it is not known.</param>
+        /// <param name="logger">A logger, or null if no logger is available.</param>
+        /// <param name="detailedErrorsEnabled">A value indicating if detailed errors are enabled.</param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,
@@ -107,13 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="connection"> The connection on which the command will execute. </param>
-        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
-        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
-        /// <param name="logger"> A logger, or null if no logger is available. </param>
-        /// <param name="detailedErrorsEnabled"> A value indicating if detailed errors are enabled. </param>
-        /// <param name="commandSource"> Source of the command. </param>
+        /// <param name="connection">The connection on which the command will execute.</param>
+        /// <param name="parameterValues">The SQL parameter values to use, or null if none.</param>
+        /// <param name="readerColumns">The expected columns if the reader needs to be buffered, or null otherwise.</param>
+        /// <param name="context">The current <see cref="DbContext" /> instance, or null if it is not known.</param>
+        /// <param name="logger">A logger, or null if no logger is available.</param>
+        /// <param name="detailedErrorsEnabled">A value indicating if detailed errors are enabled.</param>
+        /// <param name="commandSource">Source of the command.</param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,

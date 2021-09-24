@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelCustomizer" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ModelCustomizer(ModelCustomizerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

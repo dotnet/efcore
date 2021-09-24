@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the operand on which the collation is being specified. </typeparam>
-        /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
-        /// <param name="operand"> The operand to which to apply the collation. </param>
-        /// <param name="collation"> The name of the collation. </param>
+        /// <typeparam name="TProperty">The type of the operand on which the collation is being specified.</typeparam>
+        /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+        /// <param name="operand">The operand to which to apply the collation.</param>
+        /// <param name="collation">The name of the collation.</param>
         public static TProperty Collate<TProperty>(
             this DbFunctions _,
             TProperty operand,

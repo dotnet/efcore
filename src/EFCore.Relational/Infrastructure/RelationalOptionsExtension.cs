@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
-        /// <param name="copyFrom"> The instance that is being cloned. </param>
+        /// <param name="copyFrom">The instance that is being cloned.</param>
         protected RelationalOptionsExtension(RelationalOptionsExtension copyFrom)
         {
             Check.NotNull(copyFrom, nameof(copyFrom));
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Override this method in a derived class to ensure that any clone created is also of that class.
         /// </summary>
-        /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
+        /// <returns>A clone of this instance, which can be modified before being returned as immutable.</returns>
         protected abstract RelationalOptionsExtension Clone();
 
         /// <summary>
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="connectionString"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="connectionString">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithConnectionString(string? connectionString)
         {
             Check.NullButNotEmpty(connectionString, nameof(connectionString));
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="connection"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="connection">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithConnection(DbConnection? connection)
         {
             var clone = Clone();
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="commandTimeout"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="commandTimeout">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithCommandTimeout(int? commandTimeout)
         {
             if (commandTimeout.HasValue
@@ -166,8 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="maxBatchSize"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="maxBatchSize">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithMaxBatchSize(int? maxBatchSize)
         {
             if (maxBatchSize.HasValue
@@ -194,8 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="minBatchSize"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="minBatchSize">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithMinBatchSize(int? minBatchSize)
         {
             if (minBatchSize.HasValue
@@ -223,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="useRelationalNulls"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="useRelationalNulls">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithUseRelationalNulls(bool useRelationalNulls)
         {
             var clone = Clone();
@@ -244,8 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="querySplittingBehavior"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="querySplittingBehavior">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithUseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
         {
             var clone = Clone();
@@ -265,8 +265,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="migrationsAssembly"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="migrationsAssembly">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithMigrationsAssembly(string? migrationsAssembly)
         {
             var clone = Clone();
@@ -286,8 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="migrationsHistoryTableName"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="migrationsHistoryTableName">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithMigrationsHistoryTableName(string? migrationsHistoryTableName)
         {
             var clone = Clone();
@@ -307,8 +307,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="migrationsHistoryTableSchema"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="migrationsHistoryTableSchema">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithMigrationsHistoryTableSchema(string? migrationsHistoryTableSchema)
         {
             var clone = Clone();
@@ -329,8 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="executionStrategyFactory"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="executionStrategyFactory">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithExecutionStrategyFactory(
             Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
@@ -346,8 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     or throws if none has been registered. This is typically used to find some relational
         ///     configuration when it is known that a relational provider is being used.
         /// </summary>
-        /// <param name="options"> The context options to look in. </param>
-        /// <returns> The extension. </returns>
+        /// <param name="options">The context options to look in.</param>
+        /// <returns>The extension.</returns>
         public static RelationalOptionsExtension Extract(IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     provider internally. This allows database providers (and other extensions) to register their
         ///     required services when EF is creating an service provider.
         /// </summary>
-        /// <param name="services"> The collection to add services to. </param>
+        /// <param name="services">The collection to add services to.</param>
         public abstract void ApplyServices(IServiceCollection services);
 
         /// <summary>
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Most extensions do not have invalid combinations and so this will be a no-op.
         ///     If options are invalid, then an exception should be thrown.
         /// </summary>
-        /// <param name="options"> The options being validated. </param>
+        /// <param name="options">The options being validated.</param>
         public virtual void Validate(IDbContextOptions options)
         {
         }
@@ -392,8 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Adds default <see cref="WarningBehavior" /> for relational events.
         /// </summary>
-        /// <param name="coreOptionsExtension"> The core options extension. </param>
-        /// <returns> The new core options extension. </returns>
+        /// <param name="coreOptionsExtension">The core options extension.</param>
+        /// <returns>The new core options extension.</returns>
         public static CoreOptionsExtension WithDefaultWarningConfiguration(CoreOptionsExtension coreOptionsExtension)
             => coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ///     Creates a new <see cref="RelationalExtensionInfo" /> instance containing
             ///     info/metadata for the given extension.
             /// </summary>
-            /// <param name="extension"> The extension. </param>
+            /// <param name="extension">The extension.</param>
             protected RelationalExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)
             {
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ///     to be needed. For example, if the options affect a singleton service. However most extensions do not
             ///     have any such options and should return zero.
             /// </summary>
-            /// <returns> A hash over options that require a new service provider when changed. </returns>
+            /// <returns>A hash over options that require a new service provider when changed.</returns>
             public override int GetServiceProviderHashCode()
                 => 0;
 
@@ -444,8 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
             ///     are the same as in the given extension.
             /// </summary>
-            /// <param name="other"> The other extension. </param>
-            /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
+            /// <param name="other">The other extension.</param>
+            /// <returns>A value indicating whether all of the options that require a new service provider are the same.</returns>
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
                 => other is RelationalExtensionInfo;
 

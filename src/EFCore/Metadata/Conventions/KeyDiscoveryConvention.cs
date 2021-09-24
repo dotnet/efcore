@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public KeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Discovers primary key candidates and configures the primary key if found.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The entity type builder. </param>
+        /// <param name="entityTypeBuilder">The entity type builder.</param>
         protected virtual void TryConfigurePrimaryKey(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
@@ -157,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Adds or removes properties to be used for the primary key.
         /// </summary>
-        /// <param name="keyProperties"> The properties that will be used to configure the key. </param>
-        /// <param name="entityType"> The entity type being configured. </param>
+        /// <param name="keyProperties">The properties that will be used to configure the key.</param>
+        /// <param name="entityType">The entity type being configured.</param>
         protected virtual void ProcessKeyProperties(
             IList<IConventionProperty> keyProperties,
             IConventionEntityType entityType)
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns the properties that should be used for the primary key.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="candidateProperties"> The properties to consider. </param>
-        /// <returns> The properties that should be used for the primary key. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="candidateProperties">The properties to consider.</param>
+        /// <returns>The properties that should be used for the primary key.</returns>
         public static IEnumerable<IConventionProperty> DiscoverKeyProperties(
             IConventionEntityType entityType,
             IEnumerable<IConventionProperty> candidateProperties)
@@ -195,9 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an entity type member is ignored.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The name of the ignored member. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="name">The name of the ignored member.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,

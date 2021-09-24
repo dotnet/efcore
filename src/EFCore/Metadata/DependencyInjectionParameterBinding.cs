@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
         /// </summary>
-        /// <param name="parameterType"> The parameter CLR type. </param>
-        /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
-        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
+        /// <param name="parameterType">The parameter CLR type.</param>
+        /// <param name="serviceType">The service CLR types, as resolved from dependency injection</param>
+        /// <param name="serviceProperties">The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />.</param>
         public DependencyInjectionParameterBinding(
             Type parameterType,
             Type serviceType,
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an expression tree representing the binding of the value of a property from a
         ///     materialization expression to a parameter of the constructor, factory method, etc.
         /// </summary>
-        /// <param name="materializationExpression"> The expression representing the materialization context. </param>
-        /// <param name="entityTypeExpression"> The expression representing the <see cref="IEntityType" /> constant. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="materializationExpression">The expression representing the materialization context.</param>
+        /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+        /// <returns>The expression tree.</returns>
         public override Expression BindToParameter(
             Expression materializationExpression,
             Expression entityTypeExpression)
@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a copy that contains the given consumed properties.
         /// </summary>
-        /// <param name="consumedProperties"> The new consumed properties. </param>
-        /// <returns> A copy with replaced consumed properties. </returns>
+        /// <param name="consumedProperties">The new consumed properties.</param>
+        /// <returns>A copy with replaced consumed properties.</returns>
         public override ParameterBinding With(IPropertyBase[] consumedProperties)
             => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties);
     }

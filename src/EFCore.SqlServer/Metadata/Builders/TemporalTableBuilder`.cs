@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
     public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
         where TEntity : class
     {
@@ -34,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="name"> The name of the history table. </param>
-        /// <param name="schema"> The schema of the history table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="name">The name of the history table.</param>
+        /// <param name="schema">The schema of the history table.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual TemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
             => (TemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
     }

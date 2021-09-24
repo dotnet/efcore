@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalCommandBuilder(
             RelationalCommandBuilderDependencies dependencies)
         {
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates the command.
         /// </summary>
-        /// <returns> The newly created command. </returns>
+        /// <returns>The newly created command.</returns>
         public virtual IRelationalCommand Build()
             => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), Parameters);
 
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds the given parameter to this command.
         /// </summary>
-        /// <param name="parameter"> The parameter. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="parameter">The parameter.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
         {
             Check.NotNull(parameter, nameof(parameter));
@@ -90,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Appends an object to the command text.
         /// </summary>
-        /// <param name="value"> The object to be written. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="value">The object to be written.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder Append(string value)
         {
             Check.NotNull(value, nameof(value));
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Appends a blank line to the command text.
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder AppendLine()
         {
             _commandTextBuilder.AppendLine();
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Increments the indent of subsequent lines.
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder IncrementIndent()
         {
             _commandTextBuilder.IncrementIndent();
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Decrements the indent of subsequent lines.
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder DecrementIndent()
         {
             _commandTextBuilder.DecrementIndent();

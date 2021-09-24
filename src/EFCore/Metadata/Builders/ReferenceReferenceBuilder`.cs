@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
         ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
             string annotation,
             object? value)
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             string dependentEntityTypeName,
             params string[] foreignKeyPropertyNames)
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             Type dependentEntityType,
             params string[] foreignKeyPropertyNames)
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             params string[] foreignKeyPropertyNames)
             where TDependentEntity : class
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         corresponding keys in <see cref="HasPrincipalKey{TPrincipalEntity}(Expression{Func{TPrincipalEntity, object}})" />.
         ///     </para>
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
             where TDependentEntity : class
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
         /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             string principalEntityTypeName,
             params string[] keyPropertyNames)
@@ -253,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
         /// </param>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             Type principalEntityType,
             params string[] keyPropertyNames)
@@ -277,8 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
         /// </typeparam>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             params string[] keyPropertyNames)
             where TPrincipalEntity : class
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         corresponding properties in <see cref="HasForeignKey{TDependentEntity}(Expression{Func{TDependentEntity, object}})" />.
         ///     </para>
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             Expression<Func<TPrincipalEntity, object?>> keyExpression)
             where TPrincipalEntity : class
@@ -325,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
         ///     be assigned <see langword="null" />).
         /// </summary>
-        /// <param name="required"> A value indicating whether this is a required relationship. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="required">A value indicating whether this is a required relationship.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool required = true)
             => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the operation applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
-        /// <param name="deleteBehavior"> The action to perform. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="deleteBehavior">The action to perform.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit)!, this);
     }

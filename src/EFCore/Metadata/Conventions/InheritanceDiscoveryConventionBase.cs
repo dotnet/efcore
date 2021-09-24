@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="InheritanceDiscoveryConventionBase" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         protected InheritanceDiscoveryConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Finds an entity type in the model that's associated with a CLR type that the given entity type's
         ///     associated CLR type is derived from and is the closest one in the CLR hierarchy.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
+        /// <param name="entityType">The entity type.</param>
         protected virtual IConventionEntityType? FindClosestBaseType(IConventionEntityType entityType)
         {
             var baseType = entityType.ClrType.BaseType;

@@ -31,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets all foreign keys that target a given primary or alternate key.
         /// </summary>
-        /// <returns> The foreign keys that reference the given key. </returns>
+        /// <returns>The foreign keys that reference the given key.</returns>
         IEnumerable<IReadOnlyForeignKey> GetReferencingForeignKeys();
 
         /// <summary>
         ///     Returns a value indicating whether the key is the primary key.
         /// </summary>
-        /// <returns> <see langword="true" /> if the key is the primary key. </returns>
+        /// <returns><see langword="true" /> if the key is the primary key.</returns>
         bool IsPrimaryKey()
             => this == DeclaringEntityType.FindPrimaryKey();
 
@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         It is designed for debugging only and may change arbitrarily between releases.
         ///     </para>
         /// </summary>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();

@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>nullable</c>--A value indicating whether nullable reference types are enabled.</para>
         ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
         /// </summary>
-        /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
-        /// <param name="args"> The executor arguments. </param>
+        /// <param name="reportHandler">The <see cref="IOperationReportHandler" />.</param>
+        /// <param name="args">The executor arguments.</param>
         public OperationExecutor(IOperationReportHandler reportHandler, IDictionary args)
         {
             Check.NotNull(reportHandler, nameof(reportHandler));
@@ -153,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public AddMigration(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -206,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public GetContextInfo(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -255,9 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public UpdateDatabase(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -295,9 +295,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>noTransactions</c>--Don't generate SQL transaction statements.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public ScriptMigration(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -353,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             ///     <para><c>force</c>--Don't check to see if the migration has been applied to the database.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public RemoveMigration(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -393,9 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>Initializes a new instance of the <see cref="GetContextTypes" /> class.</para>
             ///     <para>No arguments are currently supported by <paramref name="args" />.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public GetContextTypes(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -445,9 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     </para>
             ///     <para><c>noConnect</c>--Don't connect to the database.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public GetMigrations(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -497,9 +497,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public OptimizeContext(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -542,9 +542,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>contextNamespace</c>--Specify to override the namespace of the generated DbContext class.</para>
             ///     <para><c>noPluralize</c>--Don't use the pluralizer.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public ScaffoldContext(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -616,9 +616,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public DropDatabase(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -647,9 +647,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
-            /// <param name="executor"> The operation executor. </param>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
-            /// <param name="args"> The operation arguments. </param>
+            /// <param name="executor">The operation executor.</param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+            /// <param name="args">The operation arguments.</param>
             public ScriptDbContext(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <summary>
             ///     Initializes a new instance of the <see cref="OperationBase" /> class.
             /// </summary>
-            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
+            /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             protected OperationBase(IOperationResultHandler resultHandler)
             {
                 Check.NotNull(resultHandler, nameof(resultHandler));
@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <summary>
             ///     Executes an action passing exceptions to the <see cref="IOperationResultHandler" />.
             /// </summary>
-            /// <param name="action"> The action to execute. </param>
+            /// <param name="action">The action to execute.</param>
             protected virtual void Execute(Action action)
             {
                 Check.NotNull(action, nameof(action));
@@ -707,8 +707,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <summary>
             ///     Executes an action passing the result or exceptions to the <see cref="IOperationResultHandler" />.
             /// </summary>
-            /// <typeparam name="T"> The result type. </typeparam>
-            /// <param name="action"> The action to execute. </param>
+            /// <typeparam name="T">The result type.</typeparam>
+            /// <param name="action">The action to execute.</param>
             protected virtual void Execute<T>(Func<T> action)
             {
                 Check.NotNull(action, nameof(action));
@@ -719,8 +719,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <summary>
             ///     Executes an action passing results or exceptions to the <see cref="IOperationResultHandler" />.
             /// </summary>
-            /// <typeparam name="T"> The type of results. </typeparam>
-            /// <param name="action"> The action to execute. </param>
+            /// <typeparam name="T">The type of results.</typeparam>
+            /// <param name="action">The action to execute.</param>
             protected virtual void Execute<T>(Func<IEnumerable<T>> action)
             {
                 Check.NotNull(action, nameof(action));

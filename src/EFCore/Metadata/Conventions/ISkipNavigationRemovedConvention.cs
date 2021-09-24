@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a skip navigation is removed from the entity type.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type that contained the navigation. </param>
-        /// <param name="navigation"> The removed navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type that contained the navigation.</param>
+        /// <param name="navigation">The removed navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessSkipNavigationRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionSkipNavigation navigation,

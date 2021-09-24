@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
-        /// <param name="modificationCommandParameters"> Creation parameters. </param>
+        /// <param name="modificationCommandParameters">Creation parameters.</param>
         public ModificationCommand(in ModificationCommandParameters modificationCommandParameters)
         {
             TableName = modificationCommandParameters.TableName;
@@ -218,8 +218,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="IColumnModification" /> and add it to this command.
         /// </summary>
-        /// <param name="columnModificationParameters"> Creation parameters. </param>
-        /// <returns> The new <see cref="IColumnModification" /> instance. </returns>
+        /// <param name="columnModificationParameters">Creation parameters.</param>
+        /// <returns>The new <see cref="IColumnModification" /> instance.</returns>
         public virtual IColumnModification AddColumnModification(in ColumnModificationParameters columnModificationParameters)
         {
             var modification = CreateColumnModification(columnModificationParameters);
@@ -237,8 +237,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new instance that implements <see cref="IColumnModification" /> interface.
         /// </summary>
-        /// <param name="columnModificationParameters"> Creation parameters. </param>
-        /// <returns> The new instance that implements <see cref="IColumnModification" /> interface. </returns>
+        /// <param name="columnModificationParameters">Creation parameters.</param>
+        /// <returns>The new instance that implements <see cref="IColumnModification" /> interface.</returns>
         protected virtual IColumnModification CreateColumnModification(in ColumnModificationParameters columnModificationParameters)
             => new ColumnModification(columnModificationParameters);
 
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     propagates them back to into the appropriate <see cref="IColumnModification" />
         ///     from which the values can be propagated on to tracked entities.
         /// </summary>
-        /// <param name="valueBuffer"> The buffer containing the values read from the database. </param>
+        /// <param name="valueBuffer">The buffer containing the values read from the database.</param>
         public virtual void PropagateResults(ValueBuffer valueBuffer)
         {
             Check.NotNull(valueBuffer, nameof(valueBuffer));

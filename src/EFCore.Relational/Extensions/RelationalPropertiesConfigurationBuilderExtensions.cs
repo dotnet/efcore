@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="typeName"> The name of the data type of the column. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="typeName">The name of the data type of the column.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertiesConfigurationBuilder HaveColumnType(
             this PropertiesConfigurationBuilder propertyBuilder,
             string typeName)
@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="typeName"> The name of the data type of the column. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="typeName">The name of the data type of the column.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertiesConfigurationBuilder<TProperty> HaveColumnType<TProperty>(
             this PropertiesConfigurationBuilder<TProperty> propertyBuilder,
             string typeName)
@@ -57,9 +57,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="fixedLength">A value indicating whether the property is constrained to fixed length values.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public static PropertiesConfigurationBuilder AreFixedLength(
             this PropertiesConfigurationBuilder propertyBuilder,
             bool fixedLength = true)
@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="fixedLength">A value indicating whether the property is constrained to fixed length values.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public static PropertiesConfigurationBuilder<TProperty> AreFixedLength<TProperty>(
             this PropertiesConfigurationBuilder<TProperty> propertyBuilder,
             bool fixedLength = true)
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="collation"> The collation for the column. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="collation">The collation for the column.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertiesConfigurationBuilder UseCollation(this PropertiesConfigurationBuilder propertyBuilder, string collation)
         {
@@ -113,8 +113,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="collation"> The collation for the column. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="collation">The collation for the column.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertiesConfigurationBuilder<TProperty> UseCollation<TProperty>(
             this PropertiesConfigurationBuilder<TProperty> propertyBuilder,

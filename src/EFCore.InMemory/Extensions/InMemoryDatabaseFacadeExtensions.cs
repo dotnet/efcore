@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <see langword="true" /> if the in-memory database is being used. </returns>
+        /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>
+        /// <returns><see langword="true" /> if the in-memory database is being used.</returns>
         public static bool IsInMemory(this DatabaseFacade database)
             => database.ProviderName == typeof(InMemoryOptionsExtension).Assembly.GetName().Name;
     }

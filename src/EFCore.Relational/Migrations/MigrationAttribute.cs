@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Creates a new instance of this attribute.
         /// </summary>
-        /// <param name="id"> The migration identifier. </param>
+        /// <param name="id">The migration identifier.</param>
         public MigrationAttribute(string id)
         {
             Check.NotEmpty(id, nameof(id));

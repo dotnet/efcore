@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     Creates a new <see cref="AddUniqueConstraintOperation" /> from the specified unique constraint.
         /// </summary>
-        /// <param name="uniqueConstraint"> The unique constraint. </param>
-        /// <returns> The operation. </returns>
+        /// <param name="uniqueConstraint">The unique constraint.</param>
+        /// <returns>The operation.</returns>
         public static AddUniqueConstraintOperation CreateFrom(IUniqueConstraint uniqueConstraint)
         {
             Check.NotNull(uniqueConstraint, nameof(uniqueConstraint));

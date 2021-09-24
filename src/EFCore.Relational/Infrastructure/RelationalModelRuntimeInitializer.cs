@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates a new <see cref="ModelRuntimeInitializer" /> instance.
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="relationalDependencies"> The relational dependencies to use. </param>
+        /// <param name="dependencies">The dependencies to use.</param>
+        /// <param name="relationalDependencies">The relational dependencies to use.</param>
         public RelationalModelRuntimeInitializer(
             ModelRuntimeInitializerDependencies dependencies,
             RelationalModelRuntimeInitializerDependencies relationalDependencies)
@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes the given model with runtime dependencies.
         /// </summary>
-        /// <param name="model"> The model to initialize. </param>
-        /// <param name="designTime"> Whether the model should contain design-time configuration. </param>
+        /// <param name="model">The model to initialize.</param>
+        /// <param name="designTime">Whether the model should contain design-time configuration.</param>
         /// <param name="prevalidation">
         ///     <see langword="true" /> indicates that only pre-validation initialization should be performed;
         ///     <see langword="false" /> indicates that only post-validation initialization should be performed.

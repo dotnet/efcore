@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema"> The schema of the sequence. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder UseHiLo(
             this PropertyBuilder propertyBuilder,
             string? name = null,
@@ -70,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema"> The schema of the sequence. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> UseHiLo<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             string? name = null,
@@ -90,11 +90,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> A builder to further configure the sequence. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>A builder to further configure the sequence.</returns>
         public static IConventionSequenceBuilder? HasHiLoSequence(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,
@@ -122,11 +122,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the sequence. </param>
-        /// <param name="schema">The schema of the sequence. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name and schema can be set for the hi-lo sequence. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the sequence.</param>
+        /// <param name="schema">The schema of the sequence.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name and schema can be set for the hi-lo sequence.</returns>
         public static bool CanSetHiLoSequence(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,
@@ -150,10 +150,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder UseIdentityColumn(
             this PropertyBuilder propertyBuilder,
             long seed = 1,
@@ -180,10 +180,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder UseIdentityColumn(
             this PropertyBuilder propertyBuilder,
             int seed,
@@ -199,11 +199,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             long seed = 1,
@@ -219,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             int seed,
@@ -238,9 +238,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -267,10 +267,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY.</returns>
         public static bool CanSetIdentityColumnSeed(
             this IConventionPropertyBuilder propertyBuilder,
             long? seed,
@@ -289,9 +289,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -318,10 +318,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY.</returns>
         public static bool CanSetIdentityColumnIncrement(
             this IConventionPropertyBuilder propertyBuilder,
             int? increment,
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="valueGenerationStrategy">The value generation strategy.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -381,10 +381,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the default value generation strategy. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="valueGenerationStrategy">The value generation strategy.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the default value generation strategy.</returns>
         public static bool CanSetValueGenerationStrategy(
             this IConventionPropertyBuilder propertyBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
@@ -406,9 +406,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
-        /// <returns> A builder to further configure the property. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
+        /// <returns>A builder to further configure the property.</returns>
         /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static PropertyBuilder IsSparse(this PropertyBuilder propertyBuilder, bool sparse = true)
         {
@@ -427,9 +427,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
-        /// <returns> A builder to further configure the property. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
+        /// <returns>A builder to further configure the property.</returns>
         /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static PropertyBuilder<TProperty> IsSparse<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
@@ -444,10 +444,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
         /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static IConventionPropertyBuilder? IsSparse(
             this IConventionPropertyBuilder propertyBuilder,
@@ -472,10 +472,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="property"> The builder for the property being configured. </param>
-        /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        /// <param name="property">The builder for the property being configured.</param>
+        /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
         /// <returns>
         ///     <see langword="true" /> if the property's column can be configured as sparse when targeting SQL Server.
         /// </returns>

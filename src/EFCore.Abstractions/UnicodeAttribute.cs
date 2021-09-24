@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="UnicodeAttribute" /> class.
         /// </summary>
-        /// <param name="unicode"> A value indicating whether the property can contain unicode characters or not. </param>
+        /// <param name="unicode">A value indicating whether the property can contain unicode characters or not.</param>
         public UnicodeAttribute(bool unicode = true)
         {
             IsUnicode = unicode;

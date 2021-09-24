@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Gets the value assigned to the property and converts it to the provider-expected value.
         /// </summary>
-        /// <param name="updateEntry"> The entry. </param>
-        /// <param name="property"> The property to get the value for. </param>
-        /// <returns> The value for the property. </returns>
+        /// <param name="updateEntry">The entry.</param>
+        /// <param name="property">The property to get the value for.</param>
+        /// <returns>The value for the property.</returns>
         public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
         {
             var value = updateEntry.GetCurrentValue(property);
@@ -58,10 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
         /// </remarks>
-        /// <param name="updateEntry"> The entry. </param>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="updateEntry">The entry.</param>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         public static string ToDebugString(
             this IUpdateEntry updateEntry,
             ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
@@ -253,9 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
         ///     the properties.
         /// </summary>
-        /// <param name="entry"> The entry from which values will be obtained. </param>
-        /// <param name="properties"> The properties to format. </param>
-        /// <returns> The string representation. </returns>
+        /// <param name="entry">The entry from which values will be obtained.</param>
+        /// <param name="properties">The properties to format.</param>
+        /// <returns>The string representation.</returns>
         public static string BuildCurrentValuesString(
             this IUpdateEntry entry,
             IEnumerable<IPropertyBase> properties)
@@ -278,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
         ///     the properties.
         /// </summary>
-        /// <param name="entry"> The entry from which values will be obtained. </param>
-        /// <param name="properties"> The properties to format. </param>
-        /// <returns> The string representation. </returns>
+        /// <param name="entry">The entry from which values will be obtained.</param>
+        /// <param name="properties">The properties to format.</param>
+        /// <returns>The string representation.</returns>
         public static string BuildOriginalValuesString(
             this IUpdateEntry entry,
             IEnumerable<IPropertyBase> properties)

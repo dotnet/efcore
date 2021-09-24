@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates an id for the store object that the given entity type is mapped to.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="type"> The store object type. </param>
-        /// <returns> The store object id. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="type">The store object type.</param>
+        /// <returns>The store object id.</returns>
         public static StoreObjectIdentifier? Create(IReadOnlyEntityType entityType, StoreObjectType type)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a table id.
         /// </summary>
-        /// <param name="name"> The table name. </param>
-        /// <param name="schema"> The table schema. </param>
-        /// <returns> The table id. </returns>
+        /// <param name="name">The table name.</param>
+        /// <param name="schema">The table schema.</param>
+        /// <returns>The table id.</returns>
         public static StoreObjectIdentifier Table(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a view id.
         /// </summary>
-        /// <param name="name"> The view name. </param>
-        /// <param name="schema"> The view schema. </param>
-        /// <returns> The view id. </returns>
+        /// <param name="name">The view name.</param>
+        /// <param name="schema">The view schema.</param>
+        /// <returns>The view id.</returns>
         public static StoreObjectIdentifier View(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates an id for the SQL query mapped using <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The SQL query id. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The SQL query id.</returns>
         public static StoreObjectIdentifier SqlQuery(IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -91,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a SQL query id.
         /// </summary>
-        /// <param name="name"> The SQL query name. </param>
-        /// <returns> The SQL query id. </returns>
+        /// <param name="name">The SQL query name.</param>
+        /// <returns>The SQL query id.</returns>
         public static StoreObjectIdentifier SqlQuery(string name)
         {
             Check.NotNull(name, nameof(name));
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a function id.
         /// </summary>
-        /// <param name="modelName"> The function model name. </param>
-        /// <returns> The function id. </returns>
+        /// <param name="modelName">The function model name.</param>
+        /// <returns>The function id.</returns>
         public static StoreObjectIdentifier DbFunction(string modelName)
         {
             Check.NotNull(modelName, nameof(modelName));
@@ -170,18 +170,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Compares one id to another id to see if they represent the same store object.
         /// </summary>
-        /// <param name="left"> The first id. </param>
-        /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true" /> if they represent the same store object; <see langword="false" /> otherwise. </returns>
+        /// <param name="left">The first id.</param>
+        /// <param name="right">The second id.</param>
+        /// <returns><see langword="true" /> if they represent the same store object; <see langword="false" /> otherwise.</returns>
         public static bool operator ==(StoreObjectIdentifier left, StoreObjectIdentifier right)
             => left.Equals(right);
 
         /// <summary>
         ///     Compares one id to another id to see if they represent the same store object.
         /// </summary>
-        /// <param name="left"> The first id. </param>
-        /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="false" /> if they represent the same store object; <see langword="true" /> otherwise. </returns>
+        /// <param name="left">The first id.</param>
+        /// <param name="right">The second id.</param>
+        /// <returns><see langword="false" /> if they represent the same store object; <see langword="true" /> otherwise.</returns>
         public static bool operator !=(StoreObjectIdentifier left, StoreObjectIdentifier right)
             => !(left == right);
     }

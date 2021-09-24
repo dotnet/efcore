@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionOpening" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
         InterceptionResult ConnectionOpening(
             IRelationalConnection connection,
             DateTimeOffset startTime);
@@ -30,11 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionOpening" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         ValueTask<InterceptionResult> ConnectionOpeningAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionOpened" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The amount of time before the connection was opened. </param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The amount of time before the connection was opened.</param>
         void ConnectionOpened(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -54,12 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionOpened" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The amount of time before the connection was opened.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task ConnectionOpenedAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionClosing" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <returns>The result of execution, which may have been modified by an interceptor.</returns>
         InterceptionResult ConnectionClosing(
             IRelationalConnection connection,
             DateTimeOffset startTime);
@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionClosing" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
         ValueTask<InterceptionResult> ConnectionClosingAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime);
@@ -89,9 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionClosed" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The amount of time before the connection was closed. </param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The amount of time before the connection was closed.</param>
         void ConnectionClosed(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionClosed" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The amount of time before the connection was closed. </param>
-        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <param name="connection">The connection.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The amount of time before the connection was closed.</param>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
         Task ConnectionClosedAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -112,11 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionError" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="exception"> The exception representing the error. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The elapsed time before the operation failed. </param>
-        /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="exception">The exception representing the error.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The elapsed time before the operation failed.</param>
+        /// <param name="logErrorAsDebug">A flag indicating the exception is being handled and so it should be logged at Debug level.</param>
         void ConnectionError(
             IRelationalConnection connection,
             Exception exception,
@@ -127,14 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.ConnectionError" /> event.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <param name="exception"> The exception representing the error. </param>
-        /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="duration"> The elapsed time before the operation failed. </param>
-        /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="connection">The connection.</param>
+        /// <param name="exception">The exception representing the error.</param>
+        /// <param name="startTime">The time that the operation was started.</param>
+        /// <param name="duration">The elapsed time before the operation failed.</param>
+        /// <param name="logErrorAsDebug">A flag indicating the exception is being handled and so it should be logged at Debug level.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task ConnectionErrorAsync(
             IRelationalConnection connection,
             Exception exception,

@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="GroupByShaperExpression" /> class.
         /// </summary>
-        /// <param name="keySelector"> An expression representing key selector for the grouping element. </param>
-        /// <param name="groupingEnumerable"> An expression representing element selector for the grouping element. </param>
+        /// <param name="keySelector">An expression representing key selector for the grouping element.</param>
+        /// <param name="groupingEnumerable">An expression representing element selector for the grouping element.</param>
         public GroupByShaperExpression(
             Expression keySelector,
             ShapedQueryExpression groupingEnumerable)
@@ -72,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="keySelector"> The <see cref="KeySelector" /> property of the result. </param>
-        /// <param name="groupingEnumerable"> The <see cref="GroupingEnumerable" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="keySelector">The <see cref="KeySelector" /> property of the result.</param>
+        /// <param name="groupingEnumerable">The <see cref="GroupingEnumerable" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual GroupByShaperExpression Update(Expression keySelector, ShapedQueryExpression groupingEnumerable)
         {
             Check.NotNull(keySelector, nameof(keySelector));

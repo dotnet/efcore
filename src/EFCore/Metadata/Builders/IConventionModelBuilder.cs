@@ -29,12 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If an entity type with the provided name is not already part of the model,
         ///     a new shadow entity type will be added to the model.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="name">The name of the entity type to be configured.</param>
         /// <param name="shouldBeOwned">
         ///     <see langword="true" /> if the entity type should be owned,
         ///     <see langword="false" /> if the entity type should not be owned
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
@@ -54,13 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         a unique name and always identified by the name.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the entity type to be configured. </param>
-        /// <param name="type"> The type of the entity type to be configured. </param>
+        /// <param name="name">The name of the entity type to be configured.</param>
+        /// <param name="type">The type of the entity type to be configured.</param>
         /// <param name="shouldBeOwned">
         ///     <see langword="true" /> if the entity type should be owned,
         ///     <see langword="false" /> if the entity type should not be owned
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
@@ -76,12 +76,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If an entity type with the provided type is not already part of the model,
         ///     a new entity type will be added to the model.
         /// </summary>
-        /// <param name="type"> The type of the entity type to be configured. </param>
+        /// <param name="type">The type of the entity type to be configured.</param>
         /// <param name="shouldBeOwned">
         ///     <see langword="true" /> if the entity type should be owned,
         ///     <see langword="false" /> if the entity type should not be owned
         /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
@@ -93,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If an entity type with the provided name is not already part of the model,
         ///     a new shadow entity type will be added to the model.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be configured. </param>
-        /// <param name="definingNavigationName"> The defining navigation. </param>
-        /// <param name="definingEntityType"> The defining entity type. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="name">The name of the entity type to be configured.</param>
+        /// <param name="definingNavigationName">The defining navigation.</param>
+        /// <param name="definingEntityType">The defining entity type.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
@@ -112,10 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If an entity type with the provided type is not already part of the model,
         ///     a new entity type will be added to the model.
         /// </summary>
-        /// <param name="type"> The type of the entity type to be configured. </param>
-        /// <param name="definingNavigationName"> The defining navigation. </param>
-        /// <param name="definingEntityType"> The defining entity type. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="type">The type of the entity type to be configured.</param>
+        /// <param name="definingNavigationName">The defining navigation.</param>
+        /// <param name="definingEntityType">The defining entity type.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the entity type if the entity type was added or already part of the model,
         ///     <see langword="null" /> otherwise.
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Marks an entity type as owned. All references to this type will be configured as
         ///     separate owned type instances.
         /// </summary>
-        /// <param name="type"> The entity type to be configured. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="type">The entity type to be configured.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to provide default configuration for the owned entity types.
         /// </returns>
@@ -140,24 +140,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Indicates whether the given entity type name is ignored for the current configuration source.
         /// </summary>
-        /// <param name="type"> The name of the entity type that might be ignored. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
+        /// <param name="type">The name of the entity type that might be ignored.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given entity type name is ignored.</returns>
         bool IsIgnored(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored for the current configuration source.
         /// </summary>
-        /// <param name="typeName"> The name of the entity type that might be ignored. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
+        /// <param name="typeName">The name of the entity type that might be ignored.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given entity type name is ignored.</returns>
         bool IsIgnored(string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Excludes the given entity type from the model and prevents it from being added by convention.
         /// </summary>
-        /// <param name="type"> The entity type to be removed from the model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="type">The entity type to be removed from the model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance so that additional configuration calls can be chained
         ///     if the given entity type was ignored, <see langword="null" /> otherwise.
@@ -167,9 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Excludes the given entity type name from the model and prevents it from being added by convention.
         /// </summary>
-        /// <param name="typeName"> The entity type name to be removed from the model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given entity type name was ignored. </returns>
+        /// <param name="typeName">The entity type name to be removed from the model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given entity type name was ignored.</returns>
         /// <returns>
         ///     The same builder instance if the given entity type name was ignored, <see langword="null" /> otherwise.
         /// </returns>
@@ -178,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Removes the given entity type from the model.
         /// </summary>
-        /// <param name="entityType"> The entity type to be removed from the model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityType">The entity type to be removed from the model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the given entity type was removed, <see langword="null" /> otherwise.
         /// </returns>
@@ -188,25 +188,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given entity type can be ignored from the current configuration source
         /// </summary>
-        /// <param name="type"> The entity type to be removed from the model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given entity type can be ignored. </returns>
+        /// <param name="type">The entity type to be removed from the model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given entity type can be ignored.</returns>
         bool CanIgnore(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given entity type name can be ignored from the current configuration source
         /// </summary>
-        /// <param name="typeName"> The entity type name to be removed from the model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given entity type name can be ignored. </returns>
+        /// <param name="typeName">The entity type name to be removed from the model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given entity type name can be ignored.</returns>
         bool CanIgnore(string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>
-        /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was successful, <see langword="null" /> otherwise.
         /// </returns>
@@ -215,9 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given change tracking strategy can be set from the current configuration source
         /// </summary>
-        /// <param name="changeTrackingStrategy"> The change tracking strategy to be used. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given change tracking strategy can be set. </returns>
+        /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given change tracking strategy can be set.</returns>
         bool CanSetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -231,8 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was successful, <see langword="null" /> otherwise.
         /// </returns>
@@ -241,9 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a value indicating whether the given property access mode can be set from the current configuration source
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this model. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given property access mode can be set. </returns>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this model.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given property access mode can be set.</returns>
         bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
     }
 }

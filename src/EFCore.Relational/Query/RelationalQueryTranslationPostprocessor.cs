@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalQueryTranslationPostprocessor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
-        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="relationalDependencies">Parameter object containing relational dependencies for this class.</param>
+        /// <param name="queryCompilationContext">The query compilation context object to use.</param>
         public RelationalQueryTranslationPostprocessor(
             QueryTranslationPostprocessorDependencies dependencies,
             RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Optimizes the SQL expression.
         /// </summary>
-        /// <param name="query"> An expression to optimize. </param>
-        /// <returns> An expression which has SQL optimized. </returns>
+        /// <param name="query">An expression to optimize.</param>
+        /// <returns>An expression which has SQL optimized.</returns>
         [Obsolete(
             "Use 'Optimize' method on "
             + nameof(RelationalParameterBasedSqlProcessor)

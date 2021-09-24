@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
         /// </remarks>
-        /// <typeparam name="TService"> The type of service to be resolved. </typeparam>
-        /// <param name="accessor"> The object exposing the service provider. </param>
-        /// <returns> The requested service. </returns>
+        /// <typeparam name="TService">The type of service to be resolved.</typeparam>
+        /// <param name="accessor">The object exposing the service provider.</param>
+        /// <returns>The requested service.</returns>
         [DebuggerStepThrough]
         public static TService GetService<TService>(this IInfrastructure<IServiceProvider> accessor)
             where TService : class
@@ -57,9 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         application code but can be used in extension methods written by database providers etc.
         ///     </para>
         /// </summary>
-        /// <typeparam name="T"> The type of the property being hidden by <see cref="IInfrastructure{T}" />. </typeparam>
-        /// <param name="accessor"> The object that exposes the property. </param>
-        /// <returns> The object assigned to the property. </returns>
+        /// <typeparam name="T">The type of the property being hidden by <see cref="IInfrastructure{T}" />.</typeparam>
+        /// <param name="accessor">The object that exposes the property.</param>
+        /// <returns>The object assigned to the property.</returns>
         [DebuggerStepThrough]
         public static T GetInfrastructure<T>(this IInfrastructure<T> accessor)
             => Check.NotNull(accessor, nameof(accessor)).Instance;

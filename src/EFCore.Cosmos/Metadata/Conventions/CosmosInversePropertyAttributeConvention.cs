@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public CosmosInversePropertyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Finds or tries to create an entity type target for the given navigation member.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the referencing entity type. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member. </param>
-        /// <param name="shouldCreate"> Whether an entity type should be created if one doesn't currently exist. </param>
-        /// <returns> The builder for the target entity type or <see langword="null" /> if it can't be created. </returns>
+        /// <param name="entityTypeBuilder">The builder for the referencing entity type.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member.</param>
+        /// <param name="shouldCreate">Whether an entity type should be created if one doesn't currently exist.</param>
+        /// <returns>The builder for the target entity type or <see langword="null" /> if it can't be created.</returns>
         protected override IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
             IConventionEntityTypeBuilder entityTypeBuilder,
             Type targetClrType,

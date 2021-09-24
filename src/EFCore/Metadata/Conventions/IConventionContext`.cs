@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
-    /// <typeparam name="TMetadata"> The type of the metadata object. </typeparam>
+    /// <typeparam name="TMetadata">The type of the metadata object.</typeparam>
     public interface IConventionContext<in TMetadata> : IConventionContext
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        /// <param name="result">The new metadata object or <see langword="null" />.</param>
         void StopProcessing(TMetadata? result);
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        /// <param name="result">The new metadata object or <see langword="null" />.</param>
         void StopProcessingIfChanged(TMetadata? result);
     }
 }

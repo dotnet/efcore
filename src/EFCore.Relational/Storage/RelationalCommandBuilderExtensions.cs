@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Appends an object to the command text on a new line.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <param name="value"> The object to be written. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="commandBuilder">The command builder.</param>
+        /// <param name="value">The object to be written.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AppendLine(
             this IRelationalCommandBuilder commandBuilder,
             string value)
@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Appends an object, that contains multiple lines of text, to the command text.
         ///     Each line read from the object is appended on a new line.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <param name="value"> The object to be written. </param>
-        /// <param name="skipFinalNewline"> If <see langword="true" />, then the final newline character is skipped. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="commandBuilder">The command builder.</param>
+        /// <param name="value">The object to be written.</param>
+        /// <param name="skipFinalNewline">If <see langword="true" />, then the final newline character is skipped.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AppendLines(
             this IRelationalCommandBuilder commandBuilder,
             string value,
@@ -87,15 +87,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Increases the indent of the command text.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="commandBuilder">The command builder.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IDisposable Indent(this IRelationalCommandBuilder commandBuilder)
             => new Indenter(Check.NotNull(commandBuilder, nameof(commandBuilder)));
 
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="nullable">
         ///     A value indicating whether the parameter can contain null values.
         /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
@@ -172,8 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <param name="property"> The property that the type for this parameter will come from. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="property">The property that the type for this parameter will come from.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
@@ -206,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <param name="relationalTypeMapping"> The relational type mapping for this parameter. </param>
-        /// <param name="nullable"> A value indicating whether the parameter could contain a null value. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="relationalTypeMapping">The relational type mapping for this parameter.</param>
+        /// <param name="nullable">A value indicating whether the parameter could contain a null value.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
@@ -233,14 +233,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter" />s in the
         ///     final command.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
-        /// <param name="subParameters"> The parameters to include in the composite. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="subParameters">The parameters to include in the composite.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddCompositeParameter(
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
@@ -264,14 +264,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
         /// </param>
-        /// <param name="dbParameter"> The DbParameter being added. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="dbParameter">The DbParameter being added.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddRawParameter(
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Adds a parameter.
         /// </summary>
-        /// <param name="commandBuilder"> The command builder. </param>
+        /// <param name="commandBuilder">The command builder.</param>
         /// <param name="invariantName">
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property">
         ///     The property that values for this parameter will come from.
         /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddPropertyParameter(
             this IRelationalCommandBuilder commandBuilder,

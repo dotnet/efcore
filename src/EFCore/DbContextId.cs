@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
     ///     for more information.
     /// </remarks>
     public readonly struct DbContextId
@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Compares this ID to another ID to see if they represent the same leased context.
         /// </summary>
-        /// <param name="other"> The other ID. </param>
-        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
+        /// <param name="other">The other ID.</param>
+        /// <returns><see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise.</returns>
         public bool Equals(DbContextId other)
             => InstanceId == other.InstanceId
                 && Lease == other.Lease;
@@ -33,41 +33,41 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Compares this ID to another ID to see if they represent the same leased context.
         /// </summary>
-        /// <param name="obj"> The other ID. </param>
-        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
+        /// <param name="obj">The other ID.</param>
+        /// <returns><see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise.</returns>
         public override bool Equals(object? obj)
             => obj is DbContextId other && Equals(other);
 
         /// <summary>
         ///     A hash code for this ID.
         /// </summary>
-        /// <returns> The hash code. </returns>
+        /// <returns>The hash code.</returns>
         public override int GetHashCode()
             => HashCode.Combine(InstanceId, Lease);
 
         /// <summary>
         ///     Compares one ID to another ID to see if they represent the same leased context.
         /// </summary>
-        /// <param name="left"> The first ID. </param>
-        /// <param name="right"> The second ID. </param>
-        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
+        /// <param name="left">The first ID.</param>
+        /// <param name="right">The second ID.</param>
+        /// <returns><see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise.</returns>
         public static bool operator ==(DbContextId left, DbContextId right)
             => left.Equals(right);
 
         /// <summary>
         ///     Compares one ID to another ID to see if they represent different leased contexts.
         /// </summary>
-        /// <param name="left"> The first ID. </param>
-        /// <param name="right"> The second ID. </param>
-        /// <returns> <see langword="true" /> if they represent different leased contexts; <see langword="false" /> otherwise. </returns>
+        /// <param name="left">The first ID.</param>
+        /// <param name="right">The second ID.</param>
+        /// <returns><see langword="true" /> if they represent different leased contexts; <see langword="false" /> otherwise.</returns>
         public static bool operator !=(DbContextId left, DbContextId right)
             => !left.Equals(right);
 
         /// <summary>
         ///     Creates a new <see cref="DbContextId" /> with the given <see cref="InstanceId" /> and lease number.
         /// </summary>
-        /// <param name="id"> A unique identifier for the <see cref="DbContext" /> being used. </param>
-        /// <param name="lease"> A number indicating whether this is the first, second, third, etc. lease of this instance. </param>
+        /// <param name="id">A unique identifier for the <see cref="DbContext" /> being used.</param>
+        /// <param name="lease">A number indicating whether this is the first, second, third, etc. lease of this instance.</param>
         public DbContextId(Guid id, int lease)
         {
             InstanceId = id;

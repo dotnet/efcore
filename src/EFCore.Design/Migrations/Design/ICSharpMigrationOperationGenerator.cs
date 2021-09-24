@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for creating <see cref="MigrationOperation" /> objects.
         /// </summary>
-        /// <param name="builderName"> The <see cref="MigrationOperation" /> variable name. </param>
-        /// <param name="operations"> The operations. </param>
-        /// <param name="builder"> The builder code is added to. </param>
+        /// <param name="builderName">The <see cref="MigrationOperation" /> variable name.</param>
+        /// <param name="operations">The operations.</param>
+        /// <param name="builder">The builder code is added to.</param>
         void Generate(
             string builderName,
             IReadOnlyList<MigrationOperation> operations,

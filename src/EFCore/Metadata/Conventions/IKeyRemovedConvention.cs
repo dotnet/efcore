@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a key is removed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="key"> The removed key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="key">The removed key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionKey key,

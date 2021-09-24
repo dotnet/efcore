@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="ExistsExpression" /> class.
         /// </summary>
-        /// <param name="subquery"> A subquery to check existence of. </param>
-        /// <param name="negated"> A value indicating if the existence check is negated. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="subquery">A subquery to check existence of.</param>
+        /// <param name="negated">A value indicating if the existence check is negated.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public ExistsExpression(
             SelectExpression subquery,
             bool negated,
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="subquery">The <see cref="Subquery" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual ExistsExpression Update(SelectExpression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));

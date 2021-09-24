@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Generates code for compiled model metadata.
         /// </summary>
-        /// <param name="model"> The source model. </param>
-        /// <param name="options"> The options to use during generation. </param>
-        /// <returns> The generated model metadata files. </returns>
+        /// <param name="model">The source model.</param>
+        /// <param name="options">The options to use during generation.</param>
+        /// <returns>The generated model metadata files.</returns>
         IReadOnlyCollection<ScaffoldedFile> GenerateModel(
             IModel model,
             CompiledModelCodeGenerationOptions options);

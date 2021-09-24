@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Tries to load the mod_spatialite extension into the specified connection.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
-        /// <returns> <see langword="true" /> if the extension was loaded; otherwise, <see langword="false" />. </returns>
+        /// <param name="connection">The connection.</param>
+        /// <returns><see langword="true" /> if the extension was loaded; otherwise, <see langword="false" />.</returns>
         public static bool TryLoad(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         The extension will be loaded from native NuGet assets when available.
         ///     </para>
         /// </summary>
-        /// <param name="connection"> The connection. </param>
+        /// <param name="connection">The connection.</param>
         public static void Load(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));

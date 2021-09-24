@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseProvider{TOptionsExtension}" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public DatabaseProvider(DatabaseProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.
         /// </summary>
-        /// <param name="options"> The options for the context. </param>
-        /// <returns> <see langword="true" /> if the database provider has been selected, otherwise <see langword="false" />. </returns>
+        /// <param name="options">The options for the context.</param>
+        /// <returns><see langword="true" /> if the database provider has been selected, otherwise <see langword="false" />.</returns>
         public virtual bool IsConfigured(IDbContextOptions options)
             => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
     }

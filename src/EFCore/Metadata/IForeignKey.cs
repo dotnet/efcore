@@ -54,15 +54,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets all skip navigations using this foreign key.
         /// </summary>
-        /// <returns> The skip navigations using this foreign key. </returns>
+        /// <returns>The skip navigations using this foreign key.</returns>
         new IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()
             => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<ISkipNavigation>();
 
         /// <summary>
         ///     Gets the entity type related to the given one.
         /// </summary>
-        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
-        /// <returns> The entity type related to the given one. </returns>
+        /// <param name="entityType">One of the entity types related by the foreign key.</param>
+        /// <returns>The entity type related to the given one.</returns>
         new IEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
             => (IEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
 
@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TKey"> The type of key instances. </typeparam>
-        /// <returns> A new factory. </returns>
+        /// <typeparam name="TKey">The type of key instances.</typeparam>
+        /// <returns>A new factory.</returns>
         IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>();
     }
 }

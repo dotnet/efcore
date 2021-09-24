@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the uniqueness for an index is changed.
         /// </summary>
-        /// <param name="indexBuilder"> The builder for the index. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="indexBuilder">The builder for the index.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessIndexUniquenessChanged(
             IConventionIndexBuilder indexBuilder,
             IConventionContext<bool?> context);

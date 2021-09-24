@@ -102,18 +102,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Compares one id to another id to see if they represent the same type.
         /// </summary>
-        /// <param name="left"> The first id. </param>
-        /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true" /> if they represent the same type; <see langword="false" /> otherwise. </returns>
+        /// <param name="left">The first id.</param>
+        /// <param name="right">The second id.</param>
+        /// <returns><see langword="true" /> if they represent the same type; <see langword="false" /> otherwise.</returns>
         public static bool operator ==(TypeIdentity left, TypeIdentity right)
             => left.Equals(right);
 
         /// <summary>
         ///     Compares one id to another id to see if they represent different types.
         /// </summary>
-        /// <param name="left"> The first id. </param>
-        /// <param name="right"> The second id. </param>
-        /// <returns> <see langword="true" /> if they represent different types; <see langword="false" /> otherwise. </returns>
+        /// <param name="left">The first id.</param>
+        /// <param name="right">The second id.</param>
+        /// <returns><see langword="true" /> if they represent different types; <see langword="false" /> otherwise.</returns>
         public static bool operator !=(TypeIdentity left, TypeIdentity right)
             => !(left == right);
     }

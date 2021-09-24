@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="conventions"> The conventions to be applied during model building. </param>
+        /// <param name="conventions">The conventions to be applied during model building.</param>
         public ModelConfigurationBuilder(ConventionSet conventions)
         {
             Check.NotNull(conventions, nameof(conventions));
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="T"> The type to be ignored. </typeparam>
+        /// <typeparam name="T">The type to be ignored.</typeparam>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type to be ignored. </param>
+        /// <param name="type">The type to be ignored.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
-        /// <returns> An object that can be used to configure the properties. </returns>
+        /// <typeparam name="TProperty">The property type to be configured.</typeparam>
+        /// <returns>An object that can be used to configure the properties.</returns>
         public virtual PropertiesConfigurationBuilder<TProperty> Properties<TProperty>()
         {
             var property = _modelConfiguration.GetOrAddProperty(typeof(TProperty));
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
-        /// <param name="buildAction"> An action that performs configuration of the property. </param>
+        /// <typeparam name="TProperty">The property type to be configured.</typeparam>
+        /// <param name="buildAction">An action that performs configuration of the property.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyType"> The property type to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
+        /// <param name="propertyType">The property type to be configured.</param>
+        /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertiesConfigurationBuilder Properties(Type propertyType)
         {
             Check.NotNull(propertyType, nameof(propertyType));
@@ -168,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyType"> The property type to be configured. </param>
-        /// <param name="buildAction"> An action that performs configuration of the property. </param>
+        /// <param name="propertyType">The property type to be configured.</param>
+        /// <param name="buildAction">An action that performs configuration of the property.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -203,8 +203,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
-        /// <returns> An object that can be used to configure the scalars. </returns>
+        /// <typeparam name="TScalar">The scalar type to be configured.</typeparam>
+        /// <returns>An object that can be used to configure the scalars.</returns>
         public virtual TypeMappingConfigurationBuilder<TScalar> DefaultTypeMapping<TScalar>()
         {
             var scalar = _modelConfiguration.GetOrAddTypeMapping(typeof(TScalar));
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
-        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <typeparam name="TScalar">The scalar type to be configured.</typeparam>
+        /// <param name="buildAction">An action that performs configuration for the scalars.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -262,8 +262,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="scalarType"> The scalar type to be configured. </param>
-        /// <returns> An object that can be used to configure the scalars. </returns>
+        /// <param name="scalarType">The scalar type to be configured.</param>
+        /// <returns>An object that can be used to configure the scalars.</returns>
         public virtual TypeMappingConfigurationBuilder DefaultTypeMapping(Type scalarType)
         {
             Check.NotNull(scalarType, nameof(scalarType));
@@ -290,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="scalarType"> The scalar type to be configured. </param>
-        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <param name="scalarType">The scalar type to be configured.</param>
+        /// <param name="buildAction">An action that performs configuration for the scalars.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -316,8 +316,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelDependencies"> The dependencies object used during model building. </param>
-        /// <returns> The configured <see cref="ModelBuilder" />. </returns>
+        /// <param name="modelDependencies">The dependencies object used during model building.</param>
+        /// <returns>The configured <see cref="ModelBuilder" />.</returns>
         public virtual ModelBuilder CreateModelBuilder(ModelDependencies? modelDependencies)
             => new(_conventions, modelDependencies, _modelConfiguration.IsEmpty() ? null : _modelConfiguration.Validate());
 
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

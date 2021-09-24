@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Attempts to find a <see cref="IParameterBindingFactory" /> that can bind to a parameter with the
         ///     given type and name.
         /// </summary>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The found factory, or <see langword="null" /> if none could be found. </returns>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The found factory, or <see langword="null" /> if none could be found.</returns>
         IParameterBindingFactory? FindFactory(Type parameterType, string parameterName);
     }
 }

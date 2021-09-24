@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a key is added to the entity type.
         /// </summary>
-        /// <param name="keyBuilder"> The builder for the key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="keyBuilder">The builder for the key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context);
     }
 }

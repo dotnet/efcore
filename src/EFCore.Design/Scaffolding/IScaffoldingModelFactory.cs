@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Creates an <see cref="IModel" /> from a <see cref="DatabaseModel" />.
         /// </summary>
-        /// <param name="databaseModel"> The database model. </param>
-        /// <param name="options"> The options to use while creating the model. </param>
-        /// <returns> The model. </returns>
+        /// <param name="databaseModel">The database model.</param>
+        /// <param name="options">The options to use while creating the model.</param>
+        /// <returns>The model.</returns>
         IModel Create(DatabaseModel databaseModel, ModelReverseEngineerOptions options);
     }
 }

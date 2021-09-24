@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="ShapedQueryCompilingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="queryCompilationContext">The query compilation context object to use.</param>
         protected ShapedQueryCompilingExpressionVisitor(
             ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
@@ -186,16 +186,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Visits given shaped query expression to create an expression of enumerable.
         /// </summary>
-        /// <param name="shapedQueryExpression"> The shaped query expression to compile. </param>
-        /// <returns> An expression of enumerable. </returns>
+        /// <param name="shapedQueryExpression">The shaped query expression to compile.</param>
+        /// <returns>An expression of enumerable.</returns>
         protected abstract Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression);
 
         /// <summary>
         ///     Inject entity materializers in given shaper expression. <see cref="EntityShaperExpression" /> is replaced with materializer
         ///     expression for given entity.
         /// </summary>
-        /// <param name="expression"> The expression to inject entity materializers. </param>
-        /// <returns> A expression with entity materializers injected. </returns>
+        /// <param name="expression">The expression to inject entity materializers.</param>
+        /// <returns>A expression with entity materializers injected.</returns>
         protected virtual Expression InjectEntityMaterializers(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Verifies that the given shaper expression does not contain client side constant which could cause memory leak.
         /// </summary>
-        /// <param name="expression"> An expression to verify. </param>
+        /// <param name="expression">An expression to verify.</param>
         protected virtual void VerifyNoClientConstant(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));

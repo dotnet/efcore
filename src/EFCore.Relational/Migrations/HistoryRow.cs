@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Creates a new <see cref="HistoryRow" /> with the given migration identifier for
         ///     the given version of EF Core.
         /// </summary>
-        /// <param name="migrationId"> The migration identifier. </param>
+        /// <param name="migrationId">The migration identifier.</param>
         /// <param name="productVersion">
         ///     The EF Core version, which is obtained from the <see cref="AssemblyInformationalVersionAttribute" />
         ///     of the EF Core assembly.

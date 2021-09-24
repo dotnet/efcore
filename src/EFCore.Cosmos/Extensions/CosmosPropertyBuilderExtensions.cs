@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
         /// <remarks> If an empty string is supplied then the property will not be persisted. </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder ToJsonProperty(
             this PropertyBuilder propertyBuilder,
             string name)
@@ -47,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> ToJsonProperty<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             string name)
@@ -68,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
@@ -97,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="name"> The name of the property. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the property name can be set. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="name">The name of the property.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the property name can be set.</returns>
         public static bool CanSetJsonProperty(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,
@@ -114,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder IsETagConcurrency(this PropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> IsETagConcurrency<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder)
             => (PropertyBuilder<TProperty>)IsETagConcurrency((PropertyBuilder)propertyBuilder);

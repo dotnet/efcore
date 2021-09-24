@@ -25,8 +25,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         ///     Adds the services required for NetTopologySuite support in the SQLite provider for Entity Framework.
         /// </summary>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddEntityFrameworkSqliteNetTopologySuite(
             this IServiceCollection serviceCollection)
         {

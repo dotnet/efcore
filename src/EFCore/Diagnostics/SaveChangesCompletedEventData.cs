@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="context"> The current <see cref="DbContext" />. </param>
-        /// <param name="entitiesSavedCount"> The number of entities saved to the database. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="context">The current <see cref="DbContext" />.</param>
+        /// <param name="entitiesSavedCount">The number of entities saved to the database.</param>
         public SaveChangesCompletedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

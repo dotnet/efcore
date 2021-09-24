@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
     /// </remarks>
-    /// <typeparam name="TValue"> The type of values that are generated. </typeparam>
+    /// <typeparam name="TValue">The type of values that are generated.</typeparam>
     public abstract class HiLoValueGenerator<TValue> : ValueGenerator<TValue>
     {
         private readonly HiLoValueGeneratorState _generatorState;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Initializes a new instance of the <see cref="HiLoValueGenerator{TValue}" /> class.
         /// </summary>
-        /// <param name="generatorState"> The state used to keep track of which value to return next. </param>
+        /// <param name="generatorState">The state used to keep track of which value to return next.</param>
         protected HiLoValueGenerator(HiLoValueGeneratorState generatorState)
         {
             Check.NotNull(generatorState, nameof(generatorState));
@@ -43,18 +43,18 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
+        /// <returns>The value to be assigned to a property.</returns>
         public override TValue Next(EntityEntry entry)
             => _generatorState.Next<TValue>(GetNewLowValue);
 
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
+        /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> The value to be assigned to a property. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>The value to be assigned to a property.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public override ValueTask<TValue> NextAsync(
             EntityEntry entry,
             CancellationToken cancellationToken = default)
@@ -63,15 +63,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets the low value for the next block of values to be used.
         /// </summary>
-        /// <returns> The low value for the next block of values to be used. </returns>
+        /// <returns>The low value for the next block of values to be used.</returns>
         protected abstract long GetNewLowValue();
 
         /// <summary>
         ///     Gets the low value for the next block of values to be used.
         /// </summary>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> The low value for the next block of values to be used. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>The low value for the next block of values to be used.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         protected virtual Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(GetNewLowValue());
     }

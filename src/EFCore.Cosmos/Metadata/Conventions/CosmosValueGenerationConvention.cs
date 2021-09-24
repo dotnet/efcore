@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="CosmosValueGenerationConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public CosmosValueGenerationConvention(
             ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after an annotation is changed on an entity type.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The annotation name. </param>
-        /// <param name="annotation"> The new annotation. </param>
-        /// <param name="oldAnnotation"> The old annotation.  </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="name">The annotation name.</param>
+        /// <param name="annotation">The new annotation.</param>
+        /// <param name="oldAnnotation">The old annotation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The store value generation strategy to set for the given property. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The store value generation strategy to set for the given property.</returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
         {
             var entityType = property.DeclaringEntityType;

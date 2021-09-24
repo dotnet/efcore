@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Configures design-time services. Use this method to override the default design-time services with your
         ///     own implementations.
         /// </summary>
-        /// <param name="serviceCollection"> The design-time service collection. </param>
+        /// <param name="serviceCollection">The design-time service collection.</param>
         void ConfigureDesignTimeServices(IServiceCollection serviceCollection);
     }
 }

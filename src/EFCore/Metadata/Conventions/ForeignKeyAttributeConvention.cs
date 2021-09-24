@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public ForeignKeyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyAdded(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<IConventionForeignKeyBuilder> context)
@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation is added to the entity type.
         /// </summary>
-        /// <param name="navigationBuilder"> The builder for the navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="navigationBuilder">The builder for the navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context)

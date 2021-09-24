@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public CompiledQueryCacheKeyGenerator(CompiledQueryCacheKeyGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -50,18 +50,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Generates the cache key for the given query.
         /// </summary>
-        /// <param name="query"> The query to get the cache key for. </param>
-        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
-        /// <returns> The cache key. </returns>
+        /// <param name="query">The query to get the cache key for.</param>
+        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+        /// <returns>The cache key.</returns>
         public virtual object GenerateCacheKey(Expression query, bool async)
             => GenerateCacheKeyCore(query, async);
 
         /// <summary>
         ///     Generates the cache key for the given query.
         /// </summary>
-        /// <param name="query"> The query to get the cache key for. </param>
-        /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
-        /// <returns> The cache key. </returns>
+        /// <param name="query">The query to get the cache key for.</param>
+        /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
+        /// <returns>The cache key.</returns>
         protected CompiledQueryCacheKey GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
             => new(
                 Check.NotNull(query, nameof(query)),
@@ -89,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <summary>
             ///     Initializes a new instance of the <see cref="CompiledQueryCacheKey" /> class.
             /// </summary>
-            /// <param name="query"> The query to generate the key for. </param>
-            /// <param name="model"> The model that queries is written against. </param>
-            /// <param name="queryTrackingBehavior"> The tracking behavior for results of the query. </param>
-            /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
+            /// <param name="query">The query to generate the key for.</param>
+            /// <param name="model">The model that queries is written against.</param>
+            /// <param name="queryTrackingBehavior">The tracking behavior for results of the query.</param>
+            /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
             public CompiledQueryCacheKey(
                 Expression query,
                 IModel model,

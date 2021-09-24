@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         /// <summary>
         ///     Validates the configuration of defining queries in the model.
         /// </summary>
-        /// <param name="model"> The model to validate. </param>
-        /// <param name="logger"> The logger to use. </param>
+        /// <param name="model">The model to validate.</param>
+        /// <param name="logger">The logger to use.</param>
         protected virtual void ValidateDefiningQuery(
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)

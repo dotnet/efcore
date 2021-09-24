@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTransaction" /> class.
         /// </summary>
-        /// <param name="connection"> The connection to the database. </param>
-        /// <param name="transaction"> The underlying <see cref="DbTransaction" />. </param>
-        /// <param name="transactionId"> The correlation ID for the transaction. </param>
-        /// <param name="logger"> The logger to write to. </param>
+        /// <param name="connection">The connection to the database.</param>
+        /// <param name="transaction">The underlying <see cref="DbTransaction" />.</param>
+        /// <param name="transactionId">The correlation ID for the transaction.</param>
+        /// <param name="logger">The logger to write to.</param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
         /// </param>
-        /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
+        /// <param name="sqlGenerationHelper">The SQL generation helper to use.</param>
         public RelationalTransaction(
             IRelationalConnection connection,
             DbTransaction transaction,

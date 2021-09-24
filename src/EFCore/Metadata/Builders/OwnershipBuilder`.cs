@@ -58,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Adds or updates an annotation on the foreign key. If an annotation with the key specified in
         ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
             object? value)
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
             params string[] foreignKeyPropertyNames)
         {
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         corresponding properties in <see cref="HasPrincipalKey(Expression{Func{TEntity, object}})" />.
         ///     </para>
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
             Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
         {
@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the specified property(s) is not already a unique constraint (or the primary key) then a new unique
         ///     constraint will be introduced.
         /// </summary>
-        /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
             params string[] keyPropertyNames)
         {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         corresponding properties in <see cref="HasForeignKey(Expression{Func{TDependentEntity, object}})" />.
         ///     </para>
         /// </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
             Expression<Func<TEntity, object?>> keyExpression)
         {

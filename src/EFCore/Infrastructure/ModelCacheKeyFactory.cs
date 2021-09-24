@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelCacheKeyFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context to get the model cache key for.
         /// </param>
-        /// <returns> The created key. </returns>
+        /// <returns>The created key.</returns>
         public virtual object Create(DbContext context)
             => new ModelCacheKey(context);
 
@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context to get the model cache key for.
         /// </param>
-        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
-        /// <returns> The created key. </returns>
+        /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+        /// <returns>The created key.</returns>
         public virtual object Create(DbContext context, bool designTime)
             => new ModelCacheKey(context, designTime);
     }

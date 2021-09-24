@@ -57,13 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The candidate name for the parameter.
         /// </param>
-        /// <returns> A valid name based on the candidate name. </returns>
+        /// <returns>A valid name based on the candidate name.</returns>
         string GenerateParameterName(string name);
 
         /// <summary>
         ///     Writes a valid parameter name for the given candidate name.
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
+        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">
         ///     The candidate name for the parameter.
         /// </param>
@@ -75,13 +75,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The candidate name for the parameter placeholder.
         /// </param>
-        /// <returns> A valid placeholder name based on the candidate name. </returns>
+        /// <returns>A valid placeholder name based on the candidate name.</returns>
         string GenerateParameterNamePlaceholder(string name);
 
         /// <summary>
         ///     Writes a valid parameter placeholder name for the given candidate name.
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
+        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">
         ///     The candidate name for the parameter placeholder.
         /// </param>
@@ -90,59 +90,59 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="identifier"> The identifier to delimit. </param>
-        /// <returns> The generated string. </returns>
+        /// <param name="identifier">The identifier to delimit.</param>
+        /// <returns>The generated string.</returns>
         string DelimitIdentifier(string identifier);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
-        /// <param name="identifier"> The identifier to delimit. </param>
+        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
+        /// <param name="identifier">The identifier to delimit.</param>
         void DelimitIdentifier(StringBuilder builder, string identifier);
 
         /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="name"> The identifier to delimit. </param>
-        /// <param name="schema"> The schema of the identifier. </param>
-        /// <returns> The generated string. </returns>
+        /// <param name="name">The identifier to delimit.</param>
+        /// <param name="schema">The schema of the identifier.</param>
+        /// <returns>The generated string.</returns>
         string DelimitIdentifier(string name, string? schema);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
-        /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
-        /// <param name="name"> The identifier to delimit. </param>
-        /// <param name="schema"> The schema of the identifier. </param>
+        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
+        /// <param name="name">The identifier to delimit.</param>
+        /// <param name="schema">The schema of the identifier.</param>
         void DelimitIdentifier(StringBuilder builder, string name, string? schema);
 
         /// <summary>
         ///     Generates a SQL comment.
         /// </summary>
-        /// <param name="text"> The comment text. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="text">The comment text.</param>
+        /// <returns>The generated SQL.</returns>
         string GenerateComment(string text);
 
         /// <summary>
         ///     Generates an SQL statement which creates a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <returns> An SQL string to create the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be created.</param>
+        /// <returns>An SQL string to create the savepoint.</returns>
         string GenerateCreateSavepointStatement(string name);
 
         /// <summary>
         ///     Generates an SQL statement which rolls back to a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be rolled back to. </param>
-        /// <returns> An SQL string to roll back the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be rolled back to.</param>
+        /// <returns>An SQL string to roll back the savepoint.</returns>
         string GenerateRollbackToSavepointStatement(string name);
 
         /// <summary>
         ///     Generates an SQL statement which releases a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be released. </param>
-        /// <returns> An SQL string to release the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be released.</param>
+        /// <returns>An SQL string to release the savepoint.</returns>
         string GenerateReleaseSavepointStatement(string name);
     }
 }

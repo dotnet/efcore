@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="PropertyParameterBinding" /> instance for the given <see cref="IProperty" />.
         /// </summary>
-        /// <param name="property"> The property to bind. </param>
+        /// <param name="property">The property to bind.</param>
         public PropertyParameterBinding(IProperty property)
             : base(property.ClrType, property)
         {
@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an expression tree representing the binding of the value of a property from a
         ///     materialization expression to a parameter of the constructor, factory method, etc.
         /// </summary>
-        /// <param name="bindingInfo"> The binding information. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">The binding information.</param>
+        /// <returns>The expression tree.</returns>
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
         {
             var property = ConsumedProperties[0];
@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a copy that contains the given consumed properties.
         /// </summary>
-        /// <param name="consumedProperties"> The new consumed properties. </param>
-        /// <returns> A copy with replaced consumed properties. </returns>
+        /// <param name="consumedProperties">The new consumed properties.</param>
+        /// <returns>A copy with replaced consumed properties.</returns>
         public override ParameterBinding With(IPropertyBase[] consumedProperties)
             => new PropertyParameterBinding((IProperty)consumedProperties.Single());
     }

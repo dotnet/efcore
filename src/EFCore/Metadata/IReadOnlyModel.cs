@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <returns> The change tracking strategy. </returns>
+        /// <returns>The change tracking strategy.</returns>
         ChangeTrackingStrategy GetChangeTrackingStrategy();
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <returns> The access mode being used. </returns>
+        /// <returns>The access mode being used.</returns>
         [DebuggerStepThrough]
         PropertyAccessMode GetPropertyAccessMode();
 
@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The CLR type. </param>
-        /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <returns>Whether the CLR type is used by shared type entities in the model.</returns>
         bool IsShared(Type type);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <returns> All entity types defined in the model. </returns>
+        /// <returns>All entity types defined in the model.</returns>
         IEnumerable<IReadOnlyEntityType> GetEntityTypes();
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IReadOnlyEntityType? FindEntityType(string name);
 
         /// <summary>
@@ -95,10 +95,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="name"> The name of the entity type to find. </param>
-        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
-        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="name">The name of the entity type to find.</param>
+        /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
+        /// <param name="definingEntityType">The defining entity type of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IReadOnlyEntityType? FindEntityType(
             string name,
             string definingNavigationName,
@@ -112,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="type">The type to find the corresponding entity type for.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IReadOnlyEntityType? FindEntityType(Type type);
 
         /// <summary>
@@ -123,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type of the entity type to find. </param>
-        /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
-        /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        /// <param name="type">The type of the entity type to find.</param>
+        /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
+        /// <param name="definingEntityType">The defining entity type of the entity type to find.</param>
+        /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
         IReadOnlyEntityType? FindEntityType(
             Type type,
             string definingNavigationName,
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The type of the entity type to find. </param>
-        /// <returns> The entity types found. </returns>
+        /// <param name="type">The type of the entity type to find.</param>
+        /// <returns>The entity types found.</returns>
         IEnumerable<IReadOnlyEntityType> FindEntityTypes(Type type);
 
         /// <summary>
@@ -148,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         /// </remarks>
-        /// <param name="type"> The base type. </param>
-        /// <param name="condition"> An optional condition for filtering entity types. </param>
-        /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
+        /// <param name="type">The base type.</param>
+        /// <param name="condition">An optional condition for filtering entity types.</param>
+        /// <returns>List of entity types corresponding to the least derived types from the given.</returns>
         IEnumerable<IReadOnlyEntityType> FindLeastDerivedEntityTypes(
             Type type,
             Func<IReadOnlyEntityType, bool>? condition = null)
@@ -211,9 +211,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
         ///     <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
         /// </remarks>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();

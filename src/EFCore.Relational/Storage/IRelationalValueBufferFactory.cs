@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a value buffer for the given <see cref="DbDataReader" />.
         /// </summary>
-        /// <param name="dataReader"> The reader to create a value buffer for. </param>
-        /// <returns> The newly created value buffer. </returns>
+        /// <param name="dataReader">The reader to create a value buffer for.</param>
+        /// <returns>The newly created value buffer.</returns>
         ValueBuffer Create(DbDataReader dataReader);
     }
 }

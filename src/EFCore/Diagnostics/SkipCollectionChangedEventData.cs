@@ -22,12 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="entityEntry"> The entry for the entity instance on which the property value has changed. </param>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <param name="added"> The entities added to the collection. </param>
-        /// <param name="removed"> The entities removed from the collection. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="entityEntry">The entry for the entity instance on which the property value has changed.</param>
+        /// <param name="navigation">The navigation property.</param>
+        /// <param name="added">The entities added to the collection.</param>
+        /// <param name="removed">The entities removed from the collection.</param>
         public SkipCollectionChangedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

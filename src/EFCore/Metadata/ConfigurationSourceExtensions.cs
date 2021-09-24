@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="newConfigurationSource"> The new configuration source. </param>
-        /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <see langword="true" /> if the new configuration source can override configuration set with the old configuration source. </returns>
+        /// <param name="newConfigurationSource">The new configuration source.</param>
+        /// <param name="oldConfigurationSource">The old configuration source.</param>
+        /// <returns><see langword="true" /> if the new configuration source can override configuration set with the old configuration source.</returns>
         [ContractAnnotation("oldConfigurationSource:null => true")]
         public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
         {
@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="newConfigurationSource"> The new configuration source. </param>
-        /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <see langword="true" /> if the new configuration source can override configuration set with the old configuration source. </returns>
+        /// <param name="newConfigurationSource">The new configuration source.</param>
+        /// <param name="oldConfigurationSource">The old configuration source.</param>
+        /// <returns><see langword="true" /> if the new configuration source can override configuration set with the old configuration source.</returns>
         public static bool Overrides(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource?.Overrides(oldConfigurationSource) ?? oldConfigurationSource == null;
 
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="newConfigurationSource"> The new configuration source. </param>
-        /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <see langword="true" /> if the configuration source always takes precedence over the other configuration source. </returns>
+        /// <param name="newConfigurationSource">The new configuration source.</param>
+        /// <param name="oldConfigurationSource">The old configuration source.</param>
+        /// <returns><see langword="true" /> if the configuration source always takes precedence over the other configuration source.</returns>
         public static bool OverridesStrictly(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource.Overrides(oldConfigurationSource) && newConfigurationSource != oldConfigurationSource;
 
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="newConfigurationSource"> The new configuration source. </param>
-        /// <param name="oldConfigurationSource"> The old configuration source. </param>
-        /// <returns> <see langword="true" /> if the configuration source always takes precedence over the other configuration source. </returns>
+        /// <param name="newConfigurationSource">The new configuration source.</param>
+        /// <param name="oldConfigurationSource">The old configuration source.</param>
+        /// <returns><see langword="true" /> if the configuration source always takes precedence over the other configuration source.</returns>
         public static bool OverridesStrictly(this ConfigurationSource? newConfigurationSource, ConfigurationSource? oldConfigurationSource)
             => newConfigurationSource.HasValue && newConfigurationSource.Value.OverridesStrictly(oldConfigurationSource);
 
@@ -90,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="left"> The left configuration source. </param>
-        /// <param name="right"> The right configuration source. </param>
-        /// <returns> The configuration source with higher priority. </returns>
+        /// <param name="left">The left configuration source.</param>
+        /// <param name="right">The right configuration source.</param>
+        /// <returns>The configuration source with higher priority.</returns>
         [ContractAnnotation("left:notnull => notnull;right:notnull => notnull")]
         public static ConfigurationSource? Max(this ConfigurationSource? left, ConfigurationSource? right)
             => left.Overrides(right)
@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
         /// </remarks>
-        /// <param name="left"> The left configuration source. </param>
-        /// <param name="right"> The right configuration source. </param>
-        /// <returns> The configuration source with higher priority. </returns>
+        /// <param name="left">The left configuration source.</param>
+        /// <param name="right">The right configuration source.</param>
+        /// <returns>The configuration source with higher priority.</returns>
         public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
             => left.Overrides(right)
                 ? left

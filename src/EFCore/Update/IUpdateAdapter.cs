@@ -56,25 +56,25 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Gets the principal entry for the given dependent entry and foreign key.
         /// </summary>
-        /// <param name="dependentEntry"> The dependent entry. </param>
-        /// <param name="foreignKey"> The foreign key that defines the relationship. </param>
-        /// <returns> The principal, or null if none was found. </returns>
+        /// <param name="dependentEntry">The dependent entry.</param>
+        /// <param name="foreignKey">The foreign key that defines the relationship.</param>
+        /// <returns>The principal, or null if none was found.</returns>
         IUpdateEntry? FindPrincipal(IUpdateEntry dependentEntry, IForeignKey foreignKey);
 
         /// <summary>
         ///     Returns the dependents associated with the given principal and foreign key.
         /// </summary>
-        /// <param name="principalEntry"> The principal entry. </param>
-        /// <param name="foreignKey"> The foreign key that defines the relationship. </param>
-        /// <returns> The dependents. </returns>
+        /// <param name="principalEntry">The principal entry.</param>
+        /// <param name="foreignKey">The foreign key that defines the relationship.</param>
+        /// <returns>The dependents.</returns>
         IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry, IForeignKey foreignKey);
 
         /// <summary>
         ///     Finds the tracked entity for the given key values.
         /// </summary>
-        /// <param name="key"> The primary or alternate key to use. </param>
-        /// <param name="keyValues"> The key values. </param>
-        /// <returns> The entry for the found entity, or null if no entity with these key values is being tracked. </returns>
+        /// <param name="key">The primary or alternate key to use.</param>
+        /// <param name="keyValues">The key values.</param>
+        /// <returns>The entry for the found entity, or null if no entity with these key values is being tracked.</returns>
         IUpdateEntry? TryGetEntry(IKey key, object?[] keyValues);
 
         /// <summary>
@@ -110,22 +110,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     severed from a required parent/principal entity, or the required parent/principal entity
         ///     is itself deleted. See <see cref="DeleteBehavior" />.
         /// </summary>
-        /// <param name="entry"> The entry. </param>
-        /// <param name="foreignKeys"> The foreign keys to consider when cascading. </param>
+        /// <param name="entry">The entry.</param>
+        /// <param name="foreignKeys">The foreign keys to consider when cascading.</param>
         void CascadeDelete(IUpdateEntry entry, IEnumerable<IForeignKey>? foreignKeys = null);
 
         /// <summary>
         ///     Gets all the entries that require inserts/updates/deletes in the database.
         /// </summary>
-        /// <returns> The entries that need to be saved. </returns>
+        /// <returns>The entries that need to be saved.</returns>
         IList<IUpdateEntry> GetEntriesToSave();
 
         /// <summary>
         ///     Creates a new entry with the given property values for the given entity type.
         /// </summary>
-        /// <param name="values"> A dictionary of property names to values. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The created entry. </returns>
+        /// <param name="values">A dictionary of property names to values.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The created entry.</returns>
         IUpdateEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType);
 
         /// <summary>

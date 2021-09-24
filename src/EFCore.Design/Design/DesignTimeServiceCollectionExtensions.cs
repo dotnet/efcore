@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
         /// </remarks>
-        /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
-        /// <param name="reporter"> Used to report design-time messages. </param>
-        /// <param name="applicationServiceProviderAccessor"> An accessor to the application service provider. </param>
-        /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
+        /// <param name="services">The <see cref="IServiceCollection" /> the services will be added to.</param>
+        /// <param name="reporter">Used to report design-time messages.</param>
+        /// <param name="applicationServiceProviderAccessor">An accessor to the application service provider.</param>
+        /// <returns>The <paramref name="services" />. This enables chaining additional method calls.</returns>
         public static IServiceCollection AddEntityFrameworkDesignTimeServices(
             this IServiceCollection services,
             IOperationReporter? reporter = null,
@@ -90,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
         /// </remarks>
-        /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
-        /// <param name="context"> The <see cref="DbContext" /> the services will be added from. </param>
-        /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
+        /// <param name="services">The <see cref="IServiceCollection" /> the services will be added to.</param>
+        /// <param name="context">The <see cref="DbContext" /> the services will be added from.</param>
+        /// <returns>The <paramref name="services" />. This enables chaining additional method calls.</returns>
         public static IServiceCollection AddDbContextDesignTimeServices(
             this IServiceCollection services,
             DbContext context)

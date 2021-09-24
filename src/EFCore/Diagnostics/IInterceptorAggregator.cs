@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         the <see cref="DbContext" /> or in the internal service provider.
         ///     </para>
         /// </summary>
-        /// <param name="interceptors"> The interceptors to combine. </param>
-        /// <returns> The combined interceptor. </returns>
+        /// <param name="interceptors">The interceptors to combine.</param>
+        /// <returns>The combined interceptor.</returns>
         IInterceptor? AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors);
     }
 }
