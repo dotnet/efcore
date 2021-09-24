@@ -512,7 +512,8 @@ namespace Microsoft.EntityFrameworkCore
             string? schema)
             where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)((OwnedNavigationBuilder)referenceOwnershipBuilder).ToTable(name, schema);
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)((OwnedNavigationBuilder)referenceOwnershipBuilder).ToTable(
+                name, schema);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -899,7 +900,8 @@ namespace Microsoft.EntityFrameworkCore
             string? schema)
             where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToView((OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema);
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToView(
+                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema);
 
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -1385,7 +1387,8 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo? function)
             where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction((OwnedNavigationBuilder)referenceOwnershipBuilder, function);
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction(
+                (OwnedNavigationBuilder)referenceOwnershipBuilder, function);
 
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -1599,10 +1602,10 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             InternalCheckConstraintBuilder.HasCheckConstraint(
-                  (IConventionEntityType)entityTypeBuilder.Metadata,
-                  name,
-                  sql,
-                  ConfigurationSource.Explicit);
+                (IConventionEntityType)entityTypeBuilder.Metadata,
+                name,
+                sql,
+                ConfigurationSource.Explicit);
 
             return entityTypeBuilder;
         }
@@ -1690,10 +1693,10 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
 
             InternalCheckConstraintBuilder.HasCheckConstraint(
-                  (IConventionEntityType)ownedNavigationBuilder.OwnedEntityType,
-                  name,
-                  sql,
-                  ConfigurationSource.Explicit);
+                (IConventionEntityType)ownedNavigationBuilder.OwnedEntityType,
+                name,
+                sql,
+                ConfigurationSource.Explicit);
 
             return ownedNavigationBuilder;
         }
@@ -1787,10 +1790,10 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool fromDataAnnotation = false)
             => InternalCheckConstraintBuilder.HasCheckConstraint(
-                Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
-                name,
-                sql,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                    Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                    name,
+                    sql,
+                    fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 ?.Builder;
 
         /// <summary>
@@ -1832,7 +1835,7 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
                 name,
                 sql,
-                fromDataAnnotation? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Configures a comment to be applied to the table

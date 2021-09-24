@@ -117,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
                 }
+
                 _relationalCommandBuilder.AppendLine();
             }
         }
@@ -465,7 +466,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
                     }
 
-                    while (NextChar() != '\n') { }
+                    while (NextChar() != '\n')
+                    {
+                    }
 
                     continue;
                 }
@@ -480,7 +483,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     while (true)
                     {
-                        while (NextChar() != '*') { }
+                        while (NextChar() != '*')
+                        {
+                        }
 
                         if (NextChar() == '/')
                         {

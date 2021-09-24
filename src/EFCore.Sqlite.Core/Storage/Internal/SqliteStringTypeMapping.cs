@@ -110,7 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                             .Append("CHAR(")
                             .Append(lineFeed ? "10" : "13")
                             .Append(')');
-
                     }
                     else if (apostrophe)
                     {

@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         // TODO: Remove when #3864 is implemented
-        bool IReadOnlyPropertyBase.IsShadowProperty() => this.GetIdentifyingMemberInfo() == null;
+        bool IReadOnlyPropertyBase.IsShadowProperty()
+            => this.GetIdentifyingMemberInfo() == null;
     }
 }

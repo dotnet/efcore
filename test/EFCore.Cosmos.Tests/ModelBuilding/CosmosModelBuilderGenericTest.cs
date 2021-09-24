@@ -45,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(property.FindTypeMapping());
             }
 
-            [ConditionalFact]
             public override void Properties_can_have_provider_type_set_for_type()
             {
                 var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
@@ -67,6 +66,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
                 Assert.Null(entityType.FindProperty("Charm").GetProviderClrType());
                 Assert.Same(typeof(byte[]), entityType.FindProperty("Strange").GetProviderClrType());
+            }
+
+            public override void Properties_can_be_set_to_generate_values_on_Add()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
+                        b.Property(e => e.Down).ValueGeneratedNever();
+                        b.Property<int>("Charm").Metadata.ValueGenerated = ValueGenerated.OnUpdateSometimes;
+                        b.Property<string>("Strange").ValueGeneratedNever();
+                        b.Property<int>("Top").ValueGeneratedOnAddOrUpdate();
+                        b.Property<string>("Bottom").ValueGeneratedOnUpdate();
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty(Customer.IdProperty.Name).ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Up").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Down").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("Charm").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Strange").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Top").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnUpdate, entityType.FindProperty("Bottom").ValueGenerated);
             }
 
             [ConditionalFact]

@@ -80,18 +80,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 SetAnnotation(CoreAnnotationNames.MaxLength, maxLength);
             }
+
             if (unicode != null)
             {
                 SetAnnotation(CoreAnnotationNames.Unicode, unicode);
             }
+
             if (precision != null)
             {
                 SetAnnotation(CoreAnnotationNames.Precision, precision);
             }
+
             if (scale != null)
             {
                 SetAnnotation(CoreAnnotationNames.Scale, scale);
             }
+
             if (providerClrType != null)
             {
                 SetAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType);
@@ -164,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual CoreTypeMapping TypeMapping
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
-               ref _typeMapping, (IProperty)this,
+                ref _typeMapping, (IProperty)this,
                 static property =>
                     property.DeclaringEntityType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!);
             set => _typeMapping = value;
@@ -186,152 +190,160 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IProperty)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IProperty)this).ToDebugString(),
                 () => ((IProperty)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         bool IReadOnlyProperty.IsNullable
         {
             [DebuggerStepThrough]
             get => _isNullable;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         ValueGenerated IReadOnlyProperty.ValueGenerated
         {
             [DebuggerStepThrough]
             get => _valueGenerated;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         bool IReadOnlyProperty.IsConcurrencyToken
         {
             [DebuggerStepThrough]
             get => _isConcurrencyToken;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? IReadOnlyProperty.GetMaxLength() => (int?)this[CoreAnnotationNames.MaxLength];
+        int? IReadOnlyProperty.GetMaxLength()
+            => (int?)this[CoreAnnotationNames.MaxLength];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        bool? IReadOnlyProperty.IsUnicode() => (bool?)this[CoreAnnotationNames.Unicode];
+        bool? IReadOnlyProperty.IsUnicode()
+            => (bool?)this[CoreAnnotationNames.Unicode];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? IReadOnlyProperty.GetPrecision() => (int?)this[CoreAnnotationNames.Precision];
+        int? IReadOnlyProperty.GetPrecision()
+            => (int?)this[CoreAnnotationNames.Precision];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? IReadOnlyProperty.GetScale() => (int?)this[CoreAnnotationNames.Scale];
+        int? IReadOnlyProperty.GetScale()
+            => (int?)this[CoreAnnotationNames.Scale];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         PropertySaveBehavior IReadOnlyProperty.GetBeforeSaveBehavior()
             => _beforeSaveBehavior;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         PropertySaveBehavior IReadOnlyProperty.GetAfterSaveBehavior()
             => _afterSaveBehavior;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         Func<IProperty, IEntityType, ValueGenerator>? IReadOnlyProperty.GetValueGeneratorFactory()
             => _valueGeneratorFactory;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueConverter? IReadOnlyProperty.GetValueConverter()
             => _valueConverter;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         Type? IReadOnlyProperty.GetProviderClrType()
             => (Type?)this[CoreAnnotationNames.ProviderClrType];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEntityType IProperty.DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         CoreTypeMapping? IReadOnlyProperty.FindTypeMapping()
             => TypeMapping;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueComparer? IReadOnlyProperty.GetValueComparer()
             => _valueComparer ?? TypeMapping.Comparer;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueComparer IProperty.GetValueComparer()
             => _valueComparer ?? TypeMapping.Comparer;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
             => _keyValueComparer ?? TypeMapping.KeyComparer;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueComparer IProperty.GetKeyValueComparer()
             => _keyValueComparer ?? TypeMapping.KeyComparer;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IReadOnlyProperty.IsForeignKey() => ForeignKeys != null;
+        bool IReadOnlyProperty.IsForeignKey()
+            => ForeignKeys != null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IReadOnlyForeignKey> IReadOnlyProperty.GetContainingForeignKeys()
             => GetContainingForeignKeys();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IForeignKey> IProperty.GetContainingForeignKeys()
             => GetContainingForeignKeys();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IReadOnlyProperty.IsIndex() => Indexes != null;
+        bool IReadOnlyProperty.IsIndex()
+            => Indexes != null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IReadOnlyIndex> IReadOnlyProperty.GetContainingIndexes()
             => GetContainingIndexes();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IIndex> IProperty.GetContainingIndexes()
             => GetContainingIndexes();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IReadOnlyProperty.IsKey() => Keys != null;
+        bool IReadOnlyProperty.IsKey()
+            => Keys != null;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IReadOnlyKey> IReadOnlyProperty.GetContainingKeys()
             => GetContainingKeys();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IKey> IProperty.GetContainingKeys()
             => GetContainingKeys();
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IReadOnlyKey? IReadOnlyProperty.FindContainingPrimaryKey()
             => PrimaryKey;

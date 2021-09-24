@@ -40,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return extensionExpression is ShapedQueryExpression shapedQueryExpression
                 && shapedQueryExpression.QueryExpression is SelectExpression selectExpression
-                ? shapedQueryExpression.Update(
-                    selectExpression,
-                    selectExpression.ApplyProjection(
-                        shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality,  _querySplittingBehavior))
-                : base.VisitExtension(extensionExpression);
+                    ? shapedQueryExpression.Update(
+                        selectExpression,
+                        selectExpression.ApplyProjection(
+                            shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior))
+                    : base.VisitExtension(extensionExpression);
         }
     }
 }

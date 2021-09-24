@@ -11,9 +11,7 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -150,14 +148,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
             => Materializers.GetOrAdd(
                 entityType, e =>
-                {
-                    var materializationContextParameter
-                        = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+                    {
+                        var materializationContextParameter
+                            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-                    return Expression.Lambda<Func<MaterializationContext, object>>(
-                            CreateMaterializeExpression(e, "instance", materializationContextParameter),
-                            materializationContextParameter)
-                        .Compile();
-                });
+                        return Expression.Lambda<Func<MaterializationContext, object>>(
+                                CreateMaterializeExpression(e, "instance", materializationContextParameter),
+                                materializationContextParameter)
+                            .Compile();
+                    });
     }
 }

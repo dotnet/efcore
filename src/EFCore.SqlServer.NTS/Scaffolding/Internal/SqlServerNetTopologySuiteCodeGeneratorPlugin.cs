@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         private static readonly MethodInfo _useNetTopologySuiteMethodInfo
             = typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
-                typeof(Action<SqlServerDbContextOptionsBuilder>));
+                typeof(SqlServerDbContextOptionsBuilder));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

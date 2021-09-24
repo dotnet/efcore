@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 annotations.Remove(RelationalAnnotationNames.Collation);
 
-                if (annotations.TryGetAndRemove(RelationalAnnotationNames.DbFunctions,
+                if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.DbFunctions,
                     out SortedDictionary<string, IDbFunction> functions))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
@@ -71,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     GenerateSimpleAnnotation(RelationalAnnotationNames.DbFunctions, functionsVariable, parameters);
                 }
 
-                if (annotations.TryGetAndRemove(RelationalAnnotationNames.Sequences,
+                if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.Sequences,
                     out SortedDictionary<(string, string?), ISequence> sequences))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
@@ -104,8 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (function is IConventionDbFunction conventionFunction
                 && conventionFunction.GetTypeMappingConfigurationSource() != null)
             {
-                throw new InvalidOperationException(RelationalStrings.CompiledModelFunctionTypeMapping(
-                    function.Name, "Customize()", parameters.ClassName));
+                throw new InvalidOperationException(
+                    RelationalStrings.CompiledModelFunctionTypeMapping(
+                        function.Name, "Customize()", parameters.ClassName));
             }
 
             AddNamespace(function.ReturnType, parameters.Namespaces);
@@ -143,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     .Append(method.IsStatic ? " | BindingFlags.Static" : " | BindingFlags.Instance")
                     .AppendLine(" | BindingFlags.DeclaredOnly,")
                     .AppendLine("null,")
-                    .Append("new Type[] { ").Append(string.Join(", ", method.GetParameters().Select(p => code.Literal((Type)p.ParameterType)))).AppendLine(" },")
+                    .Append("new Type[] { ").Append(string.Join(", ", method.GetParameters().Select(p => code.Literal(p.ParameterType))))
+                    .AppendLine(" },")
                     .Append("null)").DecrementIndent();
             }
 
@@ -186,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 parameters with { TargetName = functionVariable });
 
             mainBuilder
-                .Append(functionsVariable).Append("[").Append(code.Literal(function.ModelName)).Append("] = ").Append(functionVariable).AppendLine(";")
+                .Append(functionsVariable).Append("[").Append(code.Literal(function.ModelName)).Append("] = ").Append(functionVariable)
+                .AppendLine(";")
                 .AppendLine();
         }
 
@@ -203,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private void Create(IDbFunctionParameter parameter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (parameter is IConventionDbFunctionParameter conventionParameter
-                    && conventionParameter.GetTypeMappingConfigurationSource() != null)
+                && conventionParameter.GetTypeMappingConfigurationSource() != null)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.CompiledModelFunctionParameterTypeMapping(
@@ -298,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             mainBuilder
                 .Append(sequencesVariable).Append("[(").Append(code.Literal(sequence.Name)).Append(", ")
-                    .Append(code.UnknownLiteral(sequence.Schema)).Append(")] = ")
+                .Append(code.UnknownLiteral(sequence.Schema)).Append(")] = ")
                 .Append(sequenceVariable).AppendLine(";")
                 .AppendLine();
         }
@@ -371,7 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 annotations.Remove(RelationalAnnotationNames.Comment);
                 annotations.Remove(RelationalAnnotationNames.Collation);
 
-                if (annotations.TryGetAndRemove(RelationalAnnotationNames.RelationalOverrides,
+                if (annotations.TryGetAndRemove(
+                    RelationalAnnotationNames.RelationalOverrides,
                     out SortedDictionary<StoreObjectIdentifier, object> overrides))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<StoreObjectIdentifier, object>).Namespace!);
@@ -507,14 +513,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
             where TAnnotatable : IAnnotatable
         {
-            process(annotatable,
+            process(
+                annotatable,
                 parameters with
                 {
                     Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
                     IsRuntime = false
                 });
 
-            process(annotatable,
+            process(
+                annotatable,
                 parameters with
                 {
                     Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
@@ -535,6 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     {
                         return @string;
                     }
+
                     return char.ToUpperInvariant(@string[0]) + @string[1..];
             }
         }

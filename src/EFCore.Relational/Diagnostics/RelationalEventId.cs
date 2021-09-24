@@ -741,7 +741,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables = MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
+        public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables =
+            MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
 
         /// <summary>
         ///     <para>

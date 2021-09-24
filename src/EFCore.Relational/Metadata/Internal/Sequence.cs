@@ -253,7 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalSequenceBuilder Builder
         {
-            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -285,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the sequence is read-only.
         /// </summary>
-        public override bool IsReadOnly => ((Annotatable)Model).IsReadOnly;
+        public override bool IsReadOnly
+            => ((Annotatable)Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -347,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _startValue = startValue;
 
             _startValueConfigurationSource = startValue == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_startValueConfigurationSource);
 
             return startValue;
@@ -387,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _incrementBy = incrementBy;
 
             _incrementByConfigurationSource = incrementBy == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_incrementByConfigurationSource);
 
             return incrementBy;
@@ -427,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _minValue = minValue;
 
             _minValueConfigurationSource = minValue == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_minValueConfigurationSource);
 
             return minValue;
@@ -467,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = maxValue;
 
             _maxValueConfigurationSource = maxValue == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_maxValueConfigurationSource);
 
             return maxValue;
@@ -522,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _type = type;
 
             _typeConfigurationSource = type == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_typeConfigurationSource);
 
             return type;
@@ -595,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _isCyclic = cyclic;
 
             _isCyclicConfigurationSource = cyclic == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_isCyclicConfigurationSource);
 
             return cyclic;
@@ -803,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             private static long? AsLong(string? value)
-                => value == null ? null : (long?)long.Parse(value, CultureInfo.InvariantCulture);
+                => value == null ? null : long.Parse(value, CultureInfo.InvariantCulture);
 
             private static Type AsType(string value)
                 => value == typeof(long).Name

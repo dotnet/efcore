@@ -1183,7 +1183,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     if (valueExpression is ConstantExpression
                         || (valueExpression is ParameterExpression valueParameterExpression
                             && valueParameterExpression.Name?
-                                .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true))
+                                .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                            == true))
                     {
                         return valueExpression;
                     }
@@ -1276,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         returnValueForNull,
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
-                            : (Expression)resultVariable));
+                            : resultVariable));
             }
             else if (resultType != shaper.Type)
             {

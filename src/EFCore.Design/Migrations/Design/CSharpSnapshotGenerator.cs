@@ -320,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateForeignKeys(entityTypeBuilderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
 
-            GenerateOwnedTypes(entityTypeBuilderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
+            GenerateOwnedTypes(
+                entityTypeBuilderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
 
             GenerateNavigations(
                 entityTypeBuilderName, entityType.GetDeclaredNavigations()
@@ -820,6 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     stringBuilder.AppendLine(");");
                 }
             }
+
             annotations.Remove(RelationalAnnotationNames.Schema);
 
             var viewNameAnnotation = annotations.Find(RelationalAnnotationNames.ViewName);
@@ -852,6 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     stringBuilder.AppendLine(");");
                 }
             }
+
             annotations.Remove(RelationalAnnotationNames.ViewSchema);
             annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
 

@@ -156,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (!cache.TryGetValue(cacheKey, out model))
                     {
-                        model = CreateModel(context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
+                        model = CreateModel(
+                            context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
 
                         model = modelCreationDependencies.ModelRuntimeInitializer.Initialize(
                             model, designTime, modelCreationDependencies.ValidationLogger);

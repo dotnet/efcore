@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
             public IncludeTreeNode? LastIncludeTreeNode { get; private set; }
-            public QueryRootExpression? QueryRootExpression { get; private set; }
+            public QueryRootExpression? QueryRootExpression { get; }
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public ParameterExpression CurrentParameter { get; }
 
-            public Expression GroupingEnumerable { get; private set; }
+            public Expression GroupingEnumerable { get; }
 
             public Type SourceElementType
                 => CurrentParameter.Type;
@@ -382,12 +382,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 expressionPrinter.AppendLine(nameof(GroupByNavigationExpansionExpression));
                 using (expressionPrinter.Indent())
                 {
-                   expressionPrinter.Append("Source: ");
-                   expressionPrinter.Visit(Source);
-                   expressionPrinter.AppendLine();
-                   expressionPrinter.Append("GroupingEnumerable: ");
-                   expressionPrinter.Visit(GroupingEnumerable);
-                   expressionPrinter.AppendLine();
+                    expressionPrinter.Append("Source: ");
+                    expressionPrinter.Visit(Source);
+                    expressionPrinter.AppendLine();
+                    expressionPrinter.Append("GroupingEnumerable: ");
+                    expressionPrinter.Visit(GroupingEnumerable);
+                    expressionPrinter.AppendLine();
                 }
             }
         }

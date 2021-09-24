@@ -36,13 +36,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                 }
                 else if (part.StartsWith("<", StringComparison.Ordinal)
-                         && part.EndsWith(">", StringComparison.Ordinal))
+                    && part.EndsWith(">", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 2);
                 }
                 else if (optionType == CommandOptionType.MultipleValue
-                         && part.StartsWith("<", StringComparison.Ordinal)
-                         && part.EndsWith(">...", StringComparison.Ordinal))
+                    && part.StartsWith("<", StringComparison.Ordinal)
+                    && part.EndsWith(">...", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 5);
                 }
@@ -123,10 +123,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return true;
         }
 
-        public bool HasValue() => Values.Count > 0;
+        public bool HasValue()
+            => Values.Count > 0;
 
-        public string? Value() => HasValue() ? Values[0] : null;
+        public string? Value()
+            => HasValue() ? Values[0] : null;
 
-        private static bool IsEnglishLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        private static bool IsEnglishLetter(char c)
+            => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 }

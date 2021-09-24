@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -178,7 +177,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int GetCountForState(
-            bool added, bool modified, bool deleted, bool unchanged, bool countDeletedSharedIdentity)
+            bool added,
+            bool modified,
+            bool deleted,
+            bool unchanged,
+            bool countDeletedSharedIdentity)
         {
             var count = 0;
 
@@ -226,7 +229,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetEntriesForState(
-            bool added, bool modified, bool deleted, bool unchanged, bool returnDeletedSharedIdentity)
+            bool added,
+            bool modified,
+            bool deleted,
+            bool unchanged,
+            bool returnDeletedSharedIdentity)
         {
             // Perf sensitive
 

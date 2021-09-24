@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -306,7 +305,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
+        IConventionDbFunctionBuilder? IConventionDbFunctionBuilder.HasTypeMapping(
+            RelationalTypeMapping? typeMapping,
+            bool fromDataAnnotation)
             => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

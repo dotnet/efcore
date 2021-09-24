@@ -54,6 +54,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Assert.Null(result.ChainedCall);
         }
 
+        [ConditionalFact]
+        public virtual void Use_provider_method_is_generated_correctly_with_NetTopologySuite()
+        {
+            var codeGenerator = new SqliteCodeGenerator(
+                new ProviderCodeGeneratorDependencies(
+                    new[] { new SqliteNetTopologySuiteCodeGeneratorPlugin() }));
+
+            var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
+
+            Assert.Equal("UseSqlite", result.Method);
+            Assert.Collection(
+                result.Arguments,
+                a => Assert.Equal("Data Source=Test", a),
+                a =>
+                {
+                    var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(a);
+
+                    Assert.Equal("x", nestedClosure.Parameter);
+                    Assert.Equal("UseNetTopologySuite", nestedClosure.MethodCalls[0].Method);
+                });
+            Assert.Null(result.ChainedCall);
+        }
+
         private static readonly MethodInfo _setProviderOptionMethodInfo
             = typeof(SqliteCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), new[] { typeof(DbContextOptionsBuilder) });
 

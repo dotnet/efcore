@@ -44,16 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 typeof(object),
                 _bindings.Select(
                     b =>
-                    {
-                        var expression = b.BindToParameter(bindingInfo);
-
-                        if (expression.Type.IsValueType)
                         {
-                            expression = Expression.Convert(expression, typeof(object));
-                        }
+                            var expression = b.BindToParameter(bindingInfo);
 
-                        return expression;
-                    }));
+                            if (expression.Type.IsValueType)
+                            {
+                                expression = Expression.Convert(expression, typeof(object));
+                            }
+
+                            return expression;
+                        }));
 
         /// <summary>
         ///     Creates a copy that contains the given consumed properties.

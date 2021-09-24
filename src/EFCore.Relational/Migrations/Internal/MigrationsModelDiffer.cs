@@ -314,22 +314,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             createTableOperations = (List<CreateTableOperation>)createTableGraph.TopologicalSort(
                 (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
-                {
-                    foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                     {
-                        var removed = createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                        if (removed)
+                        foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                         {
-                            constraintOperations.Add(cyclicAddForeignKeyOperation);
+                            var removed = createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
+                            if (removed)
+                            {
+                                constraintOperations.Add(cyclicAddForeignKeyOperation);
+                            }
+                            else
+                            {
+                                Check.DebugAssert(false, "Operation removed twice: " + cyclicAddForeignKeyOperation);
+                            }
                         }
-                        else
-                        {
-                            Check.DebugAssert(false, "Operation removed twice: " + cyclicAddForeignKeyOperation);
-                        }
-                    }
 
-                    return true;
-                });
+                        return true;
+                    });
 
             var dropTableGraph = new Multigraph<DropTableOperation, IForeignKeyConstraint>();
             dropTableGraph.AddVertices(dropTableOperations);
@@ -350,11 +350,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var newDiffContext = new DiffContext();
             dropTableOperations = (List<DropTableOperation>)dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
-                {
-                    dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+                    {
+                        dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
-                    return true;
-                });
+                        return true;
+                    });
 
             return dropForeignKeyOperations
                 .Concat(dropTableOperations)
@@ -380,6 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         #region IModel
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -402,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation
                     {
-                        Collation = target.Collation, OldDatabase = { Collation = source.Collation }
+                        Collation = target.Collation,
+                        OldDatabase = { Collation = source.Collation }
                     };
 
                     alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
@@ -496,9 +498,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => DiffAnnotations(source, null)
                 .Concat(source.Tables.SelectMany(t => Remove(t, diffContext)))
                 .Concat(source.Sequences.SelectMany(t => Remove(t, diffContext)));
+
         #endregion
 
         #region Schema
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -549,9 +553,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(string source, DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
+
         #endregion
 
         #region IEntityType
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -889,9 +895,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int GetHashCode([DisallowNull] PropertyInfo obj)
                 => throw new NotSupportedException();
         }
+
         #endregion
 
         #region IProperty
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1197,9 +1205,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             columnOperation.Collation = column.Collation;
             columnOperation.AddAnnotations(migrationsAnnotations);
         }
+
         #endregion
 
         #region IKey
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1289,9 +1299,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             yield return operation;
         }
+
         #endregion
 
         #region IForeignKey
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1386,9 +1398,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield return operation;
             }
         }
+
         #endregion
 
         #region IIndex
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1481,9 +1495,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             yield return operation;
         }
+
         #endregion
 
         #region ICheckConstraint
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1548,9 +1564,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             yield return operation;
         }
+
         #endregion
 
         #region ISequence
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1675,9 +1693,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             return sequenceOperation;
         }
+
         #endregion
 
         #region Data
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2132,10 +2152,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 sourceEntry.EntityType.GetReferencingForeignKeys()
                                     .Where(
                                         fk =>
-                                        {
-                                            var behavior = diffContext.FindTarget(fk)?.DeleteBehavior;
-                                            return behavior != null && behavior != DeleteBehavior.ClientNoAction;
-                                        }));
+                                            {
+                                                var behavior = diffContext.FindTarget(fk)?.DeleteBehavior;
+                                                return behavior != null && behavior != DeleteBehavior.ClientNoAction;
+                                            }));
                         }
                     }
                 }
@@ -2345,6 +2365,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 ? converter.ConvertToProvider(value)
                 : value;
         }
+
         #endregion
 
         /// <summary>

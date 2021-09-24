@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            
+
             _sets = new Dictionary<Type, string>();
             List<Type>? ambiguousTypes = null;
             foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))

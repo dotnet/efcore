@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task ExecuteInTransactionAsync(
             this IExecutionStrategy strategy,
             Func<CancellationToken, Task> operation,
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
             this IExecutionStrategy strategy,
             Func<CancellationToken, Task<TResult>> operation,
@@ -217,10 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => strategy.ExecuteInTransaction(
                 state,
                 s =>
-                {
-                    operation(s);
-                    return true;
-                }, verifySucceeded, isolationLevel);
+                    {
+                        operation(s);
+                        return true;
+                    }, verifySucceeded, isolationLevel);
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task ExecuteInTransactionAsync<TState>(
             this IExecutionStrategy strategy,
             TState state,
@@ -264,10 +264,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => strategy.ExecuteInTransactionAsync(
                 state,
                 async (s, ct) =>
-                {
-                    await operation(s, ct).ConfigureAwait(false);
-                    return true;
-                }, verifySucceeded, isolationLevel, cancellationToken);
+                    {
+                        await operation(s, ct).ConfigureAwait(false);
+                        return true;
+                    }, verifySucceeded, isolationLevel, cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             this IExecutionStrategy strategy,
             TState state,

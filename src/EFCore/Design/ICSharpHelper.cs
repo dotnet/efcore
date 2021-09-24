@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="name"> The base identifier name. </param>
         /// <param name="scope"> A list of in-scope identifiers. </param>
         /// <param name="capitalize">
-        ///     <see langword="true"/> if the first letter should be converted to uppercase;
-        ///     <see langword="false"/> if the first letter should be converted to lowercase;
+        ///     <see langword="true" /> if the first letter should be converted to uppercase;
+        ///     <see langword="false" /> if the first letter should be converted to lowercase;
         /// </param>
         /// <returns> The identifier. </returns>
         string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null);
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         string Literal(ushort value);
 
         /// <summary>
-        ///     Generates a <see cref="Type"/> literal.
+        ///     Generates a <see cref="Type" /> literal.
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <param name="fullName"> Whether the type should be namespace-qualified. </param>

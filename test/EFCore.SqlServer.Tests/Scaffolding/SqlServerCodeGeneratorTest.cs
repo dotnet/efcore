@@ -55,6 +55,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             Assert.Null(result.ChainedCall);
         }
 
+        [ConditionalFact]
+        public virtual void Use_provider_method_is_generated_correctly_with_NetTopologySuite()
+        {
+            var codeGenerator = new SqlServerCodeGenerator(
+                new ProviderCodeGeneratorDependencies(
+                    new[] { new SqlServerNetTopologySuiteCodeGeneratorPlugin() }));
+
+            var result = ((IProviderConfigurationCodeGenerator)codeGenerator).GenerateUseProvider("Data Source=Test");
+
+            Assert.Equal("UseSqlServer", result.Method);
+            Assert.Collection(
+                result.Arguments,
+                a => Assert.Equal("Data Source=Test", a),
+                a =>
+                {
+                    var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(a);
+
+                    Assert.Equal("x", nestedClosure.Parameter);
+                    Assert.Equal("UseNetTopologySuite", nestedClosure.MethodCalls[0].Method);
+                });
+            Assert.Null(result.ChainedCall);
+        }
+
         private static readonly MethodInfo _setProviderOptionMethodInfo
             = typeof(SqlServerCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), new[] { typeof(DbContextOptionsBuilder) });
 

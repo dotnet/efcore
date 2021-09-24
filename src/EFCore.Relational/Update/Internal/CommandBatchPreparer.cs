@@ -198,14 +198,17 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         command = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
-                                n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
+                            (n, s, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
+                                new ModificationCommandParameters(
+                                    n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
-                        command = Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
-                            table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName, Dependencies.UpdateLogger));
+                        command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
+                            new ModificationCommandParameters(
+                                table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName,
+                                Dependencies.UpdateLogger));
                     }
 
                     command.AddEntry(entry, isMainEntry);
@@ -277,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<List<IReadOnlyModificationCommand>> TopologicalSort(IEnumerable<IReadOnlyModificationCommand> commands)
+        protected virtual IReadOnlyList<List<IReadOnlyModificationCommand>> TopologicalSort(
+            IEnumerable<IReadOnlyModificationCommand> commands)
         {
             _modificationCommandGraph.Clear();
             _modificationCommandGraph.AddVertices(commands);
@@ -293,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return _modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is IEntityType), FormatCycle);
         }
 
-        private string FormatCycle(IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<IAnnotatable>>> data)
+        private string FormatCycle(
+            IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<IAnnotatable>>> data)
         {
             var builder = new StringBuilder();
             for (var i = 0; i < data.Count; i++)
@@ -360,7 +365,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             builder.Append(']');
         }
 
-        private void Format(IForeignKey foreignKey, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
+        private void Format(
+            IForeignKey foreignKey,
+            IReadOnlyModificationCommand source,
+            IReadOnlyModificationCommand target,
+            StringBuilder builder)
         {
             var reverseDependency = !source.Entries.Any(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
             if (reverseDependency)
@@ -661,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
             IReadOnlyModificationCommand command,
             IAnnotatable edge)
-            where T: notnull
+            where T : notnull
         {
             if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
             {
@@ -826,6 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         deletedCommands = (new List<IReadOnlyModificationCommand>(), false);
                         deletedDictionary.Add(table, deletedCommands);
                     }
+
                     deletedCommands.List.Add(command);
                 }
             }

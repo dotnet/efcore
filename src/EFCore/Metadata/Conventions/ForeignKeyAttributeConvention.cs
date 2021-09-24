@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     inverses.Add(inverseProperty);
                     continue;
                 }
-                else if (GetAttribute<ForeignKeyAttribute>(navigation) == null)
+
+                if (GetAttribute<ForeignKeyAttribute>(navigation) == null)
                 {
                     if (FindForeignKeyAttributeOnProperty(entityType, navigation) == null)
                     {
@@ -166,10 +167,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var foreignKey = relationshipBuilder.Metadata;
 
             var fkPropertyOnPrincipal
-                = FindForeignKeyAttributeOnProperty(foreignKey.PrincipalEntityType, foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo());
+                = FindForeignKeyAttributeOnProperty(
+                    foreignKey.PrincipalEntityType, foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo());
 
             var fkPropertyOnDependent
-                = FindForeignKeyAttributeOnProperty(foreignKey.DeclaringEntityType, foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo());
+                = FindForeignKeyAttributeOnProperty(
+                    foreignKey.DeclaringEntityType, foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo());
 
             if (fkPropertyOnDependent != null
                 && fkPropertyOnPrincipal != null)
@@ -551,7 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         var foreignKey = declaredNavigation.ForeignKey;
                         var fkPropertyOnPrincipal
-                            = FindForeignKeyAttributeOnProperty(foreignKey.PrincipalEntityType, declaredNavigation.GetIdentifyingMemberInfo());
+                            = FindForeignKeyAttributeOnProperty(
+                                foreignKey.PrincipalEntityType, declaredNavigation.GetIdentifyingMemberInfo());
                         if (fkPropertyOnPrincipal != null)
                         {
                             throw new InvalidOperationException(

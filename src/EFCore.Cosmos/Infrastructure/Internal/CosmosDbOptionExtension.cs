@@ -497,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<HttpClient>? HttpClientFactory => _httpClientFactory;
+        public virtual Func<HttpClient>? HttpClientFactory
+            => _httpClientFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -624,7 +625,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 {
                     debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
                         (Extension._accountEndpoint?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
-                    debugInfo["Cosmos:" + nameof(AccountKey)] = (Extension._accountKey?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                    debugInfo["Cosmos:" + nameof(AccountKey)] =
+                        (Extension._accountKey?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
                 }
 
                 debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] =

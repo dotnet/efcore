@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             RelationalDependencies = relationalDependencies;
             _sqlServerConnection = sqlServerConnection;
         }
-        
+
         /// <summary>
         ///     Dependencies for this service.
         /// </summary>

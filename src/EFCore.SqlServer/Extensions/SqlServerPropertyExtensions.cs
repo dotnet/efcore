@@ -297,9 +297,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The identity increment. </returns>
         public static int? GetIdentityIncrement(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)property[SqlServerAnnotationNames.IdentityIncrement]
+            => (property is RuntimeProperty)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (int?)property[SqlServerAnnotationNames.IdentityIncrement]
                 ?? property.DeclaringEntityType.Model.GetIdentityIncrement();
 
         /// <summary>
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
                     ?? typeMappingSource?.FindMapping((IProperty)property))?.Converter;
 
             var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-            
+
             return (type.IsInteger()
                 || type.IsEnum
                 || type == typeof(decimal));
@@ -584,9 +584,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> <see langword="true" /> if the property's column is sparse. </returns>
         public static bool? IsSparse(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)property[SqlServerAnnotationNames.Sparse];
+            => (property is RuntimeProperty)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (bool?)property[SqlServerAnnotationNames.Sparse];
 
         /// <summary>
         ///     Returns a value indicating whether the property's column is sparse.

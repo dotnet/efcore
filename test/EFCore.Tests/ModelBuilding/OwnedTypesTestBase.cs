@@ -679,7 +679,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(owned.GetForeignKeys());
                 var pk = owned.FindPrimaryKey();
                 Assert.Equal(new[] { nameof(Order.CustomerId), nameof(Order.OrderId) }, pk.Properties.Select(p => p.Name));
-                Assert.Equal(ValueGenerated.OnAdd, pk.Properties.Last().ValueGenerated);
                 Assert.Empty(owned.GetIndexes());
 
                 var chainedOwnership = owned.FindNavigation(nameof(Order.Products)).ForeignKey;
@@ -690,7 +689,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(new[] { "OrderCustomerId", "OrderId" }, chainedOwnership.Properties.Select(p => p.Name));
                 var chainedPk = chainedOwned.FindPrimaryKey();
                 Assert.Equal(new[] { "OrderCustomerId", "OrderId", nameof(Product.Id) }, chainedPk.Properties.Select(p => p.Name));
-                Assert.Equal(ValueGenerated.OnAdd, chainedPk.Properties.Last().ValueGenerated);
                 Assert.Empty(chainedOwned.GetIndexes());
 
                 Assert.Equal(4, model.GetEntityTypes().Count());
@@ -728,7 +726,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(owned.GetForeignKeys());
                 var pk = owned.FindPrimaryKey();
                 Assert.Equal(new[] { nameof(Order.CustomerId), "Id" }, pk.Properties.Select(p => p.Name));
-                Assert.Equal(ValueGenerated.OnAdd, pk.Properties.Last().ValueGenerated);
                 Assert.Empty(owned.GetIndexes());
 
                 var chainedOwnership = owned.FindNavigation(nameof(Order.Products)).ForeignKey;
@@ -739,7 +736,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(new[] { "OrderCustomerId", "OrderId" }, chainedOwnership.Properties.Select(p => p.Name));
                 var chainedPk = chainedOwned.FindPrimaryKey();
                 Assert.Equal(new[] { "OrderCustomerId", "OrderId", "Id1" }, chainedPk.Properties.Select(p => p.Name));
-                Assert.Equal(ValueGenerated.OnAdd, chainedPk.Properties.Last().ValueGenerated);
                 Assert.Empty(chainedOwned.GetIndexes());
 
                 Assert.Equal(4, model.GetEntityTypes().Count());

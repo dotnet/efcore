@@ -70,28 +70,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public Type ClrType { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? ITypeMappingConfiguration.GetMaxLength() => (int?)this[CoreAnnotationNames.MaxLength];
+        int? ITypeMappingConfiguration.GetMaxLength()
+            => (int?)this[CoreAnnotationNames.MaxLength];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        bool? ITypeMappingConfiguration.IsUnicode() => (bool?)this[CoreAnnotationNames.Unicode];
+        bool? ITypeMappingConfiguration.IsUnicode()
+            => (bool?)this[CoreAnnotationNames.Unicode];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? ITypeMappingConfiguration.GetPrecision() => (int?)this[CoreAnnotationNames.Precision];
+        int? ITypeMappingConfiguration.GetPrecision()
+            => (int?)this[CoreAnnotationNames.Precision];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
-        int? ITypeMappingConfiguration.GetScale() => (int?)this[CoreAnnotationNames.Scale];
+        int? ITypeMappingConfiguration.GetScale()
+            => (int?)this[CoreAnnotationNames.Scale];
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         ValueConverter? ITypeMappingConfiguration.GetValueConverter()
             => _valueConverter;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         Type? ITypeMappingConfiguration.GetProviderClrType()
             => (Type?)this[CoreAnnotationNames.ProviderClrType];

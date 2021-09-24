@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
         ///     <see langword="false" /> if it did not exist.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
         ///     <see langword="false" /> if it already existed.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task<bool> CanConnectAsync(CancellationToken cancellationToken = default);
     }
 }

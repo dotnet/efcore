@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Adds an entry to the command.
         /// </summary>
-        /// <param name="entry" > Entry object. </param>
+        /// <param name="entry"> Entry object. </param>
         /// <param name="mainEntry"> Whether this is the main entry. Only one main entry can be added to a given command. </param>
         public void AddEntry(IUpdateEntry entry, bool mainEntry);
 

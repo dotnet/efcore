@@ -120,36 +120,36 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 sqliteConnection.CreateFunction<string, string, bool?>(
                     "regexp",
                     (pattern, input) =>
-                    {
-                        if (input == null
-                            || pattern == null)
                         {
-                            return null;
-                        }
+                            if (input == null
+                                || pattern == null)
+                            {
+                                return null;
+                            }
 
-                        return Regex.IsMatch(input, pattern);
-                    },
+                            return Regex.IsMatch(input, pattern);
+                        },
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction<object, object, object?>(
                     "ef_mod",
                     (dividend, divisor) =>
-                    {
-                        if (dividend == null
-                            || divisor == null)
                         {
-                            return null;
-                        }
+                            if (dividend == null
+                                || divisor == null)
+                            {
+                                return null;
+                            }
 
-                        if (dividend is string s)
-                        {
-                            return decimal.Parse(s, CultureInfo.InvariantCulture)
-                                % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                        }
+                            if (dividend is string s)
+                            {
+                                return decimal.Parse(s, CultureInfo.InvariantCulture)
+                                    % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
+                            }
 
-                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                            % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    },
+                            return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
+                                % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
+                        },
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(

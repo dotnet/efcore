@@ -328,7 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var primaryKey = new DatabasePrimaryKey
             {
-                Table = table, Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
+                Table = table,
+                Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
             };
 
             _logger.PrimaryKeyFound(name, table.Name);
@@ -414,7 +415,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var constraintName = reader1.GetString(0);
                 var uniqueConstraint = new DatabaseUniqueConstraint
                 {
-                    Table = table, Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
+                    Table = table,
+                    Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
                 };
 
                 _logger.UniqueConstraintFound(constraintName, table.Name);

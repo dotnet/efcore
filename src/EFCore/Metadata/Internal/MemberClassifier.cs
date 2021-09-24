@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyCollection<Type> GetInverseCandidateTypes(IConventionEntityType entityType)
         {
             if (entityType.Model.FindAnnotation(CoreAnnotationNames.InverseNavigationCandidates)?.Value
-                is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
+                    is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
                 || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
             {
                 return new Type[0];
@@ -130,8 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Type? FindCandidateNavigationPropertyType(
-            MemberInfo memberInfo, IConventionModel model, out bool? shouldBeOwned)
-        { 
+            MemberInfo memberInfo,
+            IConventionModel model,
+            out bool? shouldBeOwned)
+        {
             shouldBeOwned = null;
             var propertyInfo = memberInfo as PropertyInfo;
             var targetType = memberInfo.GetMemberType();
@@ -140,16 +142,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && (propertyInfo == null
                     || propertyInfo.IsCandidateProperty(needsWrite: false))
                 && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, (Model)model, out shouldBeOwned)
-                ? targetSequenceType
-                : (propertyInfo == null
-                    || propertyInfo.IsCandidateProperty(needsWrite: true))
+                    ? targetSequenceType
+                    : (propertyInfo == null
+                        || propertyInfo.IsCandidateProperty(needsWrite: true))
                     && IsCandidateNavigationPropertyType(targetType, memberInfo, (Model)model, out shouldBeOwned)
-                    ? targetType
-                    : null;
+                        ? targetType
+                        : null;
         }
 
         private bool IsCandidateNavigationPropertyType(
-           Type targetType, MemberInfo memberInfo, Model model, out bool? shouldBeOwned)
+            Type targetType,
+            MemberInfo memberInfo,
+            Model model,
+            out bool? shouldBeOwned)
         {
             shouldBeOwned = null;
             var configuration = model.Configuration;
@@ -187,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var configurationType = ((Model)model).Configuration?.GetConfigurationType(propertyInfo.PropertyType);
             return configurationType == TypeConfigurationType.Property
-                    || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
+                || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
         }
 
         /// <summary>
@@ -197,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
-            PropertyInfo propertyInfo, IConventionModel model)
+            PropertyInfo propertyInfo,
+            IConventionModel model)
         {
             if (!propertyInfo.IsCandidateProperty(publicOnly: false))
             {

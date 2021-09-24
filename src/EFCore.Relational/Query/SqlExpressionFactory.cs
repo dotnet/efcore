@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && sqlUnaryExpression.OperatorType == ExpressionType.Convert
                     && sqlUnaryExpression.Type == typeof(object)
                         ? sqlUnaryExpression.Operand
-                        : ApplyTypeMapping(sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
+                        : ApplyTypeMapping(
+                            sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
@@ -505,7 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // Since we never look at type of Operand/Test after this place,
                 // we need to find actual typeMapping based on non-object type.
                 ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
-                    .Where(t => t != typeof(object)).Select(t => Dependencies.TypeMappingSource.FindMapping(t, Dependencies.Model)).FirstOrDefault();
+                    .Where(t => t != typeof(object)).Select(t => Dependencies.TypeMappingSource.FindMapping(t, Dependencies.Model))
+                    .FirstOrDefault();
 
             var resultTypeMapping = elseResult?.TypeMapping
                 ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
@@ -566,10 +568,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type returnType,
             RelationalTypeMapping? typeMapping = null)
             => schema != null
-            ? Function(
-                schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping)
-            : Function(
-                name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
+                ? Function(
+                    schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType,
+                    typeMapping)
+                : Function(
+                    name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
 
         /// <inheritdoc />
         [Obsolete(
@@ -597,7 +600,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         [Obsolete("Use NiladicFunction method.")]
-        public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping? typeMapping = null)
+        public virtual SqlFunctionExpression Function(
+            string schema,
+            string name,
+            Type returnType,
+            RelationalTypeMapping? typeMapping = null)
             => NiladicFunction(schema, name, nullable: true, returnType, typeMapping);
 
         /// <inheritdoc />
@@ -944,7 +951,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
             if (requiredNonPkProperties.Count > 0)
             {
-                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression)).Aggregate((l, r) => AndAlso(l, r));
+                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression))
+                    .Aggregate((l, r) => AndAlso(l, r));
             }
 
             var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);

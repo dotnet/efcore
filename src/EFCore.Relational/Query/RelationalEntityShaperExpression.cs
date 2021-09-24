@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -45,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
         /// <param name="nullable"> Whether this entity instance can be null. </param>
         /// <param name="materializationCondition">
-        ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> to determine which entity type to
+        ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
         ///     materialize.
         /// </param>
         protected RelationalEntityShaperExpression(

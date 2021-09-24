@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -140,10 +139,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                         {
                             var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                    materializeCollectionNavigationExpression.Subquery)!;
+                                materializeCollectionNavigationExpression.Subquery)!;
                             _clientProjections!.Add(subquery.QueryExpression);
                             return new CollectionResultShaperExpression(
-                                new ProjectionBindingExpression(_queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
+                                new ProjectionBindingExpression(
+                                    _queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
                                 subquery.ShaperExpression,
                                 materializeCollectionNavigationExpression.Navigation,
                                 materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
@@ -162,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 {
                                     _clientProjections!.Add(subquery.QueryExpression);
                                     return new CollectionResultShaperExpression(
-                                        new ProjectionBindingExpression(_queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
+                                        new ProjectionBindingExpression(
+                                            _queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
                                         subquery.ShaperExpression,
                                         null,
                                         methodCallExpression.Method.GetGenericArguments()[0]);
@@ -186,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                         var projectionBindingExpression = new ProjectionBindingExpression(
                                             _queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>));
                                         return new CollectionResultShaperExpression(
-                                            projectionBindingExpression, subquery.ShaperExpression, navigation: null, subquery.ShaperExpression.Type);
+                                            projectionBindingExpression, subquery.ShaperExpression, navigation: null,
+                                            subquery.ShaperExpression.Type);
                                     }
                                     else
                                     {
@@ -197,6 +199,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     }
                                 }
                             }
+
                             break;
                     }
 
@@ -277,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityProjectionExpression entityProjectionExpression;
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                    entityProjectionExpression =
+                        (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                         .GetProjection(projectionBindingExpression);
                 }
                 else

@@ -21,10 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SingleDimensionalArrayComparer(ValueComparer elementComparer) : base(
-            (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
-            o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
-            source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
+        public SingleDimensionalArrayComparer(ValueComparer elementComparer)
+            : base(
+                (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
+                o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
+                source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
         {
         }
 
@@ -34,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => typeof(TElement[]);
+        public override Type Type
+            => typeof(TElement[]);
 
         private static bool Compare(TElement[]? a, TElement[]? b, ValueComparer<TElement> elementComparer)
         {
@@ -84,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
                 var element = source[i];
                 snapshot[i] = element is null ? default! : elementComparer.Snapshot(element);
             }
+
             return snapshot;
         }
     }

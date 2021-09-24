@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<ITableMappingBase> GetViewOrTableMappings(this IEntityType entityType)
             => (IEnumerable<ITableMappingBase>?)(entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.ViewMappings)
+                        RelationalAnnotationNames.ViewMappings)
                     ?? entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings))
                 ?? Enumerable.Empty<ITableMappingBase>();
 

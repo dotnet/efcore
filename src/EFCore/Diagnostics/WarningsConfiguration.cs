@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 : WithExplicit(new[] { eventId }, warningBehavior);
 
         /// <summary>
-        ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode"/>
+        ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
         ///     are the same as in the given extension.
         /// </summary>
         /// <param name="other"> The other configuration object. </param>

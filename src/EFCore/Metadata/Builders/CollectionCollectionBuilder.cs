@@ -382,15 +382,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Type? joinEntityType,
             Func<EntityTypeBuilder, ReferenceCollectionBuilder>? configureRight,
             Func<EntityTypeBuilder, ReferenceCollectionBuilder>? configureLeft)
-            => new(UsingEntity(
-                joinEntityName,
-                joinEntityType,
-                configureRight != null
-                    ? e => configureRight(new EntityTypeBuilder(e)).Metadata
-                    : null,
-                configureLeft != null
-                    ? e => configureLeft(new EntityTypeBuilder(e)).Metadata
-                    : null));
+            => new(
+                UsingEntity(
+                    joinEntityName,
+                    joinEntityType,
+                    configureRight != null
+                        ? e => configureRight(new EntityTypeBuilder(e)).Metadata
+                        : null,
+                    configureLeft != null
+                        ? e => configureLeft(new EntityTypeBuilder(e)).Metadata
+                        : null));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -69,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return memberInfo;
         }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -134,7 +135,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, Type targetType)
             => entityType.FindInOwnershipPath(targetType) != null;
-
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -418,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IProperty CheckPropertyBelongsToType(
-            this IEntityType entityType, IProperty property)
+            this IEntityType entityType,
+            IProperty property)
         {
             Check.NotNull(property, nameof(property));
 

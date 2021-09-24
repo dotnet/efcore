@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {

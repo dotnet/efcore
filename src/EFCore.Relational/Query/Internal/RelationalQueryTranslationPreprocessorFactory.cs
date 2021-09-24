@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Dependencies = dependencies;
             RelationalDependencies = relationalDependencies;
         }
-        
+
         /// <summary>
         ///     Dependencies for this service.
         /// </summary>

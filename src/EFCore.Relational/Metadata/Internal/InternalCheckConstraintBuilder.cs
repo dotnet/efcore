@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetName(string? name, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetNameConfigurationSource())
-                    || Metadata.Name == name;
+                || Metadata.Name == name;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 foreach (var derivedType in entityType.GetDerivedTypes())
                 {
-                    var derivedCheckConstraint = (IConventionCheckConstraint?)CheckConstraint.FindDeclaredCheckConstraint(derivedType, name);
+                    var derivedCheckConstraint =
+                        (IConventionCheckConstraint?)CheckConstraint.FindDeclaredCheckConstraint(derivedType, name);
                     if (derivedCheckConstraint == null)
                     {
                         continue;

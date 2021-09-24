@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual List<(SkipNavigation SkipNavigation, ConfigurationSource ForeignKeyConfigurationSource)>? ReferencingSkipNavigations
         {
-            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            get;
         }
 
         /// <summary>

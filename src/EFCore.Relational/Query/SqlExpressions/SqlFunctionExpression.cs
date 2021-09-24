@@ -386,7 +386,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && ((Instance == null && sqlFunctionExpression.Instance == null)
                     || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
                 && ((Arguments == null && sqlFunctionExpression.Arguments == null)
-                    || (Arguments != null && sqlFunctionExpression.Arguments != null
+                    || (Arguments != null
+                        && sqlFunctionExpression.Arguments != null
                         && Arguments.SequenceEqual(sqlFunctionExpression.Arguments)));
 
         /// <inheritdoc />

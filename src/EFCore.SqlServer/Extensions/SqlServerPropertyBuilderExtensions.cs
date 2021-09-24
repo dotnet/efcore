@@ -404,8 +404,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        /// </remarks>
         ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
         /// <returns> A builder to further configure the property. </returns>

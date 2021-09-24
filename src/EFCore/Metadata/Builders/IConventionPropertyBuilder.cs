@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     using the given <see cref="ValueConverter" />.
         /// </summary>
         /// <param name="converterType">
-        ///     A type that derives from <see cref="ValueConverter"/>,
+        ///     A type that derives from <see cref="ValueConverter" />,
         ///     or <see langword="null" /> to remove any previously set converter.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -416,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     from the current configuration source.
         /// </summary>
         /// <param name="converterType">
-        ///     A type that derives from <see cref="ValueConverter"/>,
+        ///     A type that derives from <see cref="ValueConverter" />,
         ///     or <see langword="null" /> to remove any previously set converter.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="comparerType">
-        ///     A type that derives from <see cref="ValueComparer"/>,
+        ///     A type that derives from <see cref="ValueComparer" />,
         ///     or <see langword="null" /> to remove any previously set comparer.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     can be configured for this property from the current configuration source.
         /// </summary>
         /// <param name="comparerType">
-        ///     A type that derives from <see cref="ValueComparer"/>,
+        ///     A type that derives from <see cref="ValueComparer" />,
         ///     or <see langword="null" /> to remove any previously set comparer.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

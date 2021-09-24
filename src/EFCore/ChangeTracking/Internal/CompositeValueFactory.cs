@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return comparers.All(c => c != null)
                 ? new CompositeCustomComparer(comparers!)
                 : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
-                    ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
+                    ? new StructuralCompositeComparer()
                     : new CompositeComparer();
         }
 

@@ -70,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         sqlExpression,
                         _sqlExpressionFactory.Constant(true));
 
-
         private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
@@ -93,23 +92,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             sqlBinaryOperand.Right,
                             sqlBinaryOperand.TypeMapping)!;
                     }
-                    else
-                    {
-                        return _sqlExpressionFactory.MakeBinary(
-                            ExpressionType.Equal,
-                            sqlBinaryOperand.Left,
-                            _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
-                            sqlBinaryOperand.TypeMapping)!;
-                    }
+
+                    return _sqlExpressionFactory.MakeBinary(
+                        ExpressionType.Equal,
+                        sqlBinaryOperand.Left,
+                        _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
+                        sqlBinaryOperand.TypeMapping)!;
                 }
 
                 return _sqlExpressionFactory.MakeBinary(
-                        sqlBinaryOperand.OperatorType == ExpressionType.Equal
-                            ? ExpressionType.NotEqual
-                            : ExpressionType.Equal,
-                        sqlBinaryOperand.Left,
-                        sqlBinaryOperand.Right,
-                        sqlBinaryOperand.TypeMapping)!;
+                    sqlBinaryOperand.OperatorType == ExpressionType.Equal
+                        ? ExpressionType.NotEqual
+                        : ExpressionType.Equal,
+                    sqlBinaryOperand.Left,
+                    sqlBinaryOperand.Right,
+                    sqlBinaryOperand.TypeMapping)!;
             }
 
             return sqlExpression;
@@ -421,8 +418,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException(RelationalStrings.UnsupportedOperatorForSqlExpression(
-                        sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression)));
+                    throw new InvalidOperationException(
+                        RelationalStrings.UnsupportedOperatorForSqlExpression(
+                            sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression)));
             }
 
             var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand);

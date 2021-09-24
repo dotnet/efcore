@@ -210,9 +210,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The index filter expression. </returns>
         public static string? GetFilter(this IReadOnlyIndex index)
-            => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
+            => (index is RuntimeIndex)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
         /// <summary>
         ///     Returns the index filter expression.
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The table indexes to which the index is mapped. </returns>
         public static IEnumerable<ITableIndex> GetMappedTableIndexes(this IIndex index)
             => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.TableIndexMappings)
+                    RelationalAnnotationNames.TableIndexMappings)
                 ?? Enumerable.Empty<ITableIndex>();
 
         /// <summary>

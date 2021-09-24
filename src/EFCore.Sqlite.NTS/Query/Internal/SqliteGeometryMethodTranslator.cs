@@ -25,36 +25,36 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes), "AsBinary" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes), "AsText" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double) }), "Buffer" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double), typeof(int) }), "Buffer" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Contains), new[] { typeof(Geometry) }), "Contains" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), typeof(double)), "Buffer" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), typeof(double), typeof(int)), "Buffer" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Contains), typeof(Geometry)), "Contains" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ConvexHull), Type.EmptyTypes), "ConvexHull" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Crosses), new[] { typeof(Geometry) }), "Crosses" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.CoveredBy), new[] { typeof(Geometry) }), "CoveredBy" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Covers), new[] { typeof(Geometry) }), "Covers" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Difference), new[] { typeof(Geometry) }), "Difference" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Disjoint), new[] { typeof(Geometry) }), "Disjoint" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Distance), new[] { typeof(Geometry) }), "Distance" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.EqualsTopologically), new[] { typeof(Geometry) }), "Equals" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersection), new[] { typeof(Geometry) }), "Intersection" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersects), new[] { typeof(Geometry) }), "Intersects" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Overlaps), new[] { typeof(Geometry) }), "Overlaps" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Relate), new[] { typeof(Geometry), typeof(string) }), "Relate" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Crosses), typeof(Geometry)), "Crosses" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.CoveredBy), typeof(Geometry)), "CoveredBy" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Covers), typeof(Geometry)), "Covers" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Difference), typeof(Geometry)), "Difference" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Disjoint), typeof(Geometry)), "Disjoint" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Distance), typeof(Geometry)), "Distance" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.EqualsTopologically), typeof(Geometry)), "Equals" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersection), typeof(Geometry)), "Intersection" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersects), typeof(Geometry)), "Intersects" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Overlaps), typeof(Geometry)), "Overlaps" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Relate), typeof(Geometry), typeof(string)), "Relate" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Reverse), Type.EmptyTypes), "ST_Reverse" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.SymmetricDifference), new[] { typeof(Geometry) }), "SymDifference" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.SymmetricDifference), typeof(Geometry)), "SymDifference" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes), "AsBinary" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes), "AsText" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Touches), new[] { typeof(Geometry) }), "Touches" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Touches), typeof(Geometry)), "Touches" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Union), Type.EmptyTypes), "UnaryUnion" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Union), new[] { typeof(Geometry) }), "GUnion" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), new[] { typeof(Geometry) }), "Within" }
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Union), typeof(Geometry)), "GUnion" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), typeof(Geometry)), "Within" }
         };
 
         private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
-            nameof(Geometry.GetGeometryN), new[] { typeof(int) });
+            nameof(Geometry.GetGeometryN), typeof(int));
 
         private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
-            nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
+            nameof(Geometry.IsWithinDistance), typeof(Geometry), typeof(double));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -104,14 +104,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         return _sqlExpressionFactory.Case(
                             new[]
                             {
-                            new CaseWhenClause(
-                                nullCheck,
-                                _sqlExpressionFactory.Function(
-                                    functionName,
-                                    finalArguments,
-                                    nullable: false,
-                                    finalArguments.Select(a => false),
-                                    method.ReturnType))
+                                new CaseWhenClause(
+                                    nullCheck,
+                                    _sqlExpressionFactory.Function(
+                                        functionName,
+                                        finalArguments,
+                                        nullable: false,
+                                        finalArguments.Select(a => false),
+                                        method.ReturnType))
                             },
                             null);
                     }
@@ -130,10 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         "GeometryN",
                         new[]
                         {
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant(1))
+                            instance,
+                            _sqlExpressionFactory.Add(
+                                arguments[0],
+                                _sqlExpressionFactory.Constant(1))
                         },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true, true },

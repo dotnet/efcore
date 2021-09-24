@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use SQL Server. It does not support all options.
-        ///         Use <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext"/> and related methods for full control of
+        ///         Use <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> and related methods for full control of
         ///         this process.
         ///     </para>
         ///     <para>
@@ -50,8 +50,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         To configure the <see cref="DbContextOptions{TContext}" /> for the context, either override the
-        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context, or supply 
-        ///         an optional action to configure the <see cref="DbContextOptions" /> for the context. 
+        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context, or supply
+        ///         an optional action to configure the <see cref="DbContextOptions" /> for the context.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
@@ -80,10 +80,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return serviceCollection.AddDbContext<TContext>(
                 (serviceProvider, options) =>
-                {
-                    optionsAction?.Invoke(options);
-                    options.UseSqlServer(connectionString, sqlServerOptionsAction);
-                });
+                    {
+                        optionsAction?.Invoke(options);
+                        options.UseSqlServer(connectionString, sqlServerOptionsAction);
+                    });
         }
 
         /// <summary>

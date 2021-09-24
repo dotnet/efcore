@@ -1506,7 +1506,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyColumnType">
         ///     The store type for the column that will be used to identify the rows that should be deleted.
-        ///  </param>
+        /// </param>
         /// <param name="keyValue"> The key value of the row to delete. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -1557,7 +1557,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
         /// <param name="keyColumnTypes">
         ///     The store types for the columns that will be used to identify the rows that should be deleted.
-        ///  </param>
+        /// </param>
         /// <param name="keyValues"> The key values of the row to delete, one value for each column in 'keyColumns'. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -1606,7 +1606,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyColumnType">
         ///     The store type for the column that will be used to identify the rows that should be deleted.
-        ///  </param>
+        /// </param>
         /// <param name="keyValues"> The key values of the rows to delete, one value per row. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
         /// <param name="keyColumnTypes">
         ///     The store types for the columns that will be used to identify the rows that should be deleted.
-        ///  </param>
+        /// </param>
         /// <param name="keyValues">
         ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.

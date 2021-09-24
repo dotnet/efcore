@@ -37,19 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        protected override void ProcessEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder,
+        protected override void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
             EntityTypeConfigurationAttribute attribute,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityTypeConfigurationType = attribute.EntityTypeConfigurationType;
 
-            if (!entityTypeConfigurationType.GetInterfaces().Any(x =>
-                x.IsGenericType
-                && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
-                && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
+            if (!entityTypeConfigurationType.GetInterfaces().Any(
+                x =>
+                    x.IsGenericType
+                    && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
+                    && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
             {
-                throw new InvalidOperationException(CoreStrings.InvalidEntityTypeConfigurationAttribute(
-                    entityTypeConfigurationType.ShortDisplayName(), entityTypeBuilder.Metadata.ShortName()));
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidEntityTypeConfigurationAttribute(
+                        entityTypeConfigurationType.ShortDisplayName(), entityTypeBuilder.Metadata.ShortName()));
             }
 
             _configureMethod.MakeGenericMethod(entityTypeBuilder.Metadata.ClrType)

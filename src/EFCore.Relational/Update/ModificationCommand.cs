@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 EntityState = entry.SharedIdentityEntry == null
                     ? entry.EntityState
                     : entry.SharedIdentityEntry.EntityType == entry.EntityType
-                        || entry.SharedIdentityEntry.EntityType.GetTableMappings()
+                    || entry.SharedIdentityEntry.EntityType.GetTableMappings()
                         .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
                         ? EntityState.Modified
                         : entry.EntityState;
@@ -298,8 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 var optionalDependentWithAllNull =
                     (entry.EntityState == EntityState.Deleted
                         || entry.EntityState == EntityState.Added)
-                        && tableMapping.Table.IsOptional(entry.EntityType)
-                        && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+                    && tableMapping.Table.IsOptional(entry.EntityType)
+                    && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {

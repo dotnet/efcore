@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            
+
             RelationalDependencies = relationalDependencies;
         }
 

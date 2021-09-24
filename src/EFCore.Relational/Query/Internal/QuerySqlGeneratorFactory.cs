@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public QuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
-            
+
             Dependencies = dependencies;
         }
 

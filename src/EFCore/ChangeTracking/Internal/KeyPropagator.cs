@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     generationProperty == property
                         ? entry.EntityType
                         : generationProperty?.DeclaringEntityType);
-                
+
                 if (valueGenerator != null)
                 {
                     var value = valueGenerator.Next(new EntityEntry(entry));
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     generationProperty == property
                         ? entry.EntityType
                         : generationProperty?.DeclaringEntityType);
-                
+
                 if (valueGenerator != null)
                 {
                     var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)

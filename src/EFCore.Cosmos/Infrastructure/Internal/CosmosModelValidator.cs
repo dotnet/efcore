@@ -180,7 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                         var conflictingEntityType = mappedTypes.First(et => et.GetAnalyticalStoreTimeToLive() != null);
                         throw new InvalidOperationException(
                             CosmosStrings.AnalyticalTTLMismatch(
-                                analyticalTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTTL, container));
+                                analyticalTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTTL,
+                                container));
                     }
                 }
 
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                         throw new InvalidOperationException(
                             CosmosStrings.ThroughputMismatch(
                                 throughput.AutoscaleMaxThroughput ?? throughput.Throughput, conflictingEntityType.DisplayName(),
-                                 entityType.DisplayName(), currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
+                                entityType.DisplayName(), currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
                                 container));
                     }
                     else if ((throughput.AutoscaleMaxThroughput == null)

@@ -38,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             typeof(RelationalSqlTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
 
         private static readonly MethodInfo _stringEqualsWithStringComparison
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(StringComparison));
 
         private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(string), typeof(StringComparison));
 
         private static readonly MethodInfo _objectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IModel _model;
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         typeof(double)),
                     sqlExpression.Type,
                     sqlExpression.TypeMapping)
-                : (SqlExpression)_sqlExpressionFactory.Function(
+                : _sqlExpressionFactory.Function(
                     "AVG",
                     new[] { sqlExpression },
                     nullable: true,
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         typeof(double)),
                     inputType,
                     sqlExpression.TypeMapping)
-                : (SqlExpression)_sqlExpressionFactory.Function(
+                : _sqlExpressionFactory.Function(
                     "SUM",
                     new[] { sqlExpression },
                     nullable: true,
@@ -356,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             uncheckedNodeTypeVariant,
                             sqlLeft!,
                             sqlRight!,
-                            null) ?? QueryCompilationContext.NotTranslatedExpression;
+                            null)
+                        ?? QueryCompilationContext.NotTranslatedExpression;
 
             static bool TryUnwrapConvertToObject(Expression expression, out Expression? operand)
             {
@@ -516,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? QueryCompilationContext.NotTranslatedExpression
                     : Dependencies.MemberTranslatorProvider.Translate(
                         sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger))
-                      ?? QueryCompilationContext.NotTranslatedExpression;
+                ?? QueryCompilationContext.NotTranslatedExpression;
         }
 
         /// <inheritdoc />
@@ -625,7 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var enumerable = Visit(methodCallExpression.Arguments[0]);
                 var item = Visit(methodCallExpression.Arguments[1]);
 
-                if (TryRewriteContainsEntity(enumerable,
+                if (TryRewriteContainsEntity(
+                    enumerable,
                     item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[1] : item, out var result))
                 {
                     return result;
@@ -647,7 +649,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var enumerable = Visit(methodCallExpression.Object);
                 var item = Visit(methodCallExpression.Arguments[0]);
 
-                if (TryRewriteContainsEntity(enumerable!,
+                if (TryRewriteContainsEntity(
+                    enumerable!,
                     item == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Arguments[0] : item, out var result))
                 {
                     return result;
@@ -789,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 ? _sqlExpressionFactory.Equal(
                                     entityProjectionExpression.DiscriminatorExpression!,
                                     _sqlExpressionFactory.Constant(discriminatorValues[0]))
-                                : (SqlExpression)_sqlExpressionFactory.In(
+                                : _sqlExpressionFactory.In(
                                     entityProjectionExpression.DiscriminatorExpression!,
                                     _sqlExpressionFactory.Constant(discriminatorValues),
                                     negated: false);
@@ -809,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     ? _sqlExpressionFactory.Equal(
                                         discriminatorColumn,
                                         _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                                    : (Expression)_sqlExpressionFactory.In(
+                                    : _sqlExpressionFactory.In(
                                         discriminatorColumn,
                                         _sqlExpressionFactory.Constant(
                                             concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
@@ -923,6 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     return null;
                 }
+
                 var entityProjectionExpression = (EntityProjectionExpression)valueBufferExpression;
                 var propertyAccess = entityProjectionExpression.BindProperty(property);
 
@@ -943,7 +947,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 SqlExpression? condition = null;
                 // Property is being shared with principal side, so we need to make it conditional access
-                var allRequiredNonPkPropertiesCondition = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                var allRequiredNonPkPropertiesCondition =
+                    entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                 if (allRequiredNonPkPropertiesCondition.Count > 0)
                 {
                     condition = allRequiredNonPkPropertiesCondition.Select(p => entityProjectionExpression.BindProperty(p))
@@ -1069,14 +1074,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nameof(Queryable.Contains), entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             if (primaryKeyProperties.Count > 1)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(nameof(Queryable.Contains), entityType.DisplayName()));
+                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
+                        nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             var property = primaryKeyProperties[0];
@@ -1128,7 +1135,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private bool TryRewriteEntityEquality(
-            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [NotNullWhen(true)] out Expression? result)
+            ExpressionType nodeType,
+            Expression left,
+            Expression right,
+            bool equalsMethod,
+            [NotNullWhen(true)] out Expression? result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1154,17 +1165,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (requiredNonPkProperties.Count > 0)
                     {
                         condition = requiredNonPkProperties.Select(
-                            p =>
-                            {
-                                var comparison = Expression.Call(
-                                    _objectEqualsMethodInfo,
-                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                                p =>
+                                    {
+                                        var comparison = Expression.Call(
+                                            _objectEqualsMethodInfo,
+                                            Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                            Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
-                                return nodeType == ExpressionType.Equal
-                                    ? (Expression)comparison
-                                    : Expression.Not(comparison);
-                            })
+                                        return nodeType == ExpressionType.Equal
+                                            ? (Expression)comparison
+                                            : Expression.Not(comparison);
+                                    })
                             .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
                     }
 
@@ -1176,16 +1187,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
                             .Select(
                                 p =>
-                                {
-                                    var comparison = Expression.Call(
-                                        _objectEqualsMethodInfo,
-                                        Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                        Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                                    {
+                                        var comparison = Expression.Call(
+                                            _objectEqualsMethodInfo,
+                                            Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                            Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
-                                    return nodeType == ExpressionType.Equal
-                                        ? (Expression)comparison
-                                        : Expression.Not(comparison);
-                                })
+                                        return nodeType == ExpressionType.Equal
+                                            ? (Expression)comparison
+                                            : Expression.Not(comparison);
+                                    })
                             .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
 
                         condition = condition == null
@@ -1208,26 +1219,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
                 if (primaryKeyProperties1 == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                        nodeType == ExpressionType.Equal
-                            ? equalsMethod ? nameof(object.Equals) : "=="
-                            : equalsMethod ? "!" + nameof(object.Equals) : "!=",
-                        entityType1.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                            nodeType == ExpressionType.Equal
+                                ? equalsMethod ? nameof(object.Equals) : "=="
+                                : equalsMethod
+                                    ? "!" + nameof(object.Equals)
+                                    : "!=",
+                            entityType1.DisplayName()));
                 }
 
                 result = Visit(
                     primaryKeyProperties1.Select(
                         p =>
-                        {
-                            var comparison = Expression.Call(
-                                _objectEqualsMethodInfo,
-                                Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                            {
+                                var comparison = Expression.Call(
+                                    _objectEqualsMethodInfo,
+                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
-                            return nodeType == ExpressionType.Equal
-                                ? (Expression)comparison
-                                : Expression.Not(comparison);
-                        }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                                return nodeType == ExpressionType.Equal
+                                    ? (Expression)comparison
+                                    : Expression.Not(comparison);
+                            }).Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
 
                 return true;
             }
@@ -1249,37 +1263,44 @@ namespace Microsoft.EntityFrameworkCore.Query
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod ? "!" + nameof(object.Equals) : "!=",
-                    entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod
+                                ? "!" + nameof(object.Equals)
+                                : "!=",
+                        entityType.DisplayName()));
             }
 
             if (primaryKeyProperties.Count > 1
                 && (leftEntityReference?.SubqueryEntity != null
                     || rightEntityReference?.SubqueryEntity != null))
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod ? "!" + nameof(object.Equals) : "!=",
-                    entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod
+                                ? "!" + nameof(object.Equals)
+                                : "!=",
+                        entityType.DisplayName()));
             }
 
             result = Visit(
                 primaryKeyProperties.Select(
                     p =>
-                    {
-                        var comparison = Expression.Call(
-                            _objectEqualsMethodInfo,
-                            Expression.Convert(CreatePropertyAccessExpression(left, p), typeof(object)),
-                            Expression.Convert(CreatePropertyAccessExpression(right, p), typeof(object)));
+                        {
+                            var comparison = Expression.Call(
+                                _objectEqualsMethodInfo,
+                                Expression.Convert(CreatePropertyAccessExpression(left, p), typeof(object)),
+                                Expression.Convert(CreatePropertyAccessExpression(right, p), typeof(object)));
 
-                        return nodeType == ExpressionType.Equal
-                            ? (Expression)comparison
-                            : Expression.Not(comparison);
-                    }).Aggregate((l, r) => nodeType == ExpressionType.Equal
+                            return nodeType == ExpressionType.Equal
+                                ? (Expression)comparison
+                                : Expression.Not(comparison);
+                        }).Aggregate(
+                    (l, r) => nodeType == ExpressionType.Equal
                         ? Expression.AndAlso(l, r)
                         : Expression.OrElse(l, r)));
 

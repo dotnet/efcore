@@ -74,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         {
             foreach (IConventionProperty property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                .Where(
+                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
                 var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -281,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.TemporalPeriodPropertyMustBeMappedToDatetime2(
-                        temporalEntityType.DisplayName(),  periodProperty.Name, expectedPeriodColumnName));
+                        temporalEntityType.DisplayName(), periodProperty.Name, expectedPeriodColumnName));
             }
 
             if (periodProperty.TryGetDefaultValue(out var _))
@@ -296,19 +297,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                 var storeObjectIdentifier = StoreObjectIdentifier.Table(tableName, temporalEntityType.GetSchema());
                 var periodColumnName = periodProperty.GetColumnName(storeObjectIdentifier);
 
-                var propertiesMappedToPeriodColumn = temporalEntityType.GetProperties().Where(p => p.Name != periodProperty.Name && p.GetColumnName(storeObjectIdentifier) == periodColumnName).ToList();
+                var propertiesMappedToPeriodColumn = temporalEntityType.GetProperties().Where(
+                    p => p.Name != periodProperty.Name && p.GetColumnName(storeObjectIdentifier) == periodColumnName).ToList();
                 foreach (var propertyMappedToPeriodColumn in propertiesMappedToPeriodColumn)
                 {
                     if (propertyMappedToPeriodColumn.ValueGenerated != ValueGenerated.OnAddOrUpdate)
                     {
-                        throw new InvalidOperationException(SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name, nameof(ValueGenerated.OnAddOrUpdate)));
+                        throw new InvalidOperationException(
+                            SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
+                                temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name, nameof(ValueGenerated.OnAddOrUpdate)));
                     }
 
                     if (propertyMappedToPeriodColumn.TryGetDefaultValue(out var _))
                     {
-                        throw new InvalidOperationException(SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name));
+                        throw new InvalidOperationException(
+                            SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
+                                temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name));
                     }
                 }
             }
@@ -344,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 
             if (mappedTypes.Any(t => t.IsTemporal())
                 && mappedTypes.Select(t => t.GetRootType()).Distinct().Count() > 1)
-            { 
+            {
                 throw new InvalidOperationException(SqlServerStrings.TemporalNotSupportedForTableSplitting(tableName));
             }
 
@@ -404,11 +408,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             {
                 var isConflicting = ((IConventionProperty)property)
                     .FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)
-                    ?.GetConfigurationSource() == ConfigurationSource.Explicit
+                    ?.GetConfigurationSource()
+                    == ConfigurationSource.Explicit
                     || propertyStrategy != SqlServerValueGenerationStrategy.None;
                 var isDuplicateConflicting = ((IConventionProperty)duplicateProperty)
                     .FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)
-                    ?.GetConfigurationSource() == ConfigurationSource.Explicit
+                    ?.GetConfigurationSource()
+                    == ConfigurationSource.Explicit
                     || duplicatePropertyStrategy != SqlServerValueGenerationStrategy.None;
 
                 if (isConflicting && isDuplicateConflicting)

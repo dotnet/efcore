@@ -368,8 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static Expression CreateEFPropertyExpression(
             this Expression target,
             IPropertyBase property,
-            bool makeNullable = true)
-            // No shadow entities in runtime
+            bool makeNullable = true) // No shadow entities in runtime
             => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
 
         private static Expression CreateEFPropertyExpression(

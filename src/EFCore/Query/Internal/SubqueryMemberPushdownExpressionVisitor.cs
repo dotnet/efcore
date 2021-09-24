@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return PushdownMember(
                     methodCallExpression,
                     (target, nullable) =>
-                    {
-                        var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
+                        {
+                            var memberAccessExpression = Expression.MakeMemberAccess(target, memberExpression.Member);
 
-                        return nullable && !memberAccessExpression.Type.IsNullableType()
-                            ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
-                            : (Expression)memberAccessExpression;
-                    },
+                            return nullable && !memberAccessExpression.Type.IsNullableType()
+                                ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
+                                : (Expression)memberAccessExpression;
+                        },
                     memberExpression.Type);
             }
 
@@ -112,18 +112,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return PushdownMember(
                         innerMethodCall,
                         (target, nullable) =>
-                        {
-                            var propertyType = methodCallExpression.Type;
-                            if (nullable && !propertyType.IsNullableType())
                             {
-                                propertyType = propertyType.MakeNullable();
-                            }
+                                var propertyType = methodCallExpression.Type;
+                                if (nullable && !propertyType.IsNullableType())
+                                {
+                                    propertyType = propertyType.MakeNullable();
+                                }
 
-                            return Expression.Call(
-                                EF.PropertyMethod.MakeGenericMethod(propertyType),
-                                target,
-                                methodCallExpression.Arguments[1]);
-                        },
+                                return Expression.Call(
+                                    EF.PropertyMethod.MakeGenericMethod(propertyType),
+                                    target,
+                                    methodCallExpression.Arguments[1]);
+                            },
                         methodCallExpression.Type);
                 }
             }
@@ -139,21 +139,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return PushdownMember(
                         innerMethodCall,
                         (target, nullable) =>
-                        {
-                            var propertyType = methodCallExpression.Type;
-                            if (nullable && !propertyType.IsNullableType())
                             {
-                                propertyType = propertyType.MakeNullable();
-                            }
+                                var propertyType = methodCallExpression.Type;
+                                if (nullable && !propertyType.IsNullableType())
+                                {
+                                    propertyType = propertyType.MakeNullable();
+                                }
 
-                            var indexerExpression = Expression.Call(
-                                target,
-                                methodCallExpression.Method, methodCallExpression.Arguments[0]);
+                                var indexerExpression = Expression.Call(
+                                    target,
+                                    methodCallExpression.Method, methodCallExpression.Arguments[0]);
 
-                            return nullable && !indexerExpression.Type.IsNullableType()
-                                ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
-                                : (Expression)indexerExpression;
-                        },
+                                return nullable && !indexerExpression.Type.IsNullableType()
+                                    ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
+                                    : (Expression)indexerExpression;
+                            },
                         methodCallExpression.Type);
                 }
             }

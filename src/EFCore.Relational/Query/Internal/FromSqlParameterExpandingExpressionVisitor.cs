@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-            
+
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _typeMappingSource = dependencies.TypeMappingSource;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -49,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var prefix = $"CK_{storeObject.Name}_";
             return Uniquifier.Truncate(
-                ModelName.StartsWith(prefix, System.StringComparison.Ordinal)
+                ModelName.StartsWith(prefix, StringComparison.Ordinal)
                     ? ModelName
                     : prefix + ModelName,
                 EntityType.Model.GetMaxIdentifierLength());

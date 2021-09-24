@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -681,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return CurrentValueType.Normal;
             }
 
-            @equals ??= ValuesEqualFunc(property);
+            equals ??= ValuesEqualFunc(property);
             var defaultValue = property.ClrType.GetDefaultValue();
             var value = ReadPropertyValue(property);
             if (!equals(value, defaultValue))
@@ -1030,7 +1029,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // If setting the original value results in the current value being different from the
             // original value, then mark the property as modified.
             if ((EntityState == EntityState.Unchanged
-                || (EntityState == EntityState.Modified && !IsModified(property)))
+                    || (EntityState == EntityState.Modified && !IsModified(property)))
                 && !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
             {
                 ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
@@ -1352,6 +1351,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             {
                                 SetOriginalValue(propertyBase, value);
                             }
+
                             _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
                         }
                     }
@@ -1377,7 +1377,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public void HandleNullForeignKey(
             IProperty property,
-            bool setModified = false, 
+            bool setModified = false,
             bool isCascadeDelete = false)
         {
             if (EntityState != EntityState.Deleted
@@ -1946,7 +1946,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public DebugView DebugView
             => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+                () => this.ToDebugString());
 
         IUpdateEntry? IUpdateEntry.SharedIdentityEntry
             => SharedIdentityEntry;

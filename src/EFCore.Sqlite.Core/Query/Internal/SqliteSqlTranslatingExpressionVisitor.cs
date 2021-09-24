@@ -316,9 +316,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static Type? GetProviderType(SqlExpression? expression)
             => expression == null
                 ? null
-                : expression.TypeMapping?.Converter?.ProviderClrType
-                ?? expression.TypeMapping?.ClrType
-                ?? expression.Type;
+                : (expression.TypeMapping?.Converter?.ProviderClrType
+                    ?? expression.TypeMapping?.ClrType
+                    ?? expression.Type);
 
         private static bool AreOperandsDecimals(SqlBinaryExpression sqlExpression)
             => GetProviderType(sqlExpression.Left) == typeof(decimal)

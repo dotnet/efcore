@@ -20,23 +20,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _addMilliseconds
-            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) });
+            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMilliseconds), typeof(double));
 
         private static readonly MethodInfo _addTicks
-            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) });
+            = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddTicks), typeof(long));
 
         private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
         {
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), " years" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), " months" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), " days" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), " hours" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), " minutes" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), typeof(int)), " years" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), typeof(int)), " months" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), typeof(double)), " days" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), typeof(double)), " hours" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), typeof(double)), " minutes" },
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), typeof(double)), " seconds" },
 
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), new[] { typeof(int) }), " years" },
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), new[] { typeof(int) }), " months" },
-            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), new[] { typeof(int) }), " days" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), typeof(int)), " years" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), typeof(int)), " months" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), typeof(int)), " days" },
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

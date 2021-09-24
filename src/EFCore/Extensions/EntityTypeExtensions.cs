@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The full name. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use Name property")]
-        public static string FullName(this ITypeBase type) => type.Name;
+        public static string FullName(this ITypeBase type)
+            => type.Name;
 
         /// <summary>
         ///     Gets a value indicating whether this entity type has a defining navigation.
@@ -88,8 +89,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [Obsolete("Use IReadOnlyEntityType.FindClosestCommonParent")]
         public static IEntityType? GetClosestCommonParent(
-            this IEntityType entityType1, IEntityType entityType2)
-            => (IEntityType?)entityType1.FindClosestCommonParent(entityType2);
+            this IEntityType entityType1,
+            IEntityType entityType2)
+            => entityType1.FindClosestCommonParent(entityType2);
 
         /// <summary>
         ///     Returns the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.

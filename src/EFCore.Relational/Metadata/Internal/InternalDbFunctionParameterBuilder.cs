@@ -128,7 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasStoreType(string? storeType, bool fromDataAnnotation)
+        IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasStoreType(
+            string? storeType,
+            bool fromDataAnnotation)
             => HasStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<IForeignKeyAnnotationChangedConvention>();
 
         /// <summary>
-        ///     Conventions to run when a navigation is set to <see langword="null"/> on a foreign key.
+        ///     Conventions to run when a navigation is set to <see langword="null" /> on a foreign key.
         /// </summary>
         public virtual IList<IForeignKeyNullNavigationSetConvention> ForeignKeyNullNavigationSetConventions { get; }
             = new List<IForeignKeyNullNavigationSetConvention>();

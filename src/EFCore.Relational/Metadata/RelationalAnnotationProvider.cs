@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalAnnotationProviderDependencies Dependencies { get; }
-        
+
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
             => Enumerable.Empty<IAnnotation>();

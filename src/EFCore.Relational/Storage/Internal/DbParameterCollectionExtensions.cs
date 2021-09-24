@@ -213,6 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                             .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
                             .Append('\'');
                     }
+
                     return;
             }
         }

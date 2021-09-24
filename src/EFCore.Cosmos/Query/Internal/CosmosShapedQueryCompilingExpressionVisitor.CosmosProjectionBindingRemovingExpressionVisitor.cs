@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
                 => projectionBindingExpression.ProjectionMember != null
                     ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
-                    : projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+                    : (projectionBindingExpression.Index
+                        ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print())));
         }
     }
 }

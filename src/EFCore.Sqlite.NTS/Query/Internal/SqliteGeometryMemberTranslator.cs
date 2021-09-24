@@ -77,17 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         ? _sqlExpressionFactory.Case(
                             new[]
                             {
-                            new CaseWhenClause(
-                                _sqlExpressionFactory.IsNotNull(instance),
-                                _sqlExpressionFactory.Function(
-                                    functionName,
-                                    new[] { instance },
-                                    nullable: false,
-                                    argumentsPropagateNullability: new[] { false },
-                                    returnType))
+                                new CaseWhenClause(
+                                    _sqlExpressionFactory.IsNotNull(instance),
+                                    _sqlExpressionFactory.Function(
+                                        functionName,
+                                        new[] { instance },
+                                        nullable: false,
+                                        argumentsPropagateNullability: new[] { false },
+                                        returnType))
                             },
                             null)
-                        : (SqlExpression)_sqlExpressionFactory.Function(
+                        : _sqlExpressionFactory.Function(
                             functionName,
                             new[] { instance },
                             nullable: true,
@@ -102,13 +102,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             "rtrim",
                             new SqlExpression[]
                             {
-                            _sqlExpressionFactory.Function(
-                                "GeometryType",
-                                new[] { instance },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                returnType),
-                            _sqlExpressionFactory.Constant(" ZM")
+                                _sqlExpressionFactory.Function(
+                                    "GeometryType",
+                                    new[] { instance },
+                                    nullable: true,
+                                    argumentsPropagateNullability: new[] { true },
+                                    returnType),
+                                _sqlExpressionFactory.Constant(" ZM")
                             },
                             nullable: true,
                             argumentsPropagateNullability: new[] { true },
@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant("MultiPoint")),
                             new CaseWhenClause(
                                 _sqlExpressionFactory.Constant("MULTILINESTRING"), _sqlExpressionFactory.Constant("MultiLineString")),
-                            new CaseWhenClause(_sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant("MultiPolygon")),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant("MultiPolygon")),
                             new CaseWhenClause(
                                 _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"), _sqlExpressionFactory.Constant("GeometryCollection"))
                         },
@@ -135,20 +136,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             "rtrim",
                             new SqlExpression[]
                             {
-                            _sqlExpressionFactory.Function(
-                                "GeometryType",
-                                new[] { instance },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                typeof(string)),
-                            _sqlExpressionFactory.Constant(" ZM")
+                                _sqlExpressionFactory.Function(
+                                    "GeometryType",
+                                    new[] { instance },
+                                    nullable: true,
+                                    argumentsPropagateNullability: new[] { true },
+                                    typeof(string)),
+                                _sqlExpressionFactory.Constant(" ZM")
                             },
                             nullable: true,
                             argumentsPropagateNullability: new[] { true },
                             typeof(string)),
                         new[]
                         {
-                            new CaseWhenClause(_sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
                             new CaseWhenClause(
                                 _sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
                             new CaseWhenClause(
@@ -159,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                 _sqlExpressionFactory.Constant("MULTILINESTRING"),
                                 _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
                             new CaseWhenClause(
-                                _sqlExpressionFactory.Constant("MULTIPOLYGON"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
+                                _sqlExpressionFactory.Constant("MULTIPOLYGON"),
+                                _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
                             new CaseWhenClause(
                                 _sqlExpressionFactory.Constant("GEOMETRYCOLLECTION"),
                                 _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection))

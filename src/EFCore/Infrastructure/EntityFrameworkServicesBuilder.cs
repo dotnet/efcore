@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     for more information.
         /// </remarks>
         /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null"/> if it's not an EF service. </returns>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service. </returns>
         protected virtual ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
             => !CoreServices.TryGetValue(serviceType, out var characteristics)
                 ? null
@@ -230,12 +230,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(serviceMap, nameof(serviceMap));
 
             ServiceCollectionMap.Validate = serviceType =>
-            {
-                if (TryGetServiceCharacteristics(serviceType) != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NotAProviderService(serviceType.Name));
-                }
-            };
+                    if (TryGetServiceCharacteristics(serviceType) != null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NotAProviderService(serviceType.Name));
+                    }
+                };
 
             serviceMap(ServiceCollectionMap);
 

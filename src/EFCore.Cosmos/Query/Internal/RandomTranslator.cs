@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class RandomTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+        private static readonly MethodInfo _methodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>

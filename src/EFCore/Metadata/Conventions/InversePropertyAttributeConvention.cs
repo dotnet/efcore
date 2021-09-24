@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var targetEntityType = targetEntityTypeBuilder.Metadata;
             var targetClrType = targetEntityType.ClrType;
             var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property))
+                    .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property))
                 ?? targetEntityType.GetRuntimeProperties().Values
                     .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
@@ -528,7 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             InversePropertyAttribute attribute,
             IConventionContext<string> context)
         {
-            var targetEntityType = TryGetTargetEntityTypeBuilder(entityTypeBuilder,
+            var targetEntityType = TryGetTargetEntityTypeBuilder(
+                entityTypeBuilder,
                 targetClrType, navigationMemberInfo, shouldCreate: false)?.Metadata;
             if (targetEntityType == null)
             {
@@ -783,10 +784,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
                 else if (referencingTuple.Item1.IsSameAs(navigation)
-                  && ((!referencingTuple.Item2.IsInModel
-                      && declaringType!.IsAssignableFrom(referencingTuple.Item2.ClrType))
-                      || (referencingTuple.Item2.IsInModel
-                          && declaringEntityType!.IsAssignableFrom(referencingTuple.Item2))))
+                    && ((!referencingTuple.Item2.IsInModel
+                            && declaringType!.IsAssignableFrom(referencingTuple.Item2.ClrType))
+                        || (referencingTuple.Item2.IsInModel
+                            && declaringEntityType!.IsAssignableFrom(referencingTuple.Item2))))
                 {
                     anyRemoved = true;
                     referencingNavigationsWithAttribute.RemoveAt(index--);
@@ -822,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="targetClrType"> The CLR type of the target entity type. </param>
         /// <param name="navigationMemberInfo"> The navigation member. </param>
         /// <param name="shouldCreate"> Whether an entity type should be created if one doesn't currently exist. </param>
-        /// <returns> The builder for the target entity type or <see langword="null"/> if it can't be created. </returns>
+        /// <returns> The builder for the target entity type or <see langword="null" /> if it can't be created. </returns>
         protected virtual IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
             IConventionEntityTypeBuilder entityTypeBuilder,
             Type targetClrType,

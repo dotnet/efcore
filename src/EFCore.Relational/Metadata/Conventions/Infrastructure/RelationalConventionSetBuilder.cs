@@ -90,6 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
             ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
+
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
 
             conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);

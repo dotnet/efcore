@@ -350,7 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if the given type is marked as owned,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        bool IsOwned(Type type) => FindIsOwnedConfigurationSource(type) != null;
+        bool IsOwned(Type type)
+            => FindIsOwnedConfigurationSource(type) != null;
 
         /// <summary>
         ///     Returns the configuration source if the given type is marked as owned.
@@ -401,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Indicates whether entity types and properties with the given type should be ignored.
-        ///     This configuration is independent from <see cref="IsIgnored(Type)"/>
+        ///     This configuration is independent from <see cref="IsIgnored(Type)" />
         /// </summary>
         /// <param name="type"> The entity type that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type is ignored. </returns>

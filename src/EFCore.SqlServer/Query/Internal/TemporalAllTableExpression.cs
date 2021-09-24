@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         /// <inheritdoc />
-        public override TableExpressionBase Clone() => new TemporalAllTableExpression(Name, Schema, Alias);
+        public override TableExpressionBase Clone()
+            => new TemporalAllTableExpression(Name, Schema, Alias);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)

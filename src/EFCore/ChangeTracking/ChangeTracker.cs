@@ -279,16 +279,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 rootEntity,
                 callback,
                 n =>
-                {
-                    if (n.Entry.State != EntityState.Detached)
                     {
-                        return false;
-                    }
+                        if (n.Entry.State != EntityState.Detached)
+                        {
+                            return false;
+                        }
 
-                    n.NodeState!(n);
+                        n.NodeState!(n);
 
-                    return n.Entry.State != EntityState.Detached;
-                });
+                        return n.Entry.State != EntityState.Detached;
+                    });
 
         /// <summary>
         ///     <para>
@@ -457,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual DebugView DebugView
             => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+                () => this.ToDebugString());
 
         #region Hidden System.Object members
 

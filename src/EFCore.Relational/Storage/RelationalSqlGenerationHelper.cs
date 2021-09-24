@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Dependencies = dependencies;
         }
-        
+
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>

@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return Dependencies.SqlExpressionFactory.Convert(
                         Dependencies.SqlExpressionFactory.Function(
                             "SUBSTRING",
-                            new SqlExpression[]
+                            new[]
                             {
                                 leftSql,
                                 Dependencies.SqlExpressionFactory.Add(
@@ -91,11 +91,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : visitedExpression is SqlBinaryExpression sqlBinary
-                    && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                    && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                        || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                        ? QueryCompilationContext.NotTranslatedExpression
-                        : visitedExpression;
+                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                    ? QueryCompilationContext.NotTranslatedExpression
+                    : visitedExpression;
         }
 
         /// <summary>

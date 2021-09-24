@@ -62,12 +62,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override SelectExpression ProcessSqlNullability(
             SelectExpression selectExpression,
-            IReadOnlyDictionary<string, object?> parametersValues, out bool canCache)
+            IReadOnlyDictionary<string, object?> parametersValues,
+            out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
+            return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
+                selectExpression, parametersValues, out canCache);
         }
     }
 }

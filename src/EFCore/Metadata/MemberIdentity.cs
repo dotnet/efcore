@@ -83,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public string? Name
         {
-            [DebuggerStepThrough] get => MemberInfo?.GetSimpleMemberName() ?? (string?)_nameOrMember;
+            [DebuggerStepThrough]
+            get => MemberInfo?.GetSimpleMemberName() ?? (string?)_nameOrMember;
         }
 
         /// <summary>
@@ -91,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public MemberInfo? MemberInfo
         {
-            [DebuggerStepThrough] get => _nameOrMember as MemberInfo;
+            [DebuggerStepThrough]
+            get => _nameOrMember as MemberInfo;
         }
 
         private string DebuggerDisplay()

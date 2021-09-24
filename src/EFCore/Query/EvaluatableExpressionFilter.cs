@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -52,10 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int));
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int), typeof(int));
 
         /// <summary>
         ///     <para>

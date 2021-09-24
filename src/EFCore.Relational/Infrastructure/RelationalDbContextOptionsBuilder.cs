@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
         /// </remarks>
         /// <remarks>
-        ///     <para>This sets the <see cref="DbCommand.CommandTimeout"/> property on the ADO.NET provider being used.</para>
-        ///     <para>An <see cref="ArgumentException"/> is generated if <paramref name="commandTimeout"/> value is less than 0.</para>
+        ///     <para>This sets the <see cref="DbCommand.CommandTimeout" /> property on the ADO.NET provider being used.</para>
+        ///     <para>An <see cref="ArgumentException" /> is generated if <paramref name="commandTimeout" /> value is less than 0.</para>
         ///     <para>Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.</para>
         /// </remarks>
         /// <param name="commandTimeout"> The time in seconds to wait for the command to execute. </param>

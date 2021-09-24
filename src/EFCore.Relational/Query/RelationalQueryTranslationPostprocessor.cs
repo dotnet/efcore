@@ -52,7 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
             query = new SelectExpressionPruningExpressionVisitor().Visit(query);
-            query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls).Visit(query);
+            query =
+                new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
+                    .Visit(query);
             query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
 #pragma warning disable 618
@@ -115,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var result = Visit(expression);
 
-                    foreach (var group in _usedAliases.GroupBy(e => e[0..1]))
+                    foreach (var group in _usedAliases.GroupBy(e => e[..1]))
                     {
                         if (group.Count() == 1)
                         {
@@ -144,6 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             throw new InvalidOperationException($"Duplicate alias: {tableExpressionBase.Alias}");
                         }
+
                         _usedAliases.Add(tableExpressionBase.Alias);
 
                         _visitedTableExpressionBases.Add(tableExpressionBase);

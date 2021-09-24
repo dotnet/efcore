@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteStringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _indexOfMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
 
         private static readonly MethodInfo _replaceMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
         private static readonly MethodInfo _toLowerMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
@@ -34,51 +34,51 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
         private static readonly MethodInfo _substringMethodInfoWithOneArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int));
 
         private static readonly MethodInfo _substringMethodInfoWithTwoArgs
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int), typeof(int));
 
         private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), typeof(string));
 
         // Method defined in netcoreapp2.0 only
         private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
 
         private static readonly MethodInfo _trimStartMethodInfoWithCharArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char));
 
         private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
 
         private static readonly MethodInfo _trimEndMethodInfoWithCharArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char));
 
         private static readonly MethodInfo _trimMethodInfoWithoutArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
         private static readonly MethodInfo _trimMethodInfoWithCharArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char));
 
         // Method defined in netstandard2.0
         private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char[]));
 
         private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char[]));
 
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char[]));
 
         private static readonly MethodInfo _startsWithMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
         private static readonly MethodInfo _containsMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), typeof(string));
 
         private static readonly MethodInfo _endsWithMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
@@ -151,9 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         "replace",
                         new[]
                         {
-                        _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(firstArgument, stringTypeMapping),
-                        _sqlExpressionFactory.ApplyTypeMapping(secondArgument, stringTypeMapping)
+                            _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping),
+                            _sqlExpressionFactory.ApplyTypeMapping(firstArgument, stringTypeMapping),
+                            _sqlExpressionFactory.ApplyTypeMapping(secondArgument, stringTypeMapping)
                         },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true, true, true },

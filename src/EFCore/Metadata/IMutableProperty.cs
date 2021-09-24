@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="converterType">
-        ///     A type that derives from <see cref="ValueConverter"/>, or <see langword="null" /> to remove any previously set converter.
+        ///     A type that derives from <see cref="ValueConverter" />, or <see langword="null" /> to remove any previously set converter.
         /// </param>
         void SetValueConverter(Type? converterType);
 
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="comparerType">
-        ///     A type that derives from <see cref="ValueComparer"/>, or <see langword="null" /> to remove any previously set comparer.
+        ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
         /// </param>
         void SetValueComparer(Type? comparerType);
     }

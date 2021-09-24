@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPropertyOverrides
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RuntimeRelationalPropertyOverrides"/> class.
+        ///     Initializes a new instance of the <see cref="RuntimeRelationalPropertyOverrides" /> class.
         /// </summary>
         /// <param name="property"> The property for which the overrides are applied. </param>
         /// <param name="columnNameOverriden"> Whether the column name is overridden. </param>
@@ -38,21 +38,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual RuntimeProperty Property { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IProperty IRelationalPropertyOverrides.Property
         {
             [DebuggerStepThrough]
             get => Property;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         string? IRelationalPropertyOverrides.ColumnName
         {
             [DebuggerStepThrough]
             get => (string?)this[RelationalAnnotationNames.ColumnName];
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         bool IRelationalPropertyOverrides.ColumnNameOverriden
         {
             [DebuggerStepThrough]

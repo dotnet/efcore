@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             {
                 if (successorSet.TryGetValue(to, out var edges))
                 {
-                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new TEdge[] { (TEdge)edges!  });
+                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new[] { (TEdge)edges! });
                 }
             }
 
@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     edgeList = new List<TEdge> { (TEdge)edges! };
                     successorEdges[to] = edgeList;
                 }
+
                 edgeList.Add(edge);
             }
             else
@@ -106,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     edgeList = new List<TEdge> { (TEdge)edges! };
                     successorEdges[to] = edgeList;
                 }
+
                 edgeList.AddRange(newEdges);
             }
             else
@@ -200,8 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                         // Find a vertex in the unsorted portion of the graph that has edges to the candidate
                         var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
-                            .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
-                                && neighborPredecessors > 0);
+                            .First(
+                                neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                    && neighborPredecessors > 0);
 
                         if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {
@@ -374,8 +377,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                         // Find a vertex in the unsorted portion of the graph that has edges to the candidate
                         var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
-                            .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
-                                && neighborPredecessors > 0);
+                            .First(
+                                neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                    && neighborPredecessors > 0);
 
                         if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {

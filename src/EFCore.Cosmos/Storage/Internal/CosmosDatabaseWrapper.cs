@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
@@ -19,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using Database = Microsoft.EntityFrameworkCore.Storage.Database;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class CosmosDatabaseWrapper : EntityFrameworkCore.Storage.Database
+    public class CosmosDatabaseWrapper : Database
     {
         private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
 
@@ -385,9 +385,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             return exception switch
             {
-                CosmosException { StatusCode : HttpStatusCode.PreconditionFailed }
+                CosmosException { StatusCode: HttpStatusCode.PreconditionFailed }
                     => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                CosmosException { StatusCode : HttpStatusCode.Conflict }
+                CosmosException { StatusCode: HttpStatusCode.Conflict }
                     => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
                 _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, new[] { entry })
             };

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -1815,15 +1814,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                         return await relationalCommand.ExecuteReaderAsync(
-                            new RelationalCommandParameterObject(
-                                queryContext.Connection,
-                                queryContext.ParameterValues,
-                                relationalCommandCache.ReaderColumns,
-                                queryContext.Context,
-                                queryContext.CommandLogger,
-                                detailedErrorsEnabled, 
-                                CommandSource.LinqQuery),
-                            cancellationToken)
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger,
+                                    detailedErrorsEnabled,
+                                    CommandSource.LinqQuery),
+                                cancellationToken)
                             .ConfigureAwait(false);
                     }
 

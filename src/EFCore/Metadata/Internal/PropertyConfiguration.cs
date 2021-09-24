@@ -92,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             property.SetAnnotation(annotation.Name, annotation.Value);
                         }
+
                         break;
                 }
             }

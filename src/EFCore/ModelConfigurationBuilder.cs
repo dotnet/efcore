@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
     /// </remarks>
     public class ModelConfigurationBuilder
     {
@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual ModelConfiguration ModelConfiguration => _modelConfiguration;
+        protected virtual ModelConfiguration ModelConfiguration
+            => _modelConfiguration;
 
         /// <summary>
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
@@ -191,11 +192,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         to be used in queries that are not referencing property of this type.
         ///     </para>
         ///     <para>
-        ///         Unlike <see cref="Properties{TProperty}()"/> this method should only be called on a non-nullable concrete type.
+        ///         Unlike <see cref="Properties{TProperty}()" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
         ///     </para>
         ///     <para>
-        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()"/>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()" />
         ///         should be enough in most cases.
         ///     </para>
         /// </summary>
@@ -217,11 +218,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         to be used in queries that are not referencing property of this type.
         ///     </para>
         ///     <para>
-        ///         Unlike <see cref="Properties{TProperty}()"/> this method should only be called on a non-nullable concrete type.
+        ///         Unlike <see cref="Properties{TProperty}()" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
         ///     </para>
         ///     <para>
-        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()"/>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()" />
         ///         should be enough in most cases.
         ///     </para>
         /// </summary>
@@ -250,11 +251,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         to be used in queries that are not referencing property of this type.
         ///     </para>
         ///     <para>
-        ///         Unlike <see cref="Properties(Type)"/> this method should only be called on a non-nullable concrete type.
+        ///         Unlike <see cref="Properties(Type)" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
         ///     </para>
         ///     <para>
-        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)"/>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)" />
         ///         should be enough in most cases.
         ///     </para>
         /// </summary>
@@ -278,11 +279,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         to be used in queries that are not referencing property of this type.
         ///     </para>
         ///     <para>
-        ///         Unlike <see cref="Properties(Type)"/> this method should only be called on a non-nullable concrete type.
+        ///         Unlike <see cref="Properties(Type)" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
         ///     </para>
         ///     <para>
-        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)"/>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)" />
         ///         should be enough in most cases.
         ///     </para>
         /// </summary>

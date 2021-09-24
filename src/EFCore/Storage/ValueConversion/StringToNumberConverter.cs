@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : this(null)
         {
         }
+
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>

@@ -23,57 +23,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly MethodInfo _dateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.DateFromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) });
+                nameof(SqlServerDbFunctionsExtensions.DateFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int));
 
         private static readonly MethodInfo _dateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
+                nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
+                typeof(int), typeof(int), typeof(int), typeof(int));
 
         private static readonly MethodInfo _dateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
-                new[]
-                {
-                    typeof(DbFunctions),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int)
-                });
+                nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
+                typeof(int), typeof(int), typeof(int), typeof(int), typeof(int));
 
         private static readonly MethodInfo _dateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
-                new[]
-                {
-                    typeof(DbFunctions),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int),
-                    typeof(int)
-                });
+                nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
+                typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int));
 
         private static readonly MethodInfo _smallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
+                nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
+                typeof(int), typeof(int));
 
         private static readonly MethodInfo _timeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
             .GetRequiredRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
-                new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
+                nameof(SqlServerDbFunctionsExtensions.TimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
+                typeof(int), typeof(int));
 
         private static readonly IDictionary<MethodInfo, (string FunctionName, string ReturnType)> _methodFunctionMapping
             = new Dictionary<MethodInfo, (string, string)>

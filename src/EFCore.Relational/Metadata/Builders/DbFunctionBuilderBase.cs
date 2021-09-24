@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         IConventionDbFunctionBuilder IInfrastructure<IConventionDbFunctionBuilder>.Instance
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>

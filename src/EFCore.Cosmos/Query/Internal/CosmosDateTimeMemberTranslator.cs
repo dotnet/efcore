@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var declaringType = member.DeclaringType;
             if ((declaringType == typeof(DateTime)
-                || declaringType == typeof(DateTimeOffset))
+                    || declaringType == typeof(DateTimeOffset))
                 && member.Name == nameof(DateTime.UtcNow))
             {
                 return _sqlExpressionFactory.Function(

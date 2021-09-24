@@ -218,6 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override string ToString() => $"EntityProjectionExpression: {EntityType.ShortName()}";
+        public override string ToString()
+            => $"EntityProjectionExpression: {EntityType.ShortName()}";
     }
 }

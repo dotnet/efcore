@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         public virtual DateTime To { get; }
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), From, To);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), From, To);
     }
 }

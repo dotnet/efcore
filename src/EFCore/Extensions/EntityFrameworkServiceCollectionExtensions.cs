@@ -120,7 +120,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => AddDbContext<TContextService, TContextImplementation>(
                 serviceCollection,
                 optionsAction == null
-                    ? (Action<IServiceProvider, DbContextOptionsBuilder>?)null
+                    ? null
                     : (p, b) => optionsAction(b), contextLifetime, optionsLifetime);
 
         /// <summary>
@@ -370,14 +370,14 @@ namespace Microsoft.Extensions.DependencyInjection
             AddCoreServices<TContext>(
                 serviceCollection,
                 (sp, ob) =>
-                {
-                    optionsAction(sp, ob);
+                    {
+                        optionsAction(sp, ob);
 
-                    var extension = (ob.Options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension())
-                        .WithMaxPoolSize(poolSize);
+                        var extension = (ob.Options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension())
+                            .WithMaxPoolSize(poolSize);
 
-                    ((IDbContextOptionsBuilderInfrastructure)ob).AddOrUpdateExtension(extension);
-                },
+                        ((IDbContextOptionsBuilderInfrastructure)ob).AddOrUpdateExtension(extension);
+                    },
                 ServiceLifetime.Singleton);
         }
 
@@ -597,13 +597,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     serviceCollection.Remove(serviceDescriptor);
                 }
             }
-            
+
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
 
             if (typeof(TContextService) != typeof(TContextImplementation))
             {
                 serviceCollection.TryAdd(
-                    new ServiceDescriptor(typeof(TContextImplementation), 
+                    new ServiceDescriptor(
+                        typeof(TContextImplementation),
                         p => (TContextImplementation)p.GetService<TContextService>()!,
                         contextLifetime));
             }
@@ -742,7 +743,7 @@ namespace Microsoft.Extensions.DependencyInjection
             => AddDbContextFactory<TContext, TFactory>(
                 serviceCollection,
                 optionsAction == null
-                    ? (Action<IServiceProvider, DbContextOptionsBuilder>?)null
+                    ? null
                     : (p, b) => optionsAction(b),
                 lifetime);
 

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         public static TableBuilder<TEntity> IsTemporal<TEntity>(
             this TableBuilder<TEntity> tableBuilder,
             Action<TemporalTableBuilder<TEntity>> buildAction)
-            where TEntity: class
+            where TEntity : class
         {
             tableBuilder.Metadata.SetIsTemporal(true);
             buildAction(new TemporalTableBuilder<TEntity>(tableBuilder.Metadata));

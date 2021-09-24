@@ -50,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             return _clrTypeMappings.TryGetValue(clrType, out var mapping)
                 ? mapping
-                : FindPrimitiveMapping(mappingInfo)
+                : (FindPrimitiveMapping(mappingInfo)
                     ?? FindCollectionMapping(mappingInfo)
-                    ?? base.FindMapping(mappingInfo);
+                    ?? base.FindMapping(mappingInfo));
         }
 
         private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
@@ -139,7 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         private static ValueComparer CreateListComparer(
-            CoreTypeMapping elementMapping, Type elementType, Type listType, bool readOnly = false)
+            CoreTypeMapping elementMapping,
+            Type elementType,
+            Type listType,
+            bool readOnly = false)
         {
             var unwrappedType = elementType.UnwrapNullableType();
 
@@ -152,7 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         private static ValueComparer CreateStringDictionaryComparer(
-            CoreTypeMapping elementMapping, Type elementType, Type dictType, bool readOnly = false)
+            CoreTypeMapping elementMapping,
+            Type elementType,
+            Type dictType,
+            bool readOnly = false)
         {
             var unwrappedType = elementType.UnwrapNullableType();
 

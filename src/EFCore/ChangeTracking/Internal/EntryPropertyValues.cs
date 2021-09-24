@@ -113,7 +113,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override IReadOnlyList<IProperty> Properties
         {
-            [DebuggerStepThrough] get => _properties ??= EntityType.GetProperties().ToList();
+            [DebuggerStepThrough]
+            get => _properties ??= EntityType.GetProperties().ToList();
         }
 
         /// <summary>

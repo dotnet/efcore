@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        [CA.DisallowNull]
+        [DisallowNull]
         public virtual string? Name
         {
             get => _name;
