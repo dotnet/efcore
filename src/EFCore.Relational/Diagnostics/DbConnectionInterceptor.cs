@@ -29,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
         ///     it was about to perform.
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         public virtual InterceptionResult ConnectionOpening(
             DbConnection connection,
             ConnectionEventData eventData,
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     it was about to perform.
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<InterceptionResult> ConnectionOpeningAsync(
             DbConnection connection,
@@ -103,14 +103,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
         ///     it was about to perform.
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         public virtual InterceptionResult ConnectionClosing(
             DbConnection connection,
             ConnectionEventData eventData,
@@ -127,14 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
         ///     it was about to perform.
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         public virtual ValueTask<InterceptionResult> ConnectionClosingAsync(
             DbConnection connection,
             ConnectionEventData eventData,

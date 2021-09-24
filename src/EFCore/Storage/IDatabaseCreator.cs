@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
         ///     <see langword="false" /> if it did not exist.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default);
 
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
         ///     <see langword="false" /> if it already existed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 

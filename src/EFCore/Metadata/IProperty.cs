@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The foreign keys that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IForeignKey> GetContainingForeignKeys();
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The indexes that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IIndex> GetContainingIndexes();
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
-        ///</returns>
+        /// </returns>
         new IKey? FindContainingPrimaryKey()
             => (IKey?)((IReadOnlyProperty)this).FindContainingPrimaryKey();
 
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary and alternate keys that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IKey> GetContainingKeys();
 
         /// <summary>

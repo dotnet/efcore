@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionCheckConstraintBuilder? HasName(string? name, bool fromDataAnnotation = false);
 
         /// <summary>

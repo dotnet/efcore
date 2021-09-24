@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the base type was configured,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasBaseType(
             IConventionEntityType? baseEntityType,
             bool fromDataAnnotation = false);
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the property if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionPropertyBuilder? Property(
             Type propertyType,
             string propertyName,
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the property if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionPropertyBuilder? Property(MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the property if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionPropertyBuilder? IndexerProperty(
             Type propertyType,
             string propertyName,
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the property if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionPropertyBuilder? CreateUniqueProperty(Type propertyType, string basePropertyName, bool required);
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the property if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionServicePropertyBuilder? ServiceProperty(
             MemberInfo memberInfo,
             bool fromDataAnnotation = false);
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="false" /> if the entity type contains a member with the given name,
         ///     the given member name hasn't been ignored or it was ignored using a lower configuration source;
         ///     <see langword="true" /> otherwise.
-        ///</returns>
+        /// </returns>
         bool IsIgnored(string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same <see cref="IConventionEntityTypeBuilder" /> instance so that additional configuration calls can be chained
         ///     if the given member was ignored, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? Ignore(string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="false" /> if the entity type contains a member with the given name
         ///     that was configured using a higher configuration source;
         ///     <see langword="true" /> otherwise.
-        ///</returns>
+        /// </returns>
         bool CanIgnore(string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the primary key if it was set on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionKeyBuilder? PrimaryKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the key if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionKeyBuilder? HasKey(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the key was removed,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoKey(IConventionKey key, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the entity type was configured as keyless,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoKey(bool fromDataAnnotation = false);
 
         /// <summary>
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the index if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionIndexBuilder? HasIndex(
             IReadOnlyList<string> propertyNames,
             bool fromDataAnnotation = false);
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the index if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionIndexBuilder? HasIndex(
             IReadOnlyList<string> propertyNames,
             string name,
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the index if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionIndexBuilder? HasIndex(
             IReadOnlyList<IConventionProperty> properties,
             bool fromDataAnnotation = false);
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the index if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionIndexBuilder? HasIndex(
             IReadOnlyList<IConventionProperty> properties,
             string name,
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the index was removed or didn't exist,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoIndex(IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the index was removed,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoIndex(IConventionIndex index, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType principalEntityType,
             IReadOnlyList<IConventionProperty> dependentProperties,
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType principalEntityType,
             IConventionKey principalKey,
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType principalEntityType,
             IReadOnlyList<IConventionProperty> dependentProperties,
@@ -467,13 +467,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="targetEntityType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the navigation property on this entity type that is part of the relationship.
-        ///</param>
+        /// </param>
         /// <param name="setTargetAsPrincipal">A value indicating whether the target entity type should be configured as the principal end.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType targetEntityType,
             string navigationName,
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType targetEntityType,
             MemberInfo navigation,
@@ -505,13 +505,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="setTargetAsPrincipal">A value indicating whether the target entity type should be configured as the principal end.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType targetEntityType,
             string navigationName,
@@ -527,13 +527,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="setTargetAsPrincipal">A value indicating whether the target entity type should be configured as the principal end.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasRelationship(
             IConventionEntityType targetEntityType,
             MemberInfo navigation,
@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             Type targetEntityType,
             MemberInfo navigation,
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             IConventionEntityType targetEntityType,
             MemberInfo navigation,
@@ -603,12 +603,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             Type targetEntityType,
             string navigationName,
@@ -623,12 +623,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigationName">
         ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             IConventionEntityType targetEntityType,
             string navigationName,
@@ -643,12 +643,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             Type targetEntityType,
             MemberInfo navigation,
@@ -663,12 +663,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             IConventionEntityType targetEntityType,
             MemberInfo navigation,
@@ -684,12 +684,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the relationship was removed or didn't exist,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoRelationship(
             IReadOnlyList<IConventionProperty> properties,
             IConventionKey principalKey,
@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the foreign key was removed,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoRelationship(IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the skip navigation was removed,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoSkipNavigation(IConventionSkipNavigation skipNavigation, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -806,16 +806,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="inverseNavigation">
         ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
         ///     is specified, the relationship will be configured without a navigation property on the target end.
-        ///</param>
+        /// </param>
         /// <param name="collections">Whether both of the navigation properties are collections or aren't collections.</param>
         /// <param name="onDependent">
         ///     Whether both of the navigation property are defined on the dependent side of the underlying foreign keys.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSkipNavigationBuilder? HasSkipNavigation(
             MemberInfo navigation,
             IConventionEntityType targetEntityType,
@@ -832,12 +832,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="collection">Whether the navigation property is a collection property.</param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSkipNavigationBuilder? HasSkipNavigation(
             MemberInfo navigation,
             IConventionEntityType targetEntityType,
@@ -853,12 +853,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="collection">Whether the navigation property is a collection property.</param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     An object that can be used to configure the relationship if it exists on the entity type,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSkipNavigationBuilder? HasSkipNavigation(
             string navigationName,
             IConventionEntityType targetEntityType,
@@ -875,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the query filter was set,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasQueryFilter(LambdaExpression? filter, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -893,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use InMemoryEntityTypeBuilderExtensions.ToInMemoryQuery")]
         IConventionEntityTypeBuilder? HasDefiningQuery(LambdaExpression? query, bool fromDataAnnotation = false);
 
@@ -913,12 +913,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="changeTrackingStrategy">
         ///     The change tracking strategy to be used.
         ///     <see langword="null" /> to reset to default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the <see cref="ChangeTrackingStrategy" /> was set,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation = false);
@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="changeTrackingStrategy">
         ///     The change tracking strategy to be used.
         ///     <see langword="null" /> to reset to default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns><see langword="true" /> if the given change tracking strategy can be set.</returns>
         bool CanSetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
@@ -940,13 +940,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyAccessMode">
         ///     The <see cref="PropertyAccessMode" /> to use for properties of this entity type.
         ///     <see langword="null" /> to reset to default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         /// <returns>
         ///     The same builder instance if the <see cref="PropertyAccessMode" /> was set,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false);
@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyAccessMode">
         ///     The <see cref="PropertyAccessMode" /> to use for properties of this model.
         ///     <see langword="null" /> to reset to default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns><see langword="true" /> if the given <see cref="PropertyAccessMode" /> can be set.</returns>
         bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the discriminator was configured,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionEntityTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false);
 
         /// <summary>
@@ -1028,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the discriminator was configured,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use HasNoDiscriminator")]
         IConventionEntityTypeBuilder? HasNoDeclaredDiscriminator(bool fromDataAnnotation = false)
             => HasNoDiscriminator(fromDataAnnotation);

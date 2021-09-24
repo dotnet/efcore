@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder">The builder for the foreign key.</param>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the <see langword="null" /> navigation would be pointing to the principal entity type.
-        ///</param>
+        /// </param>
         /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessForeignKeyNullNavigationSet(
             IConventionForeignKeyBuilder relationshipBuilder,

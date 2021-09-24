@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The existing runtime annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         IAnnotation? FindRuntimeAnnotation(string name);
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         object? FindRuntimeAnnotationValue(string name)
             => FindRuntimeAnnotation(name)?.Value;
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise a newly created value.
-        ///</returns>
+        /// </returns>
         TValue GetOrAddRuntimeAnnotationValue<TValue, TArg>(
             string name,
             Func<TArg?, TValue> valueFactory,

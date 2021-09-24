@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation">The navigation property to find the inverse of.</param>
         /// <returns>
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use IMutableNavigation.Inverse")]
         public static IMutableNavigation? FindInverse(this IMutableNavigation navigation)
             => navigation.Inverse;

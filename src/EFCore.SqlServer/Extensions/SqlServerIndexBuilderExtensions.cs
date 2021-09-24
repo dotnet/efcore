@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? IsClustered(
             this IConventionIndexBuilder indexBuilder,
             bool? clustered,
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         If multiple properties are to be included then specify an anonymous type including the
         ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? IncludeProperties(
             this IConventionIndexBuilder indexBuilder,
             IReadOnlyList<string>? propertyNames,
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? IsCreatedOnline(
             this IConventionIndexBuilder indexBuilder,
             bool? createdOnline,
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         /// <returns><see langword="true" /> if the index can be configured with online option when targeting SQL Server.</returns>
         public static bool CanSetIsCreatedOnline(
             this IConventionIndexBuilder indexBuilder,
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? HasFillFactor(
             this IConventionIndexBuilder indexBuilder,
             int? fillFactor,

@@ -110,11 +110,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <param name="obj">
             ///     The object to compare this key to.
-            ///</param>
+            /// </param>
             /// <returns>
             ///     <see langword="true" /> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise
             ///     <see langword="false" />.
-            ///</returns>
+            /// </returns>
             public override bool Equals(object? obj)
                 => obj is CompiledQueryCacheKey other && Equals(other);
 
@@ -123,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <param name="other">
             ///     An object to compare with this object.
-            ///</param>
+            /// </param>
             /// <returns>
             ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-            ///</returns>
+            /// </returns>
             public bool Equals(CompiledQueryCacheKey other)
             {
                 return ReferenceEquals(_model, other._model)
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </summary>
             /// <returns>
             ///     The hash code for the key.
-            ///</returns>
+            /// </returns>
             public override int GetHashCode()
             {
                 var hash = new HashCode();

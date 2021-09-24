@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection">The <see cref="DbConnection" />.</param>
         /// <param name="connectionId">
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
-        ///</param>
+        /// </param>
         public TransactionEnlistedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns>
         ///     An object that will contain the reference to the new foreign key instance if the given one was replaced by a convention.
         ///     Otherwise, returns the original foreign key.
-        ///</returns>
+        /// </returns>
         IMetadataReference<IConventionForeignKey> Track(IConventionForeignKey foreignKey);
     }
 }

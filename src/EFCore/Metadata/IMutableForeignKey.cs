@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetDependentToPrincipal(string? name);
 
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetDependentToPrincipal(MemberInfo? property);
 
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
         IMutableNavigation? HasDependentToPrincipal(string? name)
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
         IMutableNavigation? HasDependentToPrincipal(MemberInfo? property)
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetPrincipalToDependent(string? name);
 
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly set navigation property.</returns>
         IMutableNavigation? SetPrincipalToDependent(MemberInfo? property);
 
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
         IMutableNavigation? HasPrincipalToDependent(string? name)
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
         IMutableNavigation? HasPrincipalToDependent(MemberInfo? property)
@@ -201,10 +201,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
-        ///</returns>
+        /// </returns>
         new IMutableNavigation? GetNavigation(bool pointsToPrincipal)
             => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
     }

@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual DbContextOptionsBuilder LogTo(
             Action<string> action,
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual DbContextOptionsBuilder LogTo(
             Action<string> action,
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual DbContextOptionsBuilder LogTo(
             Action<string> action,
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="filter">Delegate that returns true to log the message or false to ignore it.</param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual DbContextOptionsBuilder LogTo(
             Action<string> action,
@@ -511,15 +511,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <example>
         ///     <code>
-        /// optionsBuilder.ConfigureWarnings(warnings =>
-        ///     warnings.Default(WarningBehavior.Ignore)
-        ///         .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///         .Throw(RelationalEventId.BoolWithDefaultWarning));
-        ///     </code>
+        ///  optionsBuilder.ConfigureWarnings(warnings =>
+        ///      warnings.Default(WarningBehavior.Ignore)
+        ///          .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
+        ///          .Throw(RelationalEventId.BoolWithDefaultWarning));
+        ///      </code>
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">
         ///     An action to configure the warning behavior.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual DbContextOptionsBuilder ConfigureWarnings(
             Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)

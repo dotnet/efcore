@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="navigationName">The navigation property name.</param>
         /// <returns>
         ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <see langword="null" />.
-        ///</returns>
+        /// </returns>
         public static TRelated? Load<TRelated>(
             this ILazyLoader? loader,
             object entity,

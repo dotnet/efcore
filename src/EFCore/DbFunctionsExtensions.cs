@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="escapeCharacter">
         ///     The escape character (as a single character string) to use in front of %,_,[,],^
         ///     if they are not used as wildcards.
-        ///</param>
+        /// </param>
         /// <returns><see langword="true" /> if there is a match.</returns>
         public static bool Like(
             this DbFunctions _,

@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns>
         ///     <see langword="true" /> if <see cref="ILogger" /> logging is enabled and the event should not be ignored;
         ///     <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool ShouldLog(EventDefinitionBase definition)
             // No null checks; low-level code in hot path for logging.
@@ -115,11 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnosticSourceEnabled">
         ///     Set to <see langword="true" /> if a <see cref="DiagnosticSource" /> is enabled;
         ///     <see langword="false" /> otherwise.
-        ///</param>
+        /// </param>
         /// <param name="simpleLogEnabled">
         ///     True to <see langword="true" /> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false" />
         ///     otherwise.
-        ///</param>
+        /// </param>
         /// <returns><see langword="true" /> if either a diagnostic source or a LogTo logger is enabled; <see langword="false" /> otherwise.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData(
@@ -148,15 +148,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnosticSourceEnabled">
         ///     Set to <see langword="true" /> if a <see cref="DiagnosticSource" /> is enabled;
         ///     <see langword="false" /> otherwise.
-        ///</param>
+        /// </param>
         /// <param name="simpleLogEnabled">
         ///     True to <see langword="true" /> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false" />
         ///     otherwise.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if either a diagnostic source, a LogTo logger, or an interceptor is enabled; <see langword="false" />
         ///     otherwise.
-        ///</returns>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData<TInterceptor>(
             EventDefinitionBase definition,

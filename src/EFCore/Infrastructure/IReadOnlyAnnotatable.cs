@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         object? this[string name] { get; }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         IAnnotation? FindAnnotation(string name);
 
         /// <summary>

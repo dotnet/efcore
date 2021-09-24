@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
-        ///</returns>
+        /// </returns>
         public static IServiceCollection AddEntityFrameworkProxies(
             this IServiceCollection serviceCollection)
         {

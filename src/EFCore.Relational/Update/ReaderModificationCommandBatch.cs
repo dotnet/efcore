@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns>
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
-        ///</returns>
+        /// </returns>
         public override bool AddCommand(IReadOnlyModificationCommand modificationCommand)
         {
             Check.NotNull(modificationCommand, nameof(modificationCommand));
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModifications">
         ///     The list of <see cref="IColumnModification" />s for all the columns
         ///     being modified such that a ValueBuffer with appropriate slots can be created.
-        ///</param>
+        /// </param>
         /// <returns>The factory.</returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IReadOnlyList<IColumnModification> columnModifications)

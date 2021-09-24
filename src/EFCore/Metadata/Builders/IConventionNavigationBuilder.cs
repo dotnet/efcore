@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionNavigationBuilder? HasField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionNavigationBuilder? HasField(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionNavigationBuilder? UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionNavigationBuilder? AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -92,11 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required">
         ///     A value indicating whether this is a required navigation.
         ///     <see langword="null" /> to reset to default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the requiredness was configured, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionNavigationBuilder? IsRequired(bool? required, bool fromDataAnnotation = false);
     }
 }

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool IsShadowProperty()
             => PropertyInfo == null && FieldInfo == null;
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool IsIndexerProperty()
             => PropertyInfo is PropertyInfo propertyInfo
                 && propertyInfo == DeclaringType.FindIndexerPropertyInfo();

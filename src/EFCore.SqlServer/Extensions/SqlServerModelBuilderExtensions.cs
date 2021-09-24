@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasIdentityColumnSeed(
             this IConventionModelBuilder modelBuilder,
             long? seed,
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasIdentityColumnIncrement(
             this IConventionModelBuilder modelBuilder,
             int? increment,
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasValueGenerationStrategy(
             this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasDatabaseMaxSize(
             this IConventionModelBuilder modelBuilder,
             string? maxSize,
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasServiceTierSql(
             this IConventionModelBuilder modelBuilder,
             string? serviceTier,
@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasPerformanceLevelSql(
             this IConventionModelBuilder modelBuilder,
             string? performanceLevel,

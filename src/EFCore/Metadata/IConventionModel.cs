@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The configuration source if the given type is marked as shared,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         ConfigurationSource? FindIsSharedConfigurationSource(Type type);
 
         /// <summary>
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if the given type is marked as owned,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         bool IsOwned(Type type)
             => FindIsOwnedConfigurationSource(type) != null;
 
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The configuration source if the given type is marked as owned,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         ConfigurationSource? FindIsOwnedConfigurationSource(Type type);
 
         /// <summary>
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The configuration source if the given entity type name is ignored,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         ConfigurationSource? FindIgnoredConfigurationSource(string typeName);
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The configuration source if the given entity type is ignored,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         ConfigurationSource? FindIgnoredConfigurationSource(Type type);
 
         /// <summary>

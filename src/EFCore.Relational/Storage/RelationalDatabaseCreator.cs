@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the database exists; otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public abstract bool Exists();
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the database exists; otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task CreateAsync(CancellationToken cancellationToken = default)
         {
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task DeleteAsync(CancellationToken cancellationToken = default)
         {
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
         ///     a value indicating whether any tables are present in the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
         {
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist.
-        ///</returns>
+        /// </returns>
         public virtual bool EnsureDeleted()
         {
             if (Exists())
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
         ///     if the database is deleted, <see langword="false" /> if it did not exist.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         {
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the database is created, <see langword="false" /> if it already existed.
-        ///</returns>
+        /// </returns>
         public virtual bool EnsureCreated()
         {
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
         ///     if the database is created, <see langword="false" /> if it already existed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     A SQL script.
-        ///</returns>
+        /// </returns>
         public virtual string GenerateCreateScript()
         {
             var commands = GetCreateTablesCommands(MigrationsSqlGenerationOptions.Script);

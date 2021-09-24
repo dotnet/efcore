@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The configuration source if the given member name is ignored,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         ConfigurationSource? FindIgnoredConfigurationSource(string memberName);
 
         /// <summary>

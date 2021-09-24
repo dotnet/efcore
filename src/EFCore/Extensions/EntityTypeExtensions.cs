@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
         ///     or null if they have not common parent.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use IReadOnlyEntityType.FindClosestCommonParent")]
         public static IEntityType? GetClosestCommonParent(
             this IEntityType entityType1,

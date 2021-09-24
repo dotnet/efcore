@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="IReadOnlyCheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
-        ///</returns>
+        /// </returns>
         public static IReadOnlyCheckConstraint? FindCheckConstraint(
             this IReadOnlyEntityType entityType,
             string name)
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="IMutableCheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
-        ///</returns>
+        /// </returns>
         public static IMutableCheckConstraint? FindCheckConstraint(
             this IMutableEntityType entityType,
             string name)
@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="IConventionCheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
-        ///</returns>
+        /// </returns>
         public static IConventionCheckConstraint? FindCheckConstraint(
             this IConventionEntityType entityType,
             string name)
@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="ICheckConstraint" /> or <see langword="null" /> if no check constraint with the
         ///     given name in the given entity type was found.
-        ///</returns>
+        /// </returns>
         public static ICheckConstraint? FindCheckConstraint(
             this IEntityType entityType,
             string name)

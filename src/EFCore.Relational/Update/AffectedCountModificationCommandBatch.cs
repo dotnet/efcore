@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
             int commandIndex,
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
             int commandIndex,

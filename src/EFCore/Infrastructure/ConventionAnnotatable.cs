@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The key of the annotation to find.</param>
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         public new virtual ConventionAnnotation? FindAnnotation(string name)
             => (ConventionAnnotation?)base.FindAnnotation(name);
 

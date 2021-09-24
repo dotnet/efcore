@@ -194,14 +194,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">A delegate that tests whether the operation succeeded even though an exception was thrown.</param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The return type of <paramref name="operation" />.</typeparam>
         /// <returns>The result from the operation.</returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public virtual TResult Execute<TState, TResult>(
             TState state,
             Func<DbContext, TState, TResult> operation,
@@ -288,22 +288,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">A delegate that tests whether the operation succeeded even though an exception was thrown.</param>
         /// <param name="cancellationToken">
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
-        ///</param>
+        /// </param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The result type of the <see cref="Task{T}" /> returned by <paramref name="operation" />.</typeparam>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
         ///     <see langword="null" /> otherwise
-        ///</returns>
+        /// </returns>
         protected virtual TimeSpan? GetNextDelay(Exception lastException)
         {
             var currentRetryCount = ExceptionsEncountered.Count - 1;
@@ -470,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="exception">The exception object to be verified.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         protected internal virtual bool ShouldVerifySuccessOn(Exception exception)
             => ShouldRetryOn(exception);
 
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="exception">The exception object to be verified.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         protected internal abstract bool ShouldRetryOn(Exception exception);
 
         /// <summary>
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <typeparam name="TResult">The return type of <paramref name="exceptionHandler" />.</typeparam>
         /// <returns>
         ///     The result from <paramref name="exceptionHandler" />.
-        ///</returns>
+        /// </returns>
         public static TResult CallOnWrappedException<TResult>(
             Exception exception,
             Func<Exception, TResult> exceptionHandler)

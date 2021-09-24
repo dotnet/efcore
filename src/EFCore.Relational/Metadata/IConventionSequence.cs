@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="cyclic">
         ///     If <see langword="true" />, then the sequence will start again from the beginning when the max value
         ///     is reached.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The configured value.</returns>
         bool? SetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);

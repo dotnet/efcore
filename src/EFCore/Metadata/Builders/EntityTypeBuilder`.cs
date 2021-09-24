@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If the primary key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the primary key.</returns>
         public virtual KeyBuilder HasKey(Expression<Func<TEntity, object?>> keyExpression)
             => new KeyBuilder<TEntity>(
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If the key is made up of multiple properties then specify an anonymous type including
         ///         the properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the key.</returns>
         public virtual KeyBuilder<TEntity> HasAlternateKey(Expression<Func<TEntity, object?>> keyExpression)
             => new(
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be configured (
         ///     <c>blog => blog.Url</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             => new(
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the navigation property to be configured (
         ///     <c>blog => blog.Posts</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the navigation property.</returns>
         public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
             Expression<Func<TEntity, TNavigation?>> navigationExpression)
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the navigation property to be configured (
         ///     <c>blog => blog.Posts</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the navigation property.</returns>
         public virtual NavigationBuilder<TEntity, TNavigation> Navigation<TNavigation>(
             Expression<Func<TEntity, IEnumerable<TNavigation>?>> navigationExpression)
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be ignored
         ///     (<c>blog => blog.Url</c>).
-        ///</param>
+        /// </param>
         public virtual EntityTypeBuilder<TEntity> Ignore(Expression<Func<TEntity, object?>> propertyExpression)
             => (EntityTypeBuilder<TEntity>)base.Ignore(
                 Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess().GetSimpleMemberName());
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If the index is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the index.</returns>
         public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
             => new(
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If the index is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="name">The name to assign to the index.</param>
         /// <returns>An object that can be used to configure the index.</returns>
         public virtual IndexBuilder<TEntity> HasIndex(
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             string navigationName)
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             string ownedTypeName,
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(
             string ownedTypeName,
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsOne(
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsOne(
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsOne(
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName"> The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
@@ -634,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
             string navigationName)
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
             string ownedTypeName,
@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
             Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>> navigationExpression)
@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsMany<TRelatedEntity>(
             string ownedTypeName,
@@ -851,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
@@ -888,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsMany(
@@ -917,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsMany(
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public new virtual EntityTypeBuilder<TEntity> OwnsMany(
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
@@ -1018,7 +1018,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
@@ -1058,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>customer => customer.Address</c>).
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual EntityTypeBuilder<TEntity> OwnsMany<TRelatedEntity>(
@@ -1118,7 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             string? navigationName)
@@ -1161,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     A lambda expression representing the reference navigation property on this entity type that represents
         ///     the relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             Expression<Func<TEntity, TRelatedEntity?>>? navigationExpression = null)
@@ -1202,7 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             string? navigationName)
@@ -1257,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     A lambda expression representing the collection navigation property on this entity type that represents
         ///     the relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>>? navigationExpression = null)
@@ -1322,7 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     An array of seed data of the same type as the entity.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder<TEntity> HasData(params TEntity[] data)
             => HasData((IEnumerable<object>)data);
@@ -1332,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     A collection of seed data of the same type as the entity.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder<TEntity> HasData(IEnumerable<TEntity> data)
             => HasData((IEnumerable<object>)data);
@@ -1342,7 +1342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     An array of seed data represented by anonymous types.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public new virtual DataBuilder<TEntity> HasData(params object[] data)
             => HasData((IEnumerable<object>)data);
@@ -1352,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     A colection of seed data represented by anonymous types.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public new virtual DataBuilder<TEntity> HasData(IEnumerable<object> data)
         {
@@ -1368,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be used as the discriminator (
         ///     <c>blog => blog.Discriminator</c>).
-        ///</param>
+        /// </param>
         /// <returns>A builder that allows the discriminator property to be configured.</returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
             Expression<Func<TEntity, TDiscriminator>> propertyExpression)

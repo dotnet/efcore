@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => Convert.ToSingle(value).ToString("R", CultureInfo.InvariantCulture);
     }

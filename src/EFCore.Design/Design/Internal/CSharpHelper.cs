@@ -367,11 +367,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(DateOnly value)
             => string.Format(
-                    CultureInfo.InvariantCulture,
-                    "new DateOnly({0}, {1}, {2})",
-                    value.Year,
-                    value.Month,
-                    value.Day);
+                CultureInfo.InvariantCulture,
+                "new DateOnly({0}, {1}, {2})",
+                value.Year,
+                value.Month,
+                value.Day);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

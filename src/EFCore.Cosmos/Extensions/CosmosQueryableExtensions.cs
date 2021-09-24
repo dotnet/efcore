@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">
         ///     An <see cref="IQueryable{T}" /> to use as the base of the raw SQL query (typically a <see cref="DbSet{TEntity}" />).
-        ///</param>
+        /// </param>
         /// <param name="sql">The raw SQL query.</param>
         /// <param name="parameters">The values to be assigned to parameters.</param>
         /// <returns>An <see cref="IQueryable{T}" /> representing the raw SQL query.</returns>

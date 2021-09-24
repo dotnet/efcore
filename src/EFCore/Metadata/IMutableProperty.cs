@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The foreign keys that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IMutableForeignKey> GetContainingForeignKeys();
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The indexes that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IMutableIndex> GetContainingIndexes();
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
-        ///</returns>
+        /// </returns>
         new IMutableKey? FindContainingPrimaryKey()
             => (IMutableKey?)((IReadOnlyProperty)this).FindContainingPrimaryKey();
 
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary and alternate keys that use this property.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IMutableKey> GetContainingKeys();
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="unicode">
         ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not,
         ///     <see langword="null" /> to clear the setting.
-        ///</param>
+        /// </param>
         void SetIsUnicode(bool? unicode);
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="beforeSaveBehavior">
         ///     A value indicating whether this property can be modified before the entity is saved to the database.
-        ///</param>
+        /// </param>
         void SetBeforeSaveBehavior(PropertySaveBehavior? beforeSaveBehavior);
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="afterSaveBehavior">
         ///     A value indicating whether this property can be modified after the entity is saved to the database.
-        ///</param>
+        /// </param>
         void SetAfterSaveBehavior(PropertySaveBehavior? afterSaveBehavior);
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="valueGeneratorFactory">
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
-        ///</param>
+        /// </param>
         void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory);
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="valueGeneratorFactory">
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
-        ///</param>
+        /// </param>
         void SetValueGeneratorFactory(Type? valueGeneratorFactory);
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="converterType">
         ///     A type that derives from <see cref="ValueConverter" />, or <see langword="null" /> to remove any previously set converter.
-        ///</param>
+        /// </param>
         void SetValueConverter(Type? converterType);
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="comparerType">
         ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
-        ///</param>
+        /// </param>
         void SetValueComparer(Type? comparerType);
     }
 }

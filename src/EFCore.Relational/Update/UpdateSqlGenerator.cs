@@ -545,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModification">The column for which the condition is being generated.</param>
         /// <param name="useOriginalValue">
         ///     If <see langword="true" />, then the original value will be used in the condition, otherwise the current value will be used.
-        ///</param>
+        /// </param>
         protected virtual void AppendWhereCondition(
             StringBuilder commandStringBuilder,
             IColumnModification columnModification,

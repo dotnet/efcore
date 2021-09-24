@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? HasName(string? name, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? HasSchema(string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? IsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? IsNullable(bool nullable, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? HasStoreType(string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? HasTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionDbFunctionBuilder? HasTranslation(
             Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);

@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToInMemoryQuery(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             LambdaExpression? query,

@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The expression to convert objects when writing data to the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        ///</param>
+        /// </param>
         /// <param name="convertFromProviderExpression">
         ///     The expression to convert objects when reading data from the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        ///</param>
+        /// </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        ///</param>
+        /// </param>
         protected ValueConverter(
             LambdaExpression convertToProviderExpression,
             LambdaExpression convertFromProviderExpression,
@@ -58,20 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The expression to convert objects when writing data to the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        ///</param>
+        /// </param>
         /// <param name="convertFromProviderExpression">
         ///     The expression to convert objects when reading data from the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        ///</param>
+        /// </param>
         /// <param name="convertsNulls">
         ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
         ///     values always remain null.
-        ///</param>
+        /// </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        ///</param>
+        /// </param>
         protected ValueConverter(
             LambdaExpression convertToProviderExpression,
             LambdaExpression convertFromProviderExpression,

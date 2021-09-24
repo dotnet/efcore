@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyAccessMode">
         ///     The <see cref="PropertyAccessMode" />, or <see langword="null" />
         ///     to clear the mode set.
-        ///</param>
+        /// </param>
         void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode);
     }
 }

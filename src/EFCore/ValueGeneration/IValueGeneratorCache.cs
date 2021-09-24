@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="entityType">
         ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
-        ///</param>
+        /// </param>
         /// <param name="factory">Factory to create a new value generator if one is not present in the cache.</param>
         /// <returns>The existing or newly created value generator.</returns>
         ValueGenerator GetOrAdd(

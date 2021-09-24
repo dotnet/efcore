@@ -371,7 +371,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="disposing">
         ///     <see langword="true" /> to release managed and unmanaged resources;
         ///     <see langword="false" /> to release only unmanaged resources.
-        ///</param>
+        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="deferred">
         ///     <see langword="true" /> to defer the creation of the transaction.
         ///     This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.
-        ///</param>
+        /// </param>
         /// <returns>The transaction.</returns>
         /// <remarks>
         ///     Warning, commands inside a deferred transaction can fail if they cause the
@@ -513,7 +513,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="deferred">
         ///     <see langword="true" /> to defer the creation of the transaction.
         ///     This also causes transactions to upgrade from read transactions to write transactions as needed by their commands.
-        ///</param>
+        /// </param>
         /// <returns>The transaction.</returns>
         /// <remarks>
         ///     Warning, commands inside a deferred transaction can fail if they cause the

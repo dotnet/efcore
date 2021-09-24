@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="migrationClass">
         ///     The <see cref="TypeInfo" /> for the migration class, as obtained from the <see cref="Migrations" /> dictionary.
-        ///</param>
+        /// </param>
         /// <param name="activeProvider">The name of the current database provider.</param>
         /// <returns>The migration instance.</returns>
         Migration CreateMigration(TypeInfo migrationClass, string activeProvider);

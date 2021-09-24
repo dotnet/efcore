@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <returns>
         ///     <see langword="true" /> if <see cref="ILogger" /> logging is enabled and the event should not be ignored;
         ///     <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         protected bool ShouldLog(EventDefinitionBase definition)
             => ((IDiagnosticsLogger)this).ShouldLog(definition);
@@ -154,15 +154,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <param name="diagnosticSourceEnabled">
         ///     Set to <see langword="true" /> if a <see cref="DiagnosticSource" /> is enabled;
         ///     <see langword="false" /> otherwise.
-        ///</param>
+        /// </param>
         /// <param name="simpleLogEnabled">
         ///     True to <see langword="true" /> if a <see cref="IDbContextLogger" /> is enabled; <see langword="false" />
         ///     otherwise.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if either a diagnostic source, a LogTo logger, or an interceptor is enabled; <see langword="false" />
         ///     otherwise.
-        ///</returns>
+        /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         protected bool NeedsEventData<TInterceptor>(
             EventDefinitionBase definition,

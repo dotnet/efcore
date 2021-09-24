@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if this <see cref="IDbContextTransaction" /> instance supports database savepoints;
         ///     otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool SupportsSavepoints
             => false;
     }

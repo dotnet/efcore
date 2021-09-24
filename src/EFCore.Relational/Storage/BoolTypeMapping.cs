@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => (bool)value ? "1" : "0";
     }

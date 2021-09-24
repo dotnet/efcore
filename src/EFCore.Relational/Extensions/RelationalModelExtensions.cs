@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The sequence or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static IReadOnlySequence? FindSequence(
             this IReadOnlyModel model,
             string name,
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The sequence or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static IMutableSequence? FindSequence(
             this IMutableModel model,
             string name,
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The sequence or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static IConventionSequence? FindSequence(
             this IConventionModel model,
             string name,
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The sequence or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static ISequence? FindSequence(
             this IModel model,
             string name,
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The removed <see cref="IMutableSequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static IMutableSequence? RemoveSequence(
             this IMutableModel model,
             string name,
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The removed <see cref="IConventionSequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         public static IConventionSequence? RemoveSequence(
             this IConventionModel model,
             string name,

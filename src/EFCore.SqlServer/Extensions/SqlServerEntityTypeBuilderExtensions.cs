@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? IsMemoryOptimized(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? IsTemporal(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             bool temporal = true,
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? UseHistoryTableName(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? UseHistoryTableSchema(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? schema,
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasPeriodStart(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? propertyName,
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasPeriodEnd(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? propertyName,

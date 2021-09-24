@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
             params string[] foreignKeyPropertyNames)
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
         ///         corresponding properties in <see cref="HasPrincipalKey(Expression{Func{TEntity, object}})" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
             Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
         ///         corresponding properties in <see cref="HasForeignKey(Expression{Func{TDependentEntity, object}})" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
             Expression<Func<TEntity, object?>> keyExpression)

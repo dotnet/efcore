@@ -125,7 +125,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <param name="sourceColumn">
         ///     The source column used for loading the value of the parameter. Can be null.
-        ///</param>
+        /// </param>
         /// <returns>The parameter that was added.</returns>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public virtual SqliteParameter Add(string? parameterName, SqliteType type, int size, string? sourceColumn)
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="values">
         ///     An array of parameters to add. They must be <see cref="SqliteParameter" /> objects.
-        ///</param>
+        /// </param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public override void AddRange(Array values)
             => AddRange(values.Cast<SqliteParameter>());
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="array">
         ///     The array into which the parameters are copied. Must be an array of <see cref="SqliteParameter" /> objects.
-        ///</param>
+        /// </param>
         /// <param name="index">The zero-based index to which the parameters are copied.</param>
         public override void CopyTo(Array array, int index)
             => CopyTo((SqliteParameter[])array, index);

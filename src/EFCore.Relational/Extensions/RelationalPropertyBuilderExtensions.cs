@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasColumnName(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasColumnName(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasColumnType(
             this IConventionPropertyBuilder propertyBuilder,
             string? typeName,
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? IsFixedLength(
             this IConventionPropertyBuilder propertyBuilder,
             bool? fixedLength,
@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasDefaultValueSql(
             this IConventionPropertyBuilder propertyBuilder,
             string? sql,
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
         ///     If <see langword="false" />, the value is computed when the value is read, and does not occupy any actual storage.
         ///     <see langword="null" /> selects the database provider default.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasComputedColumnSql(
             this PropertyBuilder propertyBuilder,
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
         ///     If <see langword="false" />, the value is computed when the value is read, and does not occupy any actual storage.
         ///     <see langword="null" /> selects the database provider default.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> HasComputedColumnSql<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasComputedColumnSql(
             this IConventionPropertyBuilder propertyBuilder,
             string? sql,
@@ -658,11 +658,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
         ///     If <see langword="false" />, the value is computed when the value is read, and does not occupy any actual storage.
         ///     <see langword="null" /> selects the database provider default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? IsStoredComputedColumn(
             this IConventionPropertyBuilder propertyBuilder,
             bool? stored,
@@ -707,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
         ///     If <see langword="false" />, the value is computed when the value is read, and does not occupy any actual storage.
         ///     <see langword="null" /> selects the database provider default.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns><see langword="true" /> if the given computed column type can be set for the column.</returns>
         public static bool CanSetIsStoredComputedColumn(
@@ -814,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasDefaultValue(
             this IConventionPropertyBuilder propertyBuilder,
             object? value,
@@ -895,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasComment(
             this IConventionPropertyBuilder propertyBuilder,
             string? comment,
@@ -977,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? UseCollation(
             this IConventionPropertyBuilder propertyBuilder,
             string? collation,

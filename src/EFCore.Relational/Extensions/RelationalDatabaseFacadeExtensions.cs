@@ -305,9 +305,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
         ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
-        ///     </code>
+        ///          var userSuppliedSearchTerm = ".NET";
+        ///          context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
+        ///      </code>
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task<int> ExecuteSqlInterpolatedAsync(
             this DatabaseFacade databaseFacade,
@@ -341,9 +341,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         idempotent.
         ///     </para>
         ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
+        ///          var userSuppliedSearchTerm = ".NET";
+        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
+        ///      </code>
         ///     <para>
         ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks.
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task<int> ExecuteSqlRawAsync(
             this DatabaseFacade databaseFacade,
@@ -386,9 +386,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
         ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
+        ///          var userSuppliedSearchTerm = ".NET";
+        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
+        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="parameters">Parameters to use with the SQL.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        ///</returns>
+        /// </returns>
         public static Task<int> ExecuteSqlRawAsync(
             this DatabaseFacade databaseFacade,
             string sql,
@@ -431,9 +431,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
         ///     </para>
         ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
+        ///          var userSuppliedSearchTerm = ".NET";
+        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
+        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static async Task<int> ExecuteSqlRawAsync(
             this DatabaseFacade databaseFacade,
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             this DatabaseFacade databaseFacade,
@@ -815,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <returns>
         ///     A SQL script.
-        ///</returns>
+        /// </returns>
         public static string GenerateCreateScript(this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
 
@@ -828,7 +828,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if a relational database provider is being used;
         ///     <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static bool IsRelational(this DatabaseFacade databaseFacade)
             => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade)))
                 .Context.GetService<IDbContextOptions>().Extensions.OfType<RelationalOptionsExtension>().Any();

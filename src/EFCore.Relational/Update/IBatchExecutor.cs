@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     total number of rows affected.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<int> ExecuteAsync(
             IEnumerable<ModificationCommandBatch> commandBatches,

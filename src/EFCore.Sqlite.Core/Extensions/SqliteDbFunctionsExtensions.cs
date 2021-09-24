@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="startIndex">The 1-based starting index. If negative, the index is relative to the end of the value.</param>
         /// <param name="length">
         ///     The length of the subarray. If negative, bytes preceding <paramref name="startIndex" /> are returned.
-        ///</param>
+        /// </param>
         /// <returns>The subarray.</returns>
         /// <remarks>
         ///     Use <see cref="string.Substring(int, int)" /> for string values.

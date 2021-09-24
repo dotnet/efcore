@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        ///</param>
+        /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        ///</param>
+        /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
@@ -82,12 +82,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        ///</param>
+        /// </param>
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
         ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
-        ///</param>
+        /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
@@ -112,12 +112,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        ///</param>
+        /// </param>
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
         ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
-        ///</param>
+        /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(

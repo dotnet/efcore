@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Entity<TEntity>(Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder SharedTypeEntity<TEntity>(
             string name,
             Action<EntityTypeBuilder<TEntity>> buildAction)
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Entity(Type type, Action<EntityTypeBuilder> buildAction)
         {
             Check.NotNull(buildAction, nameof(buildAction));
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Entity(string name, Action<EntityTypeBuilder> buildAction)
         {
             Check.NotNull(buildAction, nameof(buildAction));
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder SharedTypeEntity(
             string name,
             Type type,
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity">The entity type to be removed from the model.</typeparam>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Ignore<TEntity>()
             where TEntity : class
             => Ignore(typeof(TEntity));
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type">The entity type to be removed from the model.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Ignore(Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -462,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="typeName">The name of the entity type to be removed from the model.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder Ignore(string typeName)
         {
             Check.NotEmpty(typeName, nameof(typeName));
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="configuration">The configuration to be applied.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder ApplyConfiguration<TEntity>(IEntityTypeConfiguration<TEntity> configuration)
             where TEntity : class
         {
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="predicate">Optional predicate to filter types within the assembly.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder ApplyConfigurationsFromAssembly(
             Assembly assembly,
             Func<Type, bool>? predicate = null)
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
             Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this model.</param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {
             Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);

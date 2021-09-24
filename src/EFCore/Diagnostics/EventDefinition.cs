@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="logActionFunc">Function to create a cached delegate for logging the event.</param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
-        ///</param>
+        /// </param>
         public EventDefinition(
             ILoggingOptions loggingOptions,
             EventId eventId,

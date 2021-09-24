@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property">The property to check.</param>
         /// <returns>
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use IReadOnlyPropertyBase.IsShadowProperty")]
         public static bool IsShadowProperty(this IPropertyBase property)
             => property.IsShadowProperty();

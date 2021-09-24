@@ -117,10 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
-        ///</returns>
+        /// </returns>
         IReadOnlyNavigation? GetNavigation(bool pointsToPrincipal)
             => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
 

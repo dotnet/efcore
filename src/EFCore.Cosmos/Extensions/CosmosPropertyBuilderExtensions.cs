@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? ToJsonProperty(
             this IConventionPropertyBuilder propertyBuilder,
             string? name,

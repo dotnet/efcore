@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="currentNode">The node that the entity is being traversed from.</param>
         /// <param name="internalEntityEntry">
         ///     The internal entry tracking information about the entity being traversed to.
-        ///</param>
+        /// </param>
         /// <param name="reachedVia">The navigation property that is being traversed to reach the new node.</param>
         /// <returns>The newly created node.</returns>
         public override EntityEntryGraphNode CreateNode(

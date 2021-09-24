@@ -88,10 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="dependentEntityTypeName">
         ///     The name of entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
-        ///</param>
+        /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             string dependentEntityTypeName,
@@ -126,10 +126,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="dependentEntityType">
         ///     The entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
-        ///</param>
+        /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
             Type dependentEntityType,
@@ -164,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TDependentEntity">
         ///     The entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
-        ///</typeparam>
+        /// </typeparam>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             params string[] foreignKeyPropertyNames)
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TDependentEntity">
         ///     The entity type that is the dependent in this relationship. That is, the type
         ///     that has the foreign key properties.
-        ///</typeparam>
+        /// </typeparam>
         /// <param name="foreignKeyExpression">
         ///     <para>
         ///         A lambda expression representing the foreign key property(s) (<c>t => t.Id1</c>).
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
         ///         corresponding keys in <see cref="HasPrincipalKey{TPrincipalEntity}(Expression{Func{TPrincipalEntity, object}})" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
             Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="principalEntityTypeName">
         ///     The name of entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
-        ///</param>
+        /// </param>
         /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="principalEntityType">
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
-        ///</param>
+        /// </param>
         /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TPrincipalEntity">
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
-        ///</typeparam>
+        /// </typeparam>
         /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </remarks>
         /// <typeparam name="TPrincipalEntity">
         ///     The entity type that is the principal in this relationship. That is, the type that has the reference key properties.
-        ///</typeparam>
+        /// </typeparam>
         /// <param name="keyExpression">
         ///     <para>
         ///         A lambda expression representing the reference key property(s) (<c>t => t.Id</c>).
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
         ///         corresponding properties in <see cref="HasForeignKey{TDependentEntity}(Expression{Func{TDependentEntity, object}})" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
             Expression<Func<TPrincipalEntity, object?>> keyExpression)

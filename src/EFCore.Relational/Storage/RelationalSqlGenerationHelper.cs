@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">The candidate name for the parameter.</param>
         /// <returns>
         ///     A valid name based on the candidate name.
-        ///</returns>
+        /// </returns>
         public virtual string GenerateParameterName(string name)
             => name.StartsWith("@", StringComparison.Ordinal)
                 ? name
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">The candidate name for the parameter placeholder.</param>
         /// <returns>
         ///     A valid name based on the candidate name.
-        ///</returns>
+        /// </returns>
         public virtual string GenerateParameterNamePlaceholder(string name)
             => GenerateParameterName(name);
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to be escaped.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         public virtual string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to delimit.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         public virtual string DelimitIdentifier(string identifier)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="schema">The schema of the identifier.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         public virtual string DelimitIdentifier(string name, string? schema)
             => (!string.IsNullOrEmpty(schema)
                     ? DelimitIdentifier(schema) + "."

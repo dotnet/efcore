@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="entityType">
         ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
-        ///</param>
+        /// </param>
         /// <returns>The value generator to be used.</returns>
         ValueGenerator Select(IProperty property, IEntityType entityType);
     }

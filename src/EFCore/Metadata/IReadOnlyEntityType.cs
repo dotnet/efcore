@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="providerValues">
         ///     If <see langword="true" /> then provider values are returned for properties with value converters.
-        ///</param>
+        /// </param>
         /// <returns>The data.</returns>
         IEnumerable<IDictionary<string, object?>> GetSeedData(bool providerValues = false);
 
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         IEnumerable<IReadOnlyEntityType> GetAllBaseTypes()
             => GetAllBaseTypesAscending().Reverse();
 
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         IEnumerable<IReadOnlyEntityType> GetAllBaseTypesAscending()
             => GetAllBaseTypesInclusiveAscending().Skip(1);
 
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        ///</returns>
+        /// </returns>
         IReadOnlyEntityType GetRootType()
             => BaseType?.GetRootType() ?? this;
 
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) this entity type,
         ///     otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool IsAssignableFrom(IReadOnlyEntityType derivedType)
         {
             Check.NotNull(derivedType, nameof(derivedType));
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if this entity type derives from (but is not the same as) <paramref name="baseType" />,
         ///     otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool IsStrictlyDerivedFrom(IReadOnlyEntityType baseType)
             => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
 
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
-        ///</returns>
+        /// </returns>
         IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
         {
             Check.NotNull(otherEntityType, nameof(otherEntityType));
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
-        ///</returns>
+        /// </returns>
         IReadOnlyEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
             => IsAssignableFrom(Check.NotNull(otherEntityType, nameof(otherEntityType)))
                 ? this
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         IReadOnlyForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -341,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         IReadOnlyForeignKey? FindForeignKey(
             IReadOnlyProperty property,
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if <paramref name="targetType" /> is in ownership path of this entity type,
         ///     otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         bool IsInOwnershipPath(IReadOnlyEntityType targetType)
         {
             var owner = this;

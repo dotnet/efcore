@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? HasType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? IncrementsBy(int? increment, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? StartsAt(long? startValue, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? HasMax(long? maximum, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? HasMin(long? minimum, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionSequenceBuilder? IsCyclic(bool? cyclic, bool fromDataAnnotation = false);
 
         /// <summary>

@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="exception">The exception object to be verified.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         protected override bool ShouldRetryOn(Exception exception)
         {
             if (_additionalErrorNumbers != null
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
         ///     <see langword="null" /> otherwise
-        ///</returns>
+        /// </returns>
         protected override TimeSpan? GetNextDelay(Exception lastException)
         {
             var baseDelay = base.GetNextDelay(lastException);

@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="other">The object to compare with the current object.</param>
         /// <returns>
         ///     <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         protected virtual bool Equals(DbContextOptions other)
             => _extensionsMap.Count == other._extensionsMap.Count
                 && _extensionsMap.Zip(other._extensionsMap)

@@ -51,14 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="type">The store/database type of the column.</param>
         /// <param name="unicode">
         ///     Indicates whether or not the column can contain Unicode data, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="maxLength">
         ///     The maximum length of data that can be stored in the column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="rowVersion">
         ///     Indicates whether or not the column acts as an automatic concurrency token, such as a rowversion/timestamp column
         ///     in SQL Server.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
         /// <param name="nullable">Indicates whether or not the column can store <see langword="null" /> values.</param>
         /// <param name="defaultValue">The default value for the column.</param>
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="collation">A collation to apply to the column.</param>
         /// <param name="precision">
         ///     The maximum number of digits that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="scale">
         ///     The maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="stored">Whether the value of the computed column is stored in the database or not.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
@@ -136,11 +136,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
         /// <param name="principalSchema">
         ///     The schema that contains principal table, or <see langword="null" /> if the default schema should be used.
-        ///</param>
+        /// </param>
         /// <param name="principalColumn">
         ///     The column to which the foreign key column is constrained, or <see langword="null" /> to constrain to the primary key
         ///     column.
-        ///</param>
+        /// </param>
         /// <param name="onUpdate">The action to take on updates.</param>
         /// <param name="onDelete">The action to take on deletes.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -178,11 +178,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
         /// <param name="principalSchema">
         ///     The schema that contains principal table, or <see langword="null" /> if the default schema should be used.
-        ///</param>
+        /// </param>
         /// <param name="principalColumns">
         ///     The columns to which the foreign key columns are constrained, or <see langword="null" /> to constrain to the primary key
         ///     columns.
-        ///</param>
+        /// </param>
         /// <param name="onUpdate">The action to take on updates.</param>
         /// <param name="onDelete">The action to take on deletes.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -341,14 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="type">The store/database type of the column.</param>
         /// <param name="unicode">
         ///     Indicates whether or not the column can contain Unicode data, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="maxLength">
         ///     The maximum length of data that can be stored in the column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="rowVersion">
         ///     Indicates whether or not the column acts as an automatic concurrency token, such as a rowversion/timestamp column
         ///     in SQL Server.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> if the default schema should be used.</param>
         /// <param name="nullable">Indicates whether or not the column can store <see langword="null" /> values.</param>
         /// <param name="defaultValue">The default value for the column.</param>
@@ -357,38 +357,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldClrType">
         ///     The CLR type that the column was previously mapped to. Can be <see langword="null" />, in which case previous value is considered
         ///     unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldType">
         ///     The previous store/database type of the column. Can be <see langword="null" />, in which case previous value is considered unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldUnicode">
         ///     Indicates whether or not the column could previously contain Unicode data, or <see langword="null" /> if not specified or not
         ///     applicable.
-        ///</param>
+        /// </param>
         /// <param name="oldMaxLength">
         ///     The previous maximum length of data that can be stored in the column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="oldRowVersion">
         ///     Indicates whether or not the column previously acted as an automatic concurrency token, such as a rowversion/timestamp column
         ///     in SQL Server. Can be <see langword="null" />, in which case previous value is considered unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldNullable">
         ///     Indicates whether or not the column could previously store <see langword="null" /> values. Can be <see langword="null" />, in which
         ///     case previous value is
         ///     considered unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldDefaultValue">
         ///     The previous default value for the column. Can be <see langword="null" />, in which case previous value is considered unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldDefaultValueSql">
         ///     The previous SQL expression used for the column's default constraint. Can be <see langword="null" />, in which case previous value is
         ///     considered
         ///     unknown.
-        ///</param>
+        /// </param>
         /// <param name="oldComputedColumnSql">
         ///     The previous SQL expression used to compute the column value. Can be <see langword="null" />, in which case previous value is
         ///     considered unknown.
-        ///</param>
+        /// </param>
         /// <param name="fixedLength">Indicates whether or not the column is constrained to fixed-length data.</param>
         /// <param name="oldFixedLength">Indicates whether or not the column was previously constrained to fixed-length data.</param>
         /// <param name="comment">A comment to associate with the column.</param>
@@ -397,17 +397,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldCollation">The previous collation to apply to the column.</param>
         /// <param name="precision">
         ///     The maximum number of digits that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="oldPrecision">
         ///     The previous maximum number of digits that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="scale">
         ///     The maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not applicable.
-        ///</param>
+        /// </param>
         /// <param name="oldScale">
         ///     The previous maximum number of decimal places that is allowed in this column, or <see langword="null" /> if not specified or not
         ///     applicable.
-        ///</param>
+        /// </param>
         /// <param name="stored">Whether the value of the computed column is stored in the database or not.</param>
         /// <param name="oldStored">Whether the value of the previous computed column was stored in the database or not.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -819,11 +819,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="name">The name of the table.</param>
         /// <param name="columns">
         ///     A delegate using a <see cref="ColumnsBuilder" /> to create an anonymous type configuring the columns of the table.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <param name="constraints">
         ///     A delegate allowing constraints to be applied over the columns configured by the 'columns' delegate above.
-        ///</param>
+        /// </param>
         /// <param name="comment">A comment to be applied to the table.</param>
         /// <returns>A <see cref="CreateTableBuilder{TColumns}" /> to allow further configuration to be chained.</returns>
         public virtual CreateTableBuilder<TColumns> CreateTable<TColumns>(
@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sql">The SQL string to be executed to perform the operation.</param>
         /// <param name="suppressTransaction">
         ///     Indicates whether or not transactions will be suppressed while executing the SQL.
-        ///</param>
+        /// </param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<SqlOperation> Sql(
             string sql,
@@ -1417,7 +1417,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="values">
         ///     The values to insert where each element of the outer array represents a row, and each inner array contains values for each of the
         ///     columns in 'columns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
@@ -1439,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="values">
         ///     The values to insert where each element of the outer array represents a row, and each inner array contains values for each of the
         ///     columns in 'columns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
@@ -1506,7 +1506,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumn">The name of the key column used to select the row to delete.</param>
         /// <param name="keyColumnType">
         ///     The store type for the column that will be used to identify the rows that should be deleted.
-        ///</param>
+        /// </param>
         /// <param name="keyValue">The key value of the row to delete.</param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -1557,7 +1557,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns">The names of the key columns used to select the row to delete.</param>
         /// <param name="keyColumnTypes">
         ///     The store types for the columns that will be used to identify the rows that should be deleted.
-        ///</param>
+        /// </param>
         /// <param name="keyValues">The key values of the row to delete, one value for each column in 'keyColumns'.</param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -1606,7 +1606,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumn">The name of the key column used to select the row to delete.</param>
         /// <param name="keyColumnType">
         ///     The store type for the column that will be used to identify the rows that should be deleted.
-        ///</param>
+        /// </param>
         /// <param name="keyValues">The key values of the rows to delete, one value per row.</param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -1635,7 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyValues">
         ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
@@ -1656,11 +1656,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns">The names of the key columns used to select the rows to delete.</param>
         /// <param name="keyColumnTypes">
         ///     The store types for the columns that will be used to identify the rows that should be deleted.
-        ///</param>
+        /// </param>
         /// <param name="keyValues">
         ///     The key values of the rows to delete, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
@@ -1824,7 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns">The names of the key columns used to select the row to update.</param>
         /// <param name="keyColumnTypes">
         ///     A list of store types for the columns that will be used to identify the rows that should be updated.
-        ///</param>
+        /// </param>
         /// <param name="keyValues">The key values of the row to update, one value for each column in 'keyColumns'.</param>
         /// <param name="columns">The columns to update.</param>
         /// <param name="columnTypes">A list of store types for the columns in which data will be updated.</param>
@@ -1891,7 +1891,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="values">
         ///     The values for each update, where each element of the outer array represents a row specified in
         ///     'keyValues', and each inner array contains values for each of the columns in 'columns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
@@ -1921,7 +1921,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyValues">
         ///     The key values of the rows to update, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.
-        ///</param>
+        /// </param>
         /// <param name="column">The column to update.</param>
         /// <param name="values">The new values for the column, one for each row specified in 'keyValues'.</param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
@@ -1953,12 +1953,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyValues">
         ///     The key values of the rows to update, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.
-        ///</param>
+        /// </param>
         /// <param name="columns">The columns to update.</param>
         /// <param name="values">
         ///     The values for each update, where each element of the outer array represents a row specified in
         ///     'keyValues', and each inner array contains values for each of the columns in 'columns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
@@ -1981,17 +1981,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="keyColumns">The names of the key columns used to select the rows to update.</param>
         /// <param name="keyColumnTypes">
         ///     A list of store types for the columns that will be used to identify the rows that should be updated.
-        ///</param>
+        /// </param>
         /// <param name="keyValues">
         ///     The key values of the rows to update, where each element of the outer array represents a row, and each inner array contains values for
         ///     each of the key columns in 'keyColumns'.
-        ///</param>
+        /// </param>
         /// <param name="columns">The columns to update.</param>
         /// <param name="columnTypes">A list of store types for the columns in which data will be updated.</param>
         /// <param name="values">
         ///     The values for each update, where each element of the outer array represents a row specified in
         ///     'keyValues', and each inner array contains values for each of the columns in 'columns'.
-        ///</param>
+        /// </param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(

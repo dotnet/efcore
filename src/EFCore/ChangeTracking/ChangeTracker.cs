@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="callback">
         ///     An action to configure the change tracking information for each entity. For the entity to begin being tracked,
         ///     the <see cref="EntityEntry.State" /> must be set.
-        ///</param>
+        /// </param>
         public virtual void TrackGraph(
             object rootEntity,
             Action<EntityEntryGraphNode> callback)
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An delegate to configure the change tracking information for each entity. The second parameter to the
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
         ///     if the callback returns <see langword="false" />.
-        ///</param>
+        /// </param>
         /// <typeparam name="TState">The type of the state object.</typeparam>
         public virtual void TrackGraph<TState>(
             object rootEntity,

@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
-        ///</returns>
+        /// </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkSqlServer(this IServiceCollection serviceCollection)
         {

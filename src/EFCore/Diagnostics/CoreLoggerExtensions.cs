@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigationChain">
         ///     The navigation chain used in the
         ///     <see cref="EntityFrameworkQueryableExtensions.Include{TEntity}(IQueryable{TEntity}, string)" />
-        ///</param>
+        /// </param>
         /// <param name="navigationName">The navigation name which was not found in the model.</param>
         public static void InvalidIncludePathError(
             this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
@@ -1318,11 +1318,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="dependentToPrincipalNavigationSpecification">
         ///     The name of the navigation property or entity type on the dependent end of the
         ///     relationship.
-        ///</param>
+        /// </param>
         /// <param name="principalToDependentNavigationSpecification">
         ///     The name of the navigation property or entity type on the principal end of the
         ///     relationship.
-        ///</param>
+        /// </param>
         /// <param name="foreignKeyProperties">The properties that make up the foreign key.</param>
         /// <param name="principalKeyProperties">The corresponding keys on the principal side.</param>
         public static void IncompatibleMatchingForeignKeyProperties(

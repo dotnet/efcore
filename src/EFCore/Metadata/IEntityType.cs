@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        ///</returns>
+        /// </returns>
         new IEntityType GetRootType()
             => (IEntityType)((IReadOnlyEntityType)this).GetRootType();
 
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
-        ///</returns>
+        /// </returns>
         IEntityType? FindClosestCommonParent(IEntityType otherEntityType)
             => (IEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
 
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
-        ///</returns>
+        /// </returns>
         IEntityType? LeastDerivedType(IEntityType otherEntityType)
             => (IEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IForeignKey? FindForeignKey(
             IReadOnlyProperty property,

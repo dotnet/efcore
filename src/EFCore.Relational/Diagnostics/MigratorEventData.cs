@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
         /// <param name="migrator">
         ///     The <see cref="IMigrator" /> in use.
-        ///</param>
+        /// </param>
         public MigratorEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

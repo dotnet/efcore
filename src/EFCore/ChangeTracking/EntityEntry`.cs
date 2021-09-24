@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
-        ///</param>
+        /// </param>
         /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -79,11 +79,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
-        ///</param>
+        /// </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
             Expression<Func<TEntity, TProperty?>> propertyExpression)
             where TProperty : class
@@ -105,11 +105,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
-        ///</param>
+        /// </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
             Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
             where TProperty : class
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(string propertyName)
             where TProperty : class
         {
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(string propertyName)
             where TProperty : class
         {

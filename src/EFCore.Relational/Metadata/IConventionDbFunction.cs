@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="translation">
         ///     The translation callback for performing custom translation of the method call into a SQL expression fragment.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The configured value.</returns>
         Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(

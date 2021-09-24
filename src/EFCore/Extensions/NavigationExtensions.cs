@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.IsOnDependent")]
         public static bool IsDependentToPrincipal(this INavigation navigation)
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation">The navigation property to check.</param>
         /// <returns>
         ///     <see langword="true" /> if this is a collection property, false if it is a reference property.
-        ///</returns>
+        /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.IsCollection")]
         public static bool IsCollection(this INavigation navigation)
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation">The navigation property to find the inverse of.</param>
         /// <returns>
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
-        ///</returns>
+        /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.Inverse")]
         public static INavigation? FindInverse(this INavigation navigation)

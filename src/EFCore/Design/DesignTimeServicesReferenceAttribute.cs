@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="typeName">
         ///     The assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
-        ///</param>
+        /// </param>
         public DesignTimeServicesReferenceAttribute(string typeName)
             : this(typeName, forProvider: null)
         {
@@ -40,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="typeName">
         ///     The assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
-        ///</param>
+        /// </param>
         /// <param name="forProvider">
         ///     The name of the provider for which these services should be added. If null, the services will be added
         ///     for all providers.
-        ///</param>
+        /// </param>
         public DesignTimeServicesReferenceAttribute(string typeName, string? forProvider)
         {
             Check.NotEmpty(typeName, nameof(typeName));

@@ -2037,7 +2037,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="column">The name of the column.</param>
         /// <param name="omitVariableDeclarations">
         ///     Indicates whether the variable declarations should be omitted.
-        ///</param>
+        /// </param>
         protected virtual void AddDescription(
             MigrationCommandListBuilder builder,
             string description,
@@ -2220,7 +2220,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="column">The name of the column.</param>
         /// <param name="omitVariableDeclarations">
         ///     Indicates whether the variable declarations should be omitted.
-        ///</param>
+        /// </param>
         protected virtual void DropDescription(
             MigrationCommandListBuilder builder,
             string? schema,

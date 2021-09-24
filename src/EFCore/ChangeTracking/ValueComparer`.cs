@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="favorStructuralComparisons">
         ///     If <see langword="true" />, then EF will use <see cref="IStructuralEquatable" /> if the type
         ///     implements it. This is usually used when byte arrays act as keys.
-        ///</param>
+        /// </param>
         public ValueComparer(bool favorStructuralComparisons)
             : this(
                 CreateDefaultEqualsExpression(),
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="favorStructuralComparisons">
         ///     If <see langword="true" />, then <see cref="IStructuralEquatable" /> is used if the type implements it.
-        ///</param>
+        /// </param>
         /// <returns>The hash code expression.</returns>
         protected static Expression<Func<T, int>> CreateDefaultHashCodeExpression(bool favorStructuralComparisons)
         {

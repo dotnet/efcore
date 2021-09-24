@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="IEqualityComparer{T}" /> implementation to use when
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
-        ///</param>
+        /// </param>
         public ObservableHashSet(IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(comparer);
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="IEqualityComparer{T}" /> implementation to use when
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
-        ///</param>
+        /// </param>
         public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(collection, comparer);
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="item">The element to locate in the hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set contains the specified element; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool Contains(T item)
             => _set.Contains(item);
 
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="array">
         ///     The one-dimensional array that is the destination of the elements copied from
         ///     the hash set. The array must have zero-based indexing.
-        ///</param>
+        /// </param>
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         public virtual void CopyTo(T[] array, int arrayIndex)
             => _set.CopyTo(array, arrayIndex);
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="item">The element to remove.</param>
         /// <returns>
         ///     <see langword="true" /> if the element is successfully found and removed; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool Remove(T item)
         {
             if (!_set.Contains(item))
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns>
         ///     An enumerator for the hash set.
-        ///</returns>
+        /// </returns>
         public virtual HashSet<T>.Enumerator GetEnumerator()
             => _set.GetEnumerator();
 
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="item">The element to add to the set.</param>
         /// <returns>
         ///     <see langword="true" /> if the element is added to the hash set; <see langword="false" /> if the element is already present.
-        ///</returns>
+        /// </returns>
         public virtual bool Add(T item)
         {
             if (_set.Contains(item))
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set is a subset of other; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool IsSubsetOf(IEnumerable<T> other)
             => _set.IsSubsetOf(other);
 
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set is a proper subset of other; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool IsProperSubsetOf(IEnumerable<T> other)
             => _set.IsProperSubsetOf(other);
 
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set is a superset of other; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool IsSupersetOf(IEnumerable<T> other)
             => _set.IsSupersetOf(other);
 
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set is a proper superset of other; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool IsProperSupersetOf(IEnumerable<T> other)
             => _set.IsProperSupersetOf(other);
 
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set and other share at least one common element; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool Overlaps(IEnumerable<T> other)
             => _set.Overlaps(other);
 
@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="other">The collection to compare to the current hash set.</param>
         /// <returns>
         ///     <see langword="true" /> if the hash set is equal to other; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public virtual bool SetEquals(IEnumerable<T> other)
             => _set.SetEquals(other);
 
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="array">
         ///     The one-dimensional array that is the destination of the elements copied from
         ///     the hash set. The array must have zero-based indexing.
-        ///</param>
+        /// </param>
         public virtual void CopyTo(T[] array)
             => _set.CopyTo(array);
 
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="array">
         ///     The one-dimensional array that is the destination of the elements copied from
         ///     the hash set. The array must have zero-based indexing.
-        ///</param>
+        /// </param>
         /// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
         /// <param name="count">The number of elements to copy to array.</param>
         public virtual void CopyTo(T[] array, int arrayIndex, int count)
@@ -411,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="match">
         ///     The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to remove.
-        ///</param>
+        /// </param>
         /// <returns>The number of elements that were removed from the hash set.</returns>
         public virtual int RemoveWhere(Predicate<T> match)
         {

@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns>
         ///     <see langword="true" /> if the annotation is handled by convention;
         ///     <see langword="false" /> if code must be generated.
-        ///</returns>
+        /// </returns>
         protected virtual bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {
             Check.NotNull(model, nameof(model));

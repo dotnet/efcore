@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionForeignKeyBuilder? HasConstraintName(
             this IConventionForeignKeyBuilder relationship,
             string? name,

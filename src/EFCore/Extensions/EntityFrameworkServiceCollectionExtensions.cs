@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
         /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
@@ -107,7 +107,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
         /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
@@ -160,7 +160,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContext>(
@@ -208,7 +208,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
@@ -268,7 +268,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContext>(
@@ -325,7 +325,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
@@ -503,7 +503,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
         /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
@@ -563,7 +563,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
         /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
@@ -661,11 +661,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        ///</param>
+        /// </param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
@@ -728,11 +728,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        ///</param>
+        /// </param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
@@ -804,11 +804,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        ///</param>
+        /// </param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
@@ -879,11 +879,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        ///</param>
+        /// </param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
@@ -952,7 +952,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
@@ -1003,7 +1003,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
         /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(

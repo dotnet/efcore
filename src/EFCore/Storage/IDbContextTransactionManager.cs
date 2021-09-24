@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task CommitTransactionAsync(CancellationToken cancellationToken = default);
 
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 

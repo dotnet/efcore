@@ -116,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static MethodInfo FirstWithoutPredicate { get; }
 
         /// <summary>
-        ///     The <see cref="MethodInfo" /> for <see cref="Queryable.First{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        ///     The <see cref="MethodInfo" /> for
+        ///     <see cref="Queryable.First{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
         /// </summary>
         public static MethodInfo FirstWithPredicate { get; }
 

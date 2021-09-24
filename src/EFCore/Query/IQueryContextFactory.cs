@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <returns>
         ///     A QueryContext instance.
-        ///</returns>
+        /// </returns>
         QueryContext Create();
     }
 }

@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownerReference">
         ///     The name of the reference navigation property pointing to the owner.
         ///     If null or not specified, there is no navigation property pointing to the owner.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnershipBuilder WithOwner(
             string? ownerReference = null)
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             string ownedTypeName,
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
             Type ownedType,
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
@@ -506,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsOne(
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             string ownedTypeName,
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
             Type ownedType,
@@ -648,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
         /// <returns>An object that can be used to configure the entity type.</returns>
         public virtual OwnedNavigationBuilder OwnsMany(
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(
             string relatedTypeName,
@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(string navigationName)
         {
@@ -859,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
         ///     no property is specified, the relationship will be configured without a navigation property on this
         ///     end.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceNavigationBuilder HasOne(
             Type relatedType,
@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     An array of seed data represented by anonymous types.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder HasData(params object[] data)
         {
@@ -1001,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="data">
         ///     A collection of seed data represented by anonymous types.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the model data.</returns>
         public virtual DataBuilder HasData(IEnumerable<object> data)
         {

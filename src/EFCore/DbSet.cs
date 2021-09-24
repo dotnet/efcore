@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Add(TEntity entity)
             => throw new NotSupportedException();
 
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
             TEntity entity,
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Attach(TEntity entity)
             => throw new NotSupportedException();
 
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Remove(TEntity entity)
             => throw new NotSupportedException();
 
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Update(TEntity entity)
             => throw new NotSupportedException();
 
@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> that may be used to cancel the asynchronous iteration.
-        ///</param>
+        /// </param>
         /// <returns>The query results.</returns>
         public virtual IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => ((IAsyncEnumerable<TEntity>)this).GetAsyncEnumerator(cancellationToken);

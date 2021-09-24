@@ -67,11 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace">
         ///     The project's root namespace, <see langword="null" /> to indicate no automatic
         ///     namespace generation, just use sub-namespace as is.
-        ///</param>
+        /// </param>
         /// <param name="subNamespace">
         ///     The migration's sub-namespace. Note: the root-namespace and
         ///     the sub-namespace should not both be empty.
-        ///</param>
+        /// </param>
         /// <param name="language">The project's language.</param>
         /// <returns>The scaffolded migration.</returns>
         public virtual ScaffoldedMigration ScaffoldMigration(

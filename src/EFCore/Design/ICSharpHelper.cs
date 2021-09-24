@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="instanceIdentifier">An identifier on which the method call will be generated.</param>
         /// <param name="typeQualified">
         ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
-        ///</param>
+        /// </param>
         /// <returns>The fragment.</returns>
         string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false);
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="capitalize">
         ///     <see langword="true" /> if the first letter should be converted to uppercase;
         ///     <see langword="false" /> if the first letter should be converted to lowercase;
-        ///</param>
+        /// </param>
         /// <returns>The identifier.</returns>
         string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null);
 

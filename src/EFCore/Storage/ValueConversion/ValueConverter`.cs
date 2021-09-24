@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        ///</param>
+        /// </param>
         public ValueConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,
@@ -50,11 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="convertsNulls">
         ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
         ///     values always remain null.
-        ///</param>
+        /// </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        ///</param>
+        /// </param>
         public ValueConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,

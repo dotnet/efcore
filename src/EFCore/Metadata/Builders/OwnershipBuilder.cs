@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnershipBuilder HasForeignKey(
             params string[] foreignKeyPropertyNames)

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="data">
         ///     An array of seed data represented by anonymous types or entities.
-        ///</param>
+        /// </param>
         void AddData(IEnumerable<object> data);
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IMutableEntityType> GetAllBaseTypes()
             => GetAllBaseTypesAscending().Reverse();
 
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IMutableEntityType> GetAllBaseTypesAscending()
             => GetAllBaseTypesInclusiveAscending().Skip(1);
 
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        ///</returns>
+        /// </returns>
         new IMutableEntityType GetRootType()
             => (IMutableEntityType)((IReadOnlyEntityType)this).GetRootType();
 
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
-        ///</returns>
+        /// </returns>
         new IMutableEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
             => (IMutableEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
 
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
-        ///</returns>
+        /// </returns>
         new IMutableEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
             => (IMutableEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
 
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The newly created foreign key.</returns>
         IMutableForeignKey AddForeignKey(
             IMutableProperty property,
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The newly created foreign key.</returns>
         IMutableForeignKey AddForeignKey(
             IReadOnlyList<IMutableProperty> properties,
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IMutableForeignKey? FindForeignKey(
             IReadOnlyProperty property,
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IMutableForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The removed foreign key, or <see langword="null" /> if the index was not found.</returns>
         IMutableForeignKey? RemoveForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -519,12 +519,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <para>
         ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="targetEntityType">The entity type that the skip navigation property will hold an instance(s) of.</param>
         /// <param name="collection">Whether the navigation property is a collection property.</param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
-        ///</param>
+        /// </param>
         /// <returns>The newly created skip navigation property.</returns>
         IMutableSkipNavigation AddSkipNavigation(
             string name,
@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <para>
         ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <returns>The newly created property.</returns>
         IMutableProperty AddProperty(string name, Type propertyType, MemberInfo? memberInfo);
 

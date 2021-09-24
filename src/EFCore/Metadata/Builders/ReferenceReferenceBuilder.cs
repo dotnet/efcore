@@ -93,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="dependentEntityTypeName">
         ///     The name of the entity type that is the dependent in this relationship (the type that has the foreign
         ///     key properties).
-        ///</param>
+        /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
             string dependentEntityTypeName,
@@ -131,10 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="dependentEntityType">
         ///     The entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
-        ///</param>
+        /// </param>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder HasForeignKey(
             Type dependentEntityType,
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="principalEntityTypeName">
         ///     The name of the entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
-        ///</param>
+        /// </param>
         /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder HasPrincipalKey(
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="principalEntityType">
         ///     The entity type that is the principal in this relationship (the type
         ///     that has the reference key properties).
-        ///</param>
+        /// </param>
         /// <param name="keyPropertyNames">The name(s) of the reference key property(s).</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual ReferenceReferenceBuilder HasPrincipalKey(

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context">
         ///     The context instance that this key is for.
-        ///</param>
+        /// </param>
         public ModelCacheKey(DbContext context)
         {
             _dbContextType = context.GetType();
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context">
         ///     The context instance that this key is for.
-        ///</param>
+        /// </param>
         /// <param name="designTime">Whether the model should contain design-time configuration.</param>
         public ModelCacheKey(DbContext context, bool designTime)
         {
@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="other">
         ///     The key to compare this key to.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if the key is for the same context type, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         protected virtual bool Equals(ModelCacheKey other)
             => _dbContextType == other._dbContextType
                 && _designTime == other._designTime;
@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="obj">
         ///     The object to compare this key to.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise
         ///     <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public override bool Equals(object? obj)
             => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns>
         ///     The hash code for the key.
-        ///</returns>
+        /// </returns>
         public override int GetHashCode()
         {
             var hash = new HashCode();

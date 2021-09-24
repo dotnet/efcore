@@ -99,7 +99,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="connectionString">
         ///     The initial connection string the builder will represent. Can be null.
-        ///</param>
+        /// </param>
         public SqliteConnectionStringBuilder(string? connectionString)
             => ConnectionString = connectionString;
 

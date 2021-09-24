@@ -78,11 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="errorsExpected">Indicate if the connection errors are expected and should be logged as debug message.</param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually closed.
-        ///</returns>
+        /// </returns>
         Task<bool> CloseAsync();
 
         /// <summary>

@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="materializationCondition">
         ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
         ///     materialize.
-        ///</param>
+        /// </param>
         protected RelationalEntityShaperExpression(
             IEntityType entityType,
             Expression valueBufferExpression,

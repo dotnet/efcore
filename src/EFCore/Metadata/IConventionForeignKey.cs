@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="deleteBehavior">
         ///     A value indicating how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The configured behavior.</returns>
         DeleteBehavior? SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         IConventionNavigation? SetDependentToPrincipal(string? name, bool fromDataAnnotation = false);
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         IConventionNavigation? SetDependentToPrincipal(MemberInfo? property, bool fromDataAnnotation = false);
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetDependentToPrincipal")]
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         IConventionNavigation? SetPrincipalToDependent(string? name, bool fromDataAnnotation = false);
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         IConventionNavigation? SetPrincipalToDependent(MemberInfo? property, bool fromDataAnnotation = false);
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property">
         ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
         ///     no navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         [Obsolete("Use SetPrincipalToDependent")]
@@ -305,10 +305,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
-        ///</returns>
+        /// </returns>
         new IConventionNavigation? GetNavigation(bool pointsToPrincipal)
             => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
     }

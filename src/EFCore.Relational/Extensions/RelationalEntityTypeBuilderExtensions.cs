@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToTable(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToTable(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToSchema(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? schema,
@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ExcludeTableFromMigrations(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? excludedFromMigrations,
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToView(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToView(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -991,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToViewSchema(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? schema,
@@ -1073,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToSqlQuery(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -1489,7 +1489,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToFunction(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -1523,7 +1523,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToFunction(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             MethodInfo? function,
@@ -1783,7 +1783,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the check constraint was configured,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionCheckConstraintBuilder? HasCheckConstraint(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
@@ -1884,7 +1884,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasComment(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? comment,

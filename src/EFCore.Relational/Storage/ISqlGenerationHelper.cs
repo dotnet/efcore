@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name">
         ///     The candidate name for the parameter.
-        ///</param>
+        /// </param>
         /// <returns>A valid name based on the candidate name.</returns>
         string GenerateParameterName(string name);
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">
         ///     The candidate name for the parameter.
-        ///</param>
+        /// </param>
         void GenerateParameterName(StringBuilder builder, string name);
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name">
         ///     The candidate name for the parameter placeholder.
-        ///</param>
+        /// </param>
         /// <returns>A valid placeholder name based on the candidate name.</returns>
         string GenerateParameterNamePlaceholder(string name);
 
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">
         ///     The candidate name for the parameter placeholder.
-        ///</param>
+        /// </param>
         void GenerateParameterNamePlaceholder(StringBuilder builder, string name);
 
         /// <summary>

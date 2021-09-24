@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns>
         ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
-        ///</returns>
+        /// </returns>
         IList IListSource.GetList()
             => _bindingList ??= this.ToBindingList();
     }

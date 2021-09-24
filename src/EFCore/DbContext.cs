@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
-        ///</param>
+        /// </param>
         protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="configurationBuilder">
         ///     The builder being used to set defaults and configure conventions that will be used to build the model for this context.
-        ///</param>
+        /// </param>
         protected internal virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
         }
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific
         ///     to a given database.
-        ///</param>
+        /// </param>
         protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
@@ -547,15 +547,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <returns>
         ///     The number of state entries written to the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        ///</exception>
+        /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        ///</exception>
+        /// </exception>
         public virtual int SaveChanges()
             => SaveChanges(acceptAllChangesOnSuccess: true);
 
@@ -581,18 +581,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     The number of state entries written to the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        ///</exception>
+        /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        ///</exception>
+        /// </exception>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             CheckDisposed();
@@ -674,15 +674,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        ///</exception>
+        /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
@@ -709,20 +709,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        ///</exception>
+        /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
@@ -1141,7 +1141,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Add<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1179,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
             TEntity entity,
@@ -1233,7 +1233,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Update<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1315,7 +1315,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1369,7 +1369,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry Add(object entity)
         {
             CheckDisposed();
@@ -1408,7 +1408,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
             object entity,
@@ -1460,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry Attach(object entity)
         {
             CheckDisposed();
@@ -1504,7 +1504,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry Update(object entity)
         {
             CheckDisposed();
@@ -1538,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        ///</returns>
+        /// </returns>
         public virtual EntityEntry Remove(object entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -1791,7 +1791,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task AddRangeAsync(
             IEnumerable<object> entities,

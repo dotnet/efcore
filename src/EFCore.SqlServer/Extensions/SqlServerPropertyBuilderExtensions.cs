@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasIdentityColumnSeed(
             this IConventionPropertyBuilder propertyBuilder,
             long? seed,
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasIdentityColumnIncrement(
             this IConventionPropertyBuilder propertyBuilder,
             int? increment,
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionPropertyBuilder? HasValueGenerationStrategy(
             this IConventionPropertyBuilder propertyBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
         /// <returns>
         ///     <see langword="true" /> if the property's column can be configured as sparse when targeting SQL Server.
-        ///</returns>
+        /// </returns>
         /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static bool CanSetIsSparse(
             this IConventionPropertyBuilder property,

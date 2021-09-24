@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToContainer(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? ToJsonProperty(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasPartitionKey(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? name,
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasAnalyticalStoreTimeToLive(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? seconds,
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionEntityTypeBuilder? HasDefaultTimeToLive(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? seconds,

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="productVersion">
         ///     The EF Core version, which is obtained from the <see cref="AssemblyInformationalVersionAttribute" />
         ///     of the EF Core assembly.
-        ///</param>
+        /// </param>
         public HistoryRow(string migrationId, string productVersion)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));

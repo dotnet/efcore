@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <returns>
         ///     <see langword="true" />
-        ///</returns>
+        /// </returns>
         protected override bool IsCommandTextValid()
             => true;
     }

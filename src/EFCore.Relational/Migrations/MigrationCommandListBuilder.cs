@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="suppressTransaction">
         ///     Indicates whether or not transactions should be suppressed while executing the built command.
-        ///</param>
+        /// </param>
         /// <returns>This builder so that additional calls can be chained.</returns>
         public virtual MigrationCommandListBuilder EndCommand(bool suppressTransaction = false)
         {

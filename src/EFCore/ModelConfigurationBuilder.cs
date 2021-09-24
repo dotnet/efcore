@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="T">The type to be ignored.</typeparam>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder IgnoreAny<T>()
             => IgnoreAny(typeof(T));
 
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type">The type to be ignored.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder IgnoreAny(Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the property.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder Properties<TProperty>(
             Action<PropertiesConfigurationBuilder<TProperty>> buildAction)
         {
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration of the property.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder Properties(
             Type propertyType,
             Action<PropertiesConfigurationBuilder> buildAction)
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration for the scalars.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder DefaultTypeMapping<TScalar>(
             Action<TypeMappingConfigurationBuilder<TScalar>> buildAction)
         {
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="buildAction">An action that performs configuration for the scalars.</param>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
-        ///</returns>
+        /// </returns>
         public virtual ModelConfigurationBuilder DefaultTypeMapping(
             Type scalarType,
             Action<TypeMappingConfigurationBuilder> buildAction)

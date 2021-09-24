@@ -42,14 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is true, then EF will suppress the operation it
         ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         InterceptionResult<int> SavingChanges(
             DbContextEventData eventData,
             InterceptionResult<int> result);
@@ -67,12 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="result">
         ///     The result of the call to <see cref="M:DbContext.SaveChanges" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     The result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         int SavedChanges(
             SaveChangesCompletedEventData eventData,
             int result);
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This value will have <see cref="InterceptionResult{Int32}.HasResult" /> set to <see langword="true" /> if some previous
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{Int32}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     If <see cref="InterceptionResult{Int32}.HasResult" /> is false, the EF will continue as normal.
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     was about to perform and use <see cref="InterceptionResult{Int32}.Result" /> instead.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         ValueTask<InterceptionResult<int>> SavingChangesAsync(
             DbContextEventData eventData,
@@ -121,13 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="result">
         ///     The result of the call to <see cref="M:DbContext.SaveChangesAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     The result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         ValueTask<int> SavedChangesAsync(
             SaveChangesCompletedEventData eventData,

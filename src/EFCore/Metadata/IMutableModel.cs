@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if a matching entity type should be configured as owned when discovered,
         ///     <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         bool IsOwned(Type type);
 
         /// <summary>

@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property">The property.</param>
         /// <returns>
         ///     The <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
-        ///</returns>
+        /// </returns>
         public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionProperty property)
             => property.FindAnnotation(CosmosAnnotationNames.PropertyName)?.GetConfigurationSource();
     }

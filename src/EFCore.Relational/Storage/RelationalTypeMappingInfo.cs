@@ -40,20 +40,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="fallbackUnicode">
         ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
         ///     level, or <see langword="null" /> for default.
-        ///</param>
+        /// </param>
         /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
         /// <param name="fallbackSize">
         ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
         ///     default.
-        ///</param>
+        /// </param>
         /// <param name="fallbackPrecision">
         ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <see langword="null" />
         ///     for default.
-        ///</param>
+        /// </param>
         /// <param name="fallbackScale">
         ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
         ///     default.
-        ///</param>
+        /// </param>
         public RelationalTypeMappingInfo(
             IReadOnlyList<IProperty> principals,
             string? storeTypeName = null,

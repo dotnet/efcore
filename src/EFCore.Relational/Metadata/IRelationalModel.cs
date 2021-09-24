@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The <see cref="ISequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        ///</returns>
+        /// </returns>
         ISequence? FindSequence(string name, string? schema)
             => Model.FindSequence(name, schema);
 

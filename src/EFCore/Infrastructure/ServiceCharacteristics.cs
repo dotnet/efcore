@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="multipleRegistrations">
         ///     <see langword="true" /> if multiple registrations of the service is allowed; <see langword="false" />
         ///     otherwise.
-        ///</param>
+        /// </param>
         public ServiceCharacteristics(ServiceLifetime lifetime, bool multipleRegistrations = false)
         {
             Lifetime = lifetime;

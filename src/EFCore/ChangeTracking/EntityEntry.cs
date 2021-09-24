@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual ReferenceEntry Reference(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
-        ///</returns>
+        /// </returns>
         public virtual CollectionEntry Collection(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the store values,
         ///     or <see langword="null" /> if the entity does not exist in the database.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {

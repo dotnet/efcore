@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns>
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
-        ///</returns>
+        /// </returns>
         public abstract bool AddCommand(IReadOnlyModificationCommand modificationCommand);
 
         /// <summary>

@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="targetEntityType">Target entity type.</param>
         /// <returns>
         ///     <see langword="true" /> if the given navigation has ambiguous inverse navigations with <see cref="InversePropertyAttribute" />.
-        ///</returns>
+        /// </returns>
         public static bool IsAmbiguous(
             IConventionEntityType entityType,
             MemberInfo navigation,

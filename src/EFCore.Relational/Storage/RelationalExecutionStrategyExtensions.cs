@@ -31,14 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public static void ExecuteInTransaction(
             this IExecutionStrategy strategy,
             Action operation,
@@ -58,19 +58,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="operation">
         ///     A function that returns a started task.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public static Task ExecuteInTransactionAsync(
             this IExecutionStrategy strategy,
             Func<Task> operation,
@@ -90,23 +90,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="operation">
         ///     A function that returns a started task.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task ExecuteInTransactionAsync(
             this IExecutionStrategy strategy,
@@ -129,16 +129,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <typeparam name="TResult">The return type of <paramref name="operation" />.</typeparam>
         /// <returns>The result from the operation.</returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public static TResult ExecuteInTransaction<TResult>(
             this IExecutionStrategy strategy,
             Func<TResult> operation,
@@ -158,24 +158,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="cancellationToken">
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
-        ///</param>
+        /// </param>
         /// <typeparam name="TResult">The result type of the <see cref="Task{T}" /> returned by <paramref name="operation" />.</typeparam>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
             this IExecutionStrategy strategy,
@@ -198,16 +198,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public static void ExecuteInTransaction<TState>(
             this IExecutionStrategy strategy,
             TState state,
@@ -234,25 +234,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A function that returns a started task.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="cancellationToken">
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
-        ///</param>
+        /// </param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task ExecuteInTransactionAsync<TState>(
             this IExecutionStrategy strategy,
@@ -281,18 +281,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The return type of <paramref name="operation" />.</typeparam>
         /// <returns>The result from the operation.</returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
             this IExecutionStrategy strategy,
             TState state,
@@ -314,26 +314,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
-        ///</param>
+        /// </param>
         /// <param name="verifySucceeded">
         ///     A delegate that tests whether the operation succeeded even though an exception was thrown when the
         ///     transaction was being committed.
-        ///</param>
+        /// </param>
         /// <param name="isolationLevel">The isolation level to use for the transaction.</param>
         /// <param name="cancellationToken">
         ///     A cancellation token used to cancel the retry operation, but not operations that are already in flight
         ///     or that already completed successfully.
-        ///</param>
+        /// </param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The result type of the <see cref="Task{TResult}" /> returned by <paramref name="operation" />.</typeparam>
         /// <returns>
         ///     A task that will run to completion if the original task completes successfully (either the
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
-        ///</returns>
+        /// </returns>
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
-        ///</exception>
+        /// </exception>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
             this IExecutionStrategy strategy,

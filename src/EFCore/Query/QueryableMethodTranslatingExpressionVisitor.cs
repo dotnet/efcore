@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="outer">
         ///     The shaped query expression for outer source. The join on the query expression is already performed on outer query
         ///     expression.
-        ///</param>
+        /// </param>
         /// <param name="resultSelector">The result selector lambda to translate.</param>
         /// <param name="innerShaper">The shaper for inner source.</param>
         /// <param name="transparentIdentifierType">The clr type of transparent identifier created from result.</param>

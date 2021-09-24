@@ -25,11 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="dependentToPrincipalNavigationSpecification">
         ///     The name of the navigation property or entity type on the dependent end of the
         ///     relationship.
-        ///</param>
+        /// </param>
         /// <param name="principalToDependentNavigationSpecification">
         ///     The name of the navigation property or entity type on the principal end of the
         ///     relationship.
-        ///</param>
+        /// </param>
         /// <param name="firstPropertyCollection">The first property collection.</param>
         /// <param name="secondPropertyCollection">The second property collection.</param>
         public ForeignKeyCandidateEventData(

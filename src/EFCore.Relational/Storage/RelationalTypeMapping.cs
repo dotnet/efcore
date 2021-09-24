@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         public virtual string GenerateSqlLiteral(object? value)
         {
             value = NormalizeEnumValue(value);
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         public virtual string GenerateProviderValueSqlLiteral(object? value)
             => value == null
                 ? "NULL"
@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         protected virtual string GenerateNonNullSqlLiteral(object value)
             => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, nameof(value)));
 

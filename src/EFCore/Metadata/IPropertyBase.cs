@@ -60,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="forMaterialization">
         ///     If <see langword="true" />, then the member to use for query materialization will be returned.
-        ///</param>
+        /// </param>
         /// <param name="forSet">
         ///     If <see langword="true" />, then the member to use for setting the property value will be returned, otherwise
         ///     the member to use for getting the property value will be returned.
-        ///</param>
+        /// </param>
         /// <returns>The <see cref="MemberInfo" /> to use.</returns>
         MemberInfo GetMemberInfo(bool forMaterialization, bool forSet)
         {

@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasDefaultSchema(
             this IConventionModelBuilder modelBuilder,
             string? schema,
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? HasMaxIdentifierLength(
             this IConventionModelBuilder modelBuilder,
             int? length,
@@ -555,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionModelBuilder? UseCollation(
             this IConventionModelBuilder modelBuilder,
             string? collation,

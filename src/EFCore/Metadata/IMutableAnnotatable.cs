@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">The name of the annotation.</param>
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         new object? this[string name] { get; set; }
 
         /// <summary>

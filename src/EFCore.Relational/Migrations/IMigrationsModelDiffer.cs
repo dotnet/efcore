@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="target">The second model.</param>
         /// <returns>
         ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         bool HasDifferences(IRelationalModel? source, IRelationalModel? target);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>
         ///     A list of the operations that need to applied to the database to migrate it
         ///     from mapping to the source model so that is now mapping to the target model.
-        ///</returns>
+        /// </returns>
         IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target);
     }
 }

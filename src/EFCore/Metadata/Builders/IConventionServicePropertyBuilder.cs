@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionServicePropertyBuilder? HasField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionServicePropertyBuilder? HasField(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         new IConventionServicePropertyBuilder? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false);
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionServicePropertyBuilder? HasParameterBinding(
             ServiceParameterBinding? parameterBinding,
             bool fromDataAnnotation = false);

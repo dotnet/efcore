@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
         ///     in the open state then EF will not open or close the connection. If the connection is in the closed
         ///     state then EF will open and close the connection as needed.
-        ///</param>
+        /// </param>
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseSqlite(
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
         ///     in the open state then EF will not open or close the connection. If the connection is in the closed
         ///     state then EF will open and close the connection as needed.
-        ///</param>
+        /// </param>
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(

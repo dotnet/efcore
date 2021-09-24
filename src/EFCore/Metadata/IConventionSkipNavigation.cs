@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="foreignKey">
         ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The new foreign key.</returns>
         IConventionForeignKey? SetForeignKey(IConventionForeignKey? foreignKey, bool fromDataAnnotation = false);
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="inverse">
         ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         [DebuggerStepThrough]
         IConventionSkipNavigation? SetInverse(IConventionSkipNavigation? inverse, bool fromDataAnnotation = false);

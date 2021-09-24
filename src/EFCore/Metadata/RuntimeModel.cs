@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyBag">
         ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
         ///     and a method that can be used to determine whether a given indexer property contains a value.
-        ///</param>
+        /// </param>
         /// <returns>The new entity type.</returns>
         public virtual RuntimeEntityType AddEntityType(
             string name,
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="scale">The scale of data that is allowed in this property type.</param>
         /// <param name="providerPropertyType">
         ///     The type that the property value will be converted to before being sent to the database provider.
-        ///</param>
+        /// </param>
         /// <param name="valueConverter">The custom <see cref="ValueConverter" /> for this type.</param>
         /// <returns>The newly created property.</returns>
         public virtual RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(

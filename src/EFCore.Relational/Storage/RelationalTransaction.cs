@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="logger">The logger to write to.</param>
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
-        ///</param>
+        /// </param>
         /// <param name="sqlGenerationHelper">The SQL generation helper to use.</param>
         public RelationalTransaction(
             IRelationalConnection connection,

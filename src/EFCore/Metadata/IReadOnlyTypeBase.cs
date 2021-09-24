@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="omitSharedType">
         ///     A value indicating whether the name of the type for shared type entity types should be omitted from the returned value.
-        ///</param>
+        /// </param>
         /// <returns>The display name.</returns>
         [DebuggerStepThrough]
         string DisplayName(bool omitSharedType)

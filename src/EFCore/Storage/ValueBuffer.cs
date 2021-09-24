@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="obj">
         ///     The object to compare this value buffer to.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public override bool Equals(object? obj)
             => !(obj is null)
                 && obj is ValueBuffer buffer
@@ -91,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="other">
         ///     An object to compare with this object.
-        ///</param>
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-        ///</returns>
+        /// </returns>
         public bool Equals(ValueBuffer other)
         {
             if (_values.Length != other._values.Length)
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     The hash code for the value buffer.
-        ///</returns>
+        /// </returns>
         public override int GetHashCode()
         {
             var hash = new HashCode();

@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="collection">
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object to further configure the relationship.</returns>
         public virtual ReferenceCollectionBuilder WithMany(string? collection = null)
         {
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="reference">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
-        ///</param>
+        /// </param>
         /// <returns>An object that can be used to configure the relationship.</returns>
         public virtual ReferenceReferenceBuilder WithOne(string? reference = null)
             => new(DeclaringEntityType, RelatedEntityType, WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);

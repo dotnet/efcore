@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        ///</param>
+        /// </param>
         public ValueConverterInfo(
             Type modelClrType,
             Type providerClrType,

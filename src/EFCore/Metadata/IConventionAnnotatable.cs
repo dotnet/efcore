@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name">The name of the annotation to find.</param>
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         new IConventionAnnotation? FindAnnotation(string name);
 
         /// <summary>

@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IConventionEntityType> GetAllBaseTypes()
             => GetAllBaseTypesAscending().Reverse();
 
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The base types.
-        ///</returns>
+        /// </returns>
         new IEnumerable<IConventionEntityType> GetAllBaseTypesAscending()
             => GetAllBaseTypesInclusiveAscending().Skip(1);
 
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        ///</returns>
+        /// </returns>
         new IConventionEntityType GetRootType()
             => (IConventionEntityType)((IReadOnlyEntityType)this).GetRootType();
 
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
-        ///</returns>
+        /// </returns>
         new IConventionEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
             => (IConventionEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
 
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
-        ///</returns>
+        /// </returns>
         new IConventionEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
             => (IConventionEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
 
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created foreign key.</returns>
         IConventionForeignKey? AddForeignKey(
@@ -417,10 +417,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <param name="setComponentConfigurationSource">
         ///     Indicates whether the configuration source should be set for the properties, principal key and principal end.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created foreign key.</returns>
         IConventionForeignKey? AddForeignKey(
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IConventionForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -475,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key, or <see langword="null" /> if none is defined.</returns>
         new IConventionForeignKey? FindForeignKey(
             IReadOnlyProperty property,
@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
-        ///</param>
+        /// </param>
         /// <returns>The foreign key that was removed.</returns>
         IConventionForeignKey? RemoveForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
@@ -638,12 +638,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <para>
         ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="targetEntityType">The entity type that the skip navigation property will hold an instance(s) of.</param>
         /// <param name="collection">Whether the navigation property is a collection property.</param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
-        ///</param>
+        /// </param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created skip navigation property.</returns>
         IConventionSkipNavigation? AddSkipNavigation(
@@ -881,7 +881,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <para>
         ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
         ///     </para>
-        ///</param>
+        /// </param>
         /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created property.</returns>

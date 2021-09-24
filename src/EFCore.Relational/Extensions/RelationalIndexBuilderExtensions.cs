@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? HasDatabaseName(
             this IConventionIndexBuilder indexBuilder,
             string? name,
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         [Obsolete("Use HasDatabaseName() instead.")]
         public static IConventionIndexBuilder? HasName(
             this IConventionIndexBuilder indexBuilder,
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         public static IConventionIndexBuilder? HasFilter(
             this IConventionIndexBuilder indexBuilder,
             string? sql,

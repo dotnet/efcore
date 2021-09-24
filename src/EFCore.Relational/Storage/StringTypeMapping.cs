@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="literal">The value to be escaped.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         protected virtual string EscapeSqlLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        ///</returns>
+        /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => $"'{EscapeSqlLiteral((string)value)}'";
     }

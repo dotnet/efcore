@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="prevalidation">
         ///     <see langword="true" /> indicates that only pre-validation initialization should be performed;
         ///     <see langword="false" /> indicates that only post-validation initialization should be performed.
-        ///</param>
+        /// </param>
         protected virtual void InitializeModel(IModel model, bool designTime, bool prevalidation)
         {
         }

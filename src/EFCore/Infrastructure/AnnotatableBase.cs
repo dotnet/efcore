@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The key of the annotation to find.</param>
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         public virtual Annotation? FindAnnotation(string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         public virtual object? this[string name]
         {
             get => FindAnnotation(name)?.Value;
@@ -376,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise a newly created value.
-        ///</returns>
+        /// </returns>
         public virtual TValue GetOrAddRuntimeAnnotationValue<TValue, TArg>(
             string name,
             Func<TArg?, TValue> valueFactory,
@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name">The key of the annotation to find.</param>
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        ///</returns>
+        /// </returns>
         public virtual Annotation? FindRuntimeAnnotation(string name)
         {
             Check.NotEmpty(name, nameof(name));

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
-        ///</returns>
+        /// </returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default);

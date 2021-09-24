@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
@@ -129,16 +129,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
-        ///</param>
+        /// </param>
         /// <param name="typeMapping">
         ///     The type mapping for the property that values for this parameter will come from.
-        ///</param>
+        /// </param>
         /// <param name="nullable">
         ///     A value indicating whether the parameter can contain null values.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddParameter(
             this IRelationalCommandBuilder commandBuilder,
@@ -168,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
-        ///</param>
+        /// </param>
         /// <param name="property">The property that the type for this parameter will come from.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         [Obsolete("Use overload with relationalTypeMapping")]
@@ -202,10 +202,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
-        ///</param>
+        /// </param>
         /// <param name="relationalTypeMapping">The relational type mapping for this parameter.</param>
         /// <param name="nullable">A value indicating whether the parameter could contain a null value.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="subParameters">The parameters to include in the composite.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddCompositeParameter(
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="dbParameter">The DbParameter being added.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IRelationalCommandBuilder AddRawParameter(
@@ -293,13 +293,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
         ///     placeholder for a parameter and not the actual value. This is because the same command can be
         ///     reused multiple times with different parameter values.
-        ///</param>
+        /// </param>
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
-        ///</param>
+        /// </param>
         /// <param name="property">
         ///     The property that values for this parameter will come from.
-        ///</param>
+        /// </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         [Obsolete("Use overload with relationalTypeMapping")]
         public static IRelationalCommandBuilder AddPropertyParameter(

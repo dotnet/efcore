@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The database type of the column to which the property is mapped, or <see langword="null" /> if the database type could not
         ///     be found.
-        ///</returns>
+        /// </returns>
         public static string? GetColumnType(this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The database type of the column to which the property is mapped, or <see langword="null" /> if the database type could not
         ///     be found.
-        ///</returns>
+        /// </returns>
         public static string? GetColumnType(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
@@ -700,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     Whether the value of the computed column this property is mapped to is stored in the database,
         ///     or calculated when it is read.
-        ///</returns>
+        /// </returns>
         public static bool? GetIsStored(this IReadOnlyProperty property)
             => (bool?)property.FindAnnotation(RelationalAnnotationNames.IsStored)?.Value;
 
@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     Whether the value of the computed column this property is mapped to is stored in the database,
         ///     or calculated when it is read.
-        ///</returns>
+        /// </returns>
         public static bool? GetIsStored(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.IsStored);

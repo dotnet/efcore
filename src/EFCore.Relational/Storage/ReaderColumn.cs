@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="columnName">The column name if it is used to access the column values, <see langword="null" /> otherwise.</param>
         /// <param name="readFunc">
         ///     A <see cref="T:System.Func{DbDataReader, Int32[], T}" /> used to get the field value for this column.
-        ///</param>
+        /// </param>
         /// <returns>An instance of <see cref="ReaderColumn{T}" />.</returns>
         [Obsolete("Use method which also takes IPropertyBase.")]
         public static ReaderColumn Create(Type type, bool nullable, string? columnName, object readFunc)
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property">The property being read if any, null otherwise.</param>
         /// <param name="readFunc">
         ///     A <see cref="T:System.Func{DbDataReader, Int32[], T}" /> used to get the field value for this column.
-        ///</param>
+        /// </param>
         /// <returns>An instance of <see cref="ReaderColumn{T}" />.</returns>
         public static ReaderColumn Create(
             Type type,

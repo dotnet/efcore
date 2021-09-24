@@ -686,7 +686,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -705,7 +705,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -725,7 +725,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -746,7 +746,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -768,7 +768,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -791,7 +791,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -815,7 +815,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -840,7 +840,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -866,7 +866,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -893,7 +893,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -921,7 +921,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -950,7 +950,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -980,7 +980,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -1011,7 +1011,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -1043,7 +1043,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -1076,7 +1076,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
@@ -1094,7 +1094,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="resultSelector">
         ///     A function to transform the final accumulator value into the result value. Pass null to
         ///     delete a function.
-        ///</param>
+        /// </param>
         /// <param name="isDeterministic">Flag indicating whether the aggregate is deterministic.</param>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/user-defined-functions">User-Defined Functions</seealso>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>

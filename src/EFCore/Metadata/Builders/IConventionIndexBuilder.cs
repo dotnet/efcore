@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the uniqueness was configured,
         ///     <see langword="null" /> otherwise.
-        ///</returns>
+        /// </returns>
         IConventionIndexBuilder? IsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
