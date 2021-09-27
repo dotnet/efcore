@@ -1166,6 +1166,43 @@ SELECT @@ROWCOUNT');
 ");
         }
 
+        [ConditionalFact]
+        public virtual void Converting_table_to_temporal_idempotent()
+        {
+            Generate(
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
+                    }).HasAnnotation(RelationalAnnotationNames.Schema, "dbo"),
+            migrationBuilder => migrationBuilder
+                    .AlterTable("Customer")
+                    .Annotation(SqlServerAnnotationNames.IsTemporal, true)
+                    .Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, "CustomerHistory")
+                    .Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, "PeriodStart")
+                    .Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, "PeriodEnd"),
+                MigrationsSqlGenerationOptions.Idempotent);
+
+            AssertSql(
+                @"EXEC(N'ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])')
+GO
+
+ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN
+GO
+
+ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN
+GO
+
+DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
+
+");
+        }
+
         public SqlServerMigrationsSqlGeneratorTest()
             : base(
                 SqlServerTestHelpers.Instance,
