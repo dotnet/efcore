@@ -71,6 +71,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Ctor_parses_AutoRetry()
+        {
+            var builder = new SqliteConnectionStringBuilder("Auto Retry=False");
+
+            Assert.False(builder.AutoRetry);
+        }
+
+        [Fact]
         public void ConnectionString_defaults_to_empty()
         {
             var builder = new SqliteConnectionStringBuilder();
@@ -154,13 +162,32 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(30, new SqliteConnectionStringBuilder().DefaultTimeout);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AutoRetry_works(bool autoRetry)
+        {
+            var builder = new SqliteConnectionStringBuilder()
+            {
+                AutoRetry = autoRetry
+            };
+
+            Assert.Equal(autoRetry, builder.AutoRetry);
+        }
+
+        [Fact]
+        public void AutoRetry_defaults_to_true()
+        {
+            Assert.True(new SqliteConnectionStringBuilder().AutoRetry);
+        }
+
         [Fact]
         public void Keys_works()
         {
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(8, keys.Count);
+            Assert.Equal(9, keys.Count);
             Assert.Contains("Data Source", keys);
             Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
@@ -169,6 +196,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Contains("Recursive Triggers", keys);
             Assert.Contains("Default Timeout", keys);
             Assert.Contains("Pooling", keys);
+            Assert.Contains("Auto Retry", keys);
         }
 
         [Fact]
@@ -177,7 +205,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(8, values.Count);
+            Assert.Equal(9, values.Count);
         }
 
         [Fact]
@@ -280,7 +308,7 @@ namespace Microsoft.Data.Sqlite
         public void Clear_resets_everything()
         {
             var builder = new SqliteConnectionStringBuilder(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Auto Retry=False");
 
             builder.Clear();
 
@@ -291,6 +319,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Null(builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
             Assert.Equal(30, builder.DefaultTimeout);
+            Assert.True(builder.AutoRetry);
         }
 
         [Fact]
@@ -373,11 +402,12 @@ namespace Microsoft.Data.Sqlite
                 Password = "test",
                 ForeignKeys = true,
                 RecursiveTriggers = true,
-                DefaultTimeout = 1
+                DefaultTimeout = 1,
+                AutoRetry = false
             };
 
             Assert.Equal(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1;Auto Retry=False",
                 builder.ToString());
         }
 

@@ -31,6 +31,7 @@ namespace Microsoft.Data.Sqlite
         private const string DefaultTimeoutKeyword = "Default Timeout";
         private const string CommandTimeoutKeyword = "Command Timeout";
         private const string PoolingKeyword = "Pooling";
+        private const string AutoRetryKeyword = "Auto Retry";
 
         private enum Keywords
         {
@@ -41,7 +42,8 @@ namespace Microsoft.Data.Sqlite
             ForeignKeys,
             RecursiveTriggers,
             DefaultTimeout,
-            Pooling
+            Pooling,
+            AutoRetry
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -55,10 +57,11 @@ namespace Microsoft.Data.Sqlite
         private bool _recursiveTriggers;
         private int _defaultTimeout = 30;
         private bool _pooling = true;
+        private bool _autoRetry = true;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[8];
+            var validKeywords = new string[9];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
@@ -67,9 +70,10 @@ namespace Microsoft.Data.Sqlite
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
             validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
             validKeywords[(int)Keywords.Pooling] = PoolingKeyword;
+            validKeywords[(int)Keywords.AutoRetry] = AutoRetryKeyword;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(11, StringComparer.OrdinalIgnoreCase)
+            _keywords = new Dictionary<string, Keywords>(12, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
                 [ModeKeyword] = Keywords.Mode,
@@ -79,6 +83,7 @@ namespace Microsoft.Data.Sqlite
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
                 [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
                 [PoolingKeyword] = Keywords.Pooling,
+                [AutoRetryKeyword] = Keywords.AutoRetry,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
@@ -218,6 +223,19 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to automatically retry commands.
+        ///     When true, commands will be retried automatically until the command timeout
+        ///     when the underlying database is locked or busy. When false, commands will
+        ///     fail on the first attempt.
+        /// </summary>
+        /// <value>A value indicating whether to automatically retry commands.</value>
+        public bool AutoRetry
+        {
+            get => _autoRetry;
+            set => base[AutoRetryKeyword] = _autoRetry = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -268,6 +286,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.Pooling:
                         Pooling = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.AutoRetry:
+                        AutoRetry = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -418,6 +440,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.Pooling:
                     return Pooling;
 
+                case Keywords.AutoRetry:
+                    return AutoRetry;
+
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return null;
@@ -463,6 +488,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.Pooling:
                     _pooling = true;
+                    return;
+
+                case Keywords.AutoRetry:
+                    _autoRetry = true;
                     return;
 
                 default:

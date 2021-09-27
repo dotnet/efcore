@@ -175,6 +175,45 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void AutoRetry_defaults_to_true()
+        {
+            var command = new SqliteCommand();
+
+            Assert.True(command.AutoRetry);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AutoRetry_takes_setting_from_connection_when_present(bool autoRetry)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.AutoRetry = autoRetry;
+
+                var command = connection.CreateCommand();
+
+                Assert.Equal(autoRetry, command.AutoRetry);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AutoRetry_can_be_overridden(bool connectionValue)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.AutoRetry = connectionValue;
+
+                var command = connection.CreateCommand();
+                command.AutoRetry = !connectionValue;
+
+                Assert.Equal(!connectionValue, command.AutoRetry);
+            }
+        }
+
+        [Fact]
         public void Parameters_works()
         {
             var command = new SqliteCommand();
@@ -928,6 +967,71 @@ namespace Microsoft.Data.Sqlite
             {
                 SqliteConnection.ClearPool(new SqliteConnection(connectionString));
                 File.Delete("busy.db");
+            }
+        }
+
+        [Fact]
+        public async Task ExecuteReader_skips_retries_when_auto_retry_is_false()
+        {
+            const string connectionString = "Data Source=skip_retry.db;Default Timeout=2;Auto Retry=False";
+
+            var selectedSignal = new AutoResetEvent(initialState: false);
+            var finishedSignal = new AutoResetEvent(initialState: false);
+
+            try
+            {
+                await Task.WhenAll(
+                    Task.Run(
+                        () =>
+                        {
+                            using (var connection = new SqliteConnection(connectionString))
+                            {
+                                connection.Open();
+
+                                connection.ExecuteNonQuery(
+                                    "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                                using (connection.ExecuteReader("SELECT * FROM Data;"))
+                                {
+                                    selectedSignal.Set();
+                                    finishedSignal.WaitOne();
+                                }
+                            }
+                        }),
+                    Task.Run(
+                        () =>
+                        {
+                            using (var connection = new SqliteConnection(connectionString))
+                            {
+                                connection.Open();
+
+                                selectedSignal.WaitOne();
+
+                                var command = connection.CreateCommand();
+                                command.CommandText = "DROP TABLE Data;";
+
+                                var timer = new Stopwatch();
+                                timer.Start();
+
+                                try
+                                {
+                                    var exception = Assert.Throws<SqliteException>(() => command.ExecuteNonQuery());
+                                    Assert.Equal(SQLITE_BUSY, exception.SqliteErrorCode);
+
+                                    Assert.True(timer.ElapsedMilliseconds < 2000, "It should not have required the full timeout.");
+                                }
+                                finally
+                                {
+                                    finishedSignal.Set();
+                                    timer.Stop();
+                                }
+                            }
+                        }));
+            }
+            finally
+            {
+                SqliteConnection.ClearPool(new SqliteConnection(connectionString));
+                File.Delete("skip_retry.db");
             }
         }
 

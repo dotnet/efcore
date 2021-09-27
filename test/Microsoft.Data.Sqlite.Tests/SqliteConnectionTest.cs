@@ -126,6 +126,37 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void AutoRetry_defaults_to_true()
+        {
+            var connection = new SqliteConnection();
+
+            Assert.True(connection.AutoRetry);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AutoRetry_takes_setting_from_connection_string(bool autoRetry)
+        {
+            var connection = new SqliteConnection($"Auto Retry={autoRetry}");
+
+            Assert.Equal(autoRetry, connection.AutoRetry);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void AutoRetry_can_be_overridden(bool autoRetry)
+        {
+            var connection = new SqliteConnection($"Auto Retry={autoRetry}")
+            {
+                AutoRetry = !autoRetry
+            };
+
+            Assert.Equal(!autoRetry, connection.AutoRetry);
+        }
+
+        [Fact]
         public void ServerVersion_returns_value()
         {
             var connection = new SqliteConnection();

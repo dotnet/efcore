@@ -32,6 +32,7 @@ namespace Microsoft.Data.Sqlite
         private string _commandText = string.Empty;
         private bool _prepared;
         private int? _commandTimeout;
+        private bool? _autoRetry;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.
@@ -201,6 +202,17 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>A value indicating how the results are applied to the row being updated.</value>
         public override UpdateRowSource UpdatedRowSource { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the command will be retried automatically
+        ///     when the database is busy or locked.
+        /// </summary>
+        /// <value>A value indicating whether the command will be retried automatically.</value>
+        public virtual bool AutoRetry
+        {
+            get => _autoRetry ?? _connection?.AutoRetry ?? true;
+            set => _autoRetry = value;
+        }
 
         /// <summary>
         ///     Gets or sets the data reader currently being used by the command, or null if none.
@@ -485,8 +497,9 @@ namespace Microsoft.Data.Sqlite
                 ReadOnlySpan<byte> tail;
                 while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, sql.AsSpan(start), out stmt, out tail)))
                 {
-                    if (CommandTimeout != 0
-                        && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
+                    if (!AutoRetry
+                        || (CommandTimeout != 0
+                            && timer.ElapsedMilliseconds >= CommandTimeout * 1000L))
                     {
                         break;
                     }

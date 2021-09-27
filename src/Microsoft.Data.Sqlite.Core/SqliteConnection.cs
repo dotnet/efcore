@@ -39,6 +39,7 @@ namespace Microsoft.Data.Sqlite
         private SqliteConnectionInternal? _innerConnection;
         private bool _extensionsEnabled;
         private int? _defaultTimeout;
+        private bool? _autoRetry;
 
         static SqliteConnection()
             => BundleInitializer.Initialize();
@@ -134,6 +135,17 @@ namespace Microsoft.Data.Sqlite
         {
             get => _defaultTimeout ?? ConnectionOptions.DefaultTimeout;
             set => _defaultTimeout = value;
+        }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether command created using this connection will be retried
+        ///     automatically when the database is busy or locked.
+        /// </summary>
+        /// <value>A value indicating whether commands will be retried automatically.</value>
+        public virtual bool AutoRetry
+        {
+            get => _autoRetry ?? ConnectionOptions.AutoRetry;
+            set => _autoRetry = value;
         }
 
         /// <summary>
@@ -395,7 +407,8 @@ namespace Microsoft.Data.Sqlite
             {
                 Connection = this,
                 CommandTimeout = DefaultTimeout,
-                Transaction = Transaction
+                Transaction = Transaction,
+                AutoRetry = AutoRetry
             };
 
         /// <summary>

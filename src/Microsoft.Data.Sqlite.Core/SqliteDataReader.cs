@@ -158,8 +158,9 @@ namespace Microsoft.Data.Sqlite
 
                     while (IsBusy(rc = sqlite3_step(stmt)))
                     {
-                        if (_command.CommandTimeout != 0
-                            && _timer.ElapsedMilliseconds >= _command.CommandTimeout * 1000L)
+                        if (!_command.AutoRetry ||
+                            (_command.CommandTimeout != 0
+                             && _timer.ElapsedMilliseconds >= _command.CommandTimeout * 1000L))
                         {
                             break;
                         }
