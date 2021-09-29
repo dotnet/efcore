@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Gears.FirstOrDefault(e => e.Nickname == keyNickname && e.SquadId == keySquadId);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Squads.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Tags.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -129,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Weapons.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -159,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Cities.FirstOrDefault(e => e.Name == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -189,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Missions.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.SquadMissions.FirstOrDefault(e => e.SquadId == keySquadId && e.MissionId == keyMissionId);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -256,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Factions.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -293,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LocustLeaders.FirstOrDefault(e => e.Name == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -323,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LocustHighCommands.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()

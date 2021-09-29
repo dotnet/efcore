@@ -1,18 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Extensions;
-using Microsoft.AspNet.OData.Results;
-using Microsoft.AspNet.OData.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Routing;
-using Xunit;
+using Microsoft.AspNetCore.OData.Results;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -64,32 +58,6 @@ namespace Microsoft.EntityFrameworkCore
         [NonAction]
         public new TestUpdatedODataResult<T> Updated<T>(T entity)
             => new(entity);
-
-        protected string GetServiceRootUri()
-        {
-            var routeName = Request.ODataFeature().RouteName;
-            var requestLeftPartBuilder = new StringBuilder(Request.Scheme);
-            requestLeftPartBuilder.Append("://");
-            requestLeftPartBuilder.Append(Request.Host.HasValue ? Request.Host.Value : Request.Host.ToString());
-            if (!string.IsNullOrEmpty(routeName))
-            {
-                requestLeftPartBuilder.Append("/");
-                requestLeftPartBuilder.Append(routeName);
-            }
-
-            return requestLeftPartBuilder.ToString();
-        }
-
-        protected string GetRoutePrefix()
-        {
-            var oDataRoute = Request.HttpContext.GetRouteData().Routers
-                .Where(r => r.GetType() == typeof(ODataRoute))
-                .SingleOrDefault() as ODataRoute;
-
-            Assert.NotNull(oDataRoute);
-
-            return oDataRoute.RoutePrefix;
-        }
 
         protected bool Validate(object model)
         {

@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LevelOne.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LevelTwo.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LevelThree.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.LevelFour.FirstOrDefault(e => e.Id == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()

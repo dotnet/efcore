@@ -3,12 +3,10 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -22,14 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             (BaseAddress, ClientFactory, _selfHostServer)
                 = ODataQueryTestFixtureInitializer.Initialize<ComplexNavigationsODataContext>(StoreName, GetEdmModel());
-        }
-
-        public void UpdateConfigureServices<TContext>(IServiceCollection services, string storeName)
-            where TContext : DbContext
-        {
-            services.AddDbContext<TContext>(b =>
-                b.UseSqlServer(
-                    SqlServerTestStore.CreateConnectionString(storeName)));
         }
 
         private static IEdmModel GetEdmModel()

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("ALFKI", result["CustomerID"].ToString());
         }
 
-        [ConditionalFact(Skip = "OData/WebApi#2437")]
+        [ConditionalFact]
         public async Task Query_for_alfki_expand_orders()
         {
             var requestUri = string.Format(@"{0}/odata/Customers?$filter=CustomerID eq 'ALFKI'&$expand=Orders", BaseAddress);
@@ -102,6 +102,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public async Task Basic_query_order_details()
         {
             var requestUri = $"{BaseAddress}/odata/Order Details";
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            var response = await Client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var result = await response.Content.ReadAsObject<JObject>();
+
+            Assert.Contains("$metadata#Order%20Details", result["@odata.context"].ToString());
+        }
+
+        [ConditionalFact]
+        public async Task Basic_query_order_details_single_element_composite_key()
+        {
+            var requestUri = $"{BaseAddress}/odata/Order Details(OrderID=10248,ProductID=11)";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 

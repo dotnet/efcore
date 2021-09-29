@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Basic_query_single_element_from_set_composite_key()
         {
-            var requestUri = $"{BaseAddress}/odata/Gears(Nickname='Marcus', SquadId=1)";
+            var requestUri = $"{BaseAddress}/odata/Gears(Nickname='Marcus',SquadId=1)";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("Marcus", result["Nickname"].ToString());
         }
 
-        [ConditionalFact(Skip = "OData/WebApi#2437")]
+        [ConditionalFact]
         public async Task Complex_query_with_any_on_collection_navigation()
         {
             var requestUri = string.Format(@"{0}/odata/Gears?$filter=Weapons/any(w: w/Id gt 4)", BaseAddress);

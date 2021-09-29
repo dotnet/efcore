@@ -1,17 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNet.OData.Batch;
-using Microsoft.AspNet.OData.Extensions;
-using Microsoft.AspNet.OData.Routing;
-using Microsoft.AspNet.OData.Routing.Conventions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -21,7 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OData.Edm;
-using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -30,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static (string BaseAddress, IHttpClientFactory ClientFactory, IHost SelfHostServer) Initialize<TContext>(
             string storeName,
             IEdmModel edmModel,
-            List<IODataRoutingConvention> customRoutingConventions = null)
+            List<IODataControllerActionConvention> customRoutingConventions = null)
             where TContext : DbContext
         {
             var selfHostServer = Host.CreateDefaultBuilder()
@@ -39,40 +35,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
                     .ConfigureServices(services =>
                     {
-                        services.AddHttpClient();
-                        services.AddOData();
-                        services.AddRouting();
+                        services.AddDbContext<TContext>(o => o.UseSqlServer(
+                            SqlServerTestStore.CreateConnectionString(storeName)));
 
-                        UpdateConfigureServices<TContext>(services, storeName);
-                    })
-                    .Configure(app =>
-                    {
-                        app.UseODataBatching();
-                        app.UseRouting();
-                        app.UseEndpoints(endpoints =>
+                        services.AddControllers().AddOData(o =>
                         {
-                            var conventions = ODataRoutingConventions.CreateDefault();
+                            o.AddRouteComponents("odata", edmModel)
+                                .SetMaxTop(null)
+                                .Expand()
+                                .Select()
+                                .OrderBy()
+                                .Filter()
+                                .Count();
+
                             if (customRoutingConventions != null)
                             {
                                 foreach (var customRoutingConvention in customRoutingConventions)
                                 {
-                                    conventions.Insert(0, customRoutingConvention);
+                                    o.Conventions.Add(customRoutingConvention);
                                 }
                             }
+                        });
 
-                            IPerRouteContainer perRouteContainer = endpoints.ServiceProvider.GetRequiredService<IPerRouteContainer>();
-                            if (perRouteContainer == null)
-                            {
-                                throw new InvalidOperationException($"Could not resolve {nameof(IPerRouteContainer)}.");
-                            }
-                            perRouteContainer.BuilderFactory = () => new WorkaroundContainerBuilder();
-
-                            endpoints.MaxTop(null).Expand().Select().OrderBy().Filter().Count();
-                            endpoints.MapODataRoute("odata", "odata",
-                                edmModel,
-                                new DefaultODataPathHandler(),
-                                conventions,
-                                new DefaultODataBatchHandler());
+                        services.AddHttpClient();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseRouting();
+                        app.UseEndpoints(endpoints =>
+                        {
+                            endpoints.MapControllers();
                         });
                     })
                     .ConfigureLogging((hostingContext, logging) =>
@@ -88,14 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var clientFactory = selfHostServer.Services.GetRequiredService<IHttpClientFactory>();
 
             return (baseAddress, clientFactory, selfHostServer);
-        }
-
-        public static void UpdateConfigureServices<TContext>(IServiceCollection services, string storeName)
-            where TContext : DbContext
-        {
-            services.AddDbContext<TContext>(b =>
-                b.UseSqlServer(
-                    SqlServerTestStore.CreateConnectionString(storeName)));
         }
 
         private class NoopHostLifetime : IHostLifetime

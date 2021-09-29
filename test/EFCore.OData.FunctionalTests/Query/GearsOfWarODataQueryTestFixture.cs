@@ -3,10 +3,10 @@
 
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNet.OData.Builder;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OData.Edm;
+using Microsoft.OData.ModelBuilder;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {

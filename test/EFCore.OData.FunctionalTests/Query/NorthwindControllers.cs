@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Customers.FirstOrDefault(g => g.CustomerID == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Orders.FirstOrDefault(e => e.OrderID == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.OrderDetails.FirstOrDefault(e => e.OrderID == keyOrderId && e.ProductID == keyProductId);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Employees.FirstOrDefault(e => e.EmployeeID == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
@@ -152,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var result = _context.Products.FirstOrDefault(e => e.ProductID == key);
 
-            return result == null ? NotFound() : (ITestActionResult)Ok(result);
+            return result == null ? NotFound() : Ok(result);
         }
 
         public void Dispose()
