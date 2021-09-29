@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +78,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             try
             {
+                static bool IsApplicationNameArg(string arg)
+                {
+                    return arg.Equals("--applicationName", StringComparison.OrdinalIgnoreCase) ||
+                           arg.Equals("/applicationName", StringComparison.OrdinalIgnoreCase);
+                }
+
+                // Append the --applicationName to args if there's none
+                args = args.Any(arg => IsApplicationNameArg(arg)) || _startupAssembly.FullName is null
+                    ? args
+                    : args.Concat(new[] { "--applicationName", _startupAssembly.FullName }).ToArray();
+
                 var services = serviceProviderFactory(args);
                 if (services == null)
                 {
