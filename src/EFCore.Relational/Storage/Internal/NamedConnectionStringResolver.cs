@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class NamedConnectionStringResolver : NamedConnectionStringResolverBase
+    public class NamedConnectionStringResolver : NamedConnectionStringResolverBase, INamedConnectionStringResolver
     {
         private readonly IDbContextOptions _options;
 
