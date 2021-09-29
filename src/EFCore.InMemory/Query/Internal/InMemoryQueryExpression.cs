@@ -674,7 +674,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression innerKeySelector)
         {
             Check.DebugAssert(_clientProjections.Count == 0, "Cannot expand weak entity navigation after client projection yet.");
-            var innerNullable = !navigation.ForeignKey.IsRequiredDependent;
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
             var innerParameter = Parameter(typeof(ValueBuffer), "inner");
             var replacingVisitor = new ReplacingExpressionVisitor(
@@ -688,10 +687,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var property in GetAllPropertiesInHierarchy(innerEntityProjection.EntityType))
             {
                 var propertyExpression = innerEntityProjection.BindProperty(property);
-                if (innerNullable)
-                {
-                    propertyExpression = MakeReadValueNullable(propertyExpression);
-                }
+                propertyExpression = MakeReadValueNullable(propertyExpression);
 
                 selectorExpressions.Add(propertyExpression);
                 var readValueExperssion = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
@@ -712,33 +708,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 outerParameter,
                 innerParameter);
 
-            if (innerNullable)
-            {
-                ServerQueryExpression = Call(
-                    _leftJoinMethodInfo.MakeGenericMethod(
-                        typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
-                    ServerQueryExpression,
-                    innerQueryExpression.ServerQueryExpression,
-                    outerKeySelector,
-                    innerKeySelector,
-                    resultSelector,
-                    Constant(
-                        new ValueBuffer(
-                            Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())));
-            }
-            else
-            {
-                ServerQueryExpression = Call(
-                    EnumerableMethods.Join.MakeGenericMethod(
-                        typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
-                    ServerQueryExpression,
-                    innerQueryExpression.ServerQueryExpression,
-                    outerKeySelector,
-                    innerKeySelector,
-                    resultSelector);
-            }
+            ServerQueryExpression = Call(
+                _leftJoinMethodInfo.MakeGenericMethod(
+                    typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+                ServerQueryExpression,
+                innerQueryExpression.ServerQueryExpression,
+                outerKeySelector,
+                innerKeySelector,
+                resultSelector,
+                Constant(
+                    new ValueBuffer(
+                        Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())));
 
-            var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: innerNullable);
+            var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
             entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
 
             return entityShaper;
