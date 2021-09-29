@@ -986,6 +986,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, table);
 
         /// <summary>
+        ///     The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.
+        /// </summary>
+        public static string QueryFromSqlInsideExists
+            => GetString("QueryFromSqlInsideExists");
+
+        /// <summary>
         ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.
         /// </summary>
         public static string ReadonlyEntitySaved(object? entityType)
