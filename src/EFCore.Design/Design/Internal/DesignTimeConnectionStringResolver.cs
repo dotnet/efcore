@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class DesignTimeConnectionStringResolver : NamedConnectionStringResolverBase
+    public class DesignTimeConnectionStringResolver : NamedConnectionStringResolverBase, IDesignTimeConnectionStringResolver
     {
         private readonly Func<IServiceProvider>? _applicationServiceProviderAccessor;
 

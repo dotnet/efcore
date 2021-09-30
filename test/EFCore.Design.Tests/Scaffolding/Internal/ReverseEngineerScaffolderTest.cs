@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new TestOperationReporter(),
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                .AddSingleton<INamedConnectionStringResolver>(resolver)
+                .AddSingleton<IDesignTimeConnectionStringResolver>(resolver)
                 .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
                 .CreateScope()
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new TestOperationReporter(),
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                .AddSingleton<INamedConnectionStringResolver>(resolver)
+                .AddSingleton<IDesignTimeConnectionStringResolver>(resolver)
                 .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
                 .CreateScope()
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
         }
 
-        private class TestNamedConnectionStringResolver : INamedConnectionStringResolver
+        private class TestNamedConnectionStringResolver : IDesignTimeConnectionStringResolver
         {
             private readonly string _resolvedConnectionString;
 

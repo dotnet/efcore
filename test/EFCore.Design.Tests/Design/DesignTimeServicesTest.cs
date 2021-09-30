@@ -10,10 +10,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -81,7 +85,41 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
                 useContext ? context : null).CreateScope().ServiceProvider;
 
             // Base design-time services are resolved
-            Assert.Equal("HumanizerPluralizer", serviceProvider.GetRequiredService<IPluralizer>().GetType().Name);
+            Assert.Equal(typeof(CSharpMigrationOperationGeneratorDependencies), serviceProvider.GetRequiredService<CSharpMigrationOperationGeneratorDependencies>().GetType());
+            Assert.Equal(typeof(CSharpMigrationsGeneratorDependencies), serviceProvider.GetRequiredService<CSharpMigrationsGeneratorDependencies>().GetType());
+            Assert.Equal(typeof(CSharpSnapshotGeneratorDependencies), serviceProvider.GetRequiredService<CSharpSnapshotGeneratorDependencies>().GetType());
+            Assert.Equal(typeof(CandidateNamingService), serviceProvider.GetRequiredService<ICandidateNamingService>().GetType());
+            Assert.Equal(typeof(CSharpDbContextGenerator), serviceProvider.GetRequiredService<ICSharpDbContextGenerator>().GetType());
+            Assert.Equal(typeof(CSharpEntityTypeGenerator), serviceProvider.GetRequiredService<ICSharpEntityTypeGenerator>().GetType());
+            Assert.Equal(typeof(CSharpHelper), serviceProvider.GetRequiredService<ICSharpHelper>().GetType());
+            Assert.Equal(typeof(CSharpMigrationOperationGenerator), serviceProvider.GetRequiredService<ICSharpMigrationOperationGenerator>().GetType());
+            Assert.Equal(typeof(CSharpSnapshotGenerator), serviceProvider.GetRequiredService<ICSharpSnapshotGenerator>().GetType());
+            Assert.Equal(typeof(CSharpUtilities), serviceProvider.GetRequiredService<ICSharpUtilities>().GetType());
+            Assert.Equal(typeof(CSharpMigrationsGenerator), serviceProvider.GetRequiredService<IMigrationsCodeGenerator>().GetType());
+            Assert.Equal(typeof(MigrationsCodeGeneratorSelector), serviceProvider.GetRequiredService<IMigrationsCodeGeneratorSelector>().GetType());
+            Assert.Equal(typeof(CSharpModelGenerator), serviceProvider.GetRequiredService<IModelCodeGenerator>().GetType());
+            Assert.Equal(typeof(ModelCodeGeneratorSelector), serviceProvider.GetRequiredService<IModelCodeGeneratorSelector>().GetType());
+            Assert.Equal(typeof(CSharpRuntimeModelCodeGenerator), serviceProvider.GetRequiredService<ICompiledModelCodeGenerator>().GetType());
+            Assert.Equal(typeof(CompiledModelCodeGeneratorSelector), serviceProvider.GetRequiredService<ICompiledModelCodeGeneratorSelector>().GetType());
+            Assert.Equal(typeof(CompiledModelScaffolder), serviceProvider.GetRequiredService<ICompiledModelScaffolder>().GetType());
+            Assert.Equal(typeof(DesignTimeConnectionStringResolver), serviceProvider.GetRequiredService<IDesignTimeConnectionStringResolver>().GetType());
+            Assert.Equal(typeof(HumanizerPluralizer), serviceProvider.GetRequiredService<IPluralizer>().GetType());
+            Assert.Equal(typeof(RelationalScaffoldingModelFactory), serviceProvider.GetRequiredService<IScaffoldingModelFactory>().GetType());
+            Assert.Equal(typeof(ScaffoldingTypeMapper), serviceProvider.GetRequiredService<IScaffoldingTypeMapper>().GetType());
+            Assert.Equal(typeof(MigrationsCodeGeneratorDependencies), serviceProvider.GetRequiredService<MigrationsCodeGeneratorDependencies>().GetType());
+            Assert.Equal(typeof(ModelCodeGeneratorDependencies), serviceProvider.GetRequiredService<ModelCodeGeneratorDependencies>().GetType());
+            Assert.Equal(typeof(ReverseEngineerScaffolder), serviceProvider.GetRequiredService<IReverseEngineerScaffolder>().GetType());
+
+            if (useContext)
+            {
+                Assert.Equal(
+                    typeof(MigrationsScaffolderDependencies),
+                    serviceProvider.GetRequiredService<MigrationsScaffolderDependencies>().GetType());
+                Assert.Equal(typeof(MigrationsScaffolder), serviceProvider.GetRequiredService<IMigrationsScaffolder>().GetType());
+                Assert.Equal(typeof(SnapshotModelProcessor), serviceProvider.GetRequiredService<ISnapshotModelProcessor>().GetType());
+            }
+
+            Assert.Equal(typeof(TestOperationReporter), serviceProvider.GetRequiredService<IOperationReporter>().GetType());
 
             // Provider design-time services are resolved
             Assert.Equal(typeof(SqlServerAnnotationCodeGenerator),

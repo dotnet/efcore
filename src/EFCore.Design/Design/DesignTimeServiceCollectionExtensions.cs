@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                         .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
                         .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
                         .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
-                        .TryAddSingleton<INamedConnectionStringResolver>(
+                        .TryAddSingleton<IDesignTimeConnectionStringResolver>(
                             new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                         .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
                         .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
