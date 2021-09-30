@@ -242,9 +242,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection)
+            var collectionNavigations = entityType.GetDeclaredNavigations()
                 .Cast<INavigationBase>()
-                .Concat(entityType.GetSkipNavigations().Where(n => n.IsCollection))
+                .Concat(entityType.GetDeclaredSkipNavigations())
+                .Where(n => n.IsCollection)
                 .ToList();
 
             if (collectionNavigations.Count > 0)
