@@ -272,6 +272,29 @@ FROM [Customers] AS [c]
 WHERE [c].[LastName] = 'Two'");
         }
 
+        public override void Scalar_Function_with_InExpression_translation()
+        {
+            base.Scalar_Function_with_InExpression_translation();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+WHERE SUBSTRING([c].[FirstName], 0 + 1, 1) IN (N'A', N'B', N'C')");
+        }
+
+        public override void Scalar_Function_with_nested_InExpression_translation()
+        {
+            base.Scalar_Function_with_nested_InExpression_translation();
+
+            AssertSql(
+                @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN SUBSTRING([c].[FirstName], 0 + 1, 1) IN (N'A', N'B', N'C') AND SUBSTRING([c].[FirstName], 0 + 1, 1) IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END IN (CAST(1 AS bit), CAST(0 AS bit))");
+        }
+
         #endregion
 
         #region Instance

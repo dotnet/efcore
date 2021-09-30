@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public abstract class NamedConnectionStringResolverBase : INamedConnectionStringResolver
+    public abstract class NamedConnectionStringResolverBase
     {
         private const string DefaultSection = "ConnectionStrings:";
 

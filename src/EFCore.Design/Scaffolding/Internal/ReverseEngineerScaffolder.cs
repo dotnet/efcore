@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IScaffoldingModelFactory _factory;
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly ICSharpHelper _code;
-        private readonly INamedConnectionStringResolver _connectionStringResolver;
+        private readonly IDesignTimeConnectionStringResolver _connectionStringResolver;
         private readonly IOperationReporter _reporter;
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModelCodeGeneratorSelector modelCodeGeneratorSelector,
             ICSharpUtilities cSharpUtilities,
             ICSharpHelper cSharpHelper,
-            INamedConnectionStringResolver connectionStringResolver,
+            IDesignTimeConnectionStringResolver connectionStringResolver,
             IOperationReporter reporter)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));

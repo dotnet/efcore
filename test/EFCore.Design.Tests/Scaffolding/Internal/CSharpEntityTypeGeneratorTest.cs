@@ -2123,6 +2123,11 @@ namespace TestNamespace
 {
     public partial class Blog
     {
+        public Blog()
+        {
+            Posts = new HashSet<Post>();
+        }
+
         public int Id { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
@@ -2138,6 +2143,11 @@ namespace TestNamespace
 {
     public partial class Post
     {
+        public Post()
+        {
+            Blogs = new HashSet<Blog>();
+        }
+
         public int Id { get; set; }
 
         public virtual ICollection<Blog> Blogs { get; set; }
@@ -2258,6 +2268,11 @@ namespace TestNamespace
 {
     public partial class Blog
     {
+        public Blog()
+        {
+            Posts = new HashSet<Post>();
+        }
+
         public int Id { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
@@ -2273,6 +2288,11 @@ namespace TestNamespace
 {
     public partial class Post
     {
+        public Post()
+        {
+            Blogs = new HashSet<Blog>();
+        }
+
         public string Id { get; set; }
 
         public virtual ICollection<Blog> Blogs { get; set; }
@@ -2401,6 +2421,11 @@ namespace TestNamespace
 {
     public partial class Blog
     {
+        public Blog()
+        {
+            Posts = new HashSet<Post>();
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -2422,6 +2447,11 @@ namespace TestNamespace
 {
     public partial class Post
     {
+        public Post()
+        {
+            Blogs = new HashSet<Blog>();
+        }
+
         [Key]
         public int Id { get; set; }
 

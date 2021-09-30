@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _operations = operations;
             try
             {
-                return base.Generate(RewriteOperations(operations, model), model, options);
+                return base.Generate(RewriteOperations(operations, model, options), model, options);
             }
             finally
             {
@@ -2357,7 +2357,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private IReadOnlyList<MigrationOperation> RewriteOperations(
             IReadOnlyList<MigrationOperation> migrationOperations,
-            IModel? model)
+            IModel? model,
+            MigrationsSqlGenerationOptions options)
         {
             var operations = new List<MigrationOperation>();
 
@@ -2697,18 +2698,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             void EnablePeriod(string table, string? schema, string periodStartColumnName, string periodEndColumnName)
             {
+                var addPeriodSql = new StringBuilder()
+                    .Append("ALTER TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
+                    .Append(" ADD PERIOD FOR SYSTEM_TIME (")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
+                    .Append(", ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
+                    .Append(")")
+                    .ToString();
+
+                if (options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+                {
+                    addPeriodSql = new StringBuilder()
+                    .Append("EXEC(N'")
+                    .Append(addPeriodSql.Replace("'", "''"))
+                    .Append("')")
+                    .ToString();
+                }
+
                 operations.Add(
                     new SqlOperation
                     {
-                        Sql = new StringBuilder()
-                            .Append("ALTER TABLE ")
-                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
-                            .Append(" ADD PERIOD FOR SYSTEM_TIME (")
-                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
-                            .Append(", ")
-                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
-                            .Append(")")
-                            .ToString()
+                        Sql = addPeriodSql
                     });
 
                 operations.Add(
