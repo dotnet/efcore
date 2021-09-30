@@ -324,6 +324,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             bool matchPk = false)
         {
             IReadOnlyList<IConventionProperty>? match;
+            if (onDependent)
+            {
+                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+                {
+                    if (skipNavigation.Inverse == null)
+                    {
+                        continue;
+                    }
+
+                    if (TryFindMatchingProperties(foreignKey, skipNavigation.Inverse.Name, onDependent, matchPk: true, out match))
+                    {
+                        return match;
+                    }
+                }
+            }
+
             var navigation = onDependent
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;

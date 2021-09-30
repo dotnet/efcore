@@ -952,6 +952,53 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
             }
 
+            [ConditionalFact]
+            public virtual void FK_properties_matching_navigations_are_discovered_on_explicit_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<NavDependentManyToManyNavPrincipalWithNavigationIds>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var joinType = model.FindEntityType(typeof(NavDependentManyToManyNavPrincipalWithNavigationIds))!;
+                Assert.Equal(2, joinType.GetForeignKeys().Count());
+                Assert.Equal(
+                    joinType.GetForeignKeys().SelectMany(fk => fk.Properties),
+                    joinType.FindPrimaryKey()!.Properties);
+            }
+
+            [ConditionalFact]
+            public virtual void FK_properties_matching_types_are_discovered_on_explicit_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder
+                    .Entity<NavDependentManyToManyNavPrincipalWithTypeIds>()
+                    .HasKey(e => new { e.NavDependentId, e.ManyToManyNavPrincipalId });
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<NavDependentManyToManyNavPrincipalWithTypeIds>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var joinType = model.FindEntityType(typeof(NavDependentManyToManyNavPrincipalWithTypeIds))!;
+                Assert.Equal(2, joinType.GetForeignKeys().Count());
+                Assert.Equal(
+                    joinType.GetForeignKeys().SelectMany(fk => fk.Properties).Reverse(),
+                    joinType.FindPrimaryKey()!.Properties);
+            }
 
             [ConditionalFact]
             public virtual void UsingEntity_with_shared_type_passed_when_marked_as_shared_type()
