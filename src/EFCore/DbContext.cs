@@ -956,20 +956,51 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         public virtual void Dispose()
         {
-            var leaseActive = _lease.IsActive;
-            var contextDisposed = leaseActive && _lease.ContextDisposed();
+            var lease = _lease;
+            var contextShouldBeDisposed = lease.IsActive && _lease.IsStandalone;
 
-            if (DisposeSync(leaseActive, contextDisposed))
+            if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
             {
                 _serviceScope?.Dispose();
             }
+
+            lease.ContextDisposed();
         }
 
-        private bool DisposeSync(bool leaseActive, bool contextDisposed)
+        /// <summary>
+        ///     <para>
+        ///         Releases the allocated resources for this context.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
+        ///     for more information.
+        /// </remarks>
+        public virtual async ValueTask DisposeAsync()
+        {
+            var lease = _lease;
+            var contextShouldBeDisposed = lease.IsActive && _lease.IsStandalone;
+
+            if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
+            {
+                await _serviceScope.DisposeAsyncIfAvailable();
+            }
+
+            await lease.ContextDisposedAsync();
+        }
+
+        private bool DisposeSync(bool leaseActive, bool contextShouldBeDisposed)
         {
             if (leaseActive)
             {
-                if (contextDisposed)
+                if (contextShouldBeDisposed)
                 {
                     _disposed = true;
                     _lease = DbContextLease.InactiveLease;
@@ -998,33 +1029,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return false;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Releases the allocated resources for this context.
-        ///     </para>
-        ///     <para>
-        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
-        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
-        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
-        ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-        ///     for more information.
-        /// </remarks>
-        public virtual async ValueTask DisposeAsync()
-        {
-            var leaseActive = _lease.IsActive;
-            var contextDisposed = leaseActive && await _lease.ContextDisposedAsync();
-
-            if (DisposeSync(leaseActive, contextDisposed))
-            {
-                await _serviceScope.DisposeAsyncIfAvailable();
-            }
         }
 
         /// <summary>
