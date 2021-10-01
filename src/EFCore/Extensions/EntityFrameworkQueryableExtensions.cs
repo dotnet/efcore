@@ -2985,7 +2985,9 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             => track == QueryTrackingBehavior.TrackAll
                 ? source.AsTracking()
-                : source.AsNoTracking();
+                : track == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? source.AsNoTrackingWithIdentityResolution()
+                    : source.AsNoTracking();
 
         #endregion
 

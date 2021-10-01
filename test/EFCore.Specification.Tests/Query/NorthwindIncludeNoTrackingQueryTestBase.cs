@@ -214,6 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
             => Task.CompletedTask;
 
+        public override Task Include_with_cycle_does_not_throw_when_AsTracking_NoTrackingWithIdentityResolution(bool async)
+            => Task.CompletedTask;
+
         protected override bool IgnoreEntryCount
             => true;
 
