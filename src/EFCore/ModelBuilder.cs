@@ -582,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>
         /// <remarks>
-        ///     Ssee <see href="https://aka.ms/efcore-docs-change-detection">Change detection and notifications</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-change-detection">Change detection and notifications</see> for more information.
         /// </remarks>
         /// <param name="changeTrackingStrategy">The change tracking strategy to be used.</param>
         /// <returns>
