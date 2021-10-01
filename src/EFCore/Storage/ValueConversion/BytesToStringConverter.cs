@@ -36,9 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public BytesToStringConverter(ConverterMappingHints? mappingHints)
             : base(
-                v => v == null ? null : Convert.ToBase64String(v),
-                v => v == null ? null : Convert.FromBase64String(v),
-                convertsNulls: true,
+                v => Convert.ToBase64String(v!),
+                v => Convert.FromBase64String(v!),
                 mappingHints)
         {
         }

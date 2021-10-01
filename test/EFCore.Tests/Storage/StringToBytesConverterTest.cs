@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("Spın̈al Tap"));
             Assert.Equal(Array.Empty<byte>(), converter(""));
-            Assert.Null(converter(null));
         }
 
         [ConditionalFact]
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal("Spın̈al Tap", converter(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }));
             Assert.Equal("", converter(Array.Empty<byte>()));
-            Assert.Null(converter(null));
         }
 
         [ConditionalFact]

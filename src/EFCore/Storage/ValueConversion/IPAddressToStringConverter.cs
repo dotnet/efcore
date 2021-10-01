@@ -40,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 ToString(),
                 ToIPAddress(),
-                convertsNulls: true,
                 _defaultHints.With(mappingHints))
         {
         }
@@ -52,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             = new(typeof(IPAddress), typeof(string), i => new IPAddressToStringConverter(i.MappingHints), _defaultHints);
 
         private new static Expression<Func<IPAddress?, string?>> ToString()
-            => v => v == null ? default : v.ToString();
+            => v => v!.ToString();
 
         private static Expression<Func<string?, IPAddress?>> ToIPAddress()
-            => v => v == null ? default : IPAddress.Parse(v);
+            => v => IPAddress.Parse(v!);
     }
 }

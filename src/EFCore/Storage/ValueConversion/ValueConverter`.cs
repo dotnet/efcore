@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -40,7 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class, allowing conversion of
+        ///         nulls.
+        ///     </para>
+        ///     <para>
+        ///         Warning: this is currently an internal API since converting nulls to and from the database can lead to broken
+        ///         queries and other issues. See https://github.com/dotnet/efcore/issues/26230 for more information.
+        ///     </para>
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
@@ -55,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
+        [EntityFrameworkInternal]
         public ValueConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,

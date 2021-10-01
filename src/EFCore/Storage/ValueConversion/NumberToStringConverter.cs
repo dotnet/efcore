@@ -39,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 ToString(),
                 ToNumber(),
-                typeof(TNumber).IsNullableType(),
                 _defaultHints.With(mappingHints))
         {
         }
