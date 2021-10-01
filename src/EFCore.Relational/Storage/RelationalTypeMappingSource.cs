@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type">The CLR type.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(Type type)
+        public override RelationalTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new RelationalTypeMappingInfo(type), null);
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="type">The CLR type.</param>
         /// <param name="model">The model.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(Type type, IModel model)
+        public override RelationalTypeMapping? FindMapping(Type type, IModel model)
         {
             type = type.UnwrapNullableType();
             var typeConfiguration = model.FindTypeMappingConfiguration(type);
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="member">The field or property.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(MemberInfo member)
+        public override RelationalTypeMapping? FindMapping(MemberInfo member)
         {
             // TODO: Remove this, see #11124
             if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
@@ -454,18 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping?)FindMapping(property);
-
-        /// <inheritdoc />
-        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type)
-            => (RelationalTypeMapping?)FindMapping(type);
-
-        /// <inheritdoc />
-        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type, IModel model)
-            => (RelationalTypeMapping?)FindMapping(type, model);
-
-        /// <inheritdoc />
-        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(MemberInfo member)
-            => (RelationalTypeMapping?)FindMapping(member);
 
         /// <summary>
         ///     <para>
