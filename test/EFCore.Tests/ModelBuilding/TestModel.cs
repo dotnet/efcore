@@ -927,6 +927,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public List<ManyToManyNavPrincipal>? ManyToManyPrincipals { get; set; }
         }
 
+        protected class NavDependentManyToManyNavPrincipalWithNavigationIds
+        {
+            public int DependentsId { get; set; }
+            public int ManyToManyPrincipalsId { get; set; }
+        }
+
+        protected class NavDependentManyToManyNavPrincipalWithTypeIds
+        {
+            public int NavDependentId { get; set; }
+            public int ManyToManyNavPrincipalId { get; set; }
+        }
+
         protected class OneToManyNavPrincipalOwner
         {
             public int Id { get; set; }
