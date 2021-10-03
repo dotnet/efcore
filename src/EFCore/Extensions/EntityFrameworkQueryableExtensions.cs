@@ -2983,11 +2983,13 @@ namespace Microsoft.EntityFrameworkCore
             this IQueryable<TEntity> source,
             QueryTrackingBehavior track)
             where TEntity : class
-            => track == QueryTrackingBehavior.TrackAll
-                ? source.AsTracking()
-                : track == QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                    ? source.AsNoTrackingWithIdentityResolution()
-                    : source.AsNoTracking();
+            => track switch
+            {
+                QueryTrackingBehavior.TrackAll => source.AsTracking(),
+                QueryTrackingBehavior.NoTracking => source.AsNoTracking(),
+                QueryTrackingBehavior.NoTrackingWithIdentityResolution => source.AsNoTrackingWithIdentityResolution(),
+                _ => throw new ArgumentOutOfRangeException(nameof(track))
+            };
 
         #endregion
 
