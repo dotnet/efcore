@@ -1652,6 +1652,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_with_cycle_does_not_throw_when_AsTracking_NoTrackingWithIdentityResolution(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => (from i in ss.Set<Order>().Include(o => o.Customer.Orders)
+                       where i.OrderID < 10800
+                       select i)
+                    .AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Outer_idenfier_correctly_determined_when_doing_include_on_right_side_of_left_join(bool async)
         {
             return AssertQuery(

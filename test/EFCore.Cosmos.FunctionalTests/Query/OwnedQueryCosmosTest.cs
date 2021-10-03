@@ -461,9 +461,9 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         }
 
         [ConditionalTheory(Skip = "No SelectMany, No Ability to Include navigation back to owner #17246")]
-        public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async)
+        public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async, bool useAsTracking)
         {
-            return base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async);
+            return base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking);
         }
 
         [ConditionalTheory(Skip = "No Composite index to process custom ordering #17246")]
