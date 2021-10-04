@@ -1401,6 +1401,32 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Concurrency_test2(bool async)
+        {
+            var factory = BuildFactory<PooledContext>(withDependencyInjection: false);
+
+            await Task.WhenAll(
+                Enumerable.Range(0, 10).Select(_ => Task.Run(async () =>
+                {
+                    for (var j = 0; j < 1_000_000; j++)
+                    {
+                        var ctx = factory.CreateDbContext();
+
+                        if (async)
+                        {
+                            await ctx.DisposeAsync();
+                        }
+                        else
+                        {
+                            ctx.Dispose();
+                        }
+                    }
+                })));
+        }
+
         private async Task Dispose(IDisposable disposable, bool async)
         {
             if (async)
