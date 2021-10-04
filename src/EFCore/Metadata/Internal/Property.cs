@@ -830,7 +830,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetValueComparer()
-            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer] ?? TypeMapping?.Comparer;
+            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer] 
+                ?? FindFirstDifferentPrincipal()?.GetValueComparer()
+                ?? TypeMapping?.Comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -839,7 +841,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetKeyValueComparer()
-            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer] ?? TypeMapping?.KeyComparer;
+            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
+                ?? FindFirstDifferentPrincipal()?.GetKeyValueComparer()
+                ?? TypeMapping?.KeyComparer;
+
+        private IProperty? FindFirstDifferentPrincipal()
+        {
+            var principal = ((IProperty)this).FindFirstPrincipal();
+            
+            return principal != this ? principal : null;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
