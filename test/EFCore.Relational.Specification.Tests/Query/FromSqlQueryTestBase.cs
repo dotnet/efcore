@@ -1258,6 +1258,86 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task FromSql_used_twice_without_parameters(bool async)
+        {
+            using var context = CreateContext();
+
+            var query = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT 'ALFKI' AS [CustomerID]"))
+                .IgnoreQueryFilters();
+
+            var result1 = async
+                ? await query.AnyAsync()
+                : query.Any();
+
+            Assert.Equal(
+                RelationalStrings.QueryFromSqlInsideExists,
+                async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.AnyAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.Any()).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task FromSql_used_twice_with_parameters(bool async)
+        {
+            using var context = CreateContext();
+
+            var query = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT {0} AS [CustomerID]"), "ALFKI")
+                .IgnoreQueryFilters();
+
+            var result1 = async
+                ? await query.AnyAsync()
+                : query.Any();
+
+            Assert.Equal(
+                RelationalStrings.QueryFromSqlInsideExists,
+                async
+                ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.AnyAsync())).Message
+                : Assert.Throws<InvalidOperationException>(() => query.Any()).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task FromSql_Count_used_twice_without_parameters(bool async)
+        {
+            using var context = CreateContext();
+
+            var query = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT 'ALFKI' AS [CustomerID]"))
+                .IgnoreQueryFilters();
+
+            var result1 = async
+                ? await query.CountAsync() > 0
+                : query.Count() > 0;
+
+            var result2 = async
+                ? await query.CountAsync() > 0
+                : query.Count() > 0;
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task FromSql_Count_used_twice_with_parameters(bool async)
+        {
+            using var context = CreateContext();
+
+            var query = context.Set<OrderQuery>()
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT {0} AS [CustomerID]"), "ALFKI")
+                .IgnoreQueryFilters();
+
+            var result1 = async
+                ? await query.CountAsync() > 0
+                : query.Count() > 0;
+
+            var result2 = async
+                ? await query.CountAsync() > 0
+                : query.Count() > 0;
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Line_endings_after_Select(bool async)
         {
             using var context = CreateContext();

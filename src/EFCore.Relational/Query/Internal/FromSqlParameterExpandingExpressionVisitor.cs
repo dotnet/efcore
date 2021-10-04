@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -32,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private IReadOnlyDictionary<string, object?> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
         private bool _canCache;
+        private SelectExpression _selectExpression;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _parametersValues = default!;
             _parameterNameGenerator = default!;
+            _selectExpression = default!;
         }
 
         /// <summary>
@@ -76,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parametersValues = parameterValues;
             _canCache = true;
+            _selectExpression = selectExpression;
 
             var result = (SelectExpression)Visit(selectExpression);
             canCache = _canCache;
@@ -142,6 +147,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
 
                 case ConstantExpression constantExpression:
+                    if (constantExpression.Value is not object?[]
+                        && new FromSqlInExistVerifyingExpressionVisitor(fromSql).Verify(_selectExpression))
+                    {
+                        throw new InvalidOperationException(RelationalStrings.QueryFromSqlInsideExists);
+                    }
+
                     var existingValues = constantExpression.GetConstantValue<object?[]>();
                     var constantValues = new object?[existingValues.Length];
                     for (var i = 0; i < existingValues.Length; i++)
@@ -170,9 +181,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
 
+
                 default:
                     Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
                     return null;
+            }
+        }
+
+        private sealed class FromSqlInExistVerifyingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly FromSqlExpression _mutatedExpression;
+            private bool _faulty;
+
+            public FromSqlInExistVerifyingExpressionVisitor(FromSqlExpression mutatedExpression)
+            {
+                _mutatedExpression = mutatedExpression;
+            }
+
+            public bool Verify(SelectExpression selectExpression)
+            {
+                _faulty = false;
+
+                Visit(selectExpression);
+
+                return _faulty;
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (_faulty)
+                {
+                    return expression;
+                }
+
+                if (expression is ExistsExpression existsExpression
+                    && existsExpression.Subquery.Tables.Contains(_mutatedExpression, ReferenceEqualityComparer.Instance))
+                {
+                    _faulty = true;
+
+                    return expression;
+                }
+
+                return base.Visit(expression);
             }
         }
     }
