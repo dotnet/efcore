@@ -775,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     An event fired at the beginning of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
+        ///     An event fired at the beginning of a call to <see cref="O:SaveChanges" /> or <see cref="O:SaveChangesAsync" />
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore
         public event EventHandler<SavingChangesEventArgs>? SavingChanges;
 
         /// <summary>
-        ///     An event fired at the end of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
+        ///     An event fired at the end of a call to <see cref="O:SaveChanges" /> or <see cref="O:SaveChangesAsync" />
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
@@ -793,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore
         public event EventHandler<SavedChangesEventArgs>? SavedChanges;
 
         /// <summary>
-        ///     An event fired if a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" /> fails with an exception.
+        ///     An event fired if a call to <see cref="O:SaveChanges" /> or <see cref="O:SaveChangesAsync" /> fails with an exception.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and

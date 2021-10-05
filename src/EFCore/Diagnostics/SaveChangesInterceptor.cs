@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
     {
         /// <summary>
-        ///     Called at the start of <see cref="M:DbContext.SaveChanges" />.
+        ///     Called at the start of <see cref="O:DbContext.SaveChanges" />.
         /// </summary>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Called at the end of <see cref="M:DbContext.SaveChanges" />.
+        ///         Called at the end of <see cref="O:DbContext.SaveChanges" />.
         ///     </para>
         ///     <para>
         ///         This method is still called if an interceptor suppressed creation of a command in
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
-        ///     The result of the call to <see cref="M:DbContext.SaveChanges" />.
+        ///     The result of the call to <see cref="O:DbContext.SaveChanges" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChanges" />.
+        ///     Called when an exception has been thrown in <see cref="O:DbContext.SaveChanges" />.
         /// </summary>
         /// <param name="eventData">Contextual information about the failure.</param>
         public virtual void SaveChangesFailed(DbContextErrorEventData eventData)
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called at the start of <see cref="M:DbContext.SaveChangesAsync" />.
+        ///     Called at the start of <see cref="O:DbContext.SaveChangesAsync" />.
         /// </summary>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Called at the end of <see cref="M:DbContext.SaveChangesAsync" />.
+        ///         Called at the end of <see cref="O:DbContext.SaveChangesAsync" />.
         ///     </para>
         ///     <para>
         ///         This method is still called if an interceptor suppressed creation of a command in
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
-        ///     The result of the call to <see cref="M:DbContext.SaveChangesAsync" />.
+        ///     The result of the call to <see cref="O:DbContext.SaveChangesAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new(result);
 
         /// <summary>
-        ///     Called when an exception has been thrown in <see cref="M:DbContext.SaveChangesAsync" />.
+        ///     Called when an exception has been thrown in <see cref="O:DbContext.SaveChangesAsync" />.
         /// </summary>
         /// <param name="eventData">Contextual information about the failure.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>

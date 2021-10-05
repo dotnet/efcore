@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     The exception thrown during<see cref="M:DbContext.SaveChanges" /> or <see cref="M:DbContext.SaveChangesAsync" />.
+        ///     The exception thrown during<see cref="O:DbContext.SaveChanges" /> or <see cref="O:DbContext.SaveChangesAsync" />.
         /// </summary>
         public virtual Exception Exception { get; }
     }

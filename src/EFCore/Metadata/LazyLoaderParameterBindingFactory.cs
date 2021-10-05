@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IParameterBindingFactory" /> for binding to the <see cref="IsLazyLoader" /> service.
+    ///         A <see cref="IParameterBindingFactory" /> for binding to the <see cref="ILazyLoader" /> service.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations

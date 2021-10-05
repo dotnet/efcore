@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from a call to
-    ///         <see cref="M:CosmosDbContextOptionsExtensions.UseCosmos{TContext}" />
+    ///         <see cref="O:CosmosDbContextOptionsExtensions.UseCosmos{TContext}" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>

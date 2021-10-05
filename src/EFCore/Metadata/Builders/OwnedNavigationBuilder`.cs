@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -604,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -691,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -784,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -825,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>
@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="M:WithOwner" /> to fully configure the relationship.
+        ///         <see cref="O:WithOwner" /> to fully configure the relationship.
         ///     </para>
         /// </summary>
         /// <typeparam name="TNewDependentEntity">The entity type that this relationship targets.</typeparam>

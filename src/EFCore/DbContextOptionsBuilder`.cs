@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         for logging done by this context.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" />
+        ///         There is no need to call this method when using one of the <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContext" />
         ///         methods. 'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
         ///     </para>

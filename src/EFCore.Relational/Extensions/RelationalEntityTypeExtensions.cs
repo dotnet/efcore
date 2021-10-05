@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     Gets the name used for the <see cref="ISqlQuery" /> mapped using
-        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
+        ///     <see cref="O:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
         public static readonly string DefaultQueryNameBase = "MappedSqlQuery";
 
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Gets the default SQL query name that would be used for this entity type when mapped using
-        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
+        ///     <see cref="O:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
         /// </summary>
         /// <param name="entityType">The entity type.</param>
         /// <returns>Gets the default SQL query name.</returns>
