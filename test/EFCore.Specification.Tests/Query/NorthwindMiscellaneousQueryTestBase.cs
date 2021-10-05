@@ -6072,16 +6072,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Perform_identity_resolution_reuses_same_instances(bool async)
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public virtual async Task Perform_identity_resolution_reuses_same_instances(bool async, bool useAsTracking)
         {
             using var context = CreateContext();
             var orderIds = context.Customers.Where(c => c.CustomerID == "ALFKI")
                 .SelectMany(c => c.Orders).Select(o => o.OrderID).ToList();
 
             var query = context.Orders.Where(o => orderIds.Contains(o.OrderID))
-                .Select(o => o.Customer)
-                .AsNoTrackingWithIdentityResolution();
+                .Select(o => o.Customer);
+
+            query = useAsTracking
+                ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                : query.AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()
@@ -6094,16 +6100,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async)
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public virtual async Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async, bool useAsTracking)
         {
             using var context = CreateContext();
 
             var query = (from c in context.Customers.Where(c => c.CustomerID.StartsWith("A"))
                          join o in context.Orders.Where(o => o.OrderID < 10500).Include(o => o.Customer)
                              on c.CustomerID equals o.CustomerID
-                         select new { c, o })
-                .AsNoTrackingWithIdentityResolution();
+                         select new { c, o });
+                
+            query = useAsTracking
+                    ? query.AsTracking(QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                    : query.AsNoTrackingWithIdentityResolution();
 
             var result = async
                 ? await query.ToListAsync()

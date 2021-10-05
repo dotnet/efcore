@@ -298,7 +298,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         protected override ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate)
         {
             Check.NotNull(source, nameof(source));
-            Check.NotNull(predicate, nameof(predicate));
 
             return null;
         }

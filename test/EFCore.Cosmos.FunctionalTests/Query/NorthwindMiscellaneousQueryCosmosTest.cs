@@ -4130,15 +4130,15 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Perform_identity_resolution_reuses_same_instances(bool async)
+        public override Task Perform_identity_resolution_reuses_same_instances(bool async, bool useAsTracking)
         {
-            return base.Perform_identity_resolution_reuses_same_instances(async);
+            return base.Perform_identity_resolution_reuses_same_instances(async, useAsTracking);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async)
+        public override Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async, bool useAsTracking)
         {
-            return base.Perform_identity_resolution_reuses_same_instances_across_joins(async);
+            return base.Perform_identity_resolution_reuses_same_instances_across_joins(async, useAsTracking);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
