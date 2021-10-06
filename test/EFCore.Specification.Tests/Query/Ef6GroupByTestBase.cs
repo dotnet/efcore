@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 12);
         }
 
-        [ConditionalTheory (Skip = "Could not be translated")] // From #12088
+        [ConditionalTheory (Skip = "Issue #17653")] // From #12088
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Whats_new_2021_sample_14(bool async)
         {
@@ -871,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(g => g.OrderByDescending(bp => bp.Id).Take(1).DefaultIfEmpty()));
         }
 
-        [ConditionalTheory (Skip = "Could not be translated")] // From #12088
+        [ConditionalTheory (Skip = "Issue #17653")] // From #12088
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Whats_new_2021_sample_15(bool async)
         {
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()));
         }
 
-        [ConditionalTheory (Skip = "Could not be translated")] // From #12573
+        [ConditionalTheory(Skip = "Issues #19929")] // From #12573
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Whats_new_2021_sample_16(bool async)
         {
