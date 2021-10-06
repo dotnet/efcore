@@ -822,11 +822,17 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        /// <summary>
+        ///     Releases the allocated resources for this context.
+        /// </summary>
+        public virtual ValueTask DisposeAsync()
+            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
+
         private bool DisposeSync()
         {
             if (_lease.IsActive)
             {
-                if (_lease.ContextDisposed())
+                if (_lease.IsStandalone)
                 {
                     _disposed = true;
 
@@ -835,7 +841,10 @@ namespace Microsoft.EntityFrameworkCore
                         ClearEvents();
                     }
 
+                    var lease = _lease;
                     _lease = DbContextLease.InactiveLease;
+
+                    lease.ContextDisposed();
                 }
             }
             else if (!_disposed)
@@ -862,13 +871,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return false;
         }
-
-        /// <summary>
-        ///     Releases the allocated resources for this context.
-        /// </summary>
-        public virtual ValueTask DisposeAsync()
-            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
-
 
         private static readonly bool _dontClearEvents
             = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23108", out var isEnabled) && isEnabled;
