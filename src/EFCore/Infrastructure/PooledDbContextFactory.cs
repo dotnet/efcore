@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         A service of this type is registered in the dependency injection container by the
-    ///         <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" /> methods.
+    ///         <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" /> methods.
     ///     </para>
     /// </summary>
     /// <remarks>

@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="source1">The <see cref="P:Source1" /> property of the result.</param>
-        /// <param name="source2">The <see cref="P:Source2" /> property of the result.</param>
+        /// <param name="source1">The <see cref="SetOperationBase.Source1" /> property of the result.</param>
+        /// <param name="source2">The <see cref="SetOperationBase.Source2" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual IntersectExpression Update(SelectExpression source1, SelectExpression source2)
         {

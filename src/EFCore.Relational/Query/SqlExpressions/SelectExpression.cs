@@ -3518,7 +3518,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="limit">The <see cref="Limit" /> property of the result.</param>
         /// <param name="offset">The <see cref="Offset" /> property of the result.</param>
         /// <param name="distinct">The <see cref="IsDistinct" /> property of the result.</param>
-        /// <param name="alias">The <see cref="P:Alias" /> property of the result.</param>
+        /// <param name="alias">The <see cref="TableExpressionBase.Alias" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         // This does not take internal states since when using this method SelectExpression should be finalized
         [Obsolete("Use the overload which does not require distinct & alias parameter.")]

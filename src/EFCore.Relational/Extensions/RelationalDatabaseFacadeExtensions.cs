@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         Note that this method does not start a transaction. To use this method with
-        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="M:UseTransaction" />.
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
         ///     </para>
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method

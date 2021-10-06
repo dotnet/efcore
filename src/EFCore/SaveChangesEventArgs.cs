@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Base event arguments for the <see cref="M:DbContext.SaveChanges" /> and <see cref="M:DbContext.SaveChangesAsync" /> events.
+    ///     Base event arguments for the <see cref="O:DbContext.SaveChanges" /> and <see cref="O:DbContext.SaveChangesAsync" /> events.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class SaveChangesEventArgs : EventArgs
     {
         /// <summary>
-        ///     Creates a base event arguments instance for <see cref="M:DbContext.SaveChanges" />
-        ///     or <see cref="M:DbContext.SaveChangesAsync" /> events.
+        ///     Creates a base event arguments instance for <see cref="O:DbContext.SaveChanges" />
+        ///     or <see cref="O:DbContext.SaveChangesAsync" /> events.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">The value passed to SaveChanges.</param>
         protected SaveChangesEventArgs(bool acceptAllChangesOnSuccess)
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     The value passed to <see cref="M:DbContext.SaveChanges" /> or <see cref="M:DbContext.SaveChangesAsync" />.
+        ///     The value passed to <see cref="O:DbContext.SaveChanges" /> or <see cref="O:DbContext.SaveChangesAsync" />.
         /// </summary>
         public virtual bool AcceptAllChangesOnSuccess { get; }
     }

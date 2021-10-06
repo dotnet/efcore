@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use SQL Server. It does not support all options.
-        ///         Use <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> and related methods for full control of
+        ///         Use <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> and related methods for full control of
         ///         this process.
         ///     </para>
         ///     <para>
