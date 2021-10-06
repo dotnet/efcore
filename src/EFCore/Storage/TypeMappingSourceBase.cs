@@ -7,13 +7,12 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
     ///         The base class for non-relational type mapping source. Non-relational providers
-    ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping" />
+    ///         should derive from this class and override <see cref="O:TypeMappingSourceBase.FindMapping" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally

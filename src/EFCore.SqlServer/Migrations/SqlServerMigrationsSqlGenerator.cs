@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         <see cref="MigrationCommandListBuilder" />.
         ///     </para>
         ///     <para>
-        ///         This method uses a double-dispatch mechanism to call the <see cref="M:MigrationsSqlGenerator.Generate" /> method
+        ///         This method uses a double-dispatch mechanism to call the <see cref="O:MigrationsSqlGenerator.Generate" /> method
         ///         that is specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
         ///         will override these specific methods rather than this method. However, providers can override
         ///         this methods to handle provider-specific operations.

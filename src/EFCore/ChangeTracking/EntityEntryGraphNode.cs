@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         graph of entities that is being traversed.
     ///     </para>
     ///     <para>
-    ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+    ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
     ///     </para>
     /// </summary>
     /// <remarks>
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         represented by this node.
         ///     </para>
         ///     <para>
-        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
         public virtual EntityEntry? SourceEntry
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Gets the navigation property that is being traversed to reach this node in the graph.
         ///     </para>
         ///     <para>
-        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
         public virtual INavigationBase? InboundNavigation { get; }
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         An <see cref="EntityEntry" /> for the entity instance represented by this node.
         ///     </para>
         ///     <para>
-        ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
         public virtual EntityEntry Entry

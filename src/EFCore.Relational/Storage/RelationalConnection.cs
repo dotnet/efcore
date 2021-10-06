@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -798,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.OpenAsync" /> but can be overridden
+        ///     Template method that by default calls <see cref="O:System.Data.Common.DbConnection.OpenAsync" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="errorsExpected">Indicates if the connection errors are expected and should be logged as debug message.</param>
@@ -991,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> but can be overridden
+        ///     Template method that by default calls <see cref="DbConnection.CloseAsync" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         protected virtual Task CloseDbConnectionAsync()
@@ -1090,14 +1091,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.Dispose" /> but can be overridden by
+        ///     Template method that by default calls <see cref="Component.Dispose()" /> but can be overridden by
         ///     providers to make a different call instead.
         /// </summary>
         protected virtual void DisposeDbConnection()
             => DbConnection.Dispose();
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overridden by
+        ///     Template method that by default calls <see cref="DbConnection.DisposeAsync" /> but can be overridden by
         ///     providers to make a different call instead.
         /// </summary>
         protected virtual ValueTask DisposeDbConnectionAsync()

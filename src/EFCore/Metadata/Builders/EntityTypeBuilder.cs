@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
-        ///     properties. This will force the properties to be read-only. Use <see cref="M:HasIndex" /> to specify uniqueness
+        ///     properties. This will force the properties to be read-only. Use <see cref="O:HasIndex" /> to specify uniqueness
         ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="propertyNames">The names of the properties that make up the key.</param>

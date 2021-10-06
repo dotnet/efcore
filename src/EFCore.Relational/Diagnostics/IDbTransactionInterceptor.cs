@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Called just before EF intends to call
-        ///     <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
+        ///     <see cref="DbConnection.BeginTransactionAsync(IsolationLevel,CancellationToken)" />.
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     <para>
         ///         Called immediately after EF calls
-        ///         <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />
+        ///         <see cref="DbConnection.BeginTransactionAsync(IsolationLevel,CancellationToken)" />
         ///         .
         ///     </para>
         ///     <para>
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData">Contextual information about connection and transaction.</param>
         /// <param name="result">
         ///     The result of the call to
-        ///     <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
+        ///     <see cref="DbConnection.BeginTransactionAsync(IsolationLevel,CancellationToken)" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -143,17 +143,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Called immediately after <see cref="M:RelationalDatabaseFacadeExtensions.UseTransaction" /> is called.
+        ///         Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransaction" /> is called.
         ///     </para>
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
         /// <param name="result">
-        ///     The <see cref="DbTransaction" /> that was passed to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransaction" />.
+        ///     The <see cref="DbTransaction" /> that was passed to <see cref="O:RelationalDatabaseFacadeExtensions.UseTransaction" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <returns>
-        ///     The value that will be used as the effective value passed to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransaction" />
+        ///     The value that will be used as the effective value passed to <see cref="O:RelationalDatabaseFacadeExtensions.UseTransaction" />
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
@@ -164,19 +164,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Called immediately after <see cref="M:RelationalDatabaseFacadeExtensions.UseTransactionAsync" /> is called.
+        ///         Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransactionAsync" /> is called.
         ///     </para>
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
         /// <param name="result">
-        ///     The <see cref="DbTransaction" /> that was passed to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />.
+        ///     The <see cref="DbTransaction" /> that was passed to <see cref="O:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A <see cref="Task" />  containing the value that will be used as the effective value passed
-        ///     to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />
+        ///     to <see cref="O:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Called just before EF intends to call
-        ///     <see cref="M:System.Data.Common.DbTransaction.CommitAsync(System.Threading.CancellationToken)" />.
+        ///     <see cref="DbTransaction.CommitAsync(CancellationToken)" />.
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Called just before EF intends to call
-        ///     <see cref="M:System.Data.Common.DbTransaction.RollbackAsync(System.Threading.CancellationToken)" />.
+        ///     <see cref="DbTransaction.RollbackAsync(CancellationToken)" />.
         /// </summary>
         /// <param name="transaction">The transaction.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
