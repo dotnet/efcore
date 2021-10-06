@@ -1004,8 +1004,6 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     _disposed = true;
                     _lease = DbContextLease.InactiveLease;
-
-                    lease.ContextDisposed();
                 }
             }
             else if (!_disposed)
