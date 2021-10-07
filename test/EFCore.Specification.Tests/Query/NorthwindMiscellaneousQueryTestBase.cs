@@ -6301,7 +6301,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         c.CustomerID,
                         Order = (c.Orders.Any() ? c.Orders.FirstOrDefault() : null) == null
                             ? null
-                            : new { c.Orders.FirstOrDefault().OrderDate }
+                            : new { c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDate }
                     }),
                 elementSorter: c => c.CustomerID,
                 elementAsserter: (e, a) => AssertEqual(e.Order, a.Order));

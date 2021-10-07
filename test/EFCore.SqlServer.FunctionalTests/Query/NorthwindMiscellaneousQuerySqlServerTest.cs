@@ -5205,7 +5205,8 @@ FROM [Customers] AS [c]");
 END, (
     SELECT TOP(1) [o1].[OrderDate]
     FROM [Orders] AS [o1]
-    WHERE [c].[CustomerID] = [o1].[CustomerID])
+    WHERE [c].[CustomerID] = [o1].[CustomerID]
+    ORDER BY [o1].[OrderID])
 FROM [Customers] AS [c]");
         }
 
