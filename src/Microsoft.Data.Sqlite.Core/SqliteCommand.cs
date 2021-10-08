@@ -322,12 +322,15 @@ namespace Microsoft.Data.Sqlite
                 ? PrepareAndEnumerateStatements(timer)
                 : _preparedStatements)
             {
+
                 var boundParams = _parameters?.Bind(stmt) ?? 0;
 
                 var expectedParams = sqlite3_bind_parameter_count(stmt);
+
                 if (expectedParams != boundParams)
                 {
                     var unboundParams = new List<string>();
+
                     for (var i = 1; i <= expectedParams; i++)
                     {
                         var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();

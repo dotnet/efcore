@@ -328,11 +328,22 @@ namespace Microsoft.Data.Sqlite
         internal int Bind(sqlite3_stmt stmt)
         {
             var bound = 0;
+            var checkedParams = new List<SqliteParameter>();
+
             foreach (var parameter in _parameters)
             {
-                if (parameter.Bind(stmt))
+                if(!checkedParams.Cast<SqliteParameter>().Any(p => p.ParameterName.Equals(parameter.ParameterName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    bound++;
+                    if (parameter.Bind(stmt))
+                    {
+                        bound++;
+
+                        checkedParams.Add(parameter);
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(Resources.AmbiguousParameterName(parameter.ParameterName));
                 }
             }
 
