@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="System.Collections.Immutable" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-rtm.21505.6">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-rtm.21507.16">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>5e06d805f207de1607f11b30e37891c4e2b44b13</Sha>
+      <Sha>733a3089ec6945422caf06035c18ff700c9d51be</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
