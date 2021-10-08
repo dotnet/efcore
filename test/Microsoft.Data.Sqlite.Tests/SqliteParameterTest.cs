@@ -434,6 +434,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Bind_is_not_case_sensitive()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @param";
+                command.Parameters.AddWithValue("@Param", "harvest");
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal("harvest", result);
+            }
+        }
+
+        [Fact]
         public void Bind_throws_for_ambiguous_parameters()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
