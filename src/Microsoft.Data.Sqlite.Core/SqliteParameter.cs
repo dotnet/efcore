@@ -211,6 +211,23 @@ namespace Microsoft.Data.Sqlite
             }
 
             var index = sqlite3_bind_parameter_index(stmt, ParameterName);
+
+            if(index == 0)
+            {
+                var expectedParams = sqlite3_bind_parameter_count(stmt);
+
+                for (var i = 1; i <= expectedParams; i++)
+                {
+                    var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
+
+                    if (String.Compare(ParameterName, name, StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+
             if (index == 0
                 && (index = FindPrefixedParameter(stmt)) == 0)
             {
