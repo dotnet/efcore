@@ -2086,7 +2086,7 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal("mySchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                    Assert.Equal("CustomersHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
                     Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
@@ -2109,7 +2109,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomersHistory]));");
         }
 
         [ConditionalFact]
@@ -2142,7 +2142,7 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal("myDefaultSchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                    Assert.Equal("CustomersHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
                     Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
@@ -2165,7 +2165,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myDefaultSchema].[CustomerHistory]));");
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myDefaultSchema].[CustomersHistory]));");
         }
 
         [ConditionalFact]
@@ -2198,7 +2198,7 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal("mySchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                    Assert.Equal("CustomersHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
                     Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
@@ -2221,7 +2221,7 @@ EXEC(N'CREATE TABLE [Customer] (
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomersHistory]));");
         }
 
         [ConditionalFact]
@@ -3849,7 +3849,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));",
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomersHistory]));",
                 //
                 @"CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL,
@@ -3858,7 +3858,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
-) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[OrderHistory]));");
+) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[OrdersHistory]));");
         }
 
         [ConditionalFact]

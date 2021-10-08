@@ -31,20 +31,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ChangesDate = new DateTime(2010, 1, 1);
 
-            var historyTableInfos = new List<(string table, string historyTable)>()
+            var tableNames = new List<string>
             {
-                ("LevelOne", "Level1History"),
-                ("LevelTwo", "Level2History"),
-                ("LevelThree", "Level3History"),
-                ("LevelFour", "Level4History"),
+                "LevelOne",
+                "LevelTwo",
+                "LevelThree",
+                "LevelFour"
             };
 
             // clean up intermittent history since in the Seed method we do fixup in multiple stages 
-            foreach (var historyTableInfo in historyTableInfos)
+            foreach (var tableName in tableNames)
             {
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] SET (SYSTEM_VERSIONING = OFF)");
-                context.Database.ExecuteSqlRaw($"DELETE FROM [{historyTableInfo.historyTable}]");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{historyTableInfo.historyTable}]))");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+                context.Database.ExecuteSqlRaw($"DELETE FROM [{tableName + "History"}]");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
 
             foreach (var entityOne in context.ChangeTracker.Entries().Where(e => e.Entity is Level1).Select(e => e.Entity))
@@ -69,16 +69,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             context.SaveChanges();
 
-            foreach (var historyTableInfo in historyTableInfos)
+            foreach (var tableName in tableNames)
             {
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] SET (SYSTEM_VERSIONING = OFF)");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] DROP PERIOD FOR SYSTEM_TIME");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] DROP PERIOD FOR SYSTEM_TIME");
 
-                context.Database.ExecuteSqlRaw($"UPDATE [{historyTableInfo.historyTable}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
-                context.Database.ExecuteSqlRaw($"UPDATE [{historyTableInfo.historyTable}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
+                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodStart = '2000-01-01T01:00:00.0000000Z'");
+                context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{historyTableInfo.table}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{historyTableInfo.historyTable}]))");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
+                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }
     }

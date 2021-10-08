@@ -206,7 +206,9 @@ namespace Microsoft.EntityFrameworkCore
                 : entityType[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName
                     ? historyTableName
                     : entityType[SqlServerAnnotationNames.IsTemporal] as bool? == true
-                        ? entityType.ShortName() + DefaultHistoryTableNameSuffix
+                        ? entityType.GetTableName() is string tableName
+                            ? tableName + DefaultHistoryTableNameSuffix
+                            : null
                         : null;
 
         /// <summary>
