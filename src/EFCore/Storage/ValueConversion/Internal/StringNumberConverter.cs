@@ -33,9 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringNumberConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            bool convertsNulls,
             ConverterMappingHints? mappingHints = null)
-            : base(convertToProviderExpression, convertFromProviderExpression, convertsNulls, mappingHints)
+            : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
 

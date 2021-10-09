@@ -26,8 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(
                 alphaNumerics.Replace(physicalAddress, ""),
                 converter(PhysicalAddress.Parse(physicalAddress)));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -39,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(
                 PhysicalAddress.Parse(physicalAddress),
                 converter(physicalAddress));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -59,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     converter(physicalAddress);
                 });
 
-            Assert.Null(converter(null));
             Assert.Equal($"An invalid physical address was specified: '{physicalAddress}'.", exception.Message);
         }
 

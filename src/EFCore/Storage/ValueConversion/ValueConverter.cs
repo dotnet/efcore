@@ -49,7 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="ValueConverter" /> class, allowing conversion of
+        ///         nulls.
+        ///     </para>
+        ///     <para>
+        ///         Warning: this is currently an internal API since converting nulls to and from the database can lead to broken
+        ///         queries and other issues. See https://github.com/dotnet/efcore/issues/26230 for more information.
+        ///     </para>
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
@@ -72,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
+        [EntityFrameworkInternal]
         protected ValueConverter(
             LambdaExpression convertToProviderExpression,
             LambdaExpression convertFromProviderExpression,

@@ -28,9 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             Encoding encoding,
             ConverterMappingHints? mappingHints = null)
             : base(
-                v => v == null ? null : encoding.GetBytes(v),
-                v => v == null ? null : encoding.GetString(v),
-                convertsNulls: true,
+                v => encoding.GetBytes(v!),
+                v => encoding.GetString(v!),
                 mappingHints)
         {
         }

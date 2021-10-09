@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = physicalAddress.GetAddressBytes();
 
             Assert.Equal(bytes, converter(physicalAddress));
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -46,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = physicalAddress.GetAddressBytes();
 
             Assert.Equal(physicalAddress, converter(bytes));
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]

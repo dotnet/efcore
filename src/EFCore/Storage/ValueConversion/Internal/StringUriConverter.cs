@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
             : base(
                 convertToProviderExpression,
                 convertFromProviderExpression,
-                convertsNulls: true,
                 mappingHints)
         {
         }
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected new static Expression<Func<Uri?, string?>> ToString()
-            => v => v != null ? v.ToString() : null;
+            => v => v!.ToString();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string?, Uri?>> ToUri()
-            => v => v != null ? new Uri(v, UriKind.RelativeOrAbsolute) : null;
+            => v => new Uri(v!, UriKind.RelativeOrAbsolute);
     }
 }

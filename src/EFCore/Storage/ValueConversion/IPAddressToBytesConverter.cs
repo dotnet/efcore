@@ -38,9 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public IPAddressToBytesConverter(ConverterMappingHints? mappingHints)
             : base(
-                v => v == null ? default : v.GetAddressBytes(),
-                v => v == null ? default : new IPAddress(v),
-                convertsNulls: true,
+                v => v!.GetAddressBytes(),
+                v => new IPAddress(v!),
                 _defaultHints.With(mappingHints))
         {
         }

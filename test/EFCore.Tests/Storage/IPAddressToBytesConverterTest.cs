@@ -25,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = ip.GetAddressBytes();
 
             Assert.Equal(bytes, converter(ip));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -57,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Throws<ArgumentException>(
                 () => converter(bytesIPV4Invalid));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -75,8 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = ip.GetAddressBytes();
 
             Assert.Equal(ip, converter(bytes));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
