@@ -15,11 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_convert_strings_to_bytes()
         {
             var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
-            Assert.True(_bytesToStringConverter.ConvertsNulls);
+            Assert.False(_bytesToStringConverter.ConvertsNulls);
 
             Assert.Equal("U3DEsW7MiGFsIFRhcA==", converter(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }));
             Assert.Equal("", converter(Array.Empty<byte>()));
-            Assert.Null(converter(null));
         }
 
         [ConditionalFact]
@@ -29,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }, converter("U3DEsW7MiGFsIFRhcA=="));
             Assert.Equal(Array.Empty<byte>(), converter(""));
-            Assert.Null(converter(null));
         }
 
         [ConditionalFact]

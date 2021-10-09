@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _ipAddressToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal(ipv4, converter(IPAddress.Parse(ipv4)));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -38,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var converter = _ipAddressToString.ConvertToProviderExpression.Compile();
 
             Assert.Equal(ipv6, converter(IPAddress.Parse(ipv6)));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -55,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(
                 IPAddress.Parse(ipv4),
                 converter(ipv4));
-
-            Assert.Null(converter(null));
         }
 
         [ConditionalTheory]
@@ -72,8 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(
                 IPAddress.Parse(ipv6),
                 converter(ipv6));
-
-            Assert.Null(converter(null));
         }
     }
 }

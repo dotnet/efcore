@@ -38,9 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public PhysicalAddressToBytesConverter(ConverterMappingHints? mappingHints)
             : base(
-                v => v == null ? default : v.GetAddressBytes(),
-                v => v == null ? default : new PhysicalAddress(v),
-                convertsNulls: true,
+                v => v!.GetAddressBytes(),
+                v => new PhysicalAddress(v!),
                 _defaultHints.With(mappingHints))
         {
         }

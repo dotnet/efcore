@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new Uri("ftp://www.github.com", UriKind.Absolute), converter("ftp://www.github.com/"));
             Assert.Equal(new Uri(".", UriKind.Relative), converter("."));
 
-            Assert.Null(converter(null));
             Assert.Throws<UriFormatException>(() => converter("http:///"));
         }
 
@@ -48,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("/relative/path", converter(new Uri("/relative/path", UriKind.Relative)));
             Assert.Equal("ftp://www.github.com/", converter(new Uri("ftp://www.github.com/", UriKind.Absolute)));
             Assert.Equal(".", converter(new Uri(".", UriKind.Relative)));
-            Assert.Null(converter(null));
         }
 
         [ConditionalFact]
