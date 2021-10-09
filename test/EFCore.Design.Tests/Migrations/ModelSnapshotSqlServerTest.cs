@@ -148,9 +148,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public EntityWithOneProperty EntityWithOneProperty { get; set; }
         }
 
+        private class EntityWithDecimalProperty
+        {
+            public int Id { get; set; }
+            public decimal Price { get; set; }
+        }
+
         private class EntityWithStringKey
         {
             public string Id { get; set; }
+            public ICollection<EntityWithStringProperty> Properties { get; set; }
+        }
+        
+        private class EntityWithStringAlternateKey
+        {
+            public int Id { get; set; }
+            public string AlternateId { get; set; }
             public ICollection<EntityWithStringProperty> Properties { get; set; }
         }
 
@@ -221,6 +234,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         private class AnotherDerivedEntity : BaseEntity
+        {
+            public string Title { get; set; }
+        }
+
+        private readonly struct StructDiscriminator
+        {
+            public string Value { get; init; }
+        }
+
+        private class BaseEntityWithStructDiscriminator
+        {
+            public int Id { get; set; }
+
+            public StructDiscriminator Discriminator { get; set; }
+        }
+
+        private class DerivedEntityWithStructDiscriminator : BaseEntityWithStructDiscriminator
+        {
+            public string Name { get; set; }
+        }
+
+        private class AnotherDerivedEntityWithStructDiscriminator : BaseEntityWithStructDiscriminator
         {
             public string Title { get; set; }
         }
@@ -562,6 +597,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToView(""EntityWithOneProperty"");
                 });"),
                 o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
+        }
+
+        [ConditionalFact]
+        public void Views_with_schemas_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithOneProperty>()
+                    .Ignore(e => e.EntityWithTwoProperties)
+                    .ToView("EntityWithOneProperty", "ViewSchema"),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.HasKey(""Id"");
+
+                    b.ToView(""EntityWithOneProperty"", ""ViewSchema"");
+                });"),
+                o =>
+                    {
+                        Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName());
+                        Assert.Equal("ViewSchema", o.GetEntityTypes().Single().GetViewSchema());
+                    });
         }
 
         private class TestKeylessType
@@ -1072,6 +1135,89 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         "AnotherDerivedEntity",
                         o.FindEntityType(typeof(AnotherDerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
                     Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Converted_discriminator_annotations_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<DerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
+                    builder.Entity<AnotherDerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
+                    builder.Entity<BaseEntityWithStructDiscriminator>(
+                        b =>
+                            {
+                                b.Property(e => e.Discriminator)
+                                    .HasConversion(
+                                        v => v.Value,
+                                        v => new() { Value = v });
+                                b.HasDiscriminator(e => e.Discriminator)
+                                    .IsComplete()
+                                    .HasValue(typeof(BaseEntityWithStructDiscriminator), new StructDiscriminator { Value = "Base" })
+                                    .HasValue(typeof(DerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Derived" })
+                                    .HasValue(typeof(AnotherDerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Another" });
+                            });
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntityWithStructDiscriminator"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<string>(""Discriminator"")
+                        .IsRequired()
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""BaseEntityWithStructDiscriminator"");
+
+                    b.HasDiscriminator<string>(""Discriminator"").IsComplete(true).HasValue(""Base"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntityWithStructDiscriminator"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntityWithStructDiscriminator"");
+
+                    b.Property<string>(""Title"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasDiscriminator().HasValue(""Another"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntityWithStructDiscriminator"", b =>
+                {
+                    b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntityWithStructDiscriminator"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.HasDiscriminator().HasValue(""Derived"");
+                });"),
+                o =>
+                {
+                    Assert.Equal(
+                        "Discriminator", 
+                        o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorProperty]);
+                    
+                    Assert.Equal(
+                        "Base", 
+                        o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    
+                    Assert.Equal(
+                        "Another", 
+                        o.FindEntityType(typeof(AnotherDerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
+                    
+                    Assert.Equal(
+                        "Derived", 
+                        o.FindEntityType(typeof(DerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
                 });
         }
 
@@ -3089,6 +3235,76 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
+        public virtual void Property_precision_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder
+                    .Entity<EntityWithDecimalProperty>()
+                    .Property<decimal>(nameof(EntityWithDecimalProperty.Price))
+                    .HasPrecision(7),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithDecimalProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<decimal>(""Price"")
+                        .HasPrecision(7)
+                        .HasColumnType(""decimal(7,2)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithDecimalProperty"");
+                });"),
+                o =>
+                    {
+                        var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                        Assert.Equal(7, property.GetPrecision());
+                        Assert.Null(property.GetScale());
+                    });
+        }
+
+        [ConditionalFact]
+        public virtual void Property_precision_and_scale_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder
+                    .Entity<EntityWithDecimalProperty>()
+                    .Property<decimal>(nameof(EntityWithDecimalProperty.Price))
+                    .HasPrecision(7, 3),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithDecimalProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<decimal>(""Price"")
+                        .HasPrecision(7, 3)
+                        .HasColumnType(""decimal(7,3)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithDecimalProperty"");
+                });"),
+                o =>
+                    {
+                        var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                        Assert.Equal(7, property.GetPrecision());
+                        Assert.Equal(3, property.GetScale());
+                    });
+        }
+
+        [ConditionalFact]
         public virtual void Many_facets_chained_in_snapshot()
         {
             Test(
@@ -4677,6 +4893,71 @@ namespace RootNamespace
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
+                {
+                    b.Navigation(""Properties"");
+                });"),
+                o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
+        }
+
+        [ConditionalFact]
+        public virtual void ForeignKey_with_non_primary_principal_is_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithStringProperty>()
+                        .HasOne<EntityWithStringAlternateKey>()
+                        .WithMany(e => e.Properties)
+                        .HasForeignKey(e => e.Name)
+                        .HasPrincipalKey(e => e.AlternateId);
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringAlternateKey"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<string>(""AlternateId"")
+                        .IsRequired()
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithStringAlternateKey"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(450)"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""Name"");
+
+                    b.ToTable(""EntityWithStringProperty"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                {
+                    b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringAlternateKey"", null)
+                        .WithMany(""Properties"")
+                        .HasForeignKey(""Name"")
+                        .HasPrincipalKey(""AlternateId"");
+                });
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringAlternateKey"", b =>
                 {
                     b.Navigation(""Properties"");
                 });"),
