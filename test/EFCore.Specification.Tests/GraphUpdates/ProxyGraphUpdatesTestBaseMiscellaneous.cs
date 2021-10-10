@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
     {
         [ConditionalFact]
-        public virtual void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
+        public virtual void Save_two_entity_cycle_with_lazy_loading()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -41,13 +41,27 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var cars = context.Set<Car>().ToList();
 
+                    var owner0 = cars[0].Owner;
+                    var owner1 = cars[1].Owner;
+                    
                     (cars[1].Owner, cars[0].Owner) = (cars[0].Owner, cars[1].Owner);
 
                     cars[0].Owner.Vehicle = cars[0];
                     cars[1].Owner.Vehicle = cars[1];
 
-                    var message = Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message;
-                    Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
+                    if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
+                    {
+                        context.SaveChanges();
+                        Assert.Same(owner0, cars[1].Owner);
+                        Assert.Same(owner1, cars[0].Owner);
+                        Assert.Same(cars[0], cars[0].Owner.Vehicle);
+                        Assert.Same(cars[1], cars[1].Owner.Vehicle);
+                    }
+                    else
+                    {
+                        var message = Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message;
+                        Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
+                    }
                 });
         }
 

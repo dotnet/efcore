@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             // Needs lazy loading
-            public override void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
+            public override void Save_two_entity_cycle_with_lazy_loading()
             {
             }
 
