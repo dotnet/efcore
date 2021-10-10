@@ -1,6 +1,6 @@
 # Daily Builds
 
-## DL;DR
+## TL;DR
 
 Create a file called "NuGet.config" with the follwing contents and put it next to your solution or csproj file:
 
