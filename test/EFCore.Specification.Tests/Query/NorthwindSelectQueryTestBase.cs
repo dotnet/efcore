@@ -1778,6 +1778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(e => e.Where(o => o.OrderID < 11000).Count() > 0)
                     .Select(e => e.Where(o => o.OrderID < 10750)),
                 assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee.OrderID),
                 entryCount: 18);
         }
 
