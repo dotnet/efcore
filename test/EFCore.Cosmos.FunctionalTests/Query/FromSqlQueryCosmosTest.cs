@@ -612,6 +612,24 @@ FROM (
 ) c");
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Category""")
+                .AsNoTracking();
+            var exception = async
+                ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                : Assert.Throws<InvalidOperationException>(() => query.ToArray());
+
+            Assert.Equal(CoreStrings.InvalidKeyValue(
+                context.Model.FindEntityType(typeof(Customer))!.DisplayName(),
+                "CustomerID"),
+                exception.Message);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
