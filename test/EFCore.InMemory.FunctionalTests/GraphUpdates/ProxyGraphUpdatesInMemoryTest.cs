@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 #pragma warning disable RCS1102 // Make class static.
 namespace Microsoft.EntityFrameworkCore
@@ -20,83 +21,102 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public override void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
-            {
-            }
-
-            // #11552
-            public override void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
-            {
-            }
-
+            [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
             public override void Optional_one_to_one_relationships_are_one_to_one()
             {
+                base.Optional_one_to_one_relationships_are_one_to_one();
             }
-
+            
+            [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
             public override void Optional_one_to_one_with_AK_relationships_are_one_to_one()
             {
+                base.Optional_one_to_one_with_AK_relationships_are_one_to_one();
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Optional_many_to_one_dependents_are_orphaned_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Optional_many_to_one_dependents_are_orphaned_in_store(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_one_to_one_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
             public override void Required_one_to_one_relationships_are_one_to_one()
             {
+                base.Required_one_to_one_relationships_are_one_to_one();
             }
-
+            
+            [ConditionalFact(Skip = "FK constraint checking. Issue #2166")]
             public override void Required_one_to_one_with_AK_relationships_are_one_to_one()
             {
+                base.Required_one_to_one_with_AK_relationships_are_one_to_one();
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_many_to_one_dependents_are_cascade_deleted_in_store(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store(
+                    cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_non_PK_one_to_one_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_non_PK_one_to_one_are_cascade_detached_when_Added(cascadeDeleteTiming, deleteOrphansTiming);
             }
-
+            
+            [ConditionalTheory(Skip = "Cascade delete. Issue #3924")]
             public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
                 CascadeTiming cascadeDeleteTiming,
                 CascadeTiming deleteOrphansTiming)
             {
+                base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added(
+                    cascadeDeleteTiming, deleteOrphansTiming);
             }
 
             protected override void ExecuteWithStrategyInTransaction(
@@ -148,6 +168,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             public ChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
                 : base(fixture)
+            {
+            }
+
+            // Needs lazy loading
+            public override void Save_two_entity_cycle_with_lazy_loading()
             {
             }
 
