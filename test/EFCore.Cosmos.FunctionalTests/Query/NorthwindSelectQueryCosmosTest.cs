@@ -913,122 +913,82 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Client_method_in_projection_requiring_materialization_1(bool async)
-        {
-            return base.Client_method_in_projection_requiring_materialization_1(async);
-        }
+            => base.Client_method_in_projection_requiring_materialization_1(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Client_method_in_projection_requiring_materialization_2(bool async)
-        {
-            return base.Client_method_in_projection_requiring_materialization_2(async);
-        }
+            => base.Client_method_in_projection_requiring_materialization_2(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Multiple_select_many_with_predicate(bool async)
-        {
-            return base.Multiple_select_many_with_predicate(async);
-        }
+            => base.Multiple_select_many_with_predicate(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_without_result_selector_naked_collection_navigation(bool async)
-        {
-            return base.SelectMany_without_result_selector_naked_collection_navigation(async);
-        }
+            => base.SelectMany_without_result_selector_naked_collection_navigation(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_without_result_selector_collection_navigation_composed(bool async)
-        {
-            return base.SelectMany_without_result_selector_collection_navigation_composed(async);
-        }
+            => base.SelectMany_without_result_selector_collection_navigation_composed(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_1(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_1(async);
-        }
+            => base.SelectMany_correlated_with_outer_1(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_2(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_2(async);
-        }
+            => base.SelectMany_correlated_with_outer_2(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_3(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_3(async);
-        }
+            => base.SelectMany_correlated_with_outer_3(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_4(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_4(async);
-        }
+            => base.SelectMany_correlated_with_outer_4(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_5(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_5(async);
-        }
+            => base.SelectMany_correlated_with_outer_5(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_6(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_6(async);
-        }
+            => base.SelectMany_correlated_with_outer_6(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task SelectMany_correlated_with_outer_7(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_7(async);
-        }
+            => base.SelectMany_correlated_with_outer_7(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
-        {
-            return base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);
-        }
+            => base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
-        {
-            return base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(async);
-        }
+            => base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(async);
 
         public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
-        {
-            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
-        }
+            => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Filtered_collection_projection_is_tracked(bool async)
-        {
-            return base.Filtered_collection_projection_is_tracked(async);
-        }
+            => base.Filtered_collection_projection_is_tracked(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Filtered_collection_projection_with_to_list_is_tracked(bool async)
-        {
-            return base.Filtered_collection_projection_with_to_list_is_tracked(async);
-        }
+            => base.Filtered_collection_projection_with_to_list_is_tracked(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
-        {
-            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
-        }
+            => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool async)
-        {
-            return base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(async);
-        }
+            => base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_entity_compared_to_null(bool async)
-        {
-            return base.Select_entity_compared_to_null(async);
-        }
+            => base.Select_entity_compared_to_null(async);
 
         public override async Task Explicit_cast_in_arithmetic_operation_is_preserved(bool async)
         {
@@ -1042,39 +1002,27 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_whose_selector_references_outer_source(bool async)
-        {
-            return base.SelectMany_whose_selector_references_outer_source(async);
-        }
+            => base.SelectMany_whose_selector_references_outer_source(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool async)
-        {
-            return base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(async);
-        }
+            => base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool async)
-        {
-            return base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(async);
-        }
+            => base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task ToList_Count_in_projection_works(bool async)
-        {
-            return base.ToList_Count_in_projection_works(async);
-        }
+            => base.ToList_Count_in_projection_works(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task LastOrDefault_member_access_in_projection_translates_to_server(bool async)
-        {
-            return base.LastOrDefault_member_access_in_projection_translates_to_server(async);
-        }
+            => base.LastOrDefault_member_access_in_projection_translates_to_server(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Collection_projection_AsNoTracking_OrderBy(bool async)
-        {
-            return base.Collection_projection_AsNoTracking_OrderBy(async);
-        }
+            => base.Collection_projection_AsNoTracking_OrderBy(async);
 
         public override async Task Coalesce_over_nullable_uint(bool async)
         {
@@ -1088,15 +1036,11 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Project_uint_through_collection_FirstOrDefault(bool async)
-        {
-            return base.Project_uint_through_collection_FirstOrDefault(async);
-        }
+            => base.Project_uint_through_collection_FirstOrDefault(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
-        {
-            return base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
-        }
+            => base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
 
         public override async Task Reverse_changes_asc_order_to_desc(bool async)
         {
@@ -1122,9 +1066,7 @@ ORDER BY c[""EmployeeID""]");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Projection_AsEnumerable_projection(bool async)
-        {
-            return base.Projection_AsEnumerable_projection(async);
-        }
+            => base.Projection_AsEnumerable_projection(async);
 
         public override async Task Projection_custom_type_in_both_sides_of_ternary(bool async)
         {
@@ -1139,63 +1081,43 @@ ORDER BY c[""CustomerID""]");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Projecting_multiple_collection_with_same_constant_works(bool async)
-        {
-            return base.Projecting_multiple_collection_with_same_constant_works(async);
-        }
+            => base.Projecting_multiple_collection_with_same_constant_works(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Projecting_after_navigation_and_distinct(bool async)
-        {
-            return base.Projecting_after_navigation_and_distinct(async);
-        }
+            => base.Projecting_after_navigation_and_distinct(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
-        {
-            return base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async);
-        }
+            => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
-        {
-            return base.Correlated_collection_after_distinct_not_containing_original_identifier(async);
-        }
+            => base.Correlated_collection_after_distinct_not_containing_original_identifier(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
-        {
-            return base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async);
-        }
+            => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
-        {
-            return base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async);
-        }
+            => base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async);
 
         public override Task Reverse_without_explicit_ordering(bool async)
-        {
-            return AssertTranslationFailedWithDetails(
+            => AssertTranslationFailedWithDetails(
                 () => base.Reverse_without_explicit_ordering(async), CosmosStrings.MissingOrderingInSelectExpression);
-        }
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
-        {
-            return base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
-        }
+            => base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Select_nested_collection_deep(bool async)
-        {
-            return base.Select_nested_collection_deep(async);
-        }
+            => base.Select_nested_collection_deep(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
-        {
-            return base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
-        }
+            => base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
 
         public override async Task Projection_take_predicate_projection(bool async)
         {
@@ -1233,39 +1155,27 @@ OFFSET 0 LIMIT @__p_0");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
-        {
-            return base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
-        }
+            => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
-        {
-            return base.Projecting_count_of_navigation_which_is_generic_collection(async);
-        }
+            => base.Projecting_count_of_navigation_which_is_generic_collection(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Projecting_count_of_navigation_which_is_generic_list(bool async)
-        {
-            return base.Projecting_count_of_navigation_which_is_generic_list(async);
-        }
+            => base.Projecting_count_of_navigation_which_is_generic_list(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
-        {
-            return base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
-        }
+            => base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
-        {
-            return base.Select_nested_collection_deep_distinct_no_identifiers(async);
-        }
+            => base.Select_nested_collection_deep_distinct_no_identifiers(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
-        {
-            return base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async);
-        }
+            => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async);
 
         public override async Task Ternary_in_client_eval_assigns_correct_types(bool async)
         {
@@ -1280,50 +1190,86 @@ ORDER BY c[""OrderID""]");
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Collection_include_over_result_of_single_non_scalar(bool async)
-        {
-            return base.Collection_include_over_result_of_single_non_scalar(async);
-        }
+            => base.Collection_include_over_result_of_single_non_scalar(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
-        {
-            return base.Collection_projection_selecting_outer_element_followed_by_take(async);
-        }
+            => base.Collection_projection_selecting_outer_element_followed_by_take(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
-        {
-            return base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async);
-        }
+            => base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Take_on_correlated_collection_in_first(bool async)
-        {
-            return base.Take_on_correlated_collection_in_first(async);
-        }
+            => base.Take_on_correlated_collection_in_first(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Client_projection_via_ctor_arguments(bool async)
-        {
-            return base.Client_projection_via_ctor_arguments(async);
-        }
+            => base.Client_projection_via_ctor_arguments(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Client_projection_with_string_initialization_with_scalar_subquery(bool async)
-        {
-            return base.Client_projection_with_string_initialization_with_scalar_subquery(async);
-        }
+            => base.Client_projection_with_string_initialization_with_scalar_subquery(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
-        {
-            return base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async);
-        }
+            => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task MemberInit_in_projection_without_arguments(bool async)
+            => base.MemberInit_in_projection_without_arguments(async);
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Reverse_in_join_outer(bool async)
+            => base.Reverse_in_join_outer(async);
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Reverse_in_join_outer_with_take(bool async)
+            => base.Reverse_in_join_outer_with_take(async);
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Reverse_in_join_inner(bool async)
+            => base.Reverse_in_join_inner(async);
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Reverse_in_join_inner_with_skip(bool async)
+            => base.Reverse_in_join_inner_with_skip(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_SelectMany(bool async)
+            => base.Reverse_in_SelectMany(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_SelectMany_with_Take(bool async)
+            => base.Reverse_in_SelectMany_with_Take(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_projection_subquery(bool async)
+            => base.Reverse_in_projection_subquery(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_projection_subquery_single_result(bool async)
+            => base.Reverse_in_projection_subquery_single_result(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_subquery_via_pushdown(bool async)
+            => base.Reverse_in_subquery_via_pushdown(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_in_projection_scalar_subquery(bool async)
+            => base.Reverse_in_projection_scalar_subquery(async);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Reverse_after_orderby_thenby(bool async)
+            => base.Reverse_after_orderby_thenby(async);
+
+        public override async Task Reverse_after_orderBy_and_take(bool async)
         {
-            return base.MemberInit_in_projection_without_arguments(async);
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Reverse_after_orderBy_and_take(async))).Message;
+
+            Assert.Equal(CosmosStrings.ReverseAfterSkipTakeNotSupported, message);
         }
 
         private void AssertSql(params string[] expected)

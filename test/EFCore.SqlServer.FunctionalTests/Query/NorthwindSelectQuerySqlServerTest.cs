@@ -1381,6 +1381,211 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]");
         }
 
+        public override async Task Reverse_after_multiple_orderbys(bool async)
+        {
+            await base.Reverse_after_multiple_orderbys(async);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]");
+        }
+
+        public override async Task Reverse_after_orderby_thenby(bool async)
+        {
+            await base.Reverse_after_orderby_thenby(async);
+
+            AssertSql(
+                @"SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID] DESC, [e].[City]");
+        }
+
+
+        public override async Task Reverse_in_subquery_via_pushdown(bool async)
+        {
+            await base.Reverse_in_subquery_via_pushdown(async);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t0].[EmployeeID], [t0].[City]
+FROM (
+    SELECT DISTINCT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+    FROM (
+        SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+        FROM [Employees] AS [e]
+        ORDER BY [e].[EmployeeID] DESC
+    ) AS [t]
+) AS [t0]");
+        }
+
+        public override async Task Reverse_after_orderBy_and_take(bool async)
+        {
+            await base.Reverse_after_orderBy_and_take(async);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[EmployeeID], [t].[City]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [t]
+ORDER BY [t].[EmployeeID] DESC");
+        }
+
+        public override async Task Reverse_in_join_outer(bool async)
+        {
+            await base.Reverse_in_join_outer(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+ORDER BY [c].[City], [c].[CustomerID] DESC");
+        }
+
+        public override async Task Reverse_in_join_outer_with_take(bool async)
+        {
+            await base.Reverse_in_join_outer_with_take(async);
+
+            AssertSql(
+                @"@__p_0='20'
+
+SELECT [t].[CustomerID], [t0].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+INNER JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override async Task Reverse_in_join_inner(bool async)
+        {
+            await base.Reverse_in_join_inner(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Reverse_in_join_inner_with_skip(bool async)
+        {
+            await base.Reverse_in_join_inner_with_skip(async);
+
+            AssertSql(
+                @"@__p_0='2'
+
+SELECT [c].[CustomerID], [t0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID]
+        FROM [Orders] AS [o]
+        ORDER BY [o].[OrderID] DESC
+        OFFSET @__p_0 ROWS
+    ) AS [t]
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Reverse_in_SelectMany(bool async)
+        {
+            await base.Reverse_in_SelectMany(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+ORDER BY [c].[CustomerID] DESC");
+        }
+
+        public override async Task Reverse_in_SelectMany_with_Take(bool async)
+        {
+            await base.Reverse_in_SelectMany_with_Take(async);
+
+            AssertSql(
+                @"@__p_0='20'
+
+SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID] DESC
+) AS [t]
+CROSS APPLY (
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    FROM (
+        SELECT TOP(30) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [t].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID] DESC
+    ) AS [t1]
+) AS [t0]
+ORDER BY [t].[CustomerID] DESC");
+        }
+
+        public override async Task Reverse_in_projection_subquery(bool async)
+        {
+            await base.Reverse_in_projection_subquery(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t]
+ORDER BY [c].[CustomerID], [t].[OrderDate] DESC, [t].[OrderID]");
+        }
+
+        public override async Task Reverse_in_projection_subquery_single_result(bool async)
+        {
+            await base.Reverse_in_projection_subquery_single_result(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate] DESC, [o].[OrderID]
+) AS [t]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Reverse_in_projection_scalar_subquery(bool async)
+        {
+            await base.Reverse_in_projection_scalar_subquery(async);
+
+            AssertSql(
+                @"SELECT COALESCE((
+    SELECT TOP(1) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate] DESC, [o].[OrderID]), 0)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         public override async Task Projection_AsEnumerable_projection(bool async)
         {
             await base.Projection_AsEnumerable_projection(async);

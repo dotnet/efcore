@@ -224,6 +224,24 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_nested_collection_deep_distinct_no_identifiers(async))).Message);
 
+        public override async Task Reverse_in_projection_subquery(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Reverse_in_projection_subquery(async))).Message);
+
+        public override async Task Reverse_in_projection_subquery_single_result(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Reverse_in_projection_subquery_single_result(async))).Message);
+
+        public override async Task Reverse_in_SelectMany_with_Take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Reverse_in_SelectMany_with_Take(async))).Message);
+
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)
         {

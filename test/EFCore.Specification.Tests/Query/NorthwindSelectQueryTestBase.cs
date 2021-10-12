@@ -929,6 +929,191 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_after_multiple_orderbys(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Employee>()
+                    .OrderBy(e => e.City)
+                    .OrderByDescending(e => e.EmployeeID)
+                    .Reverse()
+                    .Select(e => e.EmployeeID),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_after_orderby_thenby(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Employee>()
+                    .OrderBy(e => e.EmployeeID)
+                    .ThenByDescending(e => e.City)
+                    .Select(e => e.EmployeeID)
+                    .Reverse(),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_subquery_via_pushdown(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Employee>()
+                    .OrderBy(e => e.EmployeeID)
+                    .Reverse()
+                    .Take(5)
+                    .Distinct()
+                    .Select(e => new { e.EmployeeID, e.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_after_orderBy_and_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Employee>()
+                    .OrderBy(e => e.EmployeeID)
+                    .Take(5)
+                    .Reverse()
+                    .Select(e => new { e.EmployeeID, e.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_join_outer(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderByDescending(c => c.City)
+                    .ThenBy(c => c.CustomerID)
+                    .Reverse()
+                    .Join(
+                        ss.Set<Order>().OrderBy(o => o.OrderID),
+                        o => o.CustomerID,
+                        i => i.CustomerID,
+                        (o, i) => new { o.CustomerID, i.OrderID }),
+                elementSorter: e => (e.CustomerID, e.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_join_outer_with_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderByDescending(c => c.CustomerID)
+                    .Reverse()
+                    .Take(20)
+                    .Join(
+                        ss.Set<Order>().OrderBy(o => o.OrderID),
+                        o => o.CustomerID,
+                        i => i.CustomerID,
+                        (o, i) => new { o.CustomerID, i.OrderID }),
+                elementSorter: e => (e.CustomerID, e.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_join_inner(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().OrderBy(x => x.CustomerID)
+                      join o in ss.Set<Order>().OrderByDescending(x => x.OrderDate).Reverse() on c.CustomerID equals o.CustomerID into grouping
+                      from o in grouping.DefaultIfEmpty()
+                      select new { c.CustomerID, OrderID = (int?)o.OrderID },
+                elementSorter: e => (e.CustomerID, e.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_join_inner_with_skip(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().OrderBy(x => x.CustomerID)
+                      join o in ss.Set<Order>().OrderByDescending(x => x.OrderID).Skip(2).Reverse() on c.CustomerID equals o.CustomerID into grouping
+                      from o in grouping.DefaultIfEmpty()
+                      select new { c.CustomerID, OrderID = (int?)o.OrderID },
+                elementSorter: e => (e.CustomerID, e.OrderID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_SelectMany(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Reverse()
+                    .SelectMany(c => c.Orders.OrderByDescending(o => o.OrderID).Reverse()),
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_SelectMany_with_Take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Reverse()
+                    .Take(20)
+                    .SelectMany(c => c.Orders.OrderByDescending(o => o.OrderID).Take(30).Reverse()),
+                entryCount: 161);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_projection_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().OrderBy(o => o.OrderDate).ThenByDescending(o => o.OrderID).Reverse().ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, ordered: true),
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_projection_subquery_single_result(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().OrderBy(o => o.OrderDate).ThenByDescending(o => o.OrderID).Reverse().FirstOrDefault()),
+                assertOrder: true,
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_in_projection_scalar_subquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().OrderBy(o => o.OrderDate).ThenByDescending(o => o.OrderID).Reverse().Select(o => o.OrderID).FirstOrDefault()),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_containing_DateTime_subtraction(bool async)
         {
             return AssertQueryScalar(
