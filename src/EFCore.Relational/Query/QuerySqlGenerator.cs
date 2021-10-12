@@ -770,7 +770,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Negate:
                 {
                     _relationalCommandBuilder.Append("-");
-                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand)
+                        || sqlUnaryExpression.Operand is SqlUnaryExpression { OperatorType: ExpressionType.Negate };
                     if (requiresBrackets)
                     {
                         _relationalCommandBuilder.Append("(");

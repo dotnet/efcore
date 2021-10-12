@@ -43,6 +43,16 @@ FROM [Squads] AS [s]
 WHERE [s].[Id] = -[s].[Id]");
         }
 
+        public override async Task Double_negate_on_column(bool async)
+        {
+            await base.Double_negate_on_column(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE -(-[s].[Id]) = [s].[Id]");
+        }
+
         public override async Task Negate_on_like_expression(bool async)
         {
             await base.Negate_on_like_expression(async);
