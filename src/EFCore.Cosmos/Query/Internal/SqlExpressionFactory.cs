@@ -525,12 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Select(IEntityType entityType, string sql, Expression argument)
-        {
-            var selectExpression = new SelectExpression(entityType, sql, argument);
-            AddDiscriminator(selectExpression, entityType);
-
-            return selectExpression;
-        }
+            => new(entityType, sql, argument);
 
         private void AddDiscriminator(SelectExpression selectExpression, IEntityType entityType)
         {
