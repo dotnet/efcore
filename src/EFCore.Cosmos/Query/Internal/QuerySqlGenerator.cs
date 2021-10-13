@@ -247,11 +247,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             Visit(selectExpression.FromExpression);
-            _sqlBuilder.AppendLine();
 
             if (selectExpression.Predicate != null)
             {
-                _sqlBuilder.Append("WHERE ");
+                _sqlBuilder.AppendLine().Append("WHERE ");
                 Visit(selectExpression.Predicate);
             }
 
