@@ -14,26 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "issue #19661")]
-        public override Task Distance_constant_lhs(bool async)
-        {
-            return base.Distance_constant_lhs(async);
-        }
-
         public override Task Intersects_equal_to_null(bool async)
-        {
-            return Assert.ThrowsAsync<NullReferenceException>(() => base.Intersects_equal_to_null(async));
-        }
+            => Assert.ThrowsAsync<NullReferenceException>(() => base.Intersects_equal_to_null(async));
 
         public override Task Intersects_not_equal_to_null(bool async)
-        {
-            return Assert.ThrowsAsync<NullReferenceException>(() => base.Intersects_not_equal_to_null(async));
-        }
+            => Assert.ThrowsAsync<NullReferenceException>(() => base.Intersects_not_equal_to_null(async));
 
+        public override Task Distance_constant_lhs(bool async)
+            => Task.CompletedTask;
+
+        // Sequence contains no elements
         public override Task GetGeometryN_with_null_argument(bool async)
-        {
-            // Sequence contains no elements
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
     }
 }
