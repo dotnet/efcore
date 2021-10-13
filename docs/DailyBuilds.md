@@ -1,8 +1,8 @@
 # Daily Builds
 
-## TL;DR
+## Quick-start
 
-Create a file called "NuGet.config" with the follwing contents and put it next to your solution or csproj file:
+Create a file called "NuGet.config" with the following contents and put it next to your solution or csproj file:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -13,6 +13,8 @@ Create a file called "NuGet.config" with the follwing contents and put it next t
     </packageSources>
 </configuration>
 ```
+
+Continue reading for full details and troubleshooting.
 
 ## Types of builds
 
