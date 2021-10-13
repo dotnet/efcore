@@ -1,5 +1,23 @@
 # Daily Builds
 
+## Quick-start
+
+Create a file called "NuGet.config" with the following contents and put it next to your solution or csproj file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <packageSources>
+        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    </packageSources>
+</configuration>
+```
+
+Continue reading for full details and troubleshooting.
+
+## Types of builds
+
 Daily builds are created automatically whenever a new commit is merged to the `main` branch. These builds are verified by more than 70,000 tests each running on a range of platforms. These builds are reliable and have significant advantages over using previews:
 
 * Previews typically lag behind daily builds by around three to five weeks. This means that each preview is missing many bug fixes and enhancements, even if you get it on the day it is released. The daily builds always have the latest features and bug fixes.
