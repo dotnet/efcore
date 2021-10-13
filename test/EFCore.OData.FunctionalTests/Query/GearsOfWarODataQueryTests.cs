@@ -79,5 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(3, officers.Count);
         }
+
+        [ConditionalFact]
+        public async Task Query_with_expand_and_key_projection()
+        {
+            var requestUri = string.Format(@"{0}/odata/Gears?$select=SquadId&$expand=Tag($select=Id)", BaseAddress);
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            var response = await Client.SendAsync(request);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var result = await response.Content.ReadAsObject<JObject>();
+
+            Assert.Contains("$metadata#Gears(SquadId,Tag(Id))", result["@odata.context"].ToString());
+            var projections = result["value"] as JArray;
+
+            Assert.Equal(5, projections.Count);
+        }
     }
 }
