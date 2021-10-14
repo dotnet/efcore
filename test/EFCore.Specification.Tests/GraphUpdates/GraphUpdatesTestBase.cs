@@ -434,6 +434,10 @@ namespace Microsoft.EntityFrameworkCore
                             b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
                     });
 
+                modelBuilder
+                    .Entity<OwnerWithNonCompositeOwnedCollection>()
+                    .OwnsMany(e => e.Owned, owned => owned.HasKey("Id"));
+
                 modelBuilder.Entity<OwnerNoKeyGeneration>(
                     b =>
                     {
@@ -3284,6 +3288,35 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _bar;
                 set => SetWithNotify(value, ref _bar);
+            }
+        }
+
+        protected class OwnerWithNonCompositeOwnedCollection : NotifyingEntity
+        {
+            private int _id;
+            private ICollection<NonCompositeOwnedCollection> _owned = new ObservableHashSet<NonCompositeOwnedCollection>();
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public ICollection<NonCompositeOwnedCollection> Owned
+            {
+                get => _owned;
+                set => SetWithNotify(value, ref _owned);
+            }
+        }
+
+        protected class NonCompositeOwnedCollection : NotifyingEntity
+        {
+            private string _foo;
+
+            public string Foo
+            {
+                get => _foo;
+                set => SetWithNotify(value, ref _foo);
             }
         }
 

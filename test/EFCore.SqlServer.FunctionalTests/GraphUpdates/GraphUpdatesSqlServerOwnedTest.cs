@@ -454,6 +454,10 @@ namespace Microsoft.EntityFrameworkCore
                             b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
                     });
 
+                modelBuilder
+                    .Entity<OwnerWithNonCompositeOwnedCollection>()
+                    .OwnsMany(e => e.Owned, owned => owned.HasKey("Id"));
+
                 modelBuilder.Entity<OwnerNoKeyGeneration>(
                     b =>
                     {
