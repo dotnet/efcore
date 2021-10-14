@@ -1436,6 +1436,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
+            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Unknown, false);
 
             var currentState = EntityState;
             if ((currentState == EntityState.Unchanged)

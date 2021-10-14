@@ -296,6 +296,59 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalTheory] // Issue #26330
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Saving_unknown_key_value_marks_it_as_unmodified(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                    {
+                        var owner = new OwnerWithNonCompositeOwnedCollection();
+                        owner.Owned.Add(new() { Foo = "Milan" });
+
+                        if (async)
+                        {
+                            await context.AddAsync(owner);
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            context.Add(owner);
+                            context.SaveChanges();
+                        }
+
+                        owner.Owned.Remove(owner.Owned.Single());
+                        owner.Owned.Add(new() { Foo = "Rome" });
+
+                        if (Fixture.ForceClientNoAction)
+                        {
+                            await Assert.ThrowsAsync<InvalidOperationException>(
+                                async () =>
+                                    _ = async
+                                        ? await context.SaveChangesAsync()
+                                        : context.SaveChanges());
+                        }
+                        else
+                        {
+                            _ = async
+                                ? await context.SaveChangesAsync()
+                                : context.SaveChanges();
+                        }
+                    },
+                async context =>
+                    {
+                        if (!Fixture.ForceClientNoAction)
+                        {
+                            var owner = async
+                                ? await context.Set<OwnerWithNonCompositeOwnedCollection>().SingleAsync()
+                                : context.Set<OwnerWithNonCompositeOwnedCollection>().Single();
+
+                            Assert.Equal("Rome", owner.Owned.Single().Foo);
+                        }
+                    });
+        }
+
         [ConditionalTheory] // Issue #19856
         [InlineData(false)]
         [InlineData(true)]
