@@ -116,7 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var navigation in foreignKeyNavigations)
             {
                 entityTypeBuilder.HasRelationship(
-                    entityType, foreignKeyNavigations[0], setTargetAsPrincipal: true, fromDataAnnotation: true);
+                    entityType,
+                    navigation,
+                    setTargetAsPrincipal: navigation.GetMemberType().IsAssignableFrom(entityType.ClrType),
+                    fromDataAnnotation: true);
             }
         }
 
