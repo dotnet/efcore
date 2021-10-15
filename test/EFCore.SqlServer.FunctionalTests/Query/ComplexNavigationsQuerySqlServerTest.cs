@@ -2526,14 +2526,14 @@ WHERE [l].[Id] < 3");
             await base.Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy(async);
 
             AssertSql(
-                @"SELECT (
+                @"SELECT [l].[Id] AS [Key], (
     SELECT [t].[Name]
     FROM (
         SELECT DISTINCT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
         FROM [LevelThree] AS [l0]
     ) AS [t]
     ORDER BY (SELECT 1)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) AS [Subquery]
 FROM [LevelOne] AS [l]
 WHERE [l].[Id] < 3");
         }

@@ -2772,9 +2772,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from l1 in ss.Set<Level1>()
                       where l1.Id < 3
-                      select (from l3 in ss.Set<Level3>()
-                              orderby l3.Id
-                              select l3).Distinct().Skip(1).FirstOrDefault().Name);
+                      select new
+                      {
+                          Key = l1.Id,
+                          Subquery = (from l3 in ss.Set<Level3>()
+                                      orderby l3.Id
+                                      select l3).Distinct().Skip(1).FirstOrDefault().Name
+                      },
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) => Assert.Equal(e.Key, a.Key));
         }
 
         [ConditionalTheory]
