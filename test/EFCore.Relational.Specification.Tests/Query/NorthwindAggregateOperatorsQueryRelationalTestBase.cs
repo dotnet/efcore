@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -34,9 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.LastOrDefault_when_no_order_by(async))).Message);
         }
 
-        public override Task Contains_with_local_tuple_array_closure(bool async)
+        public override void Contains_over_keyless_entity_throws()
         {
-            return AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+            Assert.Equal(
+                CoreStrings.EntityEqualityOnKeylessEntityNotSupported("==", nameof(CustomerQuery)),
+                (Assert.Throws<InvalidOperationException>(
+                    () => base.Contains_over_keyless_entity_throws())).Message);
         }
 
         protected virtual bool CanExecuteQueryString
