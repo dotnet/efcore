@@ -1036,12 +1036,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && sqlFunctionExpression.Arguments != null
                 && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
             {
-                var left = Visit(sqlFunctionExpression.Arguments[0], out var leftNullable);
-                var right = Visit(sqlFunctionExpression.Arguments[1], out var rightNullable);
+                var coalesceArguments = new List<SqlExpression>();
+                var coalesceNullable = true;
+                foreach (var argument in sqlFunctionExpression.Arguments)
+                {
+                    coalesceArguments.Add(Visit(argument, out var argumentNullable));
+                    coalesceNullable = coalesceNullable && argumentNullable;
+                }
 
-                nullable = leftNullable && rightNullable;
+                nullable = coalesceNullable;
 
-                return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, new[] { left, right });
+                return sqlFunctionExpression.Update(sqlFunctionExpression.Instance, coalesceArguments);
             }
 
             var instance = Visit(sqlFunctionExpression.Instance, out _);
@@ -1734,35 +1739,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case SqlFunctionExpression sqlFunctionExpression:
                 {
                     if (sqlFunctionExpression.IsBuiltIn
-                        && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase))
+                        && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase)
+                        && sqlFunctionExpression.Arguments != null)
                     {
-                        // for coalesce:
-                        // (a ?? b) == null -> a == null && b == null
-                        // (a ?? b) != null -> a != null || b != null
-                        var left = ProcessNullNotNull(
-                            _sqlExpressionFactory.MakeUnary(
-                                sqlUnaryExpression.OperatorType,
-                                sqlFunctionExpression.Arguments![0],
-                                typeof(bool),
-                                sqlUnaryExpression.TypeMapping)!,
-                            operandNullable);
-
-                        var right = ProcessNullNotNull(
-                            _sqlExpressionFactory.MakeUnary(
-                                sqlUnaryExpression.OperatorType,
-                                sqlFunctionExpression.Arguments[1],
-                                typeof(bool),
-                                sqlUnaryExpression.TypeMapping)!,
-                            operandNullable);
-
-                        return SimplifyLogicalSqlBinaryExpression(
+                        // for coalesce
+                        // (a ?? b ?? c) == null -> a == null && b == null && c == null
+                        // (a ?? b ?? c) != null -> a != null || b != null || c != null
+                        return sqlFunctionExpression.Arguments
+                            .Select(a => ProcessNullNotNull(
+                                _sqlExpressionFactory.MakeUnary(
+                                    sqlUnaryExpression.OperatorType,
+                                    a,
+                                    typeof(bool),
+                                    sqlUnaryExpression.TypeMapping)!,
+                                operandNullable))
+                            .Aggregate((l, r) => SimplifyLogicalSqlBinaryExpression(
                             _sqlExpressionFactory.MakeBinary(
                                 sqlUnaryExpression.OperatorType == ExpressionType.Equal
                                     ? ExpressionType.AndAlso
                                     : ExpressionType.OrElse,
-                                left,
-                                right,
-                                sqlUnaryExpression.TypeMapping)!);
+                                l,
+                                r,
+                                sqlUnaryExpression.TypeMapping)!));
                     }
 
                     if (!sqlFunctionExpression.IsNullable)

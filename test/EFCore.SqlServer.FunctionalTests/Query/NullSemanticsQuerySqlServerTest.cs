@@ -1237,7 +1237,10 @@ FROM [Entities1] AS [e]");
             await base.Projecting_nullable_bool_with_coalesce_nested(async);
 
             AssertSql(
-                @"SELECT [e].[Id], COALESCE([e].[NullableBoolA], COALESCE([e].[NullableBoolB], CAST(0 AS bit))) AS [Coalesce]
+                @"SELECT [e].[Id], COALESCE([e].[NullableBoolA], [e].[NullableBoolB], CAST(0 AS bit)) AS [Coalesce]
+FROM [Entities1] AS [e]",
+                //
+                @"SELECT [e].[Id], COALESCE([e].[NullableBoolA], [e].[NullableBoolB], CAST(0 AS bit)) AS [Coalesce]
 FROM [Entities1] AS [e]");
         }
 
@@ -2274,6 +2277,49 @@ END = CAST(1 AS bit)");
 END AS [Sum]
 FROM [Entities1] AS [e]
 GROUP BY [e].[NullableIntA]");
+        }
+
+        public override async Task Nullability_is_computed_correctly_for_chained_coalesce(bool async)
+        {
+            await base.Nullability_is_computed_correctly_for_chained_coalesce(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE (COALESCE([e].[NullableIntA], [e].[NullableIntB], [e].[IntC]) <> [e].[NullableIntC]) OR [e].[NullableIntC] IS NULL");
+        }
+
+        public override async Task Nullability_check_is_computed_correctly_for_chained_coalesce(bool async)
+        {
+            await base.Nullability_check_is_computed_correctly_for_chained_coalesce(async);
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL) AND [e].[NullableIntC] IS NULL",
+                //
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL) OR [e].[NullableIntC] IS NOT NULL");
+        }
+
+        public override async Task Coalesce_on_self_gets_simplified(bool async)
+        {
+            await base.Coalesce_on_self_gets_simplified(async);
+
+            AssertSql(
+                @"SELECT [e].[NullableStringA]
+FROM [Entities1] AS [e]");
+        }
+
+        public override async Task Coalesce_deeply_nested(bool async)
+        {
+            await base.Coalesce_deeply_nested(async);
+
+            AssertSql(
+                @"SELECT COALESCE([e].[NullableIntA], [e].[NullableIntB], [e0].[NullableIntC], [e0].[NullableIntB], [e].[NullableIntC], [e0].[NullableIntA])
+FROM [Entities1] AS [e]
+INNER JOIN [Entities2] AS [e0] ON [e].[Id] = [e0].[Id]");
         }
 
         private void AssertSql(params string[] expected)

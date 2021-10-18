@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -67,7 +68,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return SimplifySqlBinary(sqlBinaryExpression);
             }
 
+            if (extensionExpression is SqlFunctionExpression sqlFunctionExpression
+                && IsCoalesce(sqlFunctionExpression))
+            {
+                var arguments = new List<SqlExpression>();
+                foreach (var argument in sqlFunctionExpression.Arguments!)
+                {
+                    var newArgument = (SqlExpression)Visit(argument);
+                    if (IsCoalesce(newArgument))
+                    {
+                        arguments.AddRange(((SqlFunctionExpression)newArgument).Arguments!);
+                    }
+                    else
+                    {
+                        arguments.Add(newArgument);
+                    }
+                }
+
+                var distinctArguments = arguments.Distinct().ToList();
+
+                return distinctArguments.Count > 1
+                    ? new SqlFunctionExpression(
+                        sqlFunctionExpression.Name,
+                        distinctArguments,
+                        sqlFunctionExpression.IsNullable,
+                        argumentsPropagateNullability: distinctArguments.Select(a => false).ToArray(),
+                        sqlFunctionExpression.Type,
+                        sqlFunctionExpression.TypeMapping)
+                    : distinctArguments[0];
+            }
+
             return base.VisitExtension(extensionExpression);
+
+            static bool IsCoalesce(SqlExpression sqlExpression)
+                => sqlExpression is SqlFunctionExpression sqlFunctionExpression
+                    && sqlFunctionExpression.IsBuiltIn
+                    && sqlFunctionExpression.Instance == null
+                    && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase)
+                    && sqlFunctionExpression.Arguments?.Count > 1;
         }
 
         private bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)

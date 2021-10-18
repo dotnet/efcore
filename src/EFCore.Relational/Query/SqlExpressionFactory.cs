@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "COALESCE",
                 typeMappedArguments,
                 nullable: true,
-                // COALESCE is handled separately since it's only nullable if *both* arguments are null
+                // COALESCE is handled separately since it's only nullable if *all* arguments are null
                 argumentsPropagateNullability: new[] { false, false },
                 resultType,
                 inferredTypeMapping);

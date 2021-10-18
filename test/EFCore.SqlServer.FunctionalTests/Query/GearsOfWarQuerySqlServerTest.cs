@@ -5151,11 +5151,11 @@ FROM [Gears] AS [g]");
             await base.Select_subquery_int_with_outside_cast_and_coalesce(async);
 
             AssertSql(
-                @"SELECT COALESCE(COALESCE((
+                @"SELECT COALESCE((
     SELECT TOP(1) [w].[Id]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), 0), 42)
+    ORDER BY [w].[Id]), 0, 42)
 FROM [Gears] AS [g]");
         }
 

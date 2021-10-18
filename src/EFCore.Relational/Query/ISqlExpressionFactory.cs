@@ -238,12 +238,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Other
         /// <summary>
-        ///     Creates a <see cref="SqlBinaryExpression" /> which represents a bitwise OR operation.
+        ///     Creates a <see cref="SqlFunctionExpression" /> which represents a COALESCE operation.
         /// </summary>
         /// <param name="left">The left operand.</param>
         /// <param name="right">The right operand.</param>
         /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
-        /// <returns>An expression representing a SQL bitwise OR operation.</returns>
+        /// <returns>An expression representing a SQL COALESCE operation.</returns>
         SqlFunctionExpression Coalesce(
             SqlExpression left,
             SqlExpression right,
