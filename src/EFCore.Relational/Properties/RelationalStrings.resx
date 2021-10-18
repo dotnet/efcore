@@ -728,6 +728,9 @@
   <data name="ProjectionMappingCountMismatch" xml:space="preserve">
     <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
   </data>
+  <data name="PropertyNotMapped" xml:space="preserve">
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
   </data>

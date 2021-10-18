@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
@@ -1012,7 +1011,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<WrappedStringEntity>();
 
                 Assert.Equal(CoreStrings.PropertyNotMapped(
-                            nameof(WrappedStringEntity), nameof(WrappedStringEntity.WrappedString), nameof(WrappedString)),
+                            nameof(WrappedString),
+                            nameof(WrappedStringEntity),
+                            nameof(WrappedStringEntity.WrappedString)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 

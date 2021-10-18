@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
-                    typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(Tuple<long>).ShortDisplayName()),
+                    typeof(Tuple<long>).ShortDisplayName(),
+                    typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
+                    "LongProperty"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
         }
 
@@ -33,9 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .HasColumnType("some_int_mapping");
 
             Assert.Equal(
-                CoreStrings.PropertyNotMapped(
-                    typeof(NonPrimitiveNonNavigationAsPropertyEntity).ShortDisplayName(), "LongProperty",
-                    typeof(Tuple<long>).ShortDisplayName()),
+                RelationalStrings.PropertyNotMapped(
+                    typeof(Tuple<long>).ShortDisplayName(),
+                    typeof(NonPrimitiveNonNavigationAsPropertyEntity).ShortDisplayName(),
+                    "LongProperty",
+                    "some_int_mapping"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
         }
     }

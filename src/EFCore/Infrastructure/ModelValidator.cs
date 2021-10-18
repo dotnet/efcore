@@ -170,10 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (unmappedProperty != null)
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.PropertyNotMapped(
-                            entityType.DisplayName(), unmappedProperty.Name,
-                            (unmappedProperty.GetValueConverter()?.ProviderClrType ?? unmappedProperty.ClrType).ShortDisplayName()));
+                    ThrowPropertyNotMappedException(
+                        (unmappedProperty.GetValueConverter()?.ProviderClrType ?? unmappedProperty.ClrType).ShortDisplayName(),
+                        entityType,
+                        unmappedProperty);
                 }
 
                 if (entityType.ClrType == Model.DefaultPropertyBagType)
@@ -286,6 +286,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
+
+        /// <summary>
+        ///     Throws an <see cref="InvalidOperationException"/> with a message containing provider-specific information, when
+        ///     available, indicating possible reasons why the property cannot be mapped.
+        /// </summary>
+        /// <param name="propertyType">The property CLR type.</param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="unmappedProperty">The property.</param>
+        protected virtual void ThrowPropertyNotMappedException(
+            string propertyType,
+            IConventionEntityType entityType, 
+            IConventionProperty unmappedProperty)
+            => throw new InvalidOperationException(
+                CoreStrings.PropertyNotMapped(
+                    propertyType,
+                    entityType.DisplayName(), 
+                    unmappedProperty.Name));
 
         /// <summary>
         ///     Returns a value indicating whether that target CLR type would correspond to an owned entity type.

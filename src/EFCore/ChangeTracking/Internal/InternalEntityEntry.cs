@@ -1487,6 +1487,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         && property.IsForeignKey()
                         && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
                     {
+                        if (property.GetContainingForeignKeys().Any(fk => fk.IsOwnership))
+                        {
+                            throw new InvalidOperationException(CoreStrings.SaveOwnedWithoutOwner(entityType.DisplayName()));    
+                        }
                         throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                     }
                 }
