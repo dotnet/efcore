@@ -2823,16 +2823,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "required should only be set if principal end is known");
 
             var navigationProperty = navigationToTarget?.MemberInfo;
+            if (navigationProperty == null
+                && navigationToTarget?.Name != null
+                && !Metadata.IsPropertyBag)
+            {
+                navigationProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
+                               navigationToTarget!.Value.Name!, Metadata, targetEntityType,
+                               shouldThrow: configurationSource == ConfigurationSource.Explicit);
+                if (navigationProperty != null)
+                {
+                    navigationToTarget = MemberIdentity.Create(navigationProperty);
+                }
+            }
+
             var inverseProperty = inverseNavigation?.MemberInfo;
             if (setTargetAsPrincipal == false
-                || (inverseNavigation == null
+                || (setTargetAsPrincipal == null
+                    && inverseNavigation?.Name == null
                     && navigationProperty?.GetMemberType().IsAssignableFrom(
                         targetEntityType.ClrType)
                     == false))
             {
-                // Target is expected to be dependent or only one nav specified and it can't be the nav to principal
+                // Target is dependent or only one nav specified and it can't be the nav to principal
                 return targetEntityType.Builder.HasRelationship(
-                    Metadata, null, navigationToTarget, !setTargetAsPrincipal, configurationSource, required);
+                    Metadata, inverseNavigation, navigationToTarget, setTargetAsPrincipal: true, configurationSource, required);
             }
 
             if (setTargetAsPrincipal == null

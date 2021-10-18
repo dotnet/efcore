@@ -1430,6 +1430,48 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Inverse_and_self_ref_ForeignKey()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MenuGroup>();
+
+            var model = Validate(modelBuilder);
+
+            var menuGroup = model.FindEntityType(typeof(MenuGroup));
+            var groupsNavigation = menuGroup.FindNavigation(nameof(MenuGroup.Groups));
+            Assert.Equal(nameof(MenuGroup.FkGroup), groupsNavigation.ForeignKey.Properties.Single().Name);
+
+            var pagesNavigation = menuGroup.FindNavigation(nameof(MenuGroup.Pages));
+            Assert.Equal(nameof(MenuPage.FkGroupNavigation), pagesNavigation.Inverse.Name);
+            Assert.Equal(nameof(MenuPage.FkGroup), pagesNavigation.ForeignKey.Properties.Single().Name);
+        }
+
+        protected class MenuGroup
+        {
+            public Guid Id { get; set; }
+            public Guid? FkGroup { get; set; }
+
+            [InverseProperty(nameof(MenuPage.FkGroupNavigation))]
+            public virtual ICollection<MenuPage> Pages { get; set; }
+
+            [ForeignKey(nameof(FkGroup))]
+            public virtual ICollection<MenuGroup> Groups { get; set; }
+        }
+
+        protected class MenuPage
+        {
+            public Guid Id { get; set; }
+
+            public Guid? FkGroup { get; set; }
+
+            [ForeignKey(nameof(FkGroup))]
+            [InverseProperty(nameof(MenuGroup.Pages))]
+            public virtual MenuGroup FkGroupNavigation { get; set; }
+        }
+
+
+        [ConditionalFact]
         public virtual void Multiple_self_ref_ForeignKeys_on_navigations()
         {
             var modelBuilder = CreateModelBuilder();
