@@ -1058,13 +1058,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 arguments[i] = Visit(sqlFunctionExpression.Arguments[i], out _);
             }
 
-            return sqlFunctionExpression.IsBuiltIn
-                && string.Equals(sqlFunctionExpression.Name, "SUM", StringComparison.OrdinalIgnoreCase)
-                    ? _sqlExpressionFactory.Coalesce(
-                        sqlFunctionExpression.Update(instance, arguments),
-                        _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
-                        sqlFunctionExpression.TypeMapping)
-                    : sqlFunctionExpression.Update(instance, arguments);
+            if (sqlFunctionExpression.IsBuiltIn
+                && string.Equals(sqlFunctionExpression.Name, "SUM", StringComparison.OrdinalIgnoreCase))
+            {
+                nullable = false;
+
+                return _sqlExpressionFactory.Coalesce(
+                    sqlFunctionExpression.Update(instance, arguments),
+                    _sqlExpressionFactory.Constant(0, sqlFunctionExpression.TypeMapping),
+                    sqlFunctionExpression.TypeMapping);
+            }
+
+            return sqlFunctionExpression.Update(instance, arguments);
         }
 
         /// <summary>

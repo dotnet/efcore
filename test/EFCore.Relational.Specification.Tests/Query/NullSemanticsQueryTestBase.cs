@@ -1854,6 +1854,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : x.NullableBoolC != x.NullableBoolA)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_function_is_always_considered_non_nullable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().GroupBy(e => e.NullableIntA).Select(g => new { g.Key, Sum = g.Sum(x => x.IntA) != g.Key }));
+        }
+
         private string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

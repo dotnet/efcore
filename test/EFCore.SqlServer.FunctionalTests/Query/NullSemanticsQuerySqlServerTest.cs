@@ -2263,6 +2263,19 @@ WHERE CASE
 END = CAST(1 AS bit)");
         }
 
+        public override async Task Sum_function_is_always_considered_non_nullable(bool async)
+        {
+            await base.Sum_function_is_always_considered_non_nullable(async);
+
+            AssertSql(
+                @"SELECT [e].[NullableIntA] AS [Key], CASE
+    WHEN (COALESCE(SUM([e].[IntA]), 0) <> [e].[NullableIntA]) OR [e].[NullableIntA] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Sum]
+FROM [Entities1] AS [e]
+GROUP BY [e].[NullableIntA]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

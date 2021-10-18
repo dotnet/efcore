@@ -2102,7 +2102,7 @@ END");
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING NOT (COALESCE(SUM([o].[OrderID]), 0) >= 0)) THEN CAST(1 AS bit)
+        HAVING COALESCE(SUM([o].[OrderID]), 0) < 0) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
