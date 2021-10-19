@@ -14,18 +14,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Represents options managed by the relational database providers.
-    ///         These options are set using <see cref="DbContextOptionsBuilder" />.
-    ///     </para>
+    ///     Represents options managed by the relational database providers.
+    ///     These options are set using <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are designed to be immutable. To change an option, call one of the 'With...'
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {

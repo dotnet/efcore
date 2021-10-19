@@ -20,16 +20,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Provides access to change tracking information and operations for a given entity.
-    ///     </para>
+    ///     Provides access to change tracking information and operations for a given entity.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => InternalEntry.Entity;
 
         /// <summary>
-        ///     <para>
-        ///         Gets or sets that state that this entity is being tracked in.
-        ///     </para>
+        ///     Gets or sets that state that this entity is being tracked in.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method sets only the state of the single entity represented by this entry. It does
         ///         not change the state of other entities reachable from this one.
@@ -80,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove(TEntity)" /> where the entity
         ///         will be disconnected (rather than marked for deletion) if it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual EntityState State
         {
@@ -343,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets a value indicating if the key values of this entity have been assigned a value.
-        ///     </para>
+        ///     Gets a value indicating if the key values of this entity have been assigned a value.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         For keys with store-generated properties (e.g. mapping to Identity columns), the
         ///         return value will  be false if any of the store-generated properties have the
@@ -355,9 +355,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         For keys without any store-generated properties, the return value will always be
         ///         true since any value is considered a valid key value.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual bool IsKeySet
             => InternalEntry.IsKeySet.IsSet;
@@ -376,18 +376,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the original property values for this entity. The original values are the property
-        ///         values as they were when the entity was retrieved from the database.
-        ///     </para>
+        ///     Gets the original property values for this entity. The original values are the property
+        ///     values as they were when the entity was retrieved from the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that whenever real original property values are not available (e.g. entity was not yet
         ///         persisted to the database or was retrieved in a non-tracking query) this will default to the
         ///         current property values of this entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
@@ -397,17 +397,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Queries the database for copies of the values of the tracked entity as they currently
-        ///         exist in the database. If the entity is not found in the database, then <see langword="null" /> is returned.
-        ///     </para>
+        ///     Queries the database for copies of the values of the tracked entity as they currently
+        ///     exist in the database. If the entity is not found in the database, then <see langword="null" /> is returned.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that changing the values in the returned dictionary will not update the values
         ///         in the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <returns>The store values, or <see langword="null" /> if the entity does not exist in the database.</returns>
         public virtual PropertyValues? GetDatabaseValues()
@@ -418,10 +418,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Queries the database for copies of the values of the tracked entity as they currently
-        ///         exist in the database. If the entity is not found in the database, then null is returned.
-        ///     </para>
+        ///     Queries the database for copies of the values of the tracked entity as they currently
+        ///     exist in the database. If the entity is not found in the database, then null is returned.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that changing the values in the returned dictionary will not update the values
         ///         in the database.
@@ -430,9 +430,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -448,9 +448,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Reloads the entity from the database overwriting any property values with values from the database.
-        ///     </para>
+        ///     Reloads the entity from the database overwriting any property values with values from the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method,
         ///         unless the entity does not exist in the database, in which case the entity will be
@@ -458,17 +458,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         entity that does not exist in the database is a no-op. Note, however, that an Added entity may
         ///         not yet have had its permanent key value created.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual void Reload()
             => Reload(GetDatabaseValues());
 
         /// <summary>
-        ///     <para>
-        ///         Reloads the entity from the database overwriting any property values with values from the database.
-        ///     </para>
+        ///     Reloads the entity from the database overwriting any property values with values from the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The entity will be in the <see cref="EntityState.Unchanged" /> state after calling this method,
         ///         unless the entity does not exist in the database, in which case the entity will be
@@ -476,9 +476,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         entity that does not exist in the database is a no-op. Note, however, that an Added entity may
         ///         not yet have had its permanent key value created.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -524,8 +524,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> and
-        ///     <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> and
+        ///         <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual DebugView DebugView
             => new(

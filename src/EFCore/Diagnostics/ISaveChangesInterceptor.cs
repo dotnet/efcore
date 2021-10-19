@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Allows interception of the <see cref="O:DbContext.SaveChanges" /> and <see cref="O:DbContext.SaveChangesAync" /> methods.
-    ///     </para>
+    ///     Allows interception of the <see cref="O:DbContext.SaveChanges" /> and <see cref="O:DbContext.SaveChangesAync" /> methods.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Command interceptors can be used to view, change, or suppress execution of the SaveChanges call and
     ///         modify the result before it is returned to EF.
@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         If both injected and application interceptors are found, then the injected interceptors are run in the
     ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface ISaveChangesInterceptor : IInterceptor
     {
@@ -55,14 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult<int> result);
 
         /// <summary>
-        ///     <para>
-        ///         Called at the end of <see cref="O:DbContext.SaveChanges" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed creation of a command in <see cref="SavingChanges" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="SavingChanges" />.
-        ///     </para>
+        ///     Called at the end of <see cref="O:DbContext.SaveChanges" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed creation of a command in <see cref="SavingChanges" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="SavingChanges" />.
+        /// </remarks>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
         ///     The result of the call to <see cref="O:DbContext.SaveChanges" />.
@@ -109,14 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     <para>
-        ///         Called at the end of <see cref="O:DbContext.SaveChangesAsync" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed creation of a command in <see cref="SavingChangesAsync" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="SavingChangesAsync" />.
-        ///     </para>
+        ///     Called at the end of <see cref="O:DbContext.SaveChangesAsync" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed creation of a command in <see cref="SavingChangesAsync" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="SavingChangesAsync" />.
+        /// </remarks>
         /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
         /// <param name="result">
         ///     The result of the call to <see cref="O:DbContext.SaveChangesAsync" />.

@@ -11,9 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a one-to-one relationship.
-    ///     </para>
+    ///     Provides a simple API for configuring a one-to-one relationship.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
@@ -68,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -84,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="dependentEntityTypeName">
         ///     The name of entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
@@ -106,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -122,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="dependentEntityType">
         ///     The entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
@@ -144,9 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: foreignKeyPropertyNames.Length > 0);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -160,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the referenced key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <typeparam name="TDependentEntity">
         ///     The entity type that is the dependent in this relationship (the type that has the foreign key
         ///     properties).
@@ -175,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -191,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the principal entity type. If they do not match, new shadow state properties that form a unique
         ///         index will be added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <typeparam name="TDependentEntity">
         ///     The entity type that is the dependent in this relationship. That is, the type
         ///     that has the foreign key properties.

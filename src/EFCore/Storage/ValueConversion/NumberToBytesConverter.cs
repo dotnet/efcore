@@ -19,18 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly ConverterMappingHints _defaultHints = new(size: GetByteCount());
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new instance of this converter.
-        ///     </para>
+        ///     Creates a new instance of this converter.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This converter supports <see cref="double" />, <see cref="float" />, <see cref="decimal" />,
         ///         <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
         ///         <see cref="uint" />, <see cref="ulong" />, <see cref="ushort" />, <see cref="sbyte" />,
         ///         and <see cref="char" />.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         public NumberToBytesConverter()
             : this(null)
@@ -38,18 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new instance of this converter.
-        ///     </para>
+        ///     Creates a new instance of this converter.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This converter supports <see cref="double" />, <see cref="float" />, <see cref="decimal" />,
         ///         <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
         ///         <see cref="uint" />, <see cref="ulong" />, <see cref="ushort" />, <see cref="sbyte" />,
         ///         and <see cref="char" />.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate

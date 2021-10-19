@@ -20,15 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
@@ -88,68 +90,66 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => _explicitMappings.GetOrAdd(
                 (mappingInfo, providerClrType, customConverter),
                 k =>
+                {
+                    var (info, providerType, converter) = k;
+                    var mapping = providerType == null
+                        || providerType == info.ClrType
+                            ? FindMapping(info)
+                            : null;
+
+                    if (mapping == null)
                     {
-                        var (info, providerType, converter) = k;
-                        var mapping = providerType == null
-                            || providerType == info.ClrType
-                                ? FindMapping(info)
-                                : null;
-
-                        if (mapping == null)
+                        var sourceType = info.ClrType;
+                        if (sourceType != null)
                         {
-                            var sourceType = info.ClrType;
-                            if (sourceType != null)
+                            foreach (var converterInfo in Dependencies
+                                .ValueConverterSelector
+                                .Select(sourceType, providerType))
                             {
-                                foreach (var converterInfo in Dependencies
-                                    .ValueConverterSelector
-                                    .Select(sourceType, providerType))
+                                var mappingInfoUsed = info.WithConverter(converterInfo);
+                                mapping = FindMapping(mappingInfoUsed);
+
+                                if (mapping == null
+                                    && providerType != null)
                                 {
-                                    var mappingInfoUsed = info.WithConverter(converterInfo);
-                                    mapping = FindMapping(mappingInfoUsed);
-
-                                    if (mapping == null
-                                        && providerType != null)
+                                    foreach (var secondConverterInfo in Dependencies
+                                        .ValueConverterSelector
+                                        .Select(providerType))
                                     {
-                                        foreach (var secondConverterInfo in Dependencies
-                                            .ValueConverterSelector
-                                            .Select(providerType))
-                                        {
-                                            mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+                                        mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
-                                            if (mapping != null)
-                                            {
-                                                mapping = mapping.Clone(secondConverterInfo.Create());
-                                                break;
-                                            }
+                                        if (mapping != null)
+                                        {
+                                            mapping = mapping.Clone(secondConverterInfo.Create());
+                                            break;
                                         }
                                     }
+                                }
 
-                                    if (mapping != null)
-                                    {
-                                        mapping = mapping.Clone(converterInfo.Create());
-                                        break;
-                                    }
+                                if (mapping != null)
+                                {
+                                    mapping = mapping.Clone(converterInfo.Create());
+                                    break;
                                 }
                             }
                         }
+                    }
 
-                        if (mapping != null
-                            && converter != null)
-                        {
-                            mapping = mapping.Clone(converter);
-                        }
+                    if (mapping != null
+                        && converter != null)
+                    {
+                        mapping = mapping.Clone(converter);
+                    }
 
-                        return mapping;
-                    });
+                    return mapping;
+                });
 
         /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="IProperty" />.
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
+        ///     Finds the type mapping for a given <see cref="IProperty" />.
         /// </summary>
+        /// <remarks>
+        ///     Note: providers should typically not need to override this method.
+        /// </remarks>
         /// <param name="property">The property.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
@@ -159,9 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="Type" />.
-        ///     </para>
+        ///     Finds the type mapping for a given <see cref="Type" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" />
         ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
@@ -170,21 +170,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     <para>
         ///         Note: providers should typically not need to override this method.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="type">The CLR type.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new TypeMappingInfo(type), null);
 
         /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
-        ///     </para>
-        ///     <para>
-        ///         Note: Only call this method if there is no <see cref="IProperty" />,
-        ///         otherwise call <see cref="FindMapping(IProperty)" />.
-        ///     </para>
+        ///     Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
         /// </summary>
+        /// <remarks>
+        ///     Note: Only call this method if there is no <see cref="IProperty" />,
+        ///     otherwise call <see cref="FindMapping(IProperty)" />.
+        /// </remarks>
         /// <param name="type">The CLR type.</param>
         /// <param name="model">The model.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
@@ -215,10 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="MemberInfo" /> representing
-        ///         a field or a property of a CLR type.
-        ///     </para>
+        ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
+        ///     a field or a property of a CLR type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
         ///         call <see cref="FindMapping(IProperty)" />
@@ -226,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     <para>
         ///         Note: providers should typically not need to override this method.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="member">The field or property.</param>
         /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public override CoreTypeMapping? FindMapping(MemberInfo member)

@@ -28,16 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         IUpdateAdapter Create();
 
         /// <summary>
-        ///     <para>
-        ///         Creates a standalone tracker that works with its own <see cref="IStateManager" /> and hence will not
-        ///         impact tracking on the state manager currently in use.
-        ///     </para>
-        ///     <para>
-        ///         The <see cref="IUpdateAdapter.Entries" /> from this update adapter should be used explicitly
-        ///         once they have been setup. They will not be visible to other parts of the stack,
-        ///         including <see cref="DbContext.SaveChanges()" />.
-        ///     </para>
+        ///     Creates a standalone tracker that works with its own <see cref="IStateManager" /> and hence will not
+        ///     impact tracking on the state manager currently in use.
         /// </summary>
+        /// <remarks>
+        ///     The <see cref="IUpdateAdapter.Entries" /> from this update adapter should be used explicitly
+        ///     once they have been setup. They will not be visible to other parts of the stack,
+        ///     including <see cref="DbContext.SaveChanges()" />.
+        /// </remarks>
         /// <param name="model">The model for which a tracker is needed, or null to use the current model.</param>
         /// <returns>The new tracker.</returns>
         IUpdateAdapter CreateStandalone(IModel? model = null);

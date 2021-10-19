@@ -13,13 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         service.
     ///     </para>
     ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <remarks>
+    ///     <para>
     ///         Database providers should implement this service by inheriting from either
     ///         <see cref="ProviderConventionSetBuilder" /> (for non-relational providers) or
     ///         `RelationalConventionSetBuilder` (for relational providers).
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
@@ -27,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IProviderConventionSetBuilder
     {

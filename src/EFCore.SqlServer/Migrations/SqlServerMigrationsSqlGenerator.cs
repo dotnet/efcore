@@ -24,20 +24,20 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         SQL Server-specific implementation of <see cref="MigrationsSqlGenerator" />.
-    ///     </para>
+    ///     SQL Server-specific implementation of <see cref="MigrationsSqlGenerator" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
     ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
@@ -80,17 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Builds commands for the given <see cref="MigrationOperation" /> by making calls on the given
-        ///         <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         This method uses a double-dispatch mechanism to call the <see cref="O:MigrationsSqlGenerator.Generate" /> method
-        ///         that is specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
-        ///         will override these specific methods rather than this method. However, providers can override
-        ///         this methods to handle provider-specific operations.
-        ///     </para>
+        ///     Builds commands for the given <see cref="MigrationOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     This method uses a double-dispatch mechanism to call the <see cref="O:MigrationsSqlGenerator.Generate" /> method
+        ///     that is specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
+        ///     will override these specific methods rather than this method. However, providers can override
+        ///     this methods to handle provider-specific operations.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -738,8 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var dropHistoryTableOperation = new DropTableOperation
                     {
-                        Name = historyTableName,
-                        Schema = historyTableSchema,
+                        Name = historyTableName, Schema = historyTableSchema,
                     };
 
                     Generate(dropHistoryTableOperation, model, builder, terminate);
@@ -2026,9 +2023,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Generates add commands for descriptions on tables and columns.
-        ///     </para>
+        ///     Generates add commands for descriptions on tables and columns.
         /// </summary>
         /// <param name="builder">The command builder to use to build the commands.</param>
         /// <param name="description">The new description to be applied.</param>
@@ -2210,9 +2205,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Generates drop commands for descriptions on tables and columns.
-        ///     </para>
+        ///     Generates drop commands for descriptions on tables and columns.
         /// </summary>
         /// <param name="builder">The command builder to use to build the commands.</param>
         /// <param name="schema">The schema of the table.</param>
@@ -2574,11 +2567,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         if (historyTableName != null)
                         {
                             operations.Add(
-                                new DropTableOperation
-                                {
-                                    Name = historyTableName,
-                                    Schema = alterTableOperation.OldTable.Schema
-                                });
+                                new DropTableOperation { Name = historyTableName, Schema = alterTableOperation.OldTable.Schema });
                         }
 
                         operations.Add(operation);
@@ -2672,10 +2661,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 operations.Add(
-                    new SqlOperation
-                    {
-                        Sql = stringBuilder.ToString()
-                    });
+                    new SqlOperation { Sql = stringBuilder.ToString() });
             }
 
             void DisablePeriod(string table, string? schema, string periodStartColumnName, string periodEndColumnName)
@@ -2711,17 +2697,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 if (options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
                 {
                     addPeriodSql = new StringBuilder()
-                    .Append("EXEC(N'")
-                    .Append(addPeriodSql.Replace("'", "''"))
-                    .Append("')")
-                    .ToString();
+                        .Append("EXEC(N'")
+                        .Append(addPeriodSql.Replace("'", "''"))
+                        .Append("')")
+                        .ToString();
                 }
 
                 operations.Add(
-                    new SqlOperation
-                    {
-                        Sql = addPeriodSql
-                    });
+                    new SqlOperation { Sql = addPeriodSql });
 
                 operations.Add(
                     new SqlOperation

@@ -9,15 +9,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
-    ///     <para>
-    ///         An expression that represents a table or view in a SQL tree.
-    ///     </para>
-    ///     <para>
-    ///         This is a simple wrapper around a table and schema name. Instances of this type cannot be constructed by
-    ///         application or database provider code. If this is a problem for your application or provider, then please file
-    ///         an issue at https://github.com/dotnet/efcore.
-    ///     </para>
+    ///     An expression that represents a table or view in a SQL tree.
     /// </summary>
+    /// <remarks>
+    ///     This is a simple wrapper around a table and schema name. Instances of this type cannot be constructed by
+    ///     application or database provider code. If this is a problem for your application or provider, then please file
+    ///     an issue at https://github.com/dotnet/efcore.
+    /// </remarks>
     public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
     {
         internal TableExpression(ITableBase table)

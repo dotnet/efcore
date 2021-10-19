@@ -138,16 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the owned entity type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         When adding a new property with this overload the property name must match the
-        ///         name of a CLR property or field on the entity type. This overload cannot be used to
-        ///         add a new shadow state property.
-        ///     </para>
+        ///     Returns an object that can be used to configure a property of the owned entity type.
+        ///     If no property with the given name exists, then a new property will be added.
         /// </summary>
+        /// <remarks>
+        ///     When adding a new property with this overload the property name must match the
+        ///     name of a CLR property or field on the entity type. This overload cannot be used to
+        ///     add a new shadow state property.
+        /// </remarks>
         /// <param name="propertyName">The name of the property to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
         public virtual PropertyBuilder Property(string propertyName)
@@ -158,18 +156,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         ConfigurationSource.Explicit)!.Metadata));
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the owned entity type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         When adding a new property, if a property with the same name exists in the entity class
-        ///         then it will be added to the model. If no property exists in the entity class, then
-        ///         a new shadow state property will be added. A shadow state property is one that does not have a
-        ///         corresponding property in the entity class. The current value for the property is stored in
-        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        ///     </para>
+        ///     Returns an object that can be used to configure a property of the owned entity type.
+        ///     If no property with the given name exists, then a new property will be added.
         /// </summary>
+        /// <remarks>
+        ///     When adding a new property, if a property with the same name exists in the entity class
+        ///     then it will be added to the model. If no property exists in the entity class, then
+        ///     a new shadow state property will be added. A shadow state property is one that does not have a
+        ///     corresponding property in the entity class. The current value for the property is stored in
+        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+        /// </remarks>
         /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
         /// <param name="propertyName">The name of the property to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
@@ -181,18 +177,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata));
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the owned entity type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         When adding a new property, if a property with the same name exists in the entity class
-        ///         then it will be added to the model. If no property exists in the entity class, then
-        ///         a new shadow state property will be added. A shadow state property is one that does not have a
-        ///         corresponding property in the entity class. The current value for the property is stored in
-        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-        ///     </para>
+        ///     Returns an object that can be used to configure a property of the owned entity type.
+        ///     If no property with the given name exists, then a new property will be added.
         /// </summary>
+        /// <remarks>
+        ///     When adding a new property, if a property with the same name exists in the entity class
+        ///     then it will be added to the model. If no property exists in the entity class, then
+        ///     a new shadow state property will be added. A shadow state property is one that does not have a
+        ///     corresponding property in the entity class. The current value for the property is stored in
+        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+        /// </remarks>
         /// <param name="propertyType">The type of the property to be configured.</param>
         /// <param name="propertyName">The name of the property to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
@@ -203,16 +197,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the entity type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         Indexer properties are stored in the entity using
-        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
-        ///         supplying the provided property name.
-        ///     </para>
+        ///     Returns an object that can be used to configure a property of the entity type.
+        ///     If no property with the given name exists, then a new property will be added.
         /// </summary>
+        /// <remarks>
+        ///     Indexer properties are stored in the entity using
+        ///     <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///     supplying the provided property name.
+        /// </remarks>
         /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
         /// <param name="propertyName">The name of the property to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
@@ -223,16 +215,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the entity type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         Indexer properties are stored in the entity using
-        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
-        ///         supplying the provided property name.
-        ///     </para>
+        ///     Returns an object that can be used to configure a property of the entity type.
+        ///     If no property with the given name exists, then a new property will be added.
         /// </summary>
+        /// <remarks>
+        ///     Indexer properties are stored in the entity using
+        ///     <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///     supplying the provided property name.
+        /// </remarks>
         /// <param name="propertyType">The type of the property to be configured.</param>
         /// <param name="propertyName">The name of the property to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
@@ -243,11 +233,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure an existing navigation property
-        ///         from the owned type to its owner. It is an error for the navigation property
-        ///         not to exist.
-        ///     </para>
+        ///     Returns an object that can be used to configure an existing navigation property
+        ///     from the owned type to its owner. It is an error for the navigation property
+        ///     not to exist.
         /// </summary>
         /// <param name="navigationName">The name of the navigation property to be configured.</param>
         /// <returns>An object that can be used to configure the navigation property.</returns>
@@ -282,15 +270,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the relationship to the owner.
-        ///     </para>
-        ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
-        ///     </para>
+        ///     Configures the relationship to the owner.
         /// </summary>
+        /// <remarks>
+        ///     Note that calling this method with no parameters will explicitly configure this side
+        ///     of the relationship to use no navigation property, even if such a property exists on the
+        ///     entity type. If the navigation property is to be used, then it must be specified.
+        /// </remarks>
         /// <param name="ownerReference">
         ///     The name of the reference navigation property pointing to the owner.
         ///     If null or not specified, there is no navigation property pointing to the owner.
@@ -311,10 +297,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -327,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -341,10 +327,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -357,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
@@ -373,10 +359,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -389,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -403,10 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -419,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -443,10 +429,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -459,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
@@ -486,10 +472,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///         The target entity key value is always propagated from the entity it belongs to.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        ///     The target entity key value is always propagated from the entity it belongs to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -502,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -540,9 +526,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -555,7 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -569,9 +555,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -584,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
@@ -600,9 +586,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -615,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -629,9 +615,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -644,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -668,9 +654,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -683,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="ownedType">The CLR type of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
@@ -710,9 +696,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where the target entity is owned by (or part of) this entity.
-        ///     </para>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The target entity type for each ownership relationship is treated as a different entity type
         ///         even if the navigation is of the same type. Configuration of the target entity type
@@ -725,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         After calling this method, you should chain a call to
         ///         <see cref="WithOwner" /> to fully configure the relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="ownedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
@@ -763,10 +749,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this entity type has a reference that points
-        ///         to a single instance of the other type in the relationship.
-        ///     </para>
+        ///     Configures a relationship where this entity type has a reference that points
+        ///     to a single instance of the other type in the relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
         ///         of the relationship to use no navigation property, even if such a property exists on the
@@ -779,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="relatedTypeName">The name of the entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
@@ -806,10 +792,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this entity type has a reference that points
-        ///         to a single instance of the other type in the relationship.
-        ///     </para>
+        ///     Configures a relationship where this entity type has a reference that points
+        ///     to a single instance of the other type in the relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
         ///         of the relationship to use no navigation property, even if such a property exists on the
@@ -822,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship.
         /// </param>
@@ -837,10 +823,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this entity type has a reference that points
-        ///         to a single instance of the other type in the relationship.
-        ///     </para>
+        ///     Configures a relationship where this entity type has a reference that points
+        ///     to a single instance of the other type in the relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
         ///         of the relationship to use no navigation property, even if such a property exists on the
@@ -853,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="relatedType">The entity type that this relationship targets.</param>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on this entity type that represents the relationship. If
@@ -957,9 +943,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
-        ///     </para>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         By default, the backing field, if one is found by convention or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
@@ -970,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Calling this method overrides for all properties of this entity type any access mode that was
         ///         set on the model.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this entity type.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual OwnedNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)

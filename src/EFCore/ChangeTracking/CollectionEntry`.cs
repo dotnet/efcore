@@ -10,19 +10,19 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Provides access to change tracking and loading information for a collection
-    ///         navigation property that associates this entity to a collection of another entities.
-    ///     </para>
+    ///     Provides access to change tracking and loading information for a collection
+    ///     navigation property that associates this entity to a collection of another entities.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>,
-    ///     <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
-    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>,
+    ///         <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of the entity the property belongs to.</typeparam>
     /// <typeparam name="TRelatedEntity">The type of the property.</typeparam>
@@ -81,18 +81,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns the query that would be used by <see cref="CollectionEntry.Load" /> to load entities referenced by
-        ///         this navigation property.
-        ///     </para>
+        ///     Returns the query that would be used by <see cref="CollectionEntry.Load" /> to load entities referenced by
+        ///     this navigation property.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
         ///         actually loading all entities from the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     </para>
         /// </remarks>
         public new virtual IQueryable<TRelatedEntity> Query()
         {

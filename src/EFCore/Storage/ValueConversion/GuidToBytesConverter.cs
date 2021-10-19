@@ -18,17 +18,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             = new(size: 16, valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new instance of this converter.
-        ///     </para>
+        ///     Creates a new instance of this converter.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This converter does not preserve order because the ordering of bits in
         ///         the standard binary representation of a GUID does not match the ordering
         ///         in the standard string representation.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         public GuidToBytesConverter()
             : this(null)
@@ -36,17 +36,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new instance of this converter.
-        ///     </para>
+        ///     Creates a new instance of this converter.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This converter does not preserve order because the ordering of bits in
         ///         the standard binary representation of a GUID does not match the ordering
         ///         in the standard string representation.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate

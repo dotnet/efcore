@@ -9,17 +9,17 @@ using System.Reflection;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         Represents a relationship where a foreign key property(s) in a dependent entity type
-    ///         reference a corresponding primary or alternate key in a principal entity type.
-    ///     </para>
+    ///     Represents a relationship where a foreign key property(s) in a dependent entity type
+    ///     reference a corresponding primary or alternate key in a principal entity type.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IForeignKey" /> represents a read-only view of the same metadata.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IMutableForeignKey : IReadOnlyForeignKey, IMutableAnnotatable
     {

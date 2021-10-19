@@ -12,14 +12,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API surface for setting property defaults before conventions run.
-    ///     </para>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelConfigurationBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Provides a simple API surface for setting property defaults before conventions run.
     /// </summary>
+    /// <remarks>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelConfigurationBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
+    /// </remarks>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
     /// </remarks>
@@ -91,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the precision of the property.
-        ///     </para>
+        ///     Configures the precision of the property.
         /// </summary>
         /// <param name="precision">The precision of the property.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

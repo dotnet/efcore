@@ -136,16 +136,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanSetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     <para>
-        ///         Sets a callback that will be invoked to perform custom translation of this
-        ///         function. The callback takes a collection of expressions corresponding to
-        ///         the parameters passed to the function call. The callback should return an
-        ///         expression representing the desired translation.
-        ///     </para>
-        ///     <para>
-        ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
-        ///     </para>
+        ///     Sets a callback that will be invoked to perform custom translation of this
+        ///     function. The callback takes a collection of expressions corresponding to
+        ///     the parameters passed to the function call. The callback should return an
+        ///     expression representing the desired translation.
         /// </summary>
+        /// <remarks>
+        ///     See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
+        /// </remarks>
         /// <param name="translation">The translation to use.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>

@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Provides access to change tracking information and operations for a node in a
-    ///         graph of entities that is being traversed.
-    ///     </para>
+    ///     Provides access to change tracking information and operations for a node in a
+    ///     graph of entities that is being traversed.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
@@ -47,35 +47,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         An <see cref="EntityEntry" /> for the entity instance from which a navigation property was traversed to the instance
-        ///         represented by this node.
-        ///     </para>
-        ///     <para>
-        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
-        ///     </para>
+        ///     An <see cref="EntityEntry" /> for the entity instance from which a navigation property was traversed to the instance
+        ///     represented by this node.
         /// </summary>
+        /// <remarks>
+        ///     See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        /// </remarks>
         public virtual EntityEntry? SourceEntry
             => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
 
         /// <summary>
-        ///     <para>
-        ///         Gets the navigation property that is being traversed to reach this node in the graph.
-        ///     </para>
-        ///     <para>
-        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
-        ///     </para>
+        ///     Gets the navigation property that is being traversed to reach this node in the graph.
         /// </summary>
+        /// <remarks>
+        ///     See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        /// </remarks>
         public virtual INavigationBase? InboundNavigation { get; }
 
         /// <summary>
-        ///     <para>
-        ///         An <see cref="EntityEntry" /> for the entity instance represented by this node.
-        ///     </para>
-        ///     <para>
-        ///         See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
-        ///     </para>
+        ///     An <see cref="EntityEntry" /> for the entity instance represented by this node.
         /// </summary>
+        /// <remarks>
+        ///     See <see cref="ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
+        /// </remarks>
         public virtual EntityEntry Entry
             => new(_entry);
 
@@ -88,6 +82,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///         any release. You should only use it directly in your code with extreme caution and knowing that
+        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     </para>
+        /// </remarks>
         [EntityFrameworkInternal]
         InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
             => _entry;

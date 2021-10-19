@@ -10,10 +10,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Provides access to change tracking information and operations for a given property
-    ///         or navigation property.
-    ///     </para>
+    ///     Provides access to change tracking information and operations for a given property
+    ///     or navigation property.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Scalar properties use the derived class <see cref="PropertyEntry" />, reference navigation
     ///         properties use the derived class <see cref="ReferenceEntry" />, and collection navigation
@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
     {
@@ -55,20 +55,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         protected virtual InternalEntityEntry InternalEntry { get; }
 
         /// <summary>
-        ///     <para>
-        ///         For non-navigation properties, gets or sets a value indicating whether the value of this
-        ///         property has been modified and should be updated in the database when
-        ///         <see cref="DbContext.SaveChanges()" />
-        ///         is called.
-        ///     </para>
+        ///     For non-navigation properties, gets or sets a value indicating whether the value of this
+        ///     property has been modified and should be updated in the database when
+        ///     <see cref="DbContext.SaveChanges()" />
+        ///     is called.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         For navigation properties, gets or sets a value indicating whether any of foreign key
         ///         property values associated with this navigation property have been modified and should
         ///         be updated in the database  when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         public abstract bool IsModified { get; set; }
 

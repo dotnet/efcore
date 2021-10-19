@@ -11,16 +11,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a <see cref="IMutableNavigation" /> or <see cref="IMutableSkipNavigation" />.
-    ///     </para>
+    ///     Provides a simple API for configuring a <see cref="IMutableNavigation" /> or <see cref="IMutableSkipNavigation" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilder?>, IInfrastructure<IConventionNavigationBuilder?>
     {
@@ -78,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
-        ///     </para>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         By default, the backing field, if one is found by convention or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Calling this method overrides for this property any access mode that was set on the
         ///         entity type or model.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)

@@ -159,17 +159,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public virtual ConverterMappingHints? MappingHints { get; }
 
         /// <summary>
-        ///     <para>
-        ///         If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
-        ///         values always remain null.
-        ///     </para>
+        ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
+        ///     values always remain null.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         By default, value converters do not handle nulls so that a value converter for a non-nullable property (such as
         ///         a primary key) can be used for correlated nullable properties, such as any corresponding foreign key properties.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual bool ConvertsNulls { get; }
 

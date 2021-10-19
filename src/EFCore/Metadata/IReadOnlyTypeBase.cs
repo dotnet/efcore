@@ -27,15 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///     <para>
         ///         Gets the CLR class that is used to represent instances of this type.
         ///         Returns <see langword="null" /> if the type does not have a corresponding CLR class (known as a shadow type).
-        ///     </para>
-        ///     <para>
+        /// </summary>
+        /// <remarks>
         ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
         ///         Therefore, shadow types will only exist in migration model snapshots, etc.
-        ///     </para>
-        /// </summary>
+        /// </remarks>
         Type ClrType { get; }
 
         /// <summary>
@@ -143,26 +141,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for properties and navigations of this type.
-        ///     </para>
-        ///     <para>
+        /// </summary>
+        /// <remarks>
         ///         Note that individual properties and navigations can override this access mode. The value returned here will
         ///         be used for any property or navigation for which no override has been specified.
-        ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <returns>The access mode being used.</returns>
         PropertyAccessMode GetPropertyAccessMode();
 
         /// <summary>
-        ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for navigations of this type.
-        ///     </para>
-        ///     <para>
+        /// </summary>
+        /// <remarks>
         ///         Note that individual navigations can override this access mode. The value returned here will
         ///         be used for any navigation for which no override has been specified.
-        ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <returns>The access mode being used.</returns>
         PropertyAccessMode GetNavigationAccessMode();
 

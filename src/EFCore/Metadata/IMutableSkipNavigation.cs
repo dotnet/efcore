@@ -6,17 +6,17 @@ using System.Diagnostics;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         Represents a navigation property that is part of a relationship
-    ///         that is forwarded through a third entity type.
-    ///     </para>
+    ///     Represents a navigation property that is part of a relationship
+    ///     that is forwarded through a third entity type.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="ISkipNavigation" /> represents a read-only view of the same metadata.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IMutableSkipNavigation : IReadOnlySkipNavigation, IMutableNavigationBase
     {

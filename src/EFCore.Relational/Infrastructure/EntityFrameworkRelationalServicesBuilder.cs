@@ -21,9 +21,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         A builder API designed for relational database providers to use when registering services.
-    ///     </para>
+    ///     A builder API designed for relational database providers to use when registering services.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Providers should create an instance of this class, use its methods to register
     ///         services, and then call <see cref="TryAddCoreServices" /> to fill out the remaining Entity
@@ -34,25 +34,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         may register a service with a different scope, but great care must be taken that all its dependencies
     ///         can handle the new scope, and that it does not cause issue for services that depend on it.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesBuilder
     {
         /// <summary>
-        ///     <para>
-        ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///         any release. You should only use it directly in your code with extreme caution and knowing that
-        ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-        ///     </para>
-        ///     <para>
-        ///         This dictionary is exposed for testing and provider-validation only.
-        ///         It should not be used from application code.
-        ///     </para>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        /// <remarks>
+        ///     This dictionary is exposed for testing and provider-validation only.
+        ///     It should not be used from application code.
+        /// </remarks>
         [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
             = new Dictionary<Type, ServiceCharacteristics>
@@ -92,7 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalConnectionDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Connection>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                {
+                    typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Connection>), new ServiceCharacteristics(ServiceLifetime.Scoped)
+                },
                 { typeof(IRelationalCommandDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Command>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IInterceptor), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
@@ -101,8 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
                 },
                 {
-                    typeof(IMethodCallTranslatorPlugin),
-                    new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true)
+                    typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true)
                 },
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) }
             };

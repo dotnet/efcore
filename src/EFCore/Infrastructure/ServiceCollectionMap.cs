@@ -10,20 +10,20 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a map over a <see cref="IServiceCollection" /> that allows <see cref="ServiceDescriptor" />
-    ///         entries to be conditionally added or re-written without requiring linear scans of the service
-    ///         collection each time this is done.
-    ///     </para>
+    ///     Provides a map over a <see cref="IServiceCollection" /> that allows <see cref="ServiceDescriptor" />
+    ///     entries to be conditionally added or re-written without requiring linear scans of the service
+    ///     collection each time this is done.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Note that the collection should not be modified without in other ways while it is being managed
     ///         by the map. The collection can be used in the normal way after modifications using the map have
     ///         been completed.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMap>
     {

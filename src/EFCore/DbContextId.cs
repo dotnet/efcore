@@ -7,17 +7,17 @@ using System.Globalization;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     <para>
-    ///         A unique identifier for the context instance and pool lease, if any.
-    ///     </para>
+    ///     A unique identifier for the context instance and pool lease, if any.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This identifier is primarily intended as a correlation ID for logging and debugging such
     ///         that it is easy to identify that multiple events are using the same or different context instances.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public readonly struct DbContextId
     {
@@ -75,29 +75,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         A unique identifier for the <see cref="DbContext" /> being used.
-        ///     </para>
-        ///     <para>
-        ///         When context pooling is being used, then this ID must be combined with
-        ///         the <see cref="Lease" /> in order to get a unique ID for the effective instance being used.
-        ///     </para>
+        ///     A unique identifier for the <see cref="DbContext" /> being used.
         /// </summary>
+        /// <remarks>
+        ///     When context pooling is being used, then this ID must be combined with
+        ///     the <see cref="Lease" /> in order to get a unique ID for the effective instance being used.
+        /// </remarks>
         public Guid InstanceId { get; }
 
         /// <summary>
-        ///     <para>
-        ///         A number that is incremented each time this particular <see cref="DbContext" /> instance is leased
-        ///         from the context pool.
-        ///     </para>
-        ///     <para>
-        ///         Will be zero if context pooling is not being used.
-        ///     </para>
+        ///     A number that is incremented each time this particular <see cref="DbContext" /> instance is leased
+        ///     from the context pool.
         /// </summary>
+        /// <remarks>
+        ///     Will be zero if context pooling is not being used.
+        /// </remarks>
         public int Lease { get; }
 
-        /// <summary>Returns the fully qualified type name of this instance.</summary>
-        /// <returns>The fully qualified type name.</returns>
+        /// <summary>
+        ///     Returns the instance ID and lease number.
+        /// </summary>
+        /// <returns>The instance ID and lease number.</returns>
         public override string ToString()
         {
             return InstanceId + ":" + Lease.ToString(CultureInfo.InvariantCulture);

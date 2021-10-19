@@ -82,13 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Loads the mod_spatialite extension into the specified connection.
-        ///     </para>
-        ///     <para>
-        ///         The extension will be loaded from native NuGet assets when available.
-        ///     </para>
+        ///     Loads the mod_spatialite extension into the specified connection.
         /// </summary>
+        /// <remarks>
+        ///     The extension will be loaded from native NuGet assets when available.
+        /// </remarks>
         /// <param name="connection">The connection.</param>
         public static void Load(DbConnection connection)
         {

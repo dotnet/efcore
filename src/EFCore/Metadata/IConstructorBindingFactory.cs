@@ -9,18 +9,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for finding and creating <see cref="InstantiationBinding" /> instances for
-    ///         a given CLR constructor.
-    ///     </para>
+    ///     A factory for finding and creating <see cref="InstantiationBinding" /> instances for
+    ///     a given CLR constructor.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IConstructorBindingFactory
     {

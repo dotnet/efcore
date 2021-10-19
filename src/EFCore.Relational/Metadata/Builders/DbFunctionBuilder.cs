@@ -92,18 +92,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Sets a callback that will be invoked to perform custom translation of this
-        ///         function. The callback takes a collection of expressions corresponding to
-        ///         the parameters passed to the function call. The callback should return an
-        ///         expression representing the desired translation.
-        ///     </para>
+        ///     Sets a callback that will be invoked to perform custom translation of this
+        ///     function. The callback takes a collection of expressions corresponding to
+        ///     the parameters passed to the function call. The callback should return an
+        ///     expression representing the desired translation.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="translation">The translation to use.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

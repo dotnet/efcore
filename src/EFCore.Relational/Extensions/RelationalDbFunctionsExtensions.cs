@@ -18,17 +18,17 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalDbFunctionsExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Explicitly specifies a collation to be used in a LINQ query. Can be used to generate fragments such as
-        ///         <c>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</c>.
-        ///     </para>
+        ///     Explicitly specifies a collation to be used in a LINQ query. Can be used to generate fragments such as
+        ///     <c>WHERE customer.name COLLATE 'de_DE' = 'John Doe'</c>.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The available collations and their names vary across databases, consult your database's documentation for more
         ///         information.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TProperty">The type of the operand on which the collation is being specified.</typeparam>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>

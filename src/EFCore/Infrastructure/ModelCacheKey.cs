@@ -6,11 +6,9 @@ using System;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         A key that uniquely identifies the model for a given context. This is used to store and lookup
-    ///         a cached model for a given context. This default implementation uses the context type as they key, thus
-    ///         assuming that all contexts of a given type have the same model.
-    ///     </para>
+    ///     A key that uniquely identifies the model for a given context. This is used to store and lookup
+    ///     a cached model for a given context. This default implementation uses the context type as they key, thus
+    ///     assuming that all contexts of a given type have the same model.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.

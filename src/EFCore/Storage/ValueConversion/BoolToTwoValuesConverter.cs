@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     public class BoolToTwoValuesConverter<TProvider> : ValueConverter<bool, TProvider>
     {
         /// <summary>
-        ///     <para>
-        ///         Creates a new instance of this converter that will convert a <see langword="false" /> false
-        ///         to one value and a <see langword="true" /> to another.
-        ///     </para>
+        ///     Creates a new instance of this converter that will convert a <see langword="false" /> false
+        ///     to one value and a <see langword="true" /> to another.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Use <see cref="BoolToZeroOneConverter{TProvider}" /> for converting a <see cref="bool" /> to zero/one.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="falseValue">The value to convert to for <see langword="false" />.</param>
         /// <param name="trueValue">The value to convert to for <see langword="true" />.</param>

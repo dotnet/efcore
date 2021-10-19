@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     <para>
-    ///         An API for getting logger categories in an Intellisense/tab-completion friendly manner.
-    ///     </para>
+    ///     An API for getting logger categories in an Intellisense/tab-completion friendly manner.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Get an Entity Framework Core logger category using its Name property. For example,
     ///         <c>LoggerCategory.Database.Sql.Name</c>.
@@ -17,9 +17,9 @@ namespace Microsoft.EntityFrameworkCore
     ///         Use these types with <see cref="IDiagnosticsLogger{TLoggerCategory}" /> or
     ///         <see cref="IDiagnosticsLogger{TLoggerCategory}" /> to create a logger.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     </para>
     /// </remarks>
     public static class DbLoggerCategory
     {

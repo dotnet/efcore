@@ -19,10 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         A base class for the repository used to access the '__EFMigrationsHistory' table that tracks metadata
-    ///         about EF Core Migrations such as which migrations have been applied.
-    ///     </para>
+    ///     A base class for the repository used to access the '__EFMigrationsHistory' table that tracks metadata
+    ///     about EF Core Migrations such as which migrations have been applied.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Database providers must inherit from this class to implement provider-specific functionality.
     ///     </para>
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     </para>
     /// </remarks>
     // TODO: Leverage query pipeline for GetAppliedMigrations
     // TODO: Leverage update pipeline for GetInsertScript & GetDeleteScript
@@ -107,10 +107,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
                     x =>
-                        {
-                            ConfigureTable(x);
-                            x.ToTable(TableName, TableSchema);
-                        });
+                    {
+                        ConfigureTable(x);
+                        x.ToTable(TableName, TableSchema);
+                    });
 
                 _model = Dependencies.ModelRuntimeInitializer.Initialize(
                     (IModel)modelBuilder.Model, designTime: true, validationLogger: null);
@@ -197,13 +197,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
         ///         Configures the entity type mapped to the history table.
-        ///     </para>
-        ///     <para>
-        ///         Database providers can override this to add or replace configuration.
-        ///     </para>
         /// </summary>
+        /// <remarks>
+        ///         Database providers can override this to add or replace configuration.
+        /// </remarks>
         /// <param name="history">A builder for the <see cref="HistoryRow" /> entity type.</param>
         protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)
         {

@@ -15,19 +15,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Provides access to change tracking and loading information for a collection
-    ///         navigation property that associates this entity to a collection of another entities.
-    ///     </para>
+    ///     Provides access to change tracking and loading information for a collection
+    ///     navigation property that associates this entity to a collection of another entities.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>,
-    ///     <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
-    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>,
+    ///         <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///     </para>
     /// </remarks>
     public class CollectionEntry : NavigationEntry
     {
@@ -207,17 +207,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-        ///         is already set to true.
-        ///     </para>
+        ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+        ///     is already set to true.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     </para>
         /// </remarks>
         public override void Load()
         {
@@ -230,10 +230,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-        ///         is already set to true.
-        ///     </para>
+        ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+        ///     is already set to true.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
@@ -241,10 +241,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>A task that represents the asynchronous save operation.</returns>
@@ -259,18 +259,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns the query that would be used by <see cref="Load" /> to load entities referenced by
-        ///         this navigation property.
-        ///     </para>
+        ///     Returns the query that would be used by <see cref="Load" /> to load entities referenced by
+        ///     this navigation property.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The query can be composed over using LINQ to perform filtering, counting, etc. without
         ///         actually loading all entities from the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     </para>
         /// </remarks>
         public override IQueryable Query()
         {

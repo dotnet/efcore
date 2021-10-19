@@ -20,9 +20,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerDbFunctionsExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>FREETEXT</c> store function.
-        ///     </para>
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>FREETEXT</c> store function.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -41,9 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FreeText)));
 
         /// <summary>
-        ///     <para>
-        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>FREETEXT</c> store function.
-        ///     </para>
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>FREETEXT</c> store function.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -60,9 +56,7 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(FreeText)));
 
         /// <summary>
-        ///     <para>
-        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>CONTAINS</c> store function.
-        ///     </para>
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>CONTAINS</c> store function.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -81,9 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Contains)));
 
         /// <summary>
-        ///     <para>
-        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>CONTAINS</c> store function.
-        ///     </para>
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server <c>CONTAINS</c> store function.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and

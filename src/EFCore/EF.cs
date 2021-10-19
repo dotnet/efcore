@@ -23,17 +23,17 @@ namespace Microsoft.EntityFrameworkCore
             = typeof(EF).GetRequiredDeclaredMethod(nameof(Property));
 
         /// <summary>
-        ///     <para>
-        ///         References a given property or navigation on an entity instance. This is useful for shadow state properties, for
-        ///         which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
-        ///         access the value assigned to a property in other scenarios.
-        ///     </para>
+        ///     References a given property or navigation on an entity instance. This is useful for shadow state properties, for
+        ///     which no CLR property exists. Currently this method can only be used in LINQ queries and can not be used to
+        ///     access the value assigned to a property in other scenarios.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <example>
         ///     <para>
@@ -54,16 +54,16 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
         /// <summary>
-        ///     <para>
-        ///         Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
-        ///         Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
-        ///     </para>
+        ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
+        ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this is a static property accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     </para>
         /// </remarks>
         public static DbFunctions Functions
             => DbFunctions.Instance;

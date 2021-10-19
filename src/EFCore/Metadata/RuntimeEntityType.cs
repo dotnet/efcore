@@ -266,8 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
             {
-                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance)
-                    { foreignKey };
+                principalEntityType.DeclaredReferencingForeignKeys =
+                    new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {
@@ -528,13 +528,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
-        ///     </para>
-        ///     <para>
-        ///         Named indexes will not be returned even if the list of properties matches.
-        ///     </para>
+        ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
         /// </summary>
+        /// <remarks>
+        ///     Named indexes will not be returned even if the list of properties matches.
+        /// </remarks>
         /// <param name="properties">The properties to find the index on.</param>
         /// <returns>The index, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
@@ -650,14 +648,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(string)" /> to find a navigation property.
-        ///     </para>
+        ///     Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigation properties. Use
+        ///     <see cref="FindNavigation(string)" /> to find a navigation property.
+        /// </remarks>
         /// <param name="name">The name of the property.</param>
         /// <returns>The property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeProperty? FindProperty(string name)
@@ -677,13 +673,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties());
 
         /// <summary>
-        ///     <para>
-        ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigations or service properties.
-        ///     </para>
+        ///     Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigations or service properties.
+        /// </remarks>
         /// <param name="propertyNames">The property names.</param>
         /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
         public virtual IReadOnlyList<RuntimeProperty>? FindProperties(IEnumerable<string> propertyNames)
@@ -740,14 +734,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the service property with a given name.
-        ///         Returns <see langword="null" /> if no property with the given name is defined.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds service properties and does not find scalar or navigation properties.
-        ///     </para>
+        ///     Gets the service property with a given name.
+        ///     Returns <see langword="null" /> if no property with the given name is defined.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds service properties and does not find scalar or navigation properties.
+        /// </remarks>
         /// <param name="name">The name of the service property.</param>
         /// <returns>The service property, or <see langword="null" /> if none is found.</returns>
         public virtual RuntimeServiceProperty? FindServiceProperty(string name)
@@ -781,12 +773,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get => !_clrType.IsAbstract
                 ? NonCapturingLazyInitializer.EnsureInitialized(
                     ref _constructorBinding, this, static entityType =>
-                        {
-                            ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
-                                entityType,
-                                out entityType._constructorBinding,
-                                out entityType._serviceOnlyConstructorBinding);
-                        })
+                    {
+                        ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                            entityType,
+                            out entityType._constructorBinding,
+                            out entityType._serviceOnlyConstructorBinding);
+                    })
                 : _constructorBinding;
 
             [DebuggerStepThrough]
@@ -1296,28 +1288,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _instanceFactory, this,
                 static entityType =>
+                {
+                    var binding = entityType._serviceOnlyConstructorBinding;
+                    if (binding == null)
                     {
-                        var binding = entityType._serviceOnlyConstructorBinding;
+                        var _ = ((IEntityType)entityType).ConstructorBinding;
+                        binding = entityType._serviceOnlyConstructorBinding;
                         if (binding == null)
                         {
-                            var _ = ((IEntityType)entityType).ConstructorBinding;
-                            binding = entityType._serviceOnlyConstructorBinding;
-                            if (binding == null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.NoParameterlessConstructor(
-                                        ((IReadOnlyEntityType)entityType).DisplayName()));
-                            }
+                            throw new InvalidOperationException(
+                                CoreStrings.NoParameterlessConstructor(
+                                    ((IReadOnlyEntityType)entityType).DisplayName()));
                         }
+                    }
 
-                        var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
+                    var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
 
-                        return Expression.Lambda<Func<MaterializationContext, object>>(
-                                binding.CreateConstructorExpression(
-                                    new ParameterBindingInfo(entityType, contextParam)),
-                                contextParam)
-                            .Compile();
-                    });
+                    return Expression.Lambda<Func<MaterializationContext, object>>(
+                            binding.CreateConstructorExpression(
+                                new ParameterBindingInfo(entityType, contextParam)),
+                            contextParam)
+                        .Compile();
+                });
 
         /// <inheritdoc />
         [DebuggerStepThrough]

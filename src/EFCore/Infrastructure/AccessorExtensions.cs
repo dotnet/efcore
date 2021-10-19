@@ -16,25 +16,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         These methods are typically used by database providers (and other extensions). They are generally
     ///         not used in application code.
     ///     </para>
-    ///     <para>
-    ///         <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
-    ///         application code but can be used in extension methods written by database providers etc.
-    ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
+    ///     application code but can be used in extension methods written by database providers etc.
+    /// </remarks>
     public static class AccessorExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Resolves a service from the <see cref="IServiceProvider" /> exposed from a type that implements
-        ///         <see cref="IInfrastructure{IServiceProvider}" />.
-        ///     </para>
+        ///     Resolves a service from the <see cref="IServiceProvider" /> exposed from a type that implements
+        ///     <see cref="IInfrastructure{IServiceProvider}" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
         ///         application code but can be used in extension methods written by database providers etc.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TService">The type of service to be resolved.</typeparam>
         /// <param name="accessor">The object exposing the service provider.</param>
@@ -52,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
-        ///     <para>
-        ///         <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
-        ///         application code but can be used in extension methods written by database providers etc.
-        ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
+        ///     application code but can be used in extension methods written by database providers etc.
+        /// </remarks>
         /// <typeparam name="T">The type of the property being hidden by <see cref="IInfrastructure{T}" />.</typeparam>
         /// <param name="accessor">The object that exposes the property.</param>
         /// <returns>The object assigned to the property.</returns>

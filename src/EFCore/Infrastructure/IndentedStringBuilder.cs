@@ -109,13 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Appends the current indent, the given string, and a new line to the string being built.
-        ///     </para>
-        ///     <para>
-        ///         If the given string itself contains a new line, the part of the string after that new line will not be indented.
-        ///     </para>
+        ///     Appends the current indent, the given string, and a new line to the string being built.
         /// </summary>
+        /// <remarks>
+        ///     If the given string itself contains a new line, the part of the string after that new line will not be indented.
+        /// </remarks>
         /// <param name="value">The string to append.</param>
         /// <returns>This builder so that additional calls can be chained.</returns>
         public virtual IndentedStringBuilder AppendLine(string value)

@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerDbSetExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Applies temporal 'AsOf' operation on the given DbSet, which only returns elements that were present in the database at a given
-        ///         point in time.
-        ///     </para>
+        ///     Applies temporal 'AsOf' operation on the given DbSet, which only returns elements that were present in the database at a given
+        ///     point in time.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Temporal information is stored in UTC format on the database, so any <see cref="DateTime" /> arguments in local time may lead to
         ///         unexpected results.
@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcPointInTime"><see cref="DateTime" /> representing a point in time for which the results should be returned.</param>
@@ -54,10 +54,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Applies temporal 'FromTo' operation on the given DbSet, which only returns elements that were present in the database between two
-        ///         points in time.
-        ///     </para>
+        ///     Applies temporal 'FromTo' operation on the given DbSet, which only returns elements that were present in the database between two
+        ///     points in time.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Elements that were created at the starting point as well as elements that were removed at the end point are not included in the
         ///         results.
@@ -73,10 +73,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
@@ -103,10 +103,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Applies temporal 'Between' operation on the given DbSet, which only returns elements that were present in the database between two
-        ///         points in time.
-        ///     </para>
+        ///     Applies temporal 'Between' operation on the given DbSet, which only returns elements that were present in the database between two
+        ///     points in time.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Elements that were created at the starting point are not included in the results, however elements that were removed at the end
         ///         point are included in the results.
@@ -122,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
@@ -152,10 +152,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Applies temporal 'ContainedIn' operation on the given DbSet, which only returns elements that were present in the database between
-        ///         two points in time.
-        ///     </para>
+        ///     Applies temporal 'ContainedIn' operation on the given DbSet, which only returns elements that were present in the database between
+        ///     two points in time.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Elements that were created at the starting point as well as elements that were removed at the end point are included in the
         ///         results.
@@ -171,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
@@ -201,17 +201,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Applies temporal 'All' operation on the given DbSet, which returns all historical versions of the entities as well as their current
-        ///         state.
-        ///     </para>
+        ///     Applies temporal 'All' operation on the given DbSet, which returns all historical versions of the entities as well as their current
+        ///     state.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <returns>An <see cref="IQueryable{T}" /> representing the entities and their historical versions.</returns>

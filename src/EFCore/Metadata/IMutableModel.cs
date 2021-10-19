@@ -9,45 +9,41 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         Metadata about the shape of entities, the relationships between them, and how they map to
-    ///         the database. A model is typically created by overriding the
-    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
-    ///         <see cref="DbContext" />.
-    ///     </para>
+    ///     Metadata about the shape of entities, the relationships between them, and how they map to
+    ///     the database. A model is typically created by overriding the
+    ///     <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
+    ///     <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IMutableModel : IReadOnlyModel, IMutableAnnotatable
     {
         /// <summary>
-        ///     <para>
-        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
-        ///         will be executed after the returned object is disposed.
-        ///     </para>
-        ///     <para>
-        ///         This is useful when performing multiple operations that depend on each other.
-        ///     </para>
+        ///     Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///     will be executed after the returned object is disposed.
         /// </summary>
+        /// <remarks>
+        ///     This is useful when performing multiple operations that depend on each other.
+        /// </remarks>
         /// <returns>An object that should be disposed to execute the delayed conventions.</returns>
         IConventionBatch DelayConventions();
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
-        ///         in this model.
-        ///     </para>
-        ///     <para>
-        ///         Note that individual entity types can override this access mode, and individual properties of
-        ///         entity types can override the access mode set on the entity type. The value set here will
-        ///         be used for any property for which no override has been specified.
-        ///     </para>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for properties of all entity types
+        ///     in this model.
         /// </summary>
+        /// <remarks>
+        ///     Note that individual entity types can override this access mode, and individual properties of
+        ///     entity types can override the access mode set on the entity type. The value set here will
+        ///     be used for any property for which no override has been specified.
+        /// </remarks>
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
         void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode);
 
@@ -59,14 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void SetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy);
 
         /// <summary>
-        ///     <para>
-        ///         Adds an entity type of default type to the model.
-        ///     </para>
-        ///     <para>
-        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
-        ///         Therefore, shadow state entity types will only exist in migration model snapshots, etc.
-        ///     </para>
+        ///     Adds an entity type of default type to the model.
         /// </summary>
+        /// <remarks>
+        ///     Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///     Therefore, shadow state entity types will only exist in migration model snapshots, etc.
+        /// </remarks>
         /// <param name="name">The name of the entity to be added.</param>
         /// <returns>The new entity type.</returns>
         IMutableEntityType AddEntityType(string name);
@@ -79,14 +73,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableEntityType AddEntityType(Type type);
 
         /// <summary>
-        ///     <para>
-        ///         Adds a shared type entity type to the model.
-        ///     </para>
-        ///     <para>
-        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
-        ///         a unique name and always identified by the name.
-        ///     </para>
+        ///     Adds a shared type entity type to the model.
         /// </summary>
+        /// <remarks>
+        ///     Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///     a unique name and always identified by the name.
+        /// </remarks>
         /// <param name="name">The name of the entity to be added.</param>
         /// <param name="type">The CLR class that is used to represent instances of the entity type.</param>
         /// <returns>The new entity type.</returns>
@@ -117,14 +109,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             IMutableEntityType definingEntityType);
 
         /// <summary>
-        ///     <para>
-        ///         Adds an owned entity type of default type to the model.
-        ///     </para>
-        ///     <para>
-        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
-        ///         Therefore, shadow state entity types will only exist in migration model snapshots, etc.
-        ///     </para>
+        ///     Adds an owned entity type of default type to the model.
         /// </summary>
+        /// <remarks>
+        ///     Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///     Therefore, shadow state entity types will only exist in migration model snapshots, etc.
+        /// </remarks>
         /// <param name="name">The name of the entity to be added.</param>
         /// <returns>The new entity type.</returns>
         IMutableEntityType AddOwnedEntityType(string name);
@@ -137,14 +127,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IMutableEntityType AddOwnedEntityType(Type type);
 
         /// <summary>
-        ///     <para>
-        ///         Adds an owned shared type entity type to the model.
-        ///     </para>
-        ///     <para>
-        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
-        ///         a unique name and always identified by the name.
-        ///     </para>
+        ///     Adds an owned shared type entity type to the model.
         /// </summary>
+        /// <remarks>
+        ///     Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///     a unique name and always identified by the name.
+        /// </remarks>
         /// <param name="name">The name of the entity to be added.</param>
         /// <param name="type">The CLR class that is used to represent instances of the entity type.</param>
         /// <returns>The new entity type.</returns>

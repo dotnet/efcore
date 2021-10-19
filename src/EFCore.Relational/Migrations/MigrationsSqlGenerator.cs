@@ -19,10 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         Generates the SQL in <see cref="MigrationCommand" /> objects that can
-    ///         then be executed or scripted from a list of <see cref="MigrationOperation" />s.
-    ///     </para>
+    ///     Generates the SQL in <see cref="MigrationCommand" /> objects that can
+    ///     then be executed or scripted from a list of <see cref="MigrationOperation" />s.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This class is typically inherited by database providers to customize the SQL generation.
     ///     </para>
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     </para>
     /// </remarks>
     public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     {
@@ -148,17 +148,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Builds commands for the given <see cref="MigrationOperation" /> by making calls on the given
-        ///         <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         This method uses a double-dispatch mechanism to call one of the 'Generate' methods that are
-        ///         specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
-        ///         will override these specific methods rather than this method. However, providers can override
-        ///         this methods to handle provider-specific operations.
-        ///     </para>
+        ///     Builds commands for the given <see cref="MigrationOperation" /> by making calls on the given
+        ///     <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     This method uses a double-dispatch mechanism to call one of the 'Generate' methods that are
+        ///     specific to a certain subtype of <see cref="MigrationOperation" />. Typically database providers
+        ///     will override these specific methods rather than this method. However, providers can override
+        ///     this methods to handle provider-specific operations.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -325,15 +323,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="AlterColumnOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="AlterColumnOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -344,15 +340,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(AlterColumnOperation)));
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="AlterDatabaseOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that there is no default implementation of this method. Providers must override if they are to
-        ///         support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="AlterDatabaseOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that there is no default implementation of this method. Providers must override if they are to
+        ///     support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -364,15 +358,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="RenameIndexOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="RenameIndexOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -409,16 +401,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="AlterTableOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method does nothing because there is no common metadata
-        ///         relating to this operation. Providers only need to override this method if they have some provider-specific
-        ///         annotations that must be handled.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="AlterTableOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method does nothing because there is no common metadata
+        ///     relating to this operation. Providers only need to override this method if they have some provider-specific
+        ///     annotations that must be handled.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -430,15 +420,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="RenameTableOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="RenameTableOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -493,15 +481,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="EnsureSchemaOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="EnsureSchemaOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -652,15 +638,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="DropIndexOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="DropIndexOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -827,15 +811,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="RenameColumnOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="RenameColumnOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -846,15 +828,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotSupportedException(RelationalStrings.MigrationSqlGenerationMissing(nameof(RenameColumnOperation)));
 
         /// <summary>
-        ///     <para>
-        ///         Can be overridden by database providers to build commands for the given <see cref="RenameSequenceOperation" />
-        ///         by making calls on the given <see cref="MigrationCommandListBuilder" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
-        ///         must override if they are to support this kind of operation.
-        ///     </para>
+        ///     Can be overridden by database providers to build commands for the given <see cref="RenameSequenceOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that the default implementation of this method throws <see cref="NotSupportedException" />. Providers
+        ///     must override if they are to support this kind of operation.
+        /// </remarks>
         /// <param name="operation">The operation.</param>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
@@ -1885,15 +1865,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 ?.EntityTypeMappings.Select(m => m.EntityType);
 
         /// <summary>
-        ///     <para>
-        ///         Finds some <see cref="IProperty" /> mapped to the given column.
-        ///     </para>
-        ///     <para>
-        ///         If multiple properties map to the same column, then the property returned is one chosen
-        ///         arbitrarily. The model validator ensures that all properties mapped to a given column
-        ///         have consistent configuration.
-        ///     </para>
+        ///     Finds some <see cref="IProperty" /> mapped to the given column.
         /// </summary>
+        /// <remarks>
+        ///     If multiple properties map to the same column, then the property returned is one chosen
+        ///     arbitrarily. The model validator ensures that all properties mapped to a given column
+        ///     have consistent configuration.
+        /// </remarks>
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
         /// <param name="tableName">The name of the table that contains the column.</param>

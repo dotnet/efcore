@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public interface IDbContextLogger
     {
         /// <summary>
-        ///     <para>
-        ///         Logs the given <see cref="EventData" />.
-        ///     </para>
+        ///     Logs the given <see cref="EventData" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is only called if <see cref="ShouldLog" /> returns true.
         ///     </para>
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         The specific subtype of the <see cref="EventData" /> argument is dependent on the event
         ///         being logged. See <see cref="CoreEventId" /> for the type of event data used for each core event.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="eventData">The event to log.</param>
         void Log(EventData eventData);
 

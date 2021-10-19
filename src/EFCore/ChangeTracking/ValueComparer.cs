@@ -13,21 +13,21 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Specifies custom value snapshotting and comparison for
-    ///         CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
-    ///         and/or need a deep/structural copy when taking a snapshot. For example, arrays of primitive types
-    ///         will require both if mutation is to be detected.
-    ///     </para>
+    ///     Specifies custom value snapshotting and comparison for
+    ///     CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
+    ///     and/or need a deep/structural copy when taking a snapshot. For example, arrays of primitive types
+    ///     will require both if mutation is to be detected.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
     ///         later be compared to determine if it has changed. For some types, such as collections,
     ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
     ///         reference.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///     </para>
     /// </remarks>
     public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
@@ -94,16 +94,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public abstract int GetHashCode(object instance);
 
         /// <summary>
-        ///     <para>
-        ///         Creates a snapshot of the given instance.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     Creates a snapshot of the given instance.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         /// <param name="instance">The instance.</param>
         /// <returns>The snapshot.</returns>
         [return: NotNullIfNotNull("instance")]
@@ -120,16 +118,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual LambdaExpression HashCodeExpression { get; }
 
         /// <summary>
-        ///     <para>
-        ///         The snapshot expression.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     The snapshot expression.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         public virtual LambdaExpression SnapshotExpression { get; }
 
         /// <summary>

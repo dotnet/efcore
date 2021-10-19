@@ -13,9 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public static class SqlServerMigrationBuilderExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Returns <see langword="true" /> if the database provider currently in use is the SQL Server provider.
-        ///     </para>
+        ///     Returns <see langword="true" /> if the database provider currently in use is the SQL Server provider.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>

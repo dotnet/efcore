@@ -6,10 +6,10 @@ using System;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
-    ///         suppression of the normal operation being intercepted.
-    ///     </para>
+    ///     Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
+    ///     suppression of the normal operation being intercepted.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         A value of this type is passed to all interceptor methods that are called before the operation
     ///         being intercepted is executed.
@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         intercepted to be suppressed; that is, the operation is not executed.
     ///         The value in the result is then used as a substitute return value for the operation that was suppressed.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TResult">The new result to use.</typeparam>
     public readonly struct InterceptionResult<TResult>
@@ -42,14 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     <para>
-        ///         The result to use.
-        ///     </para>
-        ///     <para>
-        ///         The property can only be accessed if <see cref="HasResult" /> is true. The concept here
-        ///         is the same as <see cref="Nullable{T}.Value" /> and <see cref="Nullable{T}.HasValue" />
-        ///     </para>
+        ///     The result to use.
         /// </summary>
+        /// <remarks>
+        ///     The property can only be accessed if <see cref="HasResult" /> is true. The concept here
+        ///     is the same as <see cref="Nullable{T}.Value" /> and <see cref="Nullable{T}.HasValue" />
+        /// </remarks>
         /// <exception cref="InvalidOperationException">when <see cref="Result" /> is <see langword="false" />.</exception>
         public TResult Result
         {

@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public static class SqliteMigrationBuilderExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Returns <see langword="true" /> if the database provider currently in use is the SQLite provider.
-        ///     </para>
+        ///     Returns <see langword="true" /> if the database provider currently in use is the SQLite provider.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.

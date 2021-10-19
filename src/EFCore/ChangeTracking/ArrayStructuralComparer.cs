@@ -6,10 +6,8 @@ using System.Linq;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Specifies value comparison for arrays where each element pair is compared.
-    ///         A new array is constructed when snapshotting.
-    ///     </para>
+    ///     Specifies value comparison for arrays where each element pair is compared.
+    ///     A new array is constructed when snapshotting.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.

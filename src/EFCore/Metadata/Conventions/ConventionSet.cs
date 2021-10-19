@@ -363,8 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.
         ///     </para>
         ///     <para>
-        ///         Note that it is unusual to use this method.
-        ///         Consider using <see cref="DbContext" /> in the normal way instead.
+        ///         Note that it is unusual to use this method. Consider using <see cref="DbContext" /> in the normal way instead.
         ///     </para>
         /// </summary>
         /// <returns>The convention set.</returns>

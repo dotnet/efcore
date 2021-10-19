@@ -6,18 +6,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for creating <see cref="QueryableMethodTranslatingExpressionVisitor" /> instances.
-    ///     </para>
+    ///     A factory for creating <see cref="QueryableMethodTranslatingExpressionVisitor" /> instances.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IQueryableMethodTranslatingExpressionVisitorFactory
     {

@@ -17,18 +17,18 @@ namespace Microsoft.EntityFrameworkCore
     public static class DbFunctionsExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         An implementation of the SQL <c>LIKE</c> operation. On relational databases this is usually directly
-        ///         translated to SQL.
-        ///     </para>
+        ///     An implementation of the SQL <c>LIKE</c> operation. On relational databases this is usually directly
+        ///     translated to SQL.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that the semantics of the comparison will depend on the database configuration.
         ///         In particular, it may be either case-sensitive or case-insensitive.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
-        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        ///     <para>
+        ///         This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///         This can happen if the query contains one or more expressions that could not be translated to the store.
+        ///     </para>
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
@@ -41,18 +41,18 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
         /// <summary>
-        ///     <para>
-        ///         An implementation of the SQL LIKE operation. On relational databases this is usually directly
-        ///         translated to SQL.
-        ///     </para>
+        ///     An implementation of the SQL LIKE operation. On relational databases this is usually directly
+        ///     translated to SQL.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that the semantics of the comparison will depend on the database configuration.
         ///         In particular, it may be either case-sensitive or case-insensitive.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
-        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        ///     <para>
+        ///         This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///         This can happen if the query contains one or more expressions that could not be translated to the store.
+        ///     </para>
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>

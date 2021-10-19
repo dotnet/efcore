@@ -9,19 +9,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         A service for generating <see cref="MigrationCommand" /> objects that can
-    ///         then be executed or scripted from a list of <see cref="MigrationOperation" />s.
-    ///     </para>
+    ///     A service for generating <see cref="MigrationCommand" /> objects that can
+    ///     then be executed or scripted from a list of <see cref="MigrationOperation" />s.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
     ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IMigrationsSqlGenerator
     {

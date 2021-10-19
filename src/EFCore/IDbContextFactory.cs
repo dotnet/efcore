@@ -18,24 +18,20 @@ namespace Microsoft.EntityFrameworkCore
         where TContext : DbContext
     {
         /// <summary>
-        ///     <para>
-        ///         Creates a new <see cref="DbContext" /> instance.
-        ///     </para>
-        ///     <para>
-        ///         The caller is responsible for disposing the context; it will not be disposed by any dependency injection container.
-        ///     </para>
+        ///     Creates a new <see cref="DbContext" /> instance.
         /// </summary>
+        /// <remarks>
+        ///     The caller is responsible for disposing the context; it will not be disposed by any dependency injection container.
+        /// </remarks>
         /// <returns>A new context instance.</returns>
         TContext CreateDbContext();
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new <see cref="DbContext" /> instance in an async context.
-        ///     </para>
-        ///     <para>
-        ///         The caller is responsible for disposing the context; it will not be disposed by any dependency injection container.
-        ///     </para>
+        ///     Creates a new <see cref="DbContext" /> instance in an async context.
         /// </summary>
+        /// <remarks>
+        ///     The caller is responsible for disposing the context; it will not be disposed by any dependency injection container.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>A task containing the created context that represents the asynchronous operation.</returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>

@@ -12,24 +12,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public interface IConventionContext
     {
         /// <summary>
-        ///     <para>
-        ///         Calling this will prevent further processing of the associated event by other conventions.
-        ///     </para>
-        ///     <para>
-        ///         The common use case is when the metadata object was removed by the convention.
-        ///     </para>
+        ///     Calling this will prevent further processing of the associated event by other conventions.
         /// </summary>
+        /// <remarks>
+        ///     The common use case is when the metadata object was removed by the convention.
+        /// </remarks>
         void StopProcessing();
 
         /// <summary>
-        ///     <para>
-        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
-        ///         will be executed after the returned object is disposed.
-        ///     </para>
-        ///     <para>
-        ///         This is useful when performing multiple operations that depend on each other.
-        ///     </para>
+        ///     Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///     will be executed after the returned object is disposed.
         /// </summary>
+        /// <remarks>
+        ///     This is useful when performing multiple operations that depend on each other.
+        /// </remarks>
         /// <returns>An object that should be disposed to execute the delayed conventions.</returns>
         IConventionBatch DelayConventions();
     }

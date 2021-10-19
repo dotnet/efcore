@@ -16,16 +16,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     <para>
-    ///         A convention that configures the foreign key properties associated with a navigation property
-    ///         based on the <see cref="ForeignKeyAttribute" /> specified on the properties or the navigation properties.
-    ///     </para>
+    ///     A convention that configures the foreign key properties associated with a navigation property
+    ///     based on the <see cref="ForeignKeyAttribute" /> specified on the properties or the navigation properties.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public class ForeignKeyAttributeConvention :
         IEntityTypeAddedConvention,

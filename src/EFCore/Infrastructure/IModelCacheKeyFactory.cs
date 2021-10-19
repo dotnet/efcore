@@ -7,18 +7,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Creates keys that uniquely identifies the model for a given context. This is used to store and lookup
-    ///         a cached model for a given context.
-    ///     </para>
+    ///     Creates keys that uniquely identifies the model for a given context. This is used to store and lookup
+    ///     a cached model for a given context.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IModelCacheKeyFactory
     {

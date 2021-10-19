@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private ConcurrentDictionary<string, Annotation>? _runtimeAnnotations;
 
         /// <summary>
-        ///     <para>Indicates whether the current object is read-only.</para>
-        ///     <para>
-        ///         Annotations cannot be changed when the object is read-only.
-        ///         Runtime annotations cannot be changed when the object is not read-only.
-        ///     </para>
+        ///     Indicates whether the current object is read-only.
         /// </summary>
+        /// <remarks>
+        ///     Annotations cannot be changed when the object is read-only.
+        ///     Runtime annotations cannot be changed when the object is not read-only.
+        /// </remarks>
         public virtual bool IsReadOnly
             => false;
 

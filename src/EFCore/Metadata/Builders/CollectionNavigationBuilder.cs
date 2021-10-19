@@ -108,15 +108,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => Builder;
 
         /// <summary>
-        ///     <para>
-        ///         Configures this as a one-to-many relationship.
-        ///     </para>
-        ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
-        ///     </para>
+        ///     Configures this as a one-to-many relationship.
         /// </summary>
+        /// <remarks>
+        ///     Note that calling this method with no parameters will explicitly configure this side
+        ///     of the relationship to use no navigation property, even if such a property exists on the
+        ///     entity type. If the navigation property is to be used, then it must be specified.
+        /// </remarks>
         /// <param name="navigationName">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null or not specified, then there is no navigation property on the other end of the relationship.
@@ -215,9 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures this as a many-to-many relationship.
-        ///     </para>
+        ///     Configures this as a many-to-many relationship.
         /// </summary>
         /// <param name="navigationName">
         ///     The name of the collection navigation property on the other end of this relationship.

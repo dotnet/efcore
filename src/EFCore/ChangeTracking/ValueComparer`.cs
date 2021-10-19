@@ -12,21 +12,21 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Specifies custom value snapshotting and comparison for
-    ///         CLR types that cannot be compared with <see cref="object.Equals(object?, object?)" />
-    ///         and/or need a deep copy when taking a snapshot. For example, arrays of primitive types
-    ///         will require both if mutation is to be detected.
-    ///     </para>
+    ///     Specifies custom value snapshotting and comparison for
+    ///     CLR types that cannot be compared with <see cref="object.Equals(object?, object?)" />
+    ///     and/or need a deep copy when taking a snapshot. For example, arrays of primitive types
+    ///     will require both if mutation is to be detected.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
     ///         later be compared to determine if it has changed. For some types, such as collections,
     ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
     ///         reference.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="T">The type.</typeparam>
     public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
@@ -65,17 +65,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Creates a new <see cref="ValueComparer{T}" /> with the given comparison and
-        ///         snapshotting expressions.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     Creates a new <see cref="ValueComparer{T}" /> with the given comparison and
+        ///     snapshotting expressions.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         /// <param name="equalsExpression">The comparison expression.</param>
         /// <param name="hashCodeExpression">The associated hash code generator.</param>
         /// <param name="snapshotExpression">The snapshot expression.</param>
@@ -295,32 +293,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 ref _hashCode, this, static c => c.HashCodeExpression.Compile())(instance);
 
         /// <summary>
-        ///     <para>
-        ///         Creates a snapshot of the given instance.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     Creates a snapshot of the given instance.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         /// <param name="instance">The instance.</param>
         /// <returns>The snapshot.</returns>
         public override object? Snapshot(object? instance)
             => instance == null ? null : Snapshot((T)instance);
 
         /// <summary>
-        ///     <para>
-        ///         Creates a snapshot of the given instance.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     Creates a snapshot of the given instance.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         /// <param name="instance">The instance.</param>
         /// <returns>The snapshot.</returns>
         public virtual T Snapshot(T instance)
@@ -346,16 +340,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => (Expression<Func<T, int>>)base.HashCodeExpression;
 
         /// <summary>
-        ///     <para>
-        ///         The snapshot expression.
-        ///     </para>
-        ///     <para>
-        ///         Snapshotting is the process of creating a copy of the value into a snapshot so it can
-        ///         later be compared to determine if it has changed. For some types, such as collections,
-        ///         this needs to be a deep copy of the collection rather than just a shallow copy of the
-        ///         reference.
-        ///     </para>
+        ///     The snapshot expression.
         /// </summary>
+        /// <remarks>
+        ///     Snapshotting is the process of creating a copy of the value into a snapshot so it can
+        ///     later be compared to determine if it has changed. For some types, such as collections,
+        ///     this needs to be a deep copy of the collection rather than just a shallow copy of the
+        ///     reference.
+        /// </remarks>
         public new virtual Expression<Func<T, T>> SnapshotExpression
             => (Expression<Func<T, T>>)base.SnapshotExpression;
     }

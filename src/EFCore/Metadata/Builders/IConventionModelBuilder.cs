@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionEntityTypeBuilder? Entity(string name, bool? shouldBeOwned = false, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a given shared type entity type in the model.
-        ///     </para>
+        ///     Returns an object that can be used to configure a given shared type entity type in the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
         ///         type will be added to the model as shared type entity type.
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
         ///         a unique name and always identified by the name.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="name">The name of the entity type to be configured.</param>
         /// <param name="type">The type of the entity type to be configured.</param>
         /// <param name="shouldBeOwned">
@@ -221,16 +221,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool CanSetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
-        ///     </para>
-        ///     <para>
-        ///         By default, the backing field, if one is found by convention or has been specified, is used when
-        ///         new objects are constructed, typically when entities are queried from the database.
-        ///         Properties are used for all other accesses. Calling this method will change that behavior
-        ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
-        ///     </para>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
         /// </summary>
+        /// <remarks>
+        ///     By default, the backing field, if one is found by convention or has been specified, is used when
+        ///     new objects are constructed, typically when entities are queried from the database.
+        ///     Properties are used for all other accesses. Calling this method will change that behavior
+        ///     for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
+        /// </remarks>
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this model.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>

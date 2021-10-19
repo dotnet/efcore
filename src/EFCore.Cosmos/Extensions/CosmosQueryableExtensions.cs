@@ -58,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Creates a LINQ query based on a raw SQL query.
-        ///     </para>
+        ///     Creates a LINQ query based on a raw SQL query.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         You can compose on top of the raw SQL query using LINQ operators:
         ///     </para>
@@ -71,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         arguments. Any parameter values you supply will automatically be converted to a Cosmos parameter:
         ///     </para>
         ///     <code>context.Blogs.FromSqlRaw(""SELECT * FROM root c WHERE c["Name"] = {0})", userSuppliedSearchTerm)</code>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">

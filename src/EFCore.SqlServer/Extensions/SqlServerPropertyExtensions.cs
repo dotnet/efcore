@@ -366,13 +366,11 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.GetConfigurationSource();
 
         /// <summary>
-        ///     <para>
-        ///         Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
-        ///     </para>
-        ///     <para>
-        ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
-        ///     </para>
+        ///     Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
         /// </summary>
+        /// <remarks>
+        ///     If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
+        /// </remarks>
         /// <param name="property">The property.</param>
         /// <returns>The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set.</returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(this IReadOnlyProperty property)
@@ -396,13 +394,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
-        ///     </para>
-        ///     <para>
-        ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
-        ///     </para>
+        ///     Returns the <see cref="SqlServerValueGenerationStrategy" /> to use for the property.
         /// </summary>
+        /// <remarks>
+        ///     If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
+        /// </remarks>
         /// <param name="property">The property.</param>
         /// <param name="storeObject">The identifier of the store object.</param>
         /// <returns>The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set.</returns>

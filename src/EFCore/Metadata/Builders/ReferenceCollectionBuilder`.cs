@@ -11,16 +11,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a one-to-many relationship.
-    ///     </para>
+    ///     Provides a simple API for configuring a one-to-many relationship.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TPrincipalEntity">The principal entity type in this relationship.</typeparam>
     /// <typeparam name="TDependentEntity">The dependent entity type in this relationship.</typeparam>
@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Check.NotNull(value, nameof(value)));
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         the primary key of the principal entity type. If they do not match, new shadow state properties
         ///         that form a unique index will be added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
@@ -104,19 +104,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 foreignKeySet: true);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
-        ///     <para>
-        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then
-        ///         an attempt will be made to match the data type and order of foreign key properties against the
-        ///         primary key of the principal entity type. If they do not match, new shadow state properties that
-        ///         form a unique index will be added to the principal entity type to serve as the reference key.
-        ///         A shadow state property is one that does not have a corresponding property in the entity class. The
-        ///         current value for the property is stored in the <see cref="ChangeTracker" /> rather than being
-        ///         stored in instances of the entity class.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
         /// </summary>
+        /// <remarks>
+        ///     If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then
+        ///     an attempt will be made to match the data type and order of foreign key properties against the
+        ///     primary key of the principal entity type. If they do not match, new shadow state properties that
+        ///     form a unique index will be added to the principal entity type to serve as the reference key.
+        ///     A shadow state property is one that does not have a corresponding property in the entity class. The
+        ///     current value for the property is stored in the <see cref="ChangeTracker" /> rather than being
+        ///     stored in instances of the entity class.
+        /// </remarks>
         /// <param name="foreignKeyExpression">
         ///     <para>
         ///         A lambda expression representing the foreign key property(s) (<c>post => post.BlogId</c>).

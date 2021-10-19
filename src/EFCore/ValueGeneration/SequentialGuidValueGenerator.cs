@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
-    ///     <para>
-    ///         Generates sequential <see cref="Guid" /> values optimized for use in Microsoft SQL server clustered
-    ///         keys or indexes, yielding better performance than random values. This is the default generator for
-    ///         SQL Server <see cref="Guid" /> columns which are set to be generated on add.
-    ///     </para>
+    ///     Generates sequential <see cref="Guid" /> values optimized for use in Microsoft SQL server clustered
+    ///     keys or indexes, yielding better performance than random values. This is the default generator for
+    ///     SQL Server <see cref="Guid" /> columns which are set to be generated on add.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         See https://docs.microsoft.com/sql/t-sql/functions/newsequentialid-transact-sql.
     ///         Although this generator achieves the same goals as SQL Server's NEWSEQUENTIALID, the algorithm used
@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     <para>
     ///         The generated values are non-temporary, meaning they will be saved to the database.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     </para>
     /// </remarks>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {

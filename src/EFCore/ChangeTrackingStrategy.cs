@@ -30,30 +30,26 @@ namespace Microsoft.EntityFrameworkCore
         ChangedNotifications,
 
         /// <summary>
-        ///     <para>
-        ///         To use this strategy, the entity class must implement <see cref="INotifyPropertyChanged" /> and
-        ///         <see cref="INotifyPropertyChanging" />.
-        ///         Original values are recorded when the entity raises the <see cref="INotifyPropertyChanging.PropertyChanging" /> event.
-        ///         Properties are marked as modified when the entity raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
-        ///     </para>
-        ///     <para>
-        ///         Original values are only recorded when they are required to save changes to the entity. For example, properties that are
-        ///         configured as concurrency tokens.
-        ///     </para>
+        ///     To use this strategy, the entity class must implement <see cref="INotifyPropertyChanged" /> and
+        ///     <see cref="INotifyPropertyChanging" />.
+        ///     Original values are recorded when the entity raises the <see cref="INotifyPropertyChanging.PropertyChanging" /> event.
+        ///     Properties are marked as modified when the entity raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
         /// </summary>
+        /// <remarks>
+        ///     Original values are only recorded when they are required to save changes to the entity. For example, properties that are
+        ///     configured as concurrency tokens.
+        /// </remarks>
         ChangingAndChangedNotifications,
 
         /// <summary>
-        ///     <para>
-        ///         To use this strategy, the entity class must implement <see cref="INotifyPropertyChanged" /> and
-        ///         <see cref="INotifyPropertyChanging" />.
-        ///         Original values are recorded when the entity raises the <see cref="INotifyPropertyChanging.PropertyChanging" />.
-        ///         Properties are marked as modified when the entity raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
-        ///     </para>
-        ///     <para>
-        ///         Original values are recorded for all properties, regardless of whether they are required to save changes to the entity.
-        ///     </para>
+        ///     To use this strategy, the entity class must implement <see cref="INotifyPropertyChanged" /> and
+        ///     <see cref="INotifyPropertyChanging" />.
+        ///     Original values are recorded when the entity raises the <see cref="INotifyPropertyChanging.PropertyChanging" />.
+        ///     Properties are marked as modified when the entity raises the <see cref="INotifyPropertyChanged.PropertyChanged" /> event.
         /// </summary>
+        /// <remarks>
+        ///     Original values are recorded for all properties, regardless of whether they are required to save changes to the entity.
+        /// </remarks>
         ChangingAndChangedNotificationsWithOriginalValues
     }
 }

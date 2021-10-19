@@ -17,17 +17,17 @@ namespace Microsoft.EntityFrameworkCore
     public static class ProxiesExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Turns on the creation of change tracking proxies.
-        ///     </para>
+        ///     Turns on the creation of change tracking proxies.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
         ///         will happen automatically, but if the application is controlling the service provider, then a call to
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
@@ -60,17 +60,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Turns on the creation of change tracking proxies.
-        ///     </para>
+        ///     Turns on the creation of change tracking proxies.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
         ///         will happen automatically, but if the application is controlling the service provider, then a call to
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>
         /// <param name="optionsBuilder">
@@ -95,17 +95,17 @@ namespace Microsoft.EntityFrameworkCore
                 (DbContextOptionsBuilder)optionsBuilder, useChangeTrackingProxies, checkEquality);
 
         /// <summary>
-        ///     <para>
-        ///         Turns on the creation of lazy loading proxies.
-        ///     </para>
+        ///     Turns on the creation of lazy loading proxies.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
         ///         will happen automatically, but if the application is controlling the service provider, then a call to
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
@@ -130,17 +130,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Turns on the creation of lazy loading proxies.
-        ///     </para>
+        ///     Turns on the creation of lazy loading proxies.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
         ///         will happen automatically, but if the application is controlling the service provider, then a call to
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>
         /// <param name="optionsBuilder">

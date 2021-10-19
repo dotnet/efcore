@@ -10,17 +10,17 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Represents configuration for which warnings should be thrown, logged, or ignored.
-    ///         by database providers or extensions. These options are set using <see cref="WarningsConfigurationBuilder" />.
-    ///     </para>
+    ///     Represents configuration for which warnings should be thrown, logged, or ignored.
+    ///     by database providers or extensions. These options are set using <see cref="WarningsConfigurationBuilder" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are designed to be immutable. To change an option, call one of the 'With...'
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
+    ///     </para>
     /// </remarks>
     public class WarningsConfiguration
     {

@@ -16,17 +16,15 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class ProxiesServiceCollectionExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Adds the services required for proxy support in Entity Framework.
-        ///     </para>
-        ///     <para>
-        ///         Calling this method is no longer necessary when building most applications, including those that
-        ///         use dependency injection in ASP.NET or elsewhere.
-        ///         It is only needed when building the internal service provider for use with
-        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
-        ///         This is not recommend other than for some advanced scenarios.
-        ///     </para>
+        ///     Adds the services required for proxy support in Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     Calling this method is no longer necessary when building most applications, including those that
+        ///     use dependency injection in ASP.NET or elsewhere.
+        ///     It is only needed when building the internal service provider for use with
+        ///     the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
+        ///     This is not recommend other than for some advanced scenarios.
+        /// </remarks>
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.

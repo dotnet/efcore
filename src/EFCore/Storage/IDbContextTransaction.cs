@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     <para>
-    ///         A transaction against the database.
-    ///     </para>
+    ///     A transaction against the database.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are typically obtained from <see cref="DatabaseFacade.BeginTransaction" /> and it is not designed
     ///         to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IDbContextTransaction : IDisposable, IAsyncDisposable
     {
@@ -120,17 +120,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
 
         /// <summary>
-        ///     <para>
-        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///         reclaim some resources before the transaction ends.
-        ///     </para>
+        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///     reclaim some resources before the transaction ends.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
         ///         do nothing rather than throw. This is the default behavior.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="name">The name of the savepoint to release.</param>
         void ReleaseSavepoint(string name)
@@ -138,17 +138,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///         reclaim some resources before the transaction ends.
-        ///     </para>
+        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///     reclaim some resources before the transaction ends.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
         ///         do nothing rather than throw. This is the default behavior.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="name">The name of the savepoint to release.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>

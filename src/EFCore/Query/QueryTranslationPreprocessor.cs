@@ -74,15 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     <para>
-        ///         Normalizes queryable methods in the query.
-        ///     </para>
-        ///     <para>
-        ///         This method extracts query metadata information like tracking, ignore query filters.
-        ///         It also converts potential enumerable methods on navigation to queryable methods.
-        ///         It flattens patterns of GroupJoin-SelectMany patterns to appropriate Join/LeftJoin.
-        ///     </para>
+        ///     Normalizes queryable methods in the query.
         /// </summary>
+        /// <remarks>
+        ///     This method extracts query metadata information like tracking, ignore query filters.
+        ///     It also converts potential enumerable methods on navigation to queryable methods.
+        ///     It flattens patterns of GroupJoin-SelectMany patterns to appropriate Join/LeftJoin.
+        /// </remarks>
         /// <param name="expression">The query expression to normalize.</param>
         /// <returns>A query expression after normalization has been done.</returns>
         public virtual Expression NormalizeQueryableMethod(Expression expression)

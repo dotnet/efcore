@@ -11,9 +11,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring an ownership.
-    ///     </para>
+    ///     Provides a simple API for configuring an ownership.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
@@ -67,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (OwnershipBuilder<TEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -83,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="foreignKeyPropertyNames">
         ///     The name(s) of the foreign key property(s).
         /// </param>
@@ -102,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property(s) to use as the foreign key for this relationship.
-        ///     </para>
+        ///     Configures the property(s) to use as the foreign key for this relationship.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If the specified property name(s) do not exist on the entity type then a new shadow state
         ///         property(s) will be added to serve as the foreign key. A shadow state property is one
@@ -118,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         key of the principal entity type. If they do not match, new shadow state properties that form a
         ///         unique index will be added to the principal entity type to serve as the reference key.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="foreignKeyExpression">
         ///     <para>
         ///         A lambda expression representing the foreign key property(s) (<c>t => t.Id1</c>).

@@ -13,16 +13,14 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     <para>
-    ///         A factory for creating <see cref="SqlExpression" /> instances.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
+    ///     A factory for creating <see cref="SqlExpression" /> instances.
     /// </summary>
+    /// <remarks>
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///     <see cref="DbContext" /> instance will use its own instance of this service.
+    ///     The implementation may depend on other services registered with any lifetime.
+    ///     The implementation does not need to be thread-safe.
+    /// </remarks>
     public interface ISqlExpressionFactory
     {
         /// <summary>

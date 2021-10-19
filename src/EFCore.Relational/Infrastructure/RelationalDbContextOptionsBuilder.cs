@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Allows relational database specific configuration to be performed on <see cref="DbContextOptions" />.
-    ///     </para>
+    ///     Allows relational database specific configuration to be performed on <see cref="DbContextOptions" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are typically returned from methods that configure the context to use a
     ///         particular relational database provider.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+    ///     </para>
     /// </remarks>
     public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : IRelationalDbContextOptionsBuilderInfrastructure
         where TBuilder : RelationalDbContextOptionsBuilder<TBuilder, TExtension>
@@ -73,12 +73,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the wait time (in seconds) before terminating the attempt to execute a command and generating an error.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
-        /// </remarks>
-        /// <remarks>
-        ///     <para>This sets the <see cref="DbCommand.CommandTimeout" /> property on the ADO.NET provider being used.</para>
-        ///     <para>An <see cref="ArgumentException" /> is generated if <paramref name="commandTimeout" /> value is less than 0.</para>
-        ///     <para>Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.</para>
+        ///     <para>
+        ///         This sets the <see cref="DbCommand.CommandTimeout" /> property on the ADO.NET provider being used.
+        ///     </para>
+        ///     <para>
+        ///         An <see cref="ArgumentException" /> is generated if <paramref name="commandTimeout" /> value is less than 0.
+        ///     </para>
+        ///     <para>
+        ///         Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="commandTimeout">The time in seconds to wait for the command to execute.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>

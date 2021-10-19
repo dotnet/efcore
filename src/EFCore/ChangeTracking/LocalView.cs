@@ -17,11 +17,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         A collection that stays in sync with entities of a given type being tracked by
-    ///         a <see cref="DbContext" />. Call <see cref="DbSet{TEntity}.Local" /> to obtain a
-    ///         local view.
-    ///     </para>
+    ///     A collection that stays in sync with entities of a given type being tracked by
+    ///     a <see cref="DbContext" />. Call <see cref="DbSet{TEntity}.Local" /> to obtain a
+    ///     local view.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This local view will stay in sync as entities are added or removed from the context. Likewise, entities
     ///         added to or removed from the local view will automatically be added to or removed
@@ -45,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         Do not use this type directly for data binding. Instead call <see cref="ToObservableCollection" />
     ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
     public class LocalView<TEntity> :
@@ -192,17 +192,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => GetEnumerator();
 
         /// <summary>
-        ///     <para>
-        ///         Adds a new entity to the <see cref="DbContext" />. If the entity is not being tracked or is currently
-        ///         marked as deleted, then it becomes tracked as <see cref="EntityState.Added" />.
-        ///     </para>
+        ///     Adds a new entity to the <see cref="DbContext" />. If the entity is not being tracked or is currently
+        ///     marked as deleted, then it becomes tracked as <see cref="EntityState.Added" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that only the given entity is tracked. Any related entities discoverable from
         ///         the given entity are not automatically tracked.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="item">The item to start tracking.</param>
         public virtual void Add(TEntity item)
@@ -237,22 +237,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks all entities of type TEntity being tracked by the <see cref="DbContext" />
-        ///         as <see cref="EntityState.Deleted" />.
-        ///     </para>
+        ///     Marks all entities of type TEntity being tracked by the <see cref="DbContext" />
+        ///     as <see cref="EntityState.Deleted" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Entities that are currently marked as <see cref="EntityState.Added" /> will be marked
         ///         as <see cref="EntityState.Detached" /> since the Added state indicates that the entity
         ///         has not been saved to the database and hence it does not make sense to attempt to
         ///         delete it from the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
-        /// </remarks>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual void Clear()
         {
@@ -296,18 +293,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given entity as <see cref="EntityState.Deleted" />.
-        ///     </para>
+        ///     Marks the given entity as <see cref="EntityState.Deleted" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Entities that are currently marked as <see cref="EntityState.Added" /> will be marked
         ///         as <see cref="EntityState.Detached" /> since the Added state indicates that the entity
         ///         has not been saved to the database and hence it does not make sense to attempt to
         ///         delete it from the database.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="item">The entity to delete.</param>
         /// <returns><see langword="true" /> if the entity was being tracked and was not already Deleted.</returns>
@@ -473,16 +470,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
 
         /// <summary>
-        ///     <para>
-        ///         This method is called by data binding frameworks when attempting to data bind
-        ///         directly to a <see cref="LocalView{TEntity}" />.
-        ///     </para>
-        ///     <para>
-        ///         This implementation always throws an exception as <see cref="LocalView{TEntity}" />
-        ///         does not maintain an ordered list with indexes. Instead call <see cref="ToObservableCollection" />
-        ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
-        ///     </para>
+        ///     This method is called by data binding frameworks when attempting to data bind
+        ///     directly to a <see cref="LocalView{TEntity}" />.
         /// </summary>
+        /// <remarks>
+        ///     This implementation always throws an exception as <see cref="LocalView{TEntity}" />
+        ///     does not maintain an ordered list with indexes. Instead call <see cref="ToObservableCollection" />
+        ///     for WPF binding, or <see cref="ToBindingList" /> for WinForms.
+        /// </remarks>
         /// <exception cref="NotSupportedException">Always thrown.</exception>
         /// <returns>Never returns, always throws an exception.</returns>
         IList IListSource.GetList()

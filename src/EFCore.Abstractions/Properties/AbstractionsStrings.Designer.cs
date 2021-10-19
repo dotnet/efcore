@@ -7,14 +7,12 @@ using System.Resources;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///		    String resources used in EF exceptions, etc.
-    ///     </para>
-    ///     <para>
-    ///		    These strings are exposed publicly for use by database providers and extensions.
-    ///         It is unusual for application code to need these strings.
-    ///     </para>
+    ///		String resources used in EF exceptions, etc.
     /// </summary>
+    /// <remarks>
+    ///		These strings are exposed publicly for use by database providers and extensions.
+    ///     It is unusual for application code to need these strings.
+    /// </remarks>
     public static class AbstractionsStrings
     {
         private static readonly ResourceManager _resourceManager
@@ -64,4 +62,3 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
     }
 }
-

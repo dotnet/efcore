@@ -22,14 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         None,
 
         /// <summary>
-        ///     <para>
-        ///         A sequence-based hi-lo pattern where blocks of IDs are allocated from the server and
-        ///         used client-side for generating keys.
-        ///     </para>
-        ///     <para>
-        ///         This is an advanced pattern--only use this strategy if you are certain it is what you need.
-        ///     </para>
+        ///     A sequence-based hi-lo pattern where blocks of IDs are allocated from the server and
+        ///     used client-side for generating keys.
         /// </summary>
+        /// <remarks>
+        ///     This is an advanced pattern--only use this strategy if you are certain it is what you need.
+        /// </remarks>
         SequenceHiLo,
 
         /// <summary>
