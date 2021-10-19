@@ -73,6 +73,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Collection_navigation_to_principal_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(CoreStrings.PrincipalEndIncompatibleNavigations(
+                nameof(Customer) + "." + nameof(Customer.Orders), nameof(Order), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    principalEntityBuilder.HasRelationship(
+                        dependentEntityBuilder.Metadata,
+                        Customer.OrdersProperty,
+                        ConfigurationSource.DataAnnotation,
+                        targetIsPrincipal: true)).Message);
+        }
+
+        [ConditionalFact]
         public void Can_add_relationship_if_principal_entity_PK_name_contains_principal_entity_name()
         {
             var modelBuilder = CreateModelBuilder();
