@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 newPrincipalNavigationSpecification, newDependentNavigationSpecification, existingPrincipalNavigationSpecification, existingDependentNavigationSpecification);
 
         /// <summary>
-        ///     cannot bind '{failedBinds}' in '{parameters}'
+        ///     Cannot bind '{failedBinds}' in '{parameters}'
         /// </summary>
         public static string ConstructorBindingFailed(object? failedBinds, object? parameters)
             => string.Format(
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstConstructor, secondConstructor);
 
         /// <summary>
-        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}. Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
+        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
         /// </summary>
         public static string ConstructorNotFound(object? entityType, object? constructors)
             => string.Format(

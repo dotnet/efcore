@@ -305,13 +305,13 @@
     <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}' because a relationship already exists between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigations can only participate in a single relationship. If you want to override an existing relationship call 'Ignore' on the navigation '{newDependentNavigationSpecification}' first in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorBindingFailed" xml:space="preserve">
-    <value>cannot bind '{failedBinds}' in '{parameters}'</value>
+    <value>Cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
     <value>The constructors '{firstConstructor}' and '{secondConstructor}' have the same number of parameters, and can both be used by Entity Framework. The constructor to be used must be configured in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}. Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.</value>
+    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>

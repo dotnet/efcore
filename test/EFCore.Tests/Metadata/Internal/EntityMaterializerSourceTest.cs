@@ -314,9 +314,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ConstructorNotFound(
-                    typeof(EntityWithoutParameterlessConstructor).Name, "cannot bind 'value' in 'EntityWithoutParameterlessConstructor(int value)'"),
-                Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.FinalizeModel()).Message);
+                    nameof(EntityWithoutParameterlessConstructor),
+                    Environment.NewLine
+                    + "    "
+                    + CoreStrings.ConstructorBindingFailed("value", "EntityWithoutParameterlessConstructor(int value)")
+                    + Environment.NewLine),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)

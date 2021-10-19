@@ -165,22 +165,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var constructorErrors = bindingFailures.SelectMany(f => f)
                     .GroupBy(f => (ConstructorInfo)f.Member)
                     .Select(
-                        x => CoreStrings.ConstructorBindingFailed(
+                        x => "    " + CoreStrings.ConstructorBindingFailed(
                             string.Join("', '", x.Select(f => f.Name)),
-                            entityType.DisplayName()
-                            + "("
-                            + string.Join(
-                                ", ", x.Key.GetParameters().Select(
-                                    y => y.ParameterType.ShortDisplayName() + " " + y.Name)
-                            )
-                            + ")"
-                        )
+                            $"{entityType.DisplayName()}({string.Join(", ", ConstructConstructor(x))})")
                     );
+
+                IEnumerable<string> ConstructConstructor(IGrouping<ConstructorInfo, ParameterInfo> parameters)
+                    => parameters.Key.GetParameters().Select(y => $"{y.ParameterType.ShortDisplayName()} {y.Name}");
 
                 throw new InvalidOperationException(
                     CoreStrings.ConstructorNotFound(
                         entityType.DisplayName(),
-                        string.Join("; ", constructorErrors)));
+                        Environment.NewLine + string.Join(Environment.NewLine, constructorErrors) + Environment.NewLine));
             }
 
             if (foundBindings.Count > 1)
