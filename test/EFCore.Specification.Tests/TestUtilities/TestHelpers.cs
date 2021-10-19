@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -227,6 +229,53 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return actual.Count;
+        }
+
+        public static void AssertAllMethodsOverridden(Type testClass)
+        {
+            var methods = testClass
+                .GetRuntimeMethods()
+                .Where(
+                    m => m.DeclaringType != testClass
+                        && m.GetCustomAttributes()
+                            .Any(
+                                a => a is ConditionalFactAttribute
+                                    || a is ConditionalTheoryAttribute))
+                .ToList();
+
+            var methodCalls = new StringBuilder();
+
+            foreach (var method in methods)
+            {
+                if (method.ReturnType == typeof(Task))
+                {
+                    methodCalls.Append(
+                        @$"public override async Task {method.Name}(bool async)
+{{
+    await base.{method.Name}(async);
+
+    AssertSql();
+}}
+
+");
+                }
+                else
+                {
+                    methodCalls.Append(
+                        @$"public override void {method.Name}()
+{{
+    base.{method.Name}();
+
+    AssertSql();
+}}
+
+");
+                }
+            }
+
+            Assert.False(
+                methods.Count > 0,
+                "\r\n-- Missing test overrides --\r\n" + methodCalls);
         }
 
         public static void ExecuteWithStrategyInTransaction<TContext>(
