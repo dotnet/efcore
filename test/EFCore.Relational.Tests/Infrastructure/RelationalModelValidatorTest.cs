@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             });
 
             VerifyError(
-                CoreStrings.PropertyNotMapped(nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable)),
+                CoreStrings.PropertyNotMapped(nameof(NotComparable), nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id)),
                 modelBuilder);
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.PropertyNotMapped(
-                    nameof(WithNonComparableUniqueIndex), nameof(WithNonComparableUniqueIndex.Index), nameof(NotComparable)),
+                    nameof(NotComparable), nameof(WithNonComparableUniqueIndex), nameof(WithNonComparableUniqueIndex.Index)),
                 modelBuilder);
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.PropertyNotMapped(
-                    nameof(WithNonComparableNormalProperty), nameof(WithNonComparableNormalProperty.Foo), nameof(NotComparable)),
+                    nameof(NotComparable), nameof(WithNonComparableNormalProperty), nameof(WithNonComparableNormalProperty.Foo)),
                 modelBuilder);
         }
 

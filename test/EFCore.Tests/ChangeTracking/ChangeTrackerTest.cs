@@ -326,7 +326,59 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(
                 CoreStrings.UnknownKeyValue(nameof(Weak), nameof(Weak.HeroId)),
-                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+                .Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Attached_owned_entity_without_owner_not_saved(bool async)
+        {
+            using var context = new WeakHerosContext();
+
+            if (async)
+            {
+                await context.AddAsync(new Skinner());
+            }
+            else
+            {
+                context.Add(new Skinner());
+            }
+
+            Assert.True(context.ChangeTracker.HasChanges());
+
+            Assert.Equal(
+                CoreStrings.SaveOwnedWithoutOwner(nameof(Skinner)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+                .Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Attached_owned_collection_entity_without_owner_not_saved(bool async)
+        {
+            using var context = new WeakHerosContext();
+
+            if (async)
+            {
+                await context.AddAsync(new TheStreets());
+            }
+            else
+            {
+                context.Add(new TheStreets());
+            }
+
+            Assert.True(context.ChangeTracker.HasChanges());
+
+            Assert.Equal(
+                CoreStrings.SaveOwnedWithoutOwner(nameof(TheStreets)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges()))
+                .Message);
         }
 
         public class Hero
@@ -343,15 +395,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public Hero Hero { get; set; }
         }
 
+        public class Mike
+        {
+            public Guid Id { get; set; }
+            public ICollection<TheStreets> TheStreets { get; set; }
+            public Skinner TheHero { get; set; }
+        }
+
+        public class Skinner
+        {
+        }
+
+        public class TheStreets
+        {
+        }
+
         public class WeakHerosContext : DbContext
         {
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Weak>(
+            {
+                modelBuilder.Entity<Weak>(
                     b =>
                     {
                         b.HasKey(e => new { e.Id, e.HeroId });
                         b.HasOne(e => e.Hero).WithMany(e => e.Weaks).HasForeignKey(e => e.HeroId);
                     });
+
+                modelBuilder.Entity<Mike>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.TheHero);
+                        b.OwnsMany(e => e.TheStreets);
+                    });
+            }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(nameof(WeakHerosContext));

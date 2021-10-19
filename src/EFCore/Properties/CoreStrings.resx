@@ -305,13 +305,13 @@
     <value>Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}' because a relationship already exists between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigations can only participate in a single relationship. If you want to override an existing relationship call 'Ignore' on the navigation '{newDependentNavigationSpecification}' first in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorBindingFailed" xml:space="preserve">
-    <value>cannot bind '{failedBinds}' in '{parameters}'</value>
+    <value>Cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>
   <data name="ConstructorConflict" xml:space="preserve">
     <value>The constructors '{firstConstructor}' and '{secondConstructor}' have the same number of parameters, and can both be used by Entity Framework. The constructor to be used must be configured in 'OnModelCreating'.</value>
   </data>
   <data name="ConstructorNotFound" xml:space="preserve">
-    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.</value>
+    <value>No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.</value>
   </data>
   <data name="ContextDisposed" xml:space="preserve">
     <value>Cannot access a disposed context instance. A common cause of this error is disposing a context instance that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling 'Dispose' on the context instance, or wrapping it in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.</value>
@@ -1290,7 +1290,7 @@
     <value>The property '{1_entityType}.{0_property}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
-    <value>The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by the current database provider. Either change the property CLR type, or ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="PropertyReadOnlyAfterSave" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is defined as read-only after it has been saved, but its value has been modified or marked as modified.</value>
@@ -1372,6 +1372,9 @@
   </data>
   <data name="RuntimeParameterMissingParameter" xml:space="preserve">
     <value>While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.</value>
+  </data>
+  <data name="SaveOwnedWithoutOwner" xml:space="preserve">
+    <value>Cannot save instance of '{entityType}' because it is an owned entity without any reference to its owner. Owned entities can only be saved as part of an aggregate also including the owner entity.</value>
   </data>
   <data name="SavepointsNotSupported" xml:space="preserve">
     <value>Savepoints are not supported by the database provider in use.</value>

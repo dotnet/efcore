@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 newPrincipalNavigationSpecification, newDependentNavigationSpecification, existingPrincipalNavigationSpecification, existingDependentNavigationSpecification);
 
         /// <summary>
-        ///     cannot bind '{failedBinds}' in '{parameters}'
+        ///     Cannot bind '{failedBinds}' in '{parameters}'
         /// </summary>
         public static string ConstructorBindingFailed(object? failedBinds, object? parameters)
             => string.Format(
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstConstructor, secondConstructor);
 
         /// <summary>
-        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}.
+        ///     No suitable constructor was found for entity type '{entityType}'. The following constructors had parameters that could not be bound to properties of the entity type: {constructors}Note that only mapped properties can be bound to constructor parameters. Navigations to related entities, including references to owned types, cannot be bound.
         /// </summary>
         public static string ConstructorNotFound(object? entityType, object? constructors)
             => string.Format(
@@ -2237,12 +2237,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by the current database provider. Either change the property CLR type, or ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
-        public static string PropertyNotMapped(object? entityType, object? property, object? propertyType)
+        public static string PropertyNotMapped(object? propertyType, object? entityType, object? property)
             => string.Format(
-                GetString("PropertyNotMapped", nameof(entityType), nameof(property), nameof(propertyType)),
-                entityType, property, propertyType);
+                GetString("PropertyNotMapped", nameof(propertyType), nameof(entityType), nameof(property)),
+                propertyType, entityType, property);
 
         /// <summary>
         ///     The property '{1_entityType}.{0_property}' is defined as read-only after it has been saved, but its value has been modified or marked as modified.
@@ -2443,6 +2443,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string RuntimeParameterMissingParameter
             => GetString("RuntimeParameterMissingParameter");
+
+        /// <summary>
+        ///     Cannot save instance of '{entityType}' because it is an owned entity without any reference to its owner. Owned entities can only be saved as part of an aggregate also including the owner entity.
+        /// </summary>
+        public static string SaveOwnedWithoutOwner(object? entityType)
+            => string.Format(
+                GetString("SaveOwnedWithoutOwner", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Savepoints are not supported by the database provider in use.

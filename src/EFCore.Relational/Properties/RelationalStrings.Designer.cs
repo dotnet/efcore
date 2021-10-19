@@ -978,6 +978,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ProjectionMappingCountMismatch");
 
         /// <summary>
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string PropertyNotMapped(object? propertyType, object? entityType, object? property, object? storeType)
+            => string.Format(
+                GetString("PropertyNotMapped", nameof(propertyType), nameof(entityType), nameof(property), nameof(storeType)),
+                propertyType, entityType, property, storeType);
+
+        /// <summary>
         ///     The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.
         /// </summary>
         public static string PropertyNotMappedToTable(object? property, object? entityType, object? table)

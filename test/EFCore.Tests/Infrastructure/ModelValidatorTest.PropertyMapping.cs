@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
+                    typeof(NavigationAsProperty).ShortDisplayName(),
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
-                    nameof(NonPrimitiveAsPropertyEntity.Property),
-                    typeof(NavigationAsProperty).ShortDisplayName()),
+                    nameof(NonPrimitiveAsPropertyEntity.Property)),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
         }
 
