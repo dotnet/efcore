@@ -54,7 +54,6 @@
     <XUnitPublishTargetFramework>net6.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
-    <XUnitRunnerVersion Condition="$(IsShippingPackage)">2.4.1</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
     <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">01:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
