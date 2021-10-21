@@ -52,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
             query = new SelectExpressionPruningExpressionVisitor().Visit(query);
-            query =
-                new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
+            query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
                     .Visit(query);
             query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 

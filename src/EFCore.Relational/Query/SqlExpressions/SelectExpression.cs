@@ -3550,6 +3550,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
             {
                 _projectionMapping = projectionMapping,
+                _clientProjections = _clientProjections.ToList(),
                 Predicate = predicate,
                 Having = having,
                 Offset = offset,
@@ -3557,6 +3558,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 IsDistinct = distinct,
                 Tags = Tags
             };
+
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26428", out var enabled)
+                && enabled)
+            {
+                newSelectExpression._clientProjections = new();
+            }
 
             // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
             // Update method should not be used pre-projection application. There are other methods to change SelectExpression.
