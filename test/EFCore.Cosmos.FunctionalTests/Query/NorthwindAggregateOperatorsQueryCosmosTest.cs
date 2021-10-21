@@ -40,14 +40,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        public override void Contains_over_keyless_entity_throws()
+        public override async Task Contains_over_keyless_entity_throws(bool async)
         {
             // Aggregates. Issue #16146.
-            AssertTranslationFailed(() =>
-            {
-                base.Contains_over_keyless_entity_throws();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Contains_over_keyless_entity_throws(async));
 
             AssertSql(
                 @"SELECT c
@@ -266,14 +262,10 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 OFFSET 0 LIMIT 2");
         }
 
-        public override void Select_All()
+        public override async Task Select_All(bool async)
         {
             // Contains over subquery. Issue #17246.
-            AssertTranslationFailed(() =>
-            {
-                base.Select_All();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Select_All(async));
 
             AssertSql();
         }
@@ -417,9 +409,9 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
             AssertSql();
         }
 
-        public override void Average_no_data()
+        public override async Task Average_no_data(bool async)
         {
-            base.Average_no_data();
+            await base.Average_no_data(async);
 
             AssertSql(
                 @"SELECT AVG(c[""OrderID""]) AS c
@@ -427,9 +419,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = -1))");
         }
 
-        public override void Average_no_data_nullable()
+        public override async Task Average_no_data_nullable(bool async)
         {
-            base.Average_no_data_nullable();
+            await base.Average_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT AVG(c[""SupplierID""]) AS c
@@ -437,9 +429,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""SupplierID""] = -1))");
         }
 
-        public override void Average_no_data_cast_to_nullable()
+        public override async Task Average_no_data_cast_to_nullable(bool async)
         {
-            base.Average_no_data_cast_to_nullable();
+            await base.Average_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT AVG(c[""OrderID""]) AS c
@@ -447,9 +439,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = -1))");
         }
 
-        public override void Min_no_data()
+        public override async Task Min_no_data(bool async)
         {
-            base.Min_no_data();
+            await base.Min_no_data(async);
 
             AssertSql(
                 @"SELECT MIN(c[""OrderID""]) AS c
@@ -457,9 +449,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = -1))");
         }
 
-        public override void Max_no_data()
+        public override async Task Max_no_data(bool async)
         {
-            base.Max_no_data();
+            await base.Max_no_data(async);
 
             AssertSql(
                 @"SELECT MAX(c[""OrderID""]) AS c
@@ -467,33 +459,25 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = -1))");
         }
 
-        public override void Average_no_data_subquery()
+        public override async Task Average_no_data_subquery(bool async)
         {
             // Aggregates. Issue #16146.
-            AssertTranslationFailed(() =>
-            {
-                base.Average_no_data_subquery();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Average_no_data_subquery(async));
 
             AssertSql();
         }
 
-        public override void Max_no_data_subquery()
+        public override async Task Max_no_data_subquery(bool async)
         {
             // Aggregates. Issue #16146.
-            AssertTranslationFailed(() =>
-            {
-                base.Max_no_data_subquery();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Max_no_data_subquery(async));
 
             AssertSql();
         }
 
-        public override void Max_no_data_nullable()
+        public override async Task Max_no_data_nullable(bool async)
         {
-            base.Max_no_data_nullable();
+            await base.Max_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT MAX(c[""SupplierID""]) AS c
@@ -501,9 +485,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""SupplierID""] = -1))");
         }
 
-        public override void Max_no_data_cast_to_nullable()
+        public override async Task Max_no_data_cast_to_nullable(bool async)
         {
-            base.Max_no_data_cast_to_nullable();
+            await base.Max_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT MAX(c[""OrderID""]) AS c
@@ -511,14 +495,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = -1))");
         }
 
-        public override void Min_no_data_subquery()
+        public override async Task Min_no_data_subquery(bool async)
         {
             // Aggregates. Issue #16146.
-            AssertTranslationFailed(() =>
-            {
-                base.Min_no_data_subquery();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Min_no_data_subquery(async));
 
             AssertSql();
         }
@@ -662,9 +642,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        public override void Min_no_data_nullable()
+        public override async Task Min_no_data_nullable(bool async)
         {
-            base.Min_no_data_nullable();
+            await base.Min_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT MIN(c[""SupplierID""]) AS c
@@ -672,9 +652,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND (c[""SupplierID""] = -1))");
         }
 
-        public override void Min_no_data_cast_to_nullable()
+        public override async Task Min_no_data_cast_to_nullable(bool async)
         {
-            base.Min_no_data_cast_to_nullable();
+            await base.Min_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT MIN(c[""OrderID""]) AS c
@@ -1349,26 +1329,18 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((true = false)))");
             AssertSql();
         }
 
-        public override void OfType_Select()
+        public override async Task OfType_Select(bool async)
         {
             // Contains over subquery. Issue #15937.
-            AssertTranslationFailed(() =>
-            {
-                base.OfType_Select();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.OfType_Select(async));
 
             AssertSql();
         }
 
-        public override void OfType_Select_OfType_Select()
+        public override async Task OfType_Select_OfType_Select(bool async)
         {
             // Contains over subquery. Issue #17246.
-            AssertTranslationFailed(() =>
-            {
-                base.OfType_Select_OfType_Select();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.OfType_Select_OfType_Select(async));
 
             AssertSql();
         }
@@ -1420,14 +1392,10 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((true = false)))");
             AssertSql();
         }
 
-        public override void Contains_over_entityType_should_rewrite_to_identity_equality()
+        public override async Task Contains_over_entityType_should_rewrite_to_identity_equality(bool async)
         {
             // Contains over subquery. Issue #17246.
-            AssertTranslationFailed(() =>
-            {
-                base.Contains_over_entityType_should_rewrite_to_identity_equality();
-                return Task.CompletedTask;
-            });
+            await AssertTranslationFailed(() => base.Contains_over_entityType_should_rewrite_to_identity_equality(async));
 
             AssertSql(
                 @"SELECT c

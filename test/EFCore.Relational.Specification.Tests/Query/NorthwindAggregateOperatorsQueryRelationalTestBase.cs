@@ -35,12 +35,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.LastOrDefault_when_no_order_by(async))).Message);
         }
 
-        public override void Contains_over_keyless_entity_throws()
+        public override async Task Contains_over_keyless_entity_throws(bool async)
         {
             Assert.Equal(
                 CoreStrings.EntityEqualityOnKeylessEntityNotSupported("==", nameof(CustomerQuery)),
-                (Assert.Throws<InvalidOperationException>(
-                    () => base.Contains_over_keyless_entity_throws())).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Contains_over_keyless_entity_throws(async))).Message);
+        }
+
+        public override async Task Min_no_data_subquery(bool async)
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Min_no_data_subquery(async))).Message);
+        }
+
+        public override async Task Max_no_data_subquery(bool async)
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Max_no_data_subquery(async))).Message);
+        }
+
+        public override async Task Average_no_data_subquery(bool async)
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Average_no_data_subquery(async))).Message);
         }
 
         protected virtual bool CanExecuteQueryString
