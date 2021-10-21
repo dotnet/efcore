@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder(c =>
                 {
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>>();
+                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
                 });
 
                 modelBuilder.Entity<Quarks>(
@@ -997,8 +997,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.FinalizeModel();
                 var entityType = model.FindEntityType(typeof(Quarks));
 
-                Assert.IsType<NumberToStringConverter<int>>(entityType.FindProperty("Id").GetValueConverter());
-                Assert.IsType<NumberToStringConverter<int>>(entityType.FindProperty("Wierd").GetValueConverter());
+                var id = entityType.FindProperty("Id");
+                Assert.IsType<NumberToStringConverter<int>>(id.GetValueConverter());
+                Assert.IsType<CustomValueComparer<int>>(id.GetValueComparer());
+
+                var wierd = entityType.FindProperty("Wierd");
+                Assert.IsType<NumberToStringConverter<int>>(wierd.GetValueConverter());
+                Assert.IsType<CustomValueComparer<int>>(wierd.GetValueComparer());
+            }
+
+            [ConditionalFact]
+            public virtual void Value_converter_configured_on_nullable_type_overrides_non_nullable()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<int?>().HaveConversion<NumberToStringConverter<int?>, CustomValueComparer<int?>>();
+                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
+                });
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property<int?>("Wierd");
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                var id = entityType.FindProperty("Id");
+                Assert.IsType<NumberToStringConverter<int>>(id.GetValueConverter());
+                Assert.IsType<CustomValueComparer<int>>(id.GetValueComparer());
+
+                var wierd = entityType.FindProperty("Wierd");
+                Assert.IsType<NumberToStringConverter<int?>>(wierd.GetValueConverter());
+                Assert.IsType<CustomValueComparer<int?>>(wierd.GetValueComparer());
             }
 
             [ConditionalFact]
