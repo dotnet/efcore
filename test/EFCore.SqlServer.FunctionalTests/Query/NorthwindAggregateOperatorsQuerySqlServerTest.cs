@@ -57,9 +57,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI', N'WRONG')");
         }
 
-        public override void Contains_over_keyless_entity_throws()
+        public override async Task Contains_over_keyless_entity_throws(bool async)
         {
-            base.Contains_over_keyless_entity_throws();
+            await base.Contains_over_keyless_entity_throws(async);
 
             AssertSql(
                 @"SELECT TOP(1) [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle]
@@ -216,9 +216,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 42");
         }
 
-        public override void Min_no_data()
+        public override async Task Min_no_data(bool async)
         {
-            base.Min_no_data();
+            await base.Min_no_data(async);
 
             AssertSql(
                 @"SELECT MIN([o].[OrderID])
@@ -226,9 +226,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Min_no_data_nullable()
+        public override async Task Min_no_data_nullable(bool async)
         {
-            base.Min_no_data_nullable();
+            await base.Min_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT MIN([p].[SupplierID])
@@ -236,9 +236,9 @@ FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1");
         }
 
-        public override void Min_no_data_cast_to_nullable()
+        public override async Task Min_no_data_cast_to_nullable(bool async)
         {
-            base.Min_no_data_cast_to_nullable();
+            await base.Min_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT MIN([o].[OrderID])
@@ -246,9 +246,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Min_no_data_subquery()
+        public override async Task Min_no_data_subquery(bool async)
         {
-            base.Min_no_data_subquery();
+            await base.Min_no_data_subquery(async);
 
             AssertSql(
                 @"SELECT (
@@ -258,9 +258,9 @@ WHERE [o].[OrderID] = -1");
 FROM [Customers] AS [c]");
         }
 
-        public override void Max_no_data()
+        public override async Task Max_no_data(bool async)
         {
-            base.Max_no_data();
+            await base.Max_no_data(async);
 
             AssertSql(
                 @"SELECT MAX([o].[OrderID])
@@ -268,9 +268,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Max_no_data_nullable()
+        public override async Task Max_no_data_nullable(bool async)
         {
-            base.Max_no_data_nullable();
+            await base.Max_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT MAX([p].[SupplierID])
@@ -278,9 +278,9 @@ FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1");
         }
 
-        public override void Max_no_data_cast_to_nullable()
+        public override async Task Max_no_data_cast_to_nullable(bool async)
         {
-            base.Max_no_data_cast_to_nullable();
+            await base.Max_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT MAX([o].[OrderID])
@@ -288,9 +288,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Max_no_data_subquery()
+        public override async Task Max_no_data_subquery(bool async)
         {
-            base.Max_no_data_subquery();
+            await base.Max_no_data_subquery(async);
 
             AssertSql(
                 @"SELECT (
@@ -300,9 +300,9 @@ WHERE [o].[OrderID] = -1");
 FROM [Customers] AS [c]");
         }
 
-        public override void Average_no_data()
+        public override async Task Average_no_data(bool async)
         {
-            base.Average_no_data();
+            await base.Average_no_data(async);
 
             AssertSql(
                 @"SELECT AVG(CAST([o].[OrderID] AS float))
@@ -310,9 +310,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Average_no_data_nullable()
+        public override async Task Average_no_data_nullable(bool async)
         {
-            base.Average_no_data_nullable();
+            await base.Average_no_data_nullable(async);
 
             AssertSql(
                 @"SELECT AVG(CAST([p].[SupplierID] AS float))
@@ -320,9 +320,9 @@ FROM [Products] AS [p]
 WHERE [p].[SupplierID] = -1");
         }
 
-        public override void Average_no_data_cast_to_nullable()
+        public override async Task Average_no_data_cast_to_nullable(bool async)
         {
-            base.Average_no_data_cast_to_nullable();
+            await base.Average_no_data_cast_to_nullable(async);
 
             AssertSql(
                 @"SELECT AVG(CAST([o].[OrderID] AS float))
@@ -330,9 +330,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = -1");
         }
 
-        public override void Average_no_data_subquery()
+        public override async Task Average_no_data_subquery(bool async)
         {
-            base.Average_no_data_subquery();
+            await base.Average_no_data_subquery(async);
 
             AssertSql(
                 @"SELECT (
@@ -533,9 +533,9 @@ WHERE [c].[City] = N'London'
 ORDER BY [c].[ContactName]");
         }
 
-        public override void Select_All()
+        public override async Task Select_All(bool async)
         {
-            base.Select_All();
+            await base.Select_All(async);
 
             AssertSql(
                 @"SELECT CASE
@@ -1598,9 +1598,9 @@ END");
             AssertSql();
         }
 
-        public override void OfType_Select()
+        public override async Task OfType_Select(bool async)
         {
-            base.OfType_Select();
+            await base.OfType_Select(async);
 
             AssertSql(
                 @"SELECT TOP(1) [c].[City]
@@ -1609,9 +1609,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID]");
         }
 
-        public override void OfType_Select_OfType_Select()
+        public override async Task OfType_Select_OfType_Select(bool async)
         {
-            base.OfType_Select_OfType_Select();
+            await base.OfType_Select_OfType_Select(async);
 
             AssertSql(
                 @"SELECT TOP(1) [c].[City]
@@ -1683,9 +1683,9 @@ FROM (
 ORDER BY [t].[CustomerID] DESC");
         }
 
-        public override void Contains_over_entityType_should_rewrite_to_identity_equality()
+        public override async Task Contains_over_entityType_should_rewrite_to_identity_equality(bool async)
         {
-            base.Contains_over_entityType_should_rewrite_to_identity_equality();
+            await base.Contains_over_entityType_should_rewrite_to_identity_equality(async);
 
             AssertSql(
                 @"SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
