@@ -169,7 +169,7 @@
     <value>Don't confirm.</value>
   </data>
   <data name="DatabaseDropPrompt" xml:space="preserve">
-    <value>Are you sure you want to drop the database '{database}' on server '{dataSource}'? (y/N)</value>
+    <value>Are you sure you want to drop the database '{database}' on server '{dataSource}'? (Y/N)</value>
   </data>
   <data name="DatabaseName" xml:space="preserve">
     <value>Database name: {database}</value>
