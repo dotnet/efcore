@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         is intended only for non-provider extensions that need to customize conventions.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime" /> and multiple registrations
-    ///         are allowed. This means that each <see cref="IConventionSetPlugin" /> instance will use its own
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
     ///         set of instances of this service.
     ///         The implementations may depend on other services registered with any lifetime.
     ///         The implementations do not need to be thread-safe.

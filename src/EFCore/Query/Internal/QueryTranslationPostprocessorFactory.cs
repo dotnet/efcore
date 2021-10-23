@@ -13,9 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///     <see cref="DbContext" /> instance will use its own instance of this service.
+    ///     The implementation may depend on other services registered with any lifetime.
+    ///     The implementation does not need to be thread-safe.
     /// </remarks>
     public class QueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {

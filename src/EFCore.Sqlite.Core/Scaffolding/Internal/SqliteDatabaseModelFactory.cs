@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using static SQLitePCL.raw;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
@@ -28,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///     <see cref="DbContext" /> instance will use its own instance of this service.
+    ///     The implementation may depend on other services registered with any lifetime.
+    ///     The implementation does not need to be thread-safe.
+    /// </remarks>
     public class SqliteDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
@@ -328,8 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var primaryKey = new DatabasePrimaryKey
             {
-                Table = table,
-                Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
+                Table = table, Name = name.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : name
             };
 
             _logger.PrimaryKeyFound(name, table.Name);
@@ -415,8 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var constraintName = reader1.GetString(0);
                 var uniqueConstraint = new DatabaseUniqueConstraint
                 {
-                    Table = table,
-                    Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
+                    Table = table, Name = constraintName.StartsWith("sqlite_", StringComparison.Ordinal) ? string.Empty : constraintName
                 };
 
                 _logger.UniqueConstraintFound(constraintName, table.Name);

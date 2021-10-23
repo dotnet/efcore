@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -29,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///     <see cref="DbContext" /> instance will use its own instance of this service.
+    ///     The implementation may depend on other services registered with any lifetime.
+    ///     The implementation does not need to be thread-safe.
+    /// </remarks>
     public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
@@ -155,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 GetTables(connection, databaseModel, tableFilter, typeAliases, databaseCollation);
 
                 foreach (var schema in schemaList
-                    .Except(
-                        databaseModel.Sequences.Select(s => s.Schema)
-                            .Concat(databaseModel.Tables.Select(t => t.Schema))))
+                             .Except(
+                                 databaseModel.Sequences.Select(s => s.Schema)
+                                     .Concat(databaseModel.Tables.Select(t => t.Schema))))
                 {
                     _logger.MissingSchemaWarning(schema);
                 }
@@ -166,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 {
                     var (parsedSchema, parsedTableName) = Parse(table);
                     if (!databaseModel.Tables.Any(
-                        t => !string.IsNullOrEmpty(parsedSchema)
-                            && t.Schema == parsedSchema
-                            || t.Name == parsedTableName))
+                            t => !string.IsNullOrEmpty(parsedSchema)
+                                && t.Schema == parsedSchema
+                                || t.Name == parsedTableName))
                     {
                         _logger.MissingTableWarning(table);
                     }
@@ -250,14 +257,14 @@ WHERE name = '{connection.Database}';";
         {
             return schemas.Count > 0
                 ? (s =>
-                    {
-                        var schemaFilterBuilder = new StringBuilder();
-                        schemaFilterBuilder.Append(s);
-                        schemaFilterBuilder.Append(" IN (");
-                        schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
-                        schemaFilterBuilder.Append(')');
-                        return schemaFilterBuilder.ToString();
-                    })
+                {
+                    var schemaFilterBuilder = new StringBuilder();
+                    schemaFilterBuilder.Append(s);
+                    schemaFilterBuilder.Append(" IN (");
+                    schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
+                    schemaFilterBuilder.Append(')');
+                    return schemaFilterBuilder.ToString();
+                })
                 : null;
         }
 
@@ -282,70 +289,70 @@ WHERE name = '{connection.Database}';";
             => schemaFilter != null
                 || tables.Count > 0
                     ? ((s, t) =>
-                        {
-                            var tableFilterBuilder = new StringBuilder();
+                    {
+                        var tableFilterBuilder = new StringBuilder();
 
-                            var openBracket = false;
-                            if (schemaFilter != null)
+                        var openBracket = false;
+                        if (schemaFilter != null)
+                        {
+                            tableFilterBuilder
+                                .Append('(')
+                                .Append(schemaFilter(s));
+                            openBracket = true;
+                        }
+
+                        if (tables.Count > 0)
+                        {
+                            if (openBracket)
                             {
                                 tableFilterBuilder
-                                    .Append('(')
-                                    .Append(schemaFilter(s));
+                                    .AppendLine()
+                                    .Append("OR ");
+                            }
+                            else
+                            {
+                                tableFilterBuilder.Append('(');
                                 openBracket = true;
                             }
 
-                            if (tables.Count > 0)
+                            var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                            if (tablesWithoutSchema.Count > 0)
                             {
-                                if (openBracket)
-                                {
-                                    tableFilterBuilder
-                                        .AppendLine()
-                                        .Append("OR ");
-                                }
-                                else
-                                {
-                                    tableFilterBuilder.Append('(');
-                                    openBracket = true;
-                                }
-
-                                var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                                if (tablesWithoutSchema.Count > 0)
-                                {
-                                    tableFilterBuilder.Append(t);
-                                    tableFilterBuilder.Append(" IN (");
-                                    tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
-                                    tableFilterBuilder.Append(')');
-                                }
-
-                                var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                                if (tablesWithSchema.Count > 0)
-                                {
-                                    if (tablesWithoutSchema.Count > 0)
-                                    {
-                                        tableFilterBuilder.Append(" OR ");
-                                    }
-
-                                    tableFilterBuilder.Append(t);
-                                    tableFilterBuilder.Append(" IN (");
-                                    tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
-                                    tableFilterBuilder.Append(") AND (");
-                                    tableFilterBuilder.Append(s);
-                                    tableFilterBuilder.Append(" + N'.' + ");
-                                    tableFilterBuilder.Append(t);
-                                    tableFilterBuilder.Append(") IN (");
-                                    tableFilterBuilder.AppendJoin(
-                                        ", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
-                                    tableFilterBuilder.Append(')');
-                                }
-                            }
-
-                            if (openBracket)
-                            {
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
                                 tableFilterBuilder.Append(')');
                             }
 
-                            return tableFilterBuilder.ToString();
-                        })
+                            var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                            if (tablesWithSchema.Count > 0)
+                            {
+                                if (tablesWithoutSchema.Count > 0)
+                                {
+                                    tableFilterBuilder.Append(" OR ");
+                                }
+
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
+                                tableFilterBuilder.Append(") AND (");
+                                tableFilterBuilder.Append(s);
+                                tableFilterBuilder.Append(" + N'.' + ");
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(") IN (");
+                                tableFilterBuilder.AppendJoin(
+                                    ", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                                tableFilterBuilder.Append(')');
+                            }
+                        }
+
+                        if (openBracket)
+                        {
+                            tableFilterBuilder.Append(')');
+                        }
+
+                        return tableFilterBuilder.ToString();
+                    })
                     : null;
 
         private static string EscapeLiteral(string s)
@@ -869,14 +876,14 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                 }
             }
             else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
-                || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
-                || (defaultValue == "(0.0000000000000000e+000)" && dataTypeName == "float")
-                || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
-                || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
-                || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
-                || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
-                || (defaultValue == "('00:00:00')" && dataTypeName == "time")
-                || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
+                     || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
+                     || (defaultValue == "(0.0000000000000000e+000)" && dataTypeName == "float")
+                     || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
+                     || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
+                     || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
+                     || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
+                     || (defaultValue == "('00:00:00')" && dataTypeName == "time")
+                     || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
             {
                 return null;
             }

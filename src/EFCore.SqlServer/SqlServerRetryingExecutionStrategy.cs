@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -14,8 +15,20 @@ namespace Microsoft.EntityFrameworkCore
     ///     An <see cref="IExecutionStrategy" /> implementation for retrying failed executions on SQL Server.
     /// </summary>
     /// <remarks>
-    ///     This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
-    ///     error numbers for transient errors that can be retried. Additional error numbers to retry on can also be supplied.
+    ///     <para>
+    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         error numbers for transient errors that can be retried. Additional error numbers to retry on can also be supplied.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     {

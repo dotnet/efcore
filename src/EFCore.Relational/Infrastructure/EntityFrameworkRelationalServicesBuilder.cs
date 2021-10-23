@@ -95,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 },
                 { typeof(IRelationalCommandDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Command>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IInterceptor), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 {
                     typeof(IRelationalTypeMappingSourcePlugin),
                     new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)

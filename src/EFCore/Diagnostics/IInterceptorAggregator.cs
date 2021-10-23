@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -20,6 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     <para>
     ///         Instances should be registered on the internal service provider as multiple <see cref="IInterceptorAggregator" />
     ///         interfaces.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
+    ///         set of instances of this service.
+    ///         The implementations may depend on other services registered with any lifetime.
+    ///         The implementations do not need to be thread-safe.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
