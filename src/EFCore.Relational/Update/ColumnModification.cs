@@ -16,16 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         Implementation of <see cref="IColumnModification" /> interface.
     ///     </para>
     ///     <para>
-    ///         Represents an update, insert, or delete operation for a single column. <see cref="IReadOnlyModificationCommand" />
-    ///         contain lists of <see cref="IColumnModification" />.
-    ///     </para>
-    ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         Represents an update, insert, or delete operation for a single column. <see cref="IReadOnlyModificationCommand" />
+    ///         contain lists of <see cref="IColumnModification" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class ColumnModification : IColumnModification
     {

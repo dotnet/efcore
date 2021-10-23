@@ -138,14 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     <para>
-        ///         Call this method to build a <see cref="ModelBuilder" /> for Cosmos outside of <see cref="DbContext.OnModelCreating" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is unusual to use this method.
-        ///         Consider using <see cref="DbContext" /> in the normal way instead.
-        ///     </para>
+        ///     Call this method to build a <see cref="ModelBuilder" /> for Cosmos outside of <see cref="DbContext.OnModelCreating" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that it is unusual to use this method. Consider using <see cref="DbContext" /> in the normal way instead.
+        /// </remarks>
         /// <returns>The convention set.</returns>
         public static ModelBuilder CreateModelBuilder()
         {

@@ -10,17 +10,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
-    ///     <para>
-    ///         Acts as a <see cref="ValueGenerator" />  by requesting a block of values from the
-    ///         underlying database and returning them one by one. Will ask the underlying
-    ///         database for another block when the current block is exhausted.
-    ///     </para>
-    ///     <para>
-    ///         A block is represented by a low value fetched from the database, and then a block size
-    ///         that indicates how many sequential values can be used, starting from the low value, before
-    ///         a new low value must be fetched from the database.
-    ///     </para>
+    ///     Acts as a <see cref="ValueGenerator" />  by requesting a block of values from the
+    ///     underlying database and returning them one by one. Will ask the underlying
+    ///     database for another block when the current block is exhausted.
     /// </summary>
+    /// <remarks>
+    ///     A block is represented by a low value fetched from the database, and then a block size
+    ///     that indicates how many sequential values can be used, starting from the low value, before
+    ///     a new low value must be fetched from the database.
+    /// </remarks>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
     /// </remarks>

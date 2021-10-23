@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Abstract base class for <see cref="IDbConnectionInterceptor" /> for use when implementing a subset
-    ///         of the interface methods.
-    ///     </para>
+    ///     Abstract base class for <see cref="IDbConnectionInterceptor" /> for use when implementing a subset
+    ///     of the interface methods.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.

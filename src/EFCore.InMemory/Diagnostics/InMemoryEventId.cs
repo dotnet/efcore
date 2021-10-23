@@ -7,18 +7,18 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Event IDs for in-memory events that correspond to messages logged to an <see cref="ILogger" />
-    ///         and events sent to a <see cref="DiagnosticSource" />.
-    ///     </para>
+    ///     Event IDs for in-memory events that correspond to messages logged to an <see cref="ILogger" />
+    ///     and events sent to a <see cref="DiagnosticSource" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
     ///         behavior of warnings.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///     </para>
     /// </remarks>
     public static class InMemoryEventId
     {
@@ -40,16 +40,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new((int)id, _transactionPrefix + id);
 
         /// <summary>
-        ///     <para>
-        ///         A transaction operation was requested, but ignored because in-memory does not support transactions.
-        ///     </para>
+        ///     A transaction operation was requested, but ignored because in-memory does not support transactions.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="EventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -58,16 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new((int)id, _updatePrefix + id);
 
         /// <summary>
-        ///     <para>
-        ///         Changes were saved to the database.
-        ///     </para>
+        ///     Changes were saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="SaveChangesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         public static readonly EventId ChangesSaved = MakeUpdateId(Id.ChangesSaved);
     }
 }

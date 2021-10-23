@@ -13,16 +13,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     <para>
-    ///         A transaction against the database.
-    ///     </para>
+    ///     A transaction against the database.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are typically obtained from <see cref="DatabaseFacade.BeginTransaction" /> and it is not designed
     ///         to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
     {

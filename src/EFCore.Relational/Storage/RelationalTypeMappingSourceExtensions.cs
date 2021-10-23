@@ -121,13 +121,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the mapping that represents the given database type, throwing if no mapping is found.
-        ///     </para>
-        ///     <para>
-        ///         Note that sometimes the same store type can have different mappings; this method returns the default.
-        ///     </para>
+        ///     Gets the mapping that represents the given database type, throwing if no mapping is found.
         /// </summary>
+        /// <remarks>
+        ///     Note that sometimes the same store type can have different mappings; this method returns the default.
+        /// </remarks>
         /// <param name="typeMappingSource">The type mapping source.</param>
         /// <param name="typeName">The type to get the mapping for.</param>
         /// <returns>The type mapping to be used.</returns>

@@ -14,18 +14,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         The validator that enforces rules common for all relational providers.
-    ///     </para>
+    ///     The validator that enforces rules common for all relational providers.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class RelationalModelValidator : ModelValidator
     {
@@ -1525,9 +1525,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
-        
+
         /// <summary>
-        ///     Throws an <see cref="InvalidOperationException"/> with a message containing provider-specific information, when
+        ///     Throws an <see cref="InvalidOperationException" /> with a message containing provider-specific information, when
         ///     available, indicating possible reasons why the property cannot be mapped.
         /// </summary>
         /// <param name="propertyType">The property CLR type.</param>
@@ -1535,7 +1535,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="unmappedProperty">The property.</param>
         protected override void ThrowPropertyNotMappedException(
             string propertyType,
-            IConventionEntityType entityType, 
+            IConventionEntityType entityType,
             IConventionProperty unmappedProperty)
         {
             var storeType = unmappedProperty.GetColumnType();
@@ -1548,7 +1548,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         unmappedProperty.Name,
                         storeType));
             }
-            
+
             base.ThrowPropertyNotMappedException(propertyType, entityType, unmappedProperty);
         }
     }

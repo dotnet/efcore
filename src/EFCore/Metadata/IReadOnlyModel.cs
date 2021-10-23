@@ -32,17 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ChangeTrackingStrategy GetChangeTrackingStrategy();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for properties of entity types in this model.
-        ///     </para>
+        ///     Gets the <see cref="PropertyAccessMode" /> being used for properties of entity types in this model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Note that individual entity types can override this access mode, and individual properties of
         ///         entity types can override the access mode set on the entity type. The value returned here will
         ///         be used for any property for which no override has been specified.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <returns>The access mode being used.</returns>
         [DebuggerStepThrough]

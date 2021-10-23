@@ -20,15 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
@@ -338,19 +340,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                     operations,
                     (this, name, schema),
                     (sb, o, p) =>
+                    {
+                        var (g, n, s) = p;
+                        g.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
+                        sb.Append(" = ");
+                        if (!o.UseCurrentValueParameter)
                         {
-                            var (g, n, s) = p;
-                            g.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                            sb.Append(" = ");
-                            if (!o.UseCurrentValueParameter)
-                            {
-                                g.AppendSqlLiteral(sb, o, n, s);
-                            }
-                            else
-                            {
-                                g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
-                            }
-                        });
+                            g.AppendSqlLiteral(sb, o, n, s);
+                        }
+                        else
+                        {
+                            g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
+                        }
+                    });
         }
 
         /// <summary>
@@ -433,24 +435,24 @@ namespace Microsoft.EntityFrameworkCore.Update
                         operations,
                         (this, name, schema),
                         (sb, o, p) =>
+                        {
+                            if (o.IsWrite)
                             {
-                                if (o.IsWrite)
+                                var (g, n, s) = p;
+                                if (!o.UseCurrentValueParameter)
                                 {
-                                    var (g, n, s) = p;
-                                    if (!o.UseCurrentValueParameter)
-                                    {
-                                        g.AppendSqlLiteral(sb, o, n, s);
-                                    }
-                                    else
-                                    {
-                                        g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
-                                    }
+                                    g.AppendSqlLiteral(sb, o, n, s);
                                 }
                                 else
                                 {
-                                    sb.Append("DEFAULT");
+                                    g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
                                 }
-                            })
+                            }
+                            else
+                            {
+                                sb.Append("DEFAULT");
+                            }
+                        })
                     .Append(')');
             }
         }
@@ -500,24 +502,24 @@ namespace Microsoft.EntityFrameworkCore.Update
                     .Append(" AND ")
                     .AppendJoin(
                         operations, (sb, v) =>
+                        {
+                            if (v.IsKey)
                             {
-                                if (v.IsKey)
+                                if (!v.IsRead)
                                 {
-                                    if (!v.IsRead)
-                                    {
-                                        AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
-                                        return true;
-                                    }
-                                }
-
-                                if (IsIdentityOperation(v))
-                                {
-                                    AppendIdentityWhereCondition(sb, v);
+                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
                                     return true;
                                 }
+                            }
 
-                                return false;
-                            }, " AND ");
+                            if (IsIdentityOperation(v))
+                            {
+                                AppendIdentityWhereCondition(sb, v);
+                                return true;
+                            }
+
+                            return false;
+                        }, " AND ");
             }
         }
 

@@ -17,10 +17,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     <para>
-    ///         A <see cref="DbSet{TEntity}" /> can be used to query and save instances of <typeparamref name="TEntity" />.
-    ///         LINQ queries against a <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
-    ///     </para>
+    ///     A <see cref="DbSet{TEntity}" /> can be used to query and save instances of <typeparamref name="TEntity" />.
+    ///     LINQ queries against a <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The results of a LINQ query against a <see cref="DbSet{TEntity}" /> will contain the results
     ///         returned from the database and may not reflect changes made in the context that have not
@@ -42,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore
     ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
     ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
-    ///     <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
+    ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of entity being operated on by this set.</typeparam>
     public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
@@ -68,26 +68,26 @@ namespace Microsoft.EntityFrameworkCore
             => (IAsyncEnumerable<TEntity>)this;
 
         /// <summary>
-        ///     <para>
-        ///         Returns this object typed as <see cref="IQueryable{T}" />.
-        ///     </para>
+        ///     Returns this object typed as <see cref="IQueryable{T}" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This is a convenience method to help with disambiguation of extension methods in the same
         ///         namespace that extend both interfaces.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <returns>This object.</returns>
         public virtual IQueryable<TEntity> AsQueryable()
             => this;
 
         /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
-        ///         and Modified entities in this set.
-        ///     </para>
+        ///     Gets a <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
+        ///     and Modified entities in this set.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This local view will stay in sync as entities are added or removed from the context. Likewise, entities
         ///         added to or removed from the local view will automatically be added to or removed
@@ -104,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that this method calls <see cref="ChangeTracker.DetectChanges" /> unless
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         public virtual LocalView<TEntity> Local
             => throw new NotSupportedException();
@@ -159,17 +159,17 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entity, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
-        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
-        ///     </para>
+        ///     Begins tracking the given entity, and any other reachable entities that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to add.</param>
         /// <returns>
@@ -180,11 +180,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entity, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
-        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
-        ///     </para>
+        ///     Begins tracking the given entity, and any other reachable entities that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
@@ -193,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -211,11 +211,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entity and entries reachable from the given entity using
-        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entity and entries reachable from the given entity using
+        ///     the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -238,9 +238,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to attach.</param>
         /// <returns>
@@ -281,11 +281,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entity and entries reachable from the given entity using
-        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entity and entries reachable from the given entity using
+        ///     the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -308,9 +308,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to update.</param>
         /// <returns>
@@ -335,21 +335,21 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
-        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
-        ///     </para>
+        ///     Begins tracking the given entities, and any other reachable entities that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
         ///         to access the database asynchronously. For all other cases the non async method should be used.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -357,11 +357,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities and entries reachable from the given entities using
-        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entities and entries reachable from the given entities using
+        ///     the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -384,11 +384,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(params TEntity[] entities)
@@ -409,22 +409,22 @@ namespace Microsoft.EntityFrameworkCore
         ///         they would be if <see cref="AttachRange(TEntity[])" /> was called before calling this method.
         ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
-        /// </remarks>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to remove.</param>
         public virtual void RemoveRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities and entries reachable from the given entities using
-        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entities and entries reachable from the given entities using
+        ///     the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -447,11 +447,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(params TEntity[] entities)
@@ -472,21 +472,21 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities, and any other reachable entities that are
-        ///         not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
-        ///         be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
-        ///     </para>
+        ///     Begins tracking the given entities, and any other reachable entities that are
+        ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
+        ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is async only to allow special value generators, such as the one used by
         ///         'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo',
         ///         to access the database asynchronously. For all other cases the non async method should be used.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -498,11 +498,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities and entries reachable from the given entities using
-        ///         the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entities and entries reachable from the given entities using
+        ///     the <see cref="EntityState.Unchanged" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -525,11 +525,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(IEnumerable<TEntity> entities)
@@ -561,11 +561,11 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Begins tracking the given entities and entries reachable from the given entities using
-        ///         the <see cref="EntityState.Modified" /> state by default, but see below for cases
-        ///         when a different state will be used.
-        ///     </para>
+        ///     Begins tracking the given entities and entries reachable from the given entities using
+        ///     the <see cref="EntityState.Modified" /> state by default, but see below for cases
+        ///     when a different state will be used.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Generally, no database interaction will be performed until <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
@@ -588,11 +588,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(IEnumerable<TEntity> entities)
@@ -662,25 +662,25 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
-        ///     </para>
+        ///     Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This property is intended for use by extension methods that need to make use of services
         ///         not directly exposed in the public API surface.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///     </para>
         /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     <para>
-        ///         This method is called by data binding frameworks when attempting to data bind
-        ///         directly to a <see cref="DbSet{TEntity}" />.
-        ///     </para>
+        ///     This method is called by data binding frameworks when attempting to data bind
+        ///     directly to a <see cref="DbSet{TEntity}" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This implementation always throws an exception as binding directly to a
         ///         <see cref="DbSet{TEntity}" /> will result in a query being
@@ -691,9 +691,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="LocalView{TEntity}.ToObservableCollection" /> for WPF binding, or
         ///         <see cref="LocalView{TEntity}.ToBindingList" /> for WinForms.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <exception cref="NotSupportedException">Always thrown.</exception>
         /// <returns>Never returns, always throws an exception.</returns>

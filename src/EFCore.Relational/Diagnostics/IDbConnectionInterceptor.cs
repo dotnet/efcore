@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Allows interception of operations on <see cref="DbConnection" />.
-    ///     </para>
+    ///     Allows interception of operations on <see cref="DbConnection" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Connection interceptors can be used to view, change, or suppress the operation on <see cref="DbConnection" />, and
     ///         to modify the result before it is returned to EF.
@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         If both injected and application interceptors are found, then the injected interceptors are run in the
     ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IDbConnectionInterceptor : IInterceptor
     {

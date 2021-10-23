@@ -4,10 +4,10 @@
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
-    ///         suppression of the normal operation being intercepted.
-    ///     </para>
+    ///     Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
+    ///     suppression of the normal operation being intercepted.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         A value of this type is passed to all interceptor methods that are called before the operation
     ///         being intercepted is executed.
@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         However, creating a result with <see cref="Suppress" /> causes the operation being
     ///         intercepted to be suppressed; that is, the operation is not executed.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     </para>
     /// </remarks>
     public readonly struct InterceptionResult
     {

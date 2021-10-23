@@ -23,16 +23,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
     ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
@@ -187,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+        ///         Warning: The entire database is deleted and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
@@ -211,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
+        ///         Warning: The entire database is deleted and no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
@@ -322,9 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Determines whether or not the database is available and can be connected to.
-        ///     </para>
+        ///     Determines whether or not the database is available and can be connected to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
         ///     </para>
@@ -336,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that being able to connect to the database does not mean that it is
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
         public virtual bool CanConnect()
         {
@@ -351,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     <para>
-        ///         Determines whether or not the database is available and can be connected to.
-        ///     </para>
+        ///     Determines whether or not the database is available and can be connected to.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Any exceptions thrown when attempting to connect are caught and not propagated to the application.
         ///     </para>
@@ -365,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that being able to connect to the database does not mean that it is
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>

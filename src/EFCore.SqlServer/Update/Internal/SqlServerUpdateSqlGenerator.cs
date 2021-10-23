@@ -14,18 +14,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    /// </remarks>
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
         /// <summary>
@@ -297,11 +295,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     writeOperations,
                     (toInsertTableAlias, SqlGenerationHelper),
                     static (sb, o, state) =>
-                        {
-                            var (alias, helper) = state;
-                            sb.Append(alias).Append('.');
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                        })
+                    {
+                        var (alias, helper) = state;
+                        sb.Append(alias).Append('.');
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                    })
                 .Append(')');
         }
 
@@ -318,16 +316,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                         operations,
                         SqlGenerationHelper,
                         (sb, o, helper) =>
+                        {
+                            if (o.IsWrite)
                             {
-                                if (o.IsWrite)
-                                {
-                                    helper.GenerateParameterName(sb, o.ParameterName!);
-                                }
-                                else
-                                {
-                                    sb.Append("DEFAULT");
-                                }
-                            })
+                                helper.GenerateParameterName(sb, o.ParameterName!);
+                            }
+                            else
+                            {
+                                sb.Append("DEFAULT");
+                            }
+                        })
                     .Append(", ")
                     .Append(additionalLiteral)
                     .Append(')');
@@ -350,10 +348,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     operations,
                     this,
                     (sb, o, generator) =>
-                        {
-                            generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                            sb.Append(' ').Append(generator.GetTypeNameForCopy(o.Property!));
-                        });
+                    {
+                        generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
+                        sb.Append(' ').Append(generator.GetTypeNameForCopy(o.Property!));
+                    });
 
             if (additionalColumns != null)
             {
@@ -393,10 +391,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) =>
-                        {
-                            sb.Append("INSERTED.");
-                            helper.DelimitIdentifier(sb, o.ColumnName);
-                        });
+                    {
+                        sb.Append("INSERTED.");
+                        helper.DelimitIdentifier(sb, o.ColumnName);
+                    });
 
             if (additionalColumns != null)
             {
@@ -474,13 +472,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     .Append(" ON ")
                     .AppendJoin(
                         keyOperations, (sb, c) =>
-                            {
-                                sb.Append('(');
-                                SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
-                                sb.Append(" = ");
-                                SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
-                                sb.Append(')');
-                            }, " AND ");
+                        {
+                            sb.Append('(');
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
+                            sb.Append(" = ");
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
+                            sb.Append(')');
+                        }, " AND ");
             }
 
             if (orderColumn != null)

@@ -14,16 +14,16 @@ using Newtonsoft.Json.Linq;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     <para>
-    ///         A convention that adds the 'id' property - a key required by Azure Cosmos.
-    ///     </para>
+    ///     A convention that adds the 'id' property - a key required by Azure Cosmos.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This convention also adds the '__jObject' containing the JSON object returned by the store.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,

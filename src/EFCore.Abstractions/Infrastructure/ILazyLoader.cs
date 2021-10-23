@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         A service that can be injected into entities to give them the capability
-    ///         of loading navigation properties automatically the first time they are accessed.
-    ///     </para>
+    ///     A service that can be injected into entities to give them the capability
+    ///     of loading navigation properties automatically the first time they are accessed.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is 'ServiceLifetime.Transient'. This means that each
     ///         entity instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface ILazyLoader : IDisposable
     {

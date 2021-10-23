@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Do not construct instances of this class directly from either provider or application code as the
     ///         constructor signature may change as new dependencies are added. Instead, use this type in
@@ -28,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///         The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
+    /// </remarks>
     public sealed record ValueConverterSelectorDependencies
     {
         /// <summary>
-        ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="ValueConverterSelector" />.
-        ///     </para>
+        ///     Creates the service dependencies parameter object for a <see cref="ValueConverterSelector" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
         ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         any release. You should only use it directly in your code with extreme caution and knowing that
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         [EntityFrameworkInternal]
         public ValueConverterSelectorDependencies()
         {

@@ -143,26 +143,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyInfo" /> represented by a simple property-access expression.
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used to parse property access lambdas from fluent APIs.
-        ///     </para>
+        ///     Gets the <see cref="PropertyInfo" /> represented by a simple property-access expression.
         /// </summary>
+        /// <remarks>
+        ///     This method is typically used to parse property access lambdas from fluent APIs.
+        /// </remarks>
         /// <param name="propertyAccessExpression">The expression.</param>
         /// <returns>The <see cref="PropertyInfo" />.</returns>
         public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
             => GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="MemberInfo" /> represented by a simple member-access expression.
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used to parse member access lambdas from fluent APIs.
-        ///     </para>
+        ///     Gets the <see cref="MemberInfo" /> represented by a simple member-access expression.
         /// </summary>
+        /// <remarks>
+        ///     This method is typically used to parse member access lambdas from fluent APIs.
+        /// </remarks>
         /// <param name="memberAccessExpression">The expression.</param>
         /// <returns>The <see cref="MemberInfo" />.</returns>
         public static MemberInfo GetMemberAccess(this LambdaExpression memberAccessExpression)
@@ -211,10 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a list of <see cref="PropertyInfo" /> extracted from the given simple
-        ///         <see cref="LambdaExpression" />.
-        ///     </para>
+        ///     Returns a list of <see cref="PropertyInfo" /> extracted from the given simple
+        ///     <see cref="LambdaExpression" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Only simple expressions are supported, such as those used to reference a property.
         ///     </para>
@@ -222,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="propertyAccessExpression">The expression.</param>
         /// <returns>The list of referenced properties.</returns>
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
@@ -250,10 +246,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a list of <see cref="MemberInfo" /> extracted from the given simple
-        ///         <see cref="LambdaExpression" />.
-        ///     </para>
+        ///     Returns a list of <see cref="MemberInfo" /> extracted from the given simple
+        ///     <see cref="LambdaExpression" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Only simple expressions are supported, such as those used to reference a member.
         ///     </para>
@@ -261,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         This method is typically used by database providers (and other extensions). It is generally
         ///         not used in application code.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="memberAccessExpression">The expression.</param>
         /// <returns>The list of referenced members.</returns>
         public static IReadOnlyList<MemberInfo> GetMemberAccessList(this LambdaExpression memberAccessExpression)

@@ -22,20 +22,20 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqlServerDbContextOptionsExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
-        ///         <see cref="DbConnection" /> or connection string.
-        ///     </para>
+        ///     Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
+        ///     <see cref="DbConnection" /> or connection string.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
         ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
         ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
@@ -121,20 +121,20 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
-        ///         <see cref="DbConnection" /> or connection string.
-        ///     </para>
+        ///     Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
+        ///     <see cref="DbConnection" /> or connection string.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
         ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
         ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>

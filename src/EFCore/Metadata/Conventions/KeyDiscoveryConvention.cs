@@ -12,11 +12,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     <para>
-    ///         A convention that finds primary key property for the entity type based on the names, ignoring case:
-    ///         * Id
-    ///         * [entity name]Id
-    ///     </para>
+    ///     A convention that finds primary key property for the entity type based on the names, ignoring case:
+    ///     * Id
+    ///     * [entity name]Id
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         If the entity type is owned through a reference navigation property then the corresponding foreign key
     ///         properties are used.
@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         If the entity type is owned through a collection navigation property then a composite primary key
     ///         is configured using the foreign key properties with an extra property that matches the naming convention above.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public class KeyDiscoveryConvention :
         IEntityTypeAddedConvention,

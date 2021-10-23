@@ -64,4 +64,3 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
     }
 }
-

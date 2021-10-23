@@ -9,14 +9,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
-    ///     </para>
-    ///     <para>
-    ///         Instances of this class are returned from a call to <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
     /// </summary>
+    /// <remarks>
+    ///     Instances of this class are returned from a call to <see cref="O:SqlServerDbContextOptionsExtensions.UseSqlServer" />
+    ///     and it is not designed to be directly constructed in your application code.
+    /// </remarks>
     public class SqlServerDbContextOptionsBuilder
         : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
     {
@@ -30,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
-        ///     </para>
+        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
         ///         error numbers for transient errors that can be retried.
@@ -40,18 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure()
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c));
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
-        ///     </para>
+        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
         ///         error numbers for transient errors that can be retried.
@@ -59,26 +57,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         A default value 30 seconds for the maximum default delay is used.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount));
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
-        ///     </para>
+        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
         ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
         /// <param name="maxRetryDelay">The maximum delay between retries.</param>

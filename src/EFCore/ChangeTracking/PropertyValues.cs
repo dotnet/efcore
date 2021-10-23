@@ -13,9 +13,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         A collection of all property values for an entity.
-    ///     </para>
+    ///     A collection of all property values for an entity.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Objects of this type can be obtained from <see cref="EntityEntry.CurrentValues" />,
     ///         <see cref="EntityEntry.OriginalValues" />,  <see cref="EntityEntry.GetDatabaseValues" />,
@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         Once obtained, the objects are usually used in various combinations to resolve optimistic
     ///         concurrency exceptions signaled by the throwing of a <see cref="DbUpdateConcurrencyException" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public abstract class PropertyValues
     {
@@ -61,18 +61,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public abstract object ToObject();
 
         /// <summary>
-        ///     <para>
-        ///         Sets the values of this object by copying values from the given object.
-        ///     </para>
+        ///     Sets the values of this object by copying values from the given object.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The given object can be of any type.  Any property on the object with a name that
         ///         matches a property name in the entity type and can be read will be copied.  Other
         ///         properties will be ignored.  This allows, for example, copying of properties from
         ///         simple Data Transfer Objects (DTOs).
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="obj">The object to read values from.</param>
         public abstract void SetValues(object obj);
@@ -88,32 +88,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public abstract PropertyValues Clone();
 
         /// <summary>
-        ///     <para>
-        ///         Sets the values of this object by reading values from another <see cref="PropertyValues" />
-        ///         object.
-        ///     </para>
+        ///     Sets the values of this object by reading values from another <see cref="PropertyValues" />
+        ///     object.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The other object must be based on the same type as this object, or a type derived
         ///         from the type for this object.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="propertyValues">The object from which values should be copied.</param>
         public abstract void SetValues(PropertyValues propertyValues);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the values of this object by copying values from the given dictionary.
-        ///     </para>
+        ///     Sets the values of this object by copying values from the given dictionary.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The keys of the dictionary must match property names. Any key in the dictionary
         ///         that does not match the name of a property in the entity type will be ignored.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="values">The dictionary to read values from.</param>
         public virtual void SetValues<TProperty>(IDictionary<string, TProperty> values)

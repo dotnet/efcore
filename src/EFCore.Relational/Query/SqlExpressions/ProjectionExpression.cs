@@ -8,15 +8,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
-    ///     <para>
-    ///         An expression that represents a projection in <see cref="SelectExpression" />.
-    ///     </para>
-    ///     <para>
-    ///         This is a simple wrapper around a <see cref="SqlExpression" /> and an alias.
-    ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
-    ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
-    ///     </para>
+    ///     An expression that represents a projection in <see cref="SelectExpression" />.
     /// </summary>
+    /// <remarks>
+    ///     This is a simple wrapper around a <see cref="SqlExpression" /> and an alias.
+    ///     Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
+    ///     application or provider, then please file an issue at https://github.com/dotnet/efcore.
+    /// </remarks>
     public sealed class ProjectionExpression : Expression, IPrintableExpression
     {
         internal ProjectionExpression(SqlExpression expression, string alias)

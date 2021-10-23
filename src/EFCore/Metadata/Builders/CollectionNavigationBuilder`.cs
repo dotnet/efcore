@@ -12,15 +12,13 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API for configuring a relationship where configuration began on
-    ///         an end of the relationship with a collection that contains instances of another entity type.
-    ///     </para>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Provides a simple API for configuring a relationship where configuration began on
+    ///     an end of the relationship with a collection that contains instances of another entity type.
     /// </summary>
+    /// <remarks>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
+    /// </remarks>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
     /// </remarks>
@@ -64,15 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Configures this as a one-to-many relationship.
-        ///     </para>
-        ///     <para>
-        ///         Note that calling this method with no parameters will explicitly configure this side
-        ///         of the relationship to use no navigation property, even if such a property exists on the
-        ///         entity type. If the navigation property is to be used, then it must be specified.
-        ///     </para>
+        ///     Configures this as a one-to-many relationship.
         /// </summary>
+        /// <remarks>
+        ///     Note that calling this method with no parameters will explicitly configure this side
+        ///     of the relationship to use no navigation property, even if such a property exists on the
+        ///     entity type. If the navigation property is to be used, then it must be specified.
+        /// </remarks>
         /// <param name="navigationExpression">
         ///     A lambda expression representing the reference navigation property on the other end of this
         ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be

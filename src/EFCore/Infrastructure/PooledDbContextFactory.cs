@@ -8,19 +8,19 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         A factory returning pooled <see cref="DbContext" /> instances. Disposing the instance returned by this factory returns
-    ///         them to the internal pooling mechanism.
-    ///     </para>
+    ///     A factory returning pooled <see cref="DbContext" /> instances. Disposing the instance returned by this factory returns
+    ///     them to the internal pooling mechanism.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         A service of this type is registered in the dependency injection container by the
     ///         <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" /> methods.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see>,
-    ///     <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see>,
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
+    ///     </para>
     /// </remarks>
     public class PooledDbContextFactory<TContext> : IDbContextFactory<TContext>
         where TContext : DbContext

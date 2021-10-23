@@ -10,18 +10,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         A base class inherited by database providers that gives access to annotations
-    ///         used by relational EF Core components on various elements of the <see cref="IReadOnlyModel" />.
-    ///     </para>
+    ///     A base class inherited by database providers that gives access to annotations
+    ///     used by relational EF Core components on various elements of the <see cref="IReadOnlyModel" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public class RelationalAnnotationProvider : IRelationalAnnotationProvider
     {

@@ -11,18 +11,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         A base class inherited by database providers that gives access to annotations used by EF Core Migrations
-    ///         when generating removal operations for various elements of the <see cref="IRelationalModel" />.
-    ///     </para>
+    ///     A base class inherited by database providers that gives access to annotations used by EF Core Migrations
+    ///     when generating removal operations for various elements of the <see cref="IRelationalModel" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     </para>
     /// </remarks>
     public class MigrationsAnnotationProvider : IMigrationsAnnotationProvider
     {

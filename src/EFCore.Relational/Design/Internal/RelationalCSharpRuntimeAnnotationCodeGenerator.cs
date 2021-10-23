@@ -14,9 +14,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         Base class to be used by relational database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
-    ///     </para>
+    ///     Base class to be used by relational database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
     /// </summary>
 #pragma warning disable EF1001 // Internal EF Core API usage.
     public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
@@ -515,18 +513,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             process(
                 annotatable,
-                parameters with
-                {
-                    Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
-                    IsRuntime = false
-                });
+                parameters with { Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = false });
 
             process(
                 annotatable,
                 parameters with
                 {
-                    Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
-                    IsRuntime = true
+                    Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
                 });
         }
 

@@ -13,13 +13,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     <para>
-    ///         A convention that finds foreign key properties for relationships based on their names, ignoring case:
-    ///         * [navigation property name][principal key property name]
-    ///         * [navigation property name]Id
-    ///         * [principal entity name][principal key property name]
-    ///         * [principal entity name]Id
-    ///     </para>
+    ///     A convention that finds foreign key properties for relationships based on their names, ignoring case:
+    ///     * [navigation property name][principal key property name]
+    ///     * [navigation property name]Id
+    ///     * [principal entity name][principal key property name]
+    ///     * [principal entity name]Id
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         If no matching properties were found, the relationship doesn't represent an ownership,
     ///         the dependent side is not ambiguous and not derived then if the relationship is one-to-one,
@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         If the relationship uses shadow properties created by convention they are recreated to remove suffixes
     ///         used to make the names unique.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public class ForeignKeyPropertyDiscoveryConvention :
         IEntityTypeMemberIgnoredConvention,

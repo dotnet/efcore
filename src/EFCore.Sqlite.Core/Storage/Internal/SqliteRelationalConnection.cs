@@ -18,19 +18,17 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    /// <remarks>
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///     <see cref="DbContext" /> instance will use its own instance of this service.
+    ///     The implementation may depend on other services registered with any lifetime.
+    ///     The implementation does not need to be thread-safe.
+    /// </remarks>
     public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationalConnection
     {
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
@@ -94,8 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             var connectionStringBuilder = new SqliteConnectionStringBuilder(GetValidatedConnectionString())
             {
-                Mode = SqliteOpenMode.ReadOnly,
-                Pooling = false
+                Mode = SqliteOpenMode.ReadOnly, Pooling = false
             };
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
@@ -120,36 +117,36 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 sqliteConnection.CreateFunction<string, string, bool?>(
                     "regexp",
                     (pattern, input) =>
+                    {
+                        if (input == null
+                            || pattern == null)
                         {
-                            if (input == null
-                                || pattern == null)
-                            {
-                                return null;
-                            }
+                            return null;
+                        }
 
-                            return Regex.IsMatch(input, pattern);
-                        },
+                        return Regex.IsMatch(input, pattern);
+                    },
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction<object, object, object?>(
                     "ef_mod",
                     (dividend, divisor) =>
+                    {
+                        if (dividend == null
+                            || divisor == null)
                         {
-                            if (dividend == null
-                                || divisor == null)
-                            {
-                                return null;
-                            }
+                            return null;
+                        }
 
-                            if (dividend is string s)
-                            {
-                                return decimal.Parse(s, CultureInfo.InvariantCulture)
-                                    % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                            }
+                        if (dividend is string s)
+                        {
+                            return decimal.Parse(s, CultureInfo.InvariantCulture)
+                                % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
+                        }
 
-                            return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                                % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                        },
+                        return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
+                            % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
+                    },
                     isDeterministic: true);
 
                 sqliteConnection.CreateFunction(

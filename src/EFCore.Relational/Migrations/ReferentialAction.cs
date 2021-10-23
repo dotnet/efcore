@@ -4,14 +4,12 @@
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         The action that a database may take when handling a foreign key constraint as
-    ///         part of an update or delete.
-    ///     </para>
-    ///     <para>
-    ///         Note that some database engines do not support or correctly honor every action.
-    ///     </para>
+    ///     The action that a database may take when handling a foreign key constraint as
+    ///     part of an update or delete.
     /// </summary>
+    /// <remarks>
+    ///     Note that some database engines do not support or correctly honor every action.
+    /// </remarks>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
     /// </remarks>

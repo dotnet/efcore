@@ -13,18 +13,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         Allows Cosmos specific configuration to be performed on <see cref="DbContextOptions" />.
-    ///     </para>
+    ///     Allows Cosmos specific configuration to be performed on <see cref="DbContextOptions" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from a call to
     ///         <see cref="O:CosmosDbContextOptionsExtensions.UseCosmos{TContext}" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfrastructure
     {
@@ -84,17 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithLimitToEndpoint(Check.NotNull(enable, nameof(enable))));
 
         /// <summary>
-        ///     <para>
-        ///         Configures the context to use a specific <see cref="HttpClient" /> factory.
-        ///     </para>
+        ///     Configures the context to use a specific <see cref="HttpClient" /> factory.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         To avoid multiple instances being created use <see langword="static" /> lambdas:
         ///     </para>
         ///     <code>.HttpClientFactory(static () => new HttpClient())</code>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="httpClientFactory">A function that returns an <see cref="HttpClient" />.</param>
         public virtual CosmosDbContextOptionsBuilder HttpClientFactory(Func<HttpClient>? httpClientFactory)

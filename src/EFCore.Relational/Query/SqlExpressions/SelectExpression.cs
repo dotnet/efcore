@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
-    ///     <para>
-    ///         This class is not publicly constructable. If this is a problem for your application or provider, then please file
-    ///         an issue at https://github.com/dotnet/efcore.
-    ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     This class is not publicly constructable. If this is a problem for your application or provider, then please file
+    ///     an issue at https://github.com/dotnet/efcore.
+    /// </remarks>
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed partial class SelectExpression : TableExpressionBase
     {
@@ -558,11 +558,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                                 typeof(InvalidOperationException).GetConstructors()
                                                     .Single(
                                                         ci =>
-                                                            {
-                                                                var parameters = ci.GetParameters();
-                                                                return parameters.Length == 1
-                                                                    && parameters[0].ParameterType == typeof(string);
-                                                            }),
+                                                        {
+                                                            var parameters = ci.GetParameters();
+                                                            return parameters.Length == 1
+                                                                && parameters[0].ParameterType == typeof(string);
+                                                        }),
                                                 Constant(CoreStrings.SequenceContainsNoElements))),
                                         Default(innerShaperExpression.Type));
 
@@ -1876,10 +1876,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         tableExpressionBase = selectExpression.Tables
                             .First(
                                 e =>
-                                    {
-                                        var t = (TableExpression)UnwrapJoinExpression(e);
-                                        return t.Name == table.Name && t.Schema == table.Schema;
-                                    });
+                                {
+                                    var t = (TableExpression)UnwrapJoinExpression(e);
+                                    return t.Name == table.Name && t.Schema == table.Schema;
+                                });
                     }
 
                     var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();

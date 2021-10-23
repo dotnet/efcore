@@ -15,18 +15,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API surface for configuring a <see cref="IMutableModel" /> that defines the shape of your
-    ///         entities, the relationships between them, and how they map to the database.
-    ///     </para>
+    ///     Provides a simple API surface for configuring a <see cref="IMutableModel" /> that defines the shape of your
+    ///     entities, the relationships between them, and how they map to the database.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         You can use <see cref="ModelBuilder" /> to construct a model for a context by overriding
     ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on your derived context. Alternatively you can create the
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
@@ -136,14 +136,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         The internal <see cref="ModelBuilder" /> being used to configure this model.
-        ///     </para>
-        ///     <para>
-        ///         This property is intended for use by extension methods to configure the model. It is not intended to be used in
-        ///         application code.
-        ///     </para>
+        ///     The internal <see cref="ModelBuilder" /> being used to configure this model.
         /// </summary>
+        /// <remarks>
+        ///     This property is intended for use by extension methods to configure the model. It is not intended to be used in
+        ///     application code.
+        /// </remarks>
         IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance
             => _builder;
 
@@ -161,9 +159,9 @@ namespace Microsoft.EntityFrameworkCore
             => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a given shared type entity type in the model.
-        ///     </para>
+        ///     Returns an object that can be used to configure a given shared type entity type in the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
         ///         type will be added to the model as shared type entity type.
@@ -172,10 +170,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
         ///         a unique name and always identified by the name.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
-        ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
+        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The CLR type of the entity type to be configured.</typeparam>
         /// <param name="name">The name of the entity type to be configured.</param>
@@ -222,9 +220,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a given shared type entity type in the model.
-        ///     </para>
+        ///     Returns an object that can be used to configure a given shared type entity type in the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
         ///         type will be added to the model as shared type entity type.
@@ -233,10 +231,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
         ///         a unique name and always identified by the name.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
-        ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
+        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="name">The name of the entity type to be configured.</param>
         /// <param name="type">The CLR type of the entity type to be configured.</param>
@@ -251,18 +249,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given entity type in the model. If the entity type is not already part
-        ///         of the model, it will be added to the model.
-        ///     </para>
+        ///     Performs configuration of a given entity type in the model. If the entity type is not already part
+        ///     of the model, it will be added to the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This overload allows configuration of the entity type to be done in line in the method call rather
         ///         than being chained after a call to <see cref="Entity{TEntity}()" />. This allows additional
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
@@ -280,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a given shared type entity type in the model.
-        ///     </para>
+        ///     Returns an object that can be used to configure a given shared type entity type in the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
         ///         type will be added to the model as shared type entity type.
@@ -296,10 +294,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         than being chained after a call to <see cref="Entity{TEntity}()" />. This allows additional
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
-        ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
+        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The CLR type of the entity type to be configured.</typeparam>
         /// <param name="name">The name of the entity type to be configured.</param>
@@ -320,18 +318,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given entity type in the model. If the entity type is not already part
-        ///         of the model, it will be added to the model.
-        ///     </para>
+        ///     Performs configuration of a given entity type in the model. If the entity type is not already part
+        ///     of the model, it will be added to the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This overload allows configuration of the entity type to be done in line in the method call rather
         ///         than being chained after a call to <see cref="Entity{TEntity}()" />. This allows additional
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="type">The entity type to be configured.</param>
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
@@ -348,19 +346,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given entity type in the model.
-        ///         If an entity type with the provided name is not already part of the model,
-        ///         a new entity type that does not have a corresponding CLR type will be added to the model.
-        ///     </para>
+        ///     Performs configuration of a given entity type in the model.
+        ///     If an entity type with the provided name is not already part of the model,
+        ///     a new entity type that does not have a corresponding CLR type will be added to the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This overload allows configuration of the entity type to be done in line in the method call rather
         ///         than being chained after a call to <see cref="Entity(string)" />. This allows additional
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="name">The name of the entity type to be configured.</param>
         /// <param name="buildAction">An action that performs configuration of the entity type.</param>
@@ -377,9 +375,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a given shared type entity type in the model.
-        ///     </para>
+        ///     Returns an object that can be used to configure a given shared type entity type in the model.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
         ///         type will be added to the model as shared type entity type.
@@ -393,10 +391,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         than being chained after a call to <see cref="Entity(string)" />. This allows additional
         ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
-        ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types</see> and
+        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="name">The name of the entity type to be configured.</param>
         /// <param name="type">The CLR type of the entity type to be configured.</param>
@@ -596,18 +594,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
-        ///     </para>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for all properties of this entity type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         By default, the backing field, if one is found by convention or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. Calling this method will change that behavior
         ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for properties of this model.</param>
         /// <returns>

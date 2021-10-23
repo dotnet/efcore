@@ -14,19 +14,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     <para>
-    ///         A registry of <see cref="ValueConverter" /> instances that can be used to find
-    ///         the preferred converter to use to convert to and from a given model type
-    ///         to a type that the database provider supports.
-    ///     </para>
+    ///     A registry of <see cref="ValueConverter" /> instances that can be used to find
+    ///     the preferred converter to use to convert to and from a given model type
+    ///     to a type that the database provider supports.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     </para>
     /// </remarks>
     public class ValueConverterSelector : IValueConverterSelector
     {
@@ -400,19 +400,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 yield return _converters.GetOrAdd(
                     (underlyingModelType, typeof(byte[])),
                     k =>
-                        {
-                            var toNumber = GetDefaultValueConverterInfo(
-                                typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
+                    {
+                        var toNumber = GetDefaultValueConverterInfo(
+                            typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
 
-                            var toBytes = GetDefaultValueConverterInfo(
-                                typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
+                        var toBytes = GetDefaultValueConverterInfo(
+                            typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
 
-                            return new ValueConverterInfo(
-                                underlyingModelType,
-                                typeof(byte[]),
-                                i => toNumber.Create().ComposeWith(toBytes.Create()),
-                                toBytes.MappingHints);
-                        });
+                        return new ValueConverterInfo(
+                            underlyingModelType,
+                            typeof(byte[]),
+                            i => toNumber.Create().ComposeWith(toBytes.Create()),
+                            toBytes.MappingHints);
+                    });
             }
         }
 

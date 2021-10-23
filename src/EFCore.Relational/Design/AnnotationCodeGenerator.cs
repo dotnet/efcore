@@ -18,18 +18,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     <para>
-    ///         Base class to be used by database providers when implementing an <see cref="IAnnotationCodeGenerator" />
-    ///     </para>
+    ///     Base class to be used by database providers when implementing an <see cref="IAnnotationCodeGenerator" />
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This implementation returns <see langword="false" /> for all 'IsHandledByConvention' methods and
     ///         <see langword="null" /> for all 'GenerateFluentApi' methods. Providers should override for the
     ///         annotations that they understand.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
@@ -380,14 +380,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="model" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="model" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="model">The <see cref="IModel" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns>
@@ -403,14 +401,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="entityType" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="entityType" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="entityType">The <see cref="IEntityType" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="false" />.</returns>
@@ -423,14 +419,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="key" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="key" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="key">The <see cref="IKey" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="false" />.</returns>
@@ -443,14 +437,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="property" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="property" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="property">The <see cref="IProperty" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="false" />.</returns>
@@ -463,14 +455,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="foreignKey" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="foreignKey" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="foreignKey">The <see cref="IForeignKey" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="false" />.</returns>
@@ -483,14 +473,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Checks if the given <paramref name="annotation" /> is handled by convention when
-        ///         applied to the given <paramref name="index" />.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="false" />.
-        ///     </para>
+        ///     Checks if the given <paramref name="annotation" /> is handled by convention when
+        ///     applied to the given <paramref name="index" />.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="false" />.
+        /// </remarks>
         /// <param name="index">The <see cref="IIndex" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="false" />.</returns>
@@ -503,14 +491,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="model">The <see cref="IModel" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -523,14 +509,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="entityType">The <see cref="IEntityType" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -543,14 +527,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="key">The <see cref="IKey" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -563,14 +545,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="property">The <see cref="IProperty" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -583,14 +563,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="foreignKey">The <see cref="IForeignKey" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -603,14 +581,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="navigation">The <see cref="INavigation" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -623,14 +599,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="navigation">The <see cref="ISkipNavigation" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -643,14 +617,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
-        ///         if no fluent API call exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a fluent API call for the given <paramref name="annotation" />, or <see langword="null" />
+        ///     if no fluent API call exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="index">The <see cref="IIndex" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -663,14 +635,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a data annotation attribute code fragment for the given <paramref name="annotation" />,
-        ///         or <see langword="null" /> if no data annotation exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a data annotation attribute code fragment for the given <paramref name="annotation" />,
+        ///     or <see langword="null" /> if no data annotation exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="entityType">The <see cref="IEntityType" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>
@@ -683,14 +653,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     <para>
-        ///         Returns a data annotation attribute code fragment for the given <paramref name="annotation" />,
-        ///         or <see langword="null" /> if no data annotation exists for it.
-        ///     </para>
-        ///     <para>
-        ///         The default implementation always returns <see langword="null" />.
-        ///     </para>
+        ///     Returns a data annotation attribute code fragment for the given <paramref name="annotation" />,
+        ///     or <see langword="null" /> if no data annotation exists for it.
         /// </summary>
+        /// <remarks>
+        ///     The default implementation always returns <see langword="null" />.
+        /// </remarks>
         /// <param name="property">The <see cref="IProperty" />.</param>
         /// <param name="annotation">The <see cref="IAnnotation" />.</param>
         /// <returns><see langword="null" />.</returns>

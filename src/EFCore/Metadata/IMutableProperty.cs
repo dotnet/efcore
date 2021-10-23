@@ -12,16 +12,16 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         Represents a scalar property of an entity type.
-    ///     </para>
+    ///     Represents a scalar property of an entity type.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IProperty" /> represents a read-only view of the same metadata.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     {
@@ -139,10 +139,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void SetIsUnicode(bool? unicode);
 
         /// <summary>
-        ///     <para>
-        ///         Gets or sets a value indicating whether this property can be modified before the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets or sets a value indicating whether this property can be modified before the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a value is assigned to this property when it is in
@@ -152,17 +152,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
         ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="beforeSaveBehavior">
         ///     A value indicating whether this property can be modified before the entity is saved to the database.
         /// </param>
         void SetBeforeSaveBehavior(PropertySaveBehavior? beforeSaveBehavior);
 
         /// <summary>
-        ///     <para>
-        ///         Gets or sets a value indicating whether this property can be modified after the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets or sets a value indicating whether this property can be modified after the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
@@ -171,21 +171,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
         ///         property value of an entity that already exists in the database will be ignored.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="afterSaveBehavior">
         ///     A value indicating whether this property can be modified after the entity is saved to the database.
         /// </param>
         void SetAfterSaveBehavior(PropertySaveBehavior? afterSaveBehavior);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
-        ///     </para>
-        ///     <para>
-        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
-        ///         configured for this property. The database provider may still have a value generator for the property type.
-        ///     </para>
+        ///     Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
         /// </summary>
+        /// <remarks>
+        ///     Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
+        ///     configured for this property. The database provider may still have a value generator for the property type.
+        /// </remarks>
         /// <param name="valueGeneratorFactory">
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
@@ -193,14 +191,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
-        ///     </para>
-        ///     <para>
-        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
-        ///         configured for this property. The database provider may still have a value generator for the property type.
-        ///     </para>
+        ///     Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
         /// </summary>
+        /// <remarks>
+        ///     Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
+        ///     configured for this property. The database provider may still have a value generator for the property type.
+        /// </remarks>
         /// <param name="valueGeneratorFactory">
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.

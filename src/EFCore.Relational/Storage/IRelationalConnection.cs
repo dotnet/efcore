@@ -18,16 +18,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
     ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public interface IRelationalConnection : IRelationalTransactionManager, IDisposable, IAsyncDisposable
     {
@@ -37,16 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         string? ConnectionString { get; set; }
 
         /// <summary>
-        ///     <para>
-        ///         Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
-        ///     </para>
+        ///     Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         The connection can only be changed when the existing connection, if any, is not open.
         ///     </para>
         ///     <para>
         ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         [AllowNull]
         DbConnection DbConnection { get; set; }
 

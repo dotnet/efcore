@@ -74,13 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     <para>
-        ///         The last MemberInfo in the chain of MemberInfo represented by this projection member.
-        ///     </para>
-        ///     <para>
-        ///         This method is generally used to get last memberInfo to generate an alias for projection.
-        ///     </para>
+        ///     The last MemberInfo in the chain of MemberInfo represented by this projection member.
         /// </summary>
+        /// <remarks>
+        ///     This method is generally used to get last memberInfo to generate an alias for projection.
+        /// </remarks>
         public MemberInfo? Last
             => _memberChain.LastOrDefault();
 

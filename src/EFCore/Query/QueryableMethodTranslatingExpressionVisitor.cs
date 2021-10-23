@@ -854,14 +854,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             LambdaExpression resultSelector);
 
         /// <summary>
-        ///     <para>
-        ///         Translates LeftJoin over the given source.
-        ///     </para>
-        ///     <para>
-        ///         Certain patterns of GroupJoin-DefaultIfEmpty-SelectMany represents a left join in database. We identify such pattern
-        ///         in advance and convert it to join like syntax.
-        ///     </para>
+        ///     Translates LeftJoin over the given source.
         /// </summary>
+        /// <remarks>
+        ///     Certain patterns of GroupJoin-DefaultIfEmpty-SelectMany represents a left join in database. We identify such pattern
+        ///     in advance and convert it to join like syntax.
+        /// </remarks>
         /// <param name="outer">The shaped query on which the operator is applied.</param>
         /// <param name="inner">The inner shaped query to perform join with.</param>
         /// <param name="outerKeySelector">The key selector for the outer source.</param>

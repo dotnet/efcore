@@ -25,13 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Adds a <see cref="AddColumnOperation" /> to the <see cref="CreateTableOperation" />.
-        ///     </para>
-        ///     <para>
-        ///         Note that for nullable parameters a <see langword="null" /> value means not-specified.
-        ///     </para>
+        ///     Adds a <see cref="AddColumnOperation" /> to the <see cref="CreateTableOperation" />.
         /// </summary>
+        /// <remarks>
+        ///     Note that for nullable parameters a <see langword="null" /> value means not-specified.
+        /// </remarks>
         /// <typeparam name="T">The CLR type of the column.</typeparam>
         /// <param name="type">The database type of the column.</param>
         /// <param name="unicode">Indicates whether or not the column will store Unicode data.</param>

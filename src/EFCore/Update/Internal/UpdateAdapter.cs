@@ -34,18 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         /// <summary>
-        ///     <para>
         ///         Gets or sets a value indicating when a dependent/child entity will have its state
         ///         set to <see cref="EntityState.Deleted" /> once severed from a parent/principal entity
         ///         through either a navigation or foreign key property being set to null. The default
         ///         value is <see cref="CascadeTiming.Immediate" />.
-        ///     </para>
-        ///     <para>
+        /// </summary>
+        /// <remarks>
         ///         Dependent/child entities are only deleted automatically when the relationship
         ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
         ///         for required relationships.
-        ///     </para>
-        /// </summary>
+        /// </remarks>
         public virtual CascadeTiming DeleteOrphansTiming
         {
             get => _stateManager.DeleteOrphansTiming;
@@ -53,17 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         /// <summary>
-        ///     <para>
         ///         Gets or sets a value indicating when a dependent/child entity will have its state
         ///         set to <see cref="EntityState.Deleted" /> once its parent/principal entity has been marked
         ///         as <see cref="EntityState.Deleted" />. The default value is<see cref="CascadeTiming.Immediate" />.
-        ///     </para>
-        ///     <para>
+        /// </summary>
+        /// <remarks>
         ///         Dependent/child entities are only deleted automatically when the relationship
         ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
         ///         for required relationships.
-        ///     </para>
-        /// </summary>
+        /// </remarks>
         public virtual CascadeTiming CascadeDeleteTiming
         {
             get => _stateManager.CascadeDeleteTiming;

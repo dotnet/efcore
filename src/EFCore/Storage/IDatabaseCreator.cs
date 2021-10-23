@@ -75,26 +75,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     <para>
-        ///         Determines whether or not the database is available and can be connected to.
-        ///     </para>
-        ///     <para>
-        ///         Note that being able to connect to the database does not mean that it is
-        ///         up-to-date with regard to schema creation, etc.
-        ///     </para>
+        ///     Determines whether or not the database is available and can be connected to.
         /// </summary>
+        /// <remarks>
+        ///     Note that being able to connect to the database does not mean that it is
+        ///     up-to-date with regard to schema creation, etc.
+        /// </remarks>
         /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
         bool CanConnect();
 
         /// <summary>
-        ///     <para>
-        ///         Determines whether or not the database is available and can be connected to.
-        ///     </para>
-        ///     <para>
-        ///         Note that being able to connect to the database does not mean that it is
-        ///         up-to-date with regard to schema creation, etc.
-        ///     </para>
+        ///     Determines whether or not the database is available and can be connected to.
         /// </summary>
+        /// <remarks>
+        ///     Note that being able to connect to the database does not mean that it is
+        ///     up-to-date with regard to schema creation, etc.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
         /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>

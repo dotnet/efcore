@@ -21,10 +21,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <para>
+        ///         If an empty string is supplied, the property will not be persisted.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
-        /// <remarks> If an empty string is supplied then the property will not be persisted. </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="name">The name of the property.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -57,12 +61,8 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)ToJsonProperty((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
-        ///     <para>
-        ///         Configures the property name that the property is mapped to when targeting Azure Cosmos.
-        ///     </para>
-        ///     <para>
-        ///         If an empty string is supplied then the property will not be persisted.
-        ///     </para>
+        ///     Configures the property name that the property is mapped to when targeting Azure Cosmos. If an empty string is
+        ///     supplied then the property will not be persisted.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and

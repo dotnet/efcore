@@ -17,18 +17,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         Metadata about the shape of entities, the relationships between them, and how they map to
-    ///         the database. A model is typically created by overriding the
-    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
-    ///         <see cref="DbContext" />.
-    ///     </para>
+    ///     Metadata about the shape of entities, the relationships between them, and how they map to
+    ///     the database. A model is typically created by overriding the
+    ///     <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived
+    ///     <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This is a light-weight implementation that is constructed from a built model and is not meant to be used at design-time.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {

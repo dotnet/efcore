@@ -29,35 +29,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
-        ///         since such a property has no associated <see cref="MemberInfo" />.
-        ///     </para>
+        ///     Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
         /// </summary>
+        /// <remarks>
+        ///     Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
+        ///     since such a property has no associated <see cref="MemberInfo" />.
+        /// </remarks>
         /// <returns>The accessor.</returns>
         IClrPropertyGetter GetGetter();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
-        ///     </para>
+        ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
         /// </summary>
         /// <returns>The comparer.</returns>
         IComparer<IUpdateEntry> GetCurrentValueComparer();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
-        ///         get or set a value for the given property.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
-        ///         since such a property has no associated <see cref="MemberInfo" />.
-        ///     </para>
+        ///     Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
+        ///     get or set a value for the given property.
         /// </summary>
+        /// <remarks>
+        ///     Note that it is an error to call this method for a shadow property (<see cref="IReadOnlyPropertyBase.IsShadowProperty" />)
+        ///     since such a property has no associated <see cref="MemberInfo" />.
+        /// </remarks>
         /// <param name="forMaterialization">
         ///     If <see langword="true" />, then the member to use for query materialization will be returned.
         /// </param>

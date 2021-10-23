@@ -10,10 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
-    ///     <para>
-    ///         An interface for the repository used to access the '__EFMigrationsHistory' table that tracks metadata
-    ///         about EF Core Migrations such as which migrations have been applied.
-    ///     </para>
+    ///     An interface for the repository used to access the '__EFMigrationsHistory' table that tracks metadata
+    ///     about EF Core Migrations such as which migrations have been applied.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Database providers typically implement this service by inheriting from <see cref="HistoryRepository" />.
     ///     </para>
@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IHistoryRepository
     {

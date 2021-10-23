@@ -25,32 +25,28 @@ namespace Microsoft.EntityFrameworkCore.Update
     public interface IUpdateAdapter
     {
         /// <summary>
-        ///     <para>
-        ///         Gets or sets a value indicating when a dependent/child entity will have its state
-        ///         set to <see cref="EntityState.Deleted" /> once severed from a parent/principal entity
-        ///         through either a navigation or foreign key property being set to null. The default
-        ///         value is <see cref="CascadeTiming.Immediate" />.
-        ///     </para>
-        ///     <para>
-        ///         Dependent/child entities are only deleted automatically when the relationship
-        ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
-        ///         for required relationships.
-        ///     </para>
+        ///     Gets or sets a value indicating when a dependent/child entity will have its state
+        ///     set to <see cref="EntityState.Deleted" /> once severed from a parent/principal entity
+        ///     through either a navigation or foreign key property being set to null. The default
+        ///     value is <see cref="CascadeTiming.Immediate" />.
         /// </summary>
+        /// <remarks>
+        ///     Dependent/child entities are only deleted automatically when the relationship
+        ///     is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
+        ///     for required relationships.
+        /// </remarks>
         CascadeTiming DeleteOrphansTiming { get; set; }
 
         /// <summary>
-        ///     <para>
-        ///         Gets or sets a value indicating when a dependent/child entity will have its state
-        ///         set to <see cref="EntityState.Deleted" /> once its parent/principal entity has been marked
-        ///         as <see cref="EntityState.Deleted" />. The default value is<see cref="CascadeTiming.Immediate" />.
-        ///     </para>
-        ///     <para>
-        ///         Dependent/child entities are only deleted automatically when the relationship
-        ///         is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
-        ///         for required relationships.
-        ///     </para>
+        ///     Gets or sets a value indicating when a dependent/child entity will have its state
+        ///     set to <see cref="EntityState.Deleted" /> once its parent/principal entity has been marked
+        ///     as <see cref="EntityState.Deleted" />. The default value is<see cref="CascadeTiming.Immediate" />.
         /// </summary>
+        /// <remarks>
+        ///     Dependent/child entities are only deleted automatically when the relationship
+        ///     is configured with <see cref="DeleteBehavior.Cascade" />. This is set by default
+        ///     for required relationships.
+        /// </remarks>
         CascadeTiming CascadeDeleteTiming { get; set; }
 
         /// <summary>
@@ -88,11 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         void DetectChanges();
 
         /// <summary>
-        ///     <para>
-        ///         Forces immediate cascading deletion of child/dependent entities when they are either
-        ///         severed from a required parent/principal entity, or the required parent/principal entity
-        ///         is itself deleted. See <see cref="DeleteBehavior" />.
-        ///     </para>
+        ///     Forces immediate cascading deletion of child/dependent entities when they are either
+        ///     severed from a required parent/principal entity, or the required parent/principal entity
+        ///     is itself deleted. See <see cref="DeleteBehavior" />.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is usually used when <see cref="ChangeTracker.CascadeDeleteTiming" /> and/or
         ///         <see cref="ChangeTracker.DeleteOrphansTiming" /> have been set to <see cref="CascadeTiming.Never" />
@@ -102,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///         If <see cref="ChangeTracker.AutoDetectChangesEnabled" /> is <see langword="null" /> then this method
         ///         will call <see cref="DetectChanges" />.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         void CascadeChanges();
 
         /// <summary>

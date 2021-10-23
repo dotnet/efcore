@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Abstract base class for <see cref="IDbCommandInterceptor" /> for use when implementing a subset
-    ///         of the interface methods.
-    ///     </para>
+    ///     Abstract base class for <see cref="IDbCommandInterceptor" /> for use when implementing a subset
+    ///     of the interface methods.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
@@ -42,15 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbConnection.CreateCommand" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed creation of a command in
-        ///         <see cref="IDbCommandInterceptor.CommandCreating" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="IDbCommandInterceptor.CommandCreating" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbConnection.CreateCommand" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed creation of a command in
+        ///     <see cref="IDbCommandInterceptor.CommandCreating" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="IDbCommandInterceptor.CommandCreating" />.
+        /// </remarks>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
         ///     The result of the call to <see cref="DbConnection.CreateCommand" />.
@@ -218,14 +214,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new(result);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteReader()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="ReaderExecuting" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="ReaderExecuting" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteReader()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="ReaderExecuting" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="ReaderExecuting" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
@@ -244,14 +238,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteScalar()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="ScalarExecuting" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="ScalarExecuting" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteScalar()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="ScalarExecuting" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="ScalarExecuting" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
@@ -270,14 +262,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteNonQuery()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="NonQueryExecuting" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="NonQueryExecuting" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteNonQuery()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="NonQueryExecuting" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="NonQueryExecuting" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
@@ -296,14 +286,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteReaderAsync()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="ReaderExecutingAsync" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="ReaderExecutingAsync" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteReaderAsync()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="ReaderExecutingAsync" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="ReaderExecutingAsync" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
@@ -325,14 +313,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new(result);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteScalarAsync()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="ScalarExecutingAsync" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="ScalarExecutingAsync" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteScalarAsync()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="ScalarExecutingAsync" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="ScalarExecutingAsync" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">
@@ -354,14 +340,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new(result);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbCommand.ExecuteNonQueryAsync()" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed execution of a command in <see cref="NonQueryExecutingAsync" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="NonQueryExecutingAsync" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbCommand.ExecuteNonQueryAsync()" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed execution of a command in <see cref="NonQueryExecutingAsync" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="NonQueryExecutingAsync" />.
+        /// </remarks>
         /// <param name="command">The command.</param>
         /// <param name="eventData">Contextual information about the command and execution.</param>
         /// <param name="result">

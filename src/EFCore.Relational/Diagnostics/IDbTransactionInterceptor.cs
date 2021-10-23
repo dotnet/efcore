@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     <para>
-    ///         Allows interception of operations related to a <see cref="DbTransaction" />.
-    ///     </para>
+    ///     Allows interception of operations related to a <see cref="DbTransaction" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Transaction interceptors can be used to view, change, or suppress operations on <see cref="DbTransaction" />, and
     ///         to modify the result before it is returned to EF.
@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         If both injected and application interceptors are found, then the injected interceptors are run in the
     ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IDbTransactionInterceptor : IInterceptor
     {
@@ -59,14 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InterceptionResult<DbTransaction> result);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls <see cref="DbConnection.BeginTransaction(IsolationLevel)" />.
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed creation in <see cref="TransactionStarting" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="TransactionStarting" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbConnection.BeginTransaction(IsolationLevel)" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed creation in <see cref="TransactionStarting" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="TransactionStarting" />.
+        /// </remarks>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
         /// <param name="result">
@@ -111,16 +109,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after EF calls
-        ///         <see cref="DbConnection.BeginTransactionAsync(IsolationLevel,CancellationToken)" />
-        ///         .
-        ///     </para>
-        ///     <para>
-        ///         This method is still called if an interceptor suppressed creation in <see cref="TransactionStarting" />.
-        ///         In this case, <paramref name="result" /> is the result returned by <see cref="TransactionStarting" />.
-        ///     </para>
+        ///     Called immediately after EF calls <see cref="DbConnection.BeginTransactionAsync(IsolationLevel,CancellationToken)" />.
         /// </summary>
+        /// <remarks>
+        ///     This method is still called if an interceptor suppressed creation in <see cref="TransactionStarting" />.
+        ///     In this case, <paramref name="result" /> is the result returned by <see cref="TransactionStarting" />.
+        /// </remarks>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
         /// <param name="result">
@@ -142,9 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransaction" /> is called.
-        ///     </para>
+        ///     Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransaction" /> is called.
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>
@@ -163,9 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbTransaction result);
 
         /// <summary>
-        ///     <para>
-        ///         Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransactionAsync" /> is called.
-        ///     </para>
+        ///     Called immediately after <see cref="O:RelationalDatabaseFacadeExtensions.UseTransactionAsync" /> is called.
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="eventData">Contextual information about connection and transaction.</param>

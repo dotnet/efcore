@@ -1046,16 +1046,14 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(RelationalAnnotationNames.IsFixedLength)?.GetConfigurationSource();
 
         /// <summary>
-        ///     <para>
-        ///         Checks whether the column mapped to the given <see cref="IProperty" /> will be nullable
-        ///         when created in the database.
-        ///     </para>
-        ///     <para>
-        ///         This depends on the property itself and also how it is mapped. For example,
-        ///         derived non-nullable properties in a TPH type hierarchy will be mapped to nullable columns.
-        ///         As well as properties on optional types sharing the same table.
-        ///     </para>
+        ///     Checks whether the column mapped to the given <see cref="IProperty" /> will be nullable
+        ///     when created in the database.
         /// </summary>
+        /// <remarks>
+        ///     This depends on the property itself and also how it is mapped. For example,
+        ///     derived non-nullable properties in a TPH type hierarchy will be mapped to nullable columns.
+        ///     As well as properties on optional types sharing the same table.
+        /// </remarks>
         /// <param name="property">The <see cref="IReadOnlyProperty" />.</param>
         /// <returns><see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise.</returns>
         public static bool IsColumnNullable(this IReadOnlyProperty property)
@@ -1063,16 +1061,14 @@ namespace Microsoft.EntityFrameworkCore
                 || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null);
 
         /// <summary>
-        ///     <para>
-        ///         Checks whether the column mapped to the given property will be nullable
-        ///         when created in the database.
-        ///     </para>
-        ///     <para>
-        ///         This depends on the property itself and also how it is mapped. For example,
-        ///         derived non-nullable properties in a TPH type hierarchy will be mapped to nullable columns.
-        ///         As well as properties on optional types sharing the same table.
-        ///     </para>
+        ///     Checks whether the column mapped to the given property will be nullable
+        ///     when created in the database.
         /// </summary>
+        /// <remarks>
+        ///     This depends on the property itself and also how it is mapped. For example,
+        ///     derived non-nullable properties in a TPH type hierarchy will be mapped to nullable columns.
+        ///     As well as properties on optional types sharing the same table.
+        /// </remarks>
         /// <param name="property">The property.</param>
         /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
         /// <returns><see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise.</returns>

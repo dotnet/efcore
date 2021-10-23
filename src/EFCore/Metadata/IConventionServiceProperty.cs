@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     <para>
-    ///         A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
-    ///         injected service from the <see cref="DbContext" />.
-    ///     </para>
+    ///     A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
+    ///     injected service from the <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public interface IConventionServiceProperty : IReadOnlyServiceProperty, IConventionPropertyBase
     {

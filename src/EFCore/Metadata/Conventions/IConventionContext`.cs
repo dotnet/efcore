@@ -13,25 +13,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public interface IConventionContext<in TMetadata> : IConventionContext
     {
         /// <summary>
-        ///     <para>
-        ///         Calling this will prevent further processing of the associated event by other conventions.
-        ///     </para>
-        ///     <para>
-        ///         The common use case is when the metadata object was replaced by the convention.
-        ///     </para>
+        ///     Calling this will prevent further processing of the associated event by other conventions.
         /// </summary>
+        /// <remarks>
+        ///     The common use case is when the metadata object was replaced by the convention.
+        /// </remarks>
         /// <param name="result">The new metadata object or <see langword="null" />.</param>
         void StopProcessing(TMetadata? result);
 
         /// <summary>
-        ///     <para>
-        ///         Calling this will prevent further processing of the associated event by other conventions
-        ///         if the given objects are different.
-        ///     </para>
-        ///     <para>
-        ///         The common use case is when the metadata object was replaced by the convention.
-        ///     </para>
+        ///     Calling this will prevent further processing of the associated event by other conventions
+        ///     if the given objects are different.
         /// </summary>
+        /// <remarks>
+        ///     The common use case is when the metadata object was replaced by the convention.
+        /// </remarks>
         /// <param name="result">The new metadata object or <see langword="null" />.</param>
         void StopProcessingIfChanged(TMetadata? result);
     }

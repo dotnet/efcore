@@ -9,9 +9,9 @@ using System.ComponentModel;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
-    ///     <para>
-    ///         Extends <see cref="ObservableCollection{T}" /> and adds an explicit implementation of <see cref="IListSource" />.
-    ///     </para>
+    ///     Extends <see cref="ObservableCollection{T}" /> and adds an explicit implementation of <see cref="IListSource" />.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The method <see cref="IListSource.GetList" /> is implemented to return an <see cref="IBindingList" />
     ///         implementation that stays in sync with the ObservableCollection.
@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         This class can be used to implement navigation properties on entities for use in Windows Forms data binding.
     ///         For WPF data binding use an ObservableCollection rather than an instance of this class.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="T">The type of elements in the collection.</typeparam>
     public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource

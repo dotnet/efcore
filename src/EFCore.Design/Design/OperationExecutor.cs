@@ -15,14 +15,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     <para>
-    ///         A facade for design-time operations.
-    ///     </para>
-    ///     <para>
-    ///         Use the <c>CreateInstance</c> overloads on <see cref="AppDomain" /> and <see cref="Activator" /> with the
-    ///         nested types to execute operations.
-    ///     </para>
+    ///     A facade for design-time operations.
     /// </summary>
+    /// <remarks>
+    ///     Use the <c>CreateInstance</c> overloads on <see cref="AppDomain" /> and <see cref="Activator" /> with the
+    ///     nested types to execute operations.
+    /// </remarks>
     public class OperationExecutor : MarshalByRefObject
     {
         private readonly string _projectDir;
@@ -41,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         private Assembly? _startupAssembly;
 
         /// <summary>
-        ///     <para>Initializes a new instance of the <see cref="OperationExecutor" /> class.</para>
+        ///     Initializes a new instance of the <see cref="OperationExecutor" /> class
+        /// </summary>
+        /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
         ///     <para><c>targetName</c>--The assembly name of the target project.</para>
         ///     <para><c>startupTargetName</c>--The assembly name of the startup project.</para>
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
         ///     <para><c>nullable</c>--A value indicating whether nullable reference types are enabled.</para>
         ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
-        /// </summary>
+        /// </remarks>
         /// <param name="reportHandler">The <see cref="IOperationReportHandler" />.</param>
         /// <param name="args">The executor arguments.</param>
         public OperationExecutor(IOperationReportHandler reportHandler, IDictionary args)
@@ -144,7 +144,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class AddMigration : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="AddMigration" /> class.</para>
+            ///     Initializes a new instance of the <see cref="AddMigration" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>name</c>--The name of the migration.</para>
             ///     <para>
@@ -152,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         "Migrations".
             ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -202,10 +204,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class GetContextInfo : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="GetContextInfo" /> class.</para>
+            ///     Initializes a new instance of the <see cref="GetContextInfo" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> type to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -242,7 +246,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class UpdateDatabase : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="UpdateDatabase" /> class.</para>
+            ///     Initializes a new instance of the <see cref="UpdateDatabase" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para>
             ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all migrations will be
@@ -254,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         <see cref="DbContext.OnConfiguring" />.
             ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -287,14 +293,16 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class ScriptMigration : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="ScriptMigration" /> class.</para>
+            ///     Initializes a new instance of the <see cref="ScriptMigration" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>fromMigration</c>--The starting migration. Defaults to <see cref="Migration.InitialDatabase" />.</para>
             ///     <para><c>toMigration</c>--The ending migration. Defaults to the last migration.</para>
             ///     <para><c>idempotent</c>--Generate a script that can be used on a database at any migration.</para>
             ///     <para><c>noTransactions</c>--Don't generate SQL transaction statements.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -348,11 +356,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class RemoveMigration : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="RemoveMigration" /> class.</para>
+            ///     Initializes a new instance of the <see cref="RemoveMigration" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             ///     <para><c>force</c>--Don't check to see if the migration has been applied to the database.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -390,9 +400,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class GetContextTypes : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="GetContextTypes" /> class.</para>
-            ///     <para>No arguments are currently supported by <paramref name="args" />.</para>
+            ///     Initializes a new instance of the <see cref="GetContextTypes" /> class.
             /// </summary>
+            /// <remarks>
+            ///     No arguments are currently supported by <paramref name="args" />.
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -435,7 +447,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class GetMigrations : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="GetMigrations" /> class.</para>
+            ///     Initializes a new instance of the <see cref="GetMigrations" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             ///     <para>
@@ -444,7 +458,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         <see cref="DbContext.OnConfiguring" />.
             ///     </para>
             ///     <para><c>noConnect</c>--Don't connect to the database.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -491,12 +505,14 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class OptimizeContext : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="OptimizeContext" /> class.</para>
+            ///     Initializes a new instance of the <see cref="OptimizeContext" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -526,7 +542,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class ScaffoldContext : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="ScaffoldContext" /> class.</para>
+            ///     Initializes a new instance of the <see cref="ScaffoldContext" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>connectionString</c>--The connection string to the database.</para>
             ///     <para><c>provider</c>--The provider to use.</para>
@@ -541,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated entity types.</para>
             ///     <para><c>contextNamespace</c>--Specify to override the namespace of the generated DbContext class.</para>
             ///     <para><c>noPluralize</c>--Don't use the pluralizer.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -612,10 +630,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class DropDatabase : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="DropDatabase" /> class.</para>
+            ///     Initializes a new instance of the <see cref="DropDatabase" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>
@@ -643,10 +663,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public class ScriptDbContext : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="ScriptDbContext" /> class.</para>
+            ///     Initializes a new instance of the <see cref="ScriptDbContext" /> class.
+            /// </summary>
+            /// <remarks>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
-            /// </summary>
+            /// </remarks>
             /// <param name="executor">The operation executor.</param>
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             /// <param name="args">The operation arguments.</param>

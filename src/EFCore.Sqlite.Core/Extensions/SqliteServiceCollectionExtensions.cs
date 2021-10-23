@@ -31,10 +31,10 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class SqliteServiceCollectionExtensions
     {
         /// <summary>
-        ///     <para>
-        ///         Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
-        ///         and configures it to connect to a SQLite database.
-        ///     </para>
+        ///     Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
+        ///     and configures it to connect to a SQLite database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use SQLite. It does not support all options.
         ///         Use <see cref="O:EntityFrameworkServiceCollectionExtensions.AddDbContext" /> and related methods for full control of
@@ -54,10 +54,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The type of context to be registered.</typeparam>
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
@@ -77,10 +77,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return serviceCollection.AddDbContext<TContext>(
                 (serviceProvider, options) =>
-                    {
-                        optionsAction?.Invoke(options);
-                        options.UseSqlite(connectionString, sqliteOptionsAction);
-                    });
+                {
+                    optionsAction?.Invoke(options);
+                    options.UseSqlite(connectionString, sqliteOptionsAction);
+                });
         }
 
         /// <summary>
@@ -92,14 +92,14 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Warning: Do not call this method accidentally. It is much more likely you need
         ///         to call <see cref="AddSqlite{TContext}" />.
         ///     </para>
-        ///     <para>
-        ///         Calling this method is no longer necessary when building most applications, including those that
-        ///         use dependency injection in ASP.NET or elsewhere.
-        ///         It is only needed when building the internal service provider for use with
-        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
-        ///         This is not recommend other than for some advanced scenarios.
-        ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     Calling this method is no longer necessary when building most applications, including those that
+        ///     use dependency injection in ASP.NET or elsewhere.
+        ///     It is only needed when building the internal service provider for use with
+        ///     the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
+        ///     This is not recommend other than for some advanced scenarios.
+        /// </remarks>
         /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.

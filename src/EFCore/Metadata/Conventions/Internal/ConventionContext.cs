@@ -45,13 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     <para>
-        ///         Calling this will prevent further processing of the associated event by other conventions.
-        ///     </para>
-        ///     <para>
-        ///         The common use case is when the metadata object was removed or replaced by the convention.
-        ///     </para>
+        ///     Calling this will prevent further processing of the associated event by other conventions.
         /// </summary>
+        /// <remarks>
+        ///     The common use case is when the metadata object was removed or replaced by the convention.
+        /// </remarks>
         /// <param name="result">The new metadata object or <see langword="null" />.</param>
         public virtual void StopProcessing(TMetadata? result)
         {
@@ -60,14 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     <para>
-        ///         Calling this will prevent further processing of the associated event by other conventions
-        ///         if the given objects are different.
-        ///     </para>
-        ///     <para>
-        ///         The common use case is when the metadata object was replaced by the convention.
-        ///     </para>
+        ///     Calling this will prevent further processing of the associated event by other conventions
+        ///     if the given objects are different.
         /// </summary>
+        /// <remarks>
+        ///     The common use case is when the metadata object was replaced by the convention.
+        /// </remarks>
         /// <param name="result">The new metadata object or <see langword="null" />.</param>
         public virtual void StopProcessingIfChanged(TMetadata? result)
         {
@@ -78,14 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         /// <summary>
-        ///     <para>
-        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
-        ///         will be executed after the returned object is disposed.
-        ///     </para>
-        ///     <para>
-        ///         This is useful when performing multiple operations that depend on each other.
-        ///     </para>
+        ///     Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///     will be executed after the returned object is disposed.
         /// </summary>
+        /// <remarks>
+        ///     This is useful when performing multiple operations that depend on each other.
+        /// </remarks>
         /// <returns>An object that should be disposed to execute the delayed conventions.</returns>
         public virtual IConventionBatch DelayConventions()
             => _dispatcher.DelayConventions();

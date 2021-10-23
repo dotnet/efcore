@@ -74,10 +74,10 @@ namespace Microsoft.EntityFrameworkCore
             => property.IsKey();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified before the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets a value indicating whether or not this property can be modified before the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a value is assigned to this property when it is in
@@ -87,17 +87,17 @@ namespace Microsoft.EntityFrameworkCore
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
         ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="property">The property.</param>
         [Obsolete("Use IReadOnlyProperty.GetBeforeSaveBehavior")]
         public static PropertySaveBehavior GetBeforeSaveBehavior(this IProperty property)
             => property.GetBeforeSaveBehavior();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified after the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets a value indicating whether or not this property can be modified after the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
         ///         property value of an entity that already exists in the database will be ignored.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <param name="property">The property.</param>
         [Obsolete("Use IReadOnlyProperty.GetAfterSaveBehavior")]
         public static PropertySaveBehavior GetAfterSaveBehavior(this IProperty property)

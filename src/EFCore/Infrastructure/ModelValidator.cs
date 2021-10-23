@@ -17,18 +17,18 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     <para>
-    ///         The validator that enforces core rules common for all providers.
-    ///     </para>
+    ///     The validator that enforces core rules common for all providers.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public class ModelValidator : IModelValidator
     {
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Throws an <see cref="InvalidOperationException"/> with a message containing provider-specific information, when
+        ///     Throws an <see cref="InvalidOperationException" /> with a message containing provider-specific information, when
         ///     available, indicating possible reasons why the property cannot be mapped.
         /// </summary>
         /// <param name="propertyType">The property CLR type.</param>
@@ -296,12 +296,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="unmappedProperty">The property.</param>
         protected virtual void ThrowPropertyNotMappedException(
             string propertyType,
-            IConventionEntityType entityType, 
+            IConventionEntityType entityType,
             IConventionProperty unmappedProperty)
             => throw new InvalidOperationException(
                 CoreStrings.PropertyNotMapped(
                     propertyType,
-                    entityType.DisplayName(), 
+                    entityType.DisplayName(),
                     unmappedProperty.Name));
 
         /// <summary>

@@ -14,22 +14,22 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     <para>
-    ///         A convention that finds backing fields for properties based on their names:
-    ///         * &lt;[property name]&gt;k__BackingField
-    ///         * _[camel-cased property name]
-    ///         * _[property name]
-    ///         * m_[camel-cased property name]
-    ///         * m_[property name]
-    ///         * [property name]_
-    ///     </para>
+    ///     A convention that finds backing fields for properties based on their names:
+    ///     * &lt;[property name]&gt;k__BackingField
+    ///     * _[camel-cased property name]
+    ///     * _[property name]
+    ///     * m_[camel-cased property name]
+    ///     * m_[property name]
+    ///     * [property name]_
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         The field type must be of a type that's assignable to or from the property type.
     ///         If more than one matching field is found an exception is thrown.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     </para>
     /// </remarks>
     public class BackingFieldConvention :
         IPropertyAddedConvention,

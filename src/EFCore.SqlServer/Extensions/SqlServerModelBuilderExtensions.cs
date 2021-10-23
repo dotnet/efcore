@@ -336,17 +336,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the maximum size for Azure SQL Database.
-        ///     </para>
+        ///     Configures the maximum size for Azure SQL Database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="maxSize">The maximum size of the database.</param>
@@ -362,17 +362,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Attempts to configure the maximum size for Azure SQL Database.
-        ///     </para>
+        ///     Attempts to configure the maximum size for Azure SQL Database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="maxSize">The maximum size of the database.</param>
@@ -418,17 +418,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the service tier (EDITION) for Azure SQL Database as a string literal.
-        ///     </para>
+        ///     Configures the service tier (EDITION) for Azure SQL Database as a string literal.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="serviceTier">The service tier of the database as a string literal.</param>
@@ -444,17 +444,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the service tier (EDITION) for Azure SQL Database as a SQL expression.
-        ///     </para>
+        ///     Configures the service tier (EDITION) for Azure SQL Database as a SQL expression.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="serviceTier">The expression for the service tier of the database.</param>
@@ -470,17 +470,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Attempts to configure the service tier (EDITION) for Azure SQL Database.
-        ///     </para>
+        ///     Attempts to configure the service tier (EDITION) for Azure SQL Database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="serviceTier">The expression for the service tier of the database.</param>
@@ -526,17 +526,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database as a string literal.
-        ///     </para>
+        ///     Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database as a string literal.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="performanceLevel">The performance level of the database as a string literal.</param>
@@ -552,17 +552,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database as a SQL expression.
-        ///     </para>
+        ///     Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database as a SQL expression.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="performanceLevel">The expression for the performance level of the database.</param>
@@ -578,17 +578,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Attempts to configure the performance level (SERVICE_OBJECTIVE) for Azure SQL Database.
-        ///     </para>
+        ///     Attempts to configure the performance level (SERVICE_OBJECTIVE) for Azure SQL Database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="performanceLevel">The expression for the performance level of the database.</param>

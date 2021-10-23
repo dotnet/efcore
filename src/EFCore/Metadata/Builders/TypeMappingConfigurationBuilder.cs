@@ -11,16 +11,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API surface for setting property defaults before conventions run.
-    ///     </para>
+    ///     Provides a simple API surface for setting property defaults before conventions run.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelConfigurationBuilder" /> API
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     </para>
     /// </remarks>
     public class TypeMappingConfigurationBuilder
     {
@@ -90,9 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     <para>
-        ///         Configures the precision of the property.
-        ///     </para>
+        ///     Configures the precision of the property.
         /// </summary>
         /// <param name="precision">The precision of the property.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

@@ -146,15 +146,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IKey? FindKey(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all keys declared on the given <see cref="IReadOnlyEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return keys declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same key more than once.
-        ///         Use <see cref="IConventionEntityType.GetKeys" /> to also return keys declared on base types.
-        ///     </para>
+        ///     Gets all keys declared on the given <see cref="IReadOnlyEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return keys declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same key more than once.
+        ///     Use <see cref="IConventionEntityType.GetKeys" /> to also return keys declared on base types.
+        /// </remarks>
         /// <returns>Declared keys.</returns>
         new IEnumerable<IKey> GetDeclaredKeys();
 
@@ -224,22 +222,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all foreign keys declared on the given <see cref="IEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return foreign keys declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
-        ///         Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
-        ///     </para>
+        ///     Gets all foreign keys declared on the given <see cref="IEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return foreign keys declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///     Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
+        /// </remarks>
         /// <returns>Declared foreign keys.</returns>
         new IEnumerable<IForeignKey> GetDeclaredForeignKeys();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all foreign keys declared on the types derived from the given <see cref="IEntityType" />.
-        ///     </para>
+        ///     Gets all foreign keys declared on the types derived from the given <see cref="IEntityType" />.
         /// </summary>
         /// <returns>Derived foreign keys.</returns>
         new IEnumerable<IForeignKey> GetDerivedForeignKeys();
@@ -296,28 +290,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new INavigation? FindDeclaredNavigation(string name);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all navigation properties declared on the given <see cref="IEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return navigation properties declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
-        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on base types.
-        ///     </para>
+        ///     Gets all navigation properties declared on the given <see cref="IEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return navigation properties declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
+        ///     Use <see cref="GetNavigations" /> to also return navigation properties declared on base types.
+        /// </remarks>
         /// <returns>Declared navigation properties.</returns>
         new IEnumerable<INavigation> GetDeclaredNavigations();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all navigation properties declared on the types derived from this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return navigation properties declared on the given entity type itself.
-        ///         Use <see cref="GetNavigations" /> to return navigation properties declared on this
-        ///         and base entity typed types.
-        ///     </para>
+        ///     Gets all navigation properties declared on the types derived from this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return navigation properties declared on the given entity type itself.
+        ///     Use <see cref="GetNavigations" /> to return navigation properties declared on this
+        ///     and base entity typed types.
+        /// </remarks>
         /// <returns>Derived navigation properties.</returns>
         new IEnumerable<INavigation> GetDerivedNavigations()
             => ((IReadOnlyEntityType)this).GetDerivedNavigations().Cast<INavigation>();
@@ -353,29 +343,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => (ISkipNavigation?)((IReadOnlyEntityType)this).FindDeclaredSkipNavigation(name);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all skip navigation properties declared on this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return skip navigation properties declared declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
-        ///         Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
-        ///     </para>
+        ///     Gets all skip navigation properties declared on this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return skip navigation properties declared declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///     Use <see cref="GetSkipNavigations" /> to also return skip navigation properties declared on base types.
+        /// </remarks>
         /// <returns>Declared foreign keys.</returns>
         new IEnumerable<ISkipNavigation> GetDeclaredSkipNavigations()
             => ((IReadOnlyEntityType)this).GetDeclaredSkipNavigations().Cast<ISkipNavigation>();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all skip navigation properties declared on the types derived from this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return skip navigation properties declared on the given entity type itself.
-        ///         Use <see cref="GetSkipNavigations" /> to return skip navigation properties declared on this
-        ///         and base entity typed types.
-        ///     </para>
+        ///     Gets all skip navigation properties declared on the types derived from this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return skip navigation properties declared on the given entity type itself.
+        ///     Use <see cref="GetSkipNavigations" /> to return skip navigation properties declared on this
+        ///     and base entity typed types.
+        /// </remarks>
         /// <returns>Derived skip navigation properties.</returns>
         new IEnumerable<ISkipNavigation> GetDerivedSkipNavigations()
             => ((IReadOnlyEntityType)this).GetDerivedSkipNavigations().Cast<ISkipNavigation>();
@@ -387,13 +373,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<ISkipNavigation> GetSkipNavigations();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
-        ///     </para>
-        ///     <para>
-        ///         Named indexes will not be returned even if the list of properties matches.
-        ///     </para>
+        ///     Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
         /// </summary>
+        /// <remarks>
+        ///     Named indexes will not be returned even if the list of properties matches.
+        /// </remarks>
         /// <param name="properties">The properties to find the index on.</param>
         /// <returns>The index, or <see langword="null" /> if none is found.</returns>
         new IIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
@@ -414,22 +398,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => FindIndex(new[] { property });
 
         /// <summary>
-        ///     <para>
-        ///         Gets all indexes declared on the given <see cref="IEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return indexes declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
-        ///         Use <see cref="GetIndexes" /> to also return indexes declared on base types.
-        ///     </para>
+        ///     Gets all indexes declared on the given <see cref="IEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return indexes declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same index more than once.
+        ///     Use <see cref="GetIndexes" /> to also return indexes declared on base types.
+        /// </remarks>
         /// <returns>Declared indexes.</returns>
         new IEnumerable<IIndex> GetDeclaredIndexes();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all indexes declared on the types derived from the given <see cref="IEntityType" />.
-        ///     </para>
+        ///     Gets all indexes declared on the types derived from the given <see cref="IEntityType" />.
         /// </summary>
         /// <returns>Derived indexes.</returns>
         new IEnumerable<IIndex> GetDerivedIndexes();
@@ -441,40 +421,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IIndex> GetIndexes();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(MemberInfo)" /> to find a navigation property.
-        ///     </para>
+        ///     Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigation properties. Use
+        ///     <see cref="FindNavigation(MemberInfo)" /> to find a navigation property.
+        /// </remarks>
         /// <param name="memberInfo">The property on the entity class.</param>
         /// <returns>The property, or <see langword="null" /> if none is found.</returns>
         new IProperty? FindProperty(MemberInfo memberInfo)
             => (IProperty?)((IReadOnlyEntityType)this).FindProperty(memberInfo);
 
         /// <summary>
-        ///     <para>
-        ///         Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(string)" /> to find a navigation property.
-        ///     </para>
+        ///     Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigation properties. Use
+        ///     <see cref="FindNavigation(string)" /> to find a navigation property.
+        /// </remarks>
         /// <param name="name">The name of the property.</param>
         /// <returns>The property, or <see langword="null" /> if none is found.</returns>
         new IProperty? FindProperty(string name);
 
         /// <summary>
-        ///     <para>
-        ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties.
-        ///     </para>
+        ///     Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigation properties.
+        /// </remarks>
         /// <param name="propertyNames">The property names.</param>
         /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
         new IReadOnlyList<IProperty>? FindProperties(
@@ -482,14 +456,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => (IReadOnlyList<IProperty>?)((IReadOnlyEntityType)this).FindProperties(propertyNames);
 
         /// <summary>
-        ///     <para>
-        ///         Gets a property with the given name.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="FindNavigation(string)" /> to find a navigation property.
-        ///     </para>
+        ///     Gets a property with the given name.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds scalar properties and does not find navigation properties. Use
+        ///     <see cref="FindNavigation(string)" /> to find a navigation property.
+        /// </remarks>
         /// <param name="name">The property name.</param>
         /// <returns>The property, or <see langword="null" /> if none is found.</returns>
         new IProperty GetProperty(string name)
@@ -504,41 +476,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IProperty? FindDeclaredProperty(string name);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all non-navigation properties declared on the given <see cref="IEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return properties declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="GetProperties" /> to also return properties declared on base types.
-        ///     </para>
+        ///     Gets all non-navigation properties declared on the given <see cref="IEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return properties declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///     Use <see cref="GetProperties" /> to also return properties declared on base types.
+        /// </remarks>
         /// <returns>Declared non-navigation properties.</returns>
         new IEnumerable<IProperty> GetDeclaredProperties();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all non-navigation properties declared on the types derived from this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return properties declared on the given entity type itself.
-        ///         Use <see cref="GetProperties" /> to return properties declared on this
-        ///         and base entity typed types.
-        ///     </para>
+        ///     Gets all non-navigation properties declared on the types derived from this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return properties declared on the given entity type itself.
+        ///     Use <see cref="GetProperties" /> to return properties declared on this
+        ///     and base entity typed types.
+        /// </remarks>
         /// <returns>Derived non-navigation properties.</returns>
         new IEnumerable<IProperty> GetDerivedProperties()
             => ((IReadOnlyEntityType)this).GetDerivedProperties().Cast<IProperty>();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the properties defined on this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This API only returns scalar properties and does not return navigation properties. Use
-        ///         <see cref="GetNavigations()" /> to get navigation properties.
-        ///     </para>
+        ///     Gets the properties defined on this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This API only returns scalar properties and does not return navigation properties. Use
+        ///     <see cref="GetNavigations()" /> to get navigation properties.
+        /// </remarks>
         /// <returns>The properties defined on this entity type.</returns>
         new IEnumerable<IProperty> GetProperties();
 
@@ -556,53 +522,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IProperty> GetValueGeneratingProperties();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the service property with a given name.
-        ///         Returns <see langword="null" /> if no property with the given name is defined.
-        ///     </para>
-        ///     <para>
-        ///         This API only finds service properties and does not find scalar or navigation properties.
-        ///     </para>
+        ///     Gets the service property with a given name.
+        ///     Returns <see langword="null" /> if no property with the given name is defined.
         /// </summary>
+        /// <remarks>
+        ///     This API only finds service properties and does not find scalar or navigation properties.
+        /// </remarks>
         /// <param name="name">The name of the service property.</param>
         /// <returns>The service property, or <see langword="null" /> if none is found.</returns>
         new IServiceProperty? FindServiceProperty(string name);
 
         /// <summary>
-        ///     <para>
-        ///         Gets all service properties declared on the given <see cref="IEntityType" />.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return properties declared on base types.
-        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
-        ///         Use <see cref="GetServiceProperties" /> to also return properties declared on base types.
-        ///     </para>
+        ///     Gets all service properties declared on the given <see cref="IEntityType" />.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return properties declared on base types.
+        ///     It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///     Use <see cref="GetServiceProperties" /> to also return properties declared on base types.
+        /// </remarks>
         /// <returns>Declared service properties.</returns>
         new IEnumerable<IServiceProperty> GetDeclaredServiceProperties();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all service properties declared on the types derived from this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This method does not return service properties declared on the given entity type itself.
-        ///         Use <see cref="GetServiceProperties" /> to return service properties declared on this
-        ///         and base entity typed types.
-        ///     </para>
+        ///     Gets all service properties declared on the types derived from this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This method does not return service properties declared on the given entity type itself.
+        ///     Use <see cref="GetServiceProperties" /> to return service properties declared on this
+        ///     and base entity typed types.
+        /// </remarks>
         /// <returns>Derived service properties.</returns>
         new IEnumerable<IServiceProperty> GetDerivedServiceProperties()
             => ((IReadOnlyEntityType)this).GetDerivedServiceProperties().Cast<IServiceProperty>();
 
         /// <summary>
-        ///     <para>
-        ///         Gets all the <see cref="IServiceProperty" /> defined on this entity type.
-        ///     </para>
-        ///     <para>
-        ///         This API only returns service properties and does not return scalar or navigation properties.
-        ///     </para>
+        ///     Gets all the <see cref="IServiceProperty" /> defined on this entity type.
         /// </summary>
+        /// <remarks>
+        ///     This API only returns service properties and does not return scalar or navigation properties.
+        /// </remarks>
         /// <returns>The service properties defined on this entity type.</returns>
         new IEnumerable<IServiceProperty> GetServiceProperties();
     }

@@ -100,10 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? IsUnicode();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified before the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets a value indicating whether or not this property can be modified before the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a value is assigned to this property when it is in
@@ -113,15 +113,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
         ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <returns>The before save behavior for this property.</returns>
         PropertySaveBehavior GetBeforeSaveBehavior();
 
         /// <summary>
-        ///     <para>
-        ///         Gets a value indicating whether or not this property can be modified after the entity is
-        ///         saved to the database.
-        ///     </para>
+        ///     Gets a value indicating whether or not this property can be modified after the entity is
+        ///     saved to the database.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
         ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
         ///         property value of an entity that already exists in the database will be ignored.
         ///     </para>
-        /// </summary>
+        /// </remarks>
         /// <returns>The after save behavior for this property.</returns>
         PropertySaveBehavior GetAfterSaveBehavior();
 

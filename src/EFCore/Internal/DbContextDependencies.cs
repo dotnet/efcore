@@ -10,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         Service dependencies parameter class for <see cref="DbContext" />
-    ///     </para>
+    ///     Service dependencies parameter class for <see cref="DbContext" />
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
-    /// </summary>
+    /// </remarks>
     public sealed record DbContextDependencies : IDbContextDependencies
     {
         /// <summary>

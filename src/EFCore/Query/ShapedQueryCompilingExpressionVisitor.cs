@@ -23,6 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         A class that compiles the shaper expression for given shaped query expression.
     ///     </para>
     ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
+    /// <remarks>
+    ///     <para>
     ///         Materializer is a code which creates entity instance from the given property values.
     ///         It takes into account constructor bindings, fields, property access mode configured in the model when creating the instance.
     ///     </para>
@@ -31,13 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         A shaper can contain zero or more materializers inside it.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
     /// </remarks>
     public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     {

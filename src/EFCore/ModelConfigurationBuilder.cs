@@ -12,18 +12,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     <para>
-    ///         Provides a simple API surface for setting defaults and configuring conventions before they run.
-    ///     </para>
+    ///     Provides a simple API surface for setting defaults and configuring conventions before they run.
+    /// </summary>
+    /// <remarks>
     ///     <para>
     ///         You can use <see cref="ModelConfigurationBuilder" /> to configure the conventions for a context by overriding
     ///         <see cref="DbContext.ConfigureConventions(ModelConfigurationBuilder)" /> on your derived context.
     ///         Alternatively you can create the model externally and set it on a <see cref="DbContextOptions" /> instance
     ///         that is passed to the context constructor.
     ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+    ///     </para>
     /// </remarks>
     public class ModelConfigurationBuilder
     {
@@ -87,15 +87,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given and derived types as corresponding to entity type properties.
-        ///     </para>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This can also be called on an interface to apply the configuration to all properties of implementing types.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TProperty">The property type to be configured.</typeparam>
         /// <returns>An object that can be used to configure the properties.</returns>
@@ -107,15 +107,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given and derived types as corresponding to entity type properties.
-        ///     </para>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This can also be called on an interface to apply the configuration to all properties of implementing types.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TProperty">The property type to be configured.</typeparam>
         /// <param name="buildAction">An action that performs configuration of the property.</param>
@@ -134,16 +134,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given and derived types as corresponding to entity type properties.
-        ///     </para>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This can also be called on an interface or an unbound generic type to apply the configuration to all
         ///         properties of implementing and constructed types.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="propertyType">The property type to be configured.</param>
         /// <returns>An object that can be used to configure the property.</returns>
@@ -157,16 +157,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given and derived types as corresponding to entity type properties.
-        ///     </para>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         This can also be called on an interface or an unbound generic type to apply the configuration to all
         ///         properties of implementing and constructed types.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="propertyType">The property type to be configured.</param>
         /// <param name="buildAction">An action that performs configuration of the property.</param>
@@ -187,10 +187,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
-        ///         to be used in queries that are not referencing property of this type.
-        ///     </para>
+        ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///     to be used in queries that are not referencing property of this type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Unlike <see cref="Properties{TProperty}()" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
@@ -199,9 +199,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()" />
         ///         should be enough in most cases.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TScalar">The scalar type to be configured.</typeparam>
         /// <returns>An object that can be used to configure the scalars.</returns>
@@ -213,10 +213,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
-        ///         to be used in queries that are not referencing property of this type.
-        ///     </para>
+        ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///     to be used in queries that are not referencing property of this type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Unlike <see cref="Properties{TProperty}()" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
@@ -225,9 +225,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()" />
         ///         should be enough in most cases.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TScalar">The scalar type to be configured.</typeparam>
         /// <param name="buildAction">An action that performs configuration for the scalars.</param>
@@ -246,10 +246,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
-        ///         to be used in queries that are not referencing property of this type.
-        ///     </para>
+        ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///     to be used in queries that are not referencing property of this type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Unlike <see cref="Properties(Type)" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
@@ -258,9 +258,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)" />
         ///         should be enough in most cases.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="scalarType">The scalar type to be configured.</param>
         /// <returns>An object that can be used to configure the scalars.</returns>
@@ -274,10 +274,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     <para>
-        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
-        ///         to be used in queries that are not referencing property of this type.
-        ///     </para>
+        ///     Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///     to be used in queries that are not referencing property of this type.
+        /// </summary>
+        /// <remarks>
         ///     <para>
         ///         Unlike <see cref="Properties(Type)" /> this method should only be called on a non-nullable concrete type.
         ///         Calling it on a base type will not apply the configuration to the derived types.
@@ -286,9 +286,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)" />
         ///         should be enough in most cases.
         ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="scalarType">The scalar type to be configured.</param>
         /// <param name="buildAction">An action that performs configuration for the scalars.</param>
