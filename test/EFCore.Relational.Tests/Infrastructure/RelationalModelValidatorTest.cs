@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -900,7 +901,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder);
         }
 
-        [ConditionalFact(Skip = "Issue #23144")]
+        [ConditionalFact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_on_different_tables()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -911,14 +912,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().ToTable("Cats");
             modelBuilder.Entity<Dog>().ToTable("Dogs");
 
-            VerifyError(
-                RelationalStrings.DuplicateForeignKeyTableMismatch(
-                    "{'FriendId'}", nameof(Dog),
-                    "{'FriendId'}", nameof(Cat),
-                    "FK",
-                    "Cats",
-                    "Dogs"),
-                modelBuilder);
+            // Should throw. Issue #23144.
+            Assert.Contains(
+                "(No exception was thrown)",
+                Assert.Throws<ThrowsException>(
+                    () => VerifyError(
+                        RelationalStrings.DuplicateForeignKeyTableMismatch(
+                            "{'FriendId'}", nameof(Dog),
+                            "{'FriendId'}", nameof(Cat),
+                            "FK",
+                            "Cats",
+                            "Dogs"),
+                        modelBuilder)).Message);
         }
 
         [ConditionalFact]

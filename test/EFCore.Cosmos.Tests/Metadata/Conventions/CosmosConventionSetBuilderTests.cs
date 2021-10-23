@@ -9,11 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     public class CosmosConventionSetBuilderTests : ConventionSetBuilderTests
     {
-        public override IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
-        {
-            return null;
-        }
-
         public override IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI_new()
         {
             var model = base.Can_build_a_model_with_default_conventions_without_DI_new();

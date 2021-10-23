@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
@@ -885,41 +886,50 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [ConditionalFact(Skip = "Issue#24807")]
+        [ConditionalFact]
         public void Query_subowned()
         {
             Seed();
 
             using var context = new QueryFixupContext();
-            var subDependent1 = context.Set<Order>()
-                .Include(a => a.OrderDetails.BillingAddress.OrderDetails.Order)
-                .Select(o => o.OrderDetails.BillingAddress)
-                .Single();
-            var subDependent2 = context.Set<Order>()
-                .Include(a => a.OrderDetails.ShippingAddress.OrderDetails.Order)
-                .Select(o => o.OrderDetails.ShippingAddress)
-                .Single();
 
-            AssertFixup(
-                context,
-                () =>
-                {
-                    Assert.Equal("BillMe", subDependent1.Street);
-                    Assert.Equal("ShipMe", subDependent2.Street);
+            // Owned entity without owner. Issue #24807.
+            Assert.Equal(
+                CoreStrings.OwnedEntitiesCannotBeTrackedWithoutTheirOwner,
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                    {
+                        var subDependent1 = context.Set<Order>()
+                            .Include(a => a.OrderDetails.BillingAddress.OrderDetails.Order)
+                            .Select(o => o.OrderDetails.BillingAddress)
+                            .Single();
+                    }).Message);
 
-                    var dependent = subDependent1.OrderDetails;
-                    Assert.Same(dependent, subDependent2.OrderDetails);
-                    Assert.NotNull(dependent.Order);
-                    var principal = dependent.Order;
-
-                    var subDependent1Entry = context.Entry(subDependent1);
-                    Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
-                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.BillingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
-
-                    var subDependent2Entry = context.Entry(subDependent2);
-                    Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
-                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.ShippingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
-                });
+            // var subDependent2 = context.Set<Order>()
+            //     .Include(a => a.OrderDetails.ShippingAddress.OrderDetails.Order)
+            //     .Select(o => o.OrderDetails.ShippingAddress)
+            //     .Single();
+            //
+            // AssertFixup(
+            //     context,
+            //     () =>
+            //     {
+            //         Assert.Equal("BillMe", subDependent1.Street);
+            //         Assert.Equal("ShipMe", subDependent2.Street);
+            //
+            //         var dependent = subDependent1.OrderDetails;
+            //         Assert.Same(dependent, subDependent2.OrderDetails);
+            //         Assert.NotNull(dependent.Order);
+            //         var principal = dependent.Order;
+            //
+            //         var subDependent1Entry = context.Entry(subDependent1);
+            //         Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
+            //         Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.BillingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
+            //
+            //         var subDependent2Entry = context.Entry(subDependent2);
+            //         Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
+            //         Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.ShippingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
+            //     });
         }
 
         private static void Seed()

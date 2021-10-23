@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable RedundantArgumentDefaultValue
 // ReSharper disable InconsistentNaming
@@ -408,7 +409,7 @@ ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
                 : @"FakeEntity [Added] <-
 ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
 ForeignKey { 'RelatedId' } FakeEntity [Added]" + CoreStrings.SensitiveDataDisabled;
- 
+
             Assert.Equal(
                 CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
                 Assert.Throws<InvalidOperationException>(
@@ -802,7 +803,7 @@ FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
 
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
-        [ConditionalTheory(Skip = "Issue #17947")]
+        [ConditionalTheory]
         public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_principal(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -821,53 +822,67 @@ FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
                 .BatchCommands(new[] { firstEntry }, modelData).ToArray();
 
-            Assert.Single(commandBatches);
-            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+            if (state == EntityState.Deleted)
+            {
+                // Detect indirect update dependencies. Issue #17947.
+                Assert.Throws<SingleException>(
+                    () => Assert.Single(commandBatches));
+            }
+            else
+            {
+                Assert.Single(commandBatches);
+                Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
-            var command = commandBatches.First().ModificationCommands.Single();
-            Assert.Equal(EntityState.Modified, command.EntityState);
-            Assert.Equal(4, command.ColumnModifications.Count);
+                var command = commandBatches.First().ModificationCommands.Single();
+                Assert.Equal(EntityState.Modified, command.EntityState);
 
-            var columnMod = command.ColumnModifications[0];
+                // Detect indirect update dependencies. Issue #17947.
+                Assert.Equal(
+                    "4",
+                    Assert.Throws<EqualException>(
+                        () => Assert.Equal(5, command.ColumnModifications.Count)).Actual);
+            }
 
-            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
-            Assert.True(columnMod.UseOriginalValueParameter);
-            Assert.False(columnMod.UseCurrentValueParameter);
-            Assert.Equal(first.Id, columnMod.OriginalValue);
-            Assert.True(columnMod.IsCondition);
-            Assert.True(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.False(columnMod.IsWrite);
-
-            columnMod = command.ColumnModifications[1];
-
-            Assert.Equal("Discriminator", columnMod.ColumnName);
-            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.Value);
-            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.OriginalValue);
-            Assert.True(columnMod.IsCondition);
-            Assert.False(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.True(columnMod.IsWrite);
-
-            columnMod = command.ColumnModifications[2];
-
-            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
-            Assert.Equal(first.RelatedId, columnMod.Value);
-            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
-            Assert.True(columnMod.IsCondition);
-            Assert.False(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.True(columnMod.IsWrite);
-
-            columnMod = command.ColumnModifications[3];
-
-            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
-            Assert.Equal(second.AnotherId, columnMod.Value);
-            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
-            Assert.False(columnMod.IsCondition);
-            Assert.False(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.True(columnMod.IsWrite);
+            // var columnMod = command.ColumnModifications[0];
+            //
+            // Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+            // Assert.True(columnMod.UseOriginalValueParameter);
+            // Assert.False(columnMod.UseCurrentValueParameter);
+            // Assert.Equal(first.Id, columnMod.OriginalValue);
+            // Assert.True(columnMod.IsCondition);
+            // Assert.True(columnMod.IsKey);
+            // Assert.False(columnMod.IsRead);
+            // Assert.False(columnMod.IsWrite);
+            //
+            // columnMod = command.ColumnModifications[1];
+            //
+            // Assert.Equal("Discriminator", columnMod.ColumnName);
+            // Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.Value);
+            // Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.OriginalValue);
+            // Assert.True(columnMod.IsCondition);
+            // Assert.False(columnMod.IsKey);
+            // Assert.False(columnMod.IsRead);
+            // Assert.True(columnMod.IsWrite);
+            //
+            // columnMod = command.ColumnModifications[2];
+            //
+            // Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
+            // Assert.Equal(first.RelatedId, columnMod.Value);
+            // Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            // Assert.True(columnMod.IsCondition);
+            // Assert.False(columnMod.IsKey);
+            // Assert.False(columnMod.IsRead);
+            // Assert.True(columnMod.IsWrite);
+            //
+            // columnMod = command.ColumnModifications[3];
+            //
+            // Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+            // Assert.Equal(second.AnotherId, columnMod.Value);
+            // Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+            // Assert.False(columnMod.IsCondition);
+            // Assert.False(columnMod.IsKey);
+            // Assert.False(columnMod.IsRead);
+            // Assert.True(columnMod.IsWrite);
         }
 
         [InlineData(EntityState.Added)]
@@ -896,7 +911,7 @@ FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
 
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Deleted)]
-        [ConditionalTheory(Skip = "Issue #17947")]
+        [ConditionalTheory]
         public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
@@ -915,42 +930,44 @@ FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
                 .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
-            Assert.Equal(2, commandBatches.Length);
-            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+            if (state == EntityState.Deleted)
+            {
+                // Detect indirect update dependencies. Issue #17947.
+                Assert.Equal(
+                    "1",
+                    Assert.Throws<EqualException>(
+                        () => Assert.Equal(2, commandBatches.Length)).Actual);
+            }
+            else
+            {
+                Assert.Equal(2, commandBatches.Length);
+                Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
-            var command = commandBatches.First().ModificationCommands.Single();
-            Assert.Equal(EntityState.Modified, command.EntityState);
-            Assert.Equal(3, command.ColumnModifications.Count);
+                var command = commandBatches.First().ModificationCommands.Single();
+                Assert.Equal(EntityState.Modified, command.EntityState);
 
-            var columnMod = command.ColumnModifications[0];
+                Assert.Equal(2, command.ColumnModifications.Count);
 
-            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
-            Assert.Equal(first.Id, columnMod.Value);
-            Assert.Equal(first.Id, columnMod.OriginalValue);
-            Assert.True(columnMod.IsCondition);
-            Assert.True(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.False(columnMod.IsWrite);
+                var columnMod = command.ColumnModifications[0];
 
-            columnMod = command.ColumnModifications[1];
+                Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+                Assert.Equal(first.Id, columnMod.Value);
+                Assert.Equal(first.Id, columnMod.OriginalValue);
+                Assert.True(columnMod.IsCondition);
+                Assert.True(columnMod.IsKey);
+                Assert.False(columnMod.IsRead);
+                Assert.False(columnMod.IsWrite);
 
-            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
-            Assert.Equal(first.RelatedId, columnMod.Value);
-            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
-            Assert.True(columnMod.IsCondition);
-            Assert.False(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.True(columnMod.IsWrite);
+                columnMod = command.ColumnModifications[1];
 
-            columnMod = command.ColumnModifications[2];
-
-            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
-            Assert.Equal(second.AnotherId, columnMod.Value);
-            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
-            Assert.False(columnMod.IsCondition);
-            Assert.False(columnMod.IsKey);
-            Assert.False(columnMod.IsRead);
-            Assert.True(columnMod.IsWrite);
+                Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+                Assert.Equal(second.AnotherId, columnMod.Value);
+                Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+                Assert.False(columnMod.IsCondition);
+                Assert.False(columnMod.IsKey);
+                Assert.False(columnMod.IsRead);
+                Assert.True(columnMod.IsWrite);
+            }
         }
 
         private static IServiceProvider CreateContextServices(IModel model)
