@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         If an empty string is supplied then the property will not be persisted.
+        ///         If an empty string is supplied, the property will not be persisted.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
