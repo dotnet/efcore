@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -455,7 +456,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
 
             Assert.Single(_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("E").GetProperties());
-            Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
+
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType), message);
         }
 
         [ConditionalTheory]
@@ -1135,11 +1139,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new DatabaseModel { Tables = { parentTable, childrenTable } },
                 new ModelReverseEngineerOptions());
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                        childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent"), message);
         }
 
         [ConditionalFact]
@@ -1194,10 +1197,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new DatabaseModel { Tables = { parentTable, childrenTable } },
                 new ModelReverseEngineerOptions());
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo"), message);
         }
 
         [ConditionalFact]
@@ -1305,11 +1307,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var alternateKey = model.GetKeys().Single(k => !k.IsPrimaryKey());
             Assert.Equal(alternateKey, fk.PrincipalKey);
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
-                        table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId"), message);
         }
 
         [ConditionalFact]
