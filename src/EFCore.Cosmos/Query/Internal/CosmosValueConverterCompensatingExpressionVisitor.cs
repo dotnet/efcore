@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -56,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private Expression VisitSelect(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             var changed = false;
 
             var projections = new List<ProjectionExpression>();
@@ -92,8 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
         {
-            Check.NotNull(sqlConditionalExpression, nameof(sqlConditionalExpression));
-
             var test = TryCompensateForBoolWithValueConverter((SqlExpression)Visit(sqlConditionalExpression.Test));
             var ifTrue = (SqlExpression)Visit(sqlConditionalExpression.IfTrue);
             var ifFalse = (SqlExpression)Visit(sqlConditionalExpression.IfFalse);

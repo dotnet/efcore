@@ -11,7 +11,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
@@ -614,8 +613,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
-                Check.NotNull(debugInfo, nameof(debugInfo));
-
                 if (!string.IsNullOrEmpty(Extension._connectionString))
                 {
                     debugInfo["Cosmos:" + nameof(ConnectionString)] =

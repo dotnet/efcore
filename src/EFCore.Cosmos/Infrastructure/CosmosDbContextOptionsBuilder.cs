@@ -40,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="optionsBuilder">The options builder.</param>
         public CosmosDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             _optionsBuilder = optionsBuilder;
         }
 

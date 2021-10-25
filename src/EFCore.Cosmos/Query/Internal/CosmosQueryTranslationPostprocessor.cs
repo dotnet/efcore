@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable disable
 
@@ -81,9 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             IEntityType entityType,
             IDictionary<IProperty, string> propertyParameters)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyParameters, nameof(propertyParameters));
-
             Container = entityType.GetContainer();
 
             ProjectionExpression = new ProjectionExpression(

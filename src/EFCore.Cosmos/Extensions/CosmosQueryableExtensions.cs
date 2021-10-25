@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotParameterized] string partitionKey)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
             Check.NotNull(partitionKey, nameof(partitionKey));
 
             return
@@ -90,7 +89,6 @@ namespace Microsoft.EntityFrameworkCore
             params object[] parameters)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 

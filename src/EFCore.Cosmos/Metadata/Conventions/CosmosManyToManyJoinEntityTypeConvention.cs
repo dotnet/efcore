@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -46,10 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(context, nameof(context));
-
             if (name == CosmosAnnotationNames.PartitionKeyName
                 || name == CosmosAnnotationNames.ContainerName)
             {

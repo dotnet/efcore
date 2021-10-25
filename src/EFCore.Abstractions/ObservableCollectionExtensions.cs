@@ -4,7 +4,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -25,10 +24,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The binding list.</returns>
         public static BindingList<T> ToBindingList<T>(this ObservableCollection<T> source)
             where T : class
-        {
-            Check.NotNull(source, nameof(source));
-
-            return new ObservableBackedBindingList<T>(source);
-        }
+            => new ObservableBackedBindingList<T>(source);
     }
 }

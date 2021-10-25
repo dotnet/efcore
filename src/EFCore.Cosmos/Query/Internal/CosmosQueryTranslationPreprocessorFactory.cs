@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public CosmosQueryTranslationPreprocessorFactory(
             QueryTranslationPreprocessorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
             Dependencies = dependencies;
         }
 

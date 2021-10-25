@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once CheckNamespace
@@ -32,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore
 
         private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-
             var service = databaseFacade.Instance.GetService<TService>();
             if (service == null)
             {

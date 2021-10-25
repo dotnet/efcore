@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public CosmosExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             _createExecutionStrategy = dependencies.Options.FindExtension<CosmosOptionsExtension>()?.ExecutionStrategyFactory

@@ -60,16 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
-            return _plugins.Concat(_translators)
+            => _plugins.Concat(_translators)
                 .Select(t => t.Translate(instance, method, arguments, logger))
                 .FirstOrDefault(t => t != null);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

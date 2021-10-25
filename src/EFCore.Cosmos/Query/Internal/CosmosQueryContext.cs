@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             ICosmosClientWrapper cosmosClient)
             : base(dependencies)
         {
-            Check.NotNull(cosmosClient, nameof(cosmosClient));
-
             CosmosClient = cosmosClient;
         }
 

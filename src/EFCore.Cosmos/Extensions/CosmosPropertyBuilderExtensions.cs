@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             string name)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(name, nameof(name));
 
             propertyBuilder.Metadata.SetJsonPropertyName(name);
@@ -118,11 +117,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder IsETagConcurrency(this PropertyBuilder propertyBuilder)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             propertyBuilder
                 .IsConcurrencyToken()
                 .ToJsonProperty("_etag")
                 .ValueGeneratedOnAddOrUpdate();
+
             return propertyBuilder;
         }
 
