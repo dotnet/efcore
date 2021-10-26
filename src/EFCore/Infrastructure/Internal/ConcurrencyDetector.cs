@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
@@ -15,12 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///     <see cref="DbContext" /> instance will use its own instance of this service.
-    ///     The implementation may depend on other services registered with any lifetime.
-    ///     The implementation does not need to be thread-safe.
-    /// </remarks>
     public class ConcurrencyDetector : IConcurrencyDetector
     {
         private int _inCriticalSection;

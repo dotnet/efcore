@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
@@ -16,13 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
-    ///     are allowed. This means that each <see cref="DbContext" /> instance will use its own
-    ///     set of instances of this service.
-    ///     The implementations may depend on other services registered with any lifetime.
-    ///     The implementations do not need to be thread-safe.
-    /// </remarks>
     public class DbCommandInterceptorAggregator : InterceptorAggregator<IDbCommandInterceptor>
     {
         /// <summary>

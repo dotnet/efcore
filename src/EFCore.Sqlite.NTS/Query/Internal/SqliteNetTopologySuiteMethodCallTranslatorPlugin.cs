@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -13,12 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
-    ///     are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
-    ///     instances. The implementation must be thread-safe.
-    ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    /// </remarks>
     public class SqliteNetTopologySuiteMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
     {
         /// <summary>

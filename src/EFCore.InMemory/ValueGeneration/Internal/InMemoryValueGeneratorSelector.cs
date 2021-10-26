@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
 {
@@ -17,12 +16,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///     <see cref="DbContext" /> instance will use its own instance of this service.
-    ///     The implementation may depend on other services registered with any lifetime.
-    ///     The implementation does not need to be thread-safe.
-    /// </remarks>
     public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly IInMemoryStore _inMemoryStore;
