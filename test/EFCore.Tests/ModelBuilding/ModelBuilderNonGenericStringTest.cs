@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override void WithMany_pointing_to_keyless_entity_throws()
             {
-                // ??. Issue #.
+                // Test throws exception before reaching the first exception due to entity type being property bag entity
                 Assert.Equal(
                     CoreStrings.NavigationSingleWrongClrType(
                         "Reference", "KeylessCollectionNavigation", "KeylessReferenceNavigation", "Dictionary<string, object>"),
