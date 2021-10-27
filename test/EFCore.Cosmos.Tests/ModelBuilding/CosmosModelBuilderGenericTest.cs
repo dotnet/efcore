@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -18,17 +21,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public override void Properties_can_set_row_version()
             {
-                // Fails due to ETags
+                Assert.Equal(
+                    CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => base.Properties_can_set_row_version()).Message);
             }
 
             public override void Properties_can_be_made_concurrency_tokens()
             {
-                // Fails due to ETags
-            }
-
-            public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
-            {
-                // Fails due to extra shadow properties
+                Assert.Equal(
+                    CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => base.Properties_can_be_made_concurrency_tokens()).Message);
             }
 
             protected override void Mapping_throws_for_non_ignored_array()
@@ -271,24 +275,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class CosmosGenericInheritance : GenericInheritance
         {
-            public override void Can_set_and_remove_base_type()
-            {
-                // Fails due to presence of __jObject
-            }
-
             public override void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
             {
-                // Base discovered as owned
-            }
+                var mb = CreateModelBuilder();
+                mb.Entity<AL>();
+                mb.Entity<L>();
 
-            public override void Base_types_are_mapped_correctly_if_discovered_last()
-            {
-                // Base discovered as owned
+                var mutableEntityTypes = mb.Model.GetEntityTypes().Where(e => e.ClrType == typeof(Q)).ToList();
+
+                Assert.Equal(2, mutableEntityTypes.Count);
+
+                foreach (var mutableEntityType in mutableEntityTypes)
+                {
+                    var mutableProperty = mutableEntityType.FindProperty(nameof(Q.ID));
+
+                    Assert.Equal(ValueGenerated.Never, mutableProperty.ValueGenerated);
+                }
             }
 
             public override void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
             {
                 // Base discovered as owned
+                Assert.Throws<NullReferenceException>(
+                    () => base.Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided());
             }
 
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
@@ -488,12 +497,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override void Join_type_is_automatically_configured_by_convention()
             {
-                // Many-to-many not configured by convention on Cosmos
+                // Cosmos many-to-many. Issue #23523.
+                Assert.Equal(
+                    CoreStrings.NavigationNotAdded(
+                        nameof(ImplicitManyToManyA), nameof(ImplicitManyToManyA.Bs), "List<ImplicitManyToManyB>"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => base.Join_type_is_automatically_configured_by_convention()).Message);
             }
 
             public override void ForeignKeyAttribute_configures_the_properties()
             {
-                // Many-to-many not configured by convention on Cosmos
+                // Cosmos many-to-many. Issue #23523.
+                Assert.Equal(
+                    CoreStrings.NavigationNotAdded(
+                        nameof(CategoryWithAttribute), nameof(CategoryWithAttribute.Products), "ICollection<ProductWithAttribute>"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => base.ForeignKeyAttribute_configures_the_properties()).Message);
             }
 
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
@@ -505,11 +524,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void Deriving_from_owned_type_throws()
             {
                 // On Cosmos the base type starts as owned
+                Assert.Contains(
+                    "(No exception was thrown)",
+                    Assert.Throws<ThrowsException>(
+                        () => base.Deriving_from_owned_type_throws()).Message);
             }
 
             public override void Configuring_base_type_as_owned_throws()
             {
                 // On Cosmos the base type starts as owned
+                Assert.Contains(
+                    "(No exception was thrown)",
+                    Assert.Throws<ThrowsException>(
+                        () => base.Deriving_from_owned_type_throws()).Message);
             }
 
             [ConditionalFact]

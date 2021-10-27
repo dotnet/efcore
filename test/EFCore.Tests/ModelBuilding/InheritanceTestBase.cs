@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Null(pickle.BaseType);
                 var pickleClone = modelBuilder.Model.Clone().FindEntityType(pickle.Name);
-                var initialProperties = pickleClone.GetProperties().ToList();
+                var initialProperties = pickleClone.GetProperties().Where(p => p.Name != "__jObject").ToList();
                 var initialKeys = pickleClone.GetKeys().ToList();
                 var initialIndexes = pickleClone.GetIndexes().ToList();
                 var initialForeignKeys = pickleClone.GetForeignKeys().ToList();
@@ -135,9 +135,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var ingredient = ingredientBuilder.Metadata;
 
                 Assert.Same(typeof(Ingredient), pickle.BaseType.ClrType);
+
+                var actualProperties = pickle.GetProperties().Where(p => p.Name != "__jObject").ToList();
                 AssertEqual(
-                    initialProperties, pickle.GetProperties().Where(p => p.Name != "Discriminator"),
+                    initialProperties.Where(p => p.Name != "Discriminator"),
+                    actualProperties.Where(p => p.Name != "Discriminator"),
                     new PropertyComparer(compareAnnotations: false));
+
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
@@ -146,15 +150,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 pickleBuilder.HasBaseType(null);
 
                 Assert.Null(pickle.BaseType);
-                AssertEqual(initialProperties, pickle.GetProperties(), new PropertyComparer(compareAnnotations: false));
+                actualProperties = pickle.GetProperties().Where(p => p.Name != "__jObject").ToList();
+                AssertEqual(initialProperties, actualProperties, new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
                 AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
+                actualProperties = ingredient.GetProperties().Where(p => p.Name != "__jObject").ToList();
                 AssertEqual(
-                    initialProperties, ingredient.GetProperties().Where(p => p.Name != "Discriminator"),
+                    initialProperties.Where(p => p.Name != "Discriminator"),
+                    actualProperties.Where(p => p.Name != "Discriminator"),
                     new PropertyComparer(compareAnnotations: false));
+
                 AssertEqual(initialKeys, ingredient.GetKeys());
                 AssertEqual(initialIndexes, ingredient.GetIndexes());
                 Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Xunit.Sdk;
 
 #nullable enable
 
@@ -26,18 +27,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
 
-            // Shadow navigations not supported #3864
-            public override void Can_configure_owned_type_collection_with_one_call()
-            {
-            }
-
             public override void OwnedType_can_derive_from_Collection()
             {
-            }
-
-            // Owned type configuration doesn't apply to "derived" types when using shadow entity types
-            public override void Can_configure_owned_type_collection_with_one_call_afterwards()
-            {
+                // Shadow navigations. Issue #3864.
+                Assert.Equal(
+                    CoreStrings.AmbiguousSharedTypeEntityTypeName(
+                        "Microsoft.EntityFrameworkCore.ModelBuilding.ModelBuilderTest+DependentEntity"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => base.OwnedType_can_derive_from_Collection()).Message);
             }
         }
 
@@ -49,6 +46,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void WithMany_pointing_to_keyless_entity_throws()
             {
                 // Test throws exception before reaching the first exception due to entity type being property bag entity
+                Assert.Equal(
+                    CoreStrings.NavigationSingleWrongClrType(
+                        "Reference", "KeylessCollectionNavigation", "KeylessReferenceNavigation", "Dictionary<string, object>"),
+                    Assert.Throws<EqualException>(
+                        () => base.WithMany_pointing_to_keyless_entity_throws()).Actual);
             }
         }
 

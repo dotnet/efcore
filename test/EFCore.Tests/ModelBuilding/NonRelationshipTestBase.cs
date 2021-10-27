@@ -654,8 +654,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(-1, entityType.FindProperty("Up").GetShadowIndex());
                 Assert.Equal(-1, entityType.FindProperty("Down").GetShadowIndex());
-                Assert.Equal(0, entityType.FindProperty("Gluon").GetShadowIndex());
-                Assert.Equal(1, entityType.FindProperty("Photon").GetShadowIndex());
+                Assert.NotEqual(-1, entityType.FindProperty("Gluon").GetShadowIndex());
+                Assert.NotEqual(-1, entityType.FindProperty("Photon").GetShadowIndex());
+                Assert.NotEqual(entityType.FindProperty("Gluon").GetShadowIndex(), entityType.FindProperty("Photon").GetShadowIndex());
             }
 
             [ConditionalFact]

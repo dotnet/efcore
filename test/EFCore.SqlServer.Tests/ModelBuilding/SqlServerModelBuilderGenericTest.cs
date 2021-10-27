@@ -837,7 +837,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(owned.GetSchema());
             }
 
-            [ConditionalFact]
             public override void Can_configure_owned_type()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -900,7 +899,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
 
-            [ConditionalFact]
             public override void Can_configure_owned_type_key()
             {
                 var modelBuilder = CreateModelBuilder();

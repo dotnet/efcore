@@ -10330,7 +10330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
-        [ConditionalFact(Skip = "#15339")]
+        [ConditionalFact]
         public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
         {
             Execute(
@@ -10363,13 +10363,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             Assert.Equal(50, c.MaxLength);
                             Assert.False(c.IsUnicode);
                         },
+                        c => Assert.Equal("DisplayName", c.Name),
                         c =>
                         {
                             Assert.Equal("Created_Reason", c.Name);
                             Assert.Equal(255, c.MaxLength);
                             Assert.False(c.IsUnicode);
-                        },
-                        c => Assert.Equal("DisplayName", c.Name)
+                        }
                     );
                 });
         }
