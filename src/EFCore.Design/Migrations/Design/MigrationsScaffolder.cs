@@ -82,6 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
 
+            if (string.Equals(migrationName, "migration", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new OperationException(DesignStrings.CircularBaseClassDependency);
+            }
+
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
