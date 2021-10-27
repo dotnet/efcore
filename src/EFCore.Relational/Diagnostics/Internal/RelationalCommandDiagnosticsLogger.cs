@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandCreateExpiration = default;
 
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandCreateExpiration = default;
 
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -888,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -952,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -1016,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCommandExecuteExpiration = default;
 
@@ -1122,7 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             LogCommandError(command, duration, definition);
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandError(
                     connection.DbConnection,
@@ -1186,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             LogCommandError(command, duration, definition);
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCommandError(
                     connection.DbConnection,
@@ -1295,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbCommandInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressDataReaderDisposingExpiration = default;
 

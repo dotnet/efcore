@@ -31,10 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             : base(dependencies)
         {
             _clrTypeMappings
-                = new Dictionary<Type, CosmosTypeMapping>
-                {
-                    { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) }
-                };
+                = new Dictionary<Type, CosmosTypeMapping> { { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) } };
         }
 
         /// <summary>

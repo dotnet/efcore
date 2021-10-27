@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                         throughput = currentThroughput;
                     }
                     else if ((throughput.AutoscaleMaxThroughput ?? throughput.Throughput)
-                        != (currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput))
+                             != (currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput))
                     {
                         var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
                         throw new InvalidOperationException(
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                                 container));
                     }
                     else if ((throughput.AutoscaleMaxThroughput == null)
-                        != (currentThroughput.AutoscaleMaxThroughput == null))
+                             != (currentThroughput.AutoscaleMaxThroughput == null))
                     {
                         var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
                         var autoscaleType = throughput.AutoscaleMaxThroughput == null

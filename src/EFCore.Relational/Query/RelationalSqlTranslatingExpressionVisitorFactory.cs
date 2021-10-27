@@ -7,10 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     A factory for creating <see cref="RelationalSqlTranslatingExpressionVisitor" /> instances.
     /// </summary>
     /// <remarks>
     ///     The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
@@ -21,11 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalSqlTranslatingExpressionVisitorFactory : IRelationalSqlTranslatingExpressionVisitorFactory
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates an instance of the <see cref="RelationalSqlTranslatingExpressionVisitorFactory"/>.
         /// </summary>
+        /// <param name="dependencies">The service dependencies.</param>
         public RelationalSqlTranslatingExpressionVisitorFactory(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
         {
@@ -38,11 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new <see cref="RelationalSqlTranslatingExpressionVisitor" />.
         /// </summary>
+        /// <param name="queryCompilationContext">The query compilation context to use.</param>
+        /// <param name="queryableMethodTranslatingExpressionVisitor">The visitor to use to translate subqueries.</param>
+        /// <returns>A relational sql translating expression visitor.</returns>
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)

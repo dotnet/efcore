@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -17,8 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public interface IDatabaseCreator
     {

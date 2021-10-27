@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressOpenExpiration = default;
 
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressOpenExpiration = default;
 
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressOpenExpiration = default;
 
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressOpenExpiration = default;
 
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCloseExpiration = default;
 
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCloseExpiration = default;
 
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCloseExpiration = default;
 
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 _suppressCloseExpiration = default;
 
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             LogConnectionError(connection, definition);
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionError(
                     connection,
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             LogConnectionError(connection, definition);
 
             if (NeedsEventData<IDbConnectionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastConnectionError(
                     connection,

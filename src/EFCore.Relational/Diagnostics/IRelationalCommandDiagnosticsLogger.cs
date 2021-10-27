@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -13,8 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     An <see cref="IDiagnosticsLogger{ConnectionCategory}" /> with some extra functionality suited for high-performance logging.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///         for more information.
+    ///     </para>
     /// </remarks>
     public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLoggerCategory.Database.Command>
     {

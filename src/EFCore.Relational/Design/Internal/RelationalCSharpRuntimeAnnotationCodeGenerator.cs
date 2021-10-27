@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 annotations.Remove(RelationalAnnotationNames.Collation);
 
                 if (annotations.TryGetAndRemove(
-                    RelationalAnnotationNames.DbFunctions,
-                    out SortedDictionary<string, IDbFunction> functions))
+                        RelationalAnnotationNames.DbFunctions,
+                        out SortedDictionary<string, IDbFunction> functions))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
                     parameters.Namespaces.Add(typeof(BindingFlags).Namespace!);
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 if (annotations.TryGetAndRemove(
-                    RelationalAnnotationNames.Sequences,
-                    out SortedDictionary<(string, string?), ISequence> sequences))
+                        RelationalAnnotationNames.Sequences,
+                        out SortedDictionary<(string, string?), ISequence> sequences))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
                     var sequencesVariable = Dependencies.CSharpHelper.Identifier("sequences", parameters.ScopeVariables, capitalize: false);
@@ -375,8 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 annotations.Remove(RelationalAnnotationNames.Collation);
 
                 if (annotations.TryGetAndRemove(
-                    RelationalAnnotationNames.RelationalOverrides,
-                    out SortedDictionary<StoreObjectIdentifier, object> overrides))
+                        RelationalAnnotationNames.RelationalOverrides,
+                        out SortedDictionary<StoreObjectIdentifier, object> overrides))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<StoreObjectIdentifier, object>).Namespace!);
                     var overridesVariable = Dependencies.CSharpHelper.Identifier("overrides", parameters.ScopeVariables, capitalize: false);
