@@ -146,10 +146,6 @@ namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
     {
-        public TestDbContext()
-        {
-        }
-
         public TestDbContext(DbContextOptions<TestDbContext> options)
             : base(options)
         {
@@ -1047,10 +1043,6 @@ namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
     {
-        public TestDbContext()
-        {
-        }
-
         public TestDbContext(DbContextOptions<TestDbContext> options)
             : base(options)
         {
