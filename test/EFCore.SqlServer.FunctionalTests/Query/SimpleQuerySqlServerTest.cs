@@ -63,5 +63,44 @@ WHERE [i].[Taste] = 1");
 FROM [Food] AS [f]
 WHERE [f].[Taste] = CAST(1 AS tinyint)");
         }
+
+        public override async Task Null_check_removal_in_ternary_maintain_appropriate_cast(bool async)
+        {
+            await base.Null_check_removal_in_ternary_maintain_appropriate_cast(async);
+
+            AssertSql(
+                @"SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+FROM [Food] AS [f]");
+        }
+
+        public override async Task Bool_discriminator_column_works(bool async)
+        {
+            await base.Bool_discriminator_column_works(async);
+
+            AssertSql(
+                @"SELECT [a].[Id], [a].[BlogId], [b].[Id], [b].[IsPhotoBlog], [b].[Title], [b].[NumberOfPhotos]
+FROM [Authors] AS [a]
+LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]");
+        }
+
+        public override async Task Count_member_over_IReadOnlyCollection_works(bool async)
+        {
+            await base.Count_member_over_IReadOnlyCollection_works(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Books] AS [b]
+    WHERE [a].[AuthorId] = [b].[AuthorId]) AS [BooksCount]
+FROM [Authors] AS [a]");
+        }
+
+        public override async Task Multiple_different_entity_type_from_different_namespaces(bool async)
+        {
+            await base.Multiple_different_entity_type_from_different_namespaces(async);
+
+            AssertSql(
+                @"SELECT cast(null as int) AS MyValue");
+        }
     }
 }

@@ -324,5 +324,73 @@ namespace Microsoft.EntityFrameworkCore
 
             public int NumberOfPhotos { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26433>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Authors
+                    .Select(a => new
+                    {
+                        BooksCount = a.Books.Count
+                    });
+
+            var authors = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(3, Assert.Single(authors).BooksCount);
+        }
+
+        protected class Context26433 : DbContext
+        {
+            public Context26433(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            public DbSet<Book26433> Books { get; set; }
+            public DbSet<Author26433> Authors { get; set; }
+
+            public void Seed()
+            {
+
+                base.Add(new Author26433
+                {
+                    FirstName = "William",
+                    LastName = "Shakespeare",
+                    Books = new List<Book26433>
+                        {
+                            new() {Title = "Hamlet"},
+                            new() {Title = "Othello"},
+                            new() {Title = "MacBeth"}
+                        }
+                });
+
+                SaveChanges();
+            }
+        }
+
+        protected class Author26433
+        {
+            [Key]
+            public int AuthorId { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public IReadOnlyCollection<Book26433> Books { get; set; }
+        }
+
+        protected class Book26433
+        {
+            [Key]
+            public int BookId { get; set; }
+            public string Title { get; set; }
+            public int AuthorId { get; set; }
+            public Author26433 Author { get; set; }
+        }
+
     }
 }
