@@ -307,7 +307,7 @@ LEFT JOIN (
     WHERE [t].[row] <= 3
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t0].[CustomerID], [t0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override void Select_nested_collection_multi_level2()
@@ -1441,12 +1441,9 @@ ORDER BY [t].[EmployeeID] DESC");
             await base.Reverse_in_join_outer(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderID]
+                @"SELECT [c].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID]
-    FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[City], [c].[CustomerID] DESC");
         }
 
@@ -1457,16 +1454,13 @@ ORDER BY [c].[City], [c].[CustomerID] DESC");
             AssertSql(
                 @"@__p_0='20'
 
-SELECT [t].[CustomerID], [t0].[OrderID]
+SELECT [t].[CustomerID], [o].[OrderID]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
-INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID]
-    FROM [Orders] AS [o]
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID]");
         }
 
@@ -1475,12 +1469,9 @@ ORDER BY [t].[CustomerID]");
             await base.Reverse_in_join_inner(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderID]
+                @"SELECT [c].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
-LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID]
-    FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID]");
         }
 
@@ -1491,17 +1482,14 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__p_0='2'
 
-SELECT [c].[CustomerID], [t0].[OrderID]
+SELECT [c].[CustomerID], [t].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID]
-    FROM (
-        SELECT [o].[OrderID], [o].[CustomerID]
-        FROM [Orders] AS [o]
-        ORDER BY [o].[OrderID] DESC
-        OFFSET @__p_0 ROWS
-    ) AS [t]
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+    SELECT [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID] DESC
+    OFFSET @__p_0 ROWS
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 ORDER BY [c].[CustomerID]");
         }
 
@@ -1510,12 +1498,9 @@ ORDER BY [c].[CustomerID]");
             await base.Reverse_in_SelectMany(async);
 
             AssertSql(
-                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID] DESC");
         }
 
@@ -1533,13 +1518,10 @@ FROM (
     ORDER BY [c].[CustomerID] DESC
 ) AS [t]
 CROSS APPLY (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
-    FROM (
-        SELECT TOP(30) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-        FROM [Orders] AS [o]
-        WHERE [t].[CustomerID] = [o].[CustomerID]
-        ORDER BY [o].[OrderID] DESC
-    ) AS [t1]
+    SELECT TOP(30) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [t].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID] DESC
 ) AS [t0]
 ORDER BY [t].[CustomerID] DESC");
         }
@@ -1549,13 +1531,10 @@ ORDER BY [t].[CustomerID] DESC");
             await base.Reverse_in_projection_subquery(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-OUTER APPLY (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-) AS [t]
-ORDER BY [c].[CustomerID], [t].[OrderDate] DESC, [t].[OrderID]");
+OUTER APPLY [Orders] AS [o]
+ORDER BY [c].[CustomerID], [o].[OrderDate] DESC, [o].[OrderID]");
         }
 
         public override async Task Reverse_in_projection_subquery_single_result(bool async)

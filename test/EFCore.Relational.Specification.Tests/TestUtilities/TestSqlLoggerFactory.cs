@@ -96,11 +96,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 const string indent = FileNewLine + "                ";
 
                 var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+                {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
 ";
 
-                if (SqlStatements.Count > 9)
+                if (SqlStatements.Count > 20)
                 {
                     newBaseLine += "Output truncated.";
                 }
