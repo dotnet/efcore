@@ -229,21 +229,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task<string> FromSqlRaw_queryable_composed(bool async)
+        public virtual async Task FromSqlRaw_queryable_composed(bool async)
         {
             using var context = CreateContext();
             var query = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                 .Where(c => c.ContactName.Contains("z"));
-
-            var queryString = query.ToQueryString();
 
             var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
             Assert.Equal(14, actual.Length);
-
-            return queryString;
         }
 
         [ConditionalTheory]
@@ -712,7 +708,7 @@ FROM [Customers]"))
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+        public virtual async Task FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         {
             var city = "London";
             var contactTitle = "Sales Representative";
@@ -721,7 +717,6 @@ FROM [Customers]"))
             var query = context.Set<Customer>().FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                 .Where(c => c.ContactTitle == contactTitle);
-            var queryString = query.ToQueryString();
 
             var actual = async
                 ? await query.ToArrayAsync()
@@ -730,8 +725,6 @@ FROM [Customers]"))
             Assert.Equal(3, actual.Length);
             Assert.True(actual.All(c => c.City == "London"));
             Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
-
-            return queryString;
         }
 
         [ConditionalTheory]
@@ -1504,7 +1497,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task<string> FromSqlRaw_composed_with_common_table_expression(bool async)
+        public virtual async Task FromSqlRaw_composed_with_common_table_expression(bool async)
         {
             using var context = CreateContext();
             var query = context.Set<Customer>()
@@ -1525,8 +1518,6 @@ SELECT * FROM [Customers2]"))
 
             Assert.Equal(14, actual.Length);
             Assert.Equal(14, context.ChangeTracker.Entries().Count());
-
-            return queryString;
         }
 
         protected string NormalizeDelimitersInRawString(string sql)

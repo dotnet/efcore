@@ -18,37 +18,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task<string> FromSqlRaw_queryable_composed(bool async)
+        public override async Task FromSqlRaw_queryable_composed(bool async)
         {
-            var queryString = await base.FromSqlRaw_queryable_composed(async);
+            await base.FromSqlRaw_queryable_composed(async);
 
-            var expected =
+            AssertSql(
                 @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
 FROM (
     SELECT * FROM ""Customers""
 ) AS ""m""
-WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)";
-
-            Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
-
-            return queryString;
+WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)");
         }
 
-        public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+        public override async Task FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         {
-            var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
+            await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
-            Assert.Equal(
-                @".param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+            AssertSql(
+                @"p0='London' (Size = 6)
+@__contactTitle_1='Sales Representative' (Size = 20)
 
 SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
-
-            return queryString;
+WHERE ""m"".""ContactTitle"" = @__contactTitle_1");
         }
 
         public override Task Bad_data_error_handling_invalid_cast_key(bool async)
@@ -75,11 +69,12 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
             return Task.CompletedTask;
         }
 
-        public override async Task<string> FromSqlRaw_composed_with_common_table_expression(bool async)
+        public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
         {
-            var queryString = await base.FromSqlRaw_composed_with_common_table_expression(async);
+            await base.FromSqlRaw_composed_with_common_table_expression(async);
 
-            Assert.Equal(@"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+            AssertSql(
+                @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
 FROM (
 
     WITH ""Customers2"" AS (
@@ -87,12 +82,13 @@ FROM (
     )
     SELECT * FROM ""Customers2""
 ) AS ""m""
-WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)", queryString);
-
-            return queryString;
+WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqliteParameter { ParameterName = name, Value = value };
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
