@@ -961,31 +961,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Clears all existing projections.
-        /// </summary>
-        [Obsolete("Use ReplaceProjection with empty list to clear out projections and associated bindings.")]
-        public void ClearProjection()
-        {
-            throw new InvalidOperationException("Clear Projection should clear the client/server projections");
-        }
-
-        /// <summary>
-        ///     Replaces current projection mapping with a new one to change what is being projected out from this <see cref="SelectExpression" />.
-        /// </summary>
-        /// <param name="projectionMapping">A new projection mapping.</param>
-        [Obsolete("Use ReplaceProjection method instead.")]
-        public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
-        {
-            Check.NotNull(projectionMapping, nameof(projectionMapping));
-
-            _projectionMapping.Clear();
-            foreach (var kvp in projectionMapping)
-            {
-                _projectionMapping[kvp.Key] = kvp.Value;
-            }
-        }
-
-        /// <summary>
         ///     Replaces current projection mapping with a new one to change what is being projected out from this <see cref="SelectExpression" />.
         /// </summary>
         /// <param name="projectionMapping">A new projection mapping.</param>
@@ -1022,19 +997,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _clientProjections.Add(expression);
                 _aliasForClientProjections.Add(null);
             }
-        }
-
-        /// <summary>
-        ///     Gets the projection mapped to the given <see cref="ProjectionMember" />.
-        /// </summary>
-        /// <param name="projectionMember">A projection member to search in the mapping.</param>
-        /// <returns>The mapped projection for given projection member.</returns>
-        [Obsolete("Use GetProjection method using ProjectionBindingExpression to get mapped projection.")]
-        public Expression GetMappedProjection(ProjectionMember projectionMember)
-        {
-            Check.NotNull(projectionMember, nameof(projectionMember));
-
-            return _projectionMapping[projectionMember];
         }
 
         /// <summary>
@@ -2657,127 +2619,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return AddJoin(JoinType.OuterApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
         }
 
-        #region ObsoleteMethods
-
-        [Obsolete]
-        private void AddJoin(
-            JoinType joinType,
-            SelectExpression innerSelectExpression,
-            Type? transparentIdentifierType,
-            SqlExpression? joinPredicate)
-        {
-            AddJoin(joinType, ref innerSelectExpression, joinPredicate);
-
-            if (transparentIdentifierType != null)
-            {
-                var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-                var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-                foreach (var projection in _projectionMapping)
-                {
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = projection.Value;
-                }
-
-                var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-                var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
-                foreach (var projection in innerSelectExpression._projectionMapping)
-                {
-                    var projectionToAdd = projection.Value;
-                    if (innerNullable)
-                    {
-                        if (projectionToAdd is EntityProjectionExpression entityProjection)
-                        {
-                            projectionToAdd = entityProjection.MakeNullable();
-                        }
-                        else if (projectionToAdd is ColumnExpression column)
-                        {
-                            projectionToAdd = column.MakeNullable();
-                        }
-                    }
-
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projectionToAdd;
-                }
-
-                _projectionMapping = projectionMapping;
-            }
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using INNER JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
-        /// <param name="joinPredicate">A predicate to use for the join.</param>
-        /// <param name="transparentIdentifierType">The type of the result generated after performing the join.</param>
-        [Obsolete("Use the other overloads.")]
-        public void AddInnerJoin(
-            SelectExpression innerSelectExpression,
-            SqlExpression joinPredicate,
-            Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
-        /// <param name="joinPredicate">A predicate to use for the join.</param>
-        /// <param name="transparentIdentifierType">The type of the result generated after performing the join.</param>
-        [Obsolete("Use the other overloads.")]
-        public void AddLeftJoin(
-            SelectExpression innerSelectExpression,
-            SqlExpression joinPredicate,
-            Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
-        /// <param name="transparentIdentifierType">The type of the result generated after performing the join.</param>
-        [Obsolete("Use the other overloads.")]
-        public void AddCrossJoin(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
-        /// <param name="transparentIdentifierType">The type of the result generated after performing the join.</param>
-        [Obsolete("Use the other overloads.")]
-        public void AddCrossApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
-        /// <param name="transparentIdentifierType">The type of the result generated after performing the join.</param>
-        [Obsolete("Use the other overloads.")]
-        public void AddOuterApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        #endregion
-
         /// <summary>
         ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
         /// </summary>
@@ -3517,74 +3358,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderings">The <see cref="Orderings" /> property of the result.</param>
         /// <param name="limit">The <see cref="Limit" /> property of the result.</param>
         /// <param name="offset">The <see cref="Offset" /> property of the result.</param>
-        /// <param name="distinct">The <see cref="IsDistinct" /> property of the result.</param>
-        /// <param name="alias">The <see cref="TableExpressionBase.Alias" /> property of the result.</param>
-        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-        // This does not take internal states since when using this method SelectExpression should be finalized
-        [Obsolete("Use the overload which does not require distinct & alias parameter.")]
-        public SelectExpression Update(
-            IReadOnlyList<ProjectionExpression> projections,
-            IReadOnlyList<TableExpressionBase> tables,
-            SqlExpression? predicate,
-            IReadOnlyList<SqlExpression> groupBy,
-            SqlExpression? having,
-            IReadOnlyList<OrderingExpression> orderings,
-            SqlExpression? limit,
-            SqlExpression? offset,
-            bool distinct,
-            string? alias)
-        {
-            Check.NotNull(projections, nameof(projections));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(groupBy, nameof(groupBy));
-            Check.NotNull(orderings, nameof(orderings));
-
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var kvp in _projectionMapping)
-            {
-                projectionMapping[kvp.Key] = kvp.Value;
-            }
-
-            var newTableReferences = _tableReferences.ToList();
-            var newSelectExpression = new SelectExpression(
-                alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
-            {
-                _projectionMapping = projectionMapping,
-                Predicate = predicate,
-                Having = having,
-                Offset = offset,
-                Limit = limit,
-                IsDistinct = distinct,
-                Tags = Tags
-            };
-
-            // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
-            // Update method should not be used pre-projection application. There are other methods to change SelectExpression.
-
-            // Remap tableReferences in new select expression
-            foreach (var tableReference in newTableReferences)
-            {
-                tableReference.UpdateTableReference(this, newSelectExpression);
-            }
-
-            var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, newSelectExpression);
-            tableReferenceUpdatingExpressionVisitor.Visit(newSelectExpression);
-
-            return newSelectExpression;
-        }
-
-        /// <summary>
-        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
-        ///     return this expression.
-        /// </summary>
-        /// <param name="projections">The <see cref="Projection" /> property of the result.</param>
-        /// <param name="tables">The <see cref="Tables" /> property of the result.</param>
-        /// <param name="predicate">The <see cref="Predicate" /> property of the result.</param>
-        /// <param name="groupBy">The <see cref="GroupBy" /> property of the result.</param>
-        /// <param name="having">The <see cref="Having" /> property of the result.</param>
-        /// <param name="orderings">The <see cref="Orderings" /> property of the result.</param>
-        /// <param name="limit">The <see cref="Limit" /> property of the result.</param>
-        /// <param name="offset">The <see cref="Offset" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         // This does not take internal states since when using this method SelectExpression should be finalized
         public SelectExpression Update(
@@ -3602,9 +3375,38 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(groupBy, nameof(groupBy));
             Check.NotNull(orderings, nameof(orderings));
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            return Update(projections, tables, predicate, groupBy, having, orderings, limit, offset, IsDistinct, Alias);
-#pragma warning restore CS0618 // Type or member is obsolete
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var kvp in _projectionMapping)
+            {
+                projectionMapping[kvp.Key] = kvp.Value;
+            }
+
+            var newTableReferences = _tableReferences.ToList();
+            var newSelectExpression = new SelectExpression(
+                Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
+            {
+                _projectionMapping = projectionMapping,
+                Predicate = predicate,
+                Having = having,
+                Offset = offset,
+                Limit = limit,
+                IsDistinct = IsDistinct,
+                Tags = Tags
+            };
+
+            // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
+            // Update method should not be used pre-projection application. There are other methods to change SelectExpression.
+
+            // Remap tableReferences in new select expression
+            foreach (var tableReference in newTableReferences)
+            {
+                tableReference.UpdateTableReference(this, newSelectExpression);
+            }
+
+            var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, newSelectExpression);
+            tableReferenceUpdatingExpressionVisitor.Visit(newSelectExpression);
+
+            return newSelectExpression;
         }
 
         /// <inheritdoc />

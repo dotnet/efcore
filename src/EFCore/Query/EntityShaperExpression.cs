@@ -230,14 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Marks this shaper as nullable, indicating that it can shape null entity instances.
-        /// </summary>
-        /// <returns>This expression if nullability not changed, or an expression with updated nullability.</returns>
-        [Obsolete("Use MakeNullable() instead.")]
-        public virtual EntityShaperExpression MarkAsNullable()
-            => MakeNullable();
-
-        /// <summary>
         ///     Assigns nullability for this shaper, indicating whether it can shape null entity instances or not.
         /// </summary>
         /// <param name="nullable">A value indicating if the shaper is nullable.</param>

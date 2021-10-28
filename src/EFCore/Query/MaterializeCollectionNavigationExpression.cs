@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="CollectionShaperExpression" /> class.
+        ///     Creates a new instance of the <see cref="MaterializeCollectionNavigationExpression" /> class.
         /// </summary>
         /// <param name="subquery">An expression reprensenting how to get value from query to create the collection.</param>
         /// <param name="navigation">A navigation associated with this collection.</param>

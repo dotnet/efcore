@@ -66,24 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Creates a new instance of the <see cref="ProjectionBindingExpression" /> class.
-        /// </summary>
-        /// <param name="queryExpression">The query expression to get the value from.</param>
-        /// <param name="indexMap">The index map to bind with query expression projection for ValueBuffer.</param>
-        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
-        public ProjectionBindingExpression(
-            Expression queryExpression,
-            IReadOnlyDictionary<IProperty, int> indexMap)
-        {
-            Check.NotNull(queryExpression, nameof(queryExpression));
-            Check.NotNull(indexMap, nameof(indexMap));
-
-            QueryExpression = queryExpression;
-            IndexMap = indexMap;
-            Type = typeof(ValueBuffer);
-        }
-
-        /// <summary>
         ///     The query expression to bind with.
         /// </summary>
         public virtual Expression QueryExpression { get; }
@@ -97,12 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The projection member to bind if binding is via projection index.
         /// </summary>
         public virtual int? Index { get; }
-
-        /// <summary>
-        ///     The projection member to bind if binding is via index map for a value buffer.
-        /// </summary>
-        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
-        public virtual IReadOnlyDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
         public override Type Type { get; }
@@ -133,18 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 expressionPrinter.Append(Index.ToString()!);
             }
-#pragma warning disable CS0618 // Type or member is obsolete
-            else if (IndexMap != null)
-            {
-                using (expressionPrinter.Indent())
-                {
-                    foreach (var kvp in IndexMap)
-                    {
-                        expressionPrinter.AppendLine($"{kvp.Key.Name}:{kvp.Value},");
-                    }
-                }
-            }
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <inheritdoc />
@@ -159,16 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && Type == projectionBindingExpression.Type
                 && (ProjectionMember?.Equals(projectionBindingExpression.ProjectionMember)
                     ?? projectionBindingExpression.ProjectionMember == null)
-                && Index == projectionBindingExpression.Index
-                // Using reference equality here since if we are this far, we don't need to compare this.
-#pragma warning disable CS0618 // Type or member is obsolete
-                && IndexMap == projectionBindingExpression.IndexMap;
-#pragma warning restore CS0618 // Type or member is obsolete
+                && Index == projectionBindingExpression.Index;
 
         /// <inheritdoc />
         public override int GetHashCode()
-#pragma warning disable CS0618 // Type or member is obsolete
-            => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
-#pragma warning restore CS0618 // Type or member is obsolete
+            => HashCode.Combine(QueryExpression, ProjectionMember, Index);
     }
 }

@@ -946,9 +946,6 @@ namespace Microsoft.EntityFrameworkCore
                     typeof(QueryCompilationContextDependencies).GetProperty(
                         nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
                     typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
-#pragma warning disable CS0618 // Type or member is obsolete
-                    typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.QueryProvider))
-#pragma warning restore CS0618 // Type or member is obsolete
                 };
 
             public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder, Type Runtime)> MetadataTypes { get; }
