@@ -22,23 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
         /// </summary>
-        /// <param name="sql">A user-provided custom SQL for the table source.</param>
-        /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
-        /// <param name="alias">A string alias for the table source.</param>
-        [Obsolete("Use the constructor which takes alias as first argument.")]
-        public FromSqlExpression(string sql, Expression arguments, string alias)
-            : base(alias)
-        {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(arguments, nameof(arguments));
-
-            Sql = sql;
-            Arguments = arguments;
-        }
-
-        /// <summary>
-        ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
-        /// </summary>
         /// <param name="alias">A string alias for the table source.</param>
         /// <param name="sql">A user-provided custom SQL for the table source.</param>
         /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>

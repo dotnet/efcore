@@ -511,16 +511,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [Obsolete("Use overload which takes IReadOnlyList instead of params")]
-        public virtual CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses)
-        {
-            Check.NotNull(operand, nameof(operand));
-            Check.NotNull(whenClauses, nameof(whenClauses));
-
-            return Case(operand, whenClauses, null);
-        }
-
-        /// <inheritdoc />
         public virtual CaseExpression Case(SqlExpression? operand, IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression? elseResult)
         {
             Check.NotNull(operand, nameof(operand));
@@ -573,73 +563,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return new CaseExpression(typeMappedWhenClauses, elseResult);
         }
-
-        /// <inheritdoc />
-        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
-        public virtual SqlFunctionExpression Function(
-            string name,
-            IEnumerable<SqlExpression> arguments,
-            Type returnType,
-            RelationalTypeMapping? typeMapping = null)
-            => Function(
-                name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
-
-        /// <inheritdoc />
-        [Obsolete("Use overload that explicitly specifies value for 'argumentsPropagateNullability' argument.")]
-        public virtual SqlFunctionExpression Function(
-            string? schema,
-            string name,
-            IEnumerable<SqlExpression> arguments,
-            Type returnType,
-            RelationalTypeMapping? typeMapping = null)
-            => schema != null
-                ? Function(
-                    schema, name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType,
-                    typeMapping)
-                : Function(
-                    name, arguments, nullable: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
-
-        /// <inheritdoc />
-        [Obsolete(
-            "Use overload that explicitly specifies values for 'instancePropagatesNullability' and 'argumentsPropagateNullability' arguments.")]
-        public virtual SqlFunctionExpression Function(
-            SqlExpression instance,
-            string name,
-            IEnumerable<SqlExpression> arguments,
-            Type returnType,
-            RelationalTypeMapping? typeMapping = null)
-            => Function(
-                instance,
-                name,
-                arguments,
-                nullable: true,
-                instancePropagatesNullability: false,
-                argumentsPropagateNullability: arguments.Select(a => false),
-                returnType,
-                typeMapping);
-
-        /// <inheritdoc />
-        [Obsolete("Use NiladicFunction method.")]
-        public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping? typeMapping = null)
-            => NiladicFunction(name, nullable: true, returnType, typeMapping);
-
-        /// <inheritdoc />
-        [Obsolete("Use NiladicFunction method.")]
-        public virtual SqlFunctionExpression Function(
-            string schema,
-            string name,
-            Type returnType,
-            RelationalTypeMapping? typeMapping = null)
-            => NiladicFunction(schema, name, nullable: true, returnType, typeMapping);
-
-        /// <inheritdoc />
-        [Obsolete("Use NiladicFunction method.")]
-        public virtual SqlFunctionExpression Function(
-            SqlExpression instance,
-            string name,
-            Type returnType,
-            RelationalTypeMapping? typeMapping = null)
-            => NiladicFunction(instance, name, nullable: true, instancePropagatesNullability: false, returnType, typeMapping);
 
         /// <inheritdoc />
         public virtual SqlFunctionExpression Function(
@@ -848,21 +771,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
-        /// <inheritdoc />
-        [Obsolete("Use overload which takes TableExpressionBase by passing FromSqlExpression directly.")]
-        public virtual SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(sql, nameof(sql));
-
-            var tableExpression = new FromSqlExpression(
-                entityType.GetDefaultMappings().Single().Table.Name.Substring(0, 1).ToLowerInvariant(), sql, sqlArguments);
-            var selectExpression = new SelectExpression(entityType, tableExpression);
-            AddConditions(selectExpression, entityType);
-
-            return selectExpression;
-        }
-
         private void AddSelfConditions(SelectExpression selectExpression, IEntityType entityType, ITableBase? table = null)
         {
             // Add conditions if TPH
@@ -1006,15 +914,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private SqlExpression IsNotNull(IProperty property, EntityProjectionExpression entityProjection)
             => IsNotNull(entityProjection.BindProperty(property));
-
-        /// <inheritdoc />
-        [Obsolete("Use IRelationalTypeMappingSource directly.")]
-        public virtual RelationalTypeMapping GetTypeMappingForValue(object? value)
-            => Dependencies.TypeMappingSource.GetMappingForValue(value, Dependencies.Model);
-
-        /// <inheritdoc />
-        [Obsolete("Use IRelationalTypeMappingSource directly.")]
-        public virtual RelationalTypeMapping? FindMapping(Type type)
-            => Dependencies.TypeMappingSource.FindMapping(type, Dependencies.Model);
     }
 }

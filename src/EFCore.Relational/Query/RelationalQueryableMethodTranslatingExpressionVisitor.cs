@@ -171,18 +171,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
         /// <inheritdoc />
-        [Obsolete("Use overload which takes IEntityType.")]
-        protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
-        {
-            Check.NotNull(elementType, nameof(elementType));
-
-            var entityType = _queryCompilationContext.Model.FindEntityType(elementType)!;
-            var queryExpression = _sqlExpressionFactory.Select(entityType);
-
-            return CreateShapedQueryExpression(entityType, queryExpression);
-        }
-
-        /// <inheritdoc />
         protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

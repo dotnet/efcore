@@ -77,24 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     The query provider.
-        /// </summary>
-        [Obsolete("The service requiring IQueryProvider should inject it directly.")]
-        public virtual IQueryProvider QueryProvider
-            => Dependencies.QueryProvider;
-
-        /// <summary>
         ///     The execution strategy to use while executing the query.
         /// </summary>
         public virtual IExecutionStrategy ExecutionStrategy
             => Dependencies.ExecutionStrategy;
-
-        /// <summary>
-        ///     The execution strategy factory to use while executing the query.
-        /// </summary>
-        [Obsolete("Use ExecutionStrategy instead")]
-        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
-            => Dependencies.ExecutionStrategyFactory;
 
         /// <summary>
         ///     The concurrency detector to use while executing the query.

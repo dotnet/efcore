@@ -526,110 +526,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Translates the result selector for join operation.
-        /// </summary>
-        /// <param name="outer">
-        ///     The shaped query expression for outer source. The join on the query expression is already performed on outer query
-        ///     expression.
-        /// </param>
-        /// <param name="resultSelector">The result selector lambda to translate.</param>
-        /// <param name="innerShaper">The shaper for inner source.</param>
-        /// <param name="transparentIdentifierType">The clr type of transparent identifier created from result.</param>
-        /// <returns>The shaped query expression after translation of result selector.</returns>
-        [Obsolete("QueryExpressions should combine shapers to work in client eval scenarios.")]
-        protected virtual ShapedQueryExpression TranslateResultSelectorForJoin(
-            ShapedQueryExpression outer,
-            LambdaExpression resultSelector,
-            Expression innerShaper,
-            Type transparentIdentifierType)
-        {
-            Check.NotNull(outer, nameof(outer));
-            Check.NotNull(resultSelector, nameof(resultSelector));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-            Check.NotNull(transparentIdentifierType, nameof(transparentIdentifierType));
-
-            outer = outer.UpdateShaperExpression(
-                CombineShapers(outer.QueryExpression, outer.ShaperExpression, innerShaper, transparentIdentifierType));
-
-            var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
-
-            Expression original1 = resultSelector.Parameters[0];
-            var replacement1 = AccessOuterTransparentField(transparentIdentifierType, transparentIdentifierParameter);
-            Expression original2 = resultSelector.Parameters[1];
-            var replacement2 = AccessInnerTransparentField(transparentIdentifierType, transparentIdentifierParameter);
-            var newResultSelector = Expression.Lambda(
-                new ReplacingExpressionVisitor(
-                        new[] { original1, original2 }, new[] { replacement1, replacement2 })
-                    .Visit(resultSelector.Body),
-                transparentIdentifierParameter);
-
-            return TranslateSelect(outer, newResultSelector);
-        }
-
-        [Obsolete]
-        private Expression CombineShapers(
-            Expression queryExpression,
-            Expression outerShaper,
-            Expression innerShaper,
-            Type transparentIdentifierType)
-        {
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-            outerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, outerMemberInfo).Visit(outerShaper);
-            innerShaper = new MemberAccessShiftingExpressionVisitor(queryExpression, innerMemberInfo).Visit(innerShaper);
-
-            return Expression.New(
-                transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
-        }
-
-        [Obsolete]
-        private sealed class MemberAccessShiftingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly Expression _queryExpression;
-            private readonly MemberInfo _memberShift;
-
-            public MemberAccessShiftingExpressionVisitor(Expression queryExpression, MemberInfo memberShift)
-            {
-                _queryExpression = queryExpression;
-                _memberShift = memberShift;
-            }
-
-            protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is ProjectionBindingExpression projectionBindingExpression
-                    ? new ProjectionBindingExpression(
-                        _queryExpression,
-                        // ProjectionMember would be non-null here as we are shifting members
-                        projectionBindingExpression.ProjectionMember!.Prepend(_memberShift),
-                        projectionBindingExpression.Type)
-                    : base.VisitExtension(extensionExpression);
-            }
-        }
-
-        [Obsolete]
-        private static Expression AccessOuterTransparentField(
-            Type transparentIdentifierType,
-            Expression targetExpression)
-        {
-            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-
-            return Expression.Field(targetExpression, fieldInfo);
-        }
-
-        [Obsolete]
-        private static Expression AccessInnerTransparentField(
-            Type transparentIdentifierType,
-            Expression targetExpression)
-        {
-            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-
-            return Expression.Field(targetExpression, fieldInfo);
-        }
-
-        /// <summary>
         ///     Translates the given subquery.
         /// </summary>
         /// <param name="expression">The subquery expression to translate.</param>
@@ -653,14 +549,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <returns>A visitor to translate subquery.</returns>
         protected abstract QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor();
-
-        /// <summary>
-        ///     Creates a <see cref="ShapedQueryExpression" /> for the given type by finding its entity type in the model.
-        /// </summary>
-        /// <param name="elementType">The clr type of the entity type to look for.</param>
-        /// <returns>A shaped query expression for the given clr type.</returns>
-        [Obsolete("Use overload which takes IEntityType.")]
-        protected abstract ShapedQueryExpression CreateShapedQueryExpression(Type elementType);
 
         /// <summary>
         ///     Creates a <see cref="ShapedQueryExpression" /> for the given entity type.

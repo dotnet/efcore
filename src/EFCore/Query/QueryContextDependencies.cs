@@ -57,16 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public QueryContextDependencies(
             ICurrentDbContext currentContext,
             IExecutionStrategy executionStrategy,
-            IExecutionStrategyFactory executionStrategyFactory,
             IConcurrencyDetector concurrencyDetector,
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
         {
             CurrentContext = currentContext;
             ExecutionStrategy = executionStrategy;
-#pragma warning disable CS0618 // Type or member is obsolete
-            ExecutionStrategyFactory = executionStrategyFactory;
-#pragma warning restore CS0618 // Type or member is obsolete
             ConcurrencyDetector = concurrencyDetector;
             CommandLogger = commandLogger;
             QueryLogger = queryLogger;
@@ -88,22 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             => CurrentContext.GetDependencies().StateManager;
 
         /// <summary>
-        ///     Gets the query provider.
-        /// </summary>
-        [Obsolete("Use the service by getting it from " + nameof(CurrentContext) + ".")]
-        public IQueryProvider QueryProvider
-            => CurrentContext.GetDependencies().QueryProvider;
-
-        /// <summary>
         ///     The execution strategy.
         /// </summary>
         public IExecutionStrategy ExecutionStrategy { get; init; }
-
-        /// <summary>
-        ///     The execution strategy factory.
-        /// </summary>
-        [Obsolete("Use ExecutionStrategy instead")]
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     Gets the concurrency detector.

@@ -31,18 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
         /// </summary>
         /// <param name="entityType">The entity type to shape.</param>
-        /// <param name="innerTable">The table from which entity columns are being projected out.</param>
-        /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
-        [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
-        public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
-        {
-            throw new NotSupportedException("Obsolete: Use the constructor which takes populated column expressions map.");
-        }
-
-        /// <summary>
-        ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
-        /// </summary>
-        /// <param name="entityType">The entity type to shape.</param>
         /// <param name="propertyExpressionMap">A dictionary of column expressions corresponding to properties of the entity type.</param>
         /// <param name="discriminatorExpression">A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy.</param>
         public EntityProjectionExpression(

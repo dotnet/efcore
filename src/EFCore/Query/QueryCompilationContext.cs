@@ -125,13 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual QueryTrackingBehavior QueryTrackingBehavior { get; internal set; }
 
         /// <summary>
-        ///     A value indicating whether it is tracking query.
-        /// </summary>
-        [Obsolete("Use " + nameof(QueryTrackingBehavior) + " instead.")]
-        public virtual bool IsTracking
-            => QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
-
-        /// <summary>
         ///     A value indicating whether the underlying server query needs to pre-buffer all data.
         /// </summary>
         public virtual bool IsBuffering { get; }

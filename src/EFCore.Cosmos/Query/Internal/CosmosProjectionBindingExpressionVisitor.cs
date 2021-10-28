@@ -37,18 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private SelectExpression _selectExpression;
         private bool _clientEval;
 
-        private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
-            = new Dictionary<ProjectionMember, Expression>();
-
+        private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
         private readonly Stack<ProjectionMember> _projectionMembers = new();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        private readonly IDictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping
-            = new Dictionary<ParameterExpression, CollectionShaperExpression>();
-#pragma warning restore CS0618 // Type or member is obsolete
-
-        private readonly Stack<INavigation> _includedNavigations
-            = new();
+        private readonly Dictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping = new();
+        private readonly Stack<INavigation> _includedNavigations = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

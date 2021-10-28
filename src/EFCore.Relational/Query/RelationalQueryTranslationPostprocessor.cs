@@ -57,24 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Visit(query);
             query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
-#pragma warning disable 618
-            query = OptimizeSqlExpression(query);
-#pragma warning restore 618
-
             return query;
         }
-
-        /// <summary>
-        ///     Optimizes the SQL expression.
-        /// </summary>
-        /// <param name="query">An expression to optimize.</param>
-        /// <returns>An expression which has SQL optimized.</returns>
-        [Obsolete(
-            "Use 'Optimize' method on "
-            + nameof(RelationalParameterBasedSqlProcessor)
-            + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
-        protected virtual Expression OptimizeSqlExpression(Expression query)
-            => query;
 
         private sealed class TableAliasVerifyingExpressionVisitor : ExpressionVisitor
         {

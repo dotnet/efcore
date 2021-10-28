@@ -53,20 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public RelationalShapedQueryCompilingExpressionVisitorDependencies(
             IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(relationalParameterBasedSqlProcessorFactory, nameof(relationalParameterBasedSqlProcessorFactory));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
-#pragma warning disable CS0618 // Type or member is obsolete
-            SqlExpressionFactory = sqlExpressionFactory;
-            ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
-#pragma warning restore CS0618 // Type or member is obsolete
             RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
         }
 
@@ -74,18 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The SQL generator factory.
         /// </summary>
         public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; init; }
-
-        /// <summary>
-        ///     The SQL expression factory.
-        /// </summary>
-        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
-        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
-
-        /// <summary>
-        ///     The parameter name-generator factory.
-        /// </summary>
-        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
 
         /// <summary>
         ///     The SQL processor based on parameter values.

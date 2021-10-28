@@ -845,19 +845,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Generates a SQL operator for a SQL binary operation.
-        /// </summary>
-        /// <param name="binaryExpression">A SQL binary operation.</param>
-        /// <returns>A string representation of the binary operator.</returns>
-        [Obsolete("Use GetOperator instead.")]
-        protected virtual string GenerateOperator(SqlBinaryExpression binaryExpression)
-        {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
-            return _operatorMap[binaryExpression.OperatorType];
-        }
-
-        /// <summary>
         ///     Gets a SQL operator for a SQL binary operation.
         /// </summary>
         /// <param name="binaryExpression">A SQL binary operation.</param>

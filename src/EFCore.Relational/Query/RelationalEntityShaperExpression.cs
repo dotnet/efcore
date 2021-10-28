@@ -155,11 +155,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [Obsolete("Use MakeNullable() instead.")]
-        public override EntityShaperExpression MarkAsNullable()
-            => MakeNullable();
-
-        /// <inheritdoc />
         public override EntityShaperExpression MakeNullable(bool nullable = true)
         {
             return IsNullable != nullable
