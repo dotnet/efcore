@@ -444,81 +444,64 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
         protected virtual void CheckComposableSql(string sql)
         {
-            Check.NotNull(sql, nameof(sql));
-
-            var pos = -1;
-            char c;
+            var span = sql.AsSpan().TrimStart();
 
             while (true)
             {
-                c = NextChar();
-
-                if (char.IsWhiteSpace(c))
-                {
-                    continue;
-                }
-
                 // SQL -- comment
-                if (c == '-')
+                if (span.StartsWith("--"))
                 {
-                    if (NextChar() != '-')
-                    {
-                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-                    }
-
-                    while (NextChar() != '\n')
-                    {
-                    }
-
+                    var i = span.IndexOf('\n');
+                    span = i > 0
+                        ? span.Slice(i + 1).TrimStart()
+                        : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
                     continue;
                 }
 
                 // SQL /* */ comment
-                if (c == '/')
+                if (span.StartsWith("/*"))
                 {
-                    if (NextChar() != '*')
-                    {
-                        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-                    }
-
-                    while (true)
-                    {
-                        while (NextChar() != '*')
-                        {
-                        }
-
-                        if (NextChar() == '/')
-                        {
-                            break;
-                        }
-                    }
-
+                    var i = span.IndexOf("*/");
+                    span = i > 0
+                        ? span.Slice(i + 2).TrimStart()
+                        : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
                     continue;
                 }
 
-                if (char.ToLowerInvariant(c) == 's'
-                    && char.ToLowerInvariant(NextChar()) == 'e'
-                    && char.ToLowerInvariant(NextChar()) == 'l'
-                    && char.ToLowerInvariant(NextChar()) == 'e'
-                    && char.ToLowerInvariant(NextChar()) == 'c'
-                    && char.ToLowerInvariant(NextChar()) == 't')
-                {
-                    var (c1, c2) = (NextChar(), NextChar());
-                    if (char.IsWhiteSpace(c1)
-                        || c1 == '-' && c2 == '-'
-                        || c1 == '/' && c2 == '*')
-                    {
-                        return;
-                    }
-                }
+                break;
+            }
 
+            CheckComposableSqlTrimmed(span);
+        }
+
+        /// <summary>
+        ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
+        ///     larger SQL query. The provided <paramref name="sql" /> is already trimmed for whitespace and comments.
+        /// </summary>
+        /// <param name="sql">An trimmed SQL string to be checked for composability.</param>
+        /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
+        protected virtual void CheckComposableSqlTrimmed(ReadOnlySpan<char> sql)
+        {
+            if (sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
+            {
+                sql = sql.Slice("SELECT".Length);
+            }
+            else if (sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase))
+            {
+                sql = sql.Slice("WITH".Length);
+            }
+            else
+            {
                 throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
             }
 
-            char NextChar()
-                => ++pos < sql.Length
-                    ? sql[pos]
-                    : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            if (sql.Length > 0
+                && (char.IsWhiteSpace(sql[0]) || sql.StartsWith("--") || sql.StartsWith("/*")))
+            {
+                return;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
         }
 
         /// <inheritdoc />

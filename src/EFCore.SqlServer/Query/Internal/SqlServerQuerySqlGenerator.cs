@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -162,6 +163,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             return base.VisitExtension(extensionExpression);
+        }
+
+        /// <inheritdoc />
+        protected override void CheckComposableSqlTrimmed(ReadOnlySpan<char> sql)
+        {
+            base.CheckComposableSqlTrimmed(sql);
+
+            if (sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
         }
     }
 }
