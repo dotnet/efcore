@@ -214,7 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && innerExpression != null
                 && memberExpression.Member.Name == nameof(ICollection<int>.Count)
                 && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
-                    .Any(e => e.IsGenericType && e.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                    .Any(e => e.IsGenericType
+                        && (e.GetGenericTypeDefinition() is Type genericTypeDefinition
+                            && (genericTypeDefinition == typeof(ICollection<>)
+                                || genericTypeDefinition == typeof(IReadOnlyCollection<>)))))
             {
                 var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
