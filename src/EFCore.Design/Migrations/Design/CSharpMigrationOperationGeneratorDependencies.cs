@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -43,8 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [EntityFrameworkInternal]
         public CSharpMigrationOperationGeneratorDependencies(ICSharpHelper csharpHelper)
         {
-            Check.NotNull(csharpHelper, nameof(csharpHelper));
-
             CSharpHelper = csharpHelper;
         }
 

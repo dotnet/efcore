@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -39,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ICSharpUtilities cSharpUtilities,
             Func<string, string>? singularizePluralizer)
         {
-            Check.NotNull(nameGetter, nameof(nameGetter));
-            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
-
             _nameGetter = nameGetter;
             _cSharpUtilities = cSharpUtilities;
             _singularizePluralizer = singularizePluralizer;
@@ -55,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GetName(T item)
         {
-            Check.NotNull(item, nameof(item));
-
             if (NameCache.TryGetValue(item, out var cachedName))
             {
                 return cachedName;

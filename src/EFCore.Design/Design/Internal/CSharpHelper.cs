@@ -12,7 +12,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -161,9 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Lambda(IReadOnlyList<string> properties, string? lambdaIdentifier)
         {
-            Check.NotNull(properties, nameof(properties));
-            Check.NullButNotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
-
             lambdaIdentifier ??= "x";
             var builder = new StringBuilder();
             builder.Append(lambdaIdentifier);
@@ -194,8 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Reference(Type type, bool? fullName = null)
         {
-            Check.NotNull(type, nameof(type));
-
             fullName ??= type.IsNested ? ShouldUseFullName(type.DeclaringType!) : ShouldUseFullName(type);
 
             return type.DisplayName(fullName.Value, compilable: true);
@@ -227,8 +221,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null)
         {
-            Check.NotEmpty(name, nameof(name));
-
             var builder = new StringBuilder();
             var partStart = 0;
 
@@ -305,8 +297,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Namespace(params string[] name)
         {
-            Check.NotNull(name, nameof(name));
-
             var @namespace = new StringBuilder();
             foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p))
                 .SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))

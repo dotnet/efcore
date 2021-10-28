@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -34,9 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ICompiledModelCodeGeneratorSelector modelCodeGeneratorSelector,
             IOperationReporter reporter)
         {
-            Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
-            Check.NotNull(reporter, nameof(reporter));
-
             ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
             _reporter = reporter;
         }
@@ -60,10 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string outputDir,
             CompiledModelCodeGenerationOptions options)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(outputDir, nameof(outputDir));
-            Check.NotNull(options, nameof(options));
-
             var codeGenerator = ModelCodeGeneratorSelector.Select(options);
 
             var scaffoldedModel = codeGenerator.GenerateModel(model, options);

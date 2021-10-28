@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -46,10 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IAnnotationCodeGenerator annotationCodeGenerator,
             ICSharpHelper cSharpHelper)
         {
-            Check.NotNull(providerConfigurationCodeGenerator, nameof(providerConfigurationCodeGenerator));
-            Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
-            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
-
             _providerConfigurationCodeGenerator = providerConfigurationCodeGenerator;
             _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
@@ -72,8 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
         {
-            Check.NotNull(model, nameof(model));
-
             _useDataAnnotations = useDataAnnotations;
             _useNullableReferenceTypes = useNullableReferenceTypes;
 
@@ -149,10 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(contextName, nameof(contextName));
-            Check.NotNull(connectionString, nameof(connectionString));
-
             _builder.AppendLine($"public partial class {contextName} : DbContext");
             _builder.AppendLine("{");
 
@@ -246,8 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string connectionString,
             bool suppressConnectionStringWarning)
         {
-            Check.NotNull(connectionString, nameof(connectionString));
-
             _builder.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _builder.AppendLine("{");
 
@@ -289,8 +276,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateOnModelCreating(IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             _builder.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
             _builder.Append("{");
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             int? scaffoldPrecision,
             int? scaffoldScale)
         {
-            Check.NotNull(clrType, nameof(clrType));
-
             IsInferred = inferred;
             ScaffoldUnicode = scaffoldUnicode;
             ScaffoldMaxLength = scaffoldMaxLength;

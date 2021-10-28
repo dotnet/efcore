@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -41,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IAnnotationCodeGenerator annotationCodeGenerator,
             ICSharpHelper cSharpHelper)
         {
-            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
-
             _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
         }
@@ -55,8 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string WriteCode(IEntityType entityType, string? @namespace, bool useDataAnnotations, bool useNullableReferenceTypes)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             _useDataAnnotations = useDataAnnotations;
             _useNullableReferenceTypes = useNullableReferenceTypes;
 
@@ -109,8 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateClass(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             GenerateComment(entityType.GetComment());
 
             if (_useDataAnnotations)
@@ -141,8 +134,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateEntityTypeDataAnnotations(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             GenerateKeylessAttribute(entityType);
             GenerateTableAttribute(entityType);
             GenerateIndexAttributes(entityType);
@@ -240,8 +231,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateConstructor(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             var collectionNavigations = entityType.GetDeclaredNavigations()
                 .Cast<INavigationBase>()
                 .Concat(entityType.GetDeclaredSkipNavigations())
@@ -274,8 +263,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateProperties(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrder() ?? -1))
             {
                 GenerateComment(property.GetComment());
@@ -302,8 +289,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GeneratePropertyDataAnnotations(IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
             GenerateKeyAttribute(property);
             GenerateRequiredAttribute(property);
             GenerateColumnAttribute(property);
@@ -437,8 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateNavigationProperties(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             var sortedNavigations = entityType.GetNavigations()
                 .OrderBy(n => n.IsOnDependent ? 0 : 1)
                 .ThenBy(n => n.IsCollection ? 1 : 0)
@@ -515,8 +498,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         protected virtual void GenerateSkipNavigationProperties(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             var skipNavigations = entityType.GetSkipNavigations().ToList();
 
             if (skipNavigations.Count > 0)
@@ -616,15 +597,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             public AttributeWriter(string attributeName)
             {
-                Check.NotEmpty(attributeName, nameof(attributeName));
-
                 _attributeName = attributeName;
             }
 
             public void AddParameter(string parameter)
             {
-                Check.NotEmpty(parameter, nameof(parameter));
-
                 _parameters.Add(parameter);
             }
 

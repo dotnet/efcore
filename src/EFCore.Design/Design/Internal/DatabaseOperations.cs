@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -43,10 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             bool nullable,
             string[]? args)
         {
-            Check.NotNull(reporter, nameof(reporter));
-            Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotNull(projectDir, nameof(projectDir));
-
             _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
@@ -79,11 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             bool suppressOnConfiguring,
             bool noPluralize)
         {
-            Check.NotEmpty(provider, nameof(provider));
-            Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(schemas, nameof(schemas));
-            Check.NotNull(tables, nameof(tables));
-
             outputDir = outputDir != null
                 ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
                 : _projectDir;

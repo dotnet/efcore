@@ -35,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="dependencies">The dependencies.</param>
         public MigrationsScaffolder(MigrationsScaffolderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             _contextType = dependencies.CurrentContext.Context.GetType();
             _activeProvider = dependencies.DatabaseProvider.Name;
             Dependencies = dependencies;
@@ -80,8 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string? subNamespace = null,
             string? language = null)
         {
-            Check.NotEmpty(migrationName, nameof(migrationName));
-
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
@@ -250,8 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             bool force,
             string? language)
         {
-            Check.NotEmpty(projectDir, nameof(projectDir));
-
             var files = new MigrationFiles();
 
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
@@ -391,9 +385,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <returns>The saved migrations files.</returns>
         public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir)
         {
-            Check.NotEmpty(projectDir, nameof(projectDir));
-            Check.NotNull(migration, nameof(migration));
-
             var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
             var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
@@ -453,9 +444,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string? siblingFileName,
             string subnamespace)
         {
-            Check.NotEmpty(projectDir, nameof(projectDir));
-            Check.NotNull(subnamespace, nameof(subnamespace));
-
             var defaultDirectory = Path.Combine(projectDir, Path.Combine(subnamespace.Split('.')));
 
             if (siblingFileName != null)

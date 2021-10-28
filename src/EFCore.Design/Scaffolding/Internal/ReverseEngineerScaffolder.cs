@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -49,14 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IDesignTimeConnectionStringResolver connectionStringResolver,
             IOperationReporter reporter)
         {
-            Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
-            Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
-            Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
-            Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
-            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
-            Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
-            Check.NotNull(reporter, nameof(reporter));
-
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
             ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
@@ -86,11 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ModelReverseEngineerOptions modelOptions,
             ModelCodeGenerationOptions codeOptions)
         {
-            Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(databaseOptions, nameof(databaseOptions));
-            Check.NotNull(modelOptions, nameof(modelOptions));
-            Check.NotNull(codeOptions, nameof(codeOptions));
-
             if (!string.IsNullOrWhiteSpace(codeOptions.ContextName)
                 && (!_cSharpUtilities.IsValidIdentifier(codeOptions.ContextName)
                     || _cSharpUtilities.IsCSharpKeyword(codeOptions.ContextName)))

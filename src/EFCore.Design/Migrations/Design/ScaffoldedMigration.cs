@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
@@ -33,15 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string snapshotName,
             string snapshotSubNamespace)
         {
-            Check.NotEmpty(fileExtension, nameof(fileExtension));
-            Check.NotEmpty(migrationCode, nameof(migrationCode));
-            Check.NotEmpty(migrationId, nameof(migrationId));
-            Check.NotEmpty(metadataCode, nameof(metadataCode));
-            Check.NotNull(migrationSubNamespace, nameof(migrationSubNamespace));
-            Check.NotEmpty(snapshotCode, nameof(snapshotCode));
-            Check.NotEmpty(snapshotName, nameof(snapshotName));
-            Check.NotNull(snapshotSubNamespace, nameof(snapshotSubNamespace));
-
             FileExtension = fileExtension;
             PreviousMigrationId = previousMigrationId;
             MigrationCode = migrationCode;
