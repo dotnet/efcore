@@ -1504,7 +1504,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task FromSqlRaw_composed_with_common_table_expression(bool async)
+        public virtual async Task<string> FromSqlRaw_composed_with_common_table_expression(bool async)
         {
             using var context = CreateContext();
             var query = context.Set<Customer>()
@@ -1517,6 +1517,7 @@ WITH [Customers2] AS (
 SELECT * FROM [Customers2]"))
                 .Where(c => c.ContactName.Contains("z"));
 
+            var queryString = query.ToQueryString();
 
             var actual = async
                 ? await query.ToArrayAsync()
@@ -1524,6 +1525,8 @@ SELECT * FROM [Customers2]"))
 
             Assert.Equal(14, actual.Length);
             Assert.Equal(14, context.ChangeTracker.Entries().Count());
+
+            return queryString;
         }
 
         protected string NormalizeDelimitersInRawString(string sql)

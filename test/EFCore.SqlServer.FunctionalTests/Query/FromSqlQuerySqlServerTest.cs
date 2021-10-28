@@ -754,12 +754,14 @@ WHERE EXISTS (
     WHERE [m].[CustomerID] = [o].[CustomerID])");
         }
 
-        public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
+        public override async Task<string> FromSqlRaw_composed_with_common_table_expression(bool async)
         {
             var exception =
                 await Assert.ThrowsAsync<InvalidOperationException>(() => base.FromSqlRaw_composed_with_common_table_expression(async));
 
             Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
+
+            return default;
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)

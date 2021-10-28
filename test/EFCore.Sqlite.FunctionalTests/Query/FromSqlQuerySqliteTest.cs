@@ -75,6 +75,23 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
             return Task.CompletedTask;
         }
 
+        public override async Task<string> FromSqlRaw_composed_with_common_table_expression(bool async)
+        {
+            var queryString = await base.FromSqlRaw_composed_with_common_table_expression(async);
+
+            Assert.Equal(@"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+FROM (
+
+    WITH ""Customers2"" AS (
+        SELECT * FROM ""Customers""
+    )
+    SELECT * FROM ""Customers2""
+) AS ""m""
+WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)", queryString);
+
+            return queryString;
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqliteParameter { ParameterName = name, Value = value };
     }
