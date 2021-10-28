@@ -260,8 +260,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The property mapped to ETag, or <see langword="null" /> if no property is mapped to ETag.</returns>
         public static IReadOnlyProperty? GetETagProperty(this IReadOnlyEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
             var etagPropertyName = entityType.GetETagPropertyName();
+
             return !string.IsNullOrEmpty(etagPropertyName) ? entityType.FindProperty(etagPropertyName) : null;
         }
 

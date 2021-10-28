@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryMetadataExtractingExpressionVisitor(CosmosQueryCompilationContext cosmosQueryCompilationContext)
         {
-            Check.NotNull(cosmosQueryCompilationContext, nameof(cosmosQueryCompilationContext));
             _cosmosQueryCompilationContext = cosmosQueryCompilationContext;
         }
 

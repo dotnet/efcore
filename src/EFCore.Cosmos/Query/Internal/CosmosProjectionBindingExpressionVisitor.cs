@@ -213,8 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             switch (extensionExpression)
             {
                 case EntityShaperExpression entityShaperExpression:
@@ -288,8 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
             if (!_clientEval)
             {
                 return null;
@@ -437,8 +433,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
-
             var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == null)
             {
@@ -472,8 +466,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName)
                 || methodCallExpression.TryGetIndexerArguments(_model, out source, out memberName))
             {
@@ -655,8 +647,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            Check.NotNull(newExpression, nameof(newExpression));
-
             if (newExpression.Arguments.Count == 0)
             {
                 return newExpression;

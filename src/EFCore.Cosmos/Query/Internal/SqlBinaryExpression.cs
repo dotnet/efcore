@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -63,9 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
-            Check.NotNull(left, nameof(left));
-            Check.NotNull(right, nameof(right));
-
             OperatorType = VerifyOperator(operatorType);
 
             Left = left;
@@ -104,8 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var left = (SqlExpression)visitor.Visit(Left);
             var right = (SqlExpression)visitor.Visit(Right);
 
@@ -131,8 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             var requiresBrackets = RequiresBrackets(Left);
 
             if (requiresBrackets)

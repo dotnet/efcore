@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable disable
 
@@ -28,9 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public FromSqlExpression(IEntityType entityType, string alias, string sql, Expression arguments)
             : base(entityType, alias)
         {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(arguments, nameof(arguments));
-
             Sql = sql;
             Arguments = arguments;
         }
@@ -62,21 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual FromSqlExpression Update(Expression arguments)
-        {
-            Check.NotNull(arguments, nameof(arguments));
-
-            return arguments != Arguments
+            => arguments != Arguments
                 ? new FromSqlExpression(EntityType, Alias, Sql, arguments)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         public override Type Type
@@ -85,8 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append(Sql);
         }
 

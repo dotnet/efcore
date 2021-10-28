@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -38,11 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessModelInitialized(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NotNull(context, nameof(context));
-
-            modelBuilder.HasDefaultContainer(Dependencies.ContextType.Name);
-        }
+            => modelBuilder.HasDefaultContainer(Dependencies.ContextType.Name);
     }
 }

@@ -34,7 +34,6 @@ namespace Microsoft.EntityFrameworkCore
             this ModelBuilder modelBuilder,
             string? name)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             modelBuilder.Model.SetDefaultContainer(name);

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable disable
 
@@ -30,10 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             ISqlExpressionFactory sqlExpressionFactory,
             IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
-
             Dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
@@ -51,14 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
-        {
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
-            return new CosmosShapedQueryCompilingExpressionVisitor(
+            => new CosmosShapedQueryCompilingExpressionVisitor(
                 Dependencies,
                 (CosmosQueryCompilationContext)queryCompilationContext,
                 _sqlExpressionFactory,
                 _querySqlGeneratorFactory);
-        }
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable disable warnings
 
@@ -452,8 +451,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var changed = false;
 
             var projections = new List<ProjectionExpression>();
@@ -532,9 +529,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             SqlExpression? limit,
             SqlExpression? offset)
         {
-            Check.NotNull(projections, nameof(projections));
-            Check.NotNull(fromExpression, nameof(fromExpression));
-
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             foreach (var kvp in _projectionMapping)
             {

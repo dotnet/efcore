@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             entityTypeBuilder.Metadata.SetContainer(name);
@@ -108,7 +107,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.ContainerName, name, fromDataAnnotation);
@@ -200,7 +198,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
@@ -239,11 +236,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             string? name)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(name);
-
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)HasPartitionKey((EntityTypeBuilder)entityTypeBuilder, name);
 
         /// <summary>
         ///     Configures the property that is used to store the partition key.
@@ -262,9 +255,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            entityTypeBuilder.Metadata.SetPartitionKeyPropertyName(propertyExpression.GetMemberAccess().GetSimpleMemberName());
-
-            return entityTypeBuilder;
+            return HasPartitionKey(entityTypeBuilder, propertyExpression.GetMemberAccess().GetSimpleMemberName());
         }
 
         /// <summary>
@@ -313,7 +304,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PartitionKeyName, name, fromDataAnnotation);
@@ -330,11 +320,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder UseETagConcurrency(this EntityTypeBuilder entityTypeBuilder)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             entityTypeBuilder.Property<string>("_etag")
                 .ValueGeneratedOnAddOrUpdate()
                 .IsConcurrencyToken();
+
             return entityTypeBuilder;
         }
 
@@ -349,11 +338,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> UseETagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
             where TEntity : class
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            UseETagConcurrency((EntityTypeBuilder)entityTypeBuilder);
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)UseETagConcurrency((EntityTypeBuilder)entityTypeBuilder);
 
         /// <summary>
         ///     Configures the time to live for analytical store in seconds at container scope.
@@ -388,11 +373,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? seconds)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetAnalyticalStoreTimeToLive(seconds);
-
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)HasAnalyticalStoreTimeToLive((EntityTypeBuilder)entityTypeBuilder, seconds);
 
         /// <summary>
         ///     Configures the time to live for analytical store in seconds at container scope.
@@ -478,11 +459,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? seconds)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetDefaultTimeToLive(seconds);
-
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)HasDefaultTimeToLive((EntityTypeBuilder)entityTypeBuilder, seconds);
 
         /// <summary>
         ///     Configures the default time to live in seconds at container scope.
@@ -529,11 +506,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             int? seconds,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultTimeToLive, seconds, fromDataAnnotation);
-        }
+            => entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultTimeToLive, seconds, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the manual provisioned throughput offering.
@@ -564,11 +537,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? throughput)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: false);
-
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)HasManualThroughput((EntityTypeBuilder)entityTypeBuilder, throughput);
 
         /// <summary>
         ///     Configures the autoscale provisioned throughput offering.
@@ -599,11 +568,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             int? throughput)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: true);
-
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)HasAutoscaleThroughput((EntityTypeBuilder)entityTypeBuilder, throughput);
 
         /// <summary>
         ///     Configures the provisioned throughput.

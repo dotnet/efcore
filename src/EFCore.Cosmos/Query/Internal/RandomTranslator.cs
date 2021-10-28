@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable disable
 
@@ -46,17 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
-            return _methodInfo.Equals(method)
+            => _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Function(
                     "RAND",
                     Array.Empty<SqlExpression>(),
                     method.ReturnType)
                 : null;
-        }
     }
 }

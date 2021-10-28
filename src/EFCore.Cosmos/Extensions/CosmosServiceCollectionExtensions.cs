@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
@@ -70,17 +69,12 @@ namespace Microsoft.Extensions.DependencyInjection
             Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null,
             Action<DbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
-        {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-            Check.NotEmpty(databaseName, nameof(databaseName));
-
-            return serviceCollection.AddDbContext<TContext>(
+            => serviceCollection.AddDbContext<TContext>(
                 (serviceProvider, options) =>
                 {
                     optionsAction?.Invoke(options);
                     options.UseCosmos(connectionString, databaseName, cosmosOptionsAction);
                 });
-        }
 
         /// <summary>
         ///     <para>
@@ -106,8 +100,6 @@ namespace Microsoft.Extensions.DependencyInjection
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkCosmos(this IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, CosmosLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<CosmosOptionsExtension>>()

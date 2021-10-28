@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -47,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
-            Check.NotNull(operand, nameof(operand));
             OperatorType = VerifyOperator(operatorType);
             Operand = operand;
         }
@@ -75,11 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return Update((SqlExpression)visitor.Visit(Operand));
-        }
+            => Update((SqlExpression)visitor.Visit(Operand));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,8 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append(OperatorType.ToString());
             expressionPrinter.Append("(");
             expressionPrinter.Visit(Operand);

@@ -88,8 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected virtual void AddTranslationErrorDetails(string details)
         {
-            Check.NotNull(details, nameof(details));
-
             if (TranslationErrorDetails == null)
             {
                 TranslationErrorDetails = details;
@@ -108,8 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual SqlExpression Translate(Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
-
             TranslationErrorDetails = null;
 
             return TranslateInternal(expression);
@@ -145,8 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
                 var ifTrue = binaryExpression.Left;
@@ -241,8 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
-
             var test = Visit(conditionalExpression.Test);
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
@@ -261,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => new SqlConstantExpression(Check.NotNull(constantExpression, nameof(constantExpression)), null);
+            => new SqlConstantExpression(constantExpression, null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,8 +263,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             switch (extensionExpression)
             {
                 case EntityProjectionExpression _:
@@ -345,8 +335,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
             var innerExpression = Visit(memberExpression.Expression);
 
             return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
@@ -363,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
-            => GetConstantOrNull(Check.NotNull(memberInitExpression, nameof(memberInitExpression)));
+            => GetConstantOrNull(memberInitExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -373,8 +361,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
                 || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
             {
@@ -539,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
-            => GetConstantOrNull(Check.NotNull(newExpression, nameof(newExpression)));
+            => GetConstantOrNull(newExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -558,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
             => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
-                ? new SqlParameterExpression(Check.NotNull(parameterExpression, nameof(parameterExpression)), null)
+                ? new SqlParameterExpression(parameterExpression, null)
                 : null;
 
         /// <summary>
@@ -569,8 +555,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
-
             var operand = Visit(unaryExpression.Operand);
 
             if (operand is EntityReferenceExpression entityReferenceExpression
@@ -617,8 +601,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// <inheritdoc />
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
-            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
-
             var innerExpression = Visit(typeBinaryExpression.Expression);
 
             if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
@@ -1013,8 +995,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
                 if (extensionExpression is SqlExpression sqlExpression
                     && sqlExpression.TypeMapping == null)
                 {

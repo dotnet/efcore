@@ -79,8 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
-                Check.NotNull(binaryExpression, nameof(binaryExpression));
-
                 if (binaryExpression.NodeType == ExpressionType.Assign)
                 {
                     if (binaryExpression.Left is ParameterExpression parameterExpression)
@@ -180,8 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 var method = methodCallExpression.Method;
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                 if (genericMethod == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
@@ -234,8 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
                 switch (extensionExpression)
                 {
                     case ProjectionBindingExpression projectionBindingExpression:

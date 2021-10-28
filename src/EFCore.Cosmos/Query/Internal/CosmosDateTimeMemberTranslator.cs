@@ -4,7 +4,6 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -41,10 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
             var declaringType = member.DeclaringType;
             if ((declaringType == typeof(DateTime)
                     || declaringType == typeof(DateTimeOffset))
