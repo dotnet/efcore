@@ -1502,6 +1502,28 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             Assert.Equal(26, actual.Length);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task FromSqlRaw_composed_with_common_table_expression(bool async)
+        {
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .FromSqlRaw(
+                    NormalizeDelimitersInRawString(
+                        @"WITH [Customers2] AS (
+    SELECT * FROM [Customers]
+)
+SELECT * FROM [Customers2]"))
+                .Where(c => c.ContactName.Contains("z"));
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            Assert.Equal(14, actual.Length);
+            Assert.Equal(14, context.ChangeTracker.Entries().Count());
+        }
+
         protected string NormalizeDelimitersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

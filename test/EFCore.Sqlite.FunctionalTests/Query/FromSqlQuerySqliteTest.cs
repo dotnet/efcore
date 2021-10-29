@@ -75,7 +75,25 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
             return Task.CompletedTask;
         }
 
+        public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
+        {
+            await base.FromSqlRaw_composed_with_common_table_expression(async);
+
+            AssertSql(
+                @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+FROM (
+    WITH ""Customers2"" AS (
+        SELECT * FROM ""Customers""
+    )
+    SELECT * FROM ""Customers2""
+) AS ""m""
+WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqliteParameter { ParameterName = name, Value = value };
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

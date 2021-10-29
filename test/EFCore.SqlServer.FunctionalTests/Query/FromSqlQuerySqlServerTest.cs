@@ -1,10 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -750,6 +752,14 @@ WHERE EXISTS (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1
     ) AS [m]
     WHERE [m].[CustomerID] = [o].[CustomerID])");
+        }
+
+        public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
+        {
+            var exception =
+                await Assert.ThrowsAsync<InvalidOperationException>(() => base.FromSqlRaw_composed_with_common_table_expression(async));
+
+            Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
