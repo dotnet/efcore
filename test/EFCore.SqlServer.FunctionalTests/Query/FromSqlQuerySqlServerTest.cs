@@ -3,6 +3,7 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -44,15 +45,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""");
         }
 
-        public override async Task FromSqlRaw_queryable_composed(bool async)
+        public override async Task<string> FromSqlRaw_queryable_composed(bool async)
         {
-            await base.FromSqlRaw_queryable_composed(async);
+            var queryString = await base.FromSqlRaw_queryable_composed(async);
 
-            AssertSql(@"SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+            var expected =
+                @"SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'");
+WHERE [m].[ContactName] LIKE N'%z%'";
+
+            AssertSql(expected);
+            Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
+
+            return null;
         }
 
         public override async Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
@@ -328,9 +335,9 @@ WHERE [m].[CustomerID] = [m0].[CustomerID]");
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
 
-        public override async Task FromSqlRaw_queryable_with_parameters_and_closure(bool async)
+        public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         {
-            await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
+            var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
             AssertSql(
                 @"p0='London' (Size = 4000)
@@ -341,6 +348,8 @@ FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [m]
 WHERE [m].[ContactTitle] = @__contactTitle_1");
+
+            return null;
         }
 
         public override async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
