@@ -98,6 +98,9 @@ namespace Microsoft.Data.Sqlite
         internal SqliteConnectionStringBuilder ConnectionOptions
             => PoolGroup.ConnectionOptions;
 
+        internal Stopwatch? Timer
+            => _innerConnection?.Timer;
+
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
         /// </summary>

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -256,9 +255,7 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            var timer = new Stopwatch();
-
-            using var enumerator = PrepareAndEnumerateStatements(timer).GetEnumerator();
+            using var enumerator = PrepareAndEnumerateStatements().GetEnumerator();
             while (enumerator.MoveNext())
             {
             }
@@ -307,45 +304,47 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
-            var timer = new Stopwatch();
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            var dataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
+            var dataReader = new SqliteDataReader(this, _connection.Timer!, Statements, closeConnection);
             dataReader.NextResult();
 
             return DataReader = dataReader;
         }
 
-        private IEnumerable<sqlite3_stmt> GetStatements(Stopwatch timer)
+        private IEnumerable<sqlite3_stmt> Statements
         {
-            foreach (var stmt in !_prepared
-                ? PrepareAndEnumerateStatements(timer)
-                : _preparedStatements)
+            get
             {
-                var boundParams = _parameters?.Bind(stmt) ?? 0;
-
-                var expectedParams = sqlite3_bind_parameter_count(stmt);
-                if (expectedParams != boundParams)
+                foreach (var stmt in !_prepared
+                    ? PrepareAndEnumerateStatements()
+                    : _preparedStatements)
                 {
-                    var unboundParams = new List<string>();
-                    for (var i = 1; i <= expectedParams; i++)
-                    {
-                        var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
+                    var boundParams = _parameters?.Bind(stmt) ?? 0;
 
-                        if (_parameters != null
-                            && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                    var expectedParams = sqlite3_bind_parameter_count(stmt);
+                    if (expectedParams != boundParams)
+                    {
+                        var unboundParams = new List<string>();
+                        for (var i = 1; i <= expectedParams; i++)
                         {
-                            unboundParams.Add(name);
+                            var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
+
+                            if (_parameters != null
+                                && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                            {
+                                unboundParams.Add(name);
+                            }
+                        }
+
+                        if (sqlite3_libversion_number() < 3028000 || sqlite3_stmt_isexplain(stmt) == 0)
+                        {
+                            throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
                         }
                     }
 
-                    if (sqlite3_libversion_number() < 3028000 || sqlite3_stmt_isexplain(stmt) == 0)
-                    {
-                        throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
-                    }
+                    yield return stmt;
                 }
-
-                yield return stmt;
             }
         }
 
@@ -467,7 +466,7 @@ namespace Microsoft.Data.Sqlite
         {
         }
 
-        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements(Stopwatch timer)
+        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements()
         {
             DisposePreparedStatements(disposing: false);
 
@@ -478,15 +477,16 @@ namespace Microsoft.Data.Sqlite
             int rc;
             sqlite3_stmt stmt;
             var start = 0;
+            _connection!.Timer!.Reset();
             do
             {
-                timer.Start();
+              _connection.Timer.Start();
 
                 ReadOnlySpan<byte> tail;
-                while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, sql.AsSpan(start), out stmt, out tail)))
+                while (IsBusy(rc = sqlite3_prepare_v2(_connection.Handle, sql.AsSpan(start), out stmt, out tail)))
                 {
                     if (CommandTimeout != 0
-                        && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
+                        && _connection.Timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
                     {
                         break;
                     }
@@ -494,7 +494,7 @@ namespace Microsoft.Data.Sqlite
                     Thread.Sleep(150);
                 }
 
-                timer.Stop();
+                _connection.Timer.Stop();
                 start = sql.Length - tail.Length;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
