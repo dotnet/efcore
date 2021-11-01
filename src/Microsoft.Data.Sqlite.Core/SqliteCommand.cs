@@ -306,45 +306,43 @@ namespace Microsoft.Data.Sqlite
 
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            var dataReader = new SqliteDataReader(this, _connection.Timer!, Statements, closeConnection);
+            _connection.Timer.Reset();
+            var dataReader = new SqliteDataReader(this, _connection.Timer!, GetStatements(), closeConnection);
             dataReader.NextResult();
 
             return DataReader = dataReader;
         }
 
-        private IEnumerable<sqlite3_stmt> Statements
+        private IEnumerable<sqlite3_stmt> GetStatements()
         {
-            get
+            foreach (var stmt in !_prepared
+                ? PrepareAndEnumerateStatements()
+                : _preparedStatements)
             {
-                foreach (var stmt in !_prepared
-                    ? PrepareAndEnumerateStatements()
-                    : _preparedStatements)
+                var boundParams = _parameters?.Bind(stmt) ?? 0;
+
+                var expectedParams = sqlite3_bind_parameter_count(stmt);
+                if (expectedParams != boundParams)
                 {
-                    var boundParams = _parameters?.Bind(stmt) ?? 0;
-
-                    var expectedParams = sqlite3_bind_parameter_count(stmt);
-                    if (expectedParams != boundParams)
+                    var unboundParams = new List<string>();
+                    for (var i = 1; i <= expectedParams; i++)
                     {
-                        var unboundParams = new List<string>();
-                        for (var i = 1; i <= expectedParams; i++)
-                        {
-                            var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
+                        var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
 
-                            if (_parameters != null
-                                && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
-                            {
-                                unboundParams.Add(name);
-                            }
-                        }
-
-                        if (sqlite3_libversion_number() < 3028000 || sqlite3_stmt_isexplain(stmt) == 0)
+                        if (_parameters != null
+                            && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
                         {
-                            throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                            unboundParams.Add(name);
                         }
                     }
 
-                    yield return stmt;
+                    if (sqlite3_libversion_number() < 3028000 || sqlite3_stmt_isexplain(stmt) == 0)
+                    {
+                        throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    }
                 }
+
+                yield return stmt;
             }
         }
 
