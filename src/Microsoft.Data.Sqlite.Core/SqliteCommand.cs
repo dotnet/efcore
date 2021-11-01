@@ -307,7 +307,7 @@ namespace Microsoft.Data.Sqlite
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
             _connection.Timer.Reset();
-            var dataReader = new SqliteDataReader(this, _connection.Timer!, GetStatements(), closeConnection);
+            var dataReader = new SqliteDataReader(this, _connection.Timer, GetStatements(), closeConnection);
             dataReader.NextResult();
 
             return DataReader = dataReader;
@@ -475,7 +475,7 @@ namespace Microsoft.Data.Sqlite
             int rc;
             sqlite3_stmt stmt;
             var start = 0;
-            _connection!.Timer!.Reset();
+            _connection!.Timer.Reset();
             do
             {
               _connection.Timer.Start();
