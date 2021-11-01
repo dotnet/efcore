@@ -1758,6 +1758,26 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] IN (10248, 10249)");
         }
 
+        public override async Task IImmutableSet_Contains_with_parameter(bool async)
+        {
+            await base.IImmutableSet_Contains_with_parameter(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task IReadOnlySet_Contains_with_parameter(bool async)
+        {
+            await base.IReadOnlySet_Contains_with_parameter(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         public override async Task HashSet_Contains_with_parameter(bool async)
         {
             await base.HashSet_Contains_with_parameter(async);
