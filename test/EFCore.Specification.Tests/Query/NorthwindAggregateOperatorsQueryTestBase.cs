@@ -1539,6 +1539,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task IImmutableSet_Contains_with_parameter(bool async)
+        {
+            IImmutableSet<string> ids = ImmutableHashSet<string>.Empty.Add("ALFKI");
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task IReadOnlySet_Contains_with_parameter(bool async)
+        {
+            IReadOnlySet<string> ids = new HashSet<string> { "ALFKI" };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task HashSet_Contains_with_parameter(bool async)
         {
             var ids = new HashSet<string> { "ALFKI" };

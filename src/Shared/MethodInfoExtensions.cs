@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 #nullable enable
@@ -16,6 +17,10 @@ namespace System.Reflection
                 && method.DeclaringType != null
                 && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
                     t => t == typeof(IList)
-                        || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(ICollection<>)));
+                        || (t.IsGenericType
+                            && t.GetGenericTypeDefinition() is Type genericType
+                            && (genericType == typeof(ICollection<>)
+                                || genericType == typeof(IReadOnlySet<>)
+                                || genericType == typeof(IImmutableSet<>))));
     }
 }
