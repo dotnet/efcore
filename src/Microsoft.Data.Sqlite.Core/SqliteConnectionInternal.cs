@@ -106,7 +106,7 @@ namespace Microsoft.Data.Sqlite
         public sqlite3? Handle
             => _db;
 
-        public Stopwatch Timer { get; } = new ();
+        public Stopwatch Timer { get; } = new();
 
         public void DoNotPool()
             => _canBePooled = false;
