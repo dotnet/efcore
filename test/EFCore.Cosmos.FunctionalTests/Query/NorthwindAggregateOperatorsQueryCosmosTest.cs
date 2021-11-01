@@ -1452,6 +1452,26 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
         }
 
+        public override async Task IImmutableSet_Contains_with_parameter(bool async)
+        {
+            await base.IImmutableSet_Contains_with_parameter(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""))");
+        }
+
+        public override async Task IReadOnlySet_Contains_with_parameter(bool async)
+        {
+            await base.IReadOnlySet_Contains_with_parameter(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""))");
+        }
+
         public override async Task HashSet_Contains_with_parameter(bool async)
         {
             await base.HashSet_Contains_with_parameter(async);
