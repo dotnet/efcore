@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_builder.Indent())
             {
-                GenerateConstructors(contextName);
+                GenerateConstructors(contextName, generateDefaultConstructor: !suppressOnConfiguring);
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
                 if (!suppressOnConfiguring)
@@ -168,12 +168,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _builder.AppendLine("}");
         }
 
-        private void GenerateConstructors(string contextName)
+        private void GenerateConstructors(string contextName, bool generateDefaultConstructor)
         {
-            _builder.AppendLine($"public {contextName}()")
-                .AppendLine("{")
-                .AppendLine("}")
-                .AppendLine();
+            if (generateDefaultConstructor)
+            {
+                _builder.AppendLine($"public {contextName}()")
+                    .AppendLine("{")
+                    .AppendLine("}")
+                    .AppendLine();
+            }
 
             _builder.AppendLine($"public {contextName}(DbContextOptions<{contextName}> options)")
                 .IncrementIndent()
