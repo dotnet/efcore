@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -43,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             IOperationReportHandler? reportHandler,
             string[]? args)
         {
+            Check.NotNull(contextType, nameof(contextType));
+
             return new DbContextOperations(
                     new OperationReporter(reportHandler),
                     contextType.Assembly,
