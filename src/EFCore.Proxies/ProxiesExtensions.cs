@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore
             bool useChangeTrackingProxies = true,
             bool checkEquality = true)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
                 ?? new ProxiesOptionsExtension();
 
@@ -117,8 +115,6 @@ namespace Microsoft.EntityFrameworkCore
             this DbContextOptionsBuilder optionsBuilder,
             bool useLazyLoadingProxies = true)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
                 ?? new ProxiesOptionsExtension();
 

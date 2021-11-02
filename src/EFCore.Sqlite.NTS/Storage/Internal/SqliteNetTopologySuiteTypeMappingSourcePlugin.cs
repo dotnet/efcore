@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -64,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public SqliteNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices geometryServices)
         {
-            Check.NotNull(geometryServices, nameof(geometryServices));
-
             _geometryServices = geometryServices;
         }
 

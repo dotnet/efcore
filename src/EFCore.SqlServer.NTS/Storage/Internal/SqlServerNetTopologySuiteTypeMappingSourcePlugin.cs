@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -30,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices geometryServices)
         {
-            Check.NotNull(geometryServices, nameof(geometryServices));
-
             _geometryServices = geometryServices;
         }
 

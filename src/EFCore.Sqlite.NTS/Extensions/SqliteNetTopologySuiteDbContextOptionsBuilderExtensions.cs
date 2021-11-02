@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore
         public static SqliteDbContextOptionsBuilder UseNetTopologySuite(
             this SqliteDbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
             var infrastructure = (IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder;
 #pragma warning disable EF1001 // Internal EF Core API usage.
