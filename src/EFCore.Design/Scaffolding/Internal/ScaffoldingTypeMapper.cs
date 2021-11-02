@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public ScaffoldingTypeMapper(IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             _typeMappingSource = typeMappingSource;
         }
 
@@ -41,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool keyOrIndex,
             bool rowVersion)
         {
-            // This is because certain providers can have no type specified as a default type e.g. SQLite
-            Check.NotNull(storeType, nameof(storeType));
-
             var mapping = _typeMappingSource.FindMapping(storeType);
             if (mapping == null)
             {

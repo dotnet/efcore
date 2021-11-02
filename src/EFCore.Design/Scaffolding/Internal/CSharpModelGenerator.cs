@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -45,9 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
             : base(dependencies)
         {
-            Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));
-            Check.NotNull(cSharpEntityTypeGenerator, nameof(cSharpEntityTypeGenerator));
-
             CSharpDbContextGenerator = cSharpDbContextGenerator;
             CSharpEntityTypeGenerator = cSharpEntityTypeGenerator;
         }
@@ -73,9 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             ModelCodeGenerationOptions options)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(options, nameof(options));
-
             if (options.ContextName == null)
             {
                 throw new ArgumentException(

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -19,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="dependencies">The dependencies.</param>
         protected ModelCodeGenerator(ModelCodeGeneratorDependencies dependencies)
-            => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
+        {
+            Dependencies = dependencies;
+        }
 
         /// <summary>
         ///     Gets the programming language supported by this service.

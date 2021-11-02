@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -45,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GetDependentEndCandidateNavigationPropertyName(IReadOnlyForeignKey foreignKey)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             var candidateName = FindCandidateNavigationName(foreignKey.Properties);
 
             return !string.IsNullOrEmpty(candidateName) ? candidateName : foreignKey.PrincipalEntityType.ShortName();
@@ -62,9 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IReadOnlyForeignKey foreignKey,
             string dependentEndNavigationPropertyName)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-            Check.NotEmpty(dependentEndNavigationPropertyName, nameof(dependentEndNavigationPropertyName));
-
             var allForeignKeysBetweenDependentAndPrincipal =
                 foreignKey.PrincipalEntityType?
                     .GetReferencingForeignKeys()
@@ -78,8 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static string GenerateCandidateIdentifier(string originalIdentifier)
         {
-            Check.NotNull(originalIdentifier, nameof(originalIdentifier));
-
             var candidateStringBuilder = new StringBuilder();
             var previousLetterCharInWordIsLowerCase = false;
             var isFirstCharacterInWord = true;

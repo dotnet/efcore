@@ -83,11 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             string[]? args,
             AppServiceProviderFactory appServicesFactory)
         {
-            Check.NotNull(reporter, nameof(reporter));
-            Check.NotNull(assembly, nameof(assembly));
-            Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotNull(projectDir, nameof(projectDir));
-
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;

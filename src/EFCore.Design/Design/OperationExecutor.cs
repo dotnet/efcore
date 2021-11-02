@@ -703,8 +703,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
             protected OperationBase(IOperationResultHandler resultHandler)
             {
-                Check.NotNull(resultHandler, nameof(resultHandler));
-
                 _resultHandler = resultHandler;
             }
 
@@ -714,8 +712,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="action">The action to execute.</param>
             protected virtual void Execute(Action action)
             {
-                Check.NotNull(action, nameof(action));
-
                 try
                 {
                     action();
@@ -732,11 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <typeparam name="T">The result type.</typeparam>
             /// <param name="action">The action to execute.</param>
             protected virtual void Execute<T>(Func<T> action)
-            {
-                Check.NotNull(action, nameof(action));
-
-                Execute(() => _resultHandler.OnResult(action()));
-            }
+                => Execute(() => _resultHandler.OnResult(action()));
 
             /// <summary>
             ///     Executes an action passing results or exceptions to the <see cref="IOperationResultHandler" />.
@@ -744,11 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <typeparam name="T">The type of results.</typeparam>
             /// <param name="action">The action to execute.</param>
             protected virtual void Execute<T>(Func<IEnumerable<T>> action)
-            {
-                Check.NotNull(action, nameof(action));
-
-                Execute(() => _resultHandler.OnResult(action().ToArray()));
-            }
+                => Execute(() => _resultHandler.OnResult(action().ToArray()));
         }
     }
 }
