@@ -7,7 +7,6 @@ using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -32,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public InMemoryTransactionManager(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
         {
-            Check.NotNull(logger, nameof(logger));
-
             _logger = logger;
         }
 

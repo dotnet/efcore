@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -30,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="optionsBuilder">The options builder.</param>
         public InMemoryDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             OptionsBuilder = optionsBuilder;
         }
 

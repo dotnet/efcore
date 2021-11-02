@@ -273,8 +273,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             if (extensionExpression is EntityShaperExpression entityShaperExpression)
             {
                 EntityProjectionExpression entityProjectionExpression;
@@ -395,8 +393,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
-
             var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -469,8 +465,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            Check.NotNull(newExpression, nameof(newExpression));
-
             if (newExpression.Arguments.Count == 0)
             {
                 return newExpression;

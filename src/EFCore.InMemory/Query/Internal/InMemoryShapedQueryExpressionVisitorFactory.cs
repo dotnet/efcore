@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -38,10 +37,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ShapedQueryCompilingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
-        {
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
-            return new InMemoryShapedQueryCompilingExpressionVisitor(Dependencies, queryCompilationContext);
-        }
+            => new InMemoryShapedQueryCompilingExpressionVisitor(Dependencies, queryCompilationContext);
     }
 }
