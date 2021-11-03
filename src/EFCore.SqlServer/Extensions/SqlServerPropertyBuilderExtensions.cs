@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name = null,
             string? schema = null)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -133,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore
             string? schema,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -159,8 +157,6 @@ namespace Microsoft.EntityFrameworkCore
             long seed = 1,
             int increment = 1)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             var property = propertyBuilder.Metadata;
             property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
             property.SetIdentitySeed(seed);
@@ -275,11 +271,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder propertyBuilder,
             long? seed,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentitySeed, seed, fromDataAnnotation);
-        }
+            => propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentitySeed, seed, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the increment for SQL Server IDENTITY.
@@ -326,11 +318,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder propertyBuilder,
             int? increment,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment, fromDataAnnotation);
-        }
+            => propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the value generation strategy for the key property, when targeting SQL Server.
@@ -389,14 +377,10 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder propertyBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            return (valueGenerationStrategy == null
+            => (valueGenerationStrategy == null
                     || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
                 && propertyBuilder.CanSetAnnotation(
                     SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
-        }
 
         /// <summary>
         ///     Configures whether the property's column is created as sparse when targeting SQL Server.
@@ -412,8 +396,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static PropertyBuilder IsSparse(this PropertyBuilder propertyBuilder, bool sparse = true)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetIsSparse(sparse);
 
             return propertyBuilder;
@@ -484,10 +466,6 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder property,
             bool? sparse,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
-        }
+            => property.CanSetAnnotation(SqlServerAnnotationNames.Sparse, sparse, fromDataAnnotation);
     }
 }

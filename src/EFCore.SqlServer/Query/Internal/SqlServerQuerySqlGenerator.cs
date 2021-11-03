@@ -39,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override void GenerateTop(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             if (selectExpression.Limit != null
                 && selectExpression.Offset == null)
             {
@@ -60,8 +58,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override void GenerateOrderings(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             base.GenerateOrderings(selectExpression);
 
             // In SQL Server, if an offset is specified, then an ORDER BY clause must also exist.
@@ -80,8 +76,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             // Note: For Limit without Offset, SqlServer generates TOP()
             if (selectExpression.Offset != null)
             {

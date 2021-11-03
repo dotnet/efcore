@@ -5,7 +5,6 @@ using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string EscapeIdentifier(string identifier)
-            => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
+            => identifier.Replace("]", "]]");
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public override void EscapeIdentifier(StringBuilder builder, string identifier)
         {
-            Check.NotEmpty(identifier, nameof(identifier));
-
             var initialLength = builder.Length;
             builder.Append(identifier);
             builder.Replace("]", "]]", initialLength, identifier.Length);
@@ -77,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string DelimitIdentifier(string identifier)
-            => $"[{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}]"; // Interpolation okay; strings
+            => $"[{EscapeIdentifier(identifier)}]"; // Interpolation okay; strings
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,8 +84,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public override void DelimitIdentifier(StringBuilder builder, string identifier)
         {
-            Check.NotEmpty(identifier, nameof(identifier));
-
             builder.Append('[');
             EscapeIdentifier(builder, identifier);
             builder.Append(']');
