@@ -2256,5 +2256,122 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
 
         }
+
+        [ConditionalFact]
+        public void Scaffold_skip_navigation_for_many_to_many_join_table_self_ref()
+        {
+            var database = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Products",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "RelatedProducts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "ProductId",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey {
+                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("Id") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            },
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("ProductId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            }
+                        }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "SubProducts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "ProductId",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey {
+                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("Id") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            },
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("ProductId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(e => e.Name),
+                t1 =>
+                {
+                    Assert.Empty(t1.GetNavigations());
+                    Assert.Collection(t1.GetSkipNavigations(),
+                        s => Assert.Equal("Ids", s.Name),
+                        s => Assert.Equal("IdsNavigation", s.Name),
+                        s => Assert.Equal("Products", s.Name),
+                        s => Assert.Equal("ProductsNavigation", s.Name));
+                },
+                t2 =>
+                {
+                    Assert.Empty(t2.GetNavigations());
+                    Assert.Equal(2, t2.GetForeignKeys().Count());
+                },
+                t2 =>
+                {
+                    Assert.Empty(t2.GetNavigations());
+                    Assert.Equal(2, t2.GetForeignKeys().Count());
+                });
+
+        }
     }
 }
