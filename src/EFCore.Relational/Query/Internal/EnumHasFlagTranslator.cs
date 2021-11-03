@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return instance.Type != argument.Type
                     ? null
                     // TODO: If argument is SelectExpression, we need to clone it.
-                    // See issue#24460
+                    // See issue#26532
                     : (SqlExpression)_sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
             }
 

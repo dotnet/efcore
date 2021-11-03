@@ -693,8 +693,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return Expression.Condition(objectNullCheck, Expression.Constant(null, result.Type), result);
             }
 
-            // TODO-Nullable bug
-            return methodCallExpression.Update(@object!, arguments);
+            return methodCallExpression.Update(@object, arguments);
         }
 
         /// <summary>
