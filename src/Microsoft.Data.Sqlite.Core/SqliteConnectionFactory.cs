@@ -20,7 +20,11 @@ namespace Microsoft.Data.Sqlite
         private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
 
         protected SqliteConnectionFactory()
-            => _pruneTimer = new Timer(PruneCallback, null, TimeSpan.FromMinutes(4), TimeSpan.FromSeconds(30));
+        {
+            AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
+            _pruneTimer = new Timer(PruneCallback, null, TimeSpan.FromMinutes(4), TimeSpan.FromSeconds(30));
+        }
 
         public SqliteConnectionInternal GetConnection(SqliteConnection outerConnection)
         {
