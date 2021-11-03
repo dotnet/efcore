@@ -332,6 +332,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType);
 
         /// <summary>
+        ///     Only '{operationName}' temporal operation is supported for entitiy that owns another entity which is mapped different table.
+        /// </summary>
+        public static string TemporalOwnedTypeMappedToDifferentTableOnlySupportedForAsOf(object? operationName)
+            => string.Format(
+                GetString("TemporalOwnedTypeMappedToDifferentTableOnlySupportedForAsOf", nameof(operationName)),
+                operationName);
+
+        /// <summary>
         ///     An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
         /// </summary>
         public static string TransientExceptionDetected

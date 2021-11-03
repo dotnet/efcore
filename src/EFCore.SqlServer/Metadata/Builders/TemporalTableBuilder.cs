@@ -1,8 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -72,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
         {
             _entityType.SetPeriodStartPropertyName(propertyName);
+            EnsurePeriodPropertyExists(propertyName);
 
             return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
         }
@@ -88,8 +91,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
         {
             _entityType.SetPeriodEndPropertyName(propertyName);
+            EnsurePeriodPropertyExists(propertyName);
 
             return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
+        }
+
+        private void EnsurePeriodPropertyExists(string propertyName)
+        {
+            var property = _entityType.FindProperty(propertyName);
+            if (property != null && property.ClrType != typeof(DateTime))
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(
+                        _entityType.DisplayName(), propertyName, nameof(DateTime)));
+            }
+
+            if (property == null)
+            {
+                property = _entityType.AddProperty(propertyName, typeof(DateTime));
+                property.SetColumnName(propertyName);
+            }
+
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
         }
 
         #region Hidden System.Object members

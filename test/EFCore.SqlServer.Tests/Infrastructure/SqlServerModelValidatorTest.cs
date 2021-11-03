@@ -710,21 +710,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(nameof(Human), "DateOfBirth"), modelBuilder);
         }
 
-        [ConditionalFact]
-        public void Temporal_period_property_must_non_nullable_datetime()
-        {
-            var modelBuilder1 = CreateConventionalModelBuilder();
-            modelBuilder1.Entity<Dog>().Property(typeof(DateTime?), "Start");
-            modelBuilder1.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+        // TODO: move to model builder tests
+        //[ConditionalFact]
+        //public void Temporal_period_property_must_non_nullable_datetime()
+        //{
+        //    var modelBuilder1 = CreateConventionalModelBuilder();
+        //    modelBuilder1.Entity<Dog>().Property(typeof(DateTime?), "Start");
+        //    modelBuilder1.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
-            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
+        //    VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
 
-            var modelBuilder2 = CreateConventionalModelBuilder();
-            modelBuilder2.Entity<Dog>().Property(typeof(int), "Start");
-            modelBuilder2.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+        //    var modelBuilder2 = CreateConventionalModelBuilder();
+        //    modelBuilder2.Entity<Dog>().Property(typeof(int), "Start");
+        //    modelBuilder2.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
-            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
-        }
+        //    VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
+        //}
 
         [ConditionalFact]
         public void Temporal_period_property_must_be_mapped_to_datetime2()
@@ -781,16 +782,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(SqlServerStrings.TemporalOnlySupportedForTPH(nameof(Animal)), modelBuilder);
         }
 
-        [ConditionalFact]
-        public void Temporal_doesnt_work_on_table_splitting()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Splitting1>().ToTable("Splitting", tb => tb.IsTemporal());
-            modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
-            modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
+        //[ConditionalFact]
+        //public void Temporal_doesnt_work_on_table_splitting()
+        //{
+        //    var modelBuilder = CreateConventionalModelBuilder();
+        //    modelBuilder.Entity<Splitting1>().ToTable("Splitting", tb => tb.IsTemporal());
+        //    modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
+        //    modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
 
-            VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplitting("Splitting"), modelBuilder);
-        }
+        //    VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplitting("Splitting"), modelBuilder);
+        //}
 
         public class Human
         {

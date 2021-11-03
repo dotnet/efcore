@@ -50,10 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
             IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-            ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalSharedTypeEntityExpansionHelper relationalSharedTypeEntityExpansionHelper)
         {
             RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
             SqlExpressionFactory = sqlExpressionFactory;
+            RelationalSharedTypeEntityExpansionHelper = relationalSharedTypeEntityExpansionHelper;
         }
 
         /// <summary>
@@ -65,5 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The SQL expression factory.
         /// </summary>
         public ISqlExpressionFactory SqlExpressionFactory { get; init; }
+
+        /// <summary>
+        ///     Shared type entity expansion helper.
+        /// </summary>
+        public IRelationalSharedTypeEntityExpansionHelper RelationalSharedTypeEntityExpansionHelper { get; init; }
     }
 }

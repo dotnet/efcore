@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ISqlExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalParameterBasedSqlProcessorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IRelationalSharedTypeEntityExpansionHelper), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -190,6 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
             TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
             TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
+            TryAdd<IRelationalSharedTypeEntityExpansionHelper, RelationalSharedTypeEntityExpansionHelper>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -225,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
                 .AddDependencyScoped<RelationalQueryContextDependencies>()
-                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
+                .AddDependencyScoped<RelationalSharedTypeEntityExpansionHelperDependencies>();
 
             return base.TryAddCoreServices();
         }

@@ -325,6 +325,9 @@
   <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
     <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
   </data>
+  <data name="TemporalOwnedTypeMappedToDifferentTableOnlySupportedForAsOf" xml:space="preserve">
+    <value>Only '{operationName}' temporal operation is supported for entitiy that owns another entity which is mapped different table.</value>
+  </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
   </data>

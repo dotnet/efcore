@@ -1802,6 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ITableBase table,
             string? columnName,
             TableExpressionBase tableExpressionBase,
+            IRelationalSharedTypeEntityExpansionHelper relationalSharedTypeEntityExpansionHelper,
             bool nullable = true)
         {
             if (columnName == null)
@@ -1815,7 +1816,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             else
             {
                 var propertyExpressions = GetPropertyExpressionFromSameTable(
-                    entityType, table, this, tableExpressionBase, columnName, nullable);
+                    entityType,
+                    table,
+                    this,
+                    tableExpressionBase,
+                    columnName,
+                    nullable,
+                    relationalSharedTypeEntityExpansionHelper);
 
                 return propertyExpressions == null
                     ? null
@@ -1834,36 +1841,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 SelectExpression selectExpression,
                 TableExpressionBase tableExpressionBase,
                 string columnName,
-                bool nullable)
+                bool nullable,
+                IRelationalSharedTypeEntityExpansionHelper relationalSharedTypeEntityExpansionHelper)
             {
                 var unwrappedTable = UnwrapJoinExpression(tableExpressionBase);
-                if (unwrappedTable is TableExpression tableExpression)
-                {
-                    if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Fetch the table for the type which is defining the navigation since dependent would be in that table
-                        tableExpressionBase = selectExpression.Tables
-                            .First(
-                                e =>
-                                {
-                                    var t = (TableExpression)UnwrapJoinExpression(e);
-                                    return t.Name == table.Name && t.Schema == table.Schema;
-                                });
-                    }
 
-                    var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                    var tableReferenceExpression = FindTableReference(selectExpression, tableExpressionBase);
-                    foreach (var property in entityType
-                        .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .SelectMany(t => t.GetDeclaredProperties()))
-                    {
-                        propertyExpressions[property] = new ConcreteColumnExpression(
-                            property, table.FindColumn(property)!, tableReferenceExpression, nullable || !property.IsPrimaryKey());
-                    }
-
-                    return propertyExpressions;
-                }
-
+                var tableReferenceExpression = FindTableReference(selectExpression, tableExpressionBase);
                 if (unwrappedTable is SelectExpression subquery)
                 {
                     var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
@@ -1871,14 +1854,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         .Expression;
 
                     var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
-                        entityType, table, subquery, subqueryIdentifyingColumn.Table, subqueryIdentifyingColumn.Name, nullable);
+                        entityType,
+                        table,
+                        subquery,
+                        subqueryIdentifyingColumn.Table,
+                        subqueryIdentifyingColumn.Name,
+                        nullable,
+                        relationalSharedTypeEntityExpansionHelper);
+
                     if (subqueryPropertyExpressions == null)
                     {
                         return null;
                     }
 
                     var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                    var tableReferenceExpression = FindTableReference(selectExpression, tableExpressionBase);
                     foreach (var item in subqueryPropertyExpressions)
                     {
                         newPropertyExpressions[item.Key] = subquery.GenerateOuterColumn(tableReferenceExpression, item.Value);
@@ -1887,7 +1876,40 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     return newPropertyExpressions;
                 }
 
-                return null;
+                if (unwrappedTable is FromSqlExpression
+                    || unwrappedTable is TableValuedFunctionExpression)
+                {
+                    return null;
+                }
+
+                // TODO: should we be match case here or not?
+                if (!relationalSharedTypeEntityExpansionHelper.TableMatchesMetadata(unwrappedTable, table))
+                {
+                    // Fetch the table for the type which is defining the navigation since dependent would be in that table
+                    var matchingTableExpressionBase = selectExpression.Tables
+                        .FirstOrDefault(e => relationalSharedTypeEntityExpansionHelper.TableMatchesMetadata(
+                            UnwrapJoinExpression(e), table));
+
+                    if (matchingTableExpressionBase != null)
+                    {
+                        tableReferenceExpression = FindTableReference(selectExpression, matchingTableExpressionBase);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var property in entityType
+                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                    .SelectMany(t => t.GetDeclaredProperties()))
+                {
+                    propertyExpressions[property] = new ConcreteColumnExpression(
+                        property, table.FindColumn(property)!, tableReferenceExpression, nullable || !property.IsPrimaryKey());
+                }
+
+                return propertyExpressions;
             }
 
             static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromJoinedTable(

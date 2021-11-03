@@ -341,7 +341,49 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             if (mappedTypes.Any(t => t.IsTemporal())
                 && mappedTypes.Select(t => t.GetRootType()).Distinct().Count() > 1)
             {
-                throw new InvalidOperationException(SqlServerStrings.TemporalNotSupportedForTableSplitting(tableName));
+                // table splitting is only supported when all entites mapped to this table
+                // have consistent temporal period mappings also
+
+                var requiredPeriodStartColumnName = default(string);
+                var requiredPeriodEndColumnName = default(string);
+
+                foreach (var mappedType in mappedTypes.Where(t => t.BaseType == null))
+                {
+                    if (!mappedType.IsTemporal())
+                    {
+                        throw new InvalidOperationException("either none or all types mapped to same table must be temporal");
+                    }
+
+                    var periodStartPropertyName = mappedType.GetPeriodStartPropertyName();
+                    var periodEndPropertyName = mappedType.GetPeriodEndPropertyName();
+
+                    var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
+                    var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
+
+                    var storeObjectIdentifier = StoreObjectIdentifier.Table(tableName, mappedType.GetSchema());
+                    var periodStartColumnName = periodStartProperty.GetColumnName(storeObjectIdentifier);
+                    var periodEndColumnName = periodEndProperty.GetColumnName(storeObjectIdentifier);
+
+                    if (requiredPeriodStartColumnName == null)
+                    {
+                        requiredPeriodStartColumnName = periodStartColumnName;
+                    }
+                    else if (requiredPeriodStartColumnName != periodStartColumnName)
+                    {
+                        throw new InvalidOperationException("periods must match");
+                    }
+
+                    if (requiredPeriodEndColumnName == null)
+                    {
+                        requiredPeriodEndColumnName = periodEndColumnName;
+                    }
+                    else if (requiredPeriodEndColumnName != periodEndColumnName)
+                    {
+                        throw new InvalidOperationException("periods must match");
+                    }
+                }
+
+                //throw new InvalidOperationException(SqlServerStrings.TemporalNotSupportedForTableSplitting(tableName));
             }
 
             base.ValidateSharedTableCompatibility(mappedTypes, tableName, schema, logger);
