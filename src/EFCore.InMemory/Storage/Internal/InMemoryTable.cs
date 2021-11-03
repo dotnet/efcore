@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -384,9 +383,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             IUpdateEntry entry,
             IList<IProperty> nullabilityErrors)
         {
-            Check.NotNull(entry, nameof(entry));
-            Check.NotNull(nullabilityErrors, nameof(nullabilityErrors));
-
             if (_sensitiveLoggingEnabled)
             {
                 throw new DbUpdateException(
@@ -413,9 +409,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             IUpdateEntry entry,
             Dictionary<IProperty, object?> concurrencyConflicts)
         {
-            Check.NotNull(entry, nameof(entry));
-            Check.NotNull(concurrencyConflicts, nameof(concurrencyConflicts));
-
             if (_sensitiveLoggingEnabled)
             {
                 throw new DbUpdateConcurrencyException(

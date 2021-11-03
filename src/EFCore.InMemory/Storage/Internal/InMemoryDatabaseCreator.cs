@@ -4,7 +4,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryDatabaseCreator(IDatabase database)
         {
-            Check.NotNull(database, nameof(database));
-
             _database = database;
         }
 

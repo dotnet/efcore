@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
@@ -41,16 +40,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override ValueGenerator Select(IProperty property, IEntityType entityType)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
-            return property.GetValueGeneratorFactory() == null
+            => property.GetValueGeneratorFactory() == null
                 && property.ClrType.IsInteger()
                 && property.ClrType.UnwrapNullableType() != typeof(char)
                     ? GetOrCreate(property)
                     : base.Select(property, entityType);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         /// </summary>
         private ValueGenerator GetOrCreate(IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (type == typeof(long))

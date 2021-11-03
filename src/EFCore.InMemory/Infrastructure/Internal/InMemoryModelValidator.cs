@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
 {
@@ -50,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.GetInMemoryQuery() != null)

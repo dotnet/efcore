@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 // ReSharper disable once CheckNamespace
@@ -43,8 +42,6 @@ namespace Microsoft.Extensions.DependencyInjection
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkInMemoryDatabase(this IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             var builder = new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, InMemoryLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
