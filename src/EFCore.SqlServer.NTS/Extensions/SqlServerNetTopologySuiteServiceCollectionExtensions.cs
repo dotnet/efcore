@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NetTopologySuite;
 
@@ -30,8 +29,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddEntityFrameworkSqlServerNetTopologySuite(
             this IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             serviceCollection.TryAddSingleton(NtsGeometryServices.Instance);
 
             new EntityFrameworkRelationalServicesBuilder(serviceCollection)

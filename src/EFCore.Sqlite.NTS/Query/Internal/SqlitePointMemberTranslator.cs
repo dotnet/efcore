@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -52,12 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
-            return _memberToFunctionName.TryGetValue(member, out var functionName)
+            => _memberToFunctionName.TryGetValue(member, out var functionName)
                 ? _sqlExpressionFactory.Function(
                     functionName,
                     new[] { instance! },
@@ -65,6 +59,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     argumentsPropagateNullability: new[] { true },
                     returnType)
                 : null;
-        }
     }
 }

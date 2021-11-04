@@ -6,7 +6,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -45,10 +44,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
             if (Equals(member, _isClosed))
             {
                 return _sqlExpressionFactory.Function(
