@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -63,17 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
-            return method.DeclaringType == typeof(DateTime)
+            => method.DeclaringType == typeof(DateTime)
                 ? TranslateDateTime(instance, method, arguments)
                 : method.DeclaringType == typeof(DateOnly)
                     ? TranslateDateOnly(instance, method, arguments)
                     : null;
-        }
 
         private SqlExpression? TranslateDateTime(
             SqlExpression? instance,

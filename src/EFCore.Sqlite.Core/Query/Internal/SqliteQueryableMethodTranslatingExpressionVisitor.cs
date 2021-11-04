@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -66,9 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             LambdaExpression keySelector,
             bool ascending)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(keySelector, nameof(keySelector));
-
             var translation = base.TranslateOrderBy(source, keySelector, ascending);
             if (translation == null)
             {
@@ -100,9 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             LambdaExpression keySelector,
             bool ascending)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(keySelector, nameof(keySelector));
-
             var translation = base.TranslateThenBy(source, keySelector, ascending);
             if (translation == null)
             {

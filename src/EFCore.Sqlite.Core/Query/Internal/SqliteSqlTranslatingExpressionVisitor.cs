@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -94,8 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
-
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
@@ -146,8 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
             // See issue#16428
             //if (binaryExpression.NodeType == ExpressionType.ArrayIndex
             //    && binaryExpression.Left.Type == typeof(byte[]))
@@ -231,8 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             var visitedExpression = base.TranslateAverage(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(decimal))
@@ -252,8 +245,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public override SqlExpression? TranslateMax(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             var visitedExpression = base.TranslateMax(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
@@ -276,8 +267,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public override SqlExpression? TranslateMin(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             var visitedExpression = base.TranslateMin(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(DateTimeOffset)
@@ -300,8 +289,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             var visitedExpression = base.TranslateSum(sqlExpression);
             var argumentType = GetProviderType(visitedExpression);
             if (argumentType == typeof(decimal))

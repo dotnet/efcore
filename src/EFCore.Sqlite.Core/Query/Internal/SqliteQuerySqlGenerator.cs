@@ -4,7 +4,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -34,14 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override string GetOperator(SqlBinaryExpression binaryExpression)
-        {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
-            return binaryExpression.OperatorType == ExpressionType.Add
+            => binaryExpression.OperatorType == ExpressionType.Add
                 && binaryExpression.Type == typeof(string)
                     ? " || "
                     : base.GetOperator(binaryExpression);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,8 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             if (selectExpression.Limit != null
                 || selectExpression.Offset != null)
             {
@@ -79,12 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
-        {
-            Check.NotNull(setOperation, nameof(setOperation));
-            Check.NotNull(operand, nameof(operand));
-
             // Sqlite doesn't support parentheses around set operation operands
-            Visit(operand);
-        }
+            => Visit(operand);
     }
 }

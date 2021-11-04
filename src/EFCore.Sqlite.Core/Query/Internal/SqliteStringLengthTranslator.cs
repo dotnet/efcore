@@ -6,7 +6,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -42,12 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
-            return instance?.Type == typeof(string)
+            => instance?.Type == typeof(string)
                 && member.Name == nameof(string.Length)
                     ? _sqlExpressionFactory.Function(
                         "length",
@@ -56,6 +50,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         argumentsPropagateNullability: new[] { true },
                         returnType)
                     : null;
-        }
     }
 }
