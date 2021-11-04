@@ -52,11 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool transactionOwned,
             ISqlGenerationHelper sqlGenerationHelper)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(transaction, nameof(transaction));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-
             if (connection.DbConnection != transaction.Connection)
             {
                 throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);

@@ -29,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
         }
 

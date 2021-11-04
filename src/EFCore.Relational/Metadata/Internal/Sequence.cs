@@ -10,7 +10,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -99,9 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyModel model,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
             Model = model;
             Name = name;
             _schema = schema;
@@ -118,9 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Obsolete("Use the other constructor")]
         public Sequence(IReadOnlyModel model, string annotationName)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(annotationName, nameof(annotationName));
-
             Model = model;
             _configurationSource = ConfigurationSource.Explicit;
 
@@ -200,10 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sequence sequence,
             string name)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(sequence, nameof(sequence));
-            Check.NotEmpty(name, nameof(name));
-
             sequence.EnsureMutable();
 
             var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
@@ -760,8 +749,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public static SequenceData Deserialize(string value)
             {
-                Check.NotEmpty(value, nameof(value));
-
                 try
                 {
                     var data = new SequenceData();

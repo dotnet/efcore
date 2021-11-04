@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             // NB: We can get Int32 values here too due to compiler-introduced convert nodes
-            var charValue = Convert.ToChar(Check.NotNull(value, nameof(value)));
+            var charValue = Convert.ToChar(value);
             if (charValue == '\'')
             {
                 return "''''";

@@ -50,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The name of the column to which the property is mapped.</returns>
         public static string? GetColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var overrides = RelationalPropertyOverrides.Find(property, storeObject);
             if (overrides?.ColumnNameOverriden == true)
             {
@@ -358,12 +356,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     be found.
         /// </returns>
         public static string? GetColumnType(this IReadOnlyProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return (string?)(property.FindRelationalTypeMapping()?.StoreType
+            => (string?)(property.FindRelationalTypeMapping()?.StoreType
                 ?? property.FindAnnotation(RelationalAnnotationNames.ColumnType)?.Value);
-        }
 
         /// <summary>
         ///     Returns the database type of the column to which the property is mapped.
@@ -907,8 +901,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The maximum length, or <see langword="null" /> if none is defined.</returns>
         public static int? GetMaxLength(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var maxLength = property.GetMaxLength();
             if (maxLength != null)
             {
@@ -928,8 +920,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The precision, or <see langword="null" /> if none is defined.</returns>
         public static int? GetPrecision(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var precision = property.GetPrecision();
             if (precision != null)
             {
@@ -949,8 +939,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The scale, or <see langword="null" /> if none is defined.</returns>
         public static int? GetScale(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var scale = property.GetScale();
             if (scale != null)
             {
@@ -969,8 +957,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The Unicode setting, or <see langword="null" /> if none is defined.</returns>
         public static bool? IsUnicode(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var unicode = property.IsUnicode();
             if (unicode != null)
             {
@@ -1361,8 +1347,6 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IReadOnlyProperty? FindSharedObjectRootProperty(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(property, nameof(property));
-
             var column = property.GetColumnName(storeObject);
 
             if (column == null)

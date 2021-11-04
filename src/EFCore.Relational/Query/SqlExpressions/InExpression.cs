@@ -6,7 +6,6 @@ using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SelectExpression subquery,
             bool negated,
             RelationalTypeMapping typeMapping)
-            : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
+            : this(item, null, subquery, negated, typeMapping)
         {
         }
 
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression values,
             bool negated,
             RelationalTypeMapping typeMapping)
-            : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
+            : this(item, values, null, negated, typeMapping)
         {
         }
 
@@ -90,8 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var item = (SqlExpression)visitor.Visit(Item);
             var subquery = (SelectExpression?)visitor.Visit(Subquery);
             var values = (SqlExpression?)visitor.Visit(Values);
@@ -119,8 +116,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression? values,
             SelectExpression? subquery)
         {
-            Check.NotNull(item, nameof(item));
-
             if (values != null
                 && subquery != null)
             {
@@ -135,8 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Visit(Item);
             expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
             expressionPrinter.Append("(");

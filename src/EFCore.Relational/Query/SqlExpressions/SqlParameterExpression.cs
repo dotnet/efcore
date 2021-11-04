@@ -52,19 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
-        {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            expressionPrinter.Append("@" + _parameterExpression.Name);
-        }
+            => expressionPrinter.Append("@" + _parameterExpression.Name);
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

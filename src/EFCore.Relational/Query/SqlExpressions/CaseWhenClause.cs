@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -24,9 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="result">A value to return if test succeeds.</param>
         public CaseWhenClause(SqlExpression test, SqlExpression result)
         {
-            Check.NotNull(test, nameof(test));
-            Check.NotNull(result, nameof(result));
-
             Test = test;
             Result = result;
         }

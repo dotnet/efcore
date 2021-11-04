@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -48,10 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string commandText,
             IReadOnlyList<IRelationalParameter> parameters)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(commandText, nameof(commandText));
-            Check.NotNull(parameters, nameof(parameters));
-
             Dependencies = dependencies;
             CommandText = commandText;
             Parameters = parameters;

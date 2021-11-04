@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -51,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalCommandBuilderDependencies(
             IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             TypeMappingSource = typeMappingSource;
         }
 

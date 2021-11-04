@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -65,9 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
-            Check.NotNull(left, nameof(left));
-            Check.NotNull(right, nameof(right));
-
             if (!IsValidOperator(operatorType))
             {
                 throw new InvalidOperationException(
@@ -98,8 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var left = (SqlExpression)visitor.Visit(Left);
             var right = (SqlExpression)visitor.Visit(Right);
 
@@ -114,20 +108,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="right">The <see cref="Right" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
-        {
-            Check.NotNull(left, nameof(left));
-            Check.NotNull(right, nameof(right));
-
-            return left != Left || right != Right
+            => left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             var requiresBrackets = RequiresBrackets(Left);
 
             if (requiresBrackets)

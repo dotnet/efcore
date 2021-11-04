@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -44,10 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             Type clrType)
         {
-            Check.NotNull(function, nameof(function));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(clrType, nameof(clrType));
-
             Name = name;
             Function = function;
             ClrType = clrType;

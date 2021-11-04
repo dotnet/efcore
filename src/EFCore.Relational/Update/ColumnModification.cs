@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isCondition,
             bool sensitiveLoggingEnabled)
             : this(
-                Check.NotNull(column, nameof(column)).Name,
+                column.Name,
                 originalValue: null,
                 value: null,
                 property: property,
@@ -102,10 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 sensitiveLoggingEnabled: sensitiveLoggingEnabled,
                 column.IsNullable)
         {
-            Check.NotNull(entry, nameof(entry));
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(generateParameterName, nameof(generateParameterName));
-
             Entry = entry;
             _generateParameterName = generateParameterName;
             UseParameter = true;
@@ -137,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             : this(
                 entry,
                 property,
-                Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().Column,
+                property.GetTableColumnMappings().First().Column,
                 generateParameterName,
-                Check.NotNull(property, nameof(property)).GetTableColumnMappings().First().TypeMapping,
+                property.GetTableColumnMappings().First().TypeMapping,
                 isRead: isRead,
                 isWrite: isWrite,
                 isKey: isKey,
@@ -178,8 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool sensitiveLoggingEnabled,
             bool? isNullable = null)
         {
-            Check.NotNull(columnName, nameof(columnName));
-
             ColumnName = columnName;
             _originalValue = originalValue;
             _value = value;
@@ -220,8 +214,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isCondition,
             bool sensitiveLoggingEnabled)
         {
-            Check.NotNull(columnName, nameof(columnName));
-
             ColumnName = columnName;
             _originalValue = originalValue;
             _value = value;

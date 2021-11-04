@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
             _relationalQueryCompilationContext = (RelationalQueryCompilationContext)queryCompilationContext;
         }

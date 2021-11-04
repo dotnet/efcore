@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected UpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -68,9 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyModificationCommand command,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(command, nameof(command));
-
             var name = command.TableName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
@@ -102,9 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyModificationCommand command,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(command, nameof(command));
-
             var name = command.TableName;
             var schema = command.Schema;
             var operations = command.ColumnModifications;
@@ -137,9 +128,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyModificationCommand command,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(command, nameof(command));
-
             var name = command.TableName;
             var schema = command.Schema;
             var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
@@ -162,10 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<IColumnModification> writeOperations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(writeOperations, nameof(writeOperations));
-
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, name, schema, writeOperations);
@@ -187,11 +171,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyList<IColumnModification> writeOperations,
             IReadOnlyList<IColumnModification> conditionOperations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(writeOperations, nameof(writeOperations));
-            Check.NotNull(conditionOperations, nameof(conditionOperations));
-
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
@@ -210,10 +189,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<IColumnModification> conditionOperations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(conditionOperations, nameof(conditionOperations));
-
             AppendDeleteCommandHeader(commandStringBuilder, name, schema);
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
@@ -252,11 +227,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyList<IColumnModification> conditionOperations,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(readOperations, nameof(readOperations));
-            Check.NotNull(conditionOperations, nameof(conditionOperations));
-
             AppendSelectCommandHeader(commandStringBuilder, readOperations);
             AppendFromClause(commandStringBuilder, name, schema);
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
@@ -279,10 +249,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(operations, nameof(operations));
-
             commandStringBuilder.Append("INSERT INTO ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
 
@@ -309,9 +275,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string name,
             string? schema)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-
             commandStringBuilder.Append("DELETE FROM ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
         }
@@ -329,10 +292,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(operations, nameof(operations));
-
             commandStringBuilder.Append("UPDATE ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
             commandStringBuilder.Append(" SET ")
@@ -363,17 +322,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendSelectCommandHeader(
             StringBuilder commandStringBuilder,
             IReadOnlyList<IColumnModification> operations)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
-            commandStringBuilder
+            => commandStringBuilder
                 .Append("SELECT ")
                 .AppendJoin(
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName));
-        }
 
         /// <summary>
         ///     Appends a SQL fragment for starting a <c>FROM</c> clause.
@@ -386,9 +340,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string name,
             string? schema)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-
             commandStringBuilder
                 .AppendLine()
                 .Append("FROM ");
@@ -404,9 +355,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder commandStringBuilder,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
             commandStringBuilder.AppendLine();
             commandStringBuilder.Append(operations.Count > 0 ? "VALUES " : "DEFAULT VALUES");
         }
@@ -424,9 +372,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
             if (operations.Count > 0)
             {
                 commandStringBuilder
@@ -466,9 +411,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder commandStringBuilder,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
             if (operations.Count > 0)
             {
                 commandStringBuilder
@@ -487,9 +429,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder commandStringBuilder,
             IReadOnlyList<IColumnModification> operations)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(operations, nameof(operations));
-
             commandStringBuilder
                 .AppendLine()
                 .Append("WHERE ");
@@ -553,9 +492,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IColumnModification columnModification,
             bool useOriginalValue)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(columnModification, nameof(columnModification));
-
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
 
             var parameterValue = useOriginalValue
@@ -623,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public virtual void AppendNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string? schema)
         {
             commandStringBuilder.Append("SELECT NEXT VALUE FOR ");
-            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, Check.NotNull(name, nameof(name)), schema);
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
         }
 
         private void AppendSqlLiteral(

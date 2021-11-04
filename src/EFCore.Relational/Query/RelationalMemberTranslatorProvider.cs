@@ -9,7 +9,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -35,8 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
         public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
@@ -56,24 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
-            return _plugins.Concat(_translators)
+            => _plugins.Concat(_translators)
                 .Select(t => t.Translate(instance, member, returnType, logger)).FirstOrDefault(t => t != null);
-        }
 
         /// <summary>
         ///     Adds additional translators which will take priority over existing registered translators.
         /// </summary>
         /// <param name="translators">Translators to add.</param>
         protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
-        {
-            Check.NotNull(translators, nameof(translators));
-
-            _translators.InsertRange(0, translators);
-        }
+            => _translators.InsertRange(0, translators);
     }
 }

@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -61,8 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected RelationalConnection(RelationalConnectionDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Context = dependencies.CurrentContext.Context;
             _relationalCommandBuilder = dependencies.RelationalCommandBuilderFactory.Create();
 

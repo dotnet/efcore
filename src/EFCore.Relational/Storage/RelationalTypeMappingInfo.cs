@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -89,9 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? scale)
         {
             // Note: Empty string is allowed for store type name because SQLite
-            Check.NotNull(storeTypeName, nameof(storeTypeName));
-            Check.NotNull(storeTypeNameBase, nameof(storeTypeNameBase));
-
             _coreTypeMappingInfo = new TypeMappingInfo(null, false, unicode, size, null, precision, scale);
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = storeTypeNameBase;
@@ -117,8 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? precision = null,
             int? scale = null)
         {
-            Check.NotNull(member, nameof(member));
-
             _coreTypeMappingInfo = new TypeMappingInfo(member, unicode, size, precision, scale);
 
             StoreTypeName = storeTypeName;

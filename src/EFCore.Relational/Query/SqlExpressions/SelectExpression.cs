@@ -312,8 +312,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="tags">A list of tags to apply.</param>
         public void ApplyTags(ISet<string> tags)
         {
-            Check.NotNull(tags, nameof(tags));
-
             Tags = tags;
         }
 
@@ -1015,11 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sqlExpression">An expression to add.</param>
         /// <returns>An int value indicating the index at which the expression was added in the projection list.</returns>
         public int AddToProjection(SqlExpression sqlExpression)
-        {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
-            return AddToProjection(sqlExpression, null);
-        }
+            => AddToProjection(sqlExpression, null);
 
         private int AddToProjection(SqlExpression sqlExpression, string? alias, bool assignUniqueTableAlias = true)
         {
@@ -1064,8 +1058,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sqlExpression">An expression to use for filtering.</param>
         public void ApplyPredicate(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             if (sqlExpression is SqlConstantExpression sqlConstant
                 && sqlConstant.Value is bool boolValue
                 && boolValue)
@@ -1112,8 +1104,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="keySelector">An key selector expression for the GROUP BY.</param>
         public void ApplyGrouping(Expression keySelector)
         {
-            Check.NotNull(keySelector, nameof(keySelector));
-
             ClearOrdering();
 
             var groupByTerms = new List<SqlExpression>();
@@ -1163,10 +1153,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Expression shaperExpression,
             ISqlExpressionFactory sqlExpressionFactory)
         {
-            Check.NotNull(keySelector, nameof(keySelector));
-            Check.NotNull(shaperExpression, nameof(shaperExpression));
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-
             ClearOrdering();
 
             var keySelectorToAdd = keySelector;
@@ -1239,8 +1225,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             List<string?> groupByAliases,
             string? name)
         {
-            Check.NotNull(keySelector, nameof(keySelector));
-
             switch (keySelector)
             {
                 case SqlExpression sqlExpression:
@@ -1283,8 +1267,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
         public void ApplyOrdering(OrderingExpression orderingExpression)
         {
-            Check.NotNull(orderingExpression, nameof(orderingExpression));
-
             if (IsDistinct
                 || Limit != null
                 || Offset != null)
@@ -1302,8 +1284,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderingExpression">An ordering expression to use for ordering.</param>
         public void AppendOrdering(OrderingExpression orderingExpression)
         {
-            Check.NotNull(orderingExpression, nameof(orderingExpression));
-
             if (_groupBy.Count > 0)
             {
                 orderingExpression = orderingExpression.Update(
@@ -1357,8 +1337,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sqlExpression">An expression representing limit row count.</param>
         public void ApplyLimit(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             if (Limit != null)
             {
                 PushdownIntoSubquery();
@@ -1373,8 +1351,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sqlExpression">An expression representing offset row count.</param>
         public void ApplyOffset(SqlExpression sqlExpression)
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
             if (Limit != null
                 || Offset != null
                 || (IsDistinct && Orderings.Count == 0))
@@ -1398,11 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2">A <see cref="SelectExpression" /> to perform the operation.</param>
         /// <param name="distinct">A bool value indicating if resulting table source should remove duplicates.</param>
         public void ApplyExcept(SelectExpression source2, bool distinct)
-        {
-            Check.NotNull(source2, nameof(source2));
-
-            ApplySetOperation(SetOperationType.Except, source2, distinct);
-        }
+            => ApplySetOperation(SetOperationType.Except, source2, distinct);
 
         /// <summary>
         ///     Applies INTERSECT operation to the <see cref="SelectExpression" />.
@@ -1410,11 +1382,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2">A <see cref="SelectExpression" /> to perform the operation.</param>
         /// <param name="distinct">A bool value indicating if resulting table source should remove duplicates.</param>
         public void ApplyIntersect(SelectExpression source2, bool distinct)
-        {
-            Check.NotNull(source2, nameof(source2));
-
-            ApplySetOperation(SetOperationType.Intersect, source2, distinct);
-        }
+            => ApplySetOperation(SetOperationType.Intersect, source2, distinct);
 
         /// <summary>
         ///     Applies UNION operation to the <see cref="SelectExpression" />.
@@ -1422,11 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2">A <see cref="SelectExpression" /> to perform the operation.</param>
         /// <param name="distinct">A bool value indicating if resulting table source should remove duplicates.</param>
         public void ApplyUnion(SelectExpression source2, bool distinct)
-        {
-            Check.NotNull(source2, nameof(source2));
-
-            ApplySetOperation(SetOperationType.Union, source2, distinct);
-        }
+            => ApplySetOperation(SetOperationType.Union, source2, distinct);
 
         private void ApplySetOperation(SetOperationType setOperationType, SelectExpression select2, bool distinct)
         {
@@ -1721,8 +1685,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sqlExpressionFactory">A factory to use for generating required sql expressions.</param>
         public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-
             var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
                 new SqlConstantExpression(Constant(null, typeof(string)), null));
 
@@ -2477,12 +2439,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
         /// <param name="joinPredicate">A predicate to use for the join.</param>
         public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.InnerJoin, ref innerSelectExpression, joinPredicate);
-        }
+            => AddJoin(JoinType.InnerJoin, ref innerSelectExpression, joinPredicate);
 
         /// <summary>
         ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
@@ -2490,45 +2447,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
         /// <param name="joinPredicate">A predicate to use for the join.</param>
         public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.LeftJoin, ref innerSelectExpression, joinPredicate);
-        }
+            => AddJoin(JoinType.LeftJoin, ref innerSelectExpression, joinPredicate);
 
         /// <summary>
         ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
         /// </summary>
         /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
         public void AddCrossJoin(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossJoin, ref innerSelectExpression);
-        }
+            => AddJoin(JoinType.CrossJoin, ref innerSelectExpression);
 
         /// <summary>
         ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
         /// </summary>
         /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
         public void AddCrossApply(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossApply, ref innerSelectExpression);
-        }
+            => AddJoin(JoinType.CrossApply, ref innerSelectExpression);
 
         /// <summary>
         ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
         /// </summary>
         /// <param name="innerSelectExpression">A <see cref="SelectExpression" /> to join with.</param>
         public void AddOuterApply(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.OuterApply, ref innerSelectExpression);
-        }
+            => AddJoin(JoinType.OuterApply, ref innerSelectExpression);
 
         /// <summary>
         ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using INNER JOIN and combine shapers.
@@ -2541,15 +2481,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ShapedQueryExpression innerSource,
             SqlExpression joinPredicate,
             Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(
+            => AddJoin(
                 JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
                 joinPredicate);
-        }
 
         /// <summary>
         ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
@@ -2562,14 +2496,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ShapedQueryExpression innerSource,
             SqlExpression joinPredicate,
             Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(
+            => AddJoin(
                 JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
-        }
 
         /// <summary>
         ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS JOIN and combine shapers.
@@ -2580,12 +2508,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public Expression AddCrossJoin(
             ShapedQueryExpression innerSource,
             Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.CrossJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
+            => AddJoin(JoinType.CrossJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
 
         /// <summary>
         ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS APPLY and combine shapers.
@@ -2596,12 +2519,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public Expression AddCrossApply(
             ShapedQueryExpression innerSource,
             Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.CrossApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
+            => AddJoin(JoinType.CrossApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
 
         /// <summary>
         ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using OUTER APPLY and combine shapers.
@@ -2612,12 +2530,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public Expression AddOuterApply(
             ShapedQueryExpression innerSource,
             Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.OuterApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
+            => AddJoin(JoinType.OuterApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
 
         /// <summary>
         ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
@@ -3112,8 +3025,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             if (_projection.Count == 0)
             {
                 // If projection is not populated then we need to treat this as mutable object since it is not final yet.
@@ -3370,11 +3281,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression? limit,
             SqlExpression? offset)
         {
-            Check.NotNull(projections, nameof(projections));
-            Check.NotNull(tables, nameof(tables));
-            Check.NotNull(groupBy, nameof(groupBy));
-            Check.NotNull(orderings, nameof(orderings));
-
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             foreach (var kvp in _projectionMapping)
             {
@@ -3412,8 +3318,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             if (_clientProjections.Count > 0)
             {
                 expressionPrinter.AppendLine("Client Projections:");

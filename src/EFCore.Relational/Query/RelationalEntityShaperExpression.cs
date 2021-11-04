@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -58,8 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
         {
-            Check.NotNull(entityType, nameof(EntityType));
-
             LambdaExpression baseCondition;
             if (entityType.FindDiscriminatorProperty() == null
                 && entityType.GetDirectlyDerivedTypes().Any())
@@ -146,31 +143,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public override EntityShaperExpression WithEntityType(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType != EntityType
+            => entityType != EntityType
                 ? new RelationalEntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
                 : this;
-        }
 
         /// <inheritdoc />
         public override EntityShaperExpression MakeNullable(bool nullable = true)
-        {
-            return IsNullable != nullable
+            => IsNullable != nullable
                 // Marking nullable requires recomputation of Discriminator condition
                 ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
-        }
 
         /// <inheritdoc />
         public override EntityShaperExpression Update(Expression valueBufferExpression)
-        {
-            Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
-
-            return valueBufferExpression != ValueBufferExpression
+            => valueBufferExpression != ValueBufferExpression
                 ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
-        }
     }
 }

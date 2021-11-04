@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         protected virtual string EscapeSqlLiteral(string literal)
-            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
+            => literal.Replace("'", "''");
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

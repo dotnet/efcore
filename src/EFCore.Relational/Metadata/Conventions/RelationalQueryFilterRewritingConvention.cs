@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
             DbSetAccessRewriter = new RelationalDbSetAccessRewritingExpressionVisitor(Dependencies.ContextType);
         }
@@ -73,8 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <inheritdoc />
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 var methodName = methodCallExpression.Method.Name;
                 if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
                     && (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw)

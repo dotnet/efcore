@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -28,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IReadOnlyList<IRelationalParameter> relationalParameters)
             : base(invariantName)
         {
-            Check.NotNull(relationalParameters, nameof(relationalParameters));
-
             RelationalParameters = relationalParameters;
         }
 
@@ -49,9 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void AddDbParameter(DbCommand command, object? value)
         {
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(value, nameof(value));
-
             if (value is object[] innerValues)
             {
                 if (innerValues.Length < RelationalParameters.Count)

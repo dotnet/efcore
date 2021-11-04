@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model">The model to get the default schema for.</param>
         /// <returns>The default schema.</returns>
         public static string? GetDefaultSchema(this IReadOnlyModel model)
-            => (string?)Check.NotNull(model, nameof(model))[RelationalAnnotationNames.DefaultSchema];
+            => (string?)model[RelationalAnnotationNames.DefaultSchema];
 
         /// <summary>
         ///     Sets the default schema.
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model">The model to get the maximum identifier length for.</param>
         /// <returns>The maximum identifier length.</returns>
         public static int GetMaxIdentifierLength(this IReadOnlyModel model)
-            => (int?)Check.NotNull(model, nameof(model))[RelationalAnnotationNames.MaxIdentifierLength] ?? short.MaxValue;
+            => (int?)model[RelationalAnnotationNames.MaxIdentifierLength] ?? short.MaxValue;
 
         /// <summary>
         ///     Sets the maximum length allowed for store identifiers.
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? schema = null)
             => Sequence.FindSequence(
-                Check.NotNull(model, nameof(model)), Check.NotEmpty(name, nameof(name)), Check.NullButNotEmpty(schema, nameof(schema)));
+                model, Check.NotEmpty(name, nameof(name)), Check.NullButNotEmpty(schema, nameof(schema)));
 
         /// <summary>
         ///     Finds a sequence with the given name.
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
             this IMutableModel model,
             string name,
             string? schema = null)
-            => Sequence.RemoveSequence(Check.NotNull(model, nameof(model)), name, schema);
+            => Sequence.RemoveSequence(model, name, schema);
 
         /// <summary>
         ///     Removes the <see cref="IConventionSequence" /> with the given name.
@@ -246,35 +246,35 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModel model,
             string name,
             string? schema = null)
-            => Sequence.RemoveSequence((IMutableModel)Check.NotNull(model, nameof(model)), name, schema);
+            => Sequence.RemoveSequence((IMutableModel)model, name, schema);
 
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         /// <param name="model">The model to get the sequences in.</param>
         public static IEnumerable<ISequence> GetSequences(this IModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model)));
+            => Sequence.GetSequences(model);
 
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         /// <param name="model">The model to get the sequences in.</param>
         public static IEnumerable<IMutableSequence> GetSequences(this IMutableModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model))).Cast<IMutableSequence>();
+            => Sequence.GetSequences(model).Cast<IMutableSequence>();
 
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         /// <param name="model">The model to get the sequences in.</param>
         public static IEnumerable<IConventionSequence> GetSequences(this IConventionModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model))).Cast<IConventionSequence>();
+            => Sequence.GetSequences(model).Cast<IConventionSequence>();
 
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         /// <param name="model">The model to get the sequences in.</param>
         public static IEnumerable<IReadOnlySequence> GetSequences(this IReadOnlyModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model)));
+            => Sequence.GetSequences(model);
 
         /// <summary>
         ///     Finds a function that is mapped to the method represented by the given <see cref="MethodInfo" />.
@@ -283,9 +283,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="method">The <see cref="MethodInfo" /> for the method that is mapped to the function.</param>
         /// <returns>The function or <see langword="null" /> if the method is not mapped.</returns>
         public static IReadOnlyDbFunction? FindDbFunction(this IReadOnlyModel model, MethodInfo method)
-            => DbFunction.FindDbFunction(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(method, nameof(method)));
+            => DbFunction.FindDbFunction(model, Check.NotNull(method, nameof(method)));
 
         /// <summary>
         ///     Finds a function that is mapped to the method represented by the given <see cref="MethodInfo" />.
@@ -416,9 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="method">The <see cref="MethodInfo" /> for the method that is mapped to the function.</param>
         /// <returns>The removed function or <see langword="null" /> if the method is not mapped.</returns>
         public static IMutableDbFunction? RemoveDbFunction(this IMutableModel model, MethodInfo method)
-            => DbFunction.RemoveDbFunction(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(method, nameof(method)));
+            => DbFunction.RemoveDbFunction(model, Check.NotNull(method, nameof(method)));
 
         /// <summary>
         ///     Removes the function that is mapped to the method represented by the given
@@ -438,9 +434,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name">The model name of the function.</param>
         /// <returns>The removed function or <see langword="null" /> if the method is not mapped.</returns>
         public static IMutableDbFunction? RemoveDbFunction(this IMutableModel model, string name)
-            => DbFunction.RemoveDbFunction(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(name, nameof(name)));
+            => DbFunction.RemoveDbFunction(model, Check.NotNull(name, nameof(name)));
 
         /// <summary>
         ///     Removes the function that is mapped to the method represented by the given
@@ -457,28 +451,28 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model">The model to get the functions in.</param>
         public static IEnumerable<IReadOnlyDbFunction> GetDbFunctions(this IReadOnlyModel model)
-            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model)));
+            => DbFunction.GetDbFunctions(model);
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model">The model to get the functions in.</param>
         public static IEnumerable<IMutableDbFunction> GetDbFunctions(this IMutableModel model)
-            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model))).Cast<IMutableDbFunction>();
+            => DbFunction.GetDbFunctions(model).Cast<IMutableDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model">The model to get the functions in.</param>
         public static IEnumerable<IConventionDbFunction> GetDbFunctions(this IConventionModel model)
-            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model))).Cast<IConventionDbFunction>();
+            => DbFunction.GetDbFunctions(model).Cast<IConventionDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model">The model to get the functions in.</param>
         public static IEnumerable<IDbFunction> GetDbFunctions(this IModel model)
-            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model)));
+            => DbFunction.GetDbFunctions(model);
 
         /// <summary>
         ///     Returns the database collation.

@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -36,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
@@ -55,8 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
-            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
-
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
 
             VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -37,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var source1 = (SelectExpression)visitor.Visit(Source1);
             var source2 = (SelectExpression)visitor.Visit(Source2);
 
@@ -53,20 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2">The <see cref="SetOperationBase.Source2" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual UnionExpression Update(SelectExpression source1, SelectExpression source2)
-        {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
-            return source1 != Source1 || source2 != Source2
+            => source1 != Source1 || source2 != Source2
                 ? new UnionExpression(Alias, source1, source2, IsDistinct)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append("(");
             using (expressionPrinter.Indent())
             {

@@ -44,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

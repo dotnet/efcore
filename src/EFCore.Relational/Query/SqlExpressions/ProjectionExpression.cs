@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -19,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     {
         internal ProjectionExpression(SqlExpression expression, string alias)
         {
-            Check.NotNull(expression, nameof(expression));
-            Check.NotNull(alias, nameof(alias));
-
             Expression = expression;
             Alias = alias;
         }
@@ -46,11 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return Update((SqlExpression)visitor.Visit(Expression));
-        }
+            => Update((SqlExpression)visitor.Visit(Expression));
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -59,19 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="expression">The <see cref="Expression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public ProjectionExpression Update(SqlExpression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return expression != Expression
+            => expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Visit(Expression);
             if (Alias != string.Empty
                 && !(Expression is ColumnExpression column

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -33,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             RelationalTypeMapping? typeMapping)
             : base(typeof(long), typeMapping)
         {
-            Check.NotEmpty(orderings, nameof(orderings));
-
             Partitions = partitions ?? Array.Empty<SqlExpression>();
             Orderings = orderings;
         }
@@ -52,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var changed = false;
             var partitions = new List<SqlExpression>();
             foreach (var partition in Partitions)
@@ -86,21 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual RowNumberExpression Update(
             IReadOnlyList<SqlExpression>? partitions,
             IReadOnlyList<OrderingExpression> orderings)
-        {
-            Check.NotNull(orderings, nameof(orderings));
-
-            return ((Partitions == null && partitions == null)
+            => ((Partitions == null && partitions == null)
                     || (Partitions != null && partitions != null && Partitions.SequenceEqual(partitions)))
                 && Orderings.SequenceEqual(orderings)
                     ? this
                     : new RowNumberExpression(partitions, orderings, TypeMapping);
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append("ROW_NUMBER() OVER(");
             if (Partitions.Any())
             {

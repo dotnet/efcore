@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -55,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected HistoryRepository(HistoryRepositoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.Options);
@@ -297,8 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>The generated SQL.</returns>
         public virtual string GetInsertScript(HistoryRow row)
         {
-            Check.NotNull(row, nameof(row));
-
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder().Append("INSERT INTO ")
@@ -324,8 +319,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>The generated SQL.</returns>
         public virtual string GetDeleteScript(string migrationId)
         {
-            Check.NotEmpty(migrationId, nameof(migrationId));
-
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder().Append("DELETE FROM ")

@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalCommandBuilder commandBuilder,
             string value)
         {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(value, nameof(value));
-
             commandBuilder.Append(value).AppendLine();
 
             return commandBuilder;
@@ -51,9 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string value,
             bool skipFinalNewline = false)
         {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotNull(value, nameof(value));
-
             using (var reader = new StringReader(value))
             {
                 var first = true;
@@ -90,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandBuilder">The command builder.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static IDisposable Indent(this IRelationalCommandBuilder commandBuilder)
-            => new Indenter(Check.NotNull(commandBuilder, nameof(commandBuilder)));
+            => new Indenter(commandBuilder);
 
         /// <summary>
         ///     Adds a parameter.
@@ -109,17 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
             string name)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotEmpty(name, nameof(name));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new DynamicRelationalParameter(
-                    Check.NotEmpty(invariantName, nameof(invariantName)),
-                    Check.NotEmpty(name, nameof(name)),
+                    invariantName,
+                    name,
                     commandBuilder.TypeMappingSource));
-        }
 
         /// <summary>
         ///     Adds a parameter.
@@ -146,19 +133,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string name,
             RelationalTypeMapping typeMapping,
             bool nullable)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(typeMapping, nameof(typeMapping));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
                     typeMapping,
                     nullable));
-        }
 
         /// <summary>
         ///     Adds a parameter.
@@ -180,19 +160,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string invariantName,
             string name,
             IProperty property)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(property, nameof(property));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
                     property.GetRelationalTypeMapping(),
                     property.IsNullable));
-        }
 
         /// <summary>
         ///     Adds a parameter.
@@ -215,19 +188,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string name,
             RelationalTypeMapping relationalTypeMapping,
             bool? nullable)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(relationalTypeMapping, nameof(relationalTypeMapping));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
                     relationalTypeMapping,
                     nullable));
-        }
 
         /// <summary>
         ///     Adds a parameter that is ultimately represented as multiple <see cref="DbParameter" />s in the
@@ -246,10 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string invariantName,
             IReadOnlyList<IRelationalParameter> subParameters)
         {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotNull(subParameters, nameof(subParameters));
-
             if (subParameters.Count > 0)
             {
                 commandBuilder.AddParameter(
@@ -276,14 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalCommandBuilder commandBuilder,
             string invariantName,
             DbParameter dbParameter)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotNull(dbParameter, nameof(dbParameter));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new RawRelationalParameter(invariantName, dbParameter));
-        }
 
         /// <summary>
         ///     Adds a parameter.
@@ -307,19 +263,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string invariantName,
             string name,
             IProperty property)
-        {
-            Check.NotNull(commandBuilder, nameof(commandBuilder));
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(property, nameof(property));
-
-            return commandBuilder.AddParameter(
+            => commandBuilder.AddParameter(
                 new TypeMappedPropertyRelationalParameter(
                     invariantName,
                     name,
                     property.GetRelationalTypeMapping(),
                     property));
-        }
 
         private sealed class Indenter : IDisposable
         {

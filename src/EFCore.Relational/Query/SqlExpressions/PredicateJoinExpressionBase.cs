@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected PredicateJoinExpressionBase(TableExpressionBase table, SqlExpression joinPredicate)
             : base(table)
         {
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
             JoinPredicate = joinPredicate;
         }
 

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -38,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalCommandBuilder(
             RelationalCommandBuilderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -80,8 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
         {
-            Check.NotNull(parameter, nameof(parameter));
-
             _parameters.Add(parameter);
 
             return this;
@@ -94,8 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual IRelationalCommandBuilder Append(string value)
         {
-            Check.NotNull(value, nameof(value));
-
             _commandTextBuilder.Append(value);
 
             return this;

@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -59,12 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             ICurrentDbContext currentContext,
             IRelationalCommandDiagnosticsLogger logger)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
-            Check.NotNull(logger, nameof(logger));
-
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;

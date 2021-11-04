@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -30,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var table = (TableExpressionBase)visitor.Visit(Table);
             var joinPredicate = (SqlExpression)visitor.Visit(JoinPredicate);
 
@@ -46,20 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="joinPredicate">The <see cref="PredicateJoinExpressionBase.JoinPredicate" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
-        {
-            Check.NotNull(table, nameof(table));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            return table != Table || joinPredicate != JoinPredicate
+            => table != Table || joinPredicate != JoinPredicate
                 ? new InnerJoinExpression(table, joinPredicate)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append("INNER JOIN ");
             expressionPrinter.Visit(Table);
             expressionPrinter.Append(" ON ");

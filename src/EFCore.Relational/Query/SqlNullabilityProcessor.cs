@@ -10,7 +10,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -78,9 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
             _canCache = true;
             _nonNullableColumns.Clear();
             _nullValueColumns.Clear();
@@ -103,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="columnExpression">A column expression to add.</param>
         protected virtual void AddNonNullableColumn(ColumnExpression columnExpression)
-            => _nonNullableColumns.Add(Check.NotNull(columnExpression, nameof(columnExpression)));
+            => _nonNullableColumns.Add(columnExpression);
 
         /// <summary>
         ///     Visits a <see cref="TableExpressionBase" />.
@@ -112,8 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An optimized table expression base.</returns>
         protected virtual TableExpressionBase Visit(TableExpressionBase tableExpressionBase)
         {
-            Check.NotNull(tableExpressionBase, nameof(tableExpressionBase));
-
             switch (tableExpressionBase)
             {
                 case CrossApplyExpression crossApplyExpression:
@@ -201,8 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An optimized select expression.</returns>
         protected virtual SelectExpression Visit(SelectExpression selectExpression)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
             var changed = false;
             var projections = (List<ProjectionExpression>)selectExpression.Projection;
             for (var i = 0; i < selectExpression.Projection.Count; i++)
@@ -429,8 +419,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An optimized sql expression.</returns>
         protected virtual SqlExpression VisitCase(CaseExpression caseExpression, bool allowOptimizedExpansion, out bool nullable)
         {
-            Check.NotNull(caseExpression, nameof(caseExpression));
-
             // if there is no 'else' there is a possibility of null, when none of the conditions are met
             // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
             nullable = caseExpression.ElseResult == null;
@@ -515,11 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             CollateExpression collateExpression,
             bool allowOptimizedExpansion,
             out bool nullable)
-        {
-            Check.NotNull(collateExpression, nameof(collateExpression));
-
-            return collateExpression.Update(Visit(collateExpression.Operand, out nullable));
-        }
+            => collateExpression.Update(Visit(collateExpression.Operand, out nullable));
 
         /// <summary>
         ///     Visits a <see cref="ColumnExpression" /> and computes its nullability.
@@ -533,8 +517,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(columnExpression, nameof(columnExpression));
-
             nullable = columnExpression.IsNullable && !_nonNullableColumns.Contains(columnExpression);
 
             return columnExpression;
@@ -551,11 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             DistinctExpression distinctExpression,
             bool allowOptimizedExpansion,
             out bool nullable)
-        {
-            Check.NotNull(distinctExpression, nameof(distinctExpression));
-
-            return distinctExpression.Update(Visit(distinctExpression.Operand, out nullable));
-        }
+            => distinctExpression.Update(Visit(distinctExpression.Operand, out nullable));
 
         /// <summary>
         ///     Visits an <see cref="ExistsExpression" /> and computes its nullability.
@@ -569,8 +547,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(existsExpression, nameof(existsExpression));
-
             var subquery = Visit(existsExpression.Subquery);
             nullable = false;
 
@@ -590,8 +566,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An optimized sql expression.</returns>
         protected virtual SqlExpression VisitIn(InExpression inExpression, bool allowOptimizedExpansion, out bool nullable)
         {
-            Check.NotNull(inExpression, nameof(inExpression));
-
             var item = Visit(inExpression.Item, out var itemNullable);
 
             if (inExpression.Subquery != null)
@@ -753,8 +727,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An optimized sql expression.</returns>
         protected virtual SqlExpression VisitLike(LikeExpression likeExpression, bool allowOptimizedExpansion, out bool nullable)
         {
-            Check.NotNull(likeExpression, nameof(likeExpression));
-
             var match = Visit(likeExpression.Match, out var matchNullable);
             var pattern = Visit(likeExpression.Pattern, out var patternNullable);
             var escapeChar = Visit(likeExpression.EscapeChar, out var escapeCharNullable);
@@ -776,8 +748,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
-
             var changed = false;
             var partitions = new List<SqlExpression>();
             foreach (var partition in rowNumberExpression.Partitions)
@@ -814,8 +784,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(scalarSubqueryExpression, nameof(scalarSubqueryExpression));
-
             nullable = true;
 
             return scalarSubqueryExpression.Update(Visit(scalarSubqueryExpression.Subquery));
@@ -833,8 +801,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
-
             var optimize = allowOptimizedExpansion;
 
             allowOptimizedExpansion = allowOptimizedExpansion
@@ -992,8 +958,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
-
             nullable = sqlConstantExpression.Value == null;
 
             return sqlConstantExpression;
@@ -1011,8 +975,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
-
             nullable = false;
 
             return sqlFragmentExpression;
@@ -1030,8 +992,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
-
             if (sqlFunctionExpression.IsBuiltIn
                 && sqlFunctionExpression.Arguments != null
                 && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
@@ -1089,8 +1049,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));
-
             nullable = ParameterValues[sqlParameterExpression.Name] == null;
 
             return nullable
@@ -1110,8 +1068,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool allowOptimizedExpansion,
             out bool nullable)
         {
-            Check.NotNull(sqlUnaryExpression, nameof(sqlUnaryExpression));
-
             var operand = Visit(sqlUnaryExpression.Operand, out var operandNullable);
             var updated = sqlUnaryExpression.Update(operand);
 
