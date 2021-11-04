@@ -164,16 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return result;
         }
 
-        private static async Task<TSource> SingleOrDefaultAsync<TSource>(
+        private static async Task<TSource?> SingleOrDefaultAsync<TSource>(
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
             await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
             if (!(await enumerator.MoveNextAsync().ConfigureAwait(false)))
             {
-                // TODO: Convert return to Task<TSource?> when changing to C# 9
-                // There is currently no way to specify that this method can return Task<TSource?> where TSource is not constrainted.
-                return default!;
+                return default;
             }
 
             var result = enumerator.Current;

@@ -109,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return Expression.Call(newIncludeMethod, source, lambda);
                     }
 
-                    // TODO-Nullable bug
-                    return methodCallExpression.Update(null!, new[] { source, lambda });
+                    return methodCallExpression.Update(null, new[] { source, lambda });
                 }
             }
 
@@ -382,8 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            // TODO-Nullable bug
-            return methodCallExpression.Update(Visit(methodCallExpression.Object)!, arguments);
+            return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
         }
 
         private Expression TryConvertListContainsToQueryableContains(MethodCallExpression methodCallExpression)

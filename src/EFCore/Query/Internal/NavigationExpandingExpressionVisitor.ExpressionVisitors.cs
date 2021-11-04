@@ -87,8 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     source = Visit(source);
                     return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
-                        // TODO-Nullable bug
-                        ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
+                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
@@ -845,8 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         targetParameter));
 
                                 subquery = joinMethodCallExpression.Update(
-                                    // TODO-Nullable bug
-                                    null!, joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector));
+                                    null, joinMethodCallExpression.Arguments.Take(4).Append(newResultSelector));
                             }
                             else
                             {
