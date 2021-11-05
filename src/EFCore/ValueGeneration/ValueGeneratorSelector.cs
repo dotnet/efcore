@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -45,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -65,12 +62,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <returns>The value generator to be used.</returns>
         public virtual ValueGenerator Select(IProperty property, IEntityType entityType)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
-            return Cache.GetOrAdd(property, entityType, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
-        }
+            => Cache.GetOrAdd(property, entityType, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
 
         private static ValueGenerator? CreateFromFactory(IProperty property, IEntityType entityType)
         {
@@ -116,9 +108,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns>The newly created value generator.</returns>
         public virtual ValueGenerator Create(IProperty property, IEntityType entityType)
         {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
             var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (propertyType == typeof(Guid))

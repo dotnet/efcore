@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         public DiscriminatorBuilder(DiscriminatorBuilder builder)
         {
-            Check.NotNull(builder, nameof(builder));
-
             Builder = builder;
         }
 

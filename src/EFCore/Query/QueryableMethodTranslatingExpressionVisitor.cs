@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -43,9 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext queryCompilationContext,
             bool subquery)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
             Dependencies = dependencies;
             QueryCompilationContext = queryCompilationContext;
             _subquery = subquery;
@@ -68,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="details">Error encountered during translation.</param>
         protected virtual void AddTranslationErrorDetails(string details)
         {
-            Check.NotNull(details, nameof(details));
-
             if (TranslationErrorDetails == null)
             {
                 TranslationErrorDetails = details;
@@ -87,22 +80,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-            return extensionExpression switch
+            => extensionExpression switch
             {
                 ShapedQueryExpression _ => extensionExpression,
                 QueryRootExpression queryRootExpression => CreateShapedQueryExpression(queryRootExpression.EntityType),
                 _ => base.VisitExtension(extensionExpression),
             };
-        }
 
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression? translated)
             {
                 return translated
@@ -504,13 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression entityShaper
+                => extensionExpression is EntityShaperExpression entityShaper
                     ? entityShaper.MakeNullable()
                     : base.VisitExtension(extensionExpression);
-            }
         }
 
         /// <summary>
@@ -519,11 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="shaperExpression">The shaper expression to process.</param>
         /// <returns>New shaper expression in which all entity shapers are nullable.</returns>
         protected virtual Expression MarkShaperNullable(Expression shaperExpression)
-        {
-            Check.NotNull(shaperExpression, nameof(shaperExpression));
-
-            return _entityShaperNullableMarkingExpressionVisitor.Visit(shaperExpression);
-        }
+            => _entityShaperNullableMarkingExpressionVisitor.Visit(shaperExpression);
 
         /// <summary>
         ///     Translates the given subquery.
@@ -532,8 +511,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>The translation of the given subquery.</returns>
         public virtual ShapedQueryExpression? TranslateSubquery(Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
-
             var subqueryVisitor = CreateSubqueryVisitor();
             var translation = subqueryVisitor.Visit(expression) as ShapedQueryExpression;
             if (translation == null && subqueryVisitor.TranslationErrorDetails != null)

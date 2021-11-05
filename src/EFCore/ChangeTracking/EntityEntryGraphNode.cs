@@ -39,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             InternalEntityEntry? sourceEntry,
             INavigationBase? inboundNavigation)
         {
-            Check.NotNull(entry, nameof(entry));
-
             _entry = entry;
             _sourceEntry = sourceEntry;
             InboundNavigation = inboundNavigation;

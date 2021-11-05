@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -51,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [EntityFrameworkInternal]
         public ModelCustomizerDependencies(IDbSetFinder setFinder)
         {
-            Check.NotNull(setFinder, nameof(setFinder));
-
 #pragma warning disable CS0618 // Type or member is obsolete
             SetFinder = setFinder;
 #pragma warning restore CS0618 // Type or member is obsolete

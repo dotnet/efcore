@@ -10,7 +10,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -34,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(queryCompilationContext, nameof(Query));
-
             _queryCompilationContext = queryCompilationContext;
         }
 
@@ -47,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             var method = methodCallExpression.Method;
 
             // Extract information from query metadata method and prune them
@@ -703,8 +698,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
             {
-                Check.NotNull(lambdaExpression, nameof(lambdaExpression));
-
                 try
                 {
                     _allowedParameters.AddRange(lambdaExpression.Parameters);
@@ -722,8 +715,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 if (_correlated)
                 {
                     return methodCallExpression;
@@ -753,8 +744,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
-                Check.NotNull(parameterExpression, nameof(parameterExpression));
-
                 if (_allowedParameters.Contains(parameterExpression))
                 {
                     return parameterExpression;

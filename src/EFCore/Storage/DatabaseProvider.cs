@@ -4,7 +4,6 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -42,8 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public DatabaseProvider(DatabaseProviderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -73,6 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="options">The options for the context.</param>
         /// <returns><see langword="true" /> if the database provider has been selected, otherwise <see langword="false" />.</returns>
         public virtual bool IsConfigured(IDbContextOptions options)
-            => Check.NotNull(options, nameof(options)).Extensions.OfType<TOptionsExtension>().Any();
+            => options.Extensions.OfType<TOptionsExtension>().Any();
     }
 }

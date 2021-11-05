@@ -5,7 +5,6 @@ using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -38,9 +37,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         protected MemberEntry(InternalEntityEntry internalEntry, IPropertyBase metadata)
         {
-            Check.NotNull(internalEntry, nameof(internalEntry));
-            Check.NotNull(metadata, nameof(metadata));
-
             InternalEntry = internalEntry;
             Metadata = metadata;
         }

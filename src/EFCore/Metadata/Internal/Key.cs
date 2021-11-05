@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -39,9 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Key(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, nameof(properties));
-
             Properties = properties;
             _configurationSource = configurationSource;
 

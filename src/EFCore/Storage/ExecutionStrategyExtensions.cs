@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore
             TState state,
             Func<TState, TResult> operation,
             Func<TState, ExecutionResult<TResult>>? verifySucceeded)
-            => Check.NotNull(strategy, nameof(strategy)).Execute(
+            => strategy.Execute(
                 state,
                 (c, s) => operation(s),
                 verifySucceeded == null ? null : (c, s) => verifySucceeded(s));
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore
             Func<TState, CancellationToken, Task<TResult>> operation,
             Func<TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default)
-            => Check.NotNull(strategy, nameof(strategy)).ExecuteAsync(
+            => strategy.ExecuteAsync(
                 state,
                 (c, s, ct) => operation(s, ct),
                 verifySucceeded == null

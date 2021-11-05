@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -25,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="arguments">The attribute's arguments.</param>
         public AttributeCodeFragment(Type type, params object[] arguments)
         {
-            Check.NotNull(type, nameof(type));
-            Check.NotNull(arguments, nameof(arguments));
-
             Type = type;
             _arguments = new List<object>(arguments);
         }

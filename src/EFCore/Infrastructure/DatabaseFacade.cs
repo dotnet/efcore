@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -31,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">The context this database API belongs to.</param>
         public DatabaseFacade(DbContext context)
         {
-            Check.NotNull(context, nameof(context));
-
             _context = context;
         }
 

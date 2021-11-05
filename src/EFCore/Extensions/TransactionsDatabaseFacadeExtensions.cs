@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace System.Transactions
@@ -26,7 +25,6 @@ namespace System.Transactions
         /// <param name="transaction">The transaction to be used.</param>
         public static void EnlistTransaction(this DatabaseFacade databaseFacade, Transaction? transaction)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
                 transactionManager)
             {
@@ -48,7 +46,6 @@ namespace System.Transactions
         /// <returns>The currently enlisted transaction.</returns>
         public static Transaction? GetEnlistedTransaction(this DatabaseFacade databaseFacade)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
                 transactionManager)
             {

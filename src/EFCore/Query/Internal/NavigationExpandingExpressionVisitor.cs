@@ -153,8 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             switch (extensionExpression)
             {
                 case QueryRootExpression queryRootExpression:
@@ -203,8 +201,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
             var innerExpression = Visit(memberExpression.Expression);
 
             // Convert ICollection<T>.Count to Count<T>()
@@ -255,8 +251,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             var method = methodCallExpression.Method;
             if (method.DeclaringType == typeof(Queryable)
                 || method.DeclaringType == typeof(QueryableExtensions)

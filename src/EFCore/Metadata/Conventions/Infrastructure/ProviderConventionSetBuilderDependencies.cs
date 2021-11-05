@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
@@ -72,15 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ICurrentDbContext currentContext,
             IModelValidator validator)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
-            Check.NotNull(memberClassifier, nameof(memberClassifier));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(validationLogger, nameof(validationLogger));
-            Check.NotNull(setFinder, nameof(setFinder));
-            Check.NotNull(validator, nameof(validator));
-
             TypeMappingSource = typeMappingSource;
             ConstructorBindingFactory = constructorBindingFactory;
             ParameterBindingFactories = parameterBindingFactories;

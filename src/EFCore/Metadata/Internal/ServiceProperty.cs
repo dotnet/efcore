@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -39,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
         {
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-
             DeclaringEntityType = declaringEntityType;
             ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
 

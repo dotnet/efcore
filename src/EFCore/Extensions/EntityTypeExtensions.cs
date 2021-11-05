@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -71,11 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The LINQ query used as the default source.</returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQuery")]
         public static LambdaExpression? GetDefiningQuery(this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
-        }
+            => (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
 
         /// <summary>
         ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -53,8 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public ModelDependencies(
             IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            Check.NotNull(logger, nameof(logger));
-
             Logger = logger;
         }
 

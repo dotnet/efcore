@@ -55,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         public EntityEntry(InternalEntityEntry internalEntry)
         {
-            Check.NotNull(internalEntry, nameof(internalEntry));
-
             InternalEntry = internalEntry;
         }
 

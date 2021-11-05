@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     The name of the type that can be used to add the database providers design time services to a <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </param>
-        public DesignTimeProviderServicesAttribute(
-            string typeName)
+        public DesignTimeProviderServicesAttribute(string typeName)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 

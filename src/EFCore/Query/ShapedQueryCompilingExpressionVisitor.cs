@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -60,9 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
             Dependencies = dependencies;
             QueryCompilationContext = queryCompilationContext;
 
@@ -98,8 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
                 var serverEnumerable = VisitShapedQuery(shapedQueryExpression);
@@ -199,8 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A expression with entity materializers injected.</returns>
         protected virtual Expression InjectEntityMaterializers(Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
-
             VerifyNoClientConstant(expression);
 
             return _entityMaterializerInjectingExpressionVisitor.Inject(expression);
@@ -211,11 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression">An expression to verify.</param>
         protected virtual void VerifyNoClientConstant(Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            _constantVerifyingExpressionVisitor.Visit(expression);
-        }
+            => _constantVerifyingExpressionVisitor.Visit(expression);
 
         private sealed class ConstantVerifyingExpressionVisitor : ExpressionVisitor
         {
@@ -236,8 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                Check.NotNull(constantExpression, nameof(constantExpression));
-
                 if (!ValidConstant(constantExpression))
                 {
                     throw new InvalidOperationException(
@@ -249,8 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 if (RemoveConvert(methodCallExpression.Object) is ConstantExpression constantInstance
                     && !ValidConstant(constantInstance))
                 {
@@ -276,14 +260,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression
+                => extensionExpression is EntityShaperExpression
                     || extensionExpression is ProjectionBindingExpression
                         ? extensionExpression
                         : base.VisitExtension(extensionExpression);
-            }
 
             private static Expression? RemoveConvert(Expression? expression)
             {
@@ -364,13 +344,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression entityShaperExpression
+                => extensionExpression is EntityShaperExpression entityShaperExpression
                     ? ProcessEntityShaper(entityShaperExpression)
                     : base.VisitExtension(extensionExpression);
-            }
 
             private Expression ProcessEntityShaper(EntityShaperExpression entityShaperExpression)
             {

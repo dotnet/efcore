@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -349,8 +348,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithInterceptors(IEnumerable<IInterceptor> interceptors)
         {
-            Check.NotNull(interceptors, nameof(interceptors));
-
             var clone = Clone();
 
             clone._interceptors = _interceptors == null
@@ -581,8 +578,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
-                Check.NotNull(debugInfo, nameof(debugInfo));
-
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.UseMemoryCache)] =
                     (Extension.GetMemoryCache()?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableSensitiveDataLogging)] =

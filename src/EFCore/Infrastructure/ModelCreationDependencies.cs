@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -29,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [EntityFrameworkInternal]
         public ModelCreationDependencies(
             IModelSource modelSource,
             IConventionSetBuilder conventionSetBuilder,
@@ -36,12 +36,6 @@ namespace Microsoft.EntityFrameworkCore
             IModelRuntimeInitializer modelRuntimeInitializer,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
-            Check.NotNull(modelSource, nameof(modelSource));
-            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
-            Check.NotNull(modelDependencies, nameof(modelDependencies));
-            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
-            Check.NotNull(validationLogger, nameof(validationLogger));
-
             ModelSource = modelSource;
             ConventionSetBuilder = conventionSetBuilder;
             ModelDependencies = modelDependencies;

@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,9 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryTranslationPreprocessorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
             Dependencies = dependencies;
             QueryCompilationContext = queryCompilationContext;
         }
@@ -55,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A query expression after transformations.</returns>
         public virtual Expression Process(Expression query)
         {
-            Check.NotNull(query, nameof(query));
-
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
             query = NormalizeQueryableMethod(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
@@ -85,6 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A query expression after normalization has been done.</returns>
         public virtual Expression NormalizeQueryableMethod(Expression expression)
             => new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext)
-                .Visit(Check.NotNull(expression, nameof(expression)));
+                .Visit(expression);
     }
 }

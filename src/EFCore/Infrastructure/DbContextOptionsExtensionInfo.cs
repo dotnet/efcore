@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -27,8 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="extension">The extension.</param>
         protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
         {
-            Check.NotNull(extension, nameof(extension));
-
             Extension = extension;
         }
 

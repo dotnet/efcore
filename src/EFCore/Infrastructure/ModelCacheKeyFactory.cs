@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

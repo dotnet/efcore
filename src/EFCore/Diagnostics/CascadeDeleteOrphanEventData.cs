@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -34,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EntityState state)
             : base(eventDefinition, messageGenerator, entityEntry)
         {
-            Check.NotNull(parentEntityTypes, nameof(parentEntityTypes));
-
             ParentEntityType = parentEntityTypes;
             State = state;
         }
