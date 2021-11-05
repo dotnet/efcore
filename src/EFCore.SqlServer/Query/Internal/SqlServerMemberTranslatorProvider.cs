@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             IRelationalTypeMappingSource typeMappingSource)
             : base(dependencies)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
             AddTranslators(

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -59,8 +58,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
             if (binaryExpression.NodeType == ExpressionType.ArrayIndex
                 && binaryExpression.Left.Type == typeof(byte[]))
             {
@@ -137,17 +134,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
-        {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
-            return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
+            => Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
                 Dependencies.SqlExpressionFactory.Function(
                     "COUNT_BIG",
                     new[] { sqlExpression },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
                     typeof(long)));
-        }
 
         private static string? GetProviderType(SqlExpression expression)
             => expression.TypeMapping?.StoreType;

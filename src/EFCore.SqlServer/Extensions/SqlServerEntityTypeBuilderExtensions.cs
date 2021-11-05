@@ -32,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             bool memoryOptimized = true)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             entityTypeBuilder.Metadata.SetIsMemoryOptimized(memoryOptimized);
 
             return entityTypeBuilder;
@@ -70,8 +68,6 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder collectionOwnershipBuilder,
             bool memoryOptimized = true)
         {
-            Check.NotNull(collectionOwnershipBuilder, nameof(collectionOwnershipBuilder));
-
             collectionOwnershipBuilder.OwnedEntityType.SetIsMemoryOptimized(memoryOptimized);
 
             return collectionOwnershipBuilder;
@@ -140,11 +136,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
-        }
+            => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the table as temporal.
@@ -190,11 +182,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             bool temporal = true,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsTemporal, temporal, fromDataAnnotation);
-        }
+            => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.IsTemporal, temporal, fromDataAnnotation);
 
         /// <summary>
         ///     Configures a history table name for the entity mapped to a temporal table.
@@ -241,7 +229,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(name, nameof(name));
 
             return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName, name, fromDataAnnotation);
@@ -291,11 +278,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? schema,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, schema, fromDataAnnotation);
-        }
+            => entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, schema, fromDataAnnotation);
 
         /// <summary>
         ///     Configures a period start property for the entity mapped to a temporal table.
@@ -341,12 +324,8 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? propertyName,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(
+            => entityTypeBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.TemporalPeriodStartPropertyName, propertyName, fromDataAnnotation);
-        }
 
         /// <summary>
         ///     Configures a period end property for the entity mapped to a temporal table.
@@ -392,11 +371,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? propertyName,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
-            return entityTypeBuilder.CanSetAnnotation(
+            => entityTypeBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.TemporalPeriodEndPropertyName, propertyName, fromDataAnnotation);
-        }
     }
 }

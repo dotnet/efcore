@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -28,9 +27,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             RelationalQueryCompilationContextDependencies relationalDependencies,
             ISqlServerConnection sqlServerConnection)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             Dependencies = dependencies;
             RelationalDependencies = relationalDependencies;
             _sqlServerConnection = sqlServerConnection;

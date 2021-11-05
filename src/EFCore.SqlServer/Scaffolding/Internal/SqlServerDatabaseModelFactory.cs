@@ -86,8 +86,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// </summary>
         public SqlServerDatabaseModelFactory(IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
         {
-            Check.NotNull(logger, nameof(logger));
-
             _logger = logger;
         }
 
@@ -99,9 +97,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// </summary>
         public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
-            Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotNull(options, nameof(options));
-
             using var connection = new SqlConnection(connectionString);
             return Create(connection, options);
         }
@@ -114,9 +109,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// </summary>
         public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(options, nameof(options));
-
             var databaseModel = new DatabaseModel();
 
             var connectionStartedOpen = connection.State == ConnectionState.Open;
