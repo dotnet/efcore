@@ -31,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="optionsBuilder">The core options builder.</param>
         protected RelationalDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             OptionsBuilder = optionsBuilder;
         }
 

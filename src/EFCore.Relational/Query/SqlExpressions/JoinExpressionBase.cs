@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         protected JoinExpressionBase(TableExpressionBase table)
             : base(null)
         {
-            Check.NotNull(table, nameof(table));
-
             Table = table;
         }
 

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -30,10 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             ISqlGenerationHelper sqlGenerationHelper,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
-            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
-
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerationHelper = sqlGenerationHelper;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
@@ -48,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual IRelationalCommand Build(string sql)
             => _relationalCommandBuilderFactory
                 .Create()
-                .Append(Check.NotEmpty(sql, nameof(sql)))
+                .Append(sql)
                 .Build();
 
         /// <summary>

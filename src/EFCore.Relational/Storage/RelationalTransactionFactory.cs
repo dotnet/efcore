@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -36,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

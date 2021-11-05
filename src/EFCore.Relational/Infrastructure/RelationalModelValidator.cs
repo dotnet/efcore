@@ -39,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             RelationalModelValidatorDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
         }
 
@@ -215,8 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties())
@@ -1430,8 +1426,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var index in entityType.GetDeclaredIndexes()

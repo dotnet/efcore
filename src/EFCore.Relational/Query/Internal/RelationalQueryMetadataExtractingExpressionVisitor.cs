@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public RelationalQueryMetadataExtractingExpressionVisitor(
             RelationalQueryCompilationContext relationalQueryCompilationContext)
         {
-            Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext));
-
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 

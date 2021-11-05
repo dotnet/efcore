@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -63,15 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IRelationalCommandDiagnosticsLogger logger,
             IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(loggingOptions, nameof(loggingOptions));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(migrationsLogger, nameof(migrationsLogger));
-
             CommandBuilderFactory = commandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;

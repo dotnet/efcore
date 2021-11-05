@@ -4,7 +4,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A relational type mapping inferred from the expressions.</returns>
         public static RelationalTypeMapping? InferTypeMapping(params SqlExpression[] expressions)
         {
-            Check.NotNull(expressions, nameof(expressions));
-
             for (var i = 0; i < expressions.Length; i++)
             {
                 var sql = expressions[i];

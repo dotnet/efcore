@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected RelationalParameterBase(string invariantName)
         {
-            Check.NotEmpty(invariantName, nameof(invariantName));
-
             InvariantName = invariantName;
         }
 
@@ -54,9 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?> parameterValues)
         {
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
             if (parameterValues.TryGetValue(InvariantName, out var parameterValue))
             {
                 AddDbParameter(command, parameterValue);

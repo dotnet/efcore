@@ -31,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

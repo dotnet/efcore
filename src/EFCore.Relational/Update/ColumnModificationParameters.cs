@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -121,8 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool sensitiveLoggingEnabled,
             bool? isNullable = null)
         {
-            Check.NotNull(columnName, nameof(columnName));
-
             ColumnName = columnName;
             OriginalValue = originalValue;
             Value = value;
@@ -167,12 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool columnIsCondition,
             bool sensitiveLoggingEnabled)
         {
-            Check.NotNull(entry, nameof(entry));
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(column, nameof(column));
-            Check.NotNull(column.Name, "column.Name");
-            Check.NotNull(generateParameterName, nameof(generateParameterName));
-
             ColumnName = column.Name;
             OriginalValue = null;
             Value = null;

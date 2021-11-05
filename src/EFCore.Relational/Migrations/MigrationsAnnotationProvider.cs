@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -32,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

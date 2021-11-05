@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="constantExpression">A <see cref="ConstantExpression" />.</param>
         /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping? typeMapping)
-            : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type.UnwrapNullableType(), typeMapping)
+            : base(constantExpression.Type.UnwrapNullableType(), typeMapping)
         {
             _constantExpression = constantExpression;
         }
@@ -49,19 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
-        {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            Print(Value, expressionPrinter);
-        }
+            => Print(Value, expressionPrinter);
 
         private void Print(object? value, ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -70,21 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             IRelationalCommandDiagnosticsLogger commandLogger)
         {
-            Check.NotNull(databaseCreator, nameof(databaseCreator));
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(modelDiffer, nameof(modelDiffer));
-            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
-            Check.NotNull(modelDependencies, nameof(modelDependencies));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
-            Check.NotNull(modelLogger, nameof(modelLogger));
-            Check.NotNull(commandLogger, nameof(commandLogger));
-
             DatabaseCreator = databaseCreator;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
             Connection = connection;

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -41,14 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual RelationalSqlTranslatingExpressionVisitor Create(
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-        {
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-            Check.NotNull(queryableMethodTranslatingExpressionVisitor, nameof(queryableMethodTranslatingExpressionVisitor));
-
-            return new RelationalSqlTranslatingExpressionVisitor(
+            => new RelationalSqlTranslatingExpressionVisitor(
                 Dependencies,
                 queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
-        }
     }
 }

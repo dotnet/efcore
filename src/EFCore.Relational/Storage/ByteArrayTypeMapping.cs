@@ -4,7 +4,6 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -66,8 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
-            Check.NotNull(value, nameof(value));
-
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("X'");
 

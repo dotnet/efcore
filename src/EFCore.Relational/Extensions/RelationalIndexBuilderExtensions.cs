@@ -170,7 +170,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder HasFilter(this IndexBuilder indexBuilder, string? sql)
         {
-            Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
             indexBuilder.Metadata.SetFilter(sql);

@@ -29,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore
             this ReferenceCollectionBuilder referenceCollectionBuilder,
             string? name)
         {
-            Check.NotNull(referenceCollectionBuilder, nameof(referenceCollectionBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             referenceCollectionBuilder.Metadata.SetConstraintName(name);
@@ -69,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore
             this ReferenceReferenceBuilder referenceReferenceBuilder,
             string? name)
         {
-            Check.NotNull(referenceReferenceBuilder, nameof(referenceReferenceBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             referenceReferenceBuilder.Metadata.SetConstraintName(name);
@@ -177,7 +175,6 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionForeignKeyBuilder relationship,
             string? name,
             bool fromDataAnnotation = false)
-            => Check.NotNull(relationship, nameof(relationship))
-                .CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
+            => relationship.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }
 }

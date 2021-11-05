@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -55,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type type,
             RelationalTypeMapping? typeMapping)
             : this(
-                instance: null, Check.NotEmpty(schema, nameof(schema)), functionName, nullable, instancePropagatesNullability: null,
+                instance: null, schema, functionName, nullable, instancePropagatesNullability: null,
                 builtIn: false, type, typeMapping)
         {
         }
@@ -78,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type type,
             RelationalTypeMapping? typeMapping)
             : this(
-                Check.NotNull(instance, nameof(instance)), schema: null, functionName, nullable, instancePropagatesNullability,
+                instance, schema: null, functionName, nullable, instancePropagatesNullability,
                 builtIn: true, type, typeMapping)
         {
         }
@@ -139,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type type,
             RelationalTypeMapping? typeMapping)
             : this(
-                instance: null, Check.NullButNotEmpty(schema, nameof(schema)), functionName, arguments, nullable,
+                instance: null, schema, functionName, arguments, nullable,
                 instancePropagatesNullability: null, argumentsPropagateNullability, builtIn: false, type, typeMapping)
         {
         }
@@ -165,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type type,
             RelationalTypeMapping? typeMapping)
             : this(
-                Check.NotNull(instance, nameof(instance)), schema: null, functionName, arguments, nullable, instancePropagatesNullability,
+                instance, schema: null, functionName, arguments, nullable, instancePropagatesNullability,
                 argumentsPropagateNullability, builtIn: true, type, typeMapping)
         {
         }
@@ -182,8 +180,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Type type,
             RelationalTypeMapping? typeMapping)
             : this(
-                instance, schema, name, niladic: false, Check.NotNull(arguments, nameof(arguments)), nullable,
-                instancePropagatesNullability, Check.NotNull(argumentsPropagateNullability, nameof(argumentsPropagateNullability)), builtIn,
+                instance, schema, name, niladic: false, arguments, nullable,
+                instancePropagatesNullability, argumentsPropagateNullability, builtIn,
                 type, typeMapping)
         {
         }
@@ -202,9 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(type, nameof(type));
-
             Instance = instance;
             Name = name;
             Schema = schema;
@@ -266,8 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var changed = false;
             var instance = (SqlExpression?)visitor.Visit(Instance);
             changed |= instance != Instance;
@@ -346,8 +339,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             if (!string.IsNullOrEmpty(Schema))
             {
                 expressionPrinter.Append(Schema).Append(".").Append(Name);

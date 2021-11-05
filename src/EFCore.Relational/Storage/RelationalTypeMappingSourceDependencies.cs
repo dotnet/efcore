@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -53,8 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalTypeMappingSourceDependencies(
             IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
         {
-            Check.NotNull(plugins, nameof(plugins));
-
             Plugins = plugins;
         }
 

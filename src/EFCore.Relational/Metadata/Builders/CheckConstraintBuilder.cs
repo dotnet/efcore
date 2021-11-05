@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -26,8 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         public CheckConstraintBuilder(IMutableCheckConstraint checkConstraint)
         {
-            Check.NotNull(checkConstraint, nameof(checkConstraint));
-
             Builder = ((CheckConstraint)checkConstraint).Builder;
         }
 

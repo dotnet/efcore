@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -43,8 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [EntityFrameworkInternal]
         public ProviderCodeGeneratorDependencies(IEnumerable<IProviderCodeGeneratorPlugin> plugins)
         {
-            Check.NotNull(plugins, nameof(plugins));
-
             Plugins = plugins;
         }
 

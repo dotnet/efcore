@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -38,10 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string sql,
             ConfigurationSource configurationSource)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(sql, nameof(sql));
-
             EntityType = entityType;
             ModelName = name;
             Sql = sql;
@@ -95,7 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<IReadOnlyCheckConstraint> GetDeclaredCheckConstraints(IReadOnlyEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
             if (entityType is RuntimeEntityType)
             {
                 throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
@@ -312,8 +306,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? SetName(string? name, ConfigurationSource configurationSource)
         {
-            Check.NullButNotEmpty(name, nameof(name));
-
             EnsureMutable();
 
             _name = name;

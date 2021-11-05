@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -53,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             ISqlGenerationHelper sqlGenerationHelper)
         {
-            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-
             RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
             SqlGenerationHelper = sqlGenerationHelper;
         }

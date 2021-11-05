@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -53,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Guid commandId,
             IRelationalCommandDiagnosticsLogger? logger)
         {
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(reader, nameof(reader));
-
             _relationalConnection = relationalConnection;
             _command = command;
             _reader = reader;

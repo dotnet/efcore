@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -32,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
-            Check.NotNull(function, nameof(function));
-            Check.NotNull(arguments, nameof(arguments));
-
             Function = function;
             Arguments = arguments;
         }
@@ -97,8 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append(Function.Name);
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);

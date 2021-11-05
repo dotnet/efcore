@@ -461,7 +461,6 @@ namespace Microsoft.EntityFrameworkCore
             string? schema,
             bool excludedFromMigrations)
         {
-            Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -799,7 +798,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             string? schema)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -873,7 +871,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             string? schema)
         {
-            Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -1124,7 +1121,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             ToFunction(name, entityTypeBuilder.Metadata);
@@ -1145,8 +1141,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             MethodInfo? function)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             ToFunction(function, entityTypeBuilder.Metadata);
 
             return entityTypeBuilder;
@@ -1167,7 +1161,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1191,7 +1184,6 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo function,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(function, nameof(function));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1281,7 +1273,6 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder ownedNavigationBuilder,
             string? name)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             ToFunction(name, ownedNavigationBuilder.OwnedEntityType);
@@ -1302,8 +1293,6 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder ownedNavigationBuilder,
             MethodInfo? function)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
-
             ToFunction(function, ownedNavigationBuilder.OwnedEntityType);
 
             return ownedNavigationBuilder;
@@ -1324,7 +1313,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1348,7 +1336,6 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo function,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NotNull(function, nameof(function));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1599,8 +1586,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? sql)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             InternalCheckConstraintBuilder.HasCheckConstraint(
                 (IConventionEntityType)entityTypeBuilder.Metadata,
                 name,
@@ -1690,8 +1675,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? sql)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
-
             InternalCheckConstraintBuilder.HasCheckConstraint(
                 (IConventionEntityType)ownedNavigationBuilder.OwnedEntityType,
                 name,
@@ -1790,7 +1773,7 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool fromDataAnnotation = false)
             => InternalCheckConstraintBuilder.HasCheckConstraint(
-                    Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                    entityTypeBuilder.Metadata,
                     name,
                     sql,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
@@ -1832,7 +1815,7 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool fromDataAnnotation = false)
             => InternalCheckConstraintBuilder.CanHaveCheckConstraint(
-                Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                entityTypeBuilder.Metadata,
                 name,
                 sql,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -1850,8 +1833,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             string? comment)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             entityTypeBuilder.Metadata.SetComment(comment);
             return entityTypeBuilder;
         }
@@ -1890,8 +1871,6 @@ namespace Microsoft.EntityFrameworkCore
             string? comment,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             if (!entityTypeBuilder.CanSetComment(comment, fromDataAnnotation))
             {
                 return null;

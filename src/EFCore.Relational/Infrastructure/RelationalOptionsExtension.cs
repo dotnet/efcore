@@ -8,7 +8,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -56,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="copyFrom">The instance that is being cloned.</param>
         protected RelationalOptionsExtension(RelationalOptionsExtension copyFrom)
         {
-            Check.NotNull(copyFrom, nameof(copyFrom));
-
             _connectionString = copyFrom._connectionString;
             _connection = copyFrom._connection;
             _commandTimeout = copyFrom._commandTimeout;
@@ -97,8 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>A new instance with the option changed.</returns>
         public virtual RelationalOptionsExtension WithConnectionString(string? connectionString)
         {
-            Check.NullButNotEmpty(connectionString, nameof(connectionString));
-
             var clone = Clone();
 
             clone._connectionString = connectionString;
@@ -350,8 +345,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The extension.</returns>
         public static RelationalOptionsExtension Extract(IDbContextOptions options)
         {
-            Check.NotNull(options, nameof(options));
-
             var relationalOptionsExtensions
                 = options.Extensions
                     .OfType<RelationalOptionsExtension>()

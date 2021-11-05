@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -30,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
             RelationalDependencies = relationalDependencies;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }

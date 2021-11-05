@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -33,9 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
-            Check.NotNull(match, nameof(match));
-            Check.NotNull(pattern, nameof(pattern));
-
             Match = match;
             Pattern = pattern;
             EscapeChar = escapeChar;
@@ -59,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var match = (SqlExpression)visitor.Visit(Match);
             var pattern = (SqlExpression)visitor.Visit(Pattern);
             var escapeChar = (SqlExpression?)visitor.Visit(EscapeChar);
@@ -80,20 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression match,
             SqlExpression pattern,
             SqlExpression? escapeChar)
-        {
-            Check.NotNull(match, nameof(match));
-            Check.NotNull(pattern, nameof(pattern));
-
-            return match != Match || pattern != Pattern || escapeChar != EscapeChar
+            => match != Match || pattern != Pattern || escapeChar != EscapeChar
                 ? new LikeExpression(match, pattern, escapeChar, TypeMapping)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Visit(Match);
             expressionPrinter.Append(" LIKE ");
             expressionPrinter.Visit(Pattern);

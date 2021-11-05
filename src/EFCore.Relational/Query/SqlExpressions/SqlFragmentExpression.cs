@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
-            Check.NotEmpty(sql, nameof(sql));
-
             Sql = sql;
         }
 
@@ -37,19 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
-        {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            expressionPrinter.Append(Sql);
-        }
+            => expressionPrinter.Append(Sql);
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

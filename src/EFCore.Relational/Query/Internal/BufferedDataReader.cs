@@ -551,7 +551,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override int GetOrdinal(string name)
         {
-            Check.NotNull(name, "name");
             AssertReaderIsOpen();
             return _currentResultSet.GetOrdinal(name);
         }

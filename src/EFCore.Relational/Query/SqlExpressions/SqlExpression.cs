@@ -27,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         protected SqlExpression(Type type, RelationalTypeMapping? typeMapping)
         {
-            Check.NotNull(type, nameof(type));
-
             Check.DebugAssert(!type.IsNullableValueType(), "SqlExpression.Type must be reference type or non-nullable value type");
 
             Type = type;

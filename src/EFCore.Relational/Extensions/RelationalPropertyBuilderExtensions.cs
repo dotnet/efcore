@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             string? name)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             propertyBuilder.Metadata.SetColumnName(name);
@@ -158,8 +157,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasColumnOrder(this PropertyBuilder propertyBuilder, int? order)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetColumnOrder(order);
 
             return propertyBuilder;
@@ -220,7 +217,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             string? typeName)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(typeName, nameof(typeName));
 
             propertyBuilder.Metadata.SetColumnType(typeName);
@@ -301,8 +297,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             bool fixedLength = true)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetIsFixedLength(fixedLength);
 
             return propertyBuilder;
@@ -384,8 +378,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasDefaultValueSql(this PropertyBuilder propertyBuilder)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetDefaultValueSql(string.Empty);
 
             return propertyBuilder;
@@ -404,7 +396,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             string? sql)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
             propertyBuilder.Metadata.SetDefaultValueSql(sql);
@@ -511,8 +502,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasComputedColumnSql(this PropertyBuilder propertyBuilder)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetComputedColumnSql(string.Empty);
 
             return propertyBuilder;
@@ -551,7 +540,6 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool? stored)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(sql, nameof(sql));
 
             propertyBuilder.Metadata.SetComputedColumnSql(sql);
@@ -737,8 +725,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasDefaultValue(this PropertyBuilder propertyBuilder)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetDefaultValue(DBNull.Value);
 
             return propertyBuilder;
@@ -758,8 +744,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             object? value)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetDefaultValue(value);
 
             return propertyBuilder;
@@ -861,8 +845,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertyBuilder propertyBuilder,
             string? comment)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetComment(comment);
 
             return propertyBuilder;
@@ -941,7 +923,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder UseCollation(this PropertyBuilder propertyBuilder, string? collation)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NullButNotEmpty(collation, nameof(collation));
 
             propertyBuilder.Metadata.SetCollation(collation);
@@ -1007,10 +988,6 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder propertyBuilder,
             string? collation,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
-            return propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
-        }
+            => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
     }
 }

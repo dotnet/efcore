@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -60,14 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ICurrentDbContext currentContext,
             IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
         {
-            Check.NotNull(contextOptions, nameof(contextOptions));
-            Check.NotNull(transactionLogger, nameof(transactionLogger));
-            Check.NotNull(connectionLogger, nameof(connectionLogger));
-            Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
-            Check.NotNull(relationalTransactionFactory, nameof(relationalTransactionFactory));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-
             ContextOptions = contextOptions;
             TransactionLogger = transactionLogger;
             ConnectionLogger = connectionLogger;

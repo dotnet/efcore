@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -54,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             ISqlGenerationHelper sqlGenerationHelper,
             IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             SqlGenerationHelper = sqlGenerationHelper;
             TypeMappingSource = typeMappingSource;
         }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -44,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalDatabaseDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
         }
 
@@ -60,15 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="entries">Entries representing the changes to be persisted.</param>
         /// <returns>The number of state entries persisted to the database.</returns>
         public override int SaveChanges(IList<IUpdateEntry> entries)
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            return RelationalDependencies.BatchExecutor.Execute(
+            => RelationalDependencies.BatchExecutor.Execute(
                 RelationalDependencies.BatchPreparer.BatchCommands(
                     entries,
                     Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection);
-        }
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -83,15 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default)
-        {
-            Check.NotNull(entries, nameof(entries));
-
-            return RelationalDependencies.BatchExecutor.ExecuteAsync(
+            => RelationalDependencies.BatchExecutor.ExecuteAsync(
                 RelationalDependencies.BatchPreparer.BatchCommands(
                     entries,
                     Dependencies.UpdateAdapterFactory.Create()),
                 RelationalDependencies.Connection,
                 cancellationToken);
-        }
     }
 }

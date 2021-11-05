@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -34,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ParameterNameGeneratorFactory(ParameterNameGeneratorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
