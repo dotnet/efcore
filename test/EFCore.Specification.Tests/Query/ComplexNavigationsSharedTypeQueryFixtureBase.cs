@@ -68,10 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // FK name needs to be explicitly provided because issue #9310
             modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne()
-                .HasForeignKey<InheritanceBase1>("InheritanceBase2Id1")
+                .HasForeignKey<InheritanceBase1>("InheritanceBase2Id")
                 .IsRequired(false);
             modelBuilder.Entity<InheritanceBase2>().HasMany(e => e.Collection).WithOne()
-                .HasForeignKey("InheritanceBase2Id");
+                .HasForeignKey("InheritanceBase2Id1");
 
             modelBuilder.Entity<InheritanceDerived1>().HasBaseType<InheritanceBase1>();
             modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceSameType).WithOne()

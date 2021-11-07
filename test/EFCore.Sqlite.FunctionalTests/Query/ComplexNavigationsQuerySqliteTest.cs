@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
 
@@ -26,5 +27,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Prune_does_not_throw_null_ref(async))).Message);
+
+        public override async Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Join_with_result_selector_returning_queryable_throws_validation_error(async))).Message);
+
+        public override async Task Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Nested_SelectMany_correlated_with_join_table_correctly_translated_to_apply(async))).Message);
+
+        public override Task GroupJoin_client_method_in_OrderBy(bool async)
+            => AssertTranslationFailedWithDetails(
+                () => base.GroupJoin_client_method_in_OrderBy(async),
+                CoreStrings.QueryUnableToTranslateMethod(
+                    "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqliteFixture>",
+                    "ClientMethodNullableInt"));
     }
 }

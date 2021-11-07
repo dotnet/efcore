@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly string _eol = Environment.NewLine;
 
         private static readonly object _queryBaselineFileLock = new();
+        private static readonly HashSet<string> _overriddenMethods = new();
 
         public TestSqlLoggerFactory()
             : this(_ => true)
@@ -89,12 +90,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         0,
                         currentDirectory.LastIndexOf(
                             $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                            StringComparison.Ordinal) + 1)
+                            StringComparison.Ordinal)
+                        + 1)
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
                 const string indent = FileNewLine + "                ";
 
+                var sql = string.Join(
+                    "," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
@@ -110,9 +114,47 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
+                var indexSimpleMethodEnding = methodCallLine.IndexOf('(');
+                var indexSimpleMethodStarting = methodCallLine.LastIndexOf('.', indexSimpleMethodEnding) + 1;
+                var methodName = methodCallLine.Substring(indexSimpleMethodStarting, indexSimpleMethodEnding - indexSimpleMethodStarting);
+
+                var manipulatedSql = string.IsNullOrEmpty(sql)
+                    ? ""
+                    : @$"
+{sql}";
+
+                var overrideString = testName.Contains("Boolean async")
+                    ? @$"        public override async Task {methodName}(bool async)
+        {{
+            await base.{methodName}(async);
+
+            AssertSql({manipulatedSql});
+        }}
+
+"
+                    : @$"        public override void {methodName}()
+        {{
+            base.{methodName}();
+
+            AssertSql({manipulatedSql});
+        }}
+
+";
+
                 lock (_queryBaselineFileLock)
                 {
                     File.AppendAllText(logFile, contents);
+
+                    // if (!_overriddenMethods.Any())
+                    // {
+                    //     File.Delete(logFile);
+                    // }
+                    //
+                    // if (!_overriddenMethods.Contains(methodName))
+                    // {
+                    //     File.AppendAllText(logFile, overrideString);
+                    //     _overriddenMethods.Add(methodName);
+                    // }
                 }
 
                 throw;
@@ -147,8 +189,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Exception exception)
             {
                 if ((eventId.Id == RelationalEventId.CommandExecuted.Id
-                    || eventId.Id == RelationalEventId.CommandError.Id
-                    || eventId.Id == RelationalEventId.CommandExecuting.Id))
+                        || eventId.Id == RelationalEventId.CommandError.Id
+                        || eventId.Id == RelationalEventId.CommandExecuting.Id))
                 {
                     if (_shouldLogCommands)
                     {
