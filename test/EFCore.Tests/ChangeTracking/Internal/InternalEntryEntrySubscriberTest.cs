@@ -575,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private string _notMapped;
             private ICollection<ChangedOnlyNotificationEntity> _relatedCollection;
 
+            [System.ComponentModel.DataAnnotations.Schema.DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.None)]//Fix
             public int Id
             {
                 get => _id;

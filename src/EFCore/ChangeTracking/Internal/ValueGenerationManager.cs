@@ -94,11 +94,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in FindCandidateGeneratingProperties(entry))
             {
-                if (!entry.HasDefaultValue(property)
-                    || (!includePrimaryKey
-                        && property.IsPrimaryKey()))
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)//Fix
                 {
-                    continue;
+                    if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
+                    {
+                        continue;
+                    }
+                }
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)//Fix
+                {
+                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added,It need to skip at here.
+                    if (entry.HasDefaultValue(property) || property.IsKey())
+                    {
+                        continue;
+                    }
                 }
 
                 var valueGenerator = GetValueGenerator(entry, property);
@@ -143,11 +152,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in FindCandidateGeneratingProperties(entry))
             {
-                if (!entry.HasDefaultValue(property)
-                    || (!includePrimaryKey
-                        && property.IsPrimaryKey()))
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)//Fix
                 {
-                    continue;
+                    if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
+                    {
+                        continue;
+                    }
+                }
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)//Fix
+                {
+                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added,It need to skip at here.
+                    if (entry.HasDefaultValue(property) || property.IsKey())
+                    {
+                        continue;
+                    }
                 }
 
                 var valueGenerator = GetValueGenerator(entry, property);

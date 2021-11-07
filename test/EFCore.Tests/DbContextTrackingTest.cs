@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore
             if (attachFirst)
             {
                 context.Entry(gu1).State = EntityState.Unchanged;
-                Assert.Equal(default, gu1.Id);
+                Assert.NotEqual(default, gu1.Id);//Fix
                 Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
             }
 
@@ -805,9 +805,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(gu1, categoryEntry.Entity);
             Assert.Equal(EntityState.Added, categoryEntry.State);
 
-            categoryEntry = context.Entry(gu2);
-            Assert.Same(gu2, categoryEntry.Entity);
-            Assert.Equal(EntityState.Added, categoryEntry.State);
+            var categoryEntry2 = context.Entry(gu2);//Fix
+            Assert.Same(gu2, categoryEntry2.Entity);
+            Assert.Equal(EntityState.Added, categoryEntry2.State);
         }
 
         [ConditionalFact]
