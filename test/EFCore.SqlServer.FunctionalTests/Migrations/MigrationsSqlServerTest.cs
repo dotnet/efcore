@@ -1765,6 +1765,53 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
         }
 
+        [ConditionalFact]
+        public async Task Create_sequence_byte()
+        {
+            await Test(
+                builder => { },
+                builder => builder.HasSequence<byte>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        [ConditionalFact]
+        public async Task Create_sequence_decimal()
+        {
+            await Test(
+                builder => { },
+                builder => builder.HasSequence<decimal>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        public override async Task Create_sequence_long()
+        {
+            await base.Create_sequence_long();
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        public override async Task Create_sequence_short()
+        {
+            await base.Create_sequence_short();
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
         public override async Task Create_sequence_all_settings()
         {
             await base.Create_sequence_all_settings();
