@@ -609,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             bool overwriteFiles,
             bool useDatabaseNames,
             bool suppressOnConfiguring,
-            bool noPluarlize)
+            bool noPluralize)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -619,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var files = DatabaseOperations.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                 schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
-                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluarlize);
+                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize);
 
             return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }
