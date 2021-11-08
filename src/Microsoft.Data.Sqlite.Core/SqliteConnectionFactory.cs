@@ -21,8 +21,12 @@ namespace Microsoft.Data.Sqlite
 
         protected SqliteConnectionFactory()
         {
-            AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
-            AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
+            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out var enabled) || !enabled)
+            {
+                AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
+                AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
+            }
+
             _pruneTimer = new Timer(PruneCallback, null, TimeSpan.FromMinutes(4), TimeSpan.FromSeconds(30));
         }
 
