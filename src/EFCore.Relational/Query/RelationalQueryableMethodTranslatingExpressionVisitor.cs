@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _sqlExpressionFactory.Select(
                             fromSqlQueryRootExpression.EntityType,
                             new FromSqlExpression(
-                                fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table.Name.Substring(0, 1)
+                                fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table.Name[..1]
                                     .ToLowerInvariant(),
                                 fromSqlQueryRootExpression.Sql,
                                 fromSqlQueryRootExpression.Argument)));
@@ -134,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return CreateShapedQueryExpression(entityType, queryExpression);
 
                 case QueryRootExpression queryRootExpression
-                    when queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
+                    when queryRootExpression.GetType() == typeof(QueryRootExpression)
+                    && queryRootExpression.EntityType.GetSqlQueryMappings().FirstOrDefault(m => m.IsDefaultSqlQueryMapping)?.SqlQuery is
                         ISqlQuery sqlQuery:
                     return Visit(
                         new FromSqlQueryRootExpression(
