@@ -874,7 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 builder
                     .Append(" AS ")
-                    .Append(typeMapping.StoreType);
+                    .Append(typeMapping.StoreTypeNameBase);
             }
 
             builder

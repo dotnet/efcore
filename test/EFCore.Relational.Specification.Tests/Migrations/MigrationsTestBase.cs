@@ -1354,6 +1354,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("TestSequence", sequence.Name);
                 });
 
+
+        [ConditionalFact]
+        public virtual Task Create_sequence_long()
+            => Test(
+                builder => { },
+                builder => builder.HasSequence<long>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
+        [ConditionalFact]
+        public virtual Task Create_sequence_short()
+            => Test(
+                builder => { },
+                builder => builder.HasSequence<short>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
+
         [ConditionalFact]
         public virtual Task Create_sequence_all_settings()
             => Test(

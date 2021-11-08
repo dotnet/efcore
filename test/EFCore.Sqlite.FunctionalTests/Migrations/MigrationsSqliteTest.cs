@@ -922,6 +922,12 @@ FROM ""People"";",
         public override Task Create_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 
+        public override Task Create_sequence_long()
+            => AssertNotSupportedAsync(base.Create_sequence_long, SqliteStrings.SequencesNotSupported);
+
+        public override Task Create_sequence_short()
+            => AssertNotSupportedAsync(base.Create_sequence_short, SqliteStrings.SequencesNotSupported);
+
         public override Task Create_sequence_all_settings()
             => AssertNotSupportedAsync(base.Create_sequence_all_settings, SqliteStrings.SequencesNotSupported);
 
