@@ -79,8 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                         .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
                         .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
 
-            return services
-                .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddProvider(new OperationLoggerProvider(reporter)));
+            var loggerFactory = new LoggerFactory(new[] { new OperationLoggerProvider(reporter) }, new LoggerFilterOptions { MinLevel = LogLevel.Debug });
+            services.AddScoped<ILoggerFactory>(_ => loggerFactory);
+
+            return services;
         }
 
         /// <summary>

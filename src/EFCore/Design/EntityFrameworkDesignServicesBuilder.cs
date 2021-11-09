@@ -48,8 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         public static readonly IDictionary<Type, ServiceCharacteristics> Services
             = new Dictionary<Type, ServiceCharacteristics>
             {
-                { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICSharpRuntimeAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
 
@@ -81,9 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns>This builder, such that further calls can be chained.</returns>
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
-            TryAdd<IDbContextLogger, NullDbContextLogger>();
-            TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
-            TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ICSharpRuntimeAnnotationCodeGenerator, CSharpRuntimeAnnotationCodeGenerator>();
 
             ServiceCollectionMap.GetInfrastructure()
