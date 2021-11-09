@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -33,9 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType">The entity type this query root represents.</param>
         public QueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IEntityType entityType)
         {
-            Check.NotNull(asyncQueryProvider, nameof(asyncQueryProvider));
-            Check.NotNull(entityType, nameof(entityType));
-
             QueryProvider = asyncQueryProvider;
             EntityType = entityType;
             Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
@@ -47,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType">The entity type this query root represents.</param>
         public QueryRootExpression(IEntityType entityType)
         {
-            Check.NotNull(entityType, nameof(entityType));
-
             EntityType = entityType;
             QueryProvider = null;
             Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
@@ -103,8 +97,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expressionPrinter">The expression printer to use.</param>
         protected virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             if (EntityType.HasSharedClrType)
             {
                 expressionPrinter.Append($"DbSet<{EntityType.ClrType.ShortDisplayName()}>(\"{EntityType.Name}\")");

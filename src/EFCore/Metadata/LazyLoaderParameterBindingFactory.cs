@@ -38,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public LazyLoaderParameterBindingFactory(LazyLoaderParameterBindingFactoryDependencies dependencies)
             : base(typeof(ILazyLoader))
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -57,14 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public override bool CanBind(
             Type parameterType,
             string parameterName)
-        {
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
-            return IsLazyLoader(parameterType)
+            => IsLazyLoader(parameterType)
                 || IsLazyLoaderMethod(parameterType, parameterName)
                 || IsLazyLoaderAsyncMethod(parameterType, parameterName);
-        }
 
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
@@ -78,10 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Type parameterType,
             string parameterName)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
             var baseType = entityType;
             do
             {
@@ -105,10 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Type parameterType,
             string parameterName)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
             var baseType = entityType;
             do
             {
@@ -131,13 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             IReadOnlyEntityType entityType,
             Type parameterType,
             string parameterName)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
-            return Bind((IEntityType)entityType, parameterType);
-        }
+            => Bind((IEntityType)entityType, parameterType);
 
         private static ParameterBinding Bind(IEntityType entityType, Type parameterType)
             => parameterType == typeof(ILazyLoader)

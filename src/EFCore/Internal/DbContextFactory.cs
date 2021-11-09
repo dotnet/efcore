@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -30,10 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             DbContextOptions<TContext> options,
             IDbContextFactorySource<TContext> factorySource)
         {
-            Check.NotNull(serviceProvider, nameof(serviceProvider));
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(factorySource, nameof(factorySource));
-
             _serviceProvider = serviceProvider;
             _options = options;
             _factory = factorySource.Factory;

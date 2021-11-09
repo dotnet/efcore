@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -55,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource? typeConfigurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
         {
-            Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-
             DeclaringEntityType = declaringEntityType;
             ClrType = clrType;
             _typeConfigurationSource = typeConfigurationSource;
@@ -830,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetValueComparer()
-            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer] 
+            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
                 ?? FindFirstDifferentPrincipal()?.GetValueComparer()
                 ?? TypeMapping?.Comparer;
 
@@ -848,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private IProperty? FindFirstDifferentPrincipal()
         {
             var principal = ((IProperty)this).FindFirstPrincipal();
-            
+
             return principal != this ? principal : null;
         }
 

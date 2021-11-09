@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EntityEntry entityEntry)
             : base(eventDefinition, messageGenerator)
         {
-            Check.NotNull(entityEntry, nameof(entityEntry));
-
             EntityEntry = entityEntry;
         }
 

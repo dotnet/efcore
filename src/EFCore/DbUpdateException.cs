@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -73,8 +72,6 @@ namespace Microsoft.EntityFrameworkCore
             IReadOnlyList<IUpdateEntry> entries)
             : base(message, innerException)
         {
-            Check.NotEmpty(entries, nameof(entries));
-
             _entries = entries
                 .Where(e => e.EntityState != EntityState.Unchanged)
                 .Select(e => e.ToEntityEntry()).ToList();
@@ -104,8 +101,6 @@ namespace Microsoft.EntityFrameworkCore
             IReadOnlyList<EntityEntry> entries)
             : base(message, innerException)
         {
-            Check.NotEmpty(entries, nameof(entries));
-
             _entries = entries;
         }
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -22,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="methodCall">The method call used as the body of the nested closure.</param>
         public NestedClosureCodeFragment(string parameter, MethodCallCodeFragment methodCall)
         {
-            Check.NotEmpty(parameter, nameof(parameter));
-            Check.NotNull(methodCall, nameof(methodCall));
-
             Parameter = parameter;
             MethodCalls = new List<MethodCallCodeFragment> { methodCall };
         }
@@ -36,9 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="methodCalls">The list of method calls used as the body of the nested closure.</param>
         public NestedClosureCodeFragment(string parameter, IReadOnlyList<MethodCallCodeFragment> methodCalls)
         {
-            Check.NotEmpty(parameter, nameof(parameter));
-            Check.NotEmpty(methodCalls, nameof(methodCalls));
-
             Parameter = parameter;
             MethodCalls = methodCalls;
         }

@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -68,9 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool nullable,
             LambdaExpression? materializationCondition)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
-
             if (materializationCondition == null)
             {
                 materializationCondition = GenerateMaterializationCondition(entityType, nullable);
@@ -100,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Throw(
                     Call(
                         _createUnableToDiscriminateException,
-                        Constant(Check.NotNull(entityType, nameof(entityType))),
-                        Convert(Check.NotNull(discriminatorValue, nameof(discriminatorValue)), typeof(object)))),
+                        Constant(entityType),
+                        Convert(discriminatorValue, typeof(object)))),
                 Constant(null, typeof(IEntityType)));
 
         /// <summary>
@@ -112,8 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.</returns>
         protected virtual LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
         {
-            Check.NotNull(entityType, nameof(EntityType));
-
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
             Expression body;
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
@@ -208,8 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var valueBufferExpression = visitor.Visit(ValueBufferExpression);
 
             return Update(valueBufferExpression);
@@ -221,13 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType">The new entity type to use.</param>
         /// <returns>This expression if entity type not changed, or an expression with updated entity type.</returns>
         public virtual EntityShaperExpression WithEntityType(IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return entityType != EntityType
+            => entityType != EntityType
                 ? new EntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
                 : this;
-        }
 
         /// <summary>
         ///     Assigns nullability for this shaper, indicating whether it can shape null entity instances or not.
@@ -247,13 +235,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="valueBufferExpression">The <see cref="ValueBufferExpression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual EntityShaperExpression Update(Expression valueBufferExpression)
-        {
-            Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
-
-            return valueBufferExpression != ValueBufferExpression
+            => valueBufferExpression != ValueBufferExpression
                 ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
-        }
 
         /// <inheritdoc />
         public override Type Type
@@ -266,8 +250,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
             using (expressionPrinter.Indent())
             {

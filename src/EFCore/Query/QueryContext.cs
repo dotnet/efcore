@@ -43,11 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         /// <param name="dependencies">The dependencies to use.</param>
-        protected QueryContext(
-            QueryContextDependencies dependencies)
+        protected QueryContext(QueryContextDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             Context = dependencies.CurrentContext.Context;
         }
@@ -69,9 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigation">The navigation property.</param>
         public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
         {
-            Check.NotNull(entity, nameof(entity));
-            Check.NotNull(navigation, nameof(navigation));
-
             // InitializeStateManager will populate the field before calling here
             _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
         }
@@ -117,11 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
         public virtual void AddParameter(string name, object? value)
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            _parameterValues.Add(name, value);
-        }
+            => _parameterValues.Add(name, value);
 
         /// <summary>
         ///     Initializes the <see cref="IStateManager" /> to be used with this QueryContext.

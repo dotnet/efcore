@@ -41,8 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ModelValidator(ModelValidatorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -85,8 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
@@ -153,8 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             if (model is not IConventionModel conventionModel)
             {
                 return;
@@ -323,8 +317,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             if (!(model is IConventionModel conventionModel))
             {
                 return;
@@ -415,8 +407,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (IConventionEntityType entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetDeclaredKeys())
@@ -456,8 +446,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetDeclaredKeys())
@@ -480,8 +468,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             var graph = new Multigraph<IEntityType, IForeignKey>();
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -522,8 +508,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             var entityTypeWithNullPk
                 = model.GetEntityTypes()
                     .FirstOrDefault(et => !((IConventionEntityType)et).IsKeyless && et.BaseType == null && et.FindPrimaryKey() == null);
@@ -544,8 +528,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             var validEntityTypes = new HashSet<IEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -558,10 +540,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IEntityType entityType,
             HashSet<IEntityType> validEntityTypes)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(validEntityTypes, nameof(validEntityTypes));
-
             if (validEntityTypes.Contains(entityType))
             {
                 return;
@@ -691,8 +669,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             var requireFullNotifications = (bool?)model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] == true;
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -715,8 +691,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 var ownerships = entityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
@@ -792,8 +766,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var declaredForeignKey in entityType.GetDeclaredForeignKeys())
@@ -864,8 +836,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 var properties = new HashSet<IPropertyBase>(
@@ -925,9 +895,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(logger, nameof(logger));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties())
@@ -964,8 +931,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.GetQueryFilter() != null)
@@ -1009,8 +974,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="logger">The logger to use.</param>
         protected virtual void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             var identityMaps = new Dictionary<IKey, IIdentityMap>();
             var sensitiveDataLogged = logger.ShouldLogSensitiveData();
 
@@ -1148,8 +1111,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            Check.NotNull(model, nameof(model));
-
             foreach (IConventionEntityType entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties())

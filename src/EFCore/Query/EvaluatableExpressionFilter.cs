@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -69,8 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public EvaluatableExpressionFilter(
             EvaluatableExpressionFilterDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -87,9 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
         public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
         {
-            Check.NotNull(expression, nameof(expression));
-            Check.NotNull(model, nameof(model));
-
             switch (expression)
             {
                 case MemberExpression memberExpression:

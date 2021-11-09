@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -39,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public CompiledQueryCacheKeyGenerator(CompiledQueryCacheKeyGeneratorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>The cache key.</returns>
         protected CompiledQueryCacheKey GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
             => new(
-                Check.NotNull(query, nameof(query)),
+                query,
                 Dependencies.Model,
                 Dependencies.CurrentContext.Context.ChangeTracker.QueryTrackingBehavior,
                 async);

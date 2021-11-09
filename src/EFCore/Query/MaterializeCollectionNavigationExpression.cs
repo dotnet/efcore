@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -30,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigation">A navigation associated with this collection.</param>
         public MaterializeCollectionNavigationExpression(Expression subquery, INavigationBase navigation)
         {
-            Check.NotNull(subquery, nameof(subquery));
-            Check.NotNull(navigation, nameof(navigation));
-
             Subquery = subquery;
             Navigation = navigation;
         }
@@ -57,11 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return Update(visitor.Visit(Subquery));
-        }
+            => Update(visitor.Visit(Subquery));
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -70,19 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="subquery">The <see cref="Subquery" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
-        {
-            Check.NotNull(subquery, nameof(subquery));
-
-            return subquery != Subquery
+            => subquery != Subquery
                 ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine("MaterializeCollectionNavigation(");
             using (expressionPrinter.Indent())
             {

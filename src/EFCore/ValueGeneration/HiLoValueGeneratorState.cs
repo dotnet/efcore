@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -50,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns>The value to be assigned to a property.</returns>
         public virtual TValue Next<TValue>(Func<long> getNewLowValue)
         {
-            Check.NotNull(getNewLowValue, nameof(getNewLowValue));
-
             var newValue = GetNextValue();
 
             // If the chosen value is outside of the current block then we need a new block.
@@ -98,8 +95,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
         {
-            Check.NotNull(getNewLowValue, nameof(getNewLowValue));
-
             var newValue = GetNextValue();
 
             // If the chosen value is outside of the current block then we need a new block.

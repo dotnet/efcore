@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -34,9 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ITypeMappingSource typeMappingSource,
             IParameterBindingFactories parameterBindingFactories)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
-
             _typeMappingSource = typeMappingSource;
             _parameterBindingFactories = parameterBindingFactories;
         }

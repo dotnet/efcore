@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -46,15 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IEvaluatableExpressionFilter evaluatableExpressionFilter,
             IModel model)
         {
-            Check.NotNull(queryContextFactory, nameof(queryContextFactory));
-            Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
-            Check.NotNull(compiledQueryCacheKeyGenerator, nameof(compiledQueryCacheKeyGenerator));
-            Check.NotNull(database, nameof(database));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
-            Check.NotNull(model, nameof(model));
-
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
@@ -73,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual TResult Execute<TResult>(Expression query)
         {
-            Check.NotNull(query, nameof(query));
-
             var queryContext = _queryContextFactory.Create();
 
             query = ExtractParameters(query, queryContext, _logger);
@@ -109,8 +97,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query)
         {
-            Check.NotNull(query, nameof(query));
-
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
             return CompileQueryCore<TResult>(_database, query, _model, false);
@@ -124,8 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken = default)
         {
-            Check.NotNull(query, nameof(query));
-
             var queryContext = _queryContextFactory.Create();
 
             queryContext.CancellationToken = cancellationToken;
@@ -149,8 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query)
         {
-            Check.NotNull(query, nameof(query));
-
             query = ExtractParameters(query, _queryContextFactory.Create(), _logger, parameterize: false);
 
             return CompileQueryCore<TResult>(_database, query, _model, true);

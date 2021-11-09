@@ -31,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryTranslationPostprocessorDependencies dependencies,
             QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
             Dependencies = dependencies;
             QueryCompilationContext = queryCompilationContext;
         }
@@ -54,10 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query">The query to process.</param>
         /// <returns>A query expression after transformations.</returns>
         public virtual Expression Process(Expression query)
-        {
-            Check.NotNull(query, nameof(query));
-
-            return query;
-        }
+            => query;
     }
 }

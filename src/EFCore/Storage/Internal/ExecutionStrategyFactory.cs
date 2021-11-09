@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
-
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -21,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             _instance = new NonRetryingExecutionStrategy(Dependencies);
         }

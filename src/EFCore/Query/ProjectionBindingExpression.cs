@@ -37,10 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             ProjectionMember projectionMember,
             Type type)
         {
-            Check.NotNull(queryExpression, nameof(queryExpression));
-            Check.NotNull(projectionMember, nameof(projectionMember));
-            Check.NotNull(type, nameof(type));
-
             QueryExpression = queryExpression;
             ProjectionMember = projectionMember;
             Type = type;
@@ -57,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             int index,
             Type type)
         {
-            Check.NotNull(queryExpression, nameof(queryExpression));
-            Check.NotNull(type, nameof(type));
-
             QueryExpression = queryExpression;
             Index = index;
             Type = type;
@@ -89,17 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append(nameof(ProjectionBindingExpression) + ": ");
             if (ProjectionMember != null)
             {

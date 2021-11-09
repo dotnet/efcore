@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -42,10 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType declaringEntityType,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(properties, nameof(properties));
-            Check.HasNoNulls(properties, nameof(properties));
-            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-
             Properties = properties;
             DeclaringEntityType = declaringEntityType;
             _configurationSource = configurationSource;
@@ -66,8 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             : this(properties, declaringEntityType, configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-
             Name = name;
         }
 

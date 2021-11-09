@@ -37,13 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="tree">The expression tree in which replacement is going to be performed.</param>
         /// <returns>An expression tree with replacements made.</returns>
         public static Expression Replace(Expression original, Expression replacement, Expression tree)
-        {
-            Check.NotNull(original, nameof(original));
-            Check.NotNull(replacement, nameof(replacement));
-            Check.NotNull(tree, nameof(tree));
-
-            return new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
-        }
+            => new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
 
         /// <summary>
         ///     Creates a new instance of the <see cref="ReplacingExpressionVisitor" /> class.
@@ -52,9 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="replacements">A list of expressions to be used as replacements.</param>
         public ReplacingExpressionVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
         {
-            Check.NotNull(originals, nameof(originals));
-            Check.NotNull(replacements, nameof(replacements));
-
             _originals = originals;
             _replacements = replacements;
         }
@@ -86,8 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
             var innerExpression = Visit(memberExpression.Expression);
 
             if (innerExpression is GroupByShaperExpression groupByShaperExpression
@@ -119,8 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             if (methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
             {
                 var newEntityExpression = Visit(entityExpression);

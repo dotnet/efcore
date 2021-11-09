@@ -56,10 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected TypeBase(string name, Type type, Model model, ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(type, nameof(type));
-            Check.NotNull(model, nameof(model));
-
             Name = name;
             ClrType = type;
             Model = model;

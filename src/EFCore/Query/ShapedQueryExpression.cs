@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="shaperExpression">The shaper expression to create result objects from server results.</param>
         public ShapedQueryExpression(Expression queryExpression, Expression shaperExpression)
             : this(
-                Check.NotNull(queryExpression, nameof(queryExpression)),
-                Check.NotNull(shaperExpression, nameof(shaperExpression)),
+                queryExpression,
+                shaperExpression,
                 ResultCardinality.Enumerable)
         {
         }
@@ -85,14 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="shaperExpression">The <see cref="ShaperExpression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual ShapedQueryExpression Update(Expression queryExpression, Expression shaperExpression)
-        {
-            Check.NotNull(queryExpression, nameof(queryExpression));
-            Check.NotNull(shaperExpression, nameof(shaperExpression));
-
-            return queryExpression != QueryExpression || shaperExpression != ShaperExpression
+            => queryExpression != QueryExpression || shaperExpression != ShaperExpression
                 ? new ShapedQueryExpression(queryExpression, shaperExpression, ResultCardinality)
                 : this;
-        }
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied shaper expression. If shaper expression is the same, it will
@@ -101,13 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="shaperExpression">The <see cref="ShaperExpression" /> property of the result.</param>
         /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
         public virtual ShapedQueryExpression UpdateShaperExpression(Expression shaperExpression)
-        {
-            Check.NotNull(shaperExpression, nameof(shaperExpression));
-
-            return shaperExpression != ShaperExpression
+            => shaperExpression != ShaperExpression
                 ? new ShapedQueryExpression(QueryExpression, shaperExpression, ResultCardinality)
                 : this;
-        }
 
         /// <summary>
         ///     Creates a new expression that is like this one, but with supplied result cardinality.
@@ -120,8 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine(nameof(ShapedQueryExpression) + ": ");
             using (expressionPrinter.Indent())
             {

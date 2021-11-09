@@ -57,11 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType principalEntityType,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(dependentProperties, nameof(dependentProperties));
-            Check.HasNoNulls(dependentProperties, nameof(dependentProperties));
-            Check.NotNull(principalKey, nameof(principalKey));
-            Check.NotNull(principalEntityType, nameof(principalEntityType));
-
             Validate(dependentProperties, principalKey, dependentEntityType, principalEntityType);
 
             Properties = dependentProperties;
