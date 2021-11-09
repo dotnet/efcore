@@ -1106,6 +1106,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Required_and_ForeignKey_to_ForeignKey_can_be_overridden()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login3>()
+                .HasOne(p => p.Profile)
+                .WithOne(p => p.User)
+                .HasForeignKey<Login3>("ProfileId");
+
+            var model = Validate(modelBuilder);
+
+            var loginFk = GetProperty<Login3>(model, "ProfileId").GetContainingForeignKeys().Single();
+            Assert.True(loginFk.IsRequired); // This will be False after #15898 is fixed
+            Assert.True(loginFk.IsRequiredDependent);
+
+            Assert.False(GetProperty<Profile3>(model, nameof(Profile3.Profile3Id)).IsForeignKey());
+        }
+
+        [ConditionalFact]
         public virtual void ForeignKey_to_nothing()
         {
             var modelBuilder = CreateModelBuilder();
