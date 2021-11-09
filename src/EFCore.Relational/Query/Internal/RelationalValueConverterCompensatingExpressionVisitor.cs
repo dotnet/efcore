@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -54,8 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            return shapedQueryExpression.Update(
-                Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26428", out var enabled)
+                && enabled)
+            {
+                return shapedQueryExpression.Update(
+                    Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            }
+
+            var selectExpression = shapedQueryExpression.QueryExpression;
+            var updatedSelectExpression = Visit(selectExpression);
+            return updatedSelectExpression != selectExpression
+                ? shapedQueryExpression.Update(updatedSelectExpression,
+                    ReplacingExpressionVisitor.Replace(
+                        selectExpression, updatedSelectExpression, shapedQueryExpression.ShaperExpression))
+                : shapedQueryExpression;
         }
 
         private Expression VisitCase(CaseExpression caseExpression)
