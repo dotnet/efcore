@@ -317,7 +317,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selectExpression.ClearOrdering();
             }
 
-            if (source.ShaperExpression is ProjectionBindingExpression projectionBindingExpression)
+            var shaperExpression = source.ShaperExpression;
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26593", out var enabled)
+                && enabled))
+            {
+                // No need to check ConvertChecked since this is convert node which we may have added during projection
+                if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+                    && unaryExpression.Operand.Type.IsNullableType()
+                    && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+                {
+                    shaperExpression = unaryExpression.Operand;
+                }
+            }
+
+            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
             {
                 var projection = selectExpression.GetProjection(projectionBindingExpression);
                 if (projection is SqlExpression sqlExpression)

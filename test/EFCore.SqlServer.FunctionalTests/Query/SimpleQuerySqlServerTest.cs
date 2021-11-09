@@ -63,5 +63,70 @@ WHERE [i].[Taste] = 1");
 FROM [Food] AS [f]
 WHERE [f].[Taste] = CAST(1 AS tinyint)");
         }
+
+        public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
+        {
+            await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(async);
+
+            AssertSql(
+                @"@__currentUserId_0='1'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Memberships] AS [m]
+        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [Memberships] AS [m0]
+            WHERE ([m0].[UserId] = @__currentUserId_0) AND ([m0].[GroupId] = [m].[GroupId])) AND ([u0].[Id] = [u].[Id])) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasAccess]
+FROM [Users] AS [u]");
+        }
+
+        public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
+        {
+            await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(async);
+
+            AssertSql(
+                @"@__currentUserId_0='1'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Memberships] AS [m]
+        INNER JOIN [Groups] AS [g] ON [m].[GroupId] = [g].[Id]
+        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [Memberships] AS [m0]
+            INNER JOIN [Groups] AS [g0] ON [m0].[GroupId] = [g0].[Id]
+            WHERE ([m0].[UserId] = @__currentUserId_0) AND ([g0].[Id] = [g].[Id])) AND ([u0].[Id] = [u].[Id])) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasAccess]
+FROM [Users] AS [u]");
+        }
+
+        public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
+        {
+            await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(async);
+
+            AssertSql(
+                @"@__currentUserId_0='1'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Memberships] AS [m]
+        INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [Memberships] AS [m0]
+            WHERE ([m0].[UserId] = @__currentUserId_0) AND ([m0].[GroupId] = [m].[GroupId])) AND ([u0].[Id] = [u].[Id])) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasAccess]
+FROM [Users] AS [u]");
+        }
     }
 }

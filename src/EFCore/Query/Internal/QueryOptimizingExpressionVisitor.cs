@@ -285,8 +285,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         anyLambdaParameter,
                         methodCallExpression.Arguments[1]),
                     anyLambdaParameter);
+                var source = methodCallExpression.Arguments[0];
+                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26593", out var enabled) && enabled))
+                {
+                    source = Visit(source);
+                }
 
-                return Expression.Call(null, anyMethod, new[] { methodCallExpression.Arguments[0], anyLambda });
+                return Expression.Call(null, anyMethod, new[] { source, anyLambda });
             }
 
             var @object = default(Expression);
