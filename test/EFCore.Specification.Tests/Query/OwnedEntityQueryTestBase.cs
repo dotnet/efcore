@@ -308,5 +308,116 @@ namespace Microsoft.EntityFrameworkCore
             public ICollection<string> DestinationCountryCodes { get; set; }
         }
 
+        protected virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take_helper(MyContext26592Base context, bool async)
+        {
+            var query = context.Companies.Where(e => e.CustomerData != null).OrderBy(e => e.Id).Take(10);
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            var company = Assert.Single(result);
+            Assert.Equal("Acme Inc.", company.Name);
+            Assert.Equal("Regular", company.CustomerData.AdditionalCustomerData);
+            Assert.Equal("Free shipping", company.SupplierData.AdditionalSupplierData);
+        }
+
+        protected virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(
+            MyContext26592Base context, bool async)
+        {
+            var query = context.Owners.Where(e => e.OwnedEntity.CustomerData != null).OrderBy(e => e.Id).Take(10);
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            var owner = Assert.Single(result);
+            Assert.Equal("Owner1", owner.Name);
+            Assert.Equal("Intermediate1", owner.OwnedEntity.Name);
+            Assert.Equal("IM Regular", owner.OwnedEntity.CustomerData.AdditionalCustomerData);
+            Assert.Equal("IM Free shipping", owner.OwnedEntity.SupplierData.AdditionalSupplierData);
+        }
+
+        protected abstract class MyContext26592Base : DbContext
+        {
+            protected MyContext26592Base(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Company> Companies { get; set; }
+            public DbSet<Owner> Owners { get; set; }
+
+            public void Seed()
+            {
+                Add(new Company
+                {
+                    Name = "Acme Inc.",
+                    CustomerData = new CustomerData
+                    {
+                        AdditionalCustomerData = "Regular"
+                    },
+                    SupplierData = new SupplierData
+                    {
+                        AdditionalSupplierData = "Free shipping"
+                    }
+                });
+
+                Add(new Owner
+                {
+                    Name = "Owner1",
+                    OwnedEntity = new IntermediateOwnedEntity
+                    {
+                        Name = "Intermediate1",
+                        CustomerData = new CustomerData
+                        {
+                            AdditionalCustomerData = "IM Regular"
+                        },
+                        SupplierData = new SupplierData
+                        {
+                            AdditionalSupplierData = "IM Free shipping"
+                        }
+                    }
+                });
+
+                SaveChanges();
+            }
+        }
+
+        protected class Company
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public CustomerData CustomerData { get; set; }
+            public SupplierData SupplierData { get; set; }
+        }
+
+        [Owned]
+        protected class CustomerData
+        {
+            public int Id { get; set; }
+            public string AdditionalCustomerData { get; set; }
+        }
+
+        [Owned]
+        protected class SupplierData
+        {
+            public int Id { get; set; }
+            public string AdditionalSupplierData { get; set; }
+        }
+
+        protected class Owner
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public IntermediateOwnedEntity OwnedEntity { get; set; }
+        }
+
+        [Owned]
+        protected class IntermediateOwnedEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public CustomerData CustomerData { get; set; }
+            public SupplierData SupplierData { get; set; }
+        }
     }
 }
