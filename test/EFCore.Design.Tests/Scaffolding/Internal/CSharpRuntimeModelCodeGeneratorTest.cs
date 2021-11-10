@@ -3563,7 +3563,7 @@ namespace TestNamespace
         }
 
         protected void Test(
-            EntityFrameworkCore.DbContext context,
+            DbContext context,
             CompiledModelCodeGenerationOptions options,
             Action<IReadOnlyCollection<ScaffoldedFile>> assertScaffold = null,
             Action<IModel> assertModel = null,
@@ -3572,19 +3572,12 @@ namespace TestNamespace
         {
             var model = context.GetService<IDesignTimeModel>().Model;
 
-            var services = new ServiceCollection();
-            if (additionalDesignTimeServices != null)
-            {
-                ConfigureDesignTimeServices(additionalDesignTimeServices, services);
-            }
-            ConfigureProviderServices(context.GetService<IDatabaseProvider>().Name, services);
-            services.AddEntityFrameworkDesignTimeServices();
-
             options.ModelNamespace ??= "TestNamespace";
             options.ContextType = context.GetType();
 
-            var generator = services
-                .BuildServiceProvider(validateScopes: true)
+            var generator = DesignTestHelpers.Instance.CreateDesignServiceProvider(
+                    context.GetService<IDatabaseProvider>().Name,
+                    additionalDesignTimeServices: additionalDesignTimeServices)
                 .GetRequiredService<ICompiledModelCodeGeneratorSelector>()
                 .Select(options);
 
@@ -3641,31 +3634,6 @@ namespace TestNamespace
             }
         }
 
-        private void ConfigureProviderServices(string provider, IServiceCollection services)
-        {
-            var providerAssembly = Assembly.Load(new AssemblyName(provider));
-
-            var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
-            if (providerServicesAttribute == null)
-            {
-                throw new InvalidOperationException(DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(provider));
-            }
-
-            var designTimeServicesType = providerAssembly.GetType(
-                providerServicesAttribute.TypeName,
-                throwOnError: true,
-                ignoreCase: false)!;
-
-            ConfigureDesignTimeServices(designTimeServicesType, services);
-        }
-
-        private static void ConfigureDesignTimeServices(
-            Type designTimeServicesType,
-            IServiceCollection services)
-        {
-            var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType)!;
-            designTimeServices.ConfigureDesignTimeServices(services);
-        }
 
         protected static void AssertFileContents(
             string expectedPath,

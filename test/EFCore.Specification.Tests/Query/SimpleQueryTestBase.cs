@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context26433 : DbContext
         {
             public Context26433(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
@@ -359,16 +359,16 @@ namespace Microsoft.EntityFrameworkCore
             {
 
                 base.Add(new Author26433
-                {
-                    FirstName = "William",
-                    LastName = "Shakespeare",
-                    Books = new List<Book26433>
+                    {
+                        FirstName = "William",
+                        LastName = "Shakespeare",
+                        Books = new List<Book26433>
                         {
                             new() {Title = "Hamlet"},
                             new() {Title = "Othello"},
                             new() {Title = "MacBeth"}
                         }
-                });
+                    });
 
                 SaveChanges();
             }
@@ -392,5 +392,102 @@ namespace Microsoft.EntityFrameworkCore
             public Author26433 Author { get; set; }
         }
 
+#nullable enable
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsDeleted_query_filter_with_conversion_to_int_works(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26428>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Suppliers.Include(s => s.Location).OrderBy(s => s.Name);
+
+            var suppliers = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(4, suppliers.Count);
+            Assert.Single(suppliers.Where(e => e.Location != null));
+        }
+
+        protected class Context26428 : DbContext
+        {
+            public Context26428(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            public DbSet<Supplier> Suppliers => Set<Supplier>();
+            public DbSet<Location> Locations => Set<Location>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Supplier>().Property(s => s.IsDeleted).HasConversion<int>();
+                modelBuilder.Entity<Supplier>().HasQueryFilter(s => !s.IsDeleted);
+
+                modelBuilder.Entity<Location>().Property(l => l.IsDeleted).HasConversion<int>();
+                modelBuilder.Entity<Location>().HasQueryFilter(l => !l.IsDeleted);
+            }
+
+            public void Seed()
+            {
+                var activeAddress = new Location
+                {
+                    Address = "Active address",
+                    IsDeleted = false
+                };
+                var deletedAddress = new Location
+                {
+                    Address = "Deleted address",
+                    IsDeleted = true
+                };
+
+                var activeSupplier1 = new Supplier
+                {
+                    Name = "Active supplier 1",
+                    IsDeleted = false,
+                    Location = activeAddress
+                };
+                var activeSupplier2 = new Supplier
+                {
+                    Name = "Active supplier 2",
+                    IsDeleted = false,
+                    Location = deletedAddress
+                };
+                var activeSupplier3 = new Supplier
+                {
+                    Name = "Active supplier 3",
+                    IsDeleted = false
+                };
+                var deletedSupplier = new Supplier
+                {
+                    Name = "Deleted supplier",
+                    IsDeleted = false
+                };
+
+                AddRange(activeAddress, deletedAddress);
+                AddRange(activeSupplier1, activeSupplier2, activeSupplier3, deletedSupplier);
+
+                SaveChanges();
+            }
+        }
+
+        protected class Supplier
+        {
+            public Guid SupplierId { get; set; }
+            public string Name { get; set; } = null!;
+            public Location? Location { get; set; }
+            public bool IsDeleted { get; set; }
+        }
+
+        protected class Location
+        {
+            public Guid LocationId { get; set; }
+            public string Address { get; set; } = null!;
+            public bool IsDeleted { get; set; }
+        }
+
+#nullable disable
     }
 }

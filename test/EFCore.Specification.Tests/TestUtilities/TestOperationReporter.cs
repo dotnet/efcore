@@ -3,29 +3,30 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestOperationReporter : IOperationReporter
     {
-        private readonly List<string> _messages = new();
+        private readonly List<(LogLevel, string)> _messages = new();
 
-        public IReadOnlyList<string> Messages
+        public IReadOnlyList<(LogLevel Level, string Message)> Messages
             => _messages;
 
         public void Clear()
             => _messages.Clear();
 
         public void WriteInformation(string message)
-            => _messages.Add("info: " + message);
+            => _messages.Add((LogLevel.Information, message));
 
         public void WriteVerbose(string message)
-            => _messages.Add("verbose: " + message);
+            => _messages.Add((LogLevel.Debug, message));
 
         public void WriteWarning(string message)
-            => _messages.Add("warn: " + message);
+            => _messages.Add((LogLevel.Warning, message));
 
         public void WriteError(string message)
-            => _messages.Add("error: " + message);
+            => _messages.Add((LogLevel.Error, message));
     }
 }

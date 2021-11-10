@@ -865,7 +865,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? CheckValueComparer(ValueComparer? comparer)
             => comparer != null
-                && comparer.Type != ClrType
+                && comparer.Type.UnwrapNullableType() != ClrType.UnwrapNullableType()
                     ? CoreStrings.ComparerPropertyMismatch(
                         comparer.Type.ShortDisplayName(),
                         DeclaringEntityType.DisplayName(),

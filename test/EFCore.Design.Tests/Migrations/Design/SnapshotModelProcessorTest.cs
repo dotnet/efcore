@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Ownership;
 using Xunit;
 
@@ -95,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
-            Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
+            var (level, message) = reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
@@ -116,7 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
-            Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
+            var (level, message) = reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.MultipleAnnotationConflict("DefaultSchema"), message);
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
