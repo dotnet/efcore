@@ -943,11 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             existingIdentifiers.AddRange(entityType.GetNavigations().Select(p => p.Name));
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26496", out var enabled)
-                && enabled))
-            {
-                existingIdentifiers.AddRange(entityType.GetSkipNavigations().Select(p => p.Name));
-            }
+            existingIdentifiers.AddRange(entityType.GetSkipNavigations().Select(p => p.Name));
             return existingIdentifiers;
         }
 

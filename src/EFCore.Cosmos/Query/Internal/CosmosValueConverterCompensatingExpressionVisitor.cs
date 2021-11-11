@@ -50,13 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26428", out var enabled)
-                && enabled)
-            {
-                return shapedQueryExpression.Update(
-                    Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
-            }
-
             var selectExpression = shapedQueryExpression.QueryExpression;
             var updatedSelectExpression = Visit(selectExpression);
             return updatedSelectExpression != selectExpression
