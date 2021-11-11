@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         methodCallExpression.Arguments[1]),
                     anyLambdaParameter);
 
-                return Expression.Call(null, anyMethod, new[] { methodCallExpression.Arguments[0], anyLambda });
+                return Expression.Call(null, anyMethod, new[] { Visit(methodCallExpression.Arguments[0]), anyLambda });
             }
 
             var @object = default(Expression);

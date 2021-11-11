@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context26428 : DbContext
         {
             public Context26428(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
@@ -489,5 +489,134 @@ namespace Microsoft.EntityFrameworkCore
         }
 
 #nullable disable
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.GroupId);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.GroupId))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Contains(u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.Group);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.Group))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Contains(u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.GroupId);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.GroupId))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Any(e => e == u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context26593 : DbContext
+        {
+            public Context26593(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<User> Users { get; set; }
+            public DbSet<Group> Groups { get; set; }
+            public DbSet<Membership> Memberships { get; set; }
+
+            public void Seed()
+            {
+                var user = new User();
+                var group = new Group();
+                var membership = new Membership { Group = group, User = user };
+                AddRange(user, group, membership);
+
+                SaveChanges();
+            }
+        }
+
+        protected class User
+        {
+            public int Id { get; set; }
+
+            public ICollection<Membership> Memberships { get; set; }
+        }
+
+        protected class Group
+        {
+            public int Id { get; set; }
+
+            public ICollection<Membership> Memberships { get; set; }
+        }
+
+        protected class Membership
+        {
+            public int Id { get; set; }
+            public User User { get; set; }
+            public int UserId { get; set; }
+            public Group Group { get; set; }
+            public int GroupId { get; set; }
+        }
     }
 }
