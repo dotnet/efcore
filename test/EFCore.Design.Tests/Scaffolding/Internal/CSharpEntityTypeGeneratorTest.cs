@@ -296,9 +296,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
-    [Index(nameof(C))]
-    [Index(nameof(A), nameof(B), Name = ""IndexOnAAndB"", IsUnique = true)]
-    [Index(nameof(B), nameof(C), Name = ""IndexOnBAndC"")]
+    [Index(""C"")]
+    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true)]
+    [Index(""B"", ""C"", Name = ""IndexOnBAndC"")]
     public partial class EntityWithIndexes
     {
         [Key]
@@ -354,7 +354,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace
 {
-    [Index(nameof(A), nameof(B), Name = ""IndexOnAAndB"", IsUnique = true)]
+    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true)]
     public partial class EntityWithIndexes
     {
         [Key]
@@ -741,17 +741,17 @@ namespace TestNamespace
         public string RequiredReferenceNavigationId { get; set; }
         public int RequiredValueNavigationId { get; set; }
 
-        [ForeignKey(nameof(OptionalReferenceNavigationId))]
-        [InverseProperty(nameof(Dependent2.Entity))]
+        [ForeignKey(""OptionalReferenceNavigationId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent2 OptionalReferenceNavigation { get; set; }
-        [ForeignKey(nameof(OptionalValueNavigationId))]
-        [InverseProperty(nameof(Dependent4.Entity))]
+        [ForeignKey(""OptionalValueNavigationId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent4 OptionalValueNavigation { get; set; }
-        [ForeignKey(nameof(RequiredReferenceNavigationId))]
-        [InverseProperty(nameof(Dependent1.Entity))]
+        [ForeignKey(""RequiredReferenceNavigationId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent1 RequiredReferenceNavigation { get; set; }
-        [ForeignKey(nameof(RequiredValueNavigationId))]
-        [InverseProperty(nameof(Dependent3.Entity))]
+        [ForeignKey(""RequiredValueNavigationId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent3 RequiredValueNavigation { get; set; }
     }
 }
@@ -815,17 +815,17 @@ namespace TestNamespace
         public string RequiredNavigationWithReferenceForeignKeyId { get; set; } = null!;
         public int RequiredNavigationWithValueForeignKeyId { get; set; }
 
-        [ForeignKey(nameof(OptionalNavigationWithReferenceForeignKeyId))]
-        [InverseProperty(nameof(Dependent2.Entity))]
+        [ForeignKey(""OptionalNavigationWithReferenceForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent2? OptionalNavigationWithReferenceForeignKey { get; set; }
-        [ForeignKey(nameof(OptionalNavigationWithValueForeignKeyId))]
-        [InverseProperty(nameof(Dependent4.Entity))]
+        [ForeignKey(""OptionalNavigationWithValueForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
-        [ForeignKey(nameof(RequiredNavigationWithReferenceForeignKeyId))]
-        [InverseProperty(nameof(Dependent1.Entity))]
+        [ForeignKey(""RequiredNavigationWithReferenceForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
-        [ForeignKey(nameof(RequiredNavigationWithValueForeignKeyId))]
-        [InverseProperty(nameof(Dependent3.Entity))]
+        [ForeignKey(""RequiredNavigationWithValueForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
     }
 }
@@ -889,17 +889,17 @@ namespace TestNamespace
         public string RequiredNavigationWithReferenceForeignKeyId { get; set; } = null!;
         public int RequiredNavigationWithValueForeignKeyId { get; set; }
 
-        [ForeignKey(nameof(OptionalNavigationWithReferenceForeignKeyId))]
-        [InverseProperty(nameof(Dependent2.Entity))]
+        [ForeignKey(""OptionalNavigationWithReferenceForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent2? OptionalNavigationWithReferenceForeignKey { get; set; }
-        [ForeignKey(nameof(OptionalNavigationWithValueForeignKeyId))]
-        [InverseProperty(nameof(Dependent4.Entity))]
+        [ForeignKey(""OptionalNavigationWithValueForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
-        [ForeignKey(nameof(RequiredNavigationWithReferenceForeignKeyId))]
-        [InverseProperty(nameof(Dependent1.Entity))]
+        [ForeignKey(""RequiredNavigationWithReferenceForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
-        [ForeignKey(nameof(RequiredNavigationWithValueForeignKeyId))]
-        [InverseProperty(nameof(Dependent3.Entity))]
+        [ForeignKey(""RequiredNavigationWithValueForeignKeyId"")]
+        [InverseProperty(""Entity"")]
         public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
     }
 }
@@ -1401,8 +1401,8 @@ namespace TestNamespace
         public int Id { get; set; }
         public int? AuthorId { get; set; }
 
-        [ForeignKey(nameof(AuthorId))]
-        [InverseProperty(nameof(Person.Posts))]
+        [ForeignKey(""AuthorId"")]
+        [InverseProperty(""Posts"")]
         public virtual Person Author { get; set; }
         public virtual ICollection<Contribution> Contributions { get; set; }
     }
@@ -1429,7 +1429,7 @@ namespace TestNamespace
         [Key]
         public int Id { get; set; }
 
-        [InverseProperty(nameof(Post.Author))]
+        [InverseProperty(""Author"")]
         public virtual ICollection<Post> Posts { get; set; }
     }
 }
@@ -1490,7 +1490,7 @@ namespace TestNamespace
         public int? BlogId2 { get; set; }
 
         [ForeignKey(""BlogId1,BlogId2"")]
-        [InverseProperty(nameof(Blog.Posts))]
+        [InverseProperty(""Posts"")]
         public virtual Blog BlogNavigation { get; set; }
     }
 }
@@ -1710,7 +1710,7 @@ namespace TestNamespace
         public int Id { get; set; }
         public int? BlogId { get; set; }
 
-        [ForeignKey(nameof(BlogId))]
+        [ForeignKey(""BlogId"")]
         [InverseProperty(""Posts"")]
         public virtual Blog Blog { get; set; }
     }
@@ -1765,7 +1765,7 @@ namespace TestNamespace
         public int Id { get; set; }
         public int? Blog { get; set; }
 
-        [ForeignKey(nameof(Blog))]
+        [ForeignKey(""Blog"")]
         [InverseProperty(""Posts"")]
         public virtual Blog BlogNavigation { get; set; }
     }
@@ -1822,10 +1822,10 @@ namespace TestNamespace
         public int? BlogId { get; set; }
         public int? OriginalBlogId { get; set; }
 
-        [ForeignKey(nameof(BlogId))]
+        [ForeignKey(""BlogId"")]
         [InverseProperty(""Posts"")]
         public virtual Blog Blog { get; set; }
-        [ForeignKey(nameof(OriginalBlogId))]
+        [ForeignKey(""OriginalBlogId"")]
         [InverseProperty(""OriginalPosts"")]
         public virtual Blog OriginalBlog { get; set; }
     }
@@ -2430,7 +2430,7 @@ namespace TestNamespace
         public int Id { get; set; }
 
         [ForeignKey(""BlogsId"")]
-        [InverseProperty(nameof(Post.Blogs))]
+        [InverseProperty(""Blogs"")]
         public virtual ICollection<Post> Posts { get; set; }
     }
 }
@@ -2456,7 +2456,7 @@ namespace TestNamespace
         public int Id { get; set; }
 
         [ForeignKey(""PostsId"")]
-        [InverseProperty(nameof(Blog.Posts))]
+        [InverseProperty(""Posts"")]
         public virtual ICollection<Blog> Blogs { get; set; }
     }
 }
