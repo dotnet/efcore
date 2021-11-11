@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
             instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
-            var charIndexArguments = new List<SqlExpression> { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
+            var charIndexArguments = new List<SqlExpression> { searchExpression, instance };
 
             if (startIndex is not null)
             {
