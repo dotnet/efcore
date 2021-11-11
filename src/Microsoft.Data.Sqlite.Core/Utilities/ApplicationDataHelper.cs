@@ -39,7 +39,7 @@ namespace Microsoft.Data.Sqlite.Utilities
         private static string? GetFolderPath(string propertyName)
         {
             var appDataType = CurrentApplicationData?.GetType();
-            var temporaryFolder = appDataType?.GetRuntimeProperty(propertyName)!.GetValue(CurrentApplicationData);
+            var temporaryFolder = appDataType?.GetRuntimeProperty(propertyName)?.GetValue(CurrentApplicationData);
 
             return temporaryFolder?.GetType().GetRuntimeProperty("Path")!.GetValue(temporaryFolder) as string;
         }
