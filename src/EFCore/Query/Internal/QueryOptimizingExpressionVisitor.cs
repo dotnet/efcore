@@ -303,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // In VB.NET, comparison operators between strings (equality, greater-than, less-than) yield
             // calls to a VB-specific CompareString method. Normalize that to string.Compare.
             if (visited.Method.Name == "CompareString"
-                && visited.Method.DeclaringType?.Name == "Operators"
+                && (visited.Method.DeclaringType?.Name == "Operators"
+                    || visited.Method.DeclaringType?.Name == "EmbeddedOperators")
                 && visited.Method.DeclaringType?.Namespace == "Microsoft.VisualBasic.CompilerServices"
                 && visited.Object == null
                 && visited.Arguments.Count == 3
