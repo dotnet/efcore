@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _indexOfMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
 
+        private static readonly MethodInfo _indexOfMethodInfoWithStartingPosition
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string), typeof(int) });
+
         private static readonly MethodInfo _replaceMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
@@ -115,46 +118,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 if (_indexOfMethodInfo.Equals(method))
                 {
-                    var argument = arguments[0];
-                    var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument)!;
-                    argument = _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping);
+                    return TranslateIndexOf(instance, method, arguments[0], null);
+                }
 
-                    SqlExpression charIndexExpression;
-                    var storeType = stringTypeMapping.StoreType;
-                    if (string.Equals(storeType, "nvarchar(max)", StringComparison.OrdinalIgnoreCase)
-                        || string.Equals(storeType, "varchar(max)", StringComparison.OrdinalIgnoreCase))
-                    {
-                        charIndexExpression = _sqlExpressionFactory.Function(
-                            "CHARINDEX",
-                            new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            typeof(long));
-
-                        charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
-                    }
-                    else
-                    {
-                        charIndexExpression = _sqlExpressionFactory.Function(
-                            "CHARINDEX",
-                            new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            method.ReturnType);
-                    }
-
-                    charIndexExpression = _sqlExpressionFactory.Subtract(charIndexExpression, _sqlExpressionFactory.Constant(1));
-
-                    return _sqlExpressionFactory.Case(
-                        new[]
-                        {
-                            new CaseWhenClause(
-                                _sqlExpressionFactory.Equal(
-                                    argument,
-                                    _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
-                                _sqlExpressionFactory.Constant(0))
-                        },
-                        charIndexExpression);
+                if (_indexOfMethodInfoWithStartingPosition.Equals(method))
+                {
+                    return TranslateIndexOf(instance, method, arguments[0], arguments[1]);
                 }
 
                 if (_replaceMethodInfo.Equals(method))
@@ -464,6 +433,60 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     stringTypeMapping),
                 pattern);
         }
+
+        private SqlExpression TranslateIndexOf(SqlExpression instance, MethodInfo method, SqlExpression searchExpression, SqlExpression? startIndex)
+        {
+            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
+            searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
+            instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
+
+            var charIndexArguments = new List<SqlExpression> { searchExpression, instance };
+
+            if (startIndex is not null)
+            {
+                charIndexArguments.Add(_sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
+            }
+
+            var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Count);
+
+            SqlExpression charIndexExpression;
+            var storeType = stringTypeMapping.StoreType;
+            if (string.Equals(storeType, "nvarchar(max)", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(storeType, "varchar(max)", StringComparison.OrdinalIgnoreCase))
+            {
+                charIndexExpression = _sqlExpressionFactory.Function(
+                    "CHARINDEX",
+                    charIndexArguments,
+                    nullable: true,
+                    argumentsPropagateNullability,
+                    typeof(long));
+
+                charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
+            }
+            else
+            {
+                charIndexExpression = _sqlExpressionFactory.Function(
+                    "CHARINDEX",
+                    charIndexArguments,
+                    nullable: true,
+                    argumentsPropagateNullability,
+                    method.ReturnType);
+            }
+
+            charIndexExpression = _sqlExpressionFactory.Subtract(charIndexExpression, _sqlExpressionFactory.Constant(1));
+
+            return _sqlExpressionFactory.Case(
+                new[]
+                {
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Equal(
+                            searchExpression,
+                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
+                        _sqlExpressionFactory.Constant(0))
+                },
+                charIndexExpression);
+        }
+
 
         // See https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
         private bool IsLikeWildChar(char c)
