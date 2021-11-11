@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
                     foreach (var property in index.Properties)
                     {
-                        indexAttribute.AddParameter($"nameof({property.Name})");
+                        indexAttribute.AddParameter(_code.Literal(property.Name));
                     }
 
                     if (index.Name != null)
@@ -479,11 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter(
-                        !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
-                            m => m.Name == inverseNavigation.DeclaringEntityType.Name)
-                            ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
-                            : _code.Literal(inverseNavigation.Name));
+                    inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
@@ -538,16 +534,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
 
-                    if (navigation.ForeignKey.Properties.Count > 1)
-                    {
-                        foreignKeyAttribute.AddParameter(
-                            _code.Literal(
-                                string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
-                    }
-                    else
-                    {
-                        foreignKeyAttribute.AddParameter($"nameof({navigation.ForeignKey.Properties.First().Name})");
-                    }
+                    foreignKeyAttribute.AddParameter(
+                        _code.Literal(
+                            string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
 
                     _sb.AppendLine(foreignKeyAttribute.ToString());
                 }
@@ -564,11 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
-                    inversePropertyAttribute.AddParameter(
-                        !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
-                            m => m.Name == inverseNavigation.DeclaringEntityType.Name)
-                            ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
-                            : _code.Literal(inverseNavigation.Name));
+                    inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
 
                     _sb.AppendLine(inversePropertyAttribute.ToString());
                 }
