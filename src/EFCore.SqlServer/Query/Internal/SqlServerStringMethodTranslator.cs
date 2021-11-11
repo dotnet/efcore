@@ -26,9 +26,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _indexOfMethodInfoWithStartingPosition
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string), typeof(int) });
 
-        private static readonly MethodInfo _indexOfMethodInfoWithStartingPosition
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string), typeof(int) });
-
         private static readonly MethodInfo _replaceMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
