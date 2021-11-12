@@ -430,6 +430,27 @@ FROM ""People"";",
                 @"PRAGMA foreign_keys = 1;");
         }
 
+        public override async Task Alter_column_change_computed_recreates_indexes()
+        {
+            await base.Alter_column_change_computed_recreates_indexes();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" - ""Y""),
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
+SELECT ""Id"", ""X"", ""Y""
+FROM ""People"";",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;",
+                @"CREATE INDEX ""IX_People_Sum"" ON ""People"" (""Sum"");");
+        }
+
         public override async Task Alter_column_change_computed_type()
         {
             await base.Alter_column_change_computed_type();

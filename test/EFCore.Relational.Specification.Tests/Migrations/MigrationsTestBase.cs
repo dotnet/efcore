@@ -780,6 +780,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
         [ConditionalFact]
+        public virtual Task Alter_column_change_computed_recreates_indexes()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<int>("Sum");
+
+                        e.HasIndex("Sum");
+                    }),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} - {DelimitIdentifier("Y")}"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        Assert.Contains("-", sumColumn.ComputedColumnSql);
+                    }
+
+                    var sumIndex = Assert.Single(table.Indexes);
+                    Assert.Collection(sumIndex.Columns, c => Assert.Equal("Sum", c.Name));
+                });
+
+        [ConditionalFact]
         public virtual Task Alter_column_change_computed_type()
             => Test(
                 builder => builder.Entity(
