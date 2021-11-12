@@ -247,7 +247,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-WHERE ([p].[Id] <> 42) OR [p].[Id] IS NULL
+WHERE ([p].[Id] <> 42) OR ([p].[Id] IS NULL)
 ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
@@ -278,7 +278,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
     LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[ClientId] = [o1].[Id]
     LEFT JOIN [Planet] AS [p0] ON [o1].[PersonAddress_Country_PlanetId] = [p0].[Id]
     LEFT JOIN [Star] AS [s] ON [p0].[StarId] = [s].[Id]
-    WHERE ([o].[Id] = [o0].[ClientId]) AND (([s].[Id] <> 42) OR [s].[Id] IS NULL)) AS [Count], [p].[Id], [p].[StarId]
+    WHERE ([o].[Id] = [o0].[ClientId]) AND (([s].[Id] <> 42) OR ([s].[Id] IS NULL))) AS [Count], [p].[Id], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id]");
@@ -297,7 +297,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-WHERE ([p].[Id] <> 7) OR [p].[Id] IS NULL
+WHERE ([p].[Id] <> 7) OR ([p].[Id] IS NULL)
 ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
@@ -1169,7 +1169,7 @@ ORDER BY [m].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[
                 @"SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[StarId]
 FROM [Fink] AS [f]
 LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
-LEFT JOIN [Planet] AS [p] ON ([b].[Throned_Value] <> [p].[Id]) OR [b].[Throned_Value] IS NULL
+LEFT JOIN [Planet] AS [p] ON ([b].[Throned_Value] <> [p].[Id]) OR ([b].[Throned_Value] IS NULL)
 ORDER BY [f].[Id], [b].[Id]");
         }
 

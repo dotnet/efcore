@@ -1598,6 +1598,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Bool_not_equal_nullable_int_HasValue(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => true != e.NullableIntA.HasValue));
+
+            var prm = false;
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => prm != e.NullableIntA.HasValue));
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.BoolB != e.NullableIntA.HasValue));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Bool_not_equal_nullable_bool_compared_to_null(bool async)
         {
             await AssertQuery(

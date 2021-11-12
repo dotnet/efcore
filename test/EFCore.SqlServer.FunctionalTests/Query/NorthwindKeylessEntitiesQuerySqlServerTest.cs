@@ -124,7 +124,7 @@ LEFT JOIN [Customers] AS [c] ON [m].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] IS NOT NULL AND ([c].[CustomerID] = [o].[CustomerID]))");
+    WHERE ([c].[CustomerID] IS NOT NULL) AND ([c].[CustomerID] = [o].[CustomerID]))");
         }
 
         [ConditionalFact]
@@ -172,7 +172,7 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c]
-    WHERE ([c].[City] = [m].[City]) OR ([c].[City] IS NULL AND [m].[City] IS NULL))
+    WHERE ([c].[City] = [m].[City]) OR (([c].[City] IS NULL) AND ([m].[City] IS NULL)))
 ORDER BY [m].[ContactName]");
         }
 

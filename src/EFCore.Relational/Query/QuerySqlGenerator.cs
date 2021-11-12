@@ -563,7 +563,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             => expression is SqlBinaryExpression
                 || expression is LikeExpression
                 || (expression is SqlUnaryExpression unary
-                    && unary.Operand.Type == typeof(bool)
                     && (unary.OperatorType == ExpressionType.Equal
                         || unary.OperatorType == ExpressionType.NotEqual));
 
