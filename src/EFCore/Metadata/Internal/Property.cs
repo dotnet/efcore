@@ -1000,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property =>
                     property.IsShadowProperty()
                     || (property.IsIndexerProperty()
-                        && (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26590", out var enabled) || !enabled)
+                        && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26590", out var enabled) || !enabled)
                         ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
                         : ((property.PropertyInfo != null
                                     && entityType.GetRuntimeProperties().ContainsKey(property.Name))
