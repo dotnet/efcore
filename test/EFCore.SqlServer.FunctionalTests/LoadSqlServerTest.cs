@@ -1463,9 +1463,7 @@ WHERE 0 = 1");
             try
             {
                 Assert.Equal(
-                    expected,
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+                    expected, Sql, ignoreLineEndingDifferences: true);
             }
             catch
             {
@@ -1473,24 +1471,27 @@ WHERE 0 = 1");
                     new[] { Environment.NewLine },
                     StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
-                var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
-                var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
-                var lineNumber = lineIndex > 0 ? methodCallLine[lineIndex..] : "";
+                var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
+                var testName = methodCallLine.Substring(0, indexMethodEnding);
+                var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                var fileName = parts[1][..^5];
+                var lineNumber = int.Parse(parts[2]);
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
                         0,
-                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                        currentDirectory.LastIndexOf(
+                            $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
+                            StringComparison.Ordinal) + 1)
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
-
                 var newBaseLine = $@"            AssertSql(
                 {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
 
 ";
 
-                var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
+                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
                 File.AppendAllText(logFile, contents);
 
