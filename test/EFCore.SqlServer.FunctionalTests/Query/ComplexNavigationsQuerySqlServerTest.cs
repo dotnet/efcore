@@ -2006,16 +2006,13 @@ ORDER BY [t].[Id]");
 
 SELECT [l1].[Name]
 FROM (
-    SELECT TOP(@__p_0) [l].[Id], [t].[Level1_Optional_Id]
+    SELECT TOP(@__p_0) [l].[Id], [l0].[Level1_Optional_Id]
     FROM [LevelOne] AS [l]
-    LEFT JOIN (
-        SELECT [l0].[Level1_Optional_Id]
-        FROM [LevelTwo] AS [l0]
-    ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
+    LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
-) AS [t0]
-LEFT JOIN [LevelOne] AS [l1] ON [t0].[Level1_Optional_Id] = [l1].[Id]
-ORDER BY [t0].[Id]");
+) AS [t]
+LEFT JOIN [LevelOne] AS [l1] ON [t].[Level1_Optional_Id] = [l1].[Id]
+ORDER BY [t].[Id]");
         }
 
         public override async Task GroupJoin_on_left_side_being_a_subquery(bool async)

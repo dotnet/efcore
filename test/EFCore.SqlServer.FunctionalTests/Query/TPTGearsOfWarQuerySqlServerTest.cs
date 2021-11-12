@@ -2131,12 +2131,9 @@ INNER JOIN (
             await base.Join_with_order_by_without_skip_or_take(async);
 
             AssertSql(
-                @"SELECT [t].[Name], [g].[FullName]
+                @"SELECT [w].[Name], [g].[FullName]
 FROM [Gears] AS [g]
-INNER JOIN (
-    SELECT [w].[Name], [w].[OwnerFullName]
-    FROM [Weapons] AS [w]
-) AS [t] ON [g].[FullName] = [t].[OwnerFullName]");
+INNER JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]");
         }
 
         public override async Task Join_with_order_by_without_skip_or_take_nested(bool async)
@@ -2144,16 +2141,13 @@ INNER JOIN (
             await base.Join_with_order_by_without_skip_or_take_nested(async);
 
             AssertSql(
-                @"SELECT [t0].[Name], [t].[FullName]
+                @"SELECT [w].[Name], [t].[FullName]
 FROM [Squads] AS [s]
 INNER JOIN (
     SELECT [g].[SquadId], [g].[FullName]
     FROM [Gears] AS [g]
 ) AS [t] ON [s].[Id] = [t].[SquadId]
-INNER JOIN (
-    SELECT [w].[Name], [w].[OwnerFullName]
-    FROM [Weapons] AS [w]
-) AS [t0] ON [t].[FullName] = [t0].[OwnerFullName]");
+INNER JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]");
         }
 
         public override async Task Collection_with_inheritance_and_join_include_joined(bool async)
@@ -5331,17 +5325,14 @@ ORDER BY [t].[FullName], [t].[Nickname], [t].[SquadId]");
             await base.Correlated_collection_with_top_level_Last_with_order_by_on_inner(async);
 
             AssertSql(
-                @"SELECT [t].[Nickname], [t].[SquadId], [t0].[Id], [t0].[AmmunitionType], [t0].[IsAutomatic], [t0].[Name], [t0].[OwnerFullName], [t0].[SynergyWithId]
+                @"SELECT [t].[Nickname], [t].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM (
     SELECT TOP(1) [g].[Nickname], [g].[SquadId], [g].[FullName]
     FROM [Gears] AS [g]
     ORDER BY [g].[FullName] DESC
 ) AS [t]
-LEFT JOIN (
-    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-    FROM [Weapons] AS [w]
-) AS [t0] ON [t].[FullName] = [t0].[OwnerFullName]
-ORDER BY [t].[FullName] DESC, [t].[Nickname], [t].[SquadId], [t0].[Name]");
+LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
+ORDER BY [t].[FullName] DESC, [t].[Nickname], [t].[SquadId], [w].[Name]");
         }
 
         public override async Task Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(bool async)
@@ -7044,7 +7035,7 @@ LEFT JOIN (
     WHERE [t2].[row] <= 50
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
 WHERE [t0].[Discriminator] = N'Officer'
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Project_collection_navigation_nested_composite_key(bool async)
@@ -8580,7 +8571,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 10
 ) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t0].[OwnerFullName], [t0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name]");
         }
 
         public override async Task First_on_byte_array(bool async)
