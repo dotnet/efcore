@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
 
 SELECT ""b"".""Url""
 FROM ""Blog"" AS ""b""
-INNER JOIN ""Post"" AS ""p"" ON ((""b"".""BlogId"" = ""p"".""BlogId"") AND (""b"".""IsVisible"" = 'Y')) AND (""b"".""BlogId"" = @__blogId_0)
+INNER JOIN ""Post"" AS ""p"" ON ""b"".""BlogId"" = ""p"".""BlogId"" AND ""b"".""IsVisible"" = 'Y' AND ""b"".""BlogId"" = @__blogId_0
 WHERE ""b"".""IsVisible"" = 'Y'");
         }
 
@@ -45,7 +45,7 @@ WHERE ""b"".""IsVisible"" = 'Y'");
 
 SELECT ""b"".""Url""
 FROM ""Blog"" AS ""b""
-LEFT JOIN ""Post"" AS ""p"" ON ((""b"".""BlogId"" = ""p"".""BlogId"") AND (""b"".""IsVisible"" = 'Y')) AND (""b"".""BlogId"" = @__blogId_0)
+LEFT JOIN ""Post"" AS ""p"" ON ""b"".""BlogId"" = ""p"".""BlogId"" AND ""b"".""IsVisible"" = 'Y' AND ""b"".""BlogId"" = @__blogId_0
 WHERE ""b"".""IsVisible"" = 'Y'");
         }
 

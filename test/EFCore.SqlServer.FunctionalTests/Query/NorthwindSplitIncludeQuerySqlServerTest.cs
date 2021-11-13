@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE (([p].[ProductID] % 17) = 5) AND ([p].[UnitPrice] < 20.0)
+WHERE ([p].[ProductID] % 17) = 5 AND [p].[UnitPrice] < 20.0
 ORDER BY [p].[ProductID]",
                 //
                 @"SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[OrderID0], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [p].[ProductID]
@@ -40,7 +40,7 @@ INNER JOIN (
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [p].[ProductID] = [t].[ProductID]
-WHERE (([p].[ProductID] % 17) = 5) AND ([p].[UnitPrice] < 20.0)
+WHERE ([p].[ProductID] % 17) = 5 AND [p].[UnitPrice] < 20.0
 ORDER BY [p].[ProductID]");
         }
 
@@ -248,7 +248,7 @@ WHERE ([o].[OrderID] % 23) = 13");
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE (([o].[OrderID] % 23) = 13) AND ([o].[UnitPrice] < 10.0)
+WHERE ([o].[OrderID] % 23) = 13 AND [o].[UnitPrice] < 10.0
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]",
                 //
                 @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]
@@ -256,7 +256,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE (([o].[OrderID] % 23) = 13) AND ([o].[UnitPrice] < 10.0)
+WHERE ([o].[OrderID] % 23) = 13 AND [o].[UnitPrice] < 10.0
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]");
         }
 
@@ -948,7 +948,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
+    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
     ORDER BY [c].[CustomerID]
 ) AS [t]
 WHERE [c].[CustomerID] LIKE N'F%'
@@ -959,7 +959,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] <> [c].[CustomerID]) OR [o].[CustomerID] IS NULL
+    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
     ORDER BY [c].[CustomerID]
 ) AS [t]
 INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
@@ -1232,10 +1232,10 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
     FROM [Orders] AS [o0]
     WHERE [c].[CustomerID] = [o0].[CustomerID]) AS [TotalOrders]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactTitle] = N'Owner') AND ((
+WHERE [c].[ContactTitle] = N'Owner' AND (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) > 2)
+    WHERE [c].[CustomerID] = [o].[CustomerID]) > 2
 ORDER BY [c].[CustomerID]");
         }
 

@@ -248,7 +248,7 @@ WHERE FREETEXT([e].[City], N'London') AND FREETEXT([e].[Title], N'Manager', LANG
                 @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE (FREETEXT([e0].[Title], N'President') AND FREETEXT([e].[Title], N'Inside')) AND ([e].[FirstName] LIKE N'%Lau%')
+WHERE FREETEXT([e0].[Title], N'President') AND FREETEXT([e].[Title], N'Inside') AND ([e].[FirstName] LIKE N'%Lau%')
 ORDER BY [e].[EmployeeID] DESC");
         }
 
@@ -270,7 +270,7 @@ ORDER BY [e].[EmployeeID] DESC");
                 @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
-WHERE (FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Title], N'Inside', LANGUAGE 1031)) AND ([e].[FirstName] LIKE N'%Lau%')");
+WHERE FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Title], N'Inside', LANGUAGE 1031) AND ([e].[FirstName] LIKE N'%Lau%')");
         }
 
         [ConditionalFact]

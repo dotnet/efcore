@@ -2672,5 +2672,48 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private string StringMethod(string arg)
             => arg;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Contains_and_comparison(bool async)
+        {
+            var customerIds = new[] { "ALFKI", "FISSA" };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => customerIds.Contains(c.CustomerID) && c.City == "Seattle"));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Contains_or_comparison(bool async)
+        {
+            var customerIds = new[] { "ALFKI", "FISSA" };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => customerIds.Contains(c.CustomerID) || c.City == "Seattle"),
+                entryCount: 3);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Like_and_comparison(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") && c.City == "Seattle"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") && c.City == "Seattle"),
+                entryCount: 0);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Like_or_comparison(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") || c.City == "Seattle"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") || c.City == "Seattle"),
+                entryCount: 9);
+        }
     }
 }

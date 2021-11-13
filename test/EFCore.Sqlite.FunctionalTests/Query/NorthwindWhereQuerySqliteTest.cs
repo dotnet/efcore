@@ -191,7 +191,7 @@ WHERE length(""c"".""City"") = 6");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR ""c"".""City"" IS NULL");
+WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1 OR ""c"".""City"" IS NULL");
         }
 
         public override async Task Where_string_replace(bool async)

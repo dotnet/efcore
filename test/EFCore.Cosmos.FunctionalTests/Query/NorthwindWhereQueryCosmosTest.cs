@@ -2300,6 +2300,36 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             return base.Last_over_custom_projection_compared_to_not_null(async);
         }
 
+        public override async Task Where_Contains_and_comparison(bool async)
+        {
+            await base.Where_Contains_and_comparison(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"", ""FISSA"") AND (c[""City""] = ""Seattle"")))");
+        }
+
+        public override async Task Where_Contains_or_comparison(bool async)
+        {
+            await base.Where_Contains_or_comparison(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"", ""FISSA"") OR (c[""City""] = ""Seattle"")))");
+        }
+
+        public override Task Where_Like_and_comparison(bool async)
+        {
+            return AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
+        }
+
+        public override Task Where_Like_or_comparison(bool async)
+        {
+            return AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -804,19 +804,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case SqlBinaryExpression sqlBinaryExpression:
                 {
-                    //if (outerExpression is SqlBinaryExpression outerBinary)
-                    //{
-                    //    if (outerBinary.OperatorType == ExpressionType.AndAlso)
-                    //    {
-                    //        return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
-                    //    }
+                    if (outerExpression is SqlBinaryExpression outerBinary)
+                    {
+                        // Math, bitwise, comparison and equality operators have higher precedence
+                        if (outerBinary.OperatorType == ExpressionType.AndAlso)
+                        {
+                            return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
+                        }
 
-                    //    if (outerBinary.OperatorType == ExpressionType.OrElse)
-                    //    {
-                    //        // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
-                    //        return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
-                    //    }
-                    //}
+                        if (outerBinary.OperatorType == ExpressionType.OrElse)
+                        {
+                            // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
+                            return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
+                        }
+                    }
 
                     return true;
                 }

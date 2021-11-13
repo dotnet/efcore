@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 SELECT [f].[Id], [f].[IsEnabled]
 FROM [FieldFilter] AS [f]
-WHERE ([f].[IsEnabled] = @__ef_filter__Field_0) AND ([f].[IsEnabled] = @__Field_0)");
+WHERE [f].[IsEnabled] = @__ef_filter__Field_0 AND [f].[IsEnabled] = @__Field_0");
         }
 
         public override void DbContext_field_is_parameterized()
@@ -167,21 +167,21 @@ WHERE [m].[Tenant] = @__ef_filter__p_0");
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))",
+WHERE [c].[IsEnabled] = @__ef_filter__Property_0 AND @__ef_filter__p_1 = CAST(1 AS bit)",
                 //
                 @"@__ef_filter__Property_0='True'
 @__ef_filter__p_1='True'
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))",
+WHERE [c].[IsEnabled] = @__ef_filter__Property_0 AND @__ef_filter__p_1 = CAST(1 AS bit)",
                 //
                 @"@__ef_filter__Property_0='True'
 @__ef_filter__p_1='False'
 
 SELECT [c].[Id], [c].[IsEnabled]
 FROM [ComplexFilter] AS [c]
-WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST(1 AS bit))");
+WHERE [c].[IsEnabled] = @__ef_filter__Property_0 AND @__ef_filter__p_1 = CAST(1 AS bit)");
         }
 
         public override void DbContext_property_based_filter_does_not_short_circuit()
@@ -194,20 +194,20 @@ WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_0 = CAST(1 AS bit) OR @__ef_filter__IsModerated_1 = [s].[IsModerated])",
                 //
                 @"@__ef_filter__p_0='False'
 @__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND (@__ef_filter__p_0 = CAST(1 AS bit) OR @__ef_filter__IsModerated_1 = [s].[IsModerated])",
                 //
                 @"@__ef_filter__p_0='True'
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND (@__ef_filter__p_0 = CAST(1 AS bit))");
+WHERE [s].[IsDeleted] = CAST(0 AS bit) AND @__ef_filter__p_0 = CAST(1 AS bit)");
         }
 
         public override void EntityTypeConfiguration_DbContext_field_is_parameterized()
@@ -375,7 +375,7 @@ WHERE EXISTS (
     WHERE EXISTS (
         SELECT 1
         FROM [MultiContextFilter] AS [m]
-        WHERE (([m].[IsEnabled] = @__ef_filter__Property_0) AND ([m].[BossId] = 1)) AND ([m].[BossId] = [d].[PrincipalSetFilterId])) AND ([d].[PrincipalSetFilterId] = [p].[Id]))");
+        WHERE [m].[IsEnabled] = @__ef_filter__Property_0 AND [m].[BossId] = 1 AND [m].[BossId] = [d].[PrincipalSetFilterId]) AND [d].[PrincipalSetFilterId] = [p].[Id])");
         }
 
         public override void Using_Context_set_method_in_filter_works()
@@ -390,7 +390,7 @@ FROM [Dependents] AS [d]
 WHERE EXISTS (
     SELECT 1
     FROM [MultiContextFilter] AS [m]
-    WHERE (([m].[IsEnabled] = @__ef_filter__Property_0) AND ([m].[BossId] = 1)) AND ([m].[BossId] = [d].[PrincipalSetFilterId]))");
+    WHERE [m].[IsEnabled] = @__ef_filter__Property_0 AND [m].[BossId] = 1 AND [m].[BossId] = [d].[PrincipalSetFilterId])");
         }
 
         public override void Static_member_from_dbContext_is_inlined()
@@ -442,13 +442,13 @@ WHERE [p].[Tenant] = 0");
 
 SELECT [m].[Id], [m].[BossId], [m].[IsEnabled]
 FROM [MultiContextFilter] AS [m]
-WHERE ([m].[IsEnabled] = @__ef_filter__Property_0) AND ([m].[BossId] = 1)",
+WHERE [m].[IsEnabled] = @__ef_filter__Property_0 AND [m].[BossId] = 1",
                 //
                 @"@__ef_filter__Property_0='True'
 
 SELECT [m].[Id], [m].[BossId], [m].[IsEnabled]
 FROM [MultiContextFilter] AS [m]
-WHERE ([m].[IsEnabled] = @__ef_filter__Property_0) AND ([m].[BossId] = 1)");
+WHERE [m].[IsEnabled] = @__ef_filter__Property_0 AND [m].[BossId] = 1");
         }
 
         private void AssertSql(params string[] expected)

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR ([d].[DateTime] = GETDATE())) OR ([d].[SmallDateTime] = GETDATE())");
+WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[DateTime] = GETDATE() OR [d].[SmallDateTime] = GETDATE()");
         }
 
         [ConditionalTheory]
@@ -100,7 +100,7 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
             AssertSql(
                 @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) AND ([d].[DateTime] <> GETDATE())) AND ([d].[SmallDateTime] <> GETDATE())");
+WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].[DateTime] <> GETDATE() AND [d].[SmallDateTime] <> GETDATE()");
         }
 
         [ConditionalTheory]
@@ -133,7 +133,7 @@ WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) A
             AssertSql(
                 @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime] = '1971-09-03T12:00:10.220')) AND ([d].[DateTime2] = '1972-09-03T12:00:10.3330000')) AND ([d].[DateTime2_0] = '1973-09-03T12:00:10')) AND ([d].[DateTime2_1] = '1974-09-03T12:00:10.5')) AND ([d].[DateTime2_2] = '1975-09-03T12:00:10.66')) AND ([d].[DateTime2_3] = '1976-09-03T12:00:10.777')) AND ([d].[DateTime2_4] = '1977-09-03T12:00:10.8880')) AND ([d].[DateTime2_5] = '1978-09-03T12:00:10.99900')) AND ([d].[DateTime2_6] = '1979-09-03T12:00:10.111000')) AND ([d].[DateTime2_7] = '1980-09-03T12:00:10.2220000')");
+WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-03T12:00:10.220' AND [d].[DateTime2] = '1972-09-03T12:00:10.3330000' AND [d].[DateTime2_0] = '1973-09-03T12:00:10' AND [d].[DateTime2_1] = '1974-09-03T12:00:10.5' AND [d].[DateTime2_2] = '1975-09-03T12:00:10.66' AND [d].[DateTime2_3] = '1976-09-03T12:00:10.777' AND [d].[DateTime2_4] = '1977-09-03T12:00:10.8880' AND [d].[DateTime2_5] = '1978-09-03T12:00:10.99900' AND [d].[DateTime2_6] = '1979-09-03T12:00:10.111000' AND [d].[DateTime2_7] = '1980-09-03T12:00:10.2220000'");
         }
 
         [ConditionalTheory]
@@ -181,7 +181,7 @@ WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime]
             AssertSql(
                 @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE ((((((((([d].[SmallDateTime] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10') AND [d].[DateTime] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')) AND [d].[DateTime2_0] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10')) AND [d].[DateTime2_1] IN ('1970-09-03T12:00:00.0', '1971-09-03T12:00:10.2', '1972-09-03T12:00:10.3', '1973-09-03T12:00:10.0', '1974-09-03T12:00:10.5', '1975-09-03T12:00:10.6', '1976-09-03T12:00:10.7', '1977-09-03T12:00:10.8', '1978-09-03T12:00:10.9', '1979-09-03T12:00:10.1', '1980-09-03T12:00:10.2')) AND [d].[DateTime2_2] IN ('1970-09-03T12:00:00.00', '1971-09-03T12:00:10.22', '1972-09-03T12:00:10.33', '1973-09-03T12:00:10.00', '1974-09-03T12:00:10.50', '1975-09-03T12:00:10.66', '1976-09-03T12:00:10.77', '1977-09-03T12:00:10.88', '1978-09-03T12:00:10.99', '1979-09-03T12:00:10.11', '1980-09-03T12:00:10.22')) AND [d].[DateTime2_3] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2_4] IN ('1970-09-03T12:00:00.0000', '1971-09-03T12:00:10.2200', '1972-09-03T12:00:10.3330', '1973-09-03T12:00:10.0000', '1974-09-03T12:00:10.5000', '1975-09-03T12:00:10.6600', '1976-09-03T12:00:10.7770', '1977-09-03T12:00:10.8880', '1978-09-03T12:00:10.9990', '1979-09-03T12:00:10.1110', '1980-09-03T12:00:10.2220')) AND [d].[DateTime2_5] IN ('1970-09-03T12:00:00.00000', '1971-09-03T12:00:10.22000', '1972-09-03T12:00:10.33300', '1973-09-03T12:00:10.00000', '1974-09-03T12:00:10.50000', '1975-09-03T12:00:10.66000', '1976-09-03T12:00:10.77700', '1977-09-03T12:00:10.88800', '1978-09-03T12:00:10.99900', '1979-09-03T12:00:10.11100', '1980-09-03T12:00:10.22200')) AND [d].[DateTime2_6] IN ('1970-09-03T12:00:00.000000', '1971-09-03T12:00:10.220000', '1972-09-03T12:00:10.333000', '1973-09-03T12:00:10.000000', '1974-09-03T12:00:10.500000', '1975-09-03T12:00:10.660000', '1976-09-03T12:00:10.777000', '1977-09-03T12:00:10.888000', '1978-09-03T12:00:10.999000', '1979-09-03T12:00:10.111000', '1980-09-03T12:00:10.222000')) AND [d].[DateTime2_7] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')");
+WHERE [d].[SmallDateTime] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10') AND [d].[DateTime] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222') AND [d].[DateTime2] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000') AND [d].[DateTime2_0] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10') AND [d].[DateTime2_1] IN ('1970-09-03T12:00:00.0', '1971-09-03T12:00:10.2', '1972-09-03T12:00:10.3', '1973-09-03T12:00:10.0', '1974-09-03T12:00:10.5', '1975-09-03T12:00:10.6', '1976-09-03T12:00:10.7', '1977-09-03T12:00:10.8', '1978-09-03T12:00:10.9', '1979-09-03T12:00:10.1', '1980-09-03T12:00:10.2') AND [d].[DateTime2_2] IN ('1970-09-03T12:00:00.00', '1971-09-03T12:00:10.22', '1972-09-03T12:00:10.33', '1973-09-03T12:00:10.00', '1974-09-03T12:00:10.50', '1975-09-03T12:00:10.66', '1976-09-03T12:00:10.77', '1977-09-03T12:00:10.88', '1978-09-03T12:00:10.99', '1979-09-03T12:00:10.11', '1980-09-03T12:00:10.22') AND [d].[DateTime2_3] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222') AND [d].[DateTime2_4] IN ('1970-09-03T12:00:00.0000', '1971-09-03T12:00:10.2200', '1972-09-03T12:00:10.3330', '1973-09-03T12:00:10.0000', '1974-09-03T12:00:10.5000', '1975-09-03T12:00:10.6600', '1976-09-03T12:00:10.7770', '1977-09-03T12:00:10.8880', '1978-09-03T12:00:10.9990', '1979-09-03T12:00:10.1110', '1980-09-03T12:00:10.2220') AND [d].[DateTime2_5] IN ('1970-09-03T12:00:00.00000', '1971-09-03T12:00:10.22000', '1972-09-03T12:00:10.33300', '1973-09-03T12:00:10.00000', '1974-09-03T12:00:10.50000', '1975-09-03T12:00:10.66000', '1976-09-03T12:00:10.77700', '1977-09-03T12:00:10.88800', '1978-09-03T12:00:10.99900', '1979-09-03T12:00:10.11100', '1980-09-03T12:00:10.22200') AND [d].[DateTime2_6] IN ('1970-09-03T12:00:00.000000', '1971-09-03T12:00:10.220000', '1972-09-03T12:00:10.333000', '1973-09-03T12:00:10.000000', '1974-09-03T12:00:10.500000', '1975-09-03T12:00:10.660000', '1976-09-03T12:00:10.777000', '1977-09-03T12:00:10.888000', '1978-09-03T12:00:10.999000', '1979-09-03T12:00:10.111000', '1980-09-03T12:00:10.222000') AND [d].[DateTime2_7] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')");
         }
 
         protected class DateTimeContext : DbContext
@@ -550,7 +550,7 @@ INSERT ZeroKey VALUES (NULL)");
             AssertSql(
                 @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
-LEFT JOIN [Order] AS [o] ON ([c].[FirstName] = [o].[CustomerFirstName]) AND ([c].[LastName] = [o].[CustomerLastName])
+LEFT JOIN [Order] AS [o] ON [c].[FirstName] = [o].[CustomerFirstName] AND [c].[LastName] = [o].[CustomerLastName]
 ORDER BY [c].[FirstName], [c].[LastName]");
         }
 
@@ -573,7 +573,7 @@ ORDER BY [c].[FirstName], [c].[LastName]");
             AssertSql(
                 @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])");
+LEFT JOIN [Customer] AS [c] ON [o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName]");
         }
 
         private class MyContext925 : DbContext
@@ -1961,7 +1961,7 @@ FROM [Entities] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND ([e0].[Id] = [e].[Id]))",
+    WHERE [e0].[Id] = @__id_0 AND [e0].[Id] = [e].[Id])",
                     //
                     @"@__id_0='2'
 
@@ -1970,7 +1970,7 @@ FROM [Entities] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND ([e0].[Id] = [e].[Id]))");
+    WHERE [e0].[Id] = @__id_0 AND [e0].[Id] = [e].[Id])");
             }
         }
 
@@ -2989,7 +2989,7 @@ FROM [Factions] AS [f]
 WHERE EXISTS (
     SELECT 1
     FROM [Leaders] AS [l]
-    WHERE ([l].[Name] IS NOT NULL AND ([l].[Name] LIKE N'Bran%')) AND ([l].[Name] = N'Crach an Craite'))");
+    WHERE [l].[Name] IS NOT NULL AND ([l].[Name] LIKE N'Bran%') AND [l].[Name] = N'Crach an Craite')");
             }
         }
 
@@ -4736,7 +4736,7 @@ FROM [Posts] AS [p]");
 FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL)");
+    FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)");
             }
 
             using (var context = contextFactory.CreateContext())
@@ -4753,7 +4753,7 @@ WHERE EXISTS (
     FROM [EntitiesWithQueryFilterSelfReference] AS [e0]
     WHERE EXISTS (
         SELECT 1
-        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL)");
+        FROM [EntitiesWithQueryFilterSelfReference] AS [e1])) AND ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL)");
             }
         }
 
@@ -5351,10 +5351,10 @@ OUTER APPLY (
     WHERE EXISTS (
         SELECT 1
         FROM [Values] AS [v]
-        WHERE [e].[Id] = [v].[Entity11023Id]) AND (((
+        WHERE [e].[Id] = [v].[Entity11023Id]) AND ((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
-        WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR ((
+        WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id] OR ((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
@@ -5600,17 +5600,17 @@ CROSS JOIN (
                     @"SELECT (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE ([c].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c].[EndDate])), [a].[Id], [a0].[Id], [t].[Id], [t].[ActivityTypeId], [t].[CompetitionSeasonId], [t].[Points], [t].[Id0]
+    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]), [a].[Id], [a0].[Id], [t].[Id], [t].[ActivityTypeId], [t].[CompetitionSeasonId], [t].[Points], [t].[Id0]
 FROM [Activities] AS [a]
 INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]
 OUTER APPLY (
     SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points], [c0].[Id] AS [Id0]
     FROM [ActivityTypePoints12456] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([c0].[Id] = (
+    WHERE [c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
+        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate]) AND [a0].[Id] = [a1].[ActivityTypeId]
 ) AS [t]
 ORDER BY [a].[Id], [a0].[Id], [t].[Id]");
             }
@@ -5641,14 +5641,14 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id]");
                     @"SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE ([c].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a].[Points], (
+    WHERE [c].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c].[EndDate]) AS [CompetitionSeasonId], COALESCE([a].[Points], (
     SELECT TOP(1) [a1].[Points]
     FROM [ActivityTypePoints12456] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([a0].[Id] = [a1].[ActivityTypeId]) AND ([c0].[Id] = (
+    WHERE [a0].[Id] = [a1].[ActivityTypeId] AND [c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])))), 0) AS [Points]
+        WHERE [c1].[StartDate] <= [a].[DateTime] AND [a].[DateTime] < [c1].[EndDate])), 0) AS [Points]
 FROM [Activities] AS [a]
 INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]");
             }
@@ -5753,7 +5753,7 @@ LEFT JOIN (
         WHEN COALESCE((
             SELECT MAX([d2].[GameNumber])
             FROM [DbGame] AS [d2]
-            WHERE [d1].[Id] IS NOT NULL AND ([d1].[Id] = [d2].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
+            WHERE [d1].[Id] IS NOT NULL AND [d1].[Id] = [d2].[SeasonId]), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [IsPastTradeDeadline], [d].[DbTradeId]
     FROM [DbTradeAsset] AS [d]
@@ -5941,7 +5941,7 @@ FROM [Offers] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [OfferActions] AS [o0]
-    WHERE ([o].[Id] = [o0].[OfferId]) AND ([o0].[Action] = @__action_0))");
+    WHERE [o].[Id] = [o0].[OfferId] AND [o0].[Action] = @__action_0)");
             }
         }
 
@@ -6250,7 +6250,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Customers] AS [c0]
     LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
-    WHERE [c1].[Id] IS NOT NULL AND ([c0].[Id] = [c].[CustomerId])) > 0");
+    WHERE [c1].[Id] IS NOT NULL AND [c0].[Id] = [c].[CustomerId]) > 0");
             }
 
             using (var context = contextFactory.CreateContext())
@@ -7106,12 +7106,12 @@ FROM [Businesses] AS [b]");
     WHEN EXISTS (
         SELECT 1
         FROM [CoverIllustrations] AS [c]
-        WHERE ([b0].[Id] = [c].[CoverId]) AND ([c].[State] >= 2)) THEN CAST(1 AS bit)
+        WHERE [b0].[Id] = [c].[CoverId] AND [c].[State] >= 2) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, (
     SELECT TOP(1) [c0].[Uri]
     FROM [CoverIllustrations] AS [c0]
-    WHERE ([b0].[Id] = [c0].[CoverId]) AND ([c0].[State] >= 2))
+    WHERE [b0].[Id] = [c0].[CoverId] AND [c0].[State] >= 2)
 FROM [Books] AS [b]
 INNER JOIN [BookCovers] AS [b0] ON [b].[FrontCoverId] = [b0].[Id]
 WHERE [b].[Id] = 1");
@@ -7314,13 +7314,13 @@ CROSS JOIN (
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef_filter__p_0)",
+WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0",
                     //
                     @"@__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
 FROM [Entities] AS [e]
-WHERE (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL) AND ([e].[TenantId] = @__ef_filter__p_0)");
+WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0");
             }
         }
 
@@ -7898,7 +7898,7 @@ SELECT [e].[Id], [e].[AnotherAutoId], [e].[AutoId]
 FROM [EqualAutos] AS [e]
 LEFT JOIN [Autos] AS [a] ON [e].[AutoId] = [a].[Id]
 LEFT JOIN [Autos] AS [a0] ON [e].[AnotherAutoId] = [a0].[Id]
-WHERE (([a].[Id] = @__entity_equality_a_0_Id) AND ([a0].[Id] = @__entity_equality_b_1_Id)) OR (([a].[Id] = @__entity_equality_b_1_Id) AND ([a0].[Id] = @__entity_equality_a_0_Id))");
+WHERE ([a].[Id] = @__entity_equality_a_0_Id AND [a0].[Id] = @__entity_equality_b_1_Id) OR ([a].[Id] = @__entity_equality_b_1_Id AND [a0].[Id] = @__entity_equality_a_0_Id)");
             }
         }
 
@@ -9449,12 +9449,12 @@ OUTER APPLY (
     SELECT [m0].[Id], [m0].[Budget], [m0].[Description], [m0].[DurationInMins], [m0].[Name], [m0].[PosterUrl], [m0].[Rating], [m0].[ReleaseDate], [m0].[Revenue]
     FROM [MovieActorEntity] AS [m]
     INNER JOIN [MovieEntity] AS [m0] ON [m].[MovieId] = [m0].[Id]
-    WHERE [t].[Id0] IS NOT NULL AND ([t].[Id0] = [m].[ActorId])
+    WHERE [t].[Id0] IS NOT NULL AND [t].[Id0] = [m].[ActorId]
     UNION
     SELECT [m2].[Id], [m2].[Budget], [m2].[Description], [m2].[DurationInMins], [m2].[Name], [m2].[PosterUrl], [m2].[Rating], [m2].[ReleaseDate], [m2].[Revenue]
     FROM [MovieDirectorEntity] AS [m1]
     INNER JOIN [MovieEntity] AS [m2] ON [m1].[MovieId] = [m2].[Id]
-    WHERE [t].[Id1] IS NOT NULL AND ([t].[Id1] = [m1].[DirectorId])
+    WHERE [t].[Id1] IS NOT NULL AND [t].[Id1] = [m1].[DirectorId]
 ) AS [t0]
 ORDER BY [t].[Id], [t].[Id0], [t].[Id1], [p0].[Id]");
         }
@@ -9588,7 +9588,7 @@ FROM (
         SELECT COUNT(*)
         FROM [Cars] AS [c]
         INNER JOIN [Taxis] AS [t0] ON [c].[Id] = [t0].[CarId]
-        WHERE ([u].[Id] = [c].[EUserId]) AND (([t0].[ReportText] <> N'') OR [t0].[ReportText] IS NULL)) AS [c], [u].[Id]
+        WHERE [u].[Id] = [c].[EUserId] AND ([t0].[ReportText] <> N'' OR [t0].[ReportText] IS NULL)) AS [c], [u].[Id]
     FROM [Users] AS [u]
 ) AS [t]
 OUTER APPLY (
@@ -9720,7 +9720,7 @@ SELECT [t].[Id], [t0].[Id], [t0].[Image], [t0].[Id0], [t0].[Id00]
 FROM (
     SELECT TOP(2) [o].[Id]
     FROM [Orders] AS [o]
-    WHERE ([o].[ExternalReferenceId] = @__referenceId_0) AND ([o].[CustomerId] = @__customerId_1)
+    WHERE [o].[ExternalReferenceId] = @__referenceId_0 AND [o].[CustomerId] = @__customerId_1
 ) AS [t]
 OUTER APPLY (
     SELECT [i].[Id], [t1].[Image], [t1].[Id] AS [Id0], [t1].[Id0] AS [Id00]

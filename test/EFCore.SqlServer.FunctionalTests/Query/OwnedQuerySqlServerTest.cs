@@ -33,7 +33,7 @@ CROSS JOIN (
 LEFT JOIN (
     SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail]
     FROM [Order] AS [o1]
-    LEFT JOIN [OrderDetail] AS [o2] ON ([o1].[ClientId] = [o2].[OrderClientId]) AND ([o1].[Id] = [o2].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
 ) AS [t0] ON [o].[Id] = [t0].[ClientId]
 WHERE 0 = 1
 ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
@@ -50,7 +50,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
@@ -74,7 +74,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -90,7 +90,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -106,7 +106,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -131,7 +131,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t1] ON [t0].[Id] = [t1].[ClientId]
 ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[OrderId]");
         }
@@ -156,7 +156,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -172,7 +172,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail]
     FROM [Order] AS [o1]
-    LEFT JOIN [OrderDetail] AS [o2] ON ([o1].[ClientId] = [o2].[OrderClientId]) AND ([o1].[Id] = [o2].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE (
     SELECT COUNT(*)
@@ -220,7 +220,7 @@ FROM [OwnedPerson] AS [o]");
                 @"SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId]");
         }
 
@@ -245,9 +245,9 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-WHERE ([p].[Id] <> 42) OR [p].[Id] IS NULL
+WHERE [p].[Id] <> 42 OR [p].[Id] IS NULL
 ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
@@ -262,7 +262,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
@@ -278,7 +278,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
     LEFT JOIN [OwnedPerson] AS [o1] ON [o0].[ClientId] = [o1].[Id]
     LEFT JOIN [Planet] AS [p0] ON [o1].[PersonAddress_Country_PlanetId] = [p0].[Id]
     LEFT JOIN [Star] AS [s] ON [p0].[StarId] = [s].[Id]
-    WHERE ([o].[Id] = [o0].[ClientId]) AND (([s].[Id] <> 42) OR [s].[Id] IS NULL)) AS [Count], [p].[Id], [p].[StarId]
+    WHERE [o].[Id] = [o0].[ClientId] AND ([s].[Id] <> 42 OR [s].[Id] IS NULL)) AS [Count], [p].[Id], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id]");
@@ -295,9 +295,9 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-WHERE ([p].[Id] <> 7) OR [p].[Id] IS NULL
+WHERE [p].[Id] <> 7 OR [p].[Id] IS NULL
 ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
@@ -397,7 +397,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -424,7 +424,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -439,7 +439,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Id] = 1
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -462,7 +462,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -483,7 +483,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -506,7 +506,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -528,7 +528,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -549,7 +549,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -572,7 +572,7 @@ FROM (
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
 ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
@@ -585,11 +585,11 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
+LEFT JOIN [OrderDetail] AS [o2] ON [o0].[ClientId] = [o2].[OrderClientId] AND [o0].[Id] = [o2].[OrderId]
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
-    WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
+    WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
@@ -601,11 +601,11 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
+LEFT JOIN [OrderDetail] AS [o2] ON [o0].[ClientId] = [o2].[OrderClientId] AND [o0].[Id] = [o2].[OrderId]
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
-    WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
+    WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
@@ -617,11 +617,11 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
+LEFT JOIN [OrderDetail] AS [o2] ON [o0].[ClientId] = [o2].[OrderClientId] AND [o0].[Id] = [o2].[OrderId]
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
-    WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
+    WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
@@ -633,11 +633,11 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
+LEFT JOIN [OrderDetail] AS [o2] ON [o0].[ClientId] = [o2].[OrderClientId] AND [o0].[Id] = [o2].[OrderId]
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
-    WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
+    WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
@@ -649,11 +649,11 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
+LEFT JOIN [OrderDetail] AS [o2] ON [o0].[ClientId] = [o2].[OrderClientId] AND [o0].[Id] = [o2].[OrderId]
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
-    WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
+    WHERE [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]) = 0
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
@@ -667,7 +667,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -739,7 +739,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
@@ -865,7 +865,7 @@ FROM [OwnedPerson] AS [o]
 WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o0]
-    WHERE ([o].[Id] = [o0].[ClientId]) AND (DATEPART(year, [o0].[OrderDate]) = 2018)) = 1");
+    WHERE [o].[Id] = [o0].[ClientId] AND DATEPART(year, [o0].[OrderDate]) = 2018) = 1");
         }
 
         public override async Task Query_for_base_type_loads_all_owned_navs_split(bool async)
@@ -885,7 +885,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]",
                 @"SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -908,7 +908,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]",
                 @"SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
@@ -953,7 +953,7 @@ FROM (
     ORDER BY [t].[Id]
 ) AS [t0]
 INNER JOIN [Order] AS [o0] ON [t0].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -977,7 +977,7 @@ ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]",
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
@@ -1017,7 +1017,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]",
                 @"SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
@@ -1041,7 +1041,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]",
                 @"SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 WHERE [o].[Id] = 1
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
@@ -1065,7 +1065,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]",
                 @"SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
@@ -1095,7 +1095,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
@@ -1156,7 +1156,7 @@ END
 LEFT JOIN (
     SELECT [o7].[ClientId], [o7].[Id], [o7].[OrderDate], [o8].[OrderClientId], [o8].[OrderId], [o8].[Id] AS [Id0], [o8].[Detail]
     FROM [Order] AS [o7]
-    LEFT JOIN [OrderDetail] AS [o8] ON ([o7].[ClientId] = [o8].[OrderClientId]) AND ([o7].[Id] = [o8].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o8] ON [o7].[ClientId] = [o8].[OrderClientId] AND [o7].[Id] = [o8].[OrderId]
 ) AS [t6] ON [m].[Id] = [t6].[ClientId]
 ORDER BY [m].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[Id0], [t4].[Id], [t4].[Id0], [t6].[ClientId], [t6].[Id], [t6].[OrderClientId], [t6].[OrderId]");
         }
@@ -1169,7 +1169,7 @@ ORDER BY [m].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[
                 @"SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[StarId]
 FROM [Fink] AS [f]
 LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
-LEFT JOIN [Planet] AS [p] ON ([b].[Throned_Value] <> [p].[Id]) OR [b].[Throned_Value] IS NULL
+LEFT JOIN [Planet] AS [p] ON [b].[Throned_Value] <> [p].[Id] OR [b].[Throned_Value] IS NULL
 ORDER BY [f].[Id], [b].[Id]");
         }
 
@@ -1183,7 +1183,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
@@ -1199,7 +1199,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail]
     FROM [Order] AS [o0]
-    LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
+    LEFT JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
 ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");

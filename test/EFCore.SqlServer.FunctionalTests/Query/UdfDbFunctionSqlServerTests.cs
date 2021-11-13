@@ -258,7 +258,7 @@ ORDER BY [c].[Id]");
             AssertSql(
                 @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
-WHERE (([dbo].[StringLength]([c].[FirstName]) <> [dbo].[StringLength]([c].[LastName])) OR ([c].[FirstName] IS NULL OR [c].[LastName] IS NULL)) AND ([c].[FirstName] IS NOT NULL OR [c].[LastName] IS NOT NULL)
+WHERE ([dbo].[StringLength]([c].[FirstName]) <> [dbo].[StringLength]([c].[LastName]) OR [c].[FirstName] IS NULL OR [c].[LastName] IS NULL) AND ([c].[FirstName] IS NOT NULL OR [c].[LastName] IS NOT NULL)
 ORDER BY [c].[Id]");
         }
 
@@ -804,7 +804,7 @@ ORDER BY [g].[Year]");
                 @"SELECT [g].[Count], [g].[CustomerId], [g].[Year]
 FROM [Addresses] AS [a]
 CROSS APPLY [dbo].[GetCustomerOrderCountByYearOnlyFrom2000](1, CASE
-    WHEN (([a].[City] = [a].[State]) AND ([a].[City] IS NOT NULL AND [a].[State] IS NOT NULL)) OR ([a].[City] IS NULL AND [a].[State] IS NULL) THEN CAST(1 AS bit)
+    WHEN ([a].[City] = [a].[State] AND [a].[City] IS NOT NULL AND [a].[State] IS NOT NULL) OR ([a].[City] IS NULL AND [a].[State] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END) AS [g]
 ORDER BY [a].[Id], [g].[Year]");

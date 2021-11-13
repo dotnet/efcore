@@ -125,7 +125,7 @@ FROM [Animals] AS [a]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1)");
+WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1");
         }
 
         public override async Task Can_use_is_kiwi_in_projection(bool async)
@@ -307,7 +307,7 @@ ORDER BY [c].[Name], [c].[Id]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[FoundOn] = CAST(0 AS tinyint))");
+WHERE [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(0 AS tinyint)");
         }
 
         public override async Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)
@@ -317,7 +317,7 @@ WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[FoundOn] = CAST(0 AS tinyint))")
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[FoundOn] = CAST(1 AS tinyint))");
+WHERE [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(1 AS tinyint)");
         }
 
         public override async Task Discriminator_used_when_projection_over_derived_type(bool async)
@@ -372,7 +372,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')",
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
                 //
                 @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 @p0='Aquila chrysaetos canadensis' (Size = 100)
@@ -384,7 +384,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')",
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
                 //
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
@@ -395,7 +395,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT COUNT(*)
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')");
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')");
         }
 
         public override async Task Byte_enum_value_constant_used_in_projection(bool async)

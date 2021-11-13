@@ -112,7 +112,7 @@ ORDER BY [a].[Species]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'");
         }
 
         public override async Task Can_use_is_kiwi_with_cast(bool async)
@@ -135,7 +135,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND (([a].[Discriminator] = N'Kiwi') AND ([a].[CountryId] = 1))");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1");
         }
 
         public override async Task Can_use_is_kiwi_in_projection(bool async)
@@ -169,7 +169,7 @@ ORDER BY [a].[Species]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[CountryId] = 1)) AND [a].[Discriminator] IN (N'Eagle', N'Kiwi')
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[CountryId] = 1 AND [a].[Discriminator] IN (N'Eagle', N'Kiwi')
 ORDER BY [a].[Species]");
         }
 
@@ -201,7 +201,7 @@ ORDER BY [a].[Species]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'");
         }
 
         public override async Task Can_use_of_type_rose(bool async)
@@ -211,7 +211,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Ki
             AssertSql(
                 @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plants] AS [p]
-WHERE [p].[Genus] IN (1, 0) AND ([p].[Genus] = 0)");
+WHERE [p].[Genus] IN (1, 0) AND [p].[Genus] = 0");
         }
 
         public override async Task Can_query_all_animals(bool async)
@@ -255,7 +255,7 @@ ORDER BY [p].[Species]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Name] = N'Great spotted kiwi')
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Name] = N'Great spotted kiwi'
 ORDER BY [a].[Species]");
         }
 
@@ -332,7 +332,7 @@ ORDER BY [c].[Name], [c].[Id]");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')) AND ([a].[FoundOn] = CAST(0 AS tinyint))");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(0 AS tinyint)");
         }
 
         public override async Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)
@@ -342,7 +342,7 @@ WHERE ([a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'K
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')) AND ([a].[FoundOn] = CAST(1 AS tinyint))");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(1 AS tinyint)");
         }
 
         public override async Task Discriminator_used_when_projection_over_derived_type(bool async)
@@ -372,7 +372,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')");
             AssertSql(
                 @"SELECT [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')");
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'");
         }
 
         public override void Can_insert_update_delete()
@@ -398,7 +398,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')",
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
                 //
                 @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 @p0='Aquila chrysaetos canadensis' (Size = 100)
@@ -410,7 +410,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')",
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')",
                 //
                 @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
@@ -421,7 +421,7 @@ SELECT @@ROWCOUNT;",
                 //
                 @"SELECT COUNT(*)
 FROM [Animals] AS [a]
-WHERE ([a].[Discriminator] = N'Kiwi') AND ([a].[Species] LIKE N'%owenii')");
+WHERE [a].[Discriminator] = N'Kiwi' AND ([a].[Species] LIKE N'%owenii')");
         }
 
         public override async Task Byte_enum_value_constant_used_in_projection(bool async)
@@ -546,10 +546,10 @@ WHERE [a].[Discriminator] = N'Eagle'");
             AssertSql(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ((
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND (
     SELECT TOP(1) [a0].[Discriminator]
     FROM [Animals] AS [a0]
-    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a0].[Name] = N'Great spotted kiwi')) = N'Kiwi')
+    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a0].[Name] = N'Great spotted kiwi') = N'Kiwi'
 ORDER BY [a].[Species]");
         }
 

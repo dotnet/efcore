@@ -200,7 +200,7 @@ WHERE [t].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[CustomerID] = [o].[CustomerID])
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID] AND [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
@@ -373,7 +373,7 @@ WHERE [o].[CustomerID] = N'ALFKI'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ANATR')
+WHERE [o].[CustomerID] = N'ALFKI' OR [c].[CustomerID] = N'ANATR'
 ORDER BY [c].[City]");
         }
 
@@ -728,7 +728,7 @@ FROM (
 ) AS [t]
 OUTER APPLY (
     SELECT CASE
-        WHEN ([t1].[CustomerID] = [c0].[City]) OR ([t1].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
+        WHEN [t1].[CustomerID] = [c0].[City] OR ([t1].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
         ELSE N'B'
     END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
     FROM (

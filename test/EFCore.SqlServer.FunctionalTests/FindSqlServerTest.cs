@@ -167,7 +167,7 @@ WHERE [s].[Id] = @__p_0");
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
+WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1");
         }
 
         public override void Returns_null_for_composite_key_not_in_store()
@@ -180,7 +180,7 @@ WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
 
 SELECT TOP(1) [c].[Id1], [c].[Id2], [c].[Foo]
 FROM [CompositeKey] AS [c]
-WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
+WHERE [c].[Id1] = @__p_0 AND [c].[Id2] = @__p_1");
         }
 
         public override void Find_base_type_tracked()
@@ -230,7 +230,7 @@ WHERE [b].[Id] = @__p_0");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_derived_type_not_in_store()
@@ -242,7 +242,7 @@ WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0");
         }
 
         public override void Find_base_type_using_derived_set_tracked()
@@ -254,7 +254,7 @@ WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0");
         }
 
         public override void Find_base_type_using_derived_set_from_store()
@@ -266,7 +266,7 @@ WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Discriminator] = N'DerivedType' AND [b].[Id] = @__p_0");
         }
 
         public override void Find_derived_type_using_base_set_tracked()

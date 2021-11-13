@@ -153,7 +153,7 @@ WHERE EXISTS (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = N'ALFKI') AND EXISTS (
+WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
     SELECT 1
     FROM (
         SELECT * FROM ""Orders""
@@ -447,7 +447,7 @@ FROM [Customers] AS [c]");
 FROM (
     SELECT * FROM ""Customers""
 ) AS [m]
-WHERE ([m].[ContactName] = [m].[CompanyName]) OR ([m].[ContactName] IS NULL AND [m].[CompanyName] IS NULL)");
+WHERE [m].[ContactName] = [m].[CompanyName] OR ([m].[ContactName] IS NULL AND [m].[CompanyName] IS NULL)");
         }
 
         public override async Task FromSqlRaw_with_dbParameter(bool async)
@@ -568,7 +568,7 @@ p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+WHERE [o].[OrderID] <= @__max_0 AND EXISTS (
     SELECT 1
     FROM (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
@@ -580,7 +580,7 @@ p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] <= @__max_0) AND EXISTS (
+WHERE [o].[OrderID] <= @__max_0 AND EXISTS (
     SELECT 1
     FROM (
         SELECT * FROM ""Orders"" WHERE ""OrderID"" >= @p0
