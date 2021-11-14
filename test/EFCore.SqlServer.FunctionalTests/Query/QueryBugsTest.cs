@@ -7040,7 +7040,11 @@ FROM [Businesses] AS [b]");
         [ConditionalFact]
         public virtual async Task Thread_safety_in_relational_command_cache()
         {
-            var contextFactory = await InitializeAsync<MyContext21666>();
+            var contextFactory = await InitializeAsync<MyContext21666>(
+                onConfiguring: options =>((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(
+                    options.Options.FindExtension<SqlServerOptionsExtension>()
+                        .WithConnection(null)
+                        .WithConnectionString(SqlServerTestStore.CreateConnectionString(StoreName))));
 
             var ids = new[] { 1, 2, 3 };
 
