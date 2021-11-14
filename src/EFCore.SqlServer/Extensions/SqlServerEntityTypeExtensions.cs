@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType">The entity type.</param>
         /// <param name="historyTableSchema">The value to set.</param>
         public static void SetHistoryTableSchema(this IMutableEntityType entityType, string? historyTableSchema)
-            => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, historyTableSchema);
+            => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, historyTableSchema ?? entityType[RelationalAnnotationNames.Schema] as string);
 
         /// <summary>
         ///     Sets a value representing the schema of the history table associated with the entity mapped to a temporal table.
