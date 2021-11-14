@@ -278,21 +278,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         internal sealed class DefaultDateTimeOffsetValueComparer : DefaultValueComparer<DateTimeOffset>
         {
-            private static readonly PropertyInfo _offsetPropertyInfo = typeof(DateTimeOffset).GetProperty(nameof(DateTimeOffset.Offset))!;
+            private static readonly MethodInfo _equalsExactMethodInfo
+                = typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.EqualsExact), typeof(DateTimeOffset));
 
             // In .NET, two DateTimeOffset instances are considered equal if they represent the same point in time but with different
-            // time zone offsets. This comparer considers such DateTimeOffset as non-equal.
+            // time zone offsets. This comparer uses EqualsExact, which considers such DateTimeOffset as non-equal.
             public DefaultDateTimeOffsetValueComparer(bool favorStructuralComparisons)
-                : base((v1, v2) => v1 == v2 && v1.Offset == v2.Offset, favorStructuralComparisons)
+                : base((v1, v2) => v1.EqualsExact(v2), favorStructuralComparisons)
             {
             }
 
             public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-                => Expression.And(
-                    Expression.Equal(leftExpression, rightExpression),
-                    Expression.Equal(
-                        Expression.Property(leftExpression, _offsetPropertyInfo),
-                        Expression.Property(rightExpression, _offsetPropertyInfo)));
+                => Expression.Call(leftExpression, _equalsExactMethodInfo, rightExpression);
         }
     }
 }
