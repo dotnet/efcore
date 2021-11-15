@@ -11,17 +11,21 @@ namespace Microsoft.Data.Sqlite
     {
         public static readonly SqliteConnectionFactory Instance = new();
 
+        private readonly bool _newLockingBehavior;
 #pragma warning disable IDE0052 // Remove unread private members
         private readonly Timer _pruneTimer;
 #pragma warning restore IDE0052 // Remove unread private members
         private readonly List<SqliteConnectionPoolGroup> _idlePoolGroups = new();
         private readonly List<SqliteConnectionPool> _poolsToRelease = new();
+        private readonly ReaderWriterLockSlim _lock = new();
 
         private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
 
         protected SqliteConnectionFactory()
         {
-            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out var enabled) || !enabled)
+            _newLockingBehavior = !AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26612", out var enabled) || !enabled;
+
+            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out enabled) || !enabled)
             {
                 AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
@@ -52,28 +56,63 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionPoolGroup GetPoolGroup(string connectionString)
         {
-            if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
-                || (poolGroup.IsDisabled
-                    && !poolGroup.IsNonPooled))
+            if (_newLockingBehavior)
             {
-                var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
-
-                lock (this)
-                {
-                    if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
-                    {
-                        var isNonPooled = connectionOptions.DataSource == ":memory:"
-                            || connectionOptions.Mode == SqliteOpenMode.Memory
-                            || connectionOptions.DataSource.Length == 0
-                            || !connectionOptions.Pooling;
-
-                        poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
-                        _poolGroups.Add(connectionString, poolGroup);
-                    }
-                }
+                _lock.EnterUpgradeableReadLock();
             }
 
-            return poolGroup;
+            try
+            {
+                if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
+                    || (poolGroup.IsDisabled
+                        && !poolGroup.IsNonPooled))
+                {
+                    var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
+
+                    if (_newLockingBehavior)
+                    {
+                        _lock.EnterWriteLock();
+                    }
+                    else
+                    {
+                        Monitor.Enter(this);
+                    }
+
+                    try
+                    {
+                        if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
+                        {
+                            var isNonPooled = connectionOptions.DataSource == ":memory:"
+                                || connectionOptions.Mode == SqliteOpenMode.Memory
+                                || connectionOptions.DataSource.Length == 0
+                                || !connectionOptions.Pooling;
+
+                            poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
+                            _poolGroups.Add(connectionString, poolGroup);
+                        }
+                    }
+                    finally
+                    {
+                        if (_newLockingBehavior)
+                        {
+                            _lock.ExitWriteLock();
+                        }
+                        else
+                        {
+                            Monitor.Exit(this);
+                        }
+                    }
+                }
+
+                return poolGroup;
+            }
+            finally
+            {
+                if (_newLockingBehavior)
+                {
+                    _lock.ExitUpgradeableReadLock();
+                }
+            }
         }
 
         public void ReleasePool(SqliteConnectionPool pool, bool clearing)
@@ -93,11 +132,31 @@ namespace Microsoft.Data.Sqlite
 
         public void ClearPools()
         {
-            lock (this)
+            if (_newLockingBehavior)
+            {
+                _lock.EnterWriteLock();
+            }
+            else
+            {
+                Monitor.Enter(this);
+            }
+
+            try
             {
                 foreach (var entry in _poolGroups)
                 {
                     entry.Value.Clear();
+                }
+            }
+            finally
+            {
+                if (_newLockingBehavior)
+                {
+                    _lock.ExitWriteLock();
+                }
+                else
+                {
+                    Monitor.Exit(this);
                 }
             }
         }
@@ -129,7 +188,16 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            lock (this)
+            if (_newLockingBehavior)
+            {
+                _lock.EnterWriteLock();
+            }
+            else
+            {
+                Monitor.Enter(this);
+            }
+
+            try
             {
                 var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
                 foreach (var entry in _poolGroups)
@@ -147,6 +215,17 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _poolGroups = activePoolGroups;
+            }
+            finally
+            {
+                if (_newLockingBehavior)
+                {
+                    _lock.ExitWriteLock();
+                }
+                else
+                {
+                    Monitor.Exit(this);
+                }
             }
         }
     }
