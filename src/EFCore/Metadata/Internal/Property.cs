@@ -995,10 +995,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => properties.All(
                 property =>
                     property.IsShadowProperty()
-                    || ((property.PropertyInfo != null
-                            && entityType.GetRuntimeProperties().ContainsKey(property.Name))
-                        || (property.FieldInfo != null
-                            && entityType.GetRuntimeFields().ContainsKey(property.Name))));
+                    || (property.IsIndexerProperty()
+                        && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26590", out var enabled) || !enabled)
+                        ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
+                        : ((property.PropertyInfo != null
+                                    && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                                || (property.FieldInfo != null
+                                    && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
