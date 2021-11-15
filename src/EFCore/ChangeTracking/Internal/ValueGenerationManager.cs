@@ -94,16 +94,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in FindCandidateGeneratingProperties(entry))
             {
-                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)//Fix
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)
                 {
                     if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
                     {
                         continue;
                     }
                 }
-                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)//Fix
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)
                 {
-                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added,It need to skip at here.
+                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added,so it need to skip at here.
                     if (entry.HasDefaultValue(property) || property.IsKey())
                     {
                         continue;
@@ -152,16 +152,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in FindCandidateGeneratingProperties(entry))
             {
-                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)//Fix
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)
                 {
                     if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
                     {
                         continue;
                     }
                 }
-                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)//Fix
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)
                 {
-                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added,It need to skip at here.
+                    //Fix,PrimaryKey and ForeignKey was generated or added at EntityState.Added, so it need to skip at here.
                     if (entry.HasDefaultValue(property) || property.IsKey())
                     {
                         continue;

@@ -127,12 +127,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState? forceStateWhenUnknownKey = null)
         {
             var oldState = _stateData.EntityState;
-            var addingOrUpdating = PrepareForAddOrUpdate(entityState);//Fix ValueGeneration
+            var addingOrUpdating = PrepareForAddOrUpdate(entityState);
 
             entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
 
-            //if (adding || oldState is EntityState.Detached)
-            if (addingOrUpdating)//Fix
+            if (addingOrUpdating)
             {
                 StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: addingOrUpdating);
             }
@@ -154,12 +153,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             CancellationToken cancellationToken = default)
         {
             var oldState = _stateData.EntityState;
-            var addingOrUpdating = PrepareForAddOrUpdate(entityState);//Fix ValueGeneration
+            var addingOrUpdating = PrepareForAddOrUpdate(entityState);
 
             entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
 
-            //if (adding || oldState is EntityState.Detached)
-            if (addingOrUpdating)//Fix
+            if (addingOrUpdating)
             {
                 await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: addingOrUpdating, cancellationToken)
                     .ConfigureAwait(false);
@@ -176,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var keyUnknown = IsKeyUnknown;
 
-            if (entityState == EntityState.Added //Fix ValueGeneration
+            if (entityState == EntityState.Added
                 || (oldState == EntityState.Detached
                     && keyUnknown))
             {
@@ -197,7 +195,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return entityState;
         }
 
-        //Fix For ValueGeneration
         private bool PrepareForAddOrUpdate(EntityState newState)
         {
             switch (newState)
@@ -257,28 +254,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 default:
                     return false;
             }
-        }
-
-        private bool PrepareForAdd(EntityState newState)
-        {
-            if (newState != EntityState.Added
-                || EntityState == EntityState.Added)
-            {
-                return false;
-            }
-
-            if (EntityState == EntityState.Modified)
-            {
-                _stateData.FlagAllProperties(
-                    EntityType.PropertyCount(), PropertyFlag.Modified,
-                    flagged: false);
-            }
-
-            // Temporarily change the internal state to unknown so that key generation, including setting key values
-            // can happen without constraints on changing read-only values kicking in
-            _stateData.EntityState = EntityState.Detached;
-
-            return true;
         }
 
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
