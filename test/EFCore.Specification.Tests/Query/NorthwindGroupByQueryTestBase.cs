@@ -1812,6 +1812,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_using_grouping_key_Pushdown(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                    .Where(g => g.Count() > 10)
+                    .Select(g => new { g.Key, Max = g.Max(e => g.Key) })
+                    .OrderBy(t => t.Key)
+                    .Take(20)
+                    .Skip(4));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool async)
         {
             return AssertQueryScalar(
