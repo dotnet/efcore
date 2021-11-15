@@ -551,5 +551,52 @@ namespace Microsoft.EntityFrameworkCore
             public Group Group { get; set; }
             public int GroupId { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26587>();
+            using var context = contextFactory.CreateContext();
+
+            var orderId = 123456;
+
+            var orderItems = context.OrderItems.Where(o => o.OrderId == orderId);
+            var items = orderItems
+                .GroupBy(o => o.OrderId, (o, g) => new
+                {
+                    Key = o,
+                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                })
+                .OrderBy(e => e.Key);
+
+
+            var query = orderItems
+                .Join(items, x => x.OrderId, x => x.Key, (x, y) => x)
+                .OrderBy(x => x.OrderId);
+
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context26587 : DbContext
+        {
+            public Context26587(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<OrderItem> OrderItems { get; set; }
+        }
+
+        protected class OrderItem
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public DateTime? ShippingDate { get; set; }
+            public DateTime? CancellationDate { get; set; }
+        }
     }
 }
