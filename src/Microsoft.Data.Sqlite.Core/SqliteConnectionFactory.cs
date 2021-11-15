@@ -11,21 +11,17 @@ namespace Microsoft.Data.Sqlite
     {
         public static readonly SqliteConnectionFactory Instance = new();
 
-        private readonly bool _newLockingBehavior;
 #pragma warning disable IDE0052 // Remove unread private members
         private readonly Timer _pruneTimer;
 #pragma warning restore IDE0052 // Remove unread private members
         private readonly List<SqliteConnectionPoolGroup> _idlePoolGroups = new();
         private readonly List<SqliteConnectionPool> _poolsToRelease = new();
-        private readonly ReaderWriterLockSlim _lock = new();
 
         private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
 
         protected SqliteConnectionFactory()
         {
-            _newLockingBehavior = !AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26612", out var enabled) || !enabled;
-
-            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out enabled) || !enabled)
+            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out var enabled) || !enabled)
             {
                 AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
@@ -56,63 +52,28 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionPoolGroup GetPoolGroup(string connectionString)
         {
-            if (_newLockingBehavior)
+            if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
+                || (poolGroup.IsDisabled
+                    && !poolGroup.IsNonPooled))
             {
-                _lock.EnterUpgradeableReadLock();
-            }
+                var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
 
-            try
-            {
-                if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
-                    || (poolGroup.IsDisabled
-                        && !poolGroup.IsNonPooled))
+                lock (this)
                 {
-                    var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
+                    if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
+                    {
+                        var isNonPooled = connectionOptions.DataSource == ":memory:"
+                            || connectionOptions.Mode == SqliteOpenMode.Memory
+                            || connectionOptions.DataSource.Length == 0
+                            || !connectionOptions.Pooling;
 
-                    if (_newLockingBehavior)
-                    {
-                        _lock.EnterWriteLock();
-                    }
-                    else
-                    {
-                        Monitor.Enter(this);
-                    }
-
-                    try
-                    {
-                        if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
-                        {
-                            var isNonPooled = connectionOptions.DataSource == ":memory:"
-                                || connectionOptions.Mode == SqliteOpenMode.Memory
-                                || connectionOptions.DataSource.Length == 0
-                                || !connectionOptions.Pooling;
-
-                            poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
-                            _poolGroups.Add(connectionString, poolGroup);
-                        }
-                    }
-                    finally
-                    {
-                        if (_newLockingBehavior)
-                        {
-                            _lock.ExitWriteLock();
-                        }
-                        else
-                        {
-                            Monitor.Exit(this);
-                        }
+                        poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
+                        _poolGroups.Add(connectionString, poolGroup);
                     }
                 }
+            }
 
-                return poolGroup;
-            }
-            finally
-            {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitUpgradeableReadLock();
-                }
-            }
+            return poolGroup;
         }
 
         public void ReleasePool(SqliteConnectionPool pool, bool clearing)
@@ -132,31 +93,11 @@ namespace Microsoft.Data.Sqlite
 
         public void ClearPools()
         {
-            if (_newLockingBehavior)
-            {
-                _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
-
-            try
+            lock (this)
             {
                 foreach (var entry in _poolGroups)
                 {
                     entry.Value.Clear();
-                }
-            }
-            finally
-            {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitWriteLock();
-                }
-                else
-                {
-                    Monitor.Exit(this);
                 }
             }
         }
@@ -188,16 +129,7 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            if (_newLockingBehavior)
-            {
-                _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
-
-            try
+            lock (this)
             {
                 var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
                 foreach (var entry in _poolGroups)
@@ -215,17 +147,6 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _poolGroups = activePoolGroups;
-            }
-            finally
-            {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitWriteLock();
-                }
-                else
-                {
-                    Monitor.Exit(this);
-                }
             }
         }
     }
