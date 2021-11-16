@@ -154,6 +154,9 @@ WHERE ""b"".""IndexerVisible"" = 'Nay'");
 
             public override DateTime DefaultDateTime
                 => new();
+
+            public override bool PreservesDateTimeKind
+                => true;
         }
     }
 }
