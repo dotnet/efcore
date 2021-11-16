@@ -36,10 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = typeof(JToken).GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
 
-            private static readonly MethodInfo _jTokenToObjectMethodInfo
-                = typeof(JToken).GetRuntimeMethods()
-                    .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
-
             private static readonly MethodInfo _jTokenToObjectWithSerializerMethodInfo
                 = typeof(JToken).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 1 && mi.IsGenericMethodDefinition);
@@ -69,10 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             private List<IncludeExpression> _pendingIncludes
                 = new();
-
-            private static readonly MethodInfo _toObjectMethodInfo
-                = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
-                    .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObject));
 
             private static readonly MethodInfo _toObjectWithSerializerMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
