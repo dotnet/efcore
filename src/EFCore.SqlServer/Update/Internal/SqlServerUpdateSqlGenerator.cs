@@ -57,9 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                         modificationCommands[0],
                         modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList(),
                         modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList(),
-                        (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26632", out var enabled) || !enabled)
-                            ? commandPosition
-                            : 0);
+                        commandPosition);
             }
 
             var readOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList();

@@ -2620,16 +2620,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Add(subquery);
             _tableReferences.Add(subqueryTableReferenceExpression);
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26587", out var enabled)
-                && enabled;
-
-            if (!useOldBehavior)
+            // Remap tableReferences in inner so that all components follow referential integrity.
+            foreach (var tableReference in subquery._tableReferences)
             {
-                // Remap tableReferences in inner so that all components follow referential integrity.
-                foreach (var tableReference in subquery._tableReferences)
-                {
-                    tableReference.UpdateTableReference(this, subquery);
-                }
+                tableReference.UpdateTableReference(this, subquery);
             }
 
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>(ReferenceEqualityComparer.Instance);
@@ -2747,8 +2741,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _orderings.Add(ordering.Update(outerColumn));
                 }
                 else if (!IsDistinct
-                    && GroupBy.Count == 0
-                    || GroupBy.Contains(orderingExpression))
+                         && GroupBy.Count == 0
+                         || GroupBy.Contains(orderingExpression))
                 {
                     _orderings.Add(
                         ordering.Update(
@@ -2768,13 +2762,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 subquery.ClearOrdering();
             }
 
-            if (useOldBehavior)
+            // Remap tableReferences in inner
+            foreach (var tableReference in subquery._tableReferences)
             {
-                // Remap tableReferences in inner
-                foreach (var tableReference in subquery._tableReferences)
-                {
-                    tableReference.UpdateTableReference(this, subquery);
-                }
+                tableReference.UpdateTableReference(this, subquery);
             }
 
             var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, subquery);
@@ -2819,8 +2810,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType
-                    .GetAllBaseTypes().Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(t => t.GetDeclaredNavigations()))
+                             .GetAllBaseTypes().Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
+                             .SelectMany(t => t.GetDeclaredNavigations()))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)
