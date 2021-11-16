@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
@@ -29,9 +28,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             ModificationCommandBatchFactoryDependencies dependencies,
             IDbContextOptions options)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(options, nameof(options));
-
             Dependencies = dependencies;
             _options = options;
         }

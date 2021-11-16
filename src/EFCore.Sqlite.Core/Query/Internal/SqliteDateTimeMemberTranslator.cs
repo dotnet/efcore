@@ -57,10 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
             if (member.DeclaringType == typeof(DateTime))
             {
                 var memberName = member.Name;

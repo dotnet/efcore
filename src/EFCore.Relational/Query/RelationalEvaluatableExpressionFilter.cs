@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -34,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
         }
 
@@ -52,9 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
         public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
-            Check.NotNull(expression, nameof(expression));
-            Check.NotNull(model, nameof(model));
-
             if (expression is MethodCallExpression methodCallExpression)
             {
                 var method = methodCallExpression.Method;

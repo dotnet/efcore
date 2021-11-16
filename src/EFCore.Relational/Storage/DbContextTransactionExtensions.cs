@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -28,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>The underlying <see cref="DbTransaction" />.</returns>
         public static DbTransaction GetDbTransaction(this IDbContextTransaction dbContextTransaction)
         {
-            Check.NotNull(dbContextTransaction, nameof(dbContextTransaction));
-
             if (!(dbContextTransaction is IInfrastructure<DbTransaction> accessor))
             {
                 throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);

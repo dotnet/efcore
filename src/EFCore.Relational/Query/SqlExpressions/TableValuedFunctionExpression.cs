@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -30,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
             : this(
                 storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
-                Check.NotNull(storeFunction, nameof(storeFunction)),
-                Check.NotNull(arguments, nameof(arguments)))
+                storeFunction,
+                arguments)
         {
         }
 
@@ -65,8 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var changed = false;
             var arguments = new SqlExpression[Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
@@ -87,13 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="arguments">The <see cref="Arguments" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
-        {
-            Check.NotNull(arguments, nameof(arguments));
-
-            return !arguments.SequenceEqual(Arguments)
+            => !arguments.SequenceEqual(Arguments)
                 ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)

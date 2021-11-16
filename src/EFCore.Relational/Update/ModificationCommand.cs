@@ -122,8 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual void AddEntry(IUpdateEntry entry, bool mainEntry)
         {
-            Check.NotNull(entry, nameof(entry));
-
             AssertColumnsNotInitialized();
 
             switch (entry.EntityState)
@@ -437,8 +435,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="valueBuffer">The buffer containing the values read from the database.</param>
         public virtual void PropagateResults(ValueBuffer valueBuffer)
         {
-            Check.NotNull(valueBuffer, nameof(valueBuffer));
-
             // Note that this call sets the value into a sidecar and will only commit to the actual entity
             // if SaveChanges is successful.
             var index = 0;

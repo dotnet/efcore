@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -30,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression argument)
             : base(queryProvider, entityType)
         {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(argument, nameof(argument));
-
             Sql = sql;
             Argument = argument;
         }
@@ -49,9 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Expression argument)
             : base(entityType)
         {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(argument, nameof(argument));
-
             Sql = sql;
             Argument = argument;
         }
@@ -116,8 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             base.Print(expressionPrinter);
             expressionPrinter.Append($".FromSql({Sql}, ");
             expressionPrinter.Visit(Argument);

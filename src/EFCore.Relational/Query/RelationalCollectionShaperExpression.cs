@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -45,12 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             INavigationBase? navigation,
             Type elementType)
         {
-            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
-            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
-            Check.NotNull(selfIdentifier, nameof(selfIdentifier));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-            Check.NotNull(elementType, nameof(elementType));
-
             ParentIdentifier = parentIdentifier;
             OuterIdentifier = outerIdentifier;
             SelfIdentifier = selfIdentifier;
@@ -118,8 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var parentIdentifier = visitor.Visit(ParentIdentifier);
             var outerIdentifier = visitor.Visit(OuterIdentifier);
             var selfIdentifier = visitor.Visit(SelfIdentifier);
@@ -142,13 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression outerIdentifier,
             Expression selfIdentifier,
             Expression innerShaper)
-        {
-            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
-            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
-            Check.NotNull(selfIdentifier, nameof(selfIdentifier));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-
-            return parentIdentifier != ParentIdentifier
+            => parentIdentifier != ParentIdentifier
                 || outerIdentifier != OuterIdentifier
                 || selfIdentifier != SelfIdentifier
                 || innerShaper != InnerShaper
@@ -157,13 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ParentIdentifierValueComparers, OuterIdentifierValueComparers, SelfIdentifierValueComparers,
                         innerShaper, Navigation, ElementType)
                     : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine("RelationalCollectionShaper:");
             using (expressionPrinter.Indent())
             {

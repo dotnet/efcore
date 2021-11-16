@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -41,11 +40,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
-            Check.NotNull(storeCache, nameof(storeCache));
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
-            Check.NotNull(updateLogger, nameof(updateLogger));
-
             _store = storeCache.GetStore(options);
             _designTimeModel = designTimeModel;
             _updateAdapterFactory = updateAdapterFactory;
@@ -68,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override int SaveChanges(IList<IUpdateEntry> entries)
-            => _store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _updateLogger);
+            => _store.ExecuteTransaction(entries, _updateLogger);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public override Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default)
-            => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _updateLogger));
+            => Task.FromResult(_store.ExecuteTransaction(entries, _updateLogger));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,12 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerType">The inner type of the transparent identifier.</param>
         /// <returns>The created transparent identifier type.</returns>
         public static Type Create(Type outerType, Type innerType)
-        {
-            Check.NotNull(outerType, nameof(outerType));
-            Check.NotNull(innerType, nameof(innerType));
-
-            return typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
-        }
+            => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
 
         private readonly struct TransparentIdentifier<TOuter, TInner>
         {

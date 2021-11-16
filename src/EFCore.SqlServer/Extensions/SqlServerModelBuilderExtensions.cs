@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name = null,
             string? schema = null)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -109,7 +108,6 @@ namespace Microsoft.EntityFrameworkCore
             string? schema,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -136,8 +134,6 @@ namespace Microsoft.EntityFrameworkCore
             long seed = 1,
             int increment = 1)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
             var model = modelBuilder.Model;
 
             model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
@@ -214,11 +210,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             long? seed,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentitySeed, seed, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentitySeed, seed, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the default increment for SQL Server IDENTITY.
@@ -265,11 +257,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             int? increment,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.IdentityIncrement, increment, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the default value generation strategy for key properties marked as <see cref="ValueGenerated.OnAdd" />,
@@ -328,12 +316,8 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(
+            => modelBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
-        }
 
         /// <summary>
         ///     Configures the maximum size for Azure SQL Database.
@@ -353,7 +337,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasDatabaseMaxSize(this ModelBuilder modelBuilder, string maxSize)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(maxSize, nameof(maxSize));
 
             modelBuilder.Model.SetDatabaseMaxSize(maxSize);
@@ -411,11 +394,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             string? maxSize,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, maxSize, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, maxSize, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the service tier (EDITION) for Azure SQL Database as a string literal.
@@ -435,7 +414,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasServiceTier(this ModelBuilder modelBuilder, string serviceTier)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(serviceTier, nameof(serviceTier));
 
             modelBuilder.Model.SetServiceTierSql("'" + serviceTier.Replace("'", "''") + "'");
@@ -461,7 +439,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasServiceTierSql(this ModelBuilder modelBuilder, string serviceTier)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(serviceTier, nameof(serviceTier));
 
             modelBuilder.Model.SetServiceTierSql(serviceTier);
@@ -519,11 +496,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             string? serviceTier,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.ServiceTierSql, serviceTier, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.ServiceTierSql, serviceTier, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database as a string literal.
@@ -543,7 +516,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasPerformanceLevel(this ModelBuilder modelBuilder, string performanceLevel)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(performanceLevel, nameof(performanceLevel));
 
             modelBuilder.Model.SetPerformanceLevelSql("'" + performanceLevel.Replace("'", "''") + "'");
@@ -569,7 +541,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasPerformanceLevelSql(this ModelBuilder modelBuilder, string performanceLevel)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(performanceLevel, nameof(performanceLevel));
 
             modelBuilder.Model.SetPerformanceLevelSql(performanceLevel);
@@ -627,10 +598,6 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             string? performanceLevel,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, performanceLevel, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, performanceLevel, fromDataAnnotation);
     }
 }

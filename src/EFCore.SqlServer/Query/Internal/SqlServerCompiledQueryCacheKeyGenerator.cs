@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -31,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             ISqlServerConnection sqlServerConnection)
             : base(dependencies, relationalDependencies)
         {
-            Check.NotNull(sqlServerConnection, nameof(sqlServerConnection));
-
             _sqlServerConnection = sqlServerConnection;
         }
 

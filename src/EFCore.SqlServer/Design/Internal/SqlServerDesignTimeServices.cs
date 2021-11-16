@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerDesignTimeServices")]
@@ -28,9 +27,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             serviceCollection.AddEntityFrameworkSqlServer();
+
 #pragma warning disable EF1001 // Internal EF Core API usage.
             new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
                 .TryAdd<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()

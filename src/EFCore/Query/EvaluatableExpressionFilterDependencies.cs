@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -51,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public EvaluatableExpressionFilterDependencies(IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
         {
-            Check.NotNull(plugins, nameof(plugins));
-
             Plugins = plugins;
         }
 

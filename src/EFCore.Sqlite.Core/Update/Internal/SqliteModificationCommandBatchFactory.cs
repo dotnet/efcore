@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
 {
@@ -23,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         public SqliteModificationCommandBatchFactory(
             ModificationCommandBatchFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

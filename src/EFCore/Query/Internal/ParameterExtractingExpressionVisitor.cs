@@ -59,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _generateContextAccessors = generateContextAccessors;
             // The entry method will take care of populating this field always. So accesses should be safe.
             _evaluatableExpressions = null!;
-            // TODO: Use MemberNotNullWhen
-            // Value won't be accessed when condition is not met.
             _contextParameterReplacingExpressionVisitor = _generateContextAccessors
                 ? new ContextParameterReplacingExpressionVisitor(contextType)
                 : null!;

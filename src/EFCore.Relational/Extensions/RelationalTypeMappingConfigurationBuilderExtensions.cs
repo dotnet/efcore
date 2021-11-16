@@ -30,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore
             this TypeMappingConfigurationBuilder scalarBuilder,
             string typeName)
         {
-            Check.NotNull(scalarBuilder, nameof(scalarBuilder));
             Check.NotEmpty(typeName, nameof(typeName));
 
             scalarBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, typeName);
@@ -67,8 +66,6 @@ namespace Microsoft.EntityFrameworkCore
             this TypeMappingConfigurationBuilder scalarBuilder,
             bool fixedLength = true)
         {
-            Check.NotNull(scalarBuilder, nameof(scalarBuilder));
-
             scalarBuilder.HasAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength);
 
             return scalarBuilder;

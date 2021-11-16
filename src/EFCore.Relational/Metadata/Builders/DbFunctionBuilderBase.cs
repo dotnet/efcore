@@ -26,8 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected DbFunctionBuilderBase(IMutableDbFunction function)
         {
-            Check.NotNull(function, nameof(function));
-
             Builder = ((DbFunction)function).Builder;
         }
 
@@ -63,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual DbFunctionBuilderBase HasName(string name)
         {
+            Check.NullButNotEmpty(name, nameof(name));
+
             Builder.HasName(name, ConfigurationSource.Explicit);
 
             return this;

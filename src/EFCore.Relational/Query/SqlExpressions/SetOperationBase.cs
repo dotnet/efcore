@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -30,11 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SelectExpression source1,
             SelectExpression source2,
             bool distinct)
-            : base(Check.NotEmpty(alias, nameof(alias)))
+            : base(alias)
         {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
             IsDistinct = distinct;
             Source1 = source1;
             Source2 = source2;

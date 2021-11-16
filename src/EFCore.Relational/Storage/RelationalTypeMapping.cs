@@ -56,8 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 int? precision = null,
                 int? scale = null)
             {
-                Check.NotNull(storeType, nameof(storeType));
-
                 var converterHints = coreParameters.Converter?.MappingHints;
 
                 CoreParameters = coreParameters;
@@ -297,9 +295,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             string storeType,
             string storeTypeNameBase)
         {
-            Check.NotNull(storeType, nameof(storeType));
-            Check.NotNull(storeTypeNameBase, nameof(storeTypeNameBase));
-
             var size = parameters.Size;
 
             if (size != null
@@ -482,8 +477,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             object? value,
             bool? nullable = null)
         {
-            Check.NotNull(command, nameof(command));
-
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
@@ -583,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         protected virtual string GenerateNonNullSqlLiteral(object value)
-            => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, nameof(value)));
+            => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
 
         /// <summary>
         ///     The method to use when reading values of the given type. The method must be defined

@@ -191,6 +191,9 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisib
             public override DateTime DefaultDateTime
                 => new();
 
+            public override bool PreservesDateTimeKind
+                => true;
+
             public TestSqlLoggerFactory TestSqlLoggerFactory
                 => (TestSqlLoggerFactory)ListLoggerFactory;
 

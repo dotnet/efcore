@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -69,8 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ValueConverterSelector(ValueConverterSelectorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -91,8 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             Type modelClrType,
             Type? providerClrType = null)
         {
-            Check.NotNull(modelClrType, nameof(modelClrType));
-
             if (modelClrType.IsEnum)
             {
                 foreach (var converterInfo in FindNumericConventions(

@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -31,9 +30,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             INavigationBase? navigation,
             Type elementType)
         {
-            Check.NotNull(projection, nameof(projection));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
@@ -83,8 +79,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var projection = visitor.Visit(Projection);
             var innerShaper = visitor.Visit(InnerShaper);
 
@@ -100,20 +94,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public virtual CollectionResultShaperExpression Update(
             Expression projection,
             Expression innerShaper)
-        {
-            Check.NotNull(projection, nameof(projection));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-
-            return projection != Projection || innerShaper != InnerShaper
+            => projection != Projection || innerShaper != InnerShaper
                 ? new CollectionResultShaperExpression(projection, innerShaper, Navigation, ElementType)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine("CollectionResultShaperExpression:");
             using (expressionPrinter.Indent())
             {

@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -58,12 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(memberTranslatorProvider, nameof(memberTranslatorProvider));
-            Check.NotNull(methodCallTranslatorProvider, nameof(methodCallTranslatorProvider));
-
             SqlExpressionFactory = sqlExpressionFactory;
             Model = model;
 #pragma warning disable CS0618 // Type or member is obsolete

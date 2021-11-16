@@ -27,7 +27,7 @@ namespace Microsoft.Data.Sqlite
     {
         private SqliteParameterCollection? _parameters;
 
-        private readonly List<sqlite3_stmt> _preparedStatements = new(1);
+        private readonly List<(sqlite3_stmt Statement, int ParamCount)> _preparedStatements = new(1);
         private SqliteConnection? _connection;
         private string _commandText = string.Empty;
         private bool _prepared;
@@ -318,13 +318,12 @@ namespace Microsoft.Data.Sqlite
 
         private IEnumerable<sqlite3_stmt> GetStatements(Stopwatch timer)
         {
-            foreach (var stmt in !_prepared
+            foreach ((var stmt, var expectedParams) in !_prepared
                 ? PrepareAndEnumerateStatements(timer)
                 : _preparedStatements)
             {
                 var boundParams = _parameters?.Bind(stmt) ?? 0;
 
-                var expectedParams = sqlite3_bind_parameter_count(stmt);
                 if (expectedParams != boundParams)
                 {
                     var unboundParams = new List<string>();
@@ -467,7 +466,7 @@ namespace Microsoft.Data.Sqlite
         {
         }
 
-        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements(Stopwatch timer)
+        private IEnumerable<(sqlite3_stmt Statement, int ParamCount)> PrepareAndEnumerateStatements(Stopwatch timer)
         {
             DisposePreparedStatements(disposing: false);
 
@@ -510,9 +509,12 @@ namespace Microsoft.Data.Sqlite
                     break;
                 }
 
-                _preparedStatements.Add(stmt);
+                var paramsCount = sqlite3_bind_parameter_count(stmt);
+                var statementWithParams = (stmt, paramsCount);
 
-                yield return stmt;
+                _preparedStatements.Add(statementWithParams);
+
+                yield return statementWithParams;
             }
             while (start < byteCount);
 
@@ -530,7 +532,7 @@ namespace Microsoft.Data.Sqlite
 
             if (_preparedStatements != null)
             {
-                foreach (var stmt in _preparedStatements)
+                foreach ((var stmt, _) in _preparedStatements)
                 {
                     stmt.Dispose();
                 }

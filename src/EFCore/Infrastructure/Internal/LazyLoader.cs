@@ -33,9 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             ICurrentDbContext currentContext,
             IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(logger, nameof(logger));
-
             Context = currentContext.Context;
             Logger = logger;
         }

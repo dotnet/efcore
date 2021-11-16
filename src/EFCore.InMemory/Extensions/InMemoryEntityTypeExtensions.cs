@@ -4,7 +4,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         public static LambdaExpression? GetInMemoryQuery(this IReadOnlyEntityType entityType)
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
-            => (LambdaExpression?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.DefiningQuery];
+            => (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
 #pragma warning restore CS0612 // Type or member is obsolete
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetInMemoryQuery(
             this IMutableEntityType entityType,
             LambdaExpression? inMemoryQuery)
-            => Check.NotNull(entityType, nameof(entityType))
+            => entityType
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
                 .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, inMemoryQuery);
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionEntityType entityType,
             LambdaExpression? inMemoryQuery,
             bool fromDataAnnotation = false)
-            => (LambdaExpression?)Check.NotNull(entityType, nameof(entityType))
+            => (LambdaExpression?)entityType
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
                 .SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, inMemoryQuery, fromDataAnnotation)

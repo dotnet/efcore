@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSequenceValueGeneratorState(ISequence sequence)
-            : base(Check.NotNull(sequence, nameof(sequence)).IncrementBy)
+            : base(sequence.IncrementBy)
         {
             Sequence = sequence;
         }

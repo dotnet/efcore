@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -32,10 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression operand,
             IReadOnlyList<CaseWhenClause> whenClauses,
             SqlExpression? elseResult = null)
-            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
+            : base(whenClauses[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
-            Check.NotNull(operand, nameof(operand));
-
             Operand = operand;
             _whenClauses.AddRange(whenClauses);
             ElseResult = elseResult;
@@ -49,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public CaseExpression(
             IReadOnlyList<CaseWhenClause> whenClauses,
             SqlExpression? elseResult = null)
-            : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
+            : base(whenClauses[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             _whenClauses.AddRange(whenClauses);
             ElseResult = elseResult;
@@ -74,8 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var operand = (SqlExpression?)visitor.Visit(Operand);
             var changed = operand != Operand;
             var whenClauses = new List<CaseWhenClause>();
@@ -127,8 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append("CASE");
             if (Operand != null)
             {

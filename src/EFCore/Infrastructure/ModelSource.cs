@@ -43,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies">The dependencies to use.</param>
         public ModelSource(ModelSourceDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -183,8 +181,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             DbContext context,
             IConventionSetBuilder conventionSetBuilder)
         {
-            Check.NotNull(context, nameof(context));
-
             var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);

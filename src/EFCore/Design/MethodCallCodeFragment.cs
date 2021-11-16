@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -32,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="arguments">The method call's arguments. Can be <see cref="NestedClosureCodeFragment" />.</param>
         public MethodCallCodeFragment(MethodInfo methodInfo, params object?[] arguments)
         {
-            Check.NotNull(methodInfo, nameof(methodInfo));
-            Check.NotNull(arguments, nameof(arguments));
-
             var parameterLength = methodInfo.GetParameters().Length;
             if (methodInfo.IsStatic)
             {
@@ -60,9 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         [Obsolete("Use the overload accepting a MethodInfo")]
         public MethodCallCodeFragment(string method, params object?[] arguments)
         {
-            Check.NotEmpty(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-
             _method = method;
             _arguments = new List<object?>(arguments);
         }
@@ -87,8 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             object?[] arguments)
             : this(methodInfo, arguments)
         {
-            Check.NotNull(chainedCall, nameof(chainedCall));
-
             ChainedCall = chainedCall;
         }
 
@@ -105,8 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             MethodCallCodeFragment chainedCall)
             : this(method, arguments)
         {
-            Check.NotNull(chainedCall, nameof(chainedCall));
-
             ChainedCall = chainedCall;
         }
 

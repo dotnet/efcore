@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -35,8 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceCollection">The collection to work with.</param>
         public ServiceCollectionMap(IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             _map = new InternalServiceCollectionMap(serviceCollection);
         }
 
@@ -127,9 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Type implementationType,
             ServiceLifetime lifetime)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementationType, nameof(implementationType));
-
             Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
@@ -259,9 +253,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Func<IServiceProvider, object> factory,
             ServiceLifetime lifetime)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(factory, nameof(factory));
-
             Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
@@ -293,8 +284,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingleton(Type serviceType, object implementation)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-
             Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
@@ -392,9 +381,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Type implementationType,
             ServiceLifetime lifetime)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementationType, nameof(implementationType));
-
             Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
@@ -467,10 +453,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Func<IServiceProvider, object> factory,
             ServiceLifetime lifetime)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementationType, nameof(implementationType));
-            Check.NotNull(factory, nameof(factory));
-
             Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
@@ -504,9 +486,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The map, such that further calls can be chained.</returns>
         public virtual ServiceCollectionMap TryAddSingletonEnumerable(Type serviceType, object implementation)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementation, nameof(implementation));
-
             Validate?.Invoke(serviceType);
 
             var implementationType = implementation.GetType();

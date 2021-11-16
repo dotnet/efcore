@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -37,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
-            Check.NotNull(logActionFunc, nameof(logActionFunc));
-
             _logAction = logActionFunc(Level);
         }
 

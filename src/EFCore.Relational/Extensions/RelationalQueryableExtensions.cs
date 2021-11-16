@@ -49,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The query string for debugging.</returns>
         public static DbCommand CreateDbCommand(this IQueryable source)
         {
-            Check.NotNull(source, nameof(source));
-
             if (source.Provider.Execute<IEnumerable>(source.Expression) is IRelationalQueryingEnumerable queryingEnumerable)
             {
                 return queryingEnumerable.CreateDbCommand();
@@ -102,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore
             params object[] parameters)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
@@ -145,7 +142,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotParameterized] FormattableString sql)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
             Check.NotNull(sql, nameof(sql));
             Check.NotEmpty(sql.Format, nameof(source));
 
@@ -202,14 +198,10 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsSingleQuery<TEntity>(
             this IQueryable<TEntity> source)
             where TEntity : class
-        {
-            Check.NotNull(source, nameof(source));
-
-            return source.Provider is EntityQueryProvider
+            => source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(AsSingleQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
                 : source;
-        }
 
         internal static readonly MethodInfo AsSingleQueryMethodInfo
             = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSingleQuery));
@@ -238,14 +230,10 @@ namespace Microsoft.EntityFrameworkCore
         public static IQueryable<TEntity> AsSplitQuery<TEntity>(
             this IQueryable<TEntity> source)
             where TEntity : class
-        {
-            Check.NotNull(source, nameof(source));
-
-            return source.Provider is EntityQueryProvider
+            => source.Provider is EntityQueryProvider
                 ? source.Provider.CreateQuery<TEntity>(
                     Expression.Call(AsSplitQueryMethodInfo.MakeGenericMethod(typeof(TEntity)), source.Expression))
                 : source;
-        }
 
         internal static readonly MethodInfo AsSplitQueryMethodInfo
             = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSplitQuery));

@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -53,12 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
-            return member.DeclaringType == typeof(DateOnly) && _datePartMapping.TryGetValue(member.Name, out var datePart)
+            => member.DeclaringType == typeof(DateOnly) && _datePartMapping.TryGetValue(member.Name, out var datePart)
                 ? _sqlExpressionFactory.Convert(
                     SqliteExpression.Strftime(
                         _sqlExpressionFactory,
@@ -67,6 +61,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         instance!),
                     returnType)
                 : null;
-        }
     }
 }

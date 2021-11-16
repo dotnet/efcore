@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static KeyBuilder HasName(this KeyBuilder keyBuilder, string? name)
         {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             keyBuilder.Metadata.SetName(name);

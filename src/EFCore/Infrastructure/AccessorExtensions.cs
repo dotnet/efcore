@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [DebuggerStepThrough]
         public static TService GetService<TService>(this IInfrastructure<IServiceProvider> accessor)
             where TService : class
-            => InfrastructureExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
+            => InfrastructureExtensions.GetService<TService>(accessor);
 
         /// <summary>
         ///     <para>
@@ -62,6 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The object assigned to the property.</returns>
         [DebuggerStepThrough]
         public static T GetInfrastructure<T>(this IInfrastructure<T> accessor)
-            => Check.NotNull(accessor, nameof(accessor)).Instance;
+            => accessor.Instance;
     }
 }

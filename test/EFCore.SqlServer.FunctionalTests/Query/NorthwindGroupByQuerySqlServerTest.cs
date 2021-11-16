@@ -1316,6 +1316,26 @@ ORDER BY [t].[CustomerID]
 OFFSET @__p_1 ROWS");
         }
 
+        public override async Task GroupBy_aggregate_using_grouping_key_Pushdown(bool async)
+        {
+            await base.GroupBy_aggregate_using_grouping_key_Pushdown(async);
+
+            AssertSql(
+                @"@__p_0='20'
+@__p_1='4'
+
+SELECT [t].[Key], [t].[Max]
+FROM (
+    SELECT TOP(@__p_0) [o].[CustomerID] AS [Key], MAX([o].[CustomerID]) AS [Max]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 10
+    ORDER BY [o].[CustomerID]
+) AS [t]
+ORDER BY [t].[Key]
+OFFSET @__p_1 ROWS");
+        }
+
         public override async Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool async)
         {
             await base.GroupBy_aggregate_Pushdown_followed_by_projecting_Length(async);
@@ -1969,17 +1989,14 @@ ORDER BY [t].[City]");
             await base.GroupBy_select_grouping_composed_list_2(async);
 
             AssertSql(
-                @"SELECT [t].[City], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+                @"SELECT [t].[City], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM (
     SELECT [c].[City]
     FROM [Customers] AS [c]
     GROUP BY [c].[City]
 ) AS [t]
-LEFT JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-) AS [t0] ON [t].[City] = [t0].[City]
-ORDER BY [t].[City], [t0].[CustomerID]");
+LEFT JOIN [Customers] AS [c0] ON [t].[City] = [c0].[City]
+ORDER BY [t].[City], [c0].[CustomerID]");
         }
 
 

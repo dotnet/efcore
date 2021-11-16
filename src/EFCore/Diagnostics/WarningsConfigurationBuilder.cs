@@ -31,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="optionsBuilder">The options builder to which the warnings configuration will be applied.</param>
         public WarningsConfigurationBuilder(DbContextOptionsBuilder optionsBuilder)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             _optionsBuilder = optionsBuilder;
         }
 

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -27,8 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public TableValuedFunctionToQueryRootConvertingExpressionVisitor(IModel model)
         {
-            Check.NotNull(model, nameof(model));
-
             _model = model;
         }
 

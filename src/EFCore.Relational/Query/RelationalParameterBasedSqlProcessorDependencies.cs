@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -56,10 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IRelationalTypeMappingSource typeMappingSource,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
-
             SqlExpressionFactory = sqlExpressionFactory;
             TypeMappingSource = typeMappingSource;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;

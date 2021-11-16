@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasSrid(this PropertyBuilder propertyBuilder, int srid)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.Metadata.SetSrid(srid);
 
             return propertyBuilder;
@@ -95,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionPropertyBuilder propertyBuilder,
             int? srid,
             bool fromDataAnnotation = false)
-            => Check.NotNull(propertyBuilder, nameof(propertyBuilder)).CanSetAnnotation(
+            => propertyBuilder.CanSetAnnotation(
                 SqliteAnnotationNames.Srid,
                 srid,
                 fromDataAnnotation);

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -37,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -86,11 +83,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             IProperty property,
             IEntityType entityType,
             Func<IProperty, IEntityType, ValueGenerator> factory)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(factory, nameof(factory));
-
-            return _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
-        }
+            => _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore
             DateTime utcPointInTime)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
-
             var queryableSource = (IQueryable)source;
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;
@@ -88,8 +85,6 @@ namespace Microsoft.EntityFrameworkCore
             DateTime utcTo)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
-
             var queryableSource = (IQueryable)source;
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;
@@ -137,8 +132,6 @@ namespace Microsoft.EntityFrameworkCore
             DateTime utcTo)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
-
             var queryableSource = (IQueryable)source;
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;
@@ -186,8 +179,6 @@ namespace Microsoft.EntityFrameworkCore
             DateTime utcTo)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
-
             var queryableSource = (IQueryable)source;
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;
@@ -219,8 +210,6 @@ namespace Microsoft.EntityFrameworkCore
             this DbSet<TEntity> source)
             where TEntity : class
         {
-            Check.NotNull(source, nameof(source));
-
             var queryableSource = (IQueryable)source;
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;

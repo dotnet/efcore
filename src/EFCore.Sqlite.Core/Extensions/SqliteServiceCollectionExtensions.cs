@@ -72,7 +72,6 @@ namespace Microsoft.Extensions.DependencyInjection
             Action<DbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
             return serviceCollection.AddDbContext<TContext>(
@@ -107,8 +106,6 @@ namespace Microsoft.Extensions.DependencyInjection
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkSqlite(this IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, SqliteLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqliteOptionsExtension>>()

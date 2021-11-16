@@ -28,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="dependencies">The dependencies.</param>
         protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
-            => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
+        {
+            Dependencies = dependencies;
+        }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.

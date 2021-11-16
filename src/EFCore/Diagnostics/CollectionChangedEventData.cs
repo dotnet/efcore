@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -37,10 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IEnumerable<object> removed)
             : base(eventDefinition, messageGenerator, navigation)
         {
-            Check.NotNull(entityEntry, nameof(entityEntry));
-            Check.NotNull(added, nameof(added));
-            Check.NotNull(removed, nameof(removed));
-
             EntityEntry = entityEntry;
             Added = added;
             Removed = removed;

@@ -4,7 +4,6 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -55,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IRelationalConnection relationalConnection,
             IRelationalQueryStringFactory relationalQueryStringFactory)
         {
-            Check.NotNull(relationalConnection, nameof(relationalConnection));
-            Check.NotNull(relationalQueryStringFactory, nameof(relationalQueryStringFactory));
-
             RelationalConnection = relationalConnection;
             RelationalQueryStringFactory = relationalQueryStringFactory;
         }

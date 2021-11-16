@@ -327,7 +327,6 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContextImplementation : DbContext, TContextService
             where TContextService : class
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotNull(optionsAction, nameof(optionsAction));
 
             AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
@@ -566,8 +565,6 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContextImplementation : DbContext, TContextService
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             if (contextLifetime == ServiceLifetime.Singleton)
             {
                 optionsLifetime = ServiceLifetime.Singleton;
@@ -884,8 +881,6 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
             where TFactory : IDbContextFactory<TContext>
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             AddCoreServices<TContext>(serviceCollection, optionsAction, lifetime);
 
             serviceCollection.AddSingleton<IDbContextFactorySource<TContext>, DbContextFactorySource<TContext>>();
@@ -1000,7 +995,6 @@ namespace Microsoft.Extensions.DependencyInjection
             int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContext : DbContext
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotNull(optionsAction, nameof(optionsAction));
 
             AddPoolingOptions<TContext>(serviceCollection, optionsAction, poolSize);

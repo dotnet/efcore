@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -25,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         public HistoryRow(string migrationId, string productVersion)
         {
-            Check.NotEmpty(migrationId, nameof(migrationId));
-            Check.NotEmpty(productVersion, nameof(productVersion));
-
             MigrationId = migrationId;
             ProductVersion = productVersion;
         }

@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         /// </summary>
         public virtual void Bump(object?[] row)
         {
-            Check.NotNull(row, nameof(row));
-
             var newValue = (long)Convert.ChangeType(row[_propertyIndex]!, typeof(long));
 
             if (_current < newValue)

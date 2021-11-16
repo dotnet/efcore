@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -53,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             RelationalModelDependencies relationalModelDependencies,
             IRelationalAnnotationProvider relationalAnnotationProvider)
         {
-            Check.NotNull(relationalModelDependencies, nameof(relationalModelDependencies));
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-
             RelationalModelDependencies = relationalModelDependencies;
             RelationalAnnotationProvider = relationalAnnotationProvider;
         }

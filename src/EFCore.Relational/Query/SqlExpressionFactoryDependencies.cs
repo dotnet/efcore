@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -53,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public SqlExpressionFactoryDependencies(IModel model, IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             Model = model;
             TypeMappingSource = typeMappingSource;
         }

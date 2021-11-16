@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -44,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         public AnnotationCodeGeneratorDependencies(
             IRelationalTypeMappingSource relationalTypeMappingSource)
         {
-            Check.NotNull(relationalTypeMappingSource, nameof(relationalTypeMappingSource));
-
             RelationalTypeMappingSource = relationalTypeMappingSource;
         }
 

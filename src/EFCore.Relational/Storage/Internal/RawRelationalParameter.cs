@@ -30,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             DbParameter parameter)
             : base(invariantName)
         {
-            Check.NotNull(parameter, nameof(parameter));
-
             _parameter = parameter;
         }
 

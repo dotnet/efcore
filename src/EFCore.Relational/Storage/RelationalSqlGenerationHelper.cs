@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -37,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -119,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string EscapeIdentifier(string identifier)
-            => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
+            => identifier.Replace("\"", "\"\"");
 
         /// <summary>
         ///     Writes the escaped SQL representation of an identifier (column name, table name, etc.).
@@ -128,8 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to be escaped.</param>
         public virtual void EscapeIdentifier(StringBuilder builder, string identifier)
         {
-            Check.NotEmpty(identifier, nameof(identifier));
-
             var initialLength = builder.Length;
             builder.Append(identifier);
             builder.Replace("\"", "\"\"", initialLength, identifier.Length);
@@ -143,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string DelimitIdentifier(string identifier)
-            => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
+            => $"\"{EscapeIdentifier(identifier)}\""; // Interpolation okay; strings
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -152,8 +147,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to delimit.</param>
         public virtual void DelimitIdentifier(StringBuilder builder, string identifier)
         {
-            Check.NotEmpty(identifier, nameof(identifier));
-
             builder.Append('"');
             EscapeIdentifier(builder, identifier);
             builder.Append('"');
@@ -171,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => (!string.IsNullOrEmpty(schema)
                     ? DelimitIdentifier(schema) + "."
                     : string.Empty)
-                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+                + DelimitIdentifier(name);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -197,8 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>The generated SQL.</returns>
         public virtual string GenerateComment(string text)
         {
-            Check.NotEmpty(text, nameof(text));
-
             var builder = new StringBuilder();
             using (var reader = new StringReader(text))
             {

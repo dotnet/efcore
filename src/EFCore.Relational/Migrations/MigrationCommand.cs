@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -35,8 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IRelationalCommandDiagnosticsLogger logger,
             bool transactionSuppressed = false)
         {
-            Check.NotNull(relationalCommand, nameof(relationalCommand));
-
             _relationalCommand = relationalCommand;
             _context = context;
             CommandLogger = logger;

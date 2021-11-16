@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -57,11 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IMemoryCache memoryCache,
             ICoreSingletonOptions coreSingletonOptions)
         {
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(memoryCache, nameof(memoryCache));
-            Check.NotNull(coreSingletonOptions, nameof(coreSingletonOptions));
-
             EntityMaterializerSource = entityMaterializerSource;
             TypeMappingSource = typeMappingSource;
             MemoryCache = memoryCache;

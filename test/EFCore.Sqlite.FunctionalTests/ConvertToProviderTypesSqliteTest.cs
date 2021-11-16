@@ -45,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public override DateTime DefaultDateTime
                 => new();
+
+            public override bool PreservesDateTimeKind
+                => true;
         }
     }
 }

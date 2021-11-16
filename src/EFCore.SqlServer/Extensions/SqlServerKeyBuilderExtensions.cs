@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -31,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static KeyBuilder IsClustered(this KeyBuilder keyBuilder, bool clustered = true)
         {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-
             keyBuilder.Metadata.SetIsClustered(clustered);
 
             return keyBuilder;
@@ -99,10 +96,6 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-
-            return keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
-        }
+            => keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
     }
 }

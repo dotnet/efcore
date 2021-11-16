@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -32,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression keySelector,
             ShapedQueryExpression groupingEnumerable)
         {
-            Check.NotNull(keySelector, nameof(keySelector));
-            Check.NotNull(groupingEnumerable, nameof(groupingEnumerable));
-
             KeySelector = keySelector;
             GroupingEnumerable = groupingEnumerable;
         }
@@ -60,8 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var keySelector = visitor.Visit(KeySelector);
             var groupingEnumerable = (ShapedQueryExpression)visitor.Visit(GroupingEnumerable);
 
@@ -76,20 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="groupingEnumerable">The <see cref="GroupingEnumerable" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual GroupByShaperExpression Update(Expression keySelector, ShapedQueryExpression groupingEnumerable)
-        {
-            Check.NotNull(keySelector, nameof(keySelector));
-            Check.NotNull(groupingEnumerable, nameof(groupingEnumerable));
-
-            return keySelector != KeySelector || groupingEnumerable != GroupingEnumerable
+            => keySelector != KeySelector || groupingEnumerable != GroupingEnumerable
                 ? new GroupByShaperExpression(keySelector, groupingEnumerable)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine($"{nameof(GroupByShaperExpression)}:");
             expressionPrinter.Append("KeySelector: ");
             expressionPrinter.Visit(KeySelector);

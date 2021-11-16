@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -28,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             UseRelationalNulls = useRelationalNulls;
         }
@@ -56,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parametersValues, nameof(parametersValues));
-
             canCache = true;
             selectExpression = ProcessSqlNullability(selectExpression, parametersValues, out var sqlNullablityCanCache);
             canCache &= sqlNullablityCanCache;
@@ -81,12 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parametersValues, nameof(parametersValues));
-
-            return new SqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
-        }
+            => new SqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
 
         /// <summary>
         ///     Expands the parameters to <see cref="FromSqlExpression" /> inside the <see cref="SelectExpression" /> for given parameter values.
@@ -99,11 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parametersValues, nameof(parametersValues));
-
-            return new FromSqlParameterExpandingExpressionVisitor(Dependencies).Expand(selectExpression, parametersValues, out canCache);
-        }
+            => new FromSqlParameterExpandingExpressionVisitor(Dependencies).Expand(selectExpression, parametersValues, out canCache);
     }
 }

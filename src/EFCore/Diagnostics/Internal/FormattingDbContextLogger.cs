@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
@@ -44,8 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public virtual void Log(EventData eventData)
         {
-            Check.NotNull(eventData, nameof(eventData));
-
             var message = eventData.ToString();
             var logLevel = eventData.LogLevel;
             var eventId = eventData.EventId;

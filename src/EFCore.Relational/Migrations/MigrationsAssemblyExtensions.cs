@@ -33,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>The identifier of the migration.</returns>
         public static string GetMigrationId(this IMigrationsAssembly assembly, string nameOrId)
         {
-            Check.NotNull(assembly, nameof(assembly));
             Check.NotEmpty(nameOrId, nameof(nameOrId));
 
             var id = assembly.FindMigrationId(nameOrId);

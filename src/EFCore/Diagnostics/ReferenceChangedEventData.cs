@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -36,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             object? newReferencedEntity)
             : base(eventDefinition, messageGenerator, navigation)
         {
-            Check.NotNull(entityEntry, nameof(entityEntry));
-
             EntityEntry = entityEntry;
             OldReferencedEntity = oldReferencedEntity;
             NewReferencedEntity = newReferencedEntity;

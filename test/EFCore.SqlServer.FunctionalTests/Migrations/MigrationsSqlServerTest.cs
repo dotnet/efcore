@@ -635,6 +635,23 @@ ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];");
         }
 
+        public override async Task Alter_column_change_computed_recreates_indexes()
+        {
+            await base.Alter_column_change_computed_recreates_indexes();
+
+            AssertSql(
+                @"DROP INDEX [IX_People_Sum] ON [People];
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] AS [X] - [Y];",
+                @"CREATE INDEX [IX_People_Sum] ON [People] ([Sum]);");
+        }
+
         public override async Task Alter_column_change_computed_type()
         {
             await base.Alter_column_change_computed_type();
@@ -1763,6 +1780,53 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
 
             AssertSql(
                 @"CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        [ConditionalFact]
+        public async Task Create_sequence_byte()
+        {
+            await Test(
+                builder => { },
+                builder => builder.HasSequence<byte>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        [ConditionalFact]
+        public async Task Create_sequence_decimal()
+        {
+            await Test(
+                builder => { },
+                builder => builder.HasSequence<decimal>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        public override async Task Create_sequence_long()
+        {
+            await base.Create_sequence_long();
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
+        }
+
+        public override async Task Create_sequence_short()
+        {
+            await base.Create_sequence_short();
+
+            AssertSql(
+                @"CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;");
         }
 
         public override async Task Create_sequence_all_settings()

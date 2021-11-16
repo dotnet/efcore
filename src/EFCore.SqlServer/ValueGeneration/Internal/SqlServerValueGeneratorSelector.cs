@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
@@ -60,11 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override ValueGenerator Select(IProperty property, IEntityType entityType)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
-            return property.GetValueGeneratorFactory() == null
+            => property.GetValueGeneratorFactory() == null
                 && property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
                     ? _sequenceFactory.Create(
                         property,
@@ -73,7 +68,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                         _rawSqlCommandBuilder,
                         _commandLogger)
                     : base.Select(property, entityType);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,15 +76,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
-        {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
-            return property.ClrType.UnwrapNullableType() == typeof(Guid)
+            => property.ClrType.UnwrapNullableType() == typeof(Guid)
                 ? property.ValueGenerated == ValueGenerated.Never || property.GetDefaultValueSql() != null
                     ? new TemporaryGuidValueGenerator()
                     : new SequentialGuidValueGenerator()
                 : base.Create(property, entityType);
-        }
     }
 }

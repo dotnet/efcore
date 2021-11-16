@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -23,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public SqlServerTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

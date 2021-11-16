@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -46,10 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
             if (Equals(method, _methodInfo)
                 && instance != null)
             {
@@ -57,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return instance.Type != argument.Type
                     ? null
                     // TODO: If argument is SelectExpression, we need to clone it.
-                    // See issue#24460
+                    // See issue#26532
                     : (SqlExpression)_sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
             }
 

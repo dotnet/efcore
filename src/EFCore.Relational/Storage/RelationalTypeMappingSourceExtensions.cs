@@ -58,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalTypeMappingSource typeMappingSource,
             IProperty property)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(property, nameof(property));
 
             var mapping = typeMappingSource.FindMapping(property);
@@ -85,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalTypeMappingSource typeMappingSource,
             Type clrType)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(clrType, nameof(clrType));
 
             var mapping = typeMappingSource.FindMapping(clrType);
@@ -133,7 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             this IRelationalTypeMappingSource typeMappingSource,
             string typeName)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             // Note: Empty string is allowed for store type name because SQLite
             Check.NotNull(typeName, nameof(typeName));
 

@@ -11,7 +11,6 @@ using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -47,9 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public EntityQueryable(IAsyncQueryProvider queryProvider, Expression expression)
         {
-            Check.NotNull(queryProvider, nameof(queryProvider));
-            Check.NotNull(expression, nameof(expression));
-
             _queryProvider = queryProvider;
             Expression = expression;
         }

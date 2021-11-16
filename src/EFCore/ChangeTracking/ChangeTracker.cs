@@ -43,10 +43,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             IModel model,
             IEntityEntryGraphIterator graphIterator)
         {
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(stateManager, nameof(stateManager));
-            Check.NotNull(changeDetector, nameof(changeDetector));
-
             Context = context;
 
             _defaultQueryTrackingBehavior

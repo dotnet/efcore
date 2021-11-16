@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -58,20 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IRelationalCommandDiagnosticsLogger commandLogger,
             IDatabaseProvider databaseProvider)
         {
-            Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
-            Check.NotNull(historyRepository, nameof(historyRepository));
-            Check.NotNull(databaseCreator, nameof(databaseCreator));
-            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(commandLogger, nameof(commandLogger));
-            Check.NotNull(databaseProvider, nameof(databaseProvider));
-
             _migrationsAssembly = migrationsAssembly;
             _historyRepository = historyRepository;
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
@@ -453,8 +438,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Migration migration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
-            Check.NotNull(migration, nameof(migration));
-
             var insertCommand = _rawSqlCommandBuilder.Build(
                 _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())));
 
@@ -475,8 +458,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Migration? previousMigration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
-            Check.NotNull(migration, nameof(migration));
-
             var deleteCommand = _rawSqlCommandBuilder.Build(
                 _historyRepository.GetDeleteScript(migration.GetId()));
 

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -51,8 +50,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <inheritdoc />
         public override DbContextOptions WithExtension<TExtension>(TExtension extension)
         {
-            Check.NotNull(extension, nameof(extension));
-
             var type = extension.GetType();
             var ordinal = ExtensionsMap.Count;
             if (ExtensionsMap.TryGetValue(type, out var existingValue))

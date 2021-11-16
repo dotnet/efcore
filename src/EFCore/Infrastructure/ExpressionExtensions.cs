@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="characterLimit">An optional limit to the number of characters included. Additional output will be truncated.</param>
         /// <returns>The printable representation.</returns>
         public static string Print(this Expression expression, int? characterLimit = null)
-            => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
+            => new ExpressionPrinter().Print(expression, characterLimit);
 
         /// <summary>
         ///     Creates a <see cref="MemberExpression"></see> that represents accessing either a field or a property.
@@ -223,8 +223,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The list of referenced properties.</returns>
         public static IReadOnlyList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
         {
-            Check.NotNull(propertyAccessExpression, nameof(propertyAccessExpression));
-
             if (propertyAccessExpression.Parameters.Count != 1)
             {
                 throw new ArgumentException(
@@ -262,8 +260,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>The list of referenced members.</returns>
         public static IReadOnlyList<MemberInfo> GetMemberAccessList(this LambdaExpression memberAccessExpression)
         {
-            Check.NotNull(memberAccessExpression, nameof(memberAccessExpression));
-
             var memberPaths = memberAccessExpression
                 .MatchMemberAccessList((p, e) => e.MatchSimpleMemberAccess<MemberInfo>(p));
 

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -53,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEvaluatableExpressionFilter evaluatableExpressionFilter,
             INavigationExpansionExtensibilityHelper navigationExpansionExtensibilityHelper)
         {
-            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
-            Check.NotNull(navigationExpansionExtensibilityHelper, nameof(navigationExpansionExtensibilityHelper));
-
             EvaluatableExpressionFilter = evaluatableExpressionFilter;
             NavigationExpansionExtensibilityHelper = navigationExpansionExtensibilityHelper;
         }

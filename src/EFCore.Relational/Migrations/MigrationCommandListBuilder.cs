@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -28,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public MigrationCommandListBuilder(
             MigrationsSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             _commandBuilder = dependencies.CommandBuilderFactory.Create();
         }
@@ -78,8 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>This builder so that additional calls can be chained.</returns>
         public virtual MigrationCommandListBuilder Append(string o)
         {
-            Check.NotNull(o, nameof(o));
-
             _commandBuilder.Append(o);
 
             return this;
@@ -103,8 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>This builder so that additional calls can be chained.</returns>
         public virtual MigrationCommandListBuilder AppendLine(string value)
         {
-            Check.NotNull(value, nameof(value));
-
             _commandBuilder.AppendLine(value);
 
             return this;
@@ -119,8 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>This builder so that additional calls can be chained.</returns>
         public virtual MigrationCommandListBuilder AppendLines(string value)
         {
-            Check.NotNull(value, nameof(value));
-
             _commandBuilder.AppendLines(value);
 
             return this;

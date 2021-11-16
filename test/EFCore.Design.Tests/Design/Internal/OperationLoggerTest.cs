@@ -27,7 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Collection(
                 reporter.Messages,
-                x => Assert.Equal("verbose: -- Can't stop the SQL", x));
+                x =>
+                {
+                    Assert.Equal("-- Can't stop the SQL", x.Message);
+                    Assert.Equal(LogLevel.Debug, x.Level);
+                });
         }
     }
 }

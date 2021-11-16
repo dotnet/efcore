@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="alias">A string alias for the table source.</param>
         protected TableExpressionBase(string? alias)
         {
-            Check.NullButNotEmpty(alias, nameof(alias));
-
             Alias = alias;
         }
 
@@ -36,11 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         public override Type Type

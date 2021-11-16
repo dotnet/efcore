@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -45,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns>The combined interceptor.</returns>
         public virtual IInterceptor? AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
         {
-            Check.NotNull(interceptors, nameof(interceptors));
-
             if (!_resolved)
             {
                 if (interceptors.Count == 1)

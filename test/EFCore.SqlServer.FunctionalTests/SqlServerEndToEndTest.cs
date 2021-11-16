@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -870,6 +871,193 @@ namespace Microsoft.EntityFrameworkCore
                 var entityA = context.EntitiesA.Include(x => x.EntityB).ThenInclude(x => x.EntitiesC).OrderBy(x => x.Id).First();
 
                 Assert.Equal(expectedCId, entityA.EntityB.EntitiesC.Single().Id);
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(
+            nameof(DataGenerator.GetCombinations),
+            new object[] { 0, 1, 2, 3, 4 },
+            2,
+            MemberType = typeof(DataGenerator))]
+        public void Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
+        {
+            var students = new Student[]
+            {
+                new Student{FirstMidName="Carson",LastName="Alexander",EnrollmentDate=DateTime.Parse("2019-09-01")},
+                new Student{FirstMidName="Meredith",LastName="Alonso",EnrollmentDate=DateTime.Parse("2017-09-01")},
+                new Student{FirstMidName="Arturo",LastName="Anand",EnrollmentDate=DateTime.Parse("2018-09-01")},
+                new Student{FirstMidName="Gytis",LastName="Barzdukas",EnrollmentDate=DateTime.Parse("2017-09-01")},
+                new Student{FirstMidName="Yan",LastName="Li",EnrollmentDate=DateTime.Parse("2017-09-01")},
+                new Student{FirstMidName="Peggy",LastName="Justice",EnrollmentDate=DateTime.Parse("2016-09-01")},
+                new Student{FirstMidName="Laura",LastName="Norman",EnrollmentDate=DateTime.Parse("2018-09-01")},
+                new Student{FirstMidName="Nino",LastName="Olivetto",EnrollmentDate=DateTime.Parse("2019-09-01")}
+            };
+
+            var courses = new Course[]
+            {
+                new Course{Title="Chemistry",Credits=3},
+                new Course{Title="Microeconomics",Credits=3},
+                new Course{Title="Macroeconomics",Credits=3},
+                new Course{Title="Calculus",Credits=4},
+                new Course{Title="Trigonometry",Credits=4},
+                new Course{Title="Composition",Credits=3},
+                new Course{Title="Literature",Credits=4}
+            };
+
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+
+            using (var context = new UniversityContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+                for (var i = 0; i < studentCount; i++)
+                {
+                    context.Students.Add(students[i]);
+                }
+                for (var i = 0; i < courseCount; i++)
+                {
+                    context.Courses.Add(courses[i]);
+                }
+
+                context.SaveChanges();
+            }
+
+            using (var context = new UniversityContext(options))
+            {
+                Assert.Equal(studentCount, context.Students.Count());
+                Assert.Equal(courseCount, context.Courses.Count());
+            }
+        }
+
+        public class Course
+        {
+            public Guid Id { get; set; }
+
+            public string Title { get; set; } = string.Empty;
+
+            public int Credits { get; set; }
+
+            public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
+            public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        }
+
+        public class Student
+        {
+            public Guid Id { get; set; }
+
+            public string LastName { get; set; } = string.Empty;
+
+            public string FirstMidName { get; set; } = string.Empty;
+
+            public DateTime EnrollmentDate { get; set; }
+
+            public virtual ICollection<Enrollment> Enrollments { get; } = new List<Enrollment>();
+
+            public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        }
+
+        public enum Grade
+        {
+            A, B, C, D, F
+        }
+
+        public class Enrollment
+        {
+            public Guid Id { get; set; }
+
+            public Guid CourseId { get; set; }
+
+            public Guid StudentId { get; set; }
+
+            public Grade? Grade { get; set; }
+
+            public virtual Course Course { get; set; } = new();
+
+            public virtual Student Student { get; set; } = new();
+
+            public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        }
+
+        private class UniversityContext : DbContext
+        {
+            public UniversityContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Student> Students { get; set; }
+            public DbSet<Course> Courses { get; set; }
+            public DbSet<Enrollment> Enrollments { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Course>(builder =>
+                {
+                    builder.ToTable("Courses");
+
+                    builder.HasKey(x => x.Id);
+
+                    builder.Property(x => x.Id)
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                    builder.Property(x => x.Title)
+                        .IsRequired()
+                        .HasMaxLength(50);
+
+                    builder.Property(x => x.RowVersion)
+                        .IsRowVersion();
+                });
+
+                modelBuilder.Entity<Student>(builder =>
+                {
+                    builder.ToTable("Students");
+
+                    builder.HasKey(x => x.Id);
+
+                    builder.Property(x => x.Id)
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                    builder.Property(x => x.LastName)
+                        .IsRequired()
+                        .HasMaxLength(50);
+
+                    builder.Property(x => x.FirstMidName)
+                        .IsRequired()
+                        .HasMaxLength(50);
+
+                    builder.Property(x => x.RowVersion)
+                        .IsRowVersion();
+                });
+
+                modelBuilder.Entity<Enrollment>(builder =>
+                {
+                    builder.ToTable("Enrollments");
+
+                    builder.HasKey(x => x.Id);
+
+                    builder.Property(x => x.Id)
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+
+                    builder.Property(x => x.RowVersion)
+                        .IsRowVersion();
+
+                    builder.HasOne(t => t.Course)
+                        .WithMany(t => t.Enrollments)
+                        .HasPrincipalKey(d => d.Id)
+                        .HasForeignKey(d => d.CourseId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    builder.HasOne(t => t.Student)
+                        .WithMany(t => t.Enrollments)
+                        .HasPrincipalKey(d => d.Id)
+                        .HasForeignKey(d => d.StudentId)
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
             }
         }
 

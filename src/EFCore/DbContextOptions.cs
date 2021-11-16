@@ -8,7 +8,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -46,8 +45,6 @@ namespace Microsoft.EntityFrameworkCore
         protected DbContextOptions(
             IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
         {
-            Check.NotNull(extensions, nameof(extensions));
-
             _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance)
                 .AddRange(extensions.Select((p, i) => new KeyValuePair<Type, (IDbContextOptionsExtension, int)>(p.Key, (p.Value, i))));
         }
@@ -62,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore
         protected DbContextOptions(
             ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
         {
-            Check.NotNull(extensions, nameof(extensions));
-
             _extensionsMap = extensions;
         }
 

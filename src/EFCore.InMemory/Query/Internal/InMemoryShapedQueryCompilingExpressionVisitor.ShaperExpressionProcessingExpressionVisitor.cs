@@ -216,8 +216,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
-                Check.NotNull(binaryExpression, nameof(binaryExpression));
-
                 if (binaryExpression.NodeType == ExpressionType.Assign
                     && binaryExpression.Left is ParameterExpression parameterExpression
                     && parameterExpression.Type == typeof(MaterializationContext))
@@ -253,8 +251,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {

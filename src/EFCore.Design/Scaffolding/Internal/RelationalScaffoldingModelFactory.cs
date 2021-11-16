@@ -943,6 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             existingIdentifiers.AddRange(entityType.GetNavigations().Select(p => p.Name));
+            existingIdentifiers.AddRange(entityType.GetSkipNavigations().Select(p => p.Name));
             return existingIdentifiers;
         }
 

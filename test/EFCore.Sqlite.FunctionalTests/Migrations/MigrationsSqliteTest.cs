@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
@@ -429,6 +428,27 @@ FROM ""People"";",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
                 @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_column_change_computed_recreates_indexes()
+        {
+            await base.Alter_column_change_computed_recreates_indexes();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" AS (""X"" - ""Y""),
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""X"", ""Y"")
+SELECT ""Id"", ""X"", ""Y""
+FROM ""People"";",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;",
+                @"CREATE INDEX ""IX_People_Sum"" ON ""People"" (""Sum"");");
         }
 
         public override async Task Alter_column_change_computed_type()
@@ -923,23 +943,29 @@ FROM ""People"";",
         public override Task Create_sequence()
             => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
 
+        public override Task Create_sequence_long()
+            => AssertNotSupportedAsync(base.Create_sequence_long, SqliteStrings.SequencesNotSupported);
+
+        public override Task Create_sequence_short()
+            => AssertNotSupportedAsync(base.Create_sequence_short, SqliteStrings.SequencesNotSupported);
+
         public override Task Create_sequence_all_settings()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Create_sequence_all_settings, SqliteStrings.SequencesNotSupported);
 
         public override Task Alter_sequence_all_settings()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Alter_sequence_all_settings, SqliteStrings.SequencesNotSupported);
 
         public override Task Alter_sequence_increment_by()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Alter_sequence_increment_by, SqliteStrings.SequencesNotSupported);
 
         public override Task Drop_sequence()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Drop_sequence, SqliteStrings.SequencesNotSupported);
 
         public override Task Rename_sequence()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Rename_sequence, SqliteStrings.SequencesNotSupported);
 
         public override Task Move_sequence()
-            => AssertNotSupportedAsync(base.Create_sequence, SqliteStrings.SequencesNotSupported);
+            => AssertNotSupportedAsync(base.Move_sequence, SqliteStrings.SequencesNotSupported);
 
         // SQLite does not support schemas
         protected override bool AssertSchemaNames
