@@ -826,18 +826,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetValueComparer()
-        {
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26629", out var enabled)
-                    && enabled))
-            {
-                return GetValueComparer(new HashSet<IProperty>())
-                    ?? TypeMapping?.Comparer;
-            }
-
-            return (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
-                ?? FindFirstDifferentPrincipal()?.GetValueComparer()
+            => GetValueComparer(null)
                 ?? TypeMapping?.Comparer;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -846,18 +836,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetKeyValueComparer()
-        {
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26629", out var enabled)
-                    && enabled))
-            {
-                return GetValueComparer(new HashSet<IProperty>())
-                    ?? TypeMapping?.KeyComparer;
-            }
-
-            return (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
-                ?? FindFirstDifferentPrincipal()?.GetKeyValueComparer()
+            => GetValueComparer(null)
                 ?? TypeMapping?.KeyComparer;
-        }
 
         private ValueComparer? GetValueComparer(HashSet<IProperty>? checkedProperties)
         {
@@ -1041,7 +1021,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property =>
                     property.IsShadowProperty()
                     || (property.IsIndexerProperty()
-                        && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26590", out var enabled) || !enabled)
                         ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
                         : ((property.PropertyInfo != null
                                     && entityType.GetRuntimeProperties().ContainsKey(property.Name))
