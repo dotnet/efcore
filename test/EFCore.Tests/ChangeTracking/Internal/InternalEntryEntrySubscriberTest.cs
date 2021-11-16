@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -585,6 +586,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private string _notMapped;
             private ICollection<ChangedOnlyNotificationEntity> _relatedCollection;
 
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
                 get => _id;

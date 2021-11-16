@@ -79,11 +79,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
-                if (!entry.HasDefaultValue(property)
-                    || (!includePrimaryKey
-                        && property.IsPrimaryKey()))
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)
                 {
-                    continue;
+                    if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
+                    {
+                        continue;
+                    }
+                }
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)
+                {                    
+                    if (entry.HasDefaultValue(property) || property.IsKey())
+                    {
+                        continue;
+                    }
                 }
 
                 var valueGenerator = GetValueGenerator(entry, property);
@@ -126,11 +134,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
-                if (!entry.HasDefaultValue(property)
-                    || (!includePrimaryKey
-                        && property.IsPrimaryKey()))
+                if (entry.EntityState == EntityState.Added || entry.EntityState == EntityState.Detached)
                 {
-                    continue;
+                    if (!entry.HasDefaultValue(property) || (!includePrimaryKey && property.IsPrimaryKey()))
+                    {
+                        continue;
+                    }
+                }
+                if (entry.EntityState == EntityState.Modified || entry.EntityState == EntityState.Unchanged)
+                {
+                    if (entry.HasDefaultValue(property) || property.IsKey())
+                    {
+                        continue;
+                    }
                 }
 
                 var valueGenerator = GetValueGenerator(entry, property);
