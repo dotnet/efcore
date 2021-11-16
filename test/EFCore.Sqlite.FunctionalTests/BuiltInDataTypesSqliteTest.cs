@@ -1667,6 +1667,9 @@ ORDER BY ""b"".""Id"", ""b0"".""Id""");
             public override bool SupportsDecimalComparisons
                 => false;
 
+            public override bool PreservesDateTimeKind
+                => false;
+
             protected override ITestStoreFactory TestStoreFactory
                 => SqliteTestStoreFactory.Instance;
 
