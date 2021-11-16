@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -33,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public SqliteRegexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
@@ -50,10 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
             if (method.Equals(_regexIsMatchMethodInfo))
             {
                 var input = arguments[0];

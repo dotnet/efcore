@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -46,13 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
             // Issue #15586: Query: TypeCompatibility chart for inference.
-            return _methodInfo.Equals(method)
+            => _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Function(
                     "abs",
                     new SqlExpression[]
@@ -70,6 +64,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     argumentsPropagateNullability: Array.Empty<bool>(),
                     method.ReturnType)
                 : null;
-        }
     }
 }

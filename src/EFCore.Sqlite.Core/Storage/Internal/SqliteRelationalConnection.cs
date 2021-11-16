@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
@@ -41,8 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
             : base(dependencies)
         {
-            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
-
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _logger = logger;
 

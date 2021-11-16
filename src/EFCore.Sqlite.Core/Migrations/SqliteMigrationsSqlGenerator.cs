@@ -571,9 +571,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate)
         {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
             builder
                 .Append("DROP INDEX ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name));
@@ -606,9 +603,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder">The command builder to use to build the commands.</param>
         protected override void Generate(RenameTableOperation operation, IModel? model, MigrationCommandListBuilder builder)
         {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
             if (operation.NewName != null
                 && operation.NewName != operation.Name)
             {
@@ -630,11 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
         /// <param name="builder">The command builder to use to build the commands.</param>
         protected override void Generate(RenameColumnOperation operation, IModel? model, MigrationCommandListBuilder builder)
-        {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
-            builder
+            => builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table))
                 .Append(" RENAME COLUMN ")
@@ -643,7 +633,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.NewName))
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
-        }
 
         /// <summary>
         ///     Builds commands for the given <see cref="CreateTableOperation" /> by making calls on the given
@@ -659,9 +648,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
             var spatialiteColumns = new Stack<AddColumnOperation>();
             for (var i = operation.Columns.Count - 1; i >= 0; i--)
             {
@@ -739,9 +725,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IModel? model,
             MigrationCommandListBuilder builder)
         {
-            Check.NotNull(operation, nameof(operation));
-            Check.NotNull(builder, nameof(builder));
-
             if (!operation.Columns.Any(c => !string.IsNullOrEmpty(c.Comment)))
             {
                 base.CreateTableColumns(operation, model, builder);
