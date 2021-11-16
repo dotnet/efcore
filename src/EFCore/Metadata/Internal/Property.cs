@@ -826,8 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetValueComparer()
-            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
-                ?? FindFirstDifferentPrincipal()?.GetValueComparer()
+            => GetValueComparer(new HashSet<IProperty>())
                 ?? TypeMapping?.Comparer;
 
         /// <summary>
@@ -837,9 +836,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ValueComparer? GetKeyValueComparer()
-            => (ValueComparer?)this[CoreAnnotationNames.ValueComparer]
-                ?? FindFirstDifferentPrincipal()?.GetKeyValueComparer()
+            => GetValueComparer(new HashSet<IProperty>())
                 ?? TypeMapping?.KeyComparer;
+
+        private ValueComparer? GetValueComparer(HashSet<IProperty>? checkedProperties)
+        {
+            var comparer = (ValueComparer?)this[CoreAnnotationNames.ValueComparer];
+            if (comparer != null)
+            {
+                return comparer;
+            }
+
+            var principal = ((Property?)FindFirstDifferentPrincipal());
+            if (principal == null)
+            {
+                return null;
+            }
+
+            if (checkedProperties == null)
+            {
+                checkedProperties = new();
+            }
+            else if (checkedProperties.Contains(this))
+            {
+                return null;
+            }
+
+            checkedProperties.Add(this);
+            return principal.GetValueComparer(checkedProperties);
+        }
 
         private IProperty? FindFirstDifferentPrincipal()
         {
@@ -995,13 +1020,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => properties.All(
                 property =>
                     property.IsShadowProperty()
-                    || (property.IsIndexerProperty()
-                        && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26590", out var enabled) || !enabled)
+                    || property.IsIndexerProperty()
                         ? property.PropertyInfo == entityType.FindIndexerPropertyInfo()
                         : ((property.PropertyInfo != null
                                     && entityType.GetRuntimeProperties().ContainsKey(property.Name))
                                 || (property.FieldInfo != null
-                                    && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
+                                    && entityType.GetRuntimeFields().ContainsKey(property.Name))));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

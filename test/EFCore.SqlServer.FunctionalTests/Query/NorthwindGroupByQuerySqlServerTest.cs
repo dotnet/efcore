@@ -1316,6 +1316,26 @@ ORDER BY [t].[CustomerID]
 OFFSET @__p_1 ROWS");
         }
 
+        public override async Task GroupBy_aggregate_using_grouping_key_Pushdown(bool async)
+        {
+            await base.GroupBy_aggregate_using_grouping_key_Pushdown(async);
+
+            AssertSql(
+                @"@__p_0='20'
+@__p_1='4'
+
+SELECT [t].[Key], [t].[Max]
+FROM (
+    SELECT TOP(@__p_0) [o].[CustomerID] AS [Key], MAX([o].[CustomerID]) AS [Max]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 10
+    ORDER BY [o].[CustomerID]
+) AS [t]
+ORDER BY [t].[Key]
+OFFSET @__p_1 ROWS");
+        }
+
         public override async Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool async)
         {
             await base.GroupBy_aggregate_Pushdown_followed_by_projecting_Length(async);

@@ -16,6 +16,7 @@ namespace Microsoft.Data.Sqlite
 #pragma warning restore IDE0052 // Remove unread private members
         private readonly List<SqliteConnectionPoolGroup> _idlePoolGroups = new();
         private readonly List<SqliteConnectionPool> _poolsToRelease = new();
+        private readonly ReaderWriterLockSlim _lock = new();
 
         private Dictionary<string, SqliteConnectionPoolGroup> _poolGroups = new();
 
@@ -49,28 +50,43 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionPoolGroup GetPoolGroup(string connectionString)
         {
-            if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
-                || (poolGroup.IsDisabled
-                    && !poolGroup.IsNonPooled))
+            _lock.EnterUpgradeableReadLock();
+
+            try
             {
-                var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
-
-                lock (this)
+                if (!_poolGroups.TryGetValue(connectionString, out var poolGroup)
+                    || (poolGroup.IsDisabled
+                        && !poolGroup.IsNonPooled))
                 {
-                    if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
-                    {
-                        var isNonPooled = connectionOptions.DataSource == ":memory:"
-                            || connectionOptions.Mode == SqliteOpenMode.Memory
-                            || connectionOptions.DataSource.Length == 0
-                            || !connectionOptions.Pooling;
+                    var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
 
-                        poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
-                        _poolGroups.Add(connectionString, poolGroup);
+                    _lock.EnterWriteLock();
+
+                    try
+                    {
+                        if (!_poolGroups.TryGetValue(connectionString, out poolGroup))
+                        {
+                            var isNonPooled = connectionOptions.DataSource == ":memory:"
+                                || connectionOptions.Mode == SqliteOpenMode.Memory
+                                || connectionOptions.DataSource.Length == 0
+                                || !connectionOptions.Pooling;
+
+                            poolGroup = new SqliteConnectionPoolGroup(connectionOptions, connectionString, isNonPooled);
+                            _poolGroups.Add(connectionString, poolGroup);
+                        }
+                    }
+                    finally
+                    {
+                        _lock.ExitWriteLock();
                     }
                 }
-            }
 
-            return poolGroup;
+                return poolGroup;
+            }
+            finally
+            {
+                _lock.ExitUpgradeableReadLock();
+            }
         }
 
         public void ReleasePool(SqliteConnectionPool pool, bool clearing)
@@ -90,12 +106,18 @@ namespace Microsoft.Data.Sqlite
 
         public void ClearPools()
         {
-            lock (this)
+            _lock.EnterWriteLock();
+
+            try
             {
                 foreach (var entry in _poolGroups)
                 {
                     entry.Value.Clear();
                 }
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
             }
         }
 
@@ -126,7 +148,9 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            lock (this)
+            _lock.EnterWriteLock();
+
+            try
             {
                 var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
                 foreach (var entry in _poolGroups)
@@ -144,6 +168,10 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _poolGroups = activePoolGroups;
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
             }
         }
     }

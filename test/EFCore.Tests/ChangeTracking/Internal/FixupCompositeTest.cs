@@ -3427,6 +3427,41 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
+        [ConditionalTheory]
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Add_principal_then_dependent_circular_one_to_many(EntityState entityState)
+        {
+            using var context = new FixupContext();
+            var principal = new ParentShared
+            {
+                ID = 77,
+                FavoriteChildID = 78
+            };
+            var dependent = new ChildShared
+            {
+                ID = 78,
+                ParentID = 77
+            };
+
+            context.Entry(principal).State = entityState;
+            context.Entry(dependent).State = entityState;
+
+            AssertFixup(
+                context,
+                () =>
+                {
+                    Assert.Equal(principal.ID, dependent.ParentID);
+                    Assert.Same(principal, dependent.ParentShared);
+                    Assert.Equal(new[] { dependent }.ToList(), principal.Children);
+                    Assert.Equal(dependent.ID, principal.FavoriteChildID);
+                    Assert.Same(dependent, principal.FavoriteChildShared);
+                    Assert.Equal(entityState, context.Entry(principal).State);
+                    Assert.Equal(entityState, context.Entry(dependent).State);
+                });
+        }
+
         private class Parent
         {
             public int Id1 { get; set; }
@@ -3568,6 +3603,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int CategoryId1 { get; set; }
             public Guid CategoryId2 { get; set; }
             public Category Category { get; set; }
+        }
+
+        public class ParentShared
+        {
+            public long ID { get; set; }
+            public long? FavoriteChildID { get; set; }
+
+            public virtual ChildShared FavoriteChildShared { get; set; }
+            public virtual List<ChildShared> Children { get; } = new();
+        }
+
+        public class ChildShared
+        {
+            public long ParentID { get; set; }
+            public long ID { get; set; }
+
+            public virtual ParentShared ParentShared { get; set; }
         }
 
         private class FixupContext : DbContext
@@ -3727,6 +3779,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         b.HasKey(
                             e => new { e.Id1, e.Id2 });
                     });
+
+                modelBuilder.Entity<ParentShared>(entity =>
+                {
+                    entity.HasOne(d => d.FavoriteChildShared)
+                        .WithOne()
+                        .HasForeignKey<ParentShared>(d => new { d.ID, d.FavoriteChildID });
+                });
+
+                modelBuilder.Entity<ChildShared>(entity =>
+                {
+                    entity.HasKey(d => new { d.ParentID, d.ID });
+
+                    entity.HasOne(d => d.ParentShared)
+                        .WithMany(p => p.Children)
+                        .HasForeignKey(d => d.ParentID);
+                });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

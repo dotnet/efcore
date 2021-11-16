@@ -2620,6 +2620,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Add(subquery);
             _tableReferences.Add(subqueryTableReferenceExpression);
 
+            // Remap tableReferences in inner so that all components follow referential integrity.
+            foreach (var tableReference in subquery._tableReferences)
+            {
+                tableReference.UpdateTableReference(this, subquery);
+            }
+
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>(ReferenceEqualityComparer.Instance);
 
             if (_projection.Count > 0)
@@ -2754,12 +2760,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 && subquery.Limit == null)
             {
                 subquery.ClearOrdering();
-            }
-
-            // Remap tableReferences in inner
-            foreach (var tableReference in subquery._tableReferences)
-            {
-                tableReference.UpdateTableReference(this, subquery);
             }
 
             var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, subquery);
