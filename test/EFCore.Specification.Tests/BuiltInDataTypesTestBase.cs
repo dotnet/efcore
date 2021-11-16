@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -261,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (entityType.FindProperty(nameof(BuiltInDataTypes.TestDateTimeOffset)) != null)
             {
-                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.Zero);
+                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
                 Assert.Same(
                     entity,
                     set.Where(e => e.Id == 11 && EF.Property<DateTimeOffset>(e, nameof(BuiltInDataTypes.TestDateTimeOffset)) == param7)
@@ -495,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore
                     TestDouble = -1.23456789,
                     TestDecimal = -1234567890.01M,
                     TestDateTime = Fixture.DefaultDateTime,
-                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.Zero),
+                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
                     TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                     TestSingle = -1.234F,
                     TestBoolean = true,
@@ -1296,7 +1297,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestInt64 = -1234567890123456789L,
                         TestDouble = -1.23456789,
                         TestDecimal = -1234567890.01M,
-                        TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                        TestDateTime = DateTime.Parse("01/01/2000 12:34:56", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal),
                         TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                         TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestSingle = -1.234F,
@@ -1330,7 +1331,8 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.TestInt64);
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.TestDouble);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.TestDecimal);
-                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.TestDateTime);
+                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal),
+                    () => dt.TestDateTime);
                 AssertEqualIfMapped(
                     entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
                     () => dt.TestDateTimeOffset);
@@ -1547,6 +1549,14 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.True(Equal(Convert.ToUInt64(expected), Convert.ToUInt64(actual)), $"Expected:\t{expected}\r\nActual:\t{actual}");
                 }
+                else if(type == typeof(DateTime))
+                {
+                    Assert.True(Equal((DateTime)(object)expected, (DateTime)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
+                }
+                else if (type == typeof(DateTimeOffset))
+                {
+                    Assert.True(Equal((DateTimeOffset)(object)expected, (DateTimeOffset)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
+                }
                 else
                 {
                     Assert.Equal(expected, actual);
@@ -1585,6 +1595,12 @@ namespace Microsoft.EntityFrameworkCore
 
             return left == right;
         }
+
+        private bool Equal(DateTime left, DateTime right)
+            => left.Equals(right) && (!Fixture.PreservesDateTimeKind || left.Kind == right.Kind);
+
+        private bool Equal(DateTimeOffset left, DateTimeOffset right)
+            => left.EqualsExact(right);
 
         private static Type UnwrapNullableType(Type type)
             => type == null ? null : Nullable.GetUnderlyingType(type) ?? type;
@@ -1674,9 +1690,9 @@ namespace Microsoft.EntityFrameworkCore
                         TestNullableInt64 = -1234567890123456789L,
                         TestNullableDouble = -1.23456789,
                         TestNullableDecimal = -1234567890.01M,
-                        TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56"),
+                        TestNullableDateTime = DateTime.Parse("01/01/2000 12:34:56").ToUniversalTime(),
                         TestNullableDateTimeOffset =
-                            new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                            new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)).ToUniversalTime(),
                         TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestNullableSingle = -1.234F,
                         TestNullableBoolean = false,
@@ -1711,9 +1727,9 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.TestNullableInt64);
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.TestNullableDouble);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.TestNullableDecimal);
-                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56"), () => dt.TestNullableDateTime);
+                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56").ToUniversalTime(), () => dt.TestNullableDateTime);
                 AssertEqualIfMapped(
-                    entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
+                    entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)).ToUniversalTime(),
                     () => dt.TestNullableDateTimeOffset);
                 AssertEqualIfMapped(entityType, new TimeSpan(0, 10, 9, 8, 7), () => dt.TestNullableTimeSpan);
                 AssertEqualIfMapped(entityType, -1.234F, () => dt.TestNullableSingle);
@@ -2392,6 +2408,8 @@ namespace Microsoft.EntityFrameworkCore
             public abstract bool SupportsDecimalComparisons { get; }
 
             public abstract DateTime DefaultDateTime { get; }
+
+            public abstract bool PreservesDateTimeKind { get; }
         }
 
         protected class BuiltInDataTypesBase

@@ -109,6 +109,9 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
             public override DateTime DefaultDateTime
                 => new();
 
+            public override bool PreservesDateTimeKind
+                => true;
+
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);

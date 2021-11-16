@@ -3538,6 +3538,9 @@ WHERE [b].[Id] = 13");
             public override bool SupportsDecimalComparisons
                 => true;
 
+            public override bool PreservesDateTimeKind
+                => false;
+
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
 

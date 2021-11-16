@@ -167,5 +167,24 @@ SELECT CASE
 END AS [HasAccess]
 FROM [Users] AS [u]");
         }
+
+        public override async Task GroupBy_aggregate_on_right_side_of_join(bool async)
+        {
+            await base.GroupBy_aggregate_on_right_side_of_join(async);
+
+            AssertSql(
+                @"@__orderId_0='123456'
+
+SELECT [o].[Id], [o].[CancellationDate], [o].[OrderId], [o].[ShippingDate]
+FROM [OrderItems] AS [o]
+INNER JOIN (
+    SELECT [o0].[OrderId] AS [Key]
+    FROM [OrderItems] AS [o0]
+    WHERE [o0].[OrderId] = @__orderId_0
+    GROUP BY [o0].[OrderId]
+) AS [t] ON [o].[OrderId] = [t].[Key]
+WHERE [o].[OrderId] = @__orderId_0
+ORDER BY [o].[OrderId]");
+        }
     }
 }
