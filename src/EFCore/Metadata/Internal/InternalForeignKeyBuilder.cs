@@ -973,7 +973,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Metadata.DeclaringEntityType.Model.ScopedModelDependencies?.Logger.AmbiguousEndRequiredWarning(Metadata);
             }
 
-            Metadata.SetIsRequired(required, configurationSource);
+            IConventionForeignKey? foreignKey = Metadata;
+            var result = Metadata.DeclaringEntityType.Model.ConventionDispatcher.Track(
+                () => Metadata.SetIsRequired(required, configurationSource), ref foreignKey);
+            if (foreignKey != null)
+            {
+                return ((ForeignKey)foreignKey).Builder;
+            }
 
             return this;
         }
