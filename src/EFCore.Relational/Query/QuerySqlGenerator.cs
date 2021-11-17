@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateFromSql(FromSqlExpression fromSqlExpression)
         {
             var sql = fromSqlExpression.Sql;
-            string[]? substitutions = null;
+            string[]? substitutions;
 
             switch (fromSqlExpression.Arguments)
             {
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var i = span.IndexOf('\n');
                     span = i > 0
-                        ? span.Slice(i + 1).TrimStart()
+                        ? span[(i + 1)..].TrimStart()
                         : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
                     continue;
                 }
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var i = span.IndexOf("*/");
                     span = i > 0
-                        ? span.Slice(i + 2).TrimStart()
+                        ? span[(i + 2)..].TrimStart()
                         : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
                     continue;
                 }
@@ -459,18 +459,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
         protected virtual void CheckComposableSqlTrimmed(ReadOnlySpan<char> sql)
         {
-            if (sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
-            {
-                sql = sql.Slice("SELECT".Length);
-            }
-            else if (sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase))
-            {
-                sql = sql.Slice("WITH".Length);
-            }
-            else
-            {
-                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-            }
+            sql = sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase)
+                ? sql["SELECT".Length..]
+                : sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase)
+                    ? sql["WITH".Length..]
+                    : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
 
             if (sql.Length > 0
                 && (char.IsWhiteSpace(sql[0]) || sql.StartsWith("--") || sql.StartsWith("/*")))
@@ -484,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
-            var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
+            var requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
 
             if (requiresBrackets)
             {
@@ -500,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
 
-            requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
+            requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
 
             if (requiresBrackets)
             {
@@ -516,14 +509,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlBinaryExpression;
         }
-
-        private static bool RequiresBrackets(SqlExpression expression)
-            => expression is SqlBinaryExpression
-                || expression is LikeExpression
-                || (expression is SqlUnaryExpression unary
-                    && unary.Operand.Type == typeof(bool)
-                    && (unary.OperatorType == ExpressionType.Equal
-                        || unary.OperatorType == ExpressionType.NotEqual));
 
         /// <inheritdoc />
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
@@ -661,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Convert:
                 {
                     _relationalCommandBuilder.Append("CAST(");
-                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
                     if (requiresBrackets)
                     {
                         _relationalCommandBuilder.Append("(");
@@ -712,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Negate:
                 {
                     _relationalCommandBuilder.Append("-");
-                    var requiresBrackets = RequiresBrackets(sqlUnaryExpression.Operand);
+                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
                     if (requiresBrackets)
                     {
                         _relationalCommandBuilder.Append("(");
@@ -789,6 +774,56 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A string representation of the binary operator.</returns>
         protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
             => _operatorMap[binaryExpression.OperatorType];
+
+        /// <summary>
+        ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis
+        ///     when generating SQL for outer SQL expression.
+        /// </summary>
+        /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
+        /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
+        /// <returns>A bool value indicating that parenthesis is required or not. </returns>
+        protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
+        {
+            switch (innerExpression)
+            {
+                case LikeExpression _:
+                    return true;
+
+                case SqlUnaryExpression sqlUnaryExpression:
+                {
+                    // Wrap IS (NOT) NULL operation when applied on bool column.
+                    if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                        || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
+                        && sqlUnaryExpression.Operand.Type == typeof(bool))
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                case SqlBinaryExpression sqlBinaryExpression:
+                {
+                    //if (outerExpression is SqlBinaryExpression outerBinary)
+                    //{
+                    //    if (outerBinary.OperatorType == ExpressionType.AndAlso)
+                    //    {
+                    //        return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
+                    //    }
+
+                    //    if (outerBinary.OperatorType == ExpressionType.OrElse)
+                    //    {
+                    //        // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
+                    //        return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
+                    //    }
+                    //}
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         ///     Generates a TOP construct in the relational command
