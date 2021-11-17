@@ -688,6 +688,7 @@ namespace Microsoft.Data.Sqlite
         public void GetDateTimeOffset_throws_when_null()
             => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void GetFieldValue_of_DateOnly_works()
             => GetFieldValue_works(
@@ -711,6 +712,7 @@ namespace Microsoft.Data.Sqlite
             => GetFieldValue_works(
                 "SELECT '13:10:15.5';",
                 new TimeOnly(13, 10, 15, 500));
+#endif
 
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]

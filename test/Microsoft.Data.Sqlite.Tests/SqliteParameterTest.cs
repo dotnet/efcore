@@ -257,6 +257,7 @@ namespace Microsoft.Data.Sqlite
                 2456761.9680439816,
                 SqliteType.Real);
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void Bind_works_when_DateOnly()
             => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
@@ -276,6 +277,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Bind_works_when_TimeOnly_with_SqliteType_Real()
             => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
+#endif
 
         [Fact]
         public void Bind_works_when_DBNull()

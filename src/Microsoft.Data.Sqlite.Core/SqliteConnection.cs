@@ -7,8 +7,8 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 using static SQLitePCL.raw;
 
@@ -22,6 +22,9 @@ namespace Microsoft.Data.Sqlite
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
+
+        private const int SQLITE_WIN32_DATA_DIRECTORY_TYPE = 1;
+        private const int SQLITE_WIN32_TEMP_DIRECTORY_TYPE = 2;
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new();
 
@@ -44,7 +47,42 @@ namespace Microsoft.Data.Sqlite
         private static readonly StateChangeEventArgs _fromOpenToClosedEventArgs = new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed);
 
         static SqliteConnection()
-            => BundleInitializer.Initialize();
+        {
+            Type.GetType("SQLitePCL.Batteries_V2, SQLitePCLRaw.batteries_v2")
+                ?.GetRuntimeMethod("Init", Type.EmptyTypes)
+                ?.Invoke(null, null);
+
+            try
+            {
+                var currentAppData = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                    ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET")
+                    ?.GetRuntimeProperty("Current")?.GetValue(null);
+
+                var localFolder = currentAppData?.GetType()
+                    .GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                var localFolderPath = (string?)localFolder?.GetType()
+                    .GetRuntimeProperty("Path")?.GetValue(localFolder);
+                if (localFolderPath != null)
+                {
+                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                    Debug.Assert(rc == SQLITE_OK);
+                }
+
+                var tempFolder = currentAppData?.GetType()
+                    .GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                var tempFolderPath = (string?)tempFolder?.GetType()
+                    .GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                if (tempFolderPath != null)
+                {
+                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                    Debug.Assert(rc == SQLITE_OK);
+                }
+            }
+            catch
+            {
+                // Ignore "The process has no package identity."
+            }
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.

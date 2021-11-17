@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net461</TargetFrameworks>
     <DefineConstants>$(DefineConstants);SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
