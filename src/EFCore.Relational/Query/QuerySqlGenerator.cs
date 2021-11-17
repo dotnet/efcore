@@ -676,20 +676,56 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Not:
                 {
                     _relationalCommandBuilder.Append("~");
+
+                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
                     Visit(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
+
                     break;
                 }
 
                 case ExpressionType.Equal:
                 {
+
+                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
                     Visit(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
+
                     _relationalCommandBuilder.Append(" IS NULL");
                     break;
                 }
 
                 case ExpressionType.NotEqual:
                 {
+
+                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append("(");
+                    }
+
                     Visit(sqlUnaryExpression.Operand);
+                    if (requiresBrackets)
+                    {
+                        _relationalCommandBuilder.Append(")");
+                    }
+
                     _relationalCommandBuilder.Append(" IS NOT NULL");
                     break;
                 }
@@ -796,6 +832,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
                         && sqlUnaryExpression.Operand.Type == typeof(bool))
                     {
+                        return true;
+                    }
+
+                    if (sqlUnaryExpression.OperatorType == ExpressionType.Negate
+                        && outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate })
+                    {
+                        // double negative sign is interpreted as a comment in SQL, so we need to enclose it in brackets
                         return true;
                     }
 
