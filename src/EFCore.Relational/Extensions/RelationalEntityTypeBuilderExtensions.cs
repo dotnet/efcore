@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder(null, null, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder(null, null, entityTypeBuilder));
 
             return entityTypeBuilder;
         }

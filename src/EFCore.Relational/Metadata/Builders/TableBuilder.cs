@@ -19,16 +19,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
+        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
         {
-            Metadata = entityType;
+            EntityTypeBuilder = entityTypeBuilder;
+            Metadata = entityTypeBuilder.Metadata;
         }
+        //[EntityFrameworkInternal]
+        //public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
+        //{
+        //    Metadata = entityType;
+        //}
 
         /// <summary>
         ///     The entity type being configured.
         /// </summary>
         public virtual IMutableEntityType Metadata { get; }
 
+        /// <summary>
+        ///     The entity type builder.
+        /// </summary>
+        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
         /// <summary>
         ///     Configures the table to be ignored by migrations.
         /// </summary>

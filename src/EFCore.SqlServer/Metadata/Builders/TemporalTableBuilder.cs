@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -14,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class TemporalTableBuilder
     {
-        private readonly IMutableEntityType _entityType;
+        private readonly EntityTypeBuilder _entityTypeBuilder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TemporalTableBuilder(IMutableEntityType entityType)
+        public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
         {
-            _entityType = entityType;
+            _entityTypeBuilder = entityTypeBuilder;
         }
 
         /// <summary>
@@ -39,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TemporalTableBuilder UseHistoryTable(string name)
         {
-            _entityType.SetHistoryTableName(name);
+            _entityTypeBuilder.Metadata.SetHistoryTableName(name);
 
             return this;
         }
@@ -56,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TemporalTableBuilder UseHistoryTable(string name, string? schema)
         {
-            _entityType.SetHistoryTableName(name);
-            _entityType.SetHistoryTableSchema(schema);
+            _entityTypeBuilder.Metadata.SetHistoryTableName(name);
+            _entityTypeBuilder.Metadata.SetHistoryTableSchema(schema);
 
             return this;
         }
@@ -73,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>An object that can be used to configure the period start property.</returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
         {
-            _entityType.SetPeriodStartPropertyName(propertyName);
-            EnsurePeriodPropertyExists(propertyName);
+            _entityTypeBuilder.Metadata.SetPeriodStartPropertyName(propertyName);
+            ConfigurePeriodProperty(propertyName);
 
-            return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
+            return new TemporalPeriodPropertyBuilder(_entityTypeBuilder, propertyName);
         }
 
         /// <summary>
@@ -90,29 +88,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>An object that can be used to configure the period end property.</returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
         {
-            _entityType.SetPeriodEndPropertyName(propertyName);
-            EnsurePeriodPropertyExists(propertyName);
+            _entityTypeBuilder.Metadata.SetPeriodEndPropertyName(propertyName);
+            ConfigurePeriodProperty(propertyName);
 
-            return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
+            return new TemporalPeriodPropertyBuilder(_entityTypeBuilder, propertyName);
         }
 
-        private void EnsurePeriodPropertyExists(string propertyName)
+        private void ConfigurePeriodProperty(string propertyName)
         {
-            var property = _entityType.FindProperty(propertyName);
-            if (property != null && property.ClrType != typeof(DateTime))
-            {
-                throw new InvalidOperationException(
-                    SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(
-                        _entityType.DisplayName(), propertyName, nameof(DateTime)));
-            }
+            var property = _entityTypeBuilder.Property(propertyName);
+            //var property = _entityTypeBuilder.Property(typeof(DateTime), propertyName, setTypeConfigurationSource: false);
+            property.ValueGeneratedOnAddOrUpdate();
 
-            if (property == null)
-            {
-                property = _entityType.AddProperty(propertyName, typeof(DateTime));
-                property.SetColumnName(propertyName);
-            }
+            // TODO: do we need to set the default column name here?
 
-            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
+            //if (property == null)
+            //{
+            //    property = _entityType.AddProperty(propertyName, typeof(DateTime));
+            //    property.SetColumnName(propertyName);
+            //}
+
+            //property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
         }
 
         #region Hidden System.Object members
