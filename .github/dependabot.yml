@@ -25,8 +25,6 @@ updates:
       - dependency-name: StyleCop.Analyzers
       # Testing infrastructure should be intentionally updated
       - dependency-name: BenchmarkDotNet
-      # Need to stay on LTS for 6.0
-      - dependency-name: Microsoft.Data.SqlClient
     labels:
       - area-infrastructure
       - 'type-dependency update :arrow_up_small:'
