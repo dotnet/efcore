@@ -101,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Equal("People", peopleTable.Name);
                     if (AssertSchemaNames)
+                    {
                         Assert.Equal("dbo2", peopleTable.Schema);
+                    }
 
                     Assert.Collection(
                         peopleTable.Columns.OrderBy(c => c.Name),
