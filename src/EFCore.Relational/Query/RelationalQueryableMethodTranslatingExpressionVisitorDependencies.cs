@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -54,13 +55,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
             IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory,
-            ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalSharedTypeEntityExpansionHelper relationalSharedTypeEntityExpansionHelper)
         {
             Check.NotNull(relationalSqlTranslatingExpressionVisitorFactory, nameof(relationalSqlTranslatingExpressionVisitorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(relationalSharedTypeEntityExpansionHelper, nameof(relationalSharedTypeEntityExpansionHelper));
 
             RelationalSqlTranslatingExpressionVisitorFactory = relationalSqlTranslatingExpressionVisitorFactory;
             SqlExpressionFactory = sqlExpressionFactory;
+            RelationalSharedTypeEntityExpansionHelper = relationalSharedTypeEntityExpansionHelper;
         }
 
         /// <summary>
@@ -72,5 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The SQL expression factory.
         /// </summary>
         public ISqlExpressionFactory SqlExpressionFactory { get; init; }
+
+        /// <summary>
+        ///     Shared type entity expansion helper.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public IRelationalSharedTypeEntityExpansionHelper RelationalSharedTypeEntityExpansionHelper { get; init; }
     }
 }

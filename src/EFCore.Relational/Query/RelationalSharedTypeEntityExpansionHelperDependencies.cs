@@ -1,17 +1,15 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="SqlExpressionFactory" />
+    ///         Service dependencies parameter class for <see cref="RelationalSharedTypeEntityExpansionHelper" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -32,11 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed record SqlExpressionFactoryDependencies
+    public sealed record RelationalSharedTypeEntityExpansionHelperDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="SqlExpressionFactory" />.
+        ///         Creates the service dependencies parameter object for a <see cref="RelationalQueryableMethodTranslatingExpressionVisitor" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -54,25 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SqlExpressionFactoryDependencies(
-            IModel model,
-            IRelationalTypeMappingSource typeMappingSource)
+        public RelationalSharedTypeEntityExpansionHelperDependencies()
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
-            Model = model;
-            TypeMappingSource = typeMappingSource;
         }
-
-        /// <summary>
-        ///     The type mapping source.
-        /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
-
-        /// <summary>
-        ///     The type mapping source.
-        /// </summary>
-        public IModel Model { get; init; }
     }
 }

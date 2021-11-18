@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         an issue at https://github.com/dotnet/efcore.
     ///     </para>
     /// </summary>
-    public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
+    public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase, ITableMetadata
     {
         internal TableExpression(ITableBase table)
             : base(table.Name.Substring(0, 1).ToLowerInvariant())

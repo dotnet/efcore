@@ -50,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             _queryCompilationContext = queryCompilationContext;
             _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
             _sharedTypeEntityExpandingExpressionVisitor =
-                new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
+                new SharedTypeEntityExpandingExpressionVisitor(
+                    _sqlTranslator,
+                    sqlExpressionFactory,
+                    relationalDependencies.RelationalSharedTypeEntityExpansionHelper);
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
@@ -74,7 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlTranslator = RelationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(
                 parentVisitor._queryCompilationContext, parentVisitor);
             _sharedTypeEntityExpandingExpressionVisitor =
-                new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, parentVisitor._sqlExpressionFactory);
+                new SharedTypeEntityExpandingExpressionVisitor(
+                    _sqlTranslator,
+                    parentVisitor._sqlExpressionFactory,
+                    RelationalDependencies.RelationalSharedTypeEntityExpansionHelper);
+
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
@@ -1157,15 +1164,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
+            private readonly IRelationalSharedTypeEntityExpansionHelper _sharedTypeEntityExpansionHelper;
 
             private SelectExpression _selectExpression;
 
             public SharedTypeEntityExpandingExpressionVisitor(
                 RelationalSqlTranslatingExpressionVisitor sqlTranslator,
-                ISqlExpressionFactory sqlExpressionFactory)
+                ISqlExpressionFactory sqlExpressionFactory,
+                IRelationalSharedTypeEntityExpansionHelper sharedTypeEntityExpansionHelper)
             {
                 _sqlTranslator = sqlTranslator;
                 _sqlExpressionFactory = sqlExpressionFactory;
+                _sharedTypeEntityExpansionHelper = sharedTypeEntityExpansionHelper;
                 _selectExpression = null!;
             }
 
@@ -1255,11 +1265,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return null;
                 }
 
+                var entityProjectionExpression = (EntityProjectionExpression)
+                    (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
+                        ? _selectExpression.GetProjection(projectionBindingExpression)
+                        : entityShaperExpression.ValueBufferExpression);
+
+                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled)
+                    && enabled;
+
                 var foreignKey = navigation.ForeignKey;
                 if (navigation.IsCollection)
                 {
-                    var innerShapedQuery = CreateShapedQueryExpression(
-                        targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
+                    var innerShapedQuery = default(ShapedQueryExpression);
+
+                    var innerSelectExpression = !useOldBehavior
+                        ? BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                            entityProjectionExpression,
+                            navigation,
+                            foreignKey,
+                            targetEntityType)
+                        : _sqlExpressionFactory.Select(targetEntityType);
+
+                    innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
                     var makeNullable = foreignKey.PrincipalKey.Properties
                         .Concat(foreignKey.Properties)
@@ -1307,11 +1334,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Quote(correlationPredicate));
                 }
 
-                var entityProjectionExpression = (EntityProjectionExpression)
-                    (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression
-                        ? _selectExpression.GetProjection(projectionBindingExpression)
-                        : entityShaperExpression.ValueBufferExpression);
-
                 var innerShaper = entityProjectionExpression.BindNavigation(navigation);
                 if (innerShaper == null)
                 {
@@ -1354,7 +1376,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
                         // So there is no handling for dependent having TPT
                         table = targetEntityType.GetViewOrTableMappings().Single().Table;
-                        var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+
+                        var innerSelectExpression = default(SelectExpression);
+                        if (!useOldBehavior)
+                        {
+                            innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                                entityProjectionExpression,
+                                navigation,
+                                foreignKey,
+                                targetEntityType);
+                        }
+                        else
+                        {
+                            innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                        }
+
                         var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
                         var makeNullable = foreignKey.PrincipalKey.Properties
@@ -1380,7 +1416,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         innerShaper = new RelationalEntityShaperExpression(
                             targetEntityType,
                             _selectExpression.GenerateWeakEntityProjectionExpression(
-                                targetEntityType, table, null, leftJoinTable, nullable: true)!,
+                                targetEntityType,
+                                table,
+                                null,
+                                leftJoinTable,
+                                nullable: true)!,
                             nullable: true);
                     }
 
@@ -1388,6 +1428,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 return innerShaper;
+
+                SelectExpression BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                    EntityProjectionExpression entityProjectionExpression,
+                    INavigation navigation,
+                    IForeignKey foreignKey,
+                    IEntityType targetEntityType)
+                {
+                    // just need any column - we use it only to extract the table it originated from
+                    var sourceColumn = entityProjectionExpression
+                        .BindProperty(
+                            navigation.IsOnDependent
+                                ? foreignKey.Properties[0]
+                                : foreignKey.PrincipalKey.Properties[0]);
+
+                    var sourceTable = FindRootTableExpressionForColumn(sourceColumn.Table, sourceColumn.Name);
+
+                    var ownedTable = _sharedTypeEntityExpansionHelper.CreateRelatedTableExpression(
+                        sourceTable,
+                        targetEntityType);
+
+                    return _sqlExpressionFactory.Select(targetEntityType, ownedTable);
+                }
+
+                static TableExpressionBase FindRootTableExpressionForColumn(TableExpressionBase table, string columnName)
+                {
+                    if (table is JoinExpressionBase joinExpressionBase)
+                    {
+                        table = joinExpressionBase.Table;
+                    }
+                    else if (table is SetOperationBase setOperationBase)
+                    {
+                        table = setOperationBase.Source1;
+                    }
+
+                    if (table is SelectExpression selectExpression)
+                    {
+                        var matchingProjection = (ColumnExpression)selectExpression.Projection.Where(p => p.Alias == columnName).Single().Expression;
+
+                        return FindRootTableExpressionForColumn(matchingProjection.Table, matchingProjection.Name);
+                    }
+
+                    return table;
+                }
             }
 
             private static Expression AddConvertToObject(Expression expression)

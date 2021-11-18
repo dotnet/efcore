@@ -1868,16 +1868,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 bool nullable)
             {
                 var unwrappedTable = UnwrapJoinExpression(tableExpressionBase);
-                if (unwrappedTable is TableExpression tableExpression)
+                if (unwrappedTable is ITableMetadata tableExpressionMetadata)
                 {
-                    if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(tableExpressionMetadata.Name, table.Name, StringComparison.OrdinalIgnoreCase))
                     {
                         // Fetch the table for the type which is defining the navigation since dependent would be in that table
                         tableExpressionBase = selectExpression.Tables
                             .First(
                                 e =>
                                     {
-                                        var t = (TableExpression)UnwrapJoinExpression(e);
+                                        var t = (ITableMetadata)UnwrapJoinExpression(e);
                                         return t.Name == table.Name && t.Schema == table.Schema;
                                     });
                     }

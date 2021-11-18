@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -112,6 +113,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
             new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<LoggingDefinitions, SqlServerLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
@@ -142,6 +144,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqlServerParameterBasedSqlProcessorFactory>()
                 .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
+                .TryAdd<IRelationalSharedTypeEntityExpansionHelper, SqlServerSharedTypeEntityExpansionHelper>()
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
