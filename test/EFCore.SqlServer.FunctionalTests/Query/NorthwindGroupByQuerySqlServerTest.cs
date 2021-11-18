@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindGroupByQuerySqlServerTest : NorthwindGroupByQueryRelationalTestBase<
         NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        // ReSharper disable once UnusedParameter.Local
         public NorthwindGroupByQuerySqlServerTest(
             NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
             ITestOutputHelper testOutputHelper)
@@ -24,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override bool CanExecuteQueryString
             => true;
+
+        [ConditionalFact]
+        public virtual void Check_all_tests_overridden()
+            => TestHelpers.AssertAllMethodsOverridden(GetType());
 
         public override async Task GroupBy_Property_Select_Average(bool async)
         {
@@ -44,8 +47,7 @@ GROUP BY [o].[CustomerID]");
         {
             await base.GroupBy_Property_Select_Average_with_group_enumerable_projected(async);
 
-            AssertSql(
-                @"");
+            AssertSql();
         }
 
         public override async Task GroupBy_Property_Select_Count(bool async)
@@ -1999,15 +2001,11 @@ LEFT JOIN [Customers] AS [c0] ON [t].[City] = [c0].[City]
 ORDER BY [t].[City], [c0].[CustomerID]");
         }
 
-
         public override async Task Select_GroupBy_SelectMany(bool async)
         {
             await base.Select_GroupBy_SelectMany(async);
 
-            AssertSql(
-                @"SELECT [o].[OrderID] AS [Order], [o].[CustomerID] AS [Customer]
-FROM [Orders] AS [o]
-ORDER BY [o].[OrderID]");
+            AssertSql();
         }
 
         public override async Task Count_after_GroupBy_aggregate(bool async)
@@ -2355,32 +2353,28 @@ GROUP BY [c].[Country]");
         {
             await base.GroupBy_with_group_key_being_navigation(async);
 
-            AssertSql(
-                @"");
+            AssertSql();
         }
 
         public override async Task GroupBy_with_group_key_being_nested_navigation(bool async)
         {
             await base.GroupBy_with_group_key_being_nested_navigation(async);
 
-            AssertSql(
-                @"");
+            AssertSql();
         }
 
         public override async Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool async)
         {
             await base.GroupBy_with_group_key_being_navigation_with_entity_key_projection(async);
 
-            AssertSql(
-                @"");
+            AssertSql();
         }
 
         public override async Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool async)
         {
             await base.GroupBy_with_group_key_being_navigation_with_complex_projection(async);
 
-            AssertSql(
-                @"");
+            AssertSql();
         }
 
         public override async Task GroupBy_with_order_by_skip_and_another_order_by(bool async)
@@ -2439,7 +2433,7 @@ ORDER BY COUNT(*) DESC, [c].[City]");
         {
             await base.GroupBy_let_orderby_projection_with_coalesce_operation(async);
 
-            AssertSql(" ");
+            AssertSql();
         }
 
         public override async Task GroupBy_Min_Where_optional_relationship(bool async)
@@ -2889,6 +2883,76 @@ OUTER APPLY (
         WHERE ([c1].[CustomerID] = N'ALFKI') AND ([t].[ProductID] = [o1].[ProductID]))
 ) AS [t0]
 ORDER BY [t].[ProductID], [t0].[CustomerID]");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery4(bool async)
+        {
+            await base.Complex_query_with_groupBy_in_subquery4(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_aggregate_SelectMany(bool async)
+        {
+            await base.GroupBy_aggregate_SelectMany(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_as_final_operator(bool async)
+        {
+            await base.GroupBy_as_final_operator(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_Where_with_grouping_result(bool async)
+        {
+            await base.GroupBy_Where_with_grouping_result(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_OrderBy_with_grouping_result(bool async)
+        {
+            await base.GroupBy_OrderBy_with_grouping_result(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_SelectMany(bool async)
+        {
+            await base.GroupBy_SelectMany(async);
+
+            AssertSql();
+        }
+
+        public override async Task OrderBy_GroupBy_SelectMany(bool async)
+        {
+            await base.OrderBy_GroupBy_SelectMany(async);
+
+            AssertSql();
+        }
+
+        public override async Task OrderBy_GroupBy_SelectMany_shadow(bool async)
+        {
+            await base.OrderBy_GroupBy_SelectMany_shadow(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool async)
+        {
+            await base.GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(async);
+
+            AssertSql();
+        }
+
+        public override async Task GroupBy_Distinct(bool async)
+        {
+            await base.GroupBy_Distinct(async);
+
+            AssertSql();
         }
 
         private void AssertSql(params string[] expected)

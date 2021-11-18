@@ -1141,6 +1141,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(query))
                 .Message);
 
+        protected static async Task AssertInvalidMaterializationType(Func<Task> query, string queryableType)
+            => Assert.Contains(
+                CoreStrings.QueryInvalidMaterializationType("", queryableType)[64..],
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
+        protected static async Task AssertIncludeOnNonEntity(Func<Task> query)
+            => Assert.Contains(
+                CoreStrings.IncludeOnNonEntity("")[64..],
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
+        protected static async Task AssertInvalidIncludeExpression(Func<Task> query)
+            => Assert.Contains(
+                CoreStrings.InvalidIncludeExpression("")[64..],
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
+        protected static async Task AssertUnableToTranslateEFProperty(Func<Task> query)
+            => Assert.Contains(
+                CoreStrings.QueryUnableToTranslateEFProperty("")[64..],
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
+        protected static async Task AssertInvalidSetSharedType(Func<Task> query, string typeName)
+            => Assert.Equal(
+                CoreStrings.InvalidSetSharedType(typeName),
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
+
         #endregion
     }
 }

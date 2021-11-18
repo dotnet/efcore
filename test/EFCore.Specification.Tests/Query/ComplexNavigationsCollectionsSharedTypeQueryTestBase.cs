@@ -1,12 +1,15 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsCollectionsSharedTypeQueryTestBase<TFixture> : ComplexNavigationsCollectionsQueryTestBase<TFixture>
+    public abstract class
+        ComplexNavigationsCollectionsSharedTypeQueryTestBase<TFixture> : ComplexNavigationsCollectionsQueryTestBase<TFixture>
         where TFixture : ComplexNavigationsSharedTypeQueryFixtureBase, new()
     {
         protected ComplexNavigationsCollectionsSharedTypeQueryTestBase(TFixture fixture)
@@ -14,55 +17,59 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        // Self-ref not supported
-        public override Task Multiple_complex_includes_self_ref(bool async)
-            => Task.CompletedTask;
+        public override async Task Multiple_complex_includes_self_ref(bool async)
+            => Assert.Equal(
+                CoreStrings.InvalidIncludeExpression("e.OneToOne_Optional_Self1"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Multiple_complex_includes_self_ref(async))).Message);
 
-        [ConditionalTheory]
-        public override Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
-            => Task.CompletedTask;
+        public override Task
+            Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
+            => AssertTranslationFailed(
+                () => base
+                    .Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
+                        async));
 
-        // include after select is not supported
         public override Task Include_collection_with_multiple_orderbys_complex(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_complex(async));
 
         public override Task Include_collection_with_multiple_orderbys_complex_repeated(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_complex_repeated(async));
 
         public override Task Include_collection_with_multiple_orderbys_complex_repeated_checked(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_complex_repeated_checked(async));
 
         public override Task Include_collection_with_multiple_orderbys_member(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_member(async));
 
         public override Task Include_collection_with_multiple_orderbys_methodcall(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_methodcall(async));
 
         public override Task Include_collection_with_multiple_orderbys_property(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_collection_with_multiple_orderbys_property(async));
 
         public override Task Include_inside_subquery(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Include_inside_subquery(async));
 
         public override Task Filtered_include_outer_parameter_used_inside_filter(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Filtered_include_outer_parameter_used_inside_filter(async));
 
         public override Task Include_after_multiple_SelectMany_and_reference_navigation(bool async)
-            => Task.CompletedTask;
+            => AssertInvalidIncludeExpression(() => base.Include_after_multiple_SelectMany_and_reference_navigation(async));
 
         public override Task Include_after_SelectMany_and_multiple_reference_navigations(bool async)
-            => Task.CompletedTask;
+            => AssertInvalidIncludeExpression(() => base.Include_after_SelectMany_and_multiple_reference_navigations(async));
 
         public override Task Required_navigation_with_Include(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Required_navigation_with_Include(async));
 
         public override Task Required_navigation_with_Include_ThenInclude(bool async)
-            => Task.CompletedTask;
+            => AssertIncludeOnNonEntity(() => base.Required_navigation_with_Include_ThenInclude(async));
 
-        // Navigations used are not mapped in shared type.
         public override Task SelectMany_DefaultIfEmpty_multiple_times_with_joins_projecting_a_collection(bool async)
-            => Task.CompletedTask;
+            => AssertTranslationFailed(() => base.SelectMany_DefaultIfEmpty_multiple_times_with_joins_projecting_a_collection(async));
 
-        public override Task Complex_query_issue_21665(bool async) => Task.CompletedTask;
+        public override Task Complex_query_issue_21665(bool async)
+            => AssertTranslationFailed(() => base.Complex_query_issue_21665(async));
     }
 }
