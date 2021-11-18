@@ -2355,7 +2355,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 50
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id]");
         }
 
         public override async Task Multiple_optional_navigation_with_Include(bool async)

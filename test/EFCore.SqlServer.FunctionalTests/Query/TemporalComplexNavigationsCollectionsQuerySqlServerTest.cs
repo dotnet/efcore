@@ -421,25 +421,22 @@ ORDER BY [t].[Name], [t0].[Id]");
             await base.Select_subquery_single_nested_subquery2(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [t2].[Id], [t2].[Id0], [t2].[Id1], [t2].[c]
+                @"SELECT [l].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[c]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
-    SELECT [l0].[Id], [t0].[Id] AS [Id0], [t1].[Id] AS [Id1], [t0].[c], [l0].[OneToMany_Optional_Inverse2Id]
+    SELECT [l0].[Id], [t0].[Id] AS [Id0], [l1].[Id] AS [Id1], [t0].[c], [l0].[OneToMany_Optional_Inverse2Id]
     FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     LEFT JOIN (
         SELECT [t].[c], [t].[Id], [t].[OneToMany_Optional_Inverse3Id]
         FROM (
-            SELECT 1 AS [c], [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
-            FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
+            SELECT 1 AS [c], [l2].[Id], [l2].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l2].[OneToMany_Optional_Inverse3Id] ORDER BY [l2].[Id]) AS [row]
+            FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2]
         ) AS [t]
         WHERE [t].[row] <= 1
     ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-    LEFT JOIN (
-        SELECT [l2].[Id], [l2].[OneToMany_Optional_Inverse4Id]
-        FROM [LevelFour] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2]
-    ) AS [t1] ON [t0].[Id] = [t1].[OneToMany_Optional_Inverse4Id]
-) AS [t2] ON [l].[Id] = [t2].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t2].[Id], [t2].[Id0], [t2].[Id1]");
+    LEFT JOIN [LevelFour] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse4Id]
+) AS [t1] ON [l].[Id] = [t1].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
         }
 
         public override async Task Filtered_include_OrderBy(bool async)
@@ -447,13 +444,10 @@ ORDER BY [l].[Id], [t2].[Id], [t2].[Id0], [t2].[Id1]");
             await base.Filtered_include_OrderBy(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id], [t].[PeriodEnd], [t].[PeriodStart]
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
-LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart]
-    FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t].[Name]");
+LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [l0].[Name]");
         }
 
         public override async Task Multiple_complex_include_select(bool async)
@@ -478,17 +472,14 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [t].[Id]");
             await base.Filtered_ThenInclude_OrderBy(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [t0].[Id], [t0].[Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Name], [t0].[OneToMany_Optional_Inverse2Id], [t0].[OneToMany_Optional_Self_Inverse2Id], [t0].[OneToMany_Required_Inverse2Id], [t0].[OneToMany_Required_Self_Inverse2Id], [t0].[OneToOne_Optional_PK_Inverse2Id], [t0].[OneToOne_Optional_Self2Id], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id0], [t0].[Level2_Optional_Id], [t0].[Level2_Required_Id], [t0].[Name0], [t0].[OneToMany_Optional_Inverse3Id], [t0].[OneToMany_Optional_Self_Inverse3Id], [t0].[OneToMany_Required_Inverse3Id], [t0].[OneToMany_Required_Self_Inverse3Id], [t0].[OneToOne_Optional_PK_Inverse3Id], [t0].[OneToOne_Optional_Self3Id], [t0].[PeriodEnd0], [t0].[PeriodStart0]
+@"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id0], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name0], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id], [t].[PeriodEnd0], [t].[PeriodStart0]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [t].[Id] AS [Id0], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name] AS [Name0], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id], [t].[PeriodEnd] AS [PeriodEnd0], [t].[PeriodStart] AS [PeriodStart0]
+    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [l1].[Id] AS [Id0], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name] AS [Name0], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd] AS [PeriodEnd0], [l1].[PeriodStart] AS [PeriodStart0]
     FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    LEFT JOIN (
-        SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd], [l1].[PeriodStart]
-        FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
-    ) AS [t] ON [l0].[Id] = [t].[OneToMany_Optional_Inverse3Id]
-) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Id], [t0].[Name0]");
+    LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [t].[Id], [t].[Name0]");
         }
 
         public override async Task Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(bool async)
@@ -1037,17 +1028,14 @@ ORDER BY [t].[Name], [t0].[Id]");
             await base.Filtered_include_ThenInclude_OrderBy(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [t0].[Id], [t0].[Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Name], [t0].[OneToMany_Optional_Inverse2Id], [t0].[OneToMany_Optional_Self_Inverse2Id], [t0].[OneToMany_Required_Inverse2Id], [t0].[OneToMany_Required_Self_Inverse2Id], [t0].[OneToOne_Optional_PK_Inverse2Id], [t0].[OneToOne_Optional_Self2Id], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id0], [t0].[Level2_Optional_Id], [t0].[Level2_Required_Id], [t0].[Name0], [t0].[OneToMany_Optional_Inverse3Id], [t0].[OneToMany_Optional_Self_Inverse3Id], [t0].[OneToMany_Required_Inverse3Id], [t0].[OneToMany_Required_Self_Inverse3Id], [t0].[OneToOne_Optional_PK_Inverse3Id], [t0].[OneToOne_Optional_Self3Id], [t0].[PeriodEnd0], [t0].[PeriodStart0]
+@"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l].[PeriodEnd], [l].[PeriodStart], [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id0], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name0], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id], [t].[PeriodEnd0], [t].[PeriodStart0]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
-    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [t].[Id] AS [Id0], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name] AS [Name0], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id], [t].[PeriodEnd] AS [PeriodEnd0], [t].[PeriodStart] AS [PeriodStart0]
+    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id], [l0].[PeriodEnd], [l0].[PeriodStart], [l1].[Id] AS [Id0], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name] AS [Name0], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd] AS [PeriodEnd0], [l1].[PeriodStart] AS [PeriodStart0]
     FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    LEFT JOIN (
-        SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd], [l1].[PeriodStart]
-        FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
-    ) AS [t] ON [l0].[Id] = [t].[OneToMany_Optional_Inverse3Id]
-) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[Name], [t0].[Id], [t0].[Name0] DESC");
+    LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [t].[Name], [t].[Id], [t].[Name0] DESC");
         }
 
         public override async Task Project_collection_navigation_nested(bool async)
@@ -1175,7 +1163,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
+ORDER BY [l].[Id]");
         }
 
         public override async Task Include_after_SelectMany_and_multiple_reference_navigations(bool async)
@@ -1308,7 +1296,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 50
 ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [t0].[OneToMany_Optional_Inverse3Id], [t0].[Id]");
+ORDER BY [l].[Id], [l0].[Id]");
         }
 
         public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async)
@@ -1919,7 +1907,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 50
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
+ORDER BY [l].[Id]");
         }
 
         public override async Task Include_collection_with_multiple_orderbys_complex_repeated(bool async)
@@ -1960,7 +1948,7 @@ ORDER BY [t].[Date], [t0].[Date], [t0].[Name] DESC");
             await base.Select_subquery_single_nested_subquery(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [t0].[Id], [t1].[Id], [t0].[c]
+                @"SELECT [l].[Id], [t0].[Id], [l1].[Id], [t0].[c]
 FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 LEFT JOIN (
     SELECT [t].[c], [t].[Id], [t].[OneToMany_Optional_Inverse2Id]
@@ -1970,11 +1958,8 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-LEFT JOIN (
-    SELECT [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id]
-    FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
-) AS [t1] ON [t0].[Id] = [t1].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [t0].[Id], [t1].[Id]");
+LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+ORDER BY [l].[Id], [t0].[Id], [l1].[Id]");
         }
 
         public override async Task Include_collection_with_multiple_orderbys_complex_repeated_checked(bool async)
@@ -2003,7 +1988,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE 1 < [t].[row]
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
+ORDER BY [l].[Id]");
         }
 
         public override async Task Include_collection_and_another_navigation_chain_followed_by_projecting_the_first_collection(bool async)
