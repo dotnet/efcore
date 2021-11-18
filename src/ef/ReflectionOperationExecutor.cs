@@ -30,6 +30,13 @@ internal class ReflectionOperationExecutor : OperationExecutorBase
         string[] remainingArguments)
         : base(assembly, startupAssembly, projectDir, rootNamespace, language, nullable, remainingArguments)
     {
+        var configurationFile = (startupAssembly ?? assembly) + ".config";
+        if (File.Exists(configurationFile))
+        {
+            Reporter.WriteVerbose(Resources.UsingConfigurationFile(configurationFile));
+            AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configurationFile);
+        }
+
         if (dataDirectory != null)
         {
             Reporter.WriteVerbose(Resources.UsingDataDir(dataDirectory));
