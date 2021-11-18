@@ -1136,16 +1136,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DefaultValueUnspecified(
-                        column.Name,
-                        (column.Table.Name, column.Table.Schema).FormatTable()));
+                        (column.Table.Name, column.Table.Schema).FormatTable(),
+                        column.Name));
             }
 
             if (column.DefaultValueSql?.Length == 0)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DefaultValueSqlUnspecified(
-                        column.Name,
-                        (column.Table.Name, column.Table.Schema).FormatTable()));
+                        (column.Table.Name, column.Table.Schema).FormatTable(),
+                        column.Name));
             }
 
             if (column.ComputedColumnSql?.Length == 0)

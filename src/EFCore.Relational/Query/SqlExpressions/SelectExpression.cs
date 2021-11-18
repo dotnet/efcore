@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// </summary>
     /// <remarks>
     ///     This class is not publicly constructable. If this is a problem for your application or provider, then please file
-    ///     an issue at https://github.com/dotnet/efcore.
+    ///     an issue at <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
     /// </remarks>
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed partial class SelectExpression : TableExpressionBase

@@ -475,8 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     A foreign key property was created in shadow state because a conflicting property with the simple name for
         ///     this foreign key exists in the entity type, but is either not mapped, is already used for another relationship,
-        ///     or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information
-        ///     on mapping relationships in EF Core.
+        ///     or is incompatible with the associated primary key type.
         /// </summary>
         /// <remarks>
         ///     <para>
@@ -484,6 +483,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         ///     <para>
         ///         This event uses the <see cref="UniquifiedPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
         ///     </para>
         /// </remarks>
         public static readonly EventId ShadowForeignKeyPropertyCreated = MakeModelValidationId(Id.ShadowForeignKeyPropertyCreated);

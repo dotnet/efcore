@@ -10,10 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     Represents plugin for <see cref="IMethodCallTranslator" />.
     /// </summary>
     /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
-    ///     are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
-    ///     instances. The implementation must be thread-safe.
-    ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///     The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///     are allowed. This means that each <see cref="DbContext" /> instance will use its own
+    ///     set of instances of this service.
+    ///     The implementations may depend on other services registered with any lifetime.
+    ///     The implementations do not need to be thread-safe.
     /// </remarks>
     public interface IMethodCallTranslatorPlugin
     {
