@@ -10251,9 +10251,133 @@ ORDER BY [t].[Id]");
 
     #endregion
 
-    protected override string StoreName
-        => "QueryBugsTest";
+    #region Issue26742
 
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTime).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='2021-11-12T13:14:15.1234567'{postfix}
+
+SELECT TOP(1) [e].[DateTime]
+FROM [Entities] AS [e]
+WHERE [e].[DateTime] = @__parameter_0");
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTimeOffset).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = new DateTimeOffset(new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567), TimeSpan.FromHours(10));
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='2021-11-12T13:14:15.1234567+10:00'{postfix}
+
+SELECT TOP(1) [e].[DateTimeOffset]
+FROM [Entities] AS [e]
+WHERE [e].[DateTimeOffset] = @__parameter_0");
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.TimeSpan).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='12:34:56.7890123'{postfix}
+
+SELECT TOP(1) [e].[TimeSpan]
+FROM [Entities] AS [e]
+WHERE [e].[TimeSpan] = @__parameter_0");
+        }
+    }
+    protected class MyContext_26742 : DbContext
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public MyContext_26742(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+            public DateTime DateTime { get; set; }
+            public DateTimeOffset DateTimeOffset { get; set; }
+        }
+    }
+
+    #endregion
+
+    protected override string StoreName => "QueryBugsTest";
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

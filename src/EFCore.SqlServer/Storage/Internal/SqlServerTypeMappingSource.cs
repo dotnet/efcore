@@ -347,7 +347,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         "datetime2",
         "datetimeoffset",
         "double precision",
-        "float"
+        "float",
+        "time"
     };
 
     /// <summary>

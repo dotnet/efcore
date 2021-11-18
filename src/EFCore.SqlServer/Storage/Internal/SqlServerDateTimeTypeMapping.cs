@@ -22,7 +22,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     // so the order of the entries in this array is important
     private readonly string[] _dateTime2Formats =
     {
-        "'{0:yyyy-MM-ddTHH:mm:ss}'",
+        "'{0:yyyy-MM-ddTHH:mm:ssK}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.ffK}'",
         "'{0:yyyy-MM-ddTHH:mm:ss.fffK}'",
@@ -86,7 +86,8 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
 
         if (Precision.HasValue)
         {
-            parameter.Precision = unchecked((byte)Precision.Value);
+            // Workaround for inconsistant definition of precision/scale between EF and SQLClient for VarTime types
+            parameter.Scale = unchecked((byte)Precision.Value);
         }
     }
 

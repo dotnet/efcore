@@ -1131,7 +1131,7 @@ WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateT
             ss => ss.Set<Order>(),
             ss => ss.Set<Order>(),
             c => new TimeSpan(23, 59, 0) > EF.Functions.TimeFromParts(23, 59, 59, c.OrderID % 60, 2),
-            c => new TimeSpan(23, 59, 0) > new TimeSpan(23, 59, 59, c.OrderID % 60, 2));
+            c => new TimeSpan(23, 59, 0) > new TimeSpan(23, 59, 59, c.OrderID % 60));
 
         AssertSql(
             @"SELECT COUNT(*)

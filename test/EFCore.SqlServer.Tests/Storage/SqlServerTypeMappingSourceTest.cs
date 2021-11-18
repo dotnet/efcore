@@ -1070,6 +1070,173 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     }
 
     [ConditionalTheory]
+    [InlineData("datetime2(0)", 0)]
+    [InlineData("datetime2(1)", 1)]
+    [InlineData("datetime2(2)", 2)]
+    [InlineData("datetime2(3)", 3)]
+    [InlineData("datetime2(4)", 4)]
+    [InlineData("datetime2(5)", 5)]
+    [InlineData("datetime2(6)", 6)]
+    [InlineData("datetime2(7)", 7)]
+    [InlineData("datetime2", null)]
+    public void Can_map_datetime_base_type_columnType_with_precision(string typeName, int? precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.DateTimeWithPrecision)
+            .HasColumnType(typeName)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(DateTime), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+
+    [ConditionalTheory]
+    [InlineData("datetime2(0)", 0)]
+    [InlineData("datetime2(1)", 1)]
+    [InlineData("datetime2(2)", 2)]
+    [InlineData("datetime2(3)", 3)]
+    [InlineData("datetime2(4)", 4)]
+    [InlineData("datetime2(5)", 5)]
+    [InlineData("datetime2(6)", 6)]
+    [InlineData("datetime2(7)", 7)]
+    public void Can_map_datetime_base_type_precision(string typeName, int precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.DateTimeWithPrecision)
+            .HasPrecision(precision)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(DateTime), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+
+    [ConditionalTheory]
+    [InlineData("datetimeoffset(0)", 0)]
+    [InlineData("datetimeoffset(1)", 1)]
+    [InlineData("datetimeoffset(2)", 2)]
+    [InlineData("datetimeoffset(3)", 3)]
+    [InlineData("datetimeoffset(4)", 4)]
+    [InlineData("datetimeoffset(5)", 5)]
+    [InlineData("datetimeoffset(6)", 6)]
+    [InlineData("datetimeoffset(7)", 7)]
+    [InlineData("datetimeoffset", null)]
+    public void Can_map_datetimeoffset_base_type_columnType_with_precision(string typeName, int? precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.DateTimeOffsetWithPrecision)
+            .HasColumnType(typeName)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(DateTimeOffset), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+
+    [ConditionalTheory]
+    [InlineData("datetimeoffset(0)", 0)]
+    [InlineData("datetimeoffset(1)", 1)]
+    [InlineData("datetimeoffset(2)", 2)]
+    [InlineData("datetimeoffset(3)", 3)]
+    [InlineData("datetimeoffset(4)", 4)]
+    [InlineData("datetimeoffset(5)", 5)]
+    [InlineData("datetimeoffset(6)", 6)]
+    [InlineData("datetimeoffset(7)", 7)]
+    public void Can_map_datetimeoffset_base_type_precision(string typeName, int precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.DateTimeOffsetWithPrecision)
+            .HasPrecision(precision)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(DateTimeOffset), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+
+    [ConditionalTheory]
+    [InlineData("time(0)", 0)]
+    [InlineData("time(1)", 1)]
+    [InlineData("time(2)", 2)]
+    [InlineData("time(3)", 3)]
+    [InlineData("time(4)", 4)]
+    [InlineData("time(5)", 5)]
+    [InlineData("time(6)", 6)]
+    [InlineData("time(7)", 7)]
+    [InlineData("time", null)]
+    public void Can_map_time_base_type_columnType_with_precision(string typeName, int? precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.TimeSpanWithPrecision)
+            .HasColumnType(typeName)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(TimeSpan), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+
+    [ConditionalTheory]
+    [InlineData("time(0)", 0)]
+    [InlineData("time(1)", 1)]
+    [InlineData("time(2)", 2)]
+    [InlineData("time(3)", 3)]
+    [InlineData("time(4)", 4)]
+    [InlineData("time(5)", 5)]
+    [InlineData("time(6)", 6)]
+    [InlineData("time(7)", 7)]
+    public void Can_map_time_base_type_precision(string typeName, int precision)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<VarTimeEntity>()
+            .Property(e => e.TimeSpanWithPrecision)
+            .HasPrecision(precision)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(TimeSpan), mapping.ClrType);
+        Assert.Equal(precision, mapping.Precision);
+        Assert.Null(mapping.Scale);
+        Assert.Equal(typeName, mapping.StoreType, true);
+    }
+    private class VarTimeEntity
+    {
+        public int Id { get; set; }
+        public DateTime DateTimeWithPrecision { get; set; }
+        public DateTimeOffset DateTimeOffsetWithPrecision { get; set; }
+        public TimeSpan TimeSpanWithPrecision { get; set; }
+    }
+
+
+    [ConditionalTheory]
     [InlineData("binary varying")]
     [InlineData("binary")]
     [InlineData("varbinary")]
