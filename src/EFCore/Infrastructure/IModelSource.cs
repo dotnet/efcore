@@ -35,30 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the model to be used.
         /// </summary>
         /// <param name="context">The context the model is being produced for.</param>
-        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
-        /// <returns>The model to be used.</returns>
-        [Obsolete("Use the overload with ModelCreationDependencies")]
-        IModel GetModel(
-            DbContext context,
-            IConventionSetBuilder conventionSetBuilder);
-
-        /// <summary>
-        ///     Gets the model to be used.
-        /// </summary>
-        /// <param name="context">The context the model is being produced for.</param>
-        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
-        /// <param name="modelDependencies">The dependencies object for the model.</param>
-        /// <returns>The model to be used.</returns>
-        [Obsolete("Use the overload with ModelCreationDependencies")]
-        IModel GetModel(
-            DbContext context,
-            IConventionSetBuilder conventionSetBuilder,
-            ModelDependencies modelDependencies);
-
-        /// <summary>
-        ///     Gets the model to be used.
-        /// </summary>
-        /// <param name="context">The context the model is being produced for.</param>
         /// <param name="modelCreationDependencies">The dependencies object used during the creation of the model.</param>
         /// <param name="designTime">Whether the model should contain design-time configuration.</param>
         /// <returns>The model to be used.</returns>

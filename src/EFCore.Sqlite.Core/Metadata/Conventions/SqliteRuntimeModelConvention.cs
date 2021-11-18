@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class SqliteRuntimeModelConvention : RelationalRuntimeModelConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalModelConvention" />.
+        ///     Creates a new instance of <see cref="SqliteRuntimeModelConvention" />.
         /// </summary>
         /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>

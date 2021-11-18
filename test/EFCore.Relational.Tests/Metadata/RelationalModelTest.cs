@@ -406,9 +406,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderPkConstraint, orderDetailsPk.GetMappedConstraints().Single());
 
             var orderDetailsPkProperty = orderDetailsPk.Properties.Single();
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("Id", orderDetailsPkProperty.GetColumnName());
-#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Equal("OrderId", orderDetailsPkProperty.GetColumnBaseName());
 
             var billingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.BillingAddress)).ForeignKey;

@@ -38,13 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public Type Type { get; }
 
         /// <summary>
-        ///     Gets the clr type of entity type this DbSet property represent.
-        /// </summary>
-        [Obsolete("Use Type")]
-        public Type ClrType
-            => Type;
-
-        /// <summary>
         ///     The property setter for this DbSet property.
         /// </summary>
         public IClrPropertySetter? Setter { get; }

@@ -50,9 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         [EntityFrameworkInternal]
         public RelationalConventionSetBuilderDependencies(IRelationalAnnotationProvider relationalAnnotationProvider)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             RelationalAnnotationProvider = relationalAnnotationProvider;
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>

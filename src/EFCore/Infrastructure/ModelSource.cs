@@ -52,90 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual ModelSourceDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Returns the model from the cache, or creates a model if it is not present in the cache.
-        /// </summary>
-        /// <param name="context">The context the model is being produced for.</param>
-        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
-        /// <returns>The model to be used.</returns>
-        [Obsolete("Use the overload with ModelCreationDependencies")]
-        public virtual IModel GetModel(
-            DbContext context,
-            IConventionSetBuilder conventionSetBuilder)
-        {
-            var cache = Dependencies.MemoryCache;
-            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);
-            if (!cache.TryGetValue(cacheKey, out IModel model))
-            {
-                // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
-                lock (_syncObject)
-                {
-                    if (!cache.TryGetValue(cacheKey, out model))
-                    {
-                        model = CreateModel(context, conventionSetBuilder);
-
-                        if (model is Model mutableModel
-                            && !mutableModel.IsReadOnly)
-                        {
-                            model = mutableModel.FinalizeModel();
-                        }
-
-                        model = model.GetOrAddRuntimeAnnotationValue(
-                            CoreAnnotationNames.ReadOnlyModel,
-                            static model => model!,
-                            model);
-
-                        model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
-                    }
-                }
-            }
-
-            return model;
-        }
-
-        /// <summary>
-        ///     Returns the model from the cache, or creates a model if it is not present in the cache.
-        /// </summary>
-        /// <param name="context">The context the model is being produced for.</param>
-        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
-        /// <param name="modelDependencies">The dependencies object for the model.</param>
-        /// <returns>The model to be used.</returns>
-        [Obsolete("Use the overload with ModelCreationDependencies")]
-        public virtual IModel GetModel(
-            DbContext context,
-            IConventionSetBuilder conventionSetBuilder,
-            ModelDependencies modelDependencies)
-        {
-            var cache = Dependencies.MemoryCache;
-            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);
-            if (!cache.TryGetValue(cacheKey, out IModel model))
-            {
-                // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
-                lock (_syncObject)
-                {
-                    if (!cache.TryGetValue(cacheKey, out model))
-                    {
-                        model = CreateModel(context, conventionSetBuilder, modelDependencies);
-
-                        if (model is Model mutableModel
-                            && !mutableModel.IsReadOnly)
-                        {
-                            model = mutableModel.FinalizeModel();
-                        }
-
-                        model = model.GetOrAddRuntimeAnnotationValue(
-                            CoreAnnotationNames.ReadOnlyModel,
-                            static model => model!,
-                            model);
-
-                        model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
-                    }
-                }
-            }
-
-            return model;
-        }
-
-        /// <summary>
         ///     Gets the model to be used.
         /// </summary>
         /// <param name="context">The context the model is being produced for.</param>
@@ -168,24 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return model;
-        }
-
-        /// <summary>
-        ///     Creates the model. This method is called when the model was not found in the cache.
-        /// </summary>
-        /// <param name="context">The context the model is being produced for.</param>
-        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
-        /// <returns>The model to be used.</returns>
-        [Obsolete("Use the overload with ModelCreationDependencies")]
-        protected virtual IModel CreateModel(
-            DbContext context,
-            IConventionSetBuilder conventionSetBuilder)
-        {
-            var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet());
-
-            Dependencies.ModelCustomizer.Customize(modelBuilder, context);
-
-            return (IModel)modelBuilder.Model;
         }
 
         /// <summary>

@@ -97,26 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type? SetType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.
+        ///     Gets the configuration source for <see cref="IReadOnlySequence.Type" />.
         /// </summary>
-        /// <returns>The configuration source for <see cref="IReadOnlySequence.ClrType" />.</returns>
+        /// <returns>The configuration source for <see cref="IReadOnlySequence.Type" />.</returns>
         ConfigurationSource? GetTypeConfigurationSource();
-
-        /// <summary>
-        ///     Sets the <see cref="Type" /> of values returned by the sequence.
-        /// </summary>
-        /// <param name="type">The <see cref="Type" /> of values returned by the sequence.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>The configured value.</returns>
-        [Obsolete("Use SetType")]
-        Type? SetClrType(Type? type, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.
-        /// </summary>
-        /// <returns>The configuration source for <see cref="IReadOnlySequence.ClrType" />.</returns>
-        [Obsolete("Use GetTypeConfigurationSource")]
-        ConfigurationSource? GetClrTypeConfigurationSource();
 
         /// <summary>
         ///     Sets whether the sequence will start again from the beginning when the max value is reached.

@@ -243,9 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             projectionBindingExpression.Type, (projection.Expression as SqlExpression)?.TypeMapping);
                     }
 
-#pragma warning disable CS0618 // Type or member is obsolete
                     case CollectionShaperExpression collectionShaperExpression:
-#pragma warning restore CS0618 // Type or member is obsolete
                     {
                         ObjectArrayProjectionExpression objectArrayProjection;
                         switch (collectionShaperExpression.Projection)

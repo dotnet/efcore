@@ -47,15 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Checks if the identity is empty, as opposed to representing a member.
-        /// </summary>
-        /// <returns><see langword="true" /> if the identity is empty; <see langword="false" /> otherwise.</returns>
-        [Obsolete("Compare Name to null")]
-        [MemberNotNullWhen(false, nameof(Name))]
-        public bool IsNone()
-            => _nameOrMember == null;
-
-        /// <summary>
         ///     A <see cref="MemberIdentity" /> instance that does not represent any member.
         /// </summary>
         public static readonly MemberIdentity None = new((object?)null);

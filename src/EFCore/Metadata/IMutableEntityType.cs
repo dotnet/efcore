@@ -37,13 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType? BaseType { get; set; }
 
         /// <summary>
-        ///     Gets the defining entity type.
-        /// </summary>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        new IMutableEntityType? DefiningEntityType
-            => null;
-
-        /// <summary>
         ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">

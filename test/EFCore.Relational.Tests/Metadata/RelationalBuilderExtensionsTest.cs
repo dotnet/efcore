@@ -387,23 +387,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.NotNull(indexBuilder.HasName("Splew"));
-            Assert.Equal("Splew", indexBuilder.Metadata.GetName());
-
-            Assert.NotNull(indexBuilder.HasName("Splow", fromDataAnnotation: true));
-            Assert.Equal("Splow", indexBuilder.Metadata.GetName());
-
-            Assert.Null(indexBuilder.HasName("Splod"));
-            Assert.Equal("Splow", indexBuilder.Metadata.GetName());
-
-            Assert.NotNull(indexBuilder.HasName(null, fromDataAnnotation: true));
-            Assert.Equal("IX_Splot_Id", indexBuilder.Metadata.GetName());
-
-            Assert.NotNull(indexBuilder.HasName("Splod"));
-            Assert.Equal("Splod", indexBuilder.Metadata.GetName());
-#pragma warning restore CS0618 // Type or member is obsolete
-
             Assert.NotNull(indexBuilder.HasFilter("Splew"));
             Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
 

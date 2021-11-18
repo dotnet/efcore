@@ -107,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The prefix for serialized sequence annotations.
         /// </summary>
-        [Obsolete("All sequences are stored in a single annotation now")]
+        [Obsolete("All sequences are stored in a single annotation now")] // DO NOT REMOVE
+        // Used in model snapshot processor. See issue#18557
         public const string SequencePrefix = Prefix + "Sequence:";
 
         /// <summary>
@@ -124,12 +125,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for filter annotations.
         /// </summary>
         public const string Filter = Prefix + "Filter";
-
-        /// <summary>
-        ///     The name for DbFunction annotation.
-        /// </summary>
-        [Obsolete("Use DbFunctions")]
-        public const string DbFunction = Prefix + "DbFunction";
 
         /// <summary>
         ///     The name for functions annotation.

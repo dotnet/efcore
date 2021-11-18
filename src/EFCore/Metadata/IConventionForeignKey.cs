@@ -200,32 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionNavigation? SetDependentToPrincipal(MemberInfo? property, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Sets the navigation property on the dependent entity type that points to the principal entity.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of the navigation property on the dependent type. Passing <see langword="null" /> will result in there being
-        ///     no navigation property defined.
-        /// </param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>The newly created navigation property.</returns>
-        [Obsolete("Use SetDependentToPrincipal")]
-        IConventionNavigation? HasDependentToPrincipal(string? name, bool fromDataAnnotation = false)
-            => SetDependentToPrincipal(name, fromDataAnnotation);
-
-        /// <summary>
-        ///     Sets the navigation property on the dependent entity type that points to the principal entity.
-        /// </summary>
-        /// <param name="property">
-        ///     The navigation property on the dependent type. Passing <see langword="null" /> will result in there being
-        ///     no navigation property defined.
-        /// </param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>The newly created navigation property.</returns>
-        [Obsolete("Use SetDependentToPrincipal")]
-        IConventionNavigation? HasDependentToPrincipal(MemberInfo? property, bool fromDataAnnotation = false)
-            => SetDependentToPrincipal(property, fromDataAnnotation);
-
-        /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.DependentToPrincipal" />.
         /// </summary>
         /// <returns>The configuration source for <see cref="IReadOnlyForeignKey.DependentToPrincipal" />.</returns>
@@ -252,32 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The newly created navigation property.</returns>
         IConventionNavigation? SetPrincipalToDependent(MemberInfo? property, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Sets the navigation property on the principal entity type that points to the dependent entity.
-        /// </summary>
-        /// <param name="name">
-        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
-        ///     no navigation property defined.
-        /// </param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>The newly created navigation property.</returns>
-        [Obsolete("Use SetPrincipalToDependent")]
-        IConventionNavigation? HasPrincipalToDependent(string? name, bool fromDataAnnotation = false)
-            => SetPrincipalToDependent(name, fromDataAnnotation);
-
-        /// <summary>
-        ///     Sets the navigation property on the principal entity type that points to the dependent entity.
-        /// </summary>
-        /// <param name="property">
-        ///     The name of the navigation property on the principal type. Passing <see langword="null" /> will result in there being
-        ///     no navigation property defined.
-        /// </param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>The newly created navigation property.</returns>
-        [Obsolete("Use SetPrincipalToDependent")]
-        IConventionNavigation? HasPrincipalToDependent(MemberInfo? property, bool fromDataAnnotation = false)
-            => SetPrincipalToDependent(property, fromDataAnnotation);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyForeignKey.PrincipalToDependent" />.

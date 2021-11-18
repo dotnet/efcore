@@ -356,9 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
 
-#pragma warning disable CS0618 // Type or member is obsolete
                     return new CollectionShaperExpression(
-#pragma warning restore CS0618 // Type or member is obsolete
                         objectArrayProjectionExpression,
                         innerShaperExpression,
                         navigation,
@@ -558,9 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);
 
-#pragma warning disable CS0618 // Type or member is obsolete
                         return new CollectionShaperExpression(
-#pragma warning restore CS0618 // Type or member is obsolete
                             objectArrayProjectionExpression,
                             innerShaperExpression,
                             navigation,
@@ -589,9 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         case nameof(Queryable.Select)
                             when genericMethod == QueryableMethods.Select:
-#pragma warning disable CS0618 // Type or member is obsolete
                             if (!(visitedSource is CollectionShaperExpression shaper))
-#pragma warning restore CS0618 // Type or member is obsolete
                             {
                                 return null;
                             }

@@ -59,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             SqlExpressionFactory = sqlExpressionFactory;
             Model = model;
-#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
-#pragma warning restore CS0618 // Type or member is obsolete
             MemberTranslatorProvider = memberTranslatorProvider;
             MethodCallTranslatorProvider = methodCallTranslatorProvider;
         }

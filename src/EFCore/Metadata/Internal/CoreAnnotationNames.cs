@@ -148,24 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("Use ValueComparer. Only a single value comparer is allowed for a given property.")]
-        public const string KeyValueComparer = "KeyValueComparer";
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete("Use ValueComparer. Only a single value comparer is allowed for a given property.")]
-        public const string StructuralValueComparer = "StructuralValueComparer";
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public const string AfterSaveBehavior = "AfterSaveBehavior";
 
         /// <summary>
@@ -190,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete]
+        [Obsolete] // Remove with defining query
         public const string DefiningQuery = "DefiningQuery";
 
         /// <summary>
@@ -321,10 +303,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ValueConverterType,
             ValueComparer,
             ValueComparerType,
-#pragma warning disable 618
-            KeyValueComparer,
-            StructuralValueComparer,
-#pragma warning restore 618
             AfterSaveBehavior,
             BeforeSaveBehavior,
             QueryFilter,

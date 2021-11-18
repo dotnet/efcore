@@ -54,10 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ValueConverterType,
                 CoreAnnotationNames.ValueComparer,
                 CoreAnnotationNames.ValueComparerType,
-#pragma warning disable 618
-                CoreAnnotationNames.KeyValueComparer,
-                CoreAnnotationNames.StructuralValueComparer,
-#pragma warning restore 618
                 CoreAnnotationNames.BeforeSaveBehavior,
                 CoreAnnotationNames.AfterSaveBehavior,
                 CoreAnnotationNames.ProviderClrType,
@@ -91,9 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.Filter,
-#pragma warning disable CS0618 // Type or member is obsolete
-                RelationalAnnotationNames.DbFunction,
-#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.MaxIdentifierLength,
                 RelationalAnnotationNames.IsFixedLength,
@@ -215,9 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 #pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Filter,
-#pragma warning disable CS0618 // Type or member is obsolete
-                RelationalAnnotationNames.DbFunction,
-#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.MaxIdentifierLength,
                 RelationalAnnotationNames.RelationalModel,
