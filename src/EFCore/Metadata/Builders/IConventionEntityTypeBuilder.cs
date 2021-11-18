@@ -165,17 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionEntityTypeBuilder RemoveUnusedImplicitProperties(IReadOnlyList<IConventionProperty> properties);
 
         /// <summary>
-        ///     Removes shadow properties in the given list if they are not part of any metadata object.
-        /// </summary>
-        /// <param name="properties">The properties to remove.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        [Obsolete("Use RemoveUnusedImplicitProperties")]
-        IConventionEntityTypeBuilder RemoveUnusedShadowProperties(
-            IReadOnlyList<IConventionProperty> properties,
-            bool fromDataAnnotation = false)
-            => RemoveUnusedImplicitProperties(properties);
-
-        /// <summary>
         ///     Returns an object that can be used to configure the service property with the given member info.
         ///     If no matching property exists, then a new property will be added.
         /// </summary>
@@ -738,25 +727,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the given navigation can be added to this entity type.
         /// </summary>
         /// <param name="navigationName">The name of the navigation.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-        [Obsolete("Use CanHaveNavigation")]
-        bool CanAddNavigation(string navigationName, bool fromDataAnnotation = false)
-            => CanHaveNavigation(navigationName, fromDataAnnotation);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given navigation can be added to this entity type.
-        /// </summary>
-        /// <param name="navigationName">The name of the navigation.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-        [Obsolete("Use CanHaveNavigation with Type parameter")]
-        bool CanHaveNavigation(string navigationName, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given navigation can be added to this entity type.
-        /// </summary>
-        /// <param name="navigationName">The name of the navigation.</param>
         /// <param name="type">The type of the navigation target.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns><see langword="true" /> if the skip navigation can be added.</returns>
@@ -770,15 +740,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns><see langword="true" /> if the configuration can be applied.</returns>
         bool CanHaveNavigation(MemberInfo navigation, bool fromDataAnnotation = false)
             => CanHaveNavigation(navigation.Name, navigation.GetMemberType(), fromDataAnnotation);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given skip navigation can be added to this entity type.
-        /// </summary>
-        /// <param name="skipNavigationName">The name of the skip navigation.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns><see langword="true" /> if the skip navigation can be added.</returns>
-        [Obsolete("Use CanHaveSkipNavigation with Type parameter")]
-        bool CanHaveSkipNavigation(string skipNavigationName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given skip navigation can be added to this entity type.
@@ -1018,21 +979,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Removes the discriminator property from this entity type.
-        ///     This method is usually called when the entity type is no longer mapped to the same table as any other type in
-        ///     the hierarchy or when this entity type is no longer the root type.
-        /// </summary>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     The same builder instance if the discriminator was configured,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        [Obsolete("Use HasNoDiscriminator")]
-        IConventionEntityTypeBuilder? HasNoDeclaredDiscriminator(bool fromDataAnnotation = false)
-            => HasNoDiscriminator(fromDataAnnotation);
-
         /// <summary>
         ///     Returns a value indicating whether the discriminator property can be configured.
         /// </summary>

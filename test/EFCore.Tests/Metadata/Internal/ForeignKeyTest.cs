@@ -632,12 +632,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsTo(fk.PrincipalEntityType));
             Assert.Equal(new[] { fk.PrincipalToDependent }, fk.FindNavigationsTo(fk.DeclaringEntityType));
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType));
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType));
-#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Equal(new[] { fk.PrincipalToDependent }, fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType));
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType));
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType));
@@ -663,12 +657,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsTo(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsTo(fk.DeclaringEntityType).SingleOrDefault());
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType));
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType));
-#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType).SingleOrDefault());
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType).SingleOrDefault());
@@ -699,12 +687,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     derivedDependent.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(derivedDependent)).Message);
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(derivedDependent));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(derivedPrincipal));
-            Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(derivedDependent));
-            Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(derivedPrincipal));
-#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Equal(new[] { fk.PrincipalToDependent }.Where(n => n != null), fk.FindNavigationsFromInHierarchy(derivedPrincipal));
             Assert.Equal(new[] { fk.DependentToPrincipal }.Where(n => n != null), fk.FindNavigationsFromInHierarchy(derivedDependent));
             Assert.Equal(new[] { fk.DependentToPrincipal }.Where(n => n != null), fk.FindNavigationsToInHierarchy(derivedPrincipal));
@@ -758,30 +740,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsTo(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsTo(fk.DeclaringEntityType).SingleOrDefault());
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            Assert.Equal(
-                CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
-                    fk.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
-            Assert.Equal(
-                CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
-                    fk.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
-
-            Assert.Equal(
-                CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
-                    fk.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType)).Message);
-            Assert.Equal(
-                CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
-                    fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
-                    fk.DeclaringEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
-#pragma warning restore CS0612 // Type or member is obsolete
-
             Assert.Equal(
                 new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
                 fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType));
@@ -828,26 +786,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.EntityTypeNotInRelationshipStrict(
                     unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationship(
-                    unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationship(
-                    unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveEntityTypeInHierarchy(unrelatedType)).Message);
-
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationship(
-                    unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
-            Assert.Equal(
-                CoreStrings.EntityTypeNotInRelationship(
-                    unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
-#pragma warning restore CS0612 // Type or member is obsolete
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(

@@ -19,9 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
     public class BaseTypeDiscoveryConvention :
-#pragma warning disable CS0612 // Type or member is obsolete
-        InheritanceDiscoveryConventionBase,
-#pragma warning restore CS0612 // Type or member is obsolete
         IEntityTypeAddedConvention,
         IForeignKeyRemovedConvention
     {
@@ -30,9 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public BaseTypeDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
-            : base(dependencies)
         {
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeAdded(

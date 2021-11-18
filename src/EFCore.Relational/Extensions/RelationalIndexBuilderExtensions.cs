@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="name">The name of the index.</param>
         /// <returns>A builder to further configure the index.</returns>
-        [Obsolete("Use HasDatabaseName() instead.")]
+        [Obsolete("Use HasDatabaseName() instead.")] // DO NOT REMOVE
+        // Used in model snapshot. See issue#18557
         public static IndexBuilder HasName(this IndexBuilder indexBuilder, string? name)
             => HasDatabaseName(indexBuilder, name);
 
@@ -64,20 +65,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return indexBuilder;
         }
-
-        /// <summary>
-        ///     Configures the name of the index in the database when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
-        /// </remarks>
-        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
-        /// <param name="indexBuilder">The builder for the index being configured.</param>
-        /// <param name="name">The name of the index.</param>
-        /// <returns>A builder to further configure the index.</returns>
-        [Obsolete("Use HasDatabaseName() instead.")]
-        public static IndexBuilder<TEntity> HasName<TEntity>(this IndexBuilder<TEntity> indexBuilder, string? name)
-            => indexBuilder.HasDatabaseName(name);
 
         /// <summary>
         ///     Configures the name of the index in the database when targeting a relational database.
@@ -107,26 +94,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the name of the index in the database when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
-        /// </remarks>
-        /// <param name="indexBuilder">The builder for the index being configured.</param>
-        /// <param name="name">The name of the index.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        [Obsolete("Use HasDatabaseName() instead.")]
-        public static IConventionIndexBuilder? HasName(
-            this IConventionIndexBuilder indexBuilder,
-            string? name,
-            bool fromDataAnnotation = false)
-            => indexBuilder.HasDatabaseName(name, fromDataAnnotation);
-
-        /// <summary>
         ///     Returns a value indicating whether the given name can be set for the index.
         /// </summary>
         /// <remarks>
@@ -141,23 +108,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             bool fromDataAnnotation = false)
             => indexBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given name can be set for the index.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
-        /// </remarks>
-        /// <param name="indexBuilder">The builder for the index being configured.</param>
-        /// <param name="name">The name of the index.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns><see langword="true" /> if the given name can be set for the index.</returns>
-        [Obsolete("Use CanSetDatabaseName() instead.")]
-        public static bool CanSetName(
-            this IConventionIndexBuilder indexBuilder,
-            string? name,
-            bool fromDataAnnotation = false)
-            => CanSetDatabaseName(indexBuilder, name, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the filter expression for the index.

@@ -12,18 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IMutableEntityType" />.
     /// </summary>
-    [Obsolete("Use IMutableEntityType")]
+    [Obsolete("Use IMutableEntityType")] // Delete with defining query
     public static class MutableEntityTypeExtensions
     {
-        /// <summary>
-        ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
-        /// </summary>
-        /// <param name="entityType">The entity type.</param>
-        /// <returns>The defining navigation if one exists or <see langword="null" /> otherwise.</returns>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public static IMutableNavigation? FindDefiningNavigation(this IMutableEntityType entityType)
-            => (IMutableNavigation?)((IEntityType)entityType).FindDefiningNavigation();
-
         /// <summary>
         ///     Sets the LINQ query used as the default source for queries of this type.
         /// </summary>

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     If any instance data from <paramref name="context" /> is
-        ///     used when building the model, then the implementation of <see cref="IModelCacheKeyFactory.Create(DbContext)" />
+        ///     used when building the model, then the implementation of <see cref="IModelCacheKeyFactory.Create(DbContext, bool)" />
         ///     also needs to be updated to ensure the model is cached correctly.
         /// </remarks>
         /// <param name="modelBuilder">

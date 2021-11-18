@@ -51,13 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType? BaseType { get; }
 
         /// <summary>
-        ///     Gets the defining entity type.
-        /// </summary>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        new IConventionEntityType? DefiningEntityType
-            => null;
-
-        /// <summary>
         ///     Gets a value indicating whether the entity type has no keys.
         ///     If <see langword="true" /> it will only be usable for queries.
         /// </summary>
@@ -163,15 +156,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionEntityType? SetBaseType(IConventionEntityType? entityType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
-        /// </summary>
-        /// <param name="entityType">The base entity type.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        [Obsolete("Use SetBaseType")]
-        void HasBaseType(IConventionEntityType? entityType, bool fromDataAnnotation = false)
-            => SetBaseType(entityType, fromDataAnnotation);
-
-        /// <summary>
         ///     Returns the configuration source for the BaseType property.
         /// </summary>
         /// <returns>The configuration source for the BaseType property.</returns>
@@ -272,17 +256,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The new configuration value.</returns>
         bool? SetIsKeyless(bool? keyless, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Sets a value indicating whether the entity type has no keys.
-        ///     When set to <see langword="true" /> it will only be usable for queries.
-        ///     <see langword="null" /> to reset to default.
-        /// </summary>
-        /// <param name="keyless">A value indicating whether the entity type to has no keys.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        [Obsolete("Use SetIsKeyless")]
-        void HasNoKey(bool? keyless, bool fromDataAnnotation = false)
-            => SetIsKeyless(keyless, fromDataAnnotation);
 
         /// <summary>
         ///     Returns the configuration source for the IsKeyless property.

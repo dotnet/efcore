@@ -52,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <inheritdoc />
         public virtual void Validate(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            ValidateNoShadowEntities(model, logger);
-#pragma warning restore CS0618 // Type or member is obsolete
             ValidateIgnoredMembers(model, logger);
             ValidatePropertyMapping(model, logger);
             ValidateRelationships(model, logger);
@@ -387,18 +384,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Validates that the model does not contain any entity types without a corresponding CLR type.
-        /// </summary>
-        /// <param name="model">The model to validate.</param>
-        /// <param name="logger">The logger to use.</param>
-        [Obsolete("Shadow entity types cannot be created anymore")]
-        protected virtual void ValidateNoShadowEntities(
-            IModel model,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-        }
-
-        /// <summary>
         ///     Validates the mapping/configuration of shadow keys in the model.
         /// </summary>
         /// <param name="model">The model to validate.</param>
@@ -585,22 +570,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Validates the mapping/configuration of inheritance in the model.
-        /// </summary>
-        /// <param name="model">The model to validate.</param>
-        /// <param name="logger">The logger to use.</param>
-        [Obsolete("Use ValidateInheritanceMapping")]
-        protected virtual void ValidateDiscriminatorValues(
-            IModel model,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
-            foreach (var rootEntityType in model.GetRootEntityTypes())
-            {
-                ValidateDiscriminatorValues(rootEntityType);
-            }
-        }
-
-        /// <summary>
         ///     Validates the mapping of inheritance in the model.
         /// </summary>
         /// <param name="model">The model to validate.</param>
@@ -609,9 +578,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            ValidateDiscriminatorValues(model, logger);
-#pragma warning restore CS0618 // Type or member is obsolete
+            foreach (var rootEntityType in model.GetRootEntityTypes())
+            {
+                ValidateDiscriminatorValues(rootEntityType);
+            }
         }
 
         /// <summary>
@@ -813,18 +783,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .All(
                             d => d.GetForeignKeys()
                                 .Any(fk => fk.Properties.Contains(property)));
-        }
-
-        /// <summary>
-        ///     Validates the mapping/configuration of defining navigations in the model.
-        /// </summary>
-        /// <param name="model">The model to validate.</param>
-        /// <param name="logger">The logger to use.</param>
-        [Obsolete]
-        protected virtual void ValidateDefiningNavigations(
-            IModel model,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
-        {
         }
 
         /// <summary>

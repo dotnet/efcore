@@ -26,15 +26,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalPropertyExtensions
     {
         /// <summary>
-        ///     Returns the name of the table column to which the property is mapped.
-        /// </summary>
-        /// <param name="property">The property.</param>
-        /// <returns>The name of the table column to which the property is mapped.</returns>
-        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
-        public static string GetColumnName(this IProperty property)
-            => (string?)property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.Value ?? property.GetDefaultColumnName();
-
-        /// <summary>
         ///     Returns the base name of the column to which the property would be mapped.
         /// </summary>
         /// <param name="property">The property.</param>
@@ -89,18 +80,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return GetDefaultColumnName(property, storeObject);
-        }
-
-        /// <summary>
-        ///     Returns the default table column name to which the property would be mapped.
-        /// </summary>
-        /// <param name="property">The property.</param>
-        /// <returns>The default table column name to which the property would be mapped.</returns>
-        [Obsolete("Use the overload that takes a StoreObjectIdentifier")]
-        public static string GetDefaultColumnName(this IProperty property)
-        {
-            var table = StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table);
-            return table == null ? property.GetDefaultColumnBaseName() : property.GetDefaultColumnName(table.Value);
         }
 
         /// <summary>
@@ -1246,16 +1225,6 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static RelationalTypeMapping GetRelationalTypeMapping(this IReadOnlyProperty property)
             => (RelationalTypeMapping)property.GetTypeMapping();
-
-        /// <summary>
-        ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.
-        /// </summary>
-        /// <param name="property">The property.</param>
-        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        [DebuggerStepThrough]
-        [Obsolete("Use FindRelationalTypeMapping")]
-        public static RelationalTypeMapping? FindRelationalMapping(this IProperty property)
-            => property.FindRelationalTypeMapping();
 
         /// <summary>
         ///     Returns the <see cref="RelationalTypeMapping" /> for the given property on a finalized model.

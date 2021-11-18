@@ -192,7 +192,6 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
             {
-                typeof(IMutableSequence).GetMethod("set_ClrType"),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
@@ -218,7 +217,10 @@ namespace Microsoft.EntityFrameworkCore
                     new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) })
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
+                typeof(RelationalIndexBuilderExtensions).GetMethod(
+                    nameof(RelationalIndexBuilderExtensions.HasName),
+                    new Type[] { typeof(IndexBuilder), typeof(string) })
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()

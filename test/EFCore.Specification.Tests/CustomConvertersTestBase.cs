@@ -1106,9 +1106,7 @@ namespace Microsoft.EntityFrameworkCore
                         var property = b.Property(e => e.Id)
                             .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-#pragma warning disable 618
-                        property.SetKeyValueComparer(caseInsensitiveComparer);
-#pragma warning restore 618
+                        property.SetValueComparer(caseInsensitiveComparer);
                     });
 
                 modelBuilder.Entity<StringForeignKeyDataType>(

@@ -264,12 +264,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-#pragma warning disable CS0612 // Type or member is obsolete
                 foreach (var annotation in annotations)
                 {
                     if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
                         && annotation.Key != CoreAnnotationNames.QueryFilter
+#pragma warning disable CS0612 // Type or member is obsolete
                         && annotation.Key != CoreAnnotationNames.DefiningQuery
+#pragma warning restore CS0612 // Type or member is obsolete
                         && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
                     {
                         annotations.Remove(annotation.Key);
@@ -282,12 +283,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
                 }
 
+#pragma warning disable CS0612 // Type or member is obsolete
                 if (annotations.TryGetValue(CoreAnnotationNames.DefiningQuery, out var definingQuery))
                 {
                     annotations[CoreAnnotationNames.DefiningQuery] =
+#pragma warning restore CS0612 // Type or member is obsolete
                         new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)definingQuery!);
                 }
-#pragma warning restore CS0612 // Type or member is obsolete
             }
         }
 
