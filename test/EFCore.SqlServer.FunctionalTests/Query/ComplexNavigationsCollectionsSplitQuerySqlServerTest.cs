@@ -2741,24 +2741,21 @@ ORDER BY [l].[Id], [l0].[Id]");
         {
             await base.Filtered_include_different_filter_set_on_same_navigation_twice(async);
 
-            AssertSql(
-            );
+            AssertSql();
         }
 
         public override async Task Filtered_include_different_filter_set_on_same_navigation_twice_multi_level(bool async)
         {
             await base.Filtered_include_different_filter_set_on_same_navigation_twice_multi_level(async);
 
-            AssertSql(
-            );
+            AssertSql();
         }
 
         public override async Task Filtered_include_include_parameter_used_inside_filter_throws(bool async)
         {
             await base.Filtered_include_include_parameter_used_inside_filter_throws(async);
 
-            AssertSql(
-            );
+            AssertSql();
         }
 
         public override async Task Filtered_include_is_considered_loaded(bool async)
@@ -2783,16 +2780,14 @@ ORDER BY [l].[Id], [t0].[OneToMany_Optional_Inverse2Id], [t0].[Id]");
         {
             await base.Filtered_include_with_Distinct_throws(async);
 
-            AssertSql(
-            );
+            AssertSql();
         }
 
         public override async Task Filtered_include_calling_methods_directly_on_parameter_throws(bool async)
         {
             await base.Filtered_include_calling_methods_directly_on_parameter_throws(async);
 
-            AssertSql(
-            );
+            AssertSql();
         }
 
         public override async Task Filtered_include_Take_with_another_Take_on_top_level(bool async)

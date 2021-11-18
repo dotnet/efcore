@@ -1973,7 +1973,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where l1_outer.Id < 2
                     select l1_outer.Name);
 
-        [ConditionalTheory] //(Skip = "Issue #17328")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection_nested2(bool async)
             => AssertQuery(
@@ -2008,7 +2008,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new { l1.Id, client = ClientMethodNullableInt(l1.Id) },
                 elementSorter: e => e.Id);
 
-        [ConditionalTheory] //(Skip = "Issue #17328")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_client_method_in_OrderBy(bool async)
             => AssertQueryScalar(
