@@ -312,8 +312,90 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
         {
             await base.Add_column_with_defaultValue_datetime();
 
-            AssertSql(
-                @"ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05:00.0000000';");
+            AssertSql(@"ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05:00.0000000';");
+        }
+
+        [ConditionalTheory]
+        [InlineData(0, "", 1234567)]
+        [InlineData(1, ".1", 1234567)]
+        [InlineData(2, ".12", 1234567)]
+        [InlineData(3, ".123", 1234567)]
+        [InlineData(4, ".1234", 1234567)]
+        [InlineData(5, ".12345", 1234567)]
+        [InlineData(6, ".123456", 1234567)]
+        [InlineData(7, ".1234567", 1234567)]
+        [InlineData(7, ".1200000", 1200000)] //should this really output trailing zeros?
+        public async Task Add_column_with_defaultValue_datetime_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<DateTime>("Birthday").HasPrecision(precision)
+                    .HasDefaultValue(new DateTime(2015, 4, 12, 17, 5, 0).AddTicks(ticksToAdd)),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var birthdayColumn = Assert.Single(table.Columns, c => c.Name == "Birthday");
+                    Assert.False(birthdayColumn.IsNullable);
+                });
+
+            AssertSql($@"ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '2015-04-12T17:05:00{fractionalSeconds}';");
+        }
+        [ConditionalTheory]
+        [InlineData(0, "", 1234567)]
+        [InlineData(1, ".1", 1234567)]
+        [InlineData(2, ".12", 1234567)]
+        [InlineData(3, ".123", 1234567)]
+        [InlineData(4, ".1234", 1234567)]
+        [InlineData(5, ".12345", 1234567)]
+        [InlineData(6, ".123456", 1234567)]
+        [InlineData(7, ".1234567", 1234567)]
+        [InlineData(7, ".1200000", 1200000)] //should this really output trailing zeros?
+        public async Task Add_column_with_defaultValue_datetimeoffset_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<DateTimeOffset>("Birthday").HasPrecision(precision)
+                    .HasDefaultValue(new DateTimeOffset(new DateTime(2015, 4, 12, 17, 5, 0).AddTicks(ticksToAdd), TimeSpan.FromHours(10))),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var birthdayColumn = Assert.Single(table.Columns, c => c.Name == "Birthday");
+                    Assert.False(birthdayColumn.IsNullable);
+                });
+
+            AssertSql($@"ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT '2015-04-12T17:05:00{fractionalSeconds}+10:00';");
+        }
+
+        [ConditionalTheory]
+        [InlineData(0, "", 1234567)]
+        [InlineData(1, ".1", 1234567)]
+        [InlineData(2, ".12", 1234567)]
+        [InlineData(3, ".123", 1234567)]
+        [InlineData(4, ".1234", 1234567)]
+        [InlineData(5, ".12345", 1234567)]
+        [InlineData(6, ".123456", 1234567)]
+        [InlineData(7, ".1234567", 1234567)]
+        [InlineData(7, ".12", 1200000)]
+        public async Task Add_column_with_defaultValue_time_with_explicit_precision(int precision, string fractionalSeconds, int ticksToAdd)
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<TimeSpan>("Age").HasPrecision(precision)
+                    .HasDefaultValue(TimeSpan.Parse("12:34:56", System.Globalization.CultureInfo.InvariantCulture).Add(TimeSpan.FromTicks(ticksToAdd))),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal(2, table.Columns.Count);
+                    var birthdayColumn = Assert.Single(table.Columns, c => c.Name == "Age");
+                    Assert.False(birthdayColumn.IsNullable);
+                });
+
+            AssertSql($@"ALTER TABLE [People] ADD [Age] time({precision}) NOT NULL DEFAULT '12:34:56{fractionalSeconds}';");
         }
 
         [ConditionalFact]

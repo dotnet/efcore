@@ -352,7 +352,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             "datetime2",
             "datetimeoffset",
             "double precision",
-            "float"
+            "float",
+            "time"
         };
 
         /// <summary>

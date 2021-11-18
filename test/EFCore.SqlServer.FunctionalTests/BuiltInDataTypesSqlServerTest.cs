@@ -1584,15 +1584,16 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='2017-01-02T12:11:12.3210000' (Precision = 3)
-@p2='2016-01-02T11:11:12.7650000+00:00' (Precision = 3)
+@p1='2017-01-02T12:11:12.3210000' (Scale = 3)
+@p2='2016-01-02T11:11:12.7650000+00:00' (Scale = 3)
 @p3='102' (Precision = 3)
 @p4='101' (Precision = 3)
 @p5='103' (Precision = 3)
 @p6='85.55000305175781' (Size = 25)
 @p7='85.5' (Size = 3)
 @p8='83.33000183105469' (Size = 25)
-@p9='83.3' (Size = 3)",
+@p9='83.3' (Size = 3)
+@p10='12:34:56.7890123' (Scale = 3)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1612,6 +1613,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(
                 new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12, 765), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12, 321), entity.DateTimeAsDatetime23);
+            Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
@@ -1629,7 +1631,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321),
                 DecimalAsDecimal3 = 101m,
                 DecimalAsDec3 = 102m,
-                DecimalAsNumeric3 = 103m
+                DecimalAsNumeric3 = 103m,
+                TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture)
             };
 
         [ConditionalFact]
@@ -1645,15 +1648,16 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='2017-01-02T12:11:12.3210000' (Precision = 3)
-@p2='2016-01-02T11:11:12.7650000+00:00' (Precision = 3)
+@p1='2017-01-02T12:11:12.3210000' (Scale = 3)
+@p2='2016-01-02T11:11:12.7650000+00:00' (Scale = 3)
 @p3='102' (Precision = 3)
 @p4='101' (Precision = 3)
 @p5='103' (Precision = 3)
 @p6='85.55000305175781' (Size = 25)
 @p7='85.5' (Size = 3)
 @p8='83.33000183105469' (Size = 25)
-@p9='83.3' (Size = 3)",
+@p9='83.3' (Size = 3)
+@p10='12:34:56.7890000' (Scale = 3)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1676,6 +1680,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
+            Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
         }
 
         private static MappedScaledSeparatelyDataTypes CreateMappedScaledSeparatelyDataTypes(int id)
@@ -1690,7 +1695,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 321),
                 DecimalAsDecimal3 = 101m,
                 DecimalAsDec3 = 102m,
-                DecimalAsNumeric3 = 103m
+                DecimalAsNumeric3 = 103m,
+                TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture)
             };
 
         [ConditionalFact]
@@ -2492,8 +2498,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='2017-01-02T12:11:12.1230000' (Precision = 3)
-@p1='2016-01-02T11:11:12.5670000+00:00' (Precision = 3)
+                @"@p0='2017-01-02T12:11:12.1230000' (Scale = 3)
+@p1='2016-01-02T11:11:12.5670000+00:00' (Scale = 3)
 @p2='102' (Precision = 3)
 @p3='101' (Precision = 3)
 @p4='103' (Precision = 3)
@@ -2501,7 +2507,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p6='85.5' (Size = 3)
 @p7='83.33000183105469' (Size = 25)
 @p8='83.3' (Size = 3)
-@p9='77'",
+@p9='77'
+@p10='12:34:56.7890123' (Scale = 3)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -2524,6 +2531,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(101m, entity.DecimalAsDecimal3);
             Assert.Equal(102m, entity.DecimalAsDec3);
             Assert.Equal(103m, entity.DecimalAsNumeric3);
+            Assert.Equal(TimeSpan.Parse("12:34:56.789", System.Globalization.CultureInfo.InvariantCulture), entity.TimeSpanAsTime3);
         }
 
         private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
@@ -2538,7 +2546,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12, 123),
                 DecimalAsDecimal3 = 101m,
                 DecimalAsDec3 = 102m,
-                DecimalAsNumeric3 = 103m
+                DecimalAsNumeric3 = 103m,
+                TimeSpanAsTime3 = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture)
             };
 
         [ConditionalFact]
@@ -3242,6 +3251,7 @@ MappedScaledDataTypes.FloatAsDoublePrecision3 ---> [real] [Precision = 24]
 MappedScaledDataTypes.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledDataTypes.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
+MappedScaledDataTypes.TimeSpanAsTime3 ---> [time] [Precision = 3]
 MappedScaledDataTypesWithIdentity.DateTimeAsDatetime23 ---> [datetime2] [Precision = 3]
 MappedScaledDataTypesWithIdentity.DateTimeOffsetAsDatetimeoffset3 ---> [datetimeoffset] [Precision = 3]
 MappedScaledDataTypesWithIdentity.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
@@ -3253,6 +3263,7 @@ MappedScaledDataTypesWithIdentity.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledDataTypesWithIdentity.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
+MappedScaledDataTypesWithIdentity.TimeSpanAsTime3 ---> [time] [Precision = 3]
 MappedScaledSeparatelyDataTypes.DateTimeAsDatetime23 ---> [datetime2] [Precision = 3]
 MappedScaledSeparatelyDataTypes.DateTimeOffsetAsDatetimeoffset3 ---> [datetimeoffset] [Precision = 3]
 MappedScaledSeparatelyDataTypes.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
@@ -3263,6 +3274,7 @@ MappedScaledSeparatelyDataTypes.FloatAsDoublePrecision3 ---> [real] [Precision =
 MappedScaledSeparatelyDataTypes.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledSeparatelyDataTypes.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledSeparatelyDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
+MappedScaledSeparatelyDataTypes.TimeSpanAsTime3 ---> [time] [Precision = 3]
 MappedSizedDataTypes.BytesAsBinary3 ---> [nullable binary] [MaxLength = 3]
 MappedSizedDataTypes.BytesAsBinaryVarying3 ---> [nullable varbinary] [MaxLength = 3]
 MappedSizedDataTypes.BytesAsVarbinary3 ---> [nullable varbinary] [MaxLength = 3]
@@ -4137,6 +4149,9 @@ WHERE [b].[Id] = 13");
 
             [Column(TypeName = "numeric(3)")]
             public decimal DecimalAsNumeric3 { get; set; }
+
+            [Column(TypeName = "time(3)")]
+            public TimeSpan TimeSpanAsTime3 { get; set; }
         }
 
         protected class MappedScaledSeparatelyDataTypes
@@ -4169,6 +4184,9 @@ WHERE [b].[Id] = 13");
 
             [Column(TypeName = "numeric")]
             public decimal DecimalAsNumeric3 { get; set; }
+
+            [Column(TypeName = "time(3)")]
+            public TimeSpan TimeSpanAsTime3 { get; set; }
         }
 
         protected class DoubleDataTypes
@@ -4621,6 +4639,9 @@ WHERE [b].[Id] = 13");
 
             [Column(TypeName = "numeric(3)")]
             public decimal DecimalAsNumeric3 { get; set; }
+
+            [Column(TypeName = "time(3)")]
+            public TimeSpan TimeSpanAsTime3 { get; set; }
         }
 
         protected class MappedPrecisionAndScaledDataTypesWithIdentity

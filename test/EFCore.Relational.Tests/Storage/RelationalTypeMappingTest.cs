@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void Timespan_literal_generated_correctly()
         {
-            Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(7, 14, 30), "'07:14:30'");
+            Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(0, 7, 14, 30, 123), "'07:14:30.1230000'");
         }
 
         [ConditionalFact]

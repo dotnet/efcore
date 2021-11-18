@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         // so the order of the entries in this array is important
         private readonly string[] _dateTime2Formats =
         {
-            "'{0:yyyy-MM-ddTHH:mm:ss}'",
+            "'{0:yyyy-MM-ddTHH:mm:ssK}'",
             "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
             "'{0:yyyy-MM-ddTHH:mm:ss.ffK}'",
             "'{0:yyyy-MM-ddTHH:mm:ss.fffK}'",
@@ -89,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             if (Precision.HasValue)
             {
-                parameter.Precision = unchecked((byte)Precision.Value);
+                // Workaround for inconsistant definition of precision/scale between EF and SQLClient for VarTime types
+                parameter.Scale = unchecked((byte)Precision.Value);
             }
         }
 
@@ -133,6 +134,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         return _dateTime2Formats[7];
                 }
             }
-        }
+        }        
     }
 }

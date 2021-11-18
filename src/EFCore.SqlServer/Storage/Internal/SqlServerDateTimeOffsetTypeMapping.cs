@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             if (Precision.HasValue)
             {
-                parameter.Precision = unchecked((byte)Precision.Value);
+                // Workaround for inconsistant definition of precision/scale between EF and SQLClient for VarTime types                
+                parameter.Scale = unchecked((byte)Precision.Value);
             }
         }
     }
