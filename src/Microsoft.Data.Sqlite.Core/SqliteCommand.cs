@@ -315,7 +315,7 @@ namespace Microsoft.Data.Sqlite
 
         private IEnumerable<sqlite3_stmt> GetStatements()
         {
-            foreach (var stmt in !_prepared
+            foreach ((var stmt, var expectedParams) in !_prepared
                 ? PrepareAndEnumerateStatements()
                 : _preparedStatements)
             {
@@ -463,7 +463,7 @@ namespace Microsoft.Data.Sqlite
         {
         }
 
-        private IEnumerable<sqlite3_stmt> PrepareAndEnumerateStatements()
+        private IEnumerable<(sqlite3_stmt Statement, int ParamCount)> PrepareAndEnumerateStatements()
         {
             DisposePreparedStatements(disposing: false);
 
