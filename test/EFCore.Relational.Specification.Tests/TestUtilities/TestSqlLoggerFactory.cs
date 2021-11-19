@@ -2,10 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -23,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly object _queryBaselineFileLock = new();
         private static readonly HashSet<string> _overriddenMethods = new();
+        private static readonly object _queryBaselineRewritingLock = new();
+        private static readonly ConcurrentDictionary<string, object> _queryBaselineRewritingLocks = new();
 
         public TestSqlLoggerFactory()
             : this(_ => true)
@@ -97,8 +105,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
                 const string indent = FileNewLine + "                ";
 
+                if (Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE")
+                {
+                    RewriteSourceWithNewBaseline(fileName, lineNumber);
+                }
+
                 var sql = string.Join(
                     "," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""));
+
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(20).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
 
@@ -158,6 +172,132 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 throw;
+            }
+
+            void RewriteSourceWithNewBaseline(string fileName, int lineNumber)
+            {
+                var fileLock = _queryBaselineRewritingLocks.GetOrAdd(fileName, _ => new());
+                lock (fileLock)
+                {
+                    // Parse the file to find the line where the relevant AssertSql is
+                    try
+                    {
+                        // First have Roslyn parse the file
+                        SyntaxTree syntaxTree;
+                        using (var stream = File.OpenRead(fileName))
+                        {
+                            syntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(stream));
+                        }
+
+                        // Read through the source file, copying contents to a temp file (with the baseline changE)
+                        using (var inputStream = File.OpenRead(fileName))
+                        using (var outputStream = File.Open(fileName + ".tmp", FileMode.Create, FileAccess.Write))
+                        {
+                            // Detect whether a byte-order mark (BOM) exists, to write out the same
+                            var buffer = new byte[3];
+                            inputStream.Read(buffer, 0, 3);
+                            inputStream.Position = 0;
+
+                            var hasUtf8ByteOrderMark = (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF);
+
+                            using var reader = new StreamReader(inputStream);
+                            using var writer = new StreamWriter(outputStream, new UTF8Encoding(hasUtf8ByteOrderMark));
+
+                            // First find the char position where our line starts
+                            var pos = 0;
+                            for (var i = 0; i < lineNumber - 1; i++)
+                            {
+                                while (true)
+                                {
+                                    if (reader.Peek() == -1)
+                                    {
+                                        return;
+                                    }
+
+                                    pos++;
+                                    var ch = (char)reader.Read();
+                                    writer.Write(ch);
+                                    if (ch == '\n') // Unix
+                                    {
+                                        break;
+                                    }
+
+                                    if (ch == '\r')
+                                    {
+                                        // Mac (just \r) or Windows (\r\n)
+                                        if (reader.Peek() >= 0 && (char)reader.Peek() == '\n')
+                                        {
+                                            _ = reader.Read();
+                                            writer.Write('\n');
+                                            pos++;
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // We have the character position of the line start. Skip over whitespace (that's the indent) to find the invocation
+                            var indentBuilder = new StringBuilder();
+                            while (true)
+                            {
+                                var i = reader.Peek();
+                                if (i == -1)
+                                {
+                                    return;
+                                }
+
+                                var ch = (char)i;
+
+                                if (ch == ' ')
+                                {
+                                    pos++;
+                                    indentBuilder.Append(' ');
+                                    reader.Read();
+                                    writer.Write(ch);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            // We are now at the start of the invocation.
+                            var node = syntaxTree.GetRoot().FindNode(TextSpan.FromBounds(pos, pos));
+
+                            // Node should be pointing at the AssertSql identifier. Go up and find the text span for the entire method invocation.
+                            if (node is not IdentifierNameSyntax { Parent: InvocationExpressionSyntax invocation })
+                            {
+                                return;
+                            }
+
+                            // Skip over the invocation on the read side, and write the new baseline invocation
+                            var tempBuf = new char[Math.Max(1024, invocation.Span.Length)];
+                            reader.ReadBlock(tempBuf, 0, invocation.Span.Length);
+
+                            indentBuilder.Append("    ");
+                            var indent = indentBuilder.ToString();
+                            var newBaseLine = $@"AssertSql(
+{indent}{string.Join(",\n" + indent + "//\n" + indent, SqlStatements.Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))})";
+
+                            writer.Write(newBaseLine);
+
+                            // Copy the rest of the file contents as-is
+                            int count;
+                            while ((count = reader.ReadBlock(tempBuf, 0, 1024)) > 0)
+                            {
+                                writer.Write(tempBuf, 0, count);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        File.Delete(fileName + ".tmp");
+                        throw;
+                    }
+
+                    File.Move(fileName + ".tmp", fileName, overwrite: true);
+                }
             }
         }
 
