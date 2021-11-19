@@ -1197,14 +1197,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
-                if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
-                {
-                    source = Visit(source);
-
-                    return TryExpand(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
-                }
-
                 return base.VisitMethodCall(methodCallExpression);
             }
 
