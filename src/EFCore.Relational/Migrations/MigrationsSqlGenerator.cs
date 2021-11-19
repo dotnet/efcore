@@ -1731,43 +1731,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Finds all <see cref="IEntityType" />s that are mapped to the given table.
-        /// </summary>
-        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
-        /// <param name="tableName">The table name.</param>
-        /// <returns>The list of types, which may be empty if no types are mapped to the given table.</returns>
-        [Obsolete("Use model?.GetRelationalModel().FindTable()")]
-        protected virtual IEnumerable<IEntityType>? FindEntityTypes(
-            IModel? model,
-            string? schema,
-            string tableName)
-            => model?.GetRelationalModel().FindTable(tableName, schema)
-                ?.EntityTypeMappings.Select(m => m.EntityType);
-
-        /// <summary>
-        ///     Finds some <see cref="IProperty" /> mapped to the given column.
-        /// </summary>
-        /// <remarks>
-        ///     If multiple properties map to the same column, then the property returned is one chosen
-        ///     arbitrarily. The model validator ensures that all properties mapped to a given column
-        ///     have consistent configuration.
-        /// </remarks>
-        /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
-        /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
-        /// <param name="tableName">The name of the table that contains the column.</param>
-        /// <param name="columnName">The column name.</param>
-        /// <returns>The property found, or <see langword="null" /> if no property maps to the given column.</returns>
-        [Obsolete("Use model?.GetRelationalModel().FindTable().FindColumn()")]
-        protected virtual IProperty? FindProperty(
-            IModel? model,
-            string? schema,
-            string tableName,
-            string columnName)
-            => model?.GetRelationalModel().FindTable(tableName, schema)
-                ?.Columns.FirstOrDefault(c => c.Name == columnName)?.PropertyMappings.First().Property;
-
-        /// <summary>
         ///     Generates a SQL fragment to terminate the SQL command.
         /// </summary>
         /// <param name="builder">The command builder to use to add the SQL fragment.</param>

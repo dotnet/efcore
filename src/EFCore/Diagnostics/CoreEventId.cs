@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
             MultipleInversePropertiesSameTargetWarning,
-            NonDefiningInverseNavigationWarning,
+            Obsolete_NonDefiningInverseNavigationWarning,
             NonOwnershipInverseNavigationWarning,
             ForeignKeyAttributesOnBothPropertiesWarning,
             ForeignKeyAttributesOnBothNavigationsWarning,
@@ -533,93 +533,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId AmbiguousEndRequiredWarning = MakeModelId(Id.AmbiguousEndRequiredWarning);
 
         /// <summary>
-        ///     The entity type with the navigation property that has the <see cref="RequiredAttribute" />
-        ///     was configured as the dependent side in the relationship.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId RequiredAttributeInverted = MakeModelId(Id.Obsolete_RequiredAttributeInverted);
-
-        /// <summary>
-        ///     The entity type with the navigation property that has non-nullability
-        ///     was configured as the dependent side in the relationship.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId NonNullableInverted = MakeModelId(Id.Obsolete_NonNullableInverted);
-
-        /// <summary>
-        ///     Navigations separated into two relationships as <see cref="RequiredAttribute" /> was specified on both navigations.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.Obsolete_RequiredAttributeOnBothNavigations);
-
-        /// <summary>
-        ///     Navigations separated into two relationships as non-nullability was specified on both navigations.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId NonNullableReferenceOnBothNavigations =
-            MakeModelId(Id.Obsolete_NonNullableReferenceOnBothNavigations);
-
-        /// <summary>
-        ///     The <see cref="RequiredAttribute" /> on the navigation property to the dependent entity was ignored.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId RequiredAttributeOnDependent = MakeModelId(Id.Obsolete_RequiredAttributeOnDependent);
-
-        /// <summary>
-        ///     The non-nullability of the navigation property to the dependent entity was ignored.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId NonNullableReferenceOnDependent = MakeModelId(Id.Obsolete_NonNullableReferenceOnDependent);
-
-        /// <summary>
         ///     The <see cref="RequiredAttribute" /> on the collection navigation property was ignored.
         /// </summary>
         /// <remarks>
@@ -714,7 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </remarks>
-        public static readonly EventId NonDefiningInverseNavigationWarning = MakeModelId(Id.NonDefiningInverseNavigationWarning);
+        [Obsolete("Log message with this event Id has been removed.")]
+        public static readonly EventId NonDefiningInverseNavigationWarning = MakeModelId(Id.Obsolete_NonDefiningInverseNavigationWarning);
 
         /// <summary>
         ///     The navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.

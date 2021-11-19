@@ -771,6 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema">The schema that contains the check constraint, or <see langword="null" /> to use the default schema.</param>
         /// <returns>A builder to allow annotations to be added to the operation.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
+        // The API is not marked as Obsolete but written so in docs.
         public virtual OperationBuilder<AddCheckConstraintOperation> CreateCheckConstraint(
             string name,
             string table,

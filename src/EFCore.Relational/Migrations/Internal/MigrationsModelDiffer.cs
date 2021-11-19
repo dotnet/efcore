@@ -2474,31 +2474,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private static IEntityType GetMainType(ITable table)
             => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal).EntityType;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete]
-        public static IProperty[] GetMappedProperties(ITable table, string[] names)
-        {
-            var properties = new IProperty[names.Length];
-            for (var i = 0; i < names.Length; i++)
-            {
-                var name = names[i];
-                var column = table.FindColumn(name);
-                if (column == null)
-                {
-                    continue;
-                }
-
-                properties[i] = column.PropertyMappings.First().Property;
-            }
-
-            return properties;
-        }
-
         private static object?[,] ToMultidimensionalArray(IReadOnlyList<object?> values)
         {
             var result = new object?[1, values.Count];

@@ -1009,15 +1009,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
             => ResetStateAsync(disposeDbConnection: false).AsTask();
 
-        /// <summary>
-        ///     Gets a semaphore used to serialize access to this connection.
-        /// </summary>
-        /// <value>
-        ///     The semaphore used to serialize access to this connection.
-        /// </value>
-        [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
-        public virtual SemaphoreSlim Semaphore { get; } = new(1);
-
         private Transaction? _enlistedTransaction;
 
         /// <summary>

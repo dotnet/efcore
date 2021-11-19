@@ -150,21 +150,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static readonly AsyncLocal<ExecutionStrategy?> _current = new();
 
         /// <summary>
-        ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid
-        ///     recursive execution from nested operations.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
-        /// </remarks>
-        [Obsolete("Use Current instead")]
-        protected static bool Suspended
-        {
-            get => Current != null;
-            set { }
-        }
-
-        /// <summary>
         ///     Gets or sets the currently executing strategy. All nested calls will be handled by the outermost strategy.
         /// </summary>
         /// <remarks>

@@ -51,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     injection container, then replace selected services using the 'With...' methods. Do not call
         ///     the constructor at any point in this process.
         /// </remarks>
-#pragma warning disable CS0618 // Type or member is obsolete
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             IRelationalDatabaseCreator databaseCreator,
@@ -66,7 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IRelationalTypeMappingSource typeMappingSource,
             ICurrentDbContext currentContext,
             IModelRuntimeInitializer modelRuntimeInitializer,
-            IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             IRelationalCommandDiagnosticsLogger commandLogger)
         {
             DatabaseCreator = databaseCreator;
@@ -81,10 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             TypeMappingSource = typeMappingSource;
             CurrentContext = currentContext;
             ModelRuntimeInitializer = modelRuntimeInitializer;
-            ModelLogger = modelDependencies.Logger;
             CommandLogger = commandLogger;
         }
-#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         ///     The database creator.
@@ -145,12 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The model runtime initializer
         /// </summary>
         public IModelRuntimeInitializer ModelRuntimeInitializer { get; init; }
-
-        /// <summary>
-        ///     The model logger
-        /// </summary>
-        [Obsolete("This is contained in ModelDependencies now.")]
-        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; init; }
 
         /// <summary>
         ///     The command logger

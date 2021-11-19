@@ -59,12 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         public bool IsCondition { get; }
 
         /// <summary>
-        ///     Indicates whether the column is concurrency token.
-        /// </summary>
-        [Obsolete]
-        public bool IsConcurrencyToken { get; }
-
-        /// <summary>
         ///     Indicates whether the column is part of a primary or alternate key.
         /// </summary>
         public bool IsKey { get; }

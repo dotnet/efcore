@@ -66,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IDbSetSource setSource,
             IEntityMaterializerSource entityMaterializerSource,
             IExecutionStrategy executionStrategy,
-            IExecutionStrategyFactory executionStrategyFactory,
             ICoreSingletonOptions coreSingletonOptions,
             ILoggingOptions loggingOptions,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
@@ -84,9 +83,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             SetSource = setSource;
             EntityMaterializerSource = entityMaterializerSource;
             ExecutionStrategy = executionStrategy;
-#pragma warning disable CS0618 // Type or member is obsolete
-            ExecutionStrategyFactory = executionStrategyFactory;
-#pragma warning restore CS0618 // Type or member is obsolete
             CoreSingletonOptions = coreSingletonOptions;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
@@ -183,15 +179,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IExecutionStrategy ExecutionStrategy { get; init; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete("Use ExecutionStrategy instead")]
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
