@@ -46,28 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         FieldInfo? SetFieldInfo(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Sets the <see cref="FieldInfo" /> for the underlying CLR field that this property should use.
-        /// </summary>
-        /// <remarks>
-        ///     By default, the backing field, if one is found or has been specified, is used when
-        ///     new objects are constructed, typically when entities are queried from the database.
-        ///     Properties are used for all other accesses. This can be changed by calling
-        ///     <see cref="SetPropertyAccessMode" />.
-        /// </remarks>
-        /// <param name="fieldInfo">The <see cref="FieldInfo" /> for the underlying CLR field to use.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        [Obsolete("Use SetFieldInfo")]
-        void SetField(FieldInfo? fieldInfo, bool fromDataAnnotation = false)
-            => SetFieldInfo(fieldInfo, fromDataAnnotation);
-
-        /// <summary>
         ///     Sets the underlying CLR field that this property should use.
         ///     This may be <see langword="null" /> for shadow properties or if the backing field for the property is not known.
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         Backing fields are normally found by convention as described
-        ///         here: http://go.microsoft.com/fwlink/?LinkId=723277.
+        ///         Backing fields are normally found by convention.
         ///         This method is useful for setting backing fields explicitly in cases where the
         ///         correct field is not found by convention.
         ///     </para>
@@ -76,6 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
         ///         <see cref="SetPropertyAccessMode" />.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information.
         ///     </para>
         /// </remarks>
         /// <param name="fieldName">The name of the field to use.</param>

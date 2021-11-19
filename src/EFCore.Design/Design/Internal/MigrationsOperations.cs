@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -50,11 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             bool nullable,
             string[]? args)
         {
-            Check.NotNull(reporter, nameof(reporter));
-            Check.NotNull(assembly, nameof(assembly));
-            Check.NotNull(startupAssembly, nameof(startupAssembly));
-            Check.NotNull(projectDir, nameof(projectDir));
-
             _reporter = reporter;
             _assembly = assembly;
             _projectDir = projectDir;
@@ -87,8 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             string? contextType,
             string? @namespace)
         {
-            Check.NotEmpty(name, nameof(name));
-
             if (outputDir != null)
             {
                 outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));

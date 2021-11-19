@@ -1,11 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -38,10 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
-        {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-            return extensionExpression switch
+            => extensionExpression switch
             {
                 ShapedQueryExpression shapedQueryExpression => VisitShapedQueryExpression(shapedQueryExpression),
                 CaseExpression caseExpression => VisitCase(caseExpression),
@@ -50,12 +47,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
                 _ => base.VisitExtension(extensionExpression),
             };
-        }
 
         private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
-            return shapedQueryExpression.Update(
-                Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            var selectExpression = shapedQueryExpression.QueryExpression;
+            var updatedSelectExpression = Visit(selectExpression);
+            return updatedSelectExpression != selectExpression
+                ? shapedQueryExpression.Update(updatedSelectExpression,
+                    ReplacingExpressionVisitor.Replace(
+                        selectExpression, updatedSelectExpression, shapedQueryExpression.ShaperExpression))
+                : shapedQueryExpression;
         }
 
         private Expression VisitCase(CaseExpression caseExpression)

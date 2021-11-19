@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -39,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies">The dependencies to use.</param>
         public ModelRuntimeInitializer(ModelRuntimeInitializerDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 

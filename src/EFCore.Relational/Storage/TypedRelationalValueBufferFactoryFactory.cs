@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -67,8 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public TypedRelationalValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
         }
 
@@ -111,15 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="types">Types and mapping for the values to be read.</param>
         /// <returns>The newly created <see cref="IRelationalValueBufferFactoryFactory" />.</returns>
         public virtual IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types)
-        {
-            Check.NotNull(types, nameof(types));
-
-            return _cache.GetOrAdd(
+            => _cache.GetOrAdd(
                 new CacheKey(types),
                 k => new TypedRelationalValueBufferFactory(
                     Dependencies,
                     CreateArrayInitializer(k, Dependencies.CoreOptions.AreDetailedErrorsEnabled)));
-        }
 
         /// <summary>
         ///     Creates value buffer assignment expressions for the given type information.
@@ -128,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>The value buffer assignment expressions.</returns>
         [Obsolete]
         public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
-            => Check.NotNull(types, nameof(types))
+            => types
                 .Select(
                     (mi, i) =>
                         CreateGetValueExpression(

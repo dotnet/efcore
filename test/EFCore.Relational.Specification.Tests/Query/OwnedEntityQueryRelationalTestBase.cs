@@ -164,5 +164,54 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string TokenGroupId { get; set; }
             public string IssuerName { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
+        }
+
+        protected class MyContext26592 : MyContext26592Base
+        {
+            public MyContext26592(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Company>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.CustomerData).ToTable("CustomerData");
+                        b.OwnsOne(e => e.SupplierData).ToTable("SupplierData");
+                    });
+
+                modelBuilder.Entity<Owner>(
+                    b =>
+                    {
+                        b.OwnsOne(e => e.OwnedEntity, o =>
+                        {
+                            o.ToTable("IntermediateOwnedEntity");
+                            o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
+                            o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
+                        });
+                    });
+            }
+        }
     }
 }

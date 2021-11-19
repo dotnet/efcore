@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context26433 : DbContext
         {
             public Context26433(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
@@ -359,16 +359,16 @@ namespace Microsoft.EntityFrameworkCore
             {
 
                 base.Add(new Author26433
-                {
-                    FirstName = "William",
-                    LastName = "Shakespeare",
-                    Books = new List<Book26433>
+                    {
+                        FirstName = "William",
+                        LastName = "Shakespeare",
+                        Books = new List<Book26433>
                         {
                             new() {Title = "Hamlet"},
                             new() {Title = "Othello"},
                             new() {Title = "MacBeth"}
                         }
-                });
+                    });
 
                 SaveChanges();
             }
@@ -392,5 +392,278 @@ namespace Microsoft.EntityFrameworkCore
             public Author26433 Author { get; set; }
         }
 
+#nullable enable
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsDeleted_query_filter_with_conversion_to_int_works(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26428>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Suppliers.Include(s => s.Location).OrderBy(s => s.Name);
+
+            var suppliers = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(4, suppliers.Count);
+            Assert.Single(suppliers.Where(e => e.Location != null));
+        }
+
+        protected class Context26428 : DbContext
+        {
+            public Context26428(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Supplier> Suppliers => Set<Supplier>();
+            public DbSet<Location> Locations => Set<Location>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Supplier>().Property(s => s.IsDeleted).HasConversion<int>();
+                modelBuilder.Entity<Supplier>().HasQueryFilter(s => !s.IsDeleted);
+
+                modelBuilder.Entity<Location>().Property(l => l.IsDeleted).HasConversion<int>();
+                modelBuilder.Entity<Location>().HasQueryFilter(l => !l.IsDeleted);
+            }
+
+            public void Seed()
+            {
+                var activeAddress = new Location
+                {
+                    Address = "Active address",
+                    IsDeleted = false
+                };
+                var deletedAddress = new Location
+                {
+                    Address = "Deleted address",
+                    IsDeleted = true
+                };
+
+                var activeSupplier1 = new Supplier
+                {
+                    Name = "Active supplier 1",
+                    IsDeleted = false,
+                    Location = activeAddress
+                };
+                var activeSupplier2 = new Supplier
+                {
+                    Name = "Active supplier 2",
+                    IsDeleted = false,
+                    Location = deletedAddress
+                };
+                var activeSupplier3 = new Supplier
+                {
+                    Name = "Active supplier 3",
+                    IsDeleted = false
+                };
+                var deletedSupplier = new Supplier
+                {
+                    Name = "Deleted supplier",
+                    IsDeleted = false
+                };
+
+                AddRange(activeAddress, deletedAddress);
+                AddRange(activeSupplier1, activeSupplier2, activeSupplier3, deletedSupplier);
+
+                SaveChanges();
+            }
+        }
+
+        protected class Supplier
+        {
+            public Guid SupplierId { get; set; }
+            public string Name { get; set; } = null!;
+            public Location? Location { get; set; }
+            public bool IsDeleted { get; set; }
+        }
+
+        protected class Location
+        {
+            public Guid LocationId { get; set; }
+            public string Address { get; set; } = null!;
+            public bool IsDeleted { get; set; }
+        }
+
+#nullable disable
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.GroupId);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.GroupId))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Contains(u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.Group);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.Group))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Contains(u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26593>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var currentUserId = 1;
+
+            var currentUserGroupIds = context.Memberships
+                .Where(m => m.UserId == currentUserId)
+                .Select(m => m.GroupId);
+
+            var hasMembership = context.Memberships
+                .Where(m => currentUserGroupIds.Contains(m.GroupId))
+                .Select(m => m.User);
+
+            var query = context.Users
+                .Select(u => new
+                {
+                    HasAccess = hasMembership.Any(e => e == u)
+                });
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context26593 : DbContext
+        {
+            public Context26593(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<User> Users { get; set; }
+            public DbSet<Group> Groups { get; set; }
+            public DbSet<Membership> Memberships { get; set; }
+
+            public void Seed()
+            {
+                var user = new User();
+                var group = new Group();
+                var membership = new Membership { Group = group, User = user };
+                AddRange(user, group, membership);
+
+                SaveChanges();
+            }
+        }
+
+        protected class User
+        {
+            public int Id { get; set; }
+
+            public ICollection<Membership> Memberships { get; set; }
+        }
+
+        protected class Group
+        {
+            public int Id { get; set; }
+
+            public ICollection<Membership> Memberships { get; set; }
+        }
+
+        protected class Membership
+        {
+            public int Id { get; set; }
+            public User User { get; set; }
+            public int UserId { get; set; }
+            public Group Group { get; set; }
+            public int GroupId { get; set; }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26587>();
+            using var context = contextFactory.CreateContext();
+
+            var orderId = 123456;
+
+            var orderItems = context.OrderItems.Where(o => o.OrderId == orderId);
+            var items = orderItems
+                .GroupBy(o => o.OrderId, (o, g) => new
+                {
+                    Key = o,
+                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                })
+                .OrderBy(e => e.Key);
+
+
+            var query = orderItems
+                .Join(items, x => x.OrderId, x => x.Key, (x, y) => x)
+                .OrderBy(x => x.OrderId);
+
+
+            var users = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context26587 : DbContext
+        {
+            public Context26587(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<OrderItem> OrderItems { get; set; }
+        }
+
+        protected class OrderItem
+        {
+            public int Id { get; set; }
+            public int OrderId { get; set; }
+            public DateTime? ShippingDate { get; set; }
+            public DateTime? CancellationDate { get; set; }
+        }
     }
 }

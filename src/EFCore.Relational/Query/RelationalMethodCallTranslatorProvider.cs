@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -37,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
         public RelationalMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
@@ -75,11 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
             var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)
             {
@@ -117,10 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="translators">Translators to add.</param>
         protected virtual void AddTranslators(IEnumerable<IMethodCallTranslator> translators)
-        {
-            Check.NotNull(translators, nameof(translators));
-
-            _translators.InsertRange(0, translators);
-        }
+            => _translators.InsertRange(0, translators);
     }
 }

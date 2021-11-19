@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -43,9 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ICSharpRuntimeAnnotationCodeGenerator annotationCodeGenerator,
             ICSharpHelper cSharpHelper)
         {
-            Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
-            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
-
             _annotationCodeGenerator = annotationCodeGenerator;
             _code = cSharpHelper;
         }
@@ -69,9 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             CompiledModelCodeGenerationOptions options)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(options, nameof(options));
-
             var scaffoldedFiles = new List<ScaffoldedFile>();
             var modelCode = CreateModel(model, options.ModelNamespace, options.ContextType, options.UseNullableReferenceTypes);
             var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;

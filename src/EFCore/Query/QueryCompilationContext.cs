@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -80,8 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContextDependencies dependencies,
             bool async)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             IsAsync = async;
             QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
@@ -159,11 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="tag">The tag to add.</param>
         public virtual void AddTag(string tag)
-        {
-            Check.NotEmpty(tag, nameof(tag));
-
-            Tags.Add(tag);
-        }
+            => Tags.Add(tag);
 
         /// <summary>
         ///     Creates the query executor func which gives results for this query.
@@ -173,8 +166,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {
-            Check.NotNull(query, nameof(query));
-
             Logger.QueryCompilationStarting(_expressionPrinter, query);
 
             query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
@@ -211,9 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(valueExtractor, nameof(valueExtractor));
-
             if (valueExtractor.Parameters.Count != 1
                 || valueExtractor.Parameters[0] != QueryContextParameter)
             {

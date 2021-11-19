@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -42,12 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             INavigationBase? navigation,
             Type elementType)
         {
-            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
-            Check.NotNull(childIdentifier, nameof(childIdentifier));
-            Check.NotEmpty(identifierValueComparers, nameof(identifierValueComparers));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-            Check.NotNull(elementType, nameof(elementType));
-
             ParentIdentifier = parentIdentifier;
             ChildIdentifier = childIdentifier;
             IdentifierValueComparers = identifierValueComparers;
@@ -103,8 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var parentIdentifier = visitor.Visit(ParentIdentifier);
             var childIdentifier = visitor.Visit(ChildIdentifier);
             var selectExpression = (SelectExpression)visitor.Visit(SelectExpression);
@@ -127,26 +118,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression childIdentifier,
             SelectExpression selectExpression,
             Expression innerShaper)
-        {
-            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
-            Check.NotNull(childIdentifier, nameof(childIdentifier));
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(innerShaper, nameof(innerShaper));
-
-            return parentIdentifier != ParentIdentifier
+            => parentIdentifier != ParentIdentifier
                 || childIdentifier != ChildIdentifier
                 || selectExpression != SelectExpression
                 || innerShaper != InnerShaper
                     ? new RelationalSplitCollectionShaperExpression(
                         parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation, ElementType)
                     : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine("RelationalCollectionShaper:");
             using (expressionPrinter.Indent())
             {

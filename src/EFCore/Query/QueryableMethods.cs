@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -376,11 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="methodInfo">The method to check.</param>
         /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
         public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
-        {
-            Check.NotNull(methodInfo, nameof(methodInfo));
-
-            return AverageWithoutSelectorMethods.Values.Contains(methodInfo);
-        }
+            => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
 
         /// <summary>
         ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
@@ -388,12 +383,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="methodInfo">The method to check.</param>
         /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
         public static bool IsAverageWithSelector(MethodInfo methodInfo)
-        {
-            Check.NotNull(methodInfo, nameof(methodInfo));
-
-            return methodInfo.IsGenericMethod
+            => methodInfo.IsGenericMethod
                 && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
-        }
 
         /// <summary>
         ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
@@ -401,11 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="methodInfo">The method to check.</param>
         /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
         public static bool IsSumWithoutSelector(MethodInfo methodInfo)
-        {
-            Check.NotNull(methodInfo, nameof(methodInfo));
-
-            return SumWithoutSelectorMethods.Values.Contains(methodInfo);
-        }
+            => SumWithoutSelectorMethods.Values.Contains(methodInfo);
 
         /// <summary>
         ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
@@ -413,12 +400,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="methodInfo">The method to check.</param>
         /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
         public static bool IsSumWithSelector(MethodInfo methodInfo)
-        {
-            Check.NotNull(methodInfo, nameof(methodInfo));
-
-            return methodInfo.IsGenericMethod
+            => methodInfo.IsGenericMethod
                 && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
-        }
 
         /// <summary>
         ///     Returns the <see cref="MethodInfo" /> for the <see cref="O:Queryable.Average" /> method without a selector for the given type.
@@ -426,11 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="type">The generic type of the method to create.</param>
         /// <returns>The <see cref="MethodInfo" />.</returns>
         public static MethodInfo GetAverageWithoutSelector(Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return AverageWithoutSelectorMethods[type];
-        }
+            => AverageWithoutSelectorMethods[type];
 
         /// <summary>
         ///     Returns the <see cref="MethodInfo" /> for the <see cref="O:Queryable.Average" /> method with a selector for the given type.
@@ -438,11 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="type">The generic type of the method to create.</param>
         /// <returns>The <see cref="MethodInfo" />.</returns>
         public static MethodInfo GetAverageWithSelector(Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return AverageWithSelectorMethods[type];
-        }
+            => AverageWithSelectorMethods[type];
 
         /// <summary>
         ///     Returns the <see cref="MethodInfo" /> for the <see cref="O:Queryable.Sum" /> method without a selector for the given type.
@@ -450,11 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="type">The generic type of the method to create.</param>
         /// <returns>The <see cref="MethodInfo" />.</returns>
         public static MethodInfo GetSumWithoutSelector(Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return SumWithoutSelectorMethods[type];
-        }
+            => SumWithoutSelectorMethods[type];
 
         /// <summary>
         ///     Returns the <see cref="MethodInfo" /> for the <see cref="O:Queryable.Sum" /> method with a selector for the given type.
@@ -462,11 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="type">The generic type of the method to create.</param>
         /// <returns>The <see cref="MethodInfo" />.</returns>
         public static MethodInfo GetSumWithSelector(Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return SumWithSelectorMethods[type];
-        }
+            => SumWithSelectorMethods[type];
 
         private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
         private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }

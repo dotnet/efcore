@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     expression representing the desired translation.
         /// </summary>
         /// <remarks>
-        ///     See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
         /// </remarks>
         /// <param name="translation">The translation to use.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

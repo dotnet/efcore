@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             string? schema = null)
             => new(
                 HasSequence(
-                    Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
+                    modelBuilder.Model,
                     name,
                     schema,
                     ConfigurationSource.Explicit));
@@ -99,7 +99,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? schema = null)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(type, nameof(type));
 
             var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
@@ -168,8 +167,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? schema = null)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
             var sequence = HasSequence(modelBuilder.Model, name, schema, ConfigurationSource.Explicit);
             sequence.Type = typeof(T);
 
@@ -235,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
             string? schema = null,
             bool fromDataAnnotation = false)
             => HasSequence(
-                (IMutableModel)Check.NotNull(modelBuilder, nameof(modelBuilder)).Metadata,
+                (IMutableModel)modelBuilder.Metadata,
                 name,
                 schema,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention).Builder;
@@ -272,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore
             this ModelBuilder modelBuilder,
             MethodInfo methodInfo)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(methodInfo, nameof(methodInfo));
 
             var dbFunction = modelBuilder.Model.FindDbFunction(methodInfo);
@@ -301,7 +297,6 @@ namespace Microsoft.EntityFrameworkCore
             this ModelBuilder modelBuilder,
             Expression<Func<TResult>> expression)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(expression, nameof(expression));
 
             var methodInfo = (expression.Body as MethodCallExpression)?.Method;
@@ -351,7 +346,6 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo methodInfo,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(methodInfo, nameof(methodInfo));
 
             var dbFunction = modelBuilder.Metadata.FindDbFunction(methodInfo);
@@ -385,7 +379,6 @@ namespace Microsoft.EntityFrameworkCore
             Type returnType,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotEmpty(name, nameof(name));
 
             var dbFunction = modelBuilder.Metadata.FindDbFunction(name);
@@ -416,7 +409,6 @@ namespace Microsoft.EntityFrameworkCore
             this ModelBuilder modelBuilder,
             string? schema)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(schema, nameof(schema));
 
             modelBuilder.Model.SetDefaultSchema(schema);
@@ -468,7 +460,6 @@ namespace Microsoft.EntityFrameworkCore
             string? schema,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.DefaultSchema, schema, fromDataAnnotation);
@@ -516,11 +507,7 @@ namespace Microsoft.EntityFrameworkCore
             this IConventionModelBuilder modelBuilder,
             int? length,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-
-            return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
-        }
+            => modelBuilder.CanSetAnnotation(RelationalAnnotationNames.MaxIdentifierLength, length, fromDataAnnotation);
 
         /// <summary>
         ///     Configures the database collation, which will be used by all columns without an explicit collation.
@@ -535,7 +522,6 @@ namespace Microsoft.EntityFrameworkCore
             this ModelBuilder modelBuilder,
             string? collation)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(collation, nameof(collation));
 
             modelBuilder.Model.SetCollation(collation);
@@ -586,7 +572,6 @@ namespace Microsoft.EntityFrameworkCore
             string? collation,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(collation, nameof(collation));
 
             return modelBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);

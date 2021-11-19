@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -137,9 +136,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Func<string, string>? singularizePluralizer,
             Func<string, ICollection<string>?, string> uniquifier)
         {
-            Check.NotNull(identifier, nameof(identifier));
-            Check.NotNull(uniquifier, nameof(uniquifier));
-
             var proposedIdentifier =
                 identifier.Length > 1 && identifier[0] == '@'
                     ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
@@ -179,8 +175,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string proposedIdentifier,
             ICollection<string>? existingIdentifiers)
         {
-            Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
-
             if (existingIdentifiers == null)
             {
                 return proposedIdentifier;

@@ -162,12 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsLogicalOperation(this Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return expression.NodeType == ExpressionType.AndAlso
+            => expression.NodeType == ExpressionType.AndAlso
                 || expression.NodeType == ExpressionType.OrElse;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

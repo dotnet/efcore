@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 new IMethodCallTranslator[]
                 {
                     new EqualsTranslator(sqlExpressionFactory),
-                    new StringMethodTranslator(sqlExpressionFactory),
+                    new CosmosStringMethodTranslator(sqlExpressionFactory),
                     new ContainsTranslator(sqlExpressionFactory),
                     new RandomTranslator(sqlExpressionFactory),
                     new MathTranslator(sqlExpressionFactory)

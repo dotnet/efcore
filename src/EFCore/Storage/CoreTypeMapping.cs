@@ -49,8 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ValueComparer? keyComparer = null,
                 Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
             {
-                Check.NotNull(clrType, nameof(clrType));
-
                 ClrType = clrType;
                 Converter = converter;
                 Comparer = comparer;
@@ -77,8 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ValueComparer? structuralComparer,
                 Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
             {
-                Check.NotNull(clrType, nameof(clrType));
-
                 ClrType = clrType;
                 Converter = converter;
                 Comparer = comparer;

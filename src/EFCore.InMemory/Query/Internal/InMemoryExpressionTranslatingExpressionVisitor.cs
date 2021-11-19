@@ -107,8 +107,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected virtual void AddTranslationErrorDetails(string details)
         {
-            Check.NotNull(details, nameof(details));
-
             if (TranslationErrorDetails == null)
             {
                 TranslationErrorDetails = details;
@@ -127,8 +125,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public virtual Expression? Translate(Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
-
             TranslationErrorDetails = null;
 
             return TranslateInternal(expression);
@@ -152,8 +148,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
-
             if (binaryExpression.Left.Type == typeof(object[])
                 && binaryExpression.Left is NewArrayExpression
                 && binaryExpression.NodeType == ExpressionType.Equal)
@@ -229,8 +223,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
-            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
-
             var test = Visit(conditionalExpression.Test);
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
@@ -265,8 +257,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             switch (extensionExpression)
             {
                 case EntityProjectionExpression _:
@@ -320,8 +310,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
-
             var innerExpression = Visit(memberExpression.Expression);
 
             // when visiting unary we remove converts from nullable to non-nullable
@@ -397,8 +385,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
-
             var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -433,8 +419,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
             {
@@ -709,8 +693,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return Expression.Condition(objectNullCheck, Expression.Constant(null, result.Type), result);
             }
 
-            // TODO-Nullable bug
-            return methodCallExpression.Update(@object!, arguments);
+            return methodCallExpression.Update(@object, arguments);
         }
 
         /// <summary>
@@ -721,8 +704,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            Check.NotNull(newExpression, nameof(newExpression));
-
             var newArguments = new List<Expression>();
             foreach (var argument in newExpression.Arguments)
             {
@@ -751,8 +732,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
-            Check.NotNull(newArrayExpression, nameof(newArrayExpression));
-
             var newExpressions = new List<Expression>();
             foreach (var expression in newArrayExpression.Expressions)
             {
@@ -781,8 +760,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            Check.NotNull(parameterExpression, nameof(parameterExpression));
-
             if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
             {
                 return Expression.Call(
@@ -802,8 +779,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
-            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
-
             if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
                 && Visit(typeBinaryExpression.Expression) is EntityReferenceExpression entityReferenceExpression)
             {
@@ -851,8 +826,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
-
             var newOperand = Visit(unaryExpression.Operand);
             if (newOperand == QueryCompilationContext.NotTranslatedExpression)
             {

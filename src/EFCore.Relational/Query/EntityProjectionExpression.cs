@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -38,9 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
             SqlExpression? discriminatorExpression = null)
         {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
-
             EntityType = entityType;
             _propertyExpressionMap = propertyExpressionMap;
             DiscriminatorExpression = discriminatorExpression;
@@ -67,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var changed = false;
             var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
             foreach (var expression in _propertyExpressionMap)
@@ -110,8 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A new entity projection expression which has the derived type being projected.</returns>
         public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
-            Check.NotNull(derivedType, nameof(derivedType));
-
             if (!derivedType.GetAllBaseTypes().Contains(EntityType))
             {
                 throw new InvalidOperationException(
@@ -151,8 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>A column which is a SQL representation of the property.</returns>
         public virtual ColumnExpression BindProperty(IProperty property)
         {
-            Check.NotNull(property, nameof(property));
-
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
@@ -170,9 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityShaper">An entity shaper expression for the target type.</param>
         public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
         {
-            Check.NotNull(navigation, nameof(navigation));
-            Check.NotNull(entityShaper, nameof(entityShaper));
-
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
@@ -191,8 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>An entity shaper expression for the target entity type of the navigation.</returns>
         public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
         {
-            Check.NotNull(navigation, nameof(navigation));
-
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {

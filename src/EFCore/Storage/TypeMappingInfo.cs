@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -55,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? fallbackPrecision = null,
             int? fallbackScale = null)
         {
-            Check.NotNull(principals, nameof(principals));
-
             ValueConverter? customConverter = null;
             int? size = null;
             int? precision = null;
@@ -137,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? size = null,
             int? precision = null,
             int? scale = null)
-            : this(Check.NotNull(member, nameof(member)).GetMemberType())
+            : this(member.GetMemberType())
         {
             IsUnicode = unicode;
             Size = size;
@@ -191,8 +188,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             int? precision = null,
             int? scale = null)
         {
-            Check.NotNull(source, nameof(source));
-
             IsRowVersion = source.IsRowVersion;
             IsKeyOrIndex = source.IsKeyOrIndex;
 

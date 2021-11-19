@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertiesConfigurationBuilder propertyBuilder,
             string typeName)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotEmpty(typeName, nameof(typeName));
 
             propertyBuilder.HaveAnnotation(RelationalAnnotationNames.ColumnType, typeName);
@@ -64,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore
             this PropertiesConfigurationBuilder propertyBuilder,
             bool fixedLength = true)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-
             propertyBuilder.HaveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength);
 
             return propertyBuilder;
@@ -98,7 +95,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertiesConfigurationBuilder UseCollation(this PropertiesConfigurationBuilder propertyBuilder, string collation)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotEmpty(collation, nameof(collation));
 
             propertyBuilder.HaveAnnotation(RelationalAnnotationNames.Collation, collation);

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,9 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalCommand relationalCommand,
             IReadOnlyDictionary<string, object?> parameterValues)
         {
-            Check.NotNull(relationalCommand, nameof(relationalCommand));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
             RelationalCommand = relationalCommand;
             ParameterValues = parameterValues;
         }

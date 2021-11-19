@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public OperationLoggerProvider(IOperationReporter reporter)
         {
-            Check.NotNull(reporter, nameof(reporter));
-
             _reporter = reporter;
         }
 

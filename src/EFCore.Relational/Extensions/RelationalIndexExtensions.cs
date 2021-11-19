@@ -35,15 +35,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the name of the index in the database.
         /// </summary>
         /// <param name="index">The index.</param>
-        /// <returns>The name of the index in the database.</returns>
-        [Obsolete("Use GetDatabaseName() instead")]
-        public static string GetName(this IIndex index)
-            => GetDatabaseName(index);
-
-        /// <summary>
-        ///     Returns the name of the index in the database.
-        /// </summary>
-        /// <param name="index">The index.</param>
         /// <param name="storeObject">The identifier of the store object.</param>
         /// <returns>The name of the index in the database.</returns>
         public static string? GetDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
@@ -69,15 +60,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return Uniquifier.Truncate(baseName, index.DeclaringEntityType.Model.GetMaxIdentifierLength());
         }
-
-        /// <summary>
-        ///     Returns the default name that would be used for this index.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <returns>The default name that would be used for this index.</returns>
-        [Obsolete("Use GetDefaultDatabaseName() instead")]
-        public static string GetDefaultName(this IIndex index)
-            => GetDefaultDatabaseName(index);
 
         /// <summary>
         ///     Returns the default name that would be used for this index.
@@ -153,15 +135,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index">The index.</param>
         /// <param name="name">The value to set.</param>
-        [Obsolete("Use SetDatabaseName() instead.")]
-        public static void SetName(this IMutableIndex index, string? name)
-            => SetDatabaseName(index, name);
-
-        /// <summary>
-        ///     Sets the name of the index in the database.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <param name="name">The value to set.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The configured value.</returns>
         public static string? SetDatabaseName(
@@ -178,31 +151,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets the name of the index in the database.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <param name="name">The value to set.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        [Obsolete("Use SetDatabaseName() instead.")]
-        public static void SetName(this IConventionIndex index, string? name, bool fromDataAnnotation = false)
-            => SetDatabaseName(index, name, fromDataAnnotation);
-
-        /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the name of the index in the database.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>The <see cref="ConfigurationSource" /> for the name of the index in the database.</returns>
         public static ConfigurationSource? GetDatabaseNameConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
-
-        /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for the name of the index in the database.
-        /// </summary>
-        /// <param name="index">The index.</param>
-        /// <returns>The <see cref="ConfigurationSource" /> for the name of the index in the database.</returns>
-        [Obsolete("Use GetDatabaseNameConfigurationSource() instead.")]
-        public static ConfigurationSource? GetNameConfigurationSource(this IConventionIndex index)
-            => GetDatabaseNameConfigurationSource(index);
 
         /// <summary>
         ///     Returns the index filter expression.

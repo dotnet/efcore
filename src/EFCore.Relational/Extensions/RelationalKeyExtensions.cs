@@ -202,8 +202,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The key found, or <see langword="null" /> if none was found.</returns>
         public static IReadOnlyKey? FindSharedObjectRootKey(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(key, nameof(key));
-
             var keyName = key.GetName(storeObject);
             var rootKey = key;
 

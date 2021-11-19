@@ -40,6 +40,9 @@ namespace Microsoft.Data.Sqlite
         private bool _extensionsEnabled;
         private int? _defaultTimeout;
 
+        private static readonly StateChangeEventArgs _fromClosedToOpenEventArgs = new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open);
+        private static readonly StateChangeEventArgs _fromOpenToClosedEventArgs = new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed);
+
         static SqliteConnection()
             => BundleInitializer.Initialize();
 
@@ -296,7 +299,7 @@ namespace Microsoft.Data.Sqlite
                 throw;
             }
 
-            OnStateChange(new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open));
+            OnStateChange(_fromClosedToOpenEventArgs);
         }
 
         /// <summary>
@@ -331,7 +334,7 @@ namespace Microsoft.Data.Sqlite
             _innerConnection = null;
 
             _state = ConnectionState.Closed;
-            OnStateChange(new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed));
+            OnStateChange(_fromOpenToClosedEventArgs);
         }
 
         internal void Deactivate()

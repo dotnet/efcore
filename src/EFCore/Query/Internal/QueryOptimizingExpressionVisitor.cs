@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -165,8 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
-            Check.NotNull(lambdaExpression, nameof(lambdaExpression));
-
             var body = Visit(lambdaExpression.Body);
 
             return body.Type != lambdaExpression.Body.Type
@@ -216,8 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
             if (Equals(_startsWithMethodInfo, methodCallExpression.Method)
                 || Equals(_endsWithMethodInfo, methodCallExpression.Method))
             {
@@ -286,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         methodCallExpression.Arguments[1]),
                     anyLambdaParameter);
 
-                return Expression.Call(null, anyMethod, new[] { methodCallExpression.Arguments[0], anyLambda });
+                return Expression.Call(null, anyMethod, new[] { Visit(methodCallExpression.Arguments[0]), anyLambda });
             }
 
             var @object = default(Expression);
@@ -308,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // In VB.NET, comparison operators between strings (equality, greater-than, less-than) yield
             // calls to a VB-specific CompareString method. Normalize that to string.Compare.
             if (visited.Method.Name == "CompareString"
-                && visited.Method.DeclaringType?.Name == "Operators"
+                && (visited.Method.DeclaringType?.Name == "Operators"
+                    || visited.Method.DeclaringType?.Name == "EmbeddedOperators")
                 && visited.Method.DeclaringType?.Namespace == "Microsoft.VisualBasic.CompilerServices"
                 && visited.Object == null
                 && visited.Arguments.Count == 3
@@ -383,8 +379,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
-
             if (unaryExpression.NodeType == ExpressionType.Not
                 && unaryExpression.Operand is MethodCallExpression innerMethodCall
                 && (Equals(_startsWithMethodInfo, innerMethodCall.Method)

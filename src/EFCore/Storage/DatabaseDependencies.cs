@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -55,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IQueryCompilationContextFactory queryCompilationContextFactory,
             IUpdateAdapterFactory updateAdapterFactory)
         {
-            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
-            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
-
             QueryCompilationContextFactory = queryCompilationContextFactory;
             UpdateAdapterFactory = updateAdapterFactory;
         }

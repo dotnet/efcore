@@ -205,6 +205,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public override bool SupportsLargeStringComparisons
                 => true;
 
+            public override bool PreservesDateTimeKind
+                => false;
+
             protected override string StoreName { get; } = "EverythingIsStrings";
 
             protected override ITestStoreFactory TestStoreFactory

@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -51,24 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     the constructor at any point in this process.
         /// </remarks>
         [EntityFrameworkInternal]
-        public ModelValidatorDependencies(
-            ITypeMappingSource typeMappingSource,
-            IMemberClassifier memberClassifier)
+        public ModelValidatorDependencies(IMemberClassifier memberClassifier)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(memberClassifier, nameof(memberClassifier));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            TypeMappingSource = typeMappingSource;
-#pragma warning restore CS0618 // Type or member is obsolete
             MemberClassifier = memberClassifier;
         }
-
-        /// <summary>
-        ///     The type mapper.
-        /// </summary>
-        [Obsolete("The model now contains this dependency")]
-        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The member classifier.

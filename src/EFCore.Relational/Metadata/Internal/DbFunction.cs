@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -94,8 +93,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IMutableModel model,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-
             if (returnType == null
                 || returnType == typeof(void))
             {
@@ -398,8 +395,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? SetName(string? name, ConfigurationSource configurationSource)
         {
-            Check.NullButNotEmpty(name, nameof(name));
-
             EnsureMutable();
 
             _name = name;

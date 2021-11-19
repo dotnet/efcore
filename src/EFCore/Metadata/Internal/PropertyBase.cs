@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             FieldInfo? fieldInfo,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-
             Name = name;
             PropertyInfo = propertyInfo;
             _fieldInfo = fieldInfo;

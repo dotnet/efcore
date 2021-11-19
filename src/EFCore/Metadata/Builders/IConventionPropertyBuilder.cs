@@ -494,53 +494,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
         /// </returns>
         bool CanSetValueComparer(Type? comparerType, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Configures the <see cref="ValueComparer" /> to be used for key comparisons for this property.
-        /// </summary>
-        /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
-        IConventionPropertyBuilder? HasKeyValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given <see cref="ValueComparer" />
-        ///     can be configured for this property from the current configuration source.
-        /// </summary>
-        /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
-        [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
-        bool CanSetKeyValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Configures the <see cref="ValueComparer" /> to be used for structural comparisons for this property.
-        /// </summary>
-        /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <see langword="null" /> otherwise.
-        /// </returns>
-        [Obsolete("Use HasValueComparer. Only a single value comparer is allowed for a given property.")]
-        IConventionPropertyBuilder? HasStructuralValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
-
-        /// <summary>
-        ///     Returns a value indicating whether the given <see cref="ValueComparer" />
-        ///     can be configured for this property from the current configuration source.
-        /// </summary>
-        /// <param name="comparer">The comparer, or <see langword="null" /> to remove any previously set comparer.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns>
-        ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
-        /// </returns>
-        [Obsolete("Use CanSetValueComparer. Only a single value comparer is allowed for a given property.")]
-        bool CanSetStructuralValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
     }
 }

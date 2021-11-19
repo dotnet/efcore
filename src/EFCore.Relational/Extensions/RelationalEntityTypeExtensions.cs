@@ -135,6 +135,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The database schema that contains the mapped table.</returns>
         public static string? GetSchema(this IReadOnlyEntityType entityType)
         {
+            if (entityType.GetTableName() == null)
+            {
+                return null;
+            }
+
             var schemaAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.Schema);
             if (schemaAnnotation != null)
             {

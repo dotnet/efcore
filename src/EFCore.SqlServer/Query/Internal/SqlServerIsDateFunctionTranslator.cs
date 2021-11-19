@@ -7,7 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -44,12 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
-            return _methodInfo.Equals(method)
+            => _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Convert(
                     _sqlExpressionFactory.Function(
                         "ISDATE",
@@ -59,6 +53,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         _methodInfo.ReturnType),
                     _methodInfo.ReturnType)
                 : null;
-        }
     }
 }

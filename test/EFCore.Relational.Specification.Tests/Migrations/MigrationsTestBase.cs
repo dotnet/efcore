@@ -101,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Equal("People", peopleTable.Name);
                     if (AssertSchemaNames)
+                    {
                         Assert.Equal("dbo2", peopleTable.Schema);
+                    }
 
                     Assert.Collection(
                         peopleTable.Columns.OrderBy(c => c.Name),
@@ -415,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValueSql());
-            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "People"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("People", "Sum"), ex.Message);
         }
 
         [ConditionalFact]
@@ -426,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValue());
-            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "People"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueUnspecified("People", "Sum"), ex.Message);
         }
 
         [ConditionalTheory]
@@ -777,6 +779,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Contains("Y", sumColumn.ComputedColumnSql);
                         Assert.Contains("-", sumColumn.ComputedColumnSql);
                     }
+                });
+
+        [ConditionalFact]
+        public virtual Task Alter_column_change_computed_recreates_indexes()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                        e.Property<int>("Sum");
+
+                        e.HasIndex("Sum");
+                    }),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} - {DelimitIdentifier("Y")}"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    if (AssertComputedColumns)
+                    {
+                        Assert.Contains("X", sumColumn.ComputedColumnSql);
+                        Assert.Contains("Y", sumColumn.ComputedColumnSql);
+                        Assert.Contains("-", sumColumn.ComputedColumnSql);
+                    }
+
+                    var sumIndex = Assert.Single(table.Indexes);
+                    Assert.Collection(sumIndex.Columns, c => Assert.Equal("Sum", c.Name));
                 });
 
         [ConditionalFact]
@@ -1353,6 +1387,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var sequence = Assert.Single(model.Sequences);
                     Assert.Equal("TestSequence", sequence.Name);
                 });
+
+
+        [ConditionalFact]
+        public virtual Task Create_sequence_long()
+            => Test(
+                builder => { },
+                builder => builder.HasSequence<long>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
+        [ConditionalFact]
+        public virtual Task Create_sequence_short()
+            => Test(
+                builder => { },
+                builder => builder.HasSequence<short>("TestSequence"),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal("TestSequence", sequence.Name);
+                });
+
 
         [ConditionalFact]
         public virtual Task Create_sequence_all_settings()

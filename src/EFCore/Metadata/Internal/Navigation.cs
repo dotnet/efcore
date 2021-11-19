@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ForeignKey foreignKey)
             : base(name, propertyInfo, fieldInfo, ConfigurationSource.Convention)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             ForeignKey = foreignKey;
 
             _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);

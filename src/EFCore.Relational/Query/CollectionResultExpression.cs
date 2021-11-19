@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -63,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var projectionBindingExpression = (ProjectionBindingExpression)visitor.Visit(ProjectionBindingExpression);
 
             return Update(projectionBindingExpression);
@@ -77,13 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="projectionBindingExpression">The <see cref="ProjectionBindingExpression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual CollectionResultExpression Update(ProjectionBindingExpression projectionBindingExpression)
-        {
-            Check.NotNull(projectionBindingExpression, nameof(projectionBindingExpression));
-
-            return projectionBindingExpression != ProjectionBindingExpression
+            => projectionBindingExpression != ProjectionBindingExpression
                 ? new CollectionResultExpression(projectionBindingExpression, Navigation, ElementType)
                 : this;
-        }
 
         /// <inheritdoc />
         public virtual void Print(ExpressionPrinter expressionPrinter)

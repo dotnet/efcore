@@ -147,9 +147,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateAll(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(predicate, nameof(predicate));
-
             predicate = Expression.Lambda(Expression.Not(predicate.Body), predicate.Parameters);
             var newSource = TranslateWhere(source, predicate);
             if (newSource == null)
@@ -219,12 +216,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             ShapedQueryExpression source,
             LambdaExpression? selector,
             Type resultType)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(resultType, nameof(resultType));
-
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Average), resultType);
-        }
+            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Average), resultType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -233,14 +225,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(resultType, nameof(resultType));
-
-            return source.ShaperExpression.Type != resultType
+            => source.ShaperExpression.Type != resultType
                 ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
                 : source;
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -249,12 +236,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
-            return TranslateSetOperation(EnumerableMethods.Concat, source1, source2);
-        }
+            => TranslateSetOperation(EnumerableMethods.Concat, source1, source2);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -264,9 +246,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(item, nameof(item));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
             var newItem = TranslateExpression(item, preserveType: true);
             if (newItem == null)
@@ -299,8 +278,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
         {
-            Check.NotNull(source, nameof(source));
-
             if (predicate != null)
             {
                 var newSource = TranslateWhere(source, predicate);
@@ -335,8 +312,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
         {
-            Check.NotNull(source, nameof(source));
-
             if (defaultValue == null)
             {
                 ((InMemoryQueryExpression)source.QueryExpression).ApplyDefaultIfEmpty();
@@ -354,8 +329,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateDistinct(ShapedQueryExpression source)
         {
-            Check.NotNull(source, nameof(source));
-
             ((InMemoryQueryExpression)source.QueryExpression).ApplyDistinct();
 
             return source;
@@ -371,12 +344,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             ShapedQueryExpression source,
             Expression index,
             bool returnDefault)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(index, nameof(index));
-
-            return null;
-        }
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -385,12 +353,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
-            return TranslateSetOperation(EnumerableMethods.Except, source1, source2);
-        }
+            => TranslateSetOperation(EnumerableMethods.Except, source1, source2);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -403,18 +366,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression? predicate,
             Type returnType,
             bool returnDefault)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(returnType, nameof(returnType));
-
-            return TranslateSingleResultOperator(
+            => TranslateSingleResultOperator(
                 source,
                 predicate,
                 returnType,
                 returnDefault
                     ? EnumerableMethods.FirstOrDefaultWithoutPredicate
                     : EnumerableMethods.FirstWithoutPredicate);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -428,9 +386,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression? elementSelector,
             LambdaExpression? resultSelector)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(keySelector, nameof(keySelector));
-
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 
             var translatedKey = TranslateGroupingKey(remappedKeySelector);
@@ -537,15 +492,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression outerKeySelector,
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
-        {
-            Check.NotNull(outer, nameof(outer));
-            Check.NotNull(inner, nameof(inner));
-            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
-            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
-            Check.NotNull(resultSelector, nameof(resultSelector));
-
-            return null;
-        }
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -554,12 +501,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
-            return TranslateSetOperation(EnumerableMethods.Intersect, source1, source2);
-        }
+            => TranslateSetOperation(EnumerableMethods.Intersect, source1, source2);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -574,12 +516,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
-            Check.NotNull(outer, nameof(outer));
-            Check.NotNull(inner, nameof(inner));
-            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
-            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
-            Check.NotNull(resultSelector, nameof(resultSelector));
-
             var (newOuterKeySelector, newInnerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
 
             if (newOuterKeySelector == null
@@ -720,18 +656,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression? predicate,
             Type returnType,
             bool returnDefault)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(returnType, nameof(returnType));
-
-            return TranslateSingleResultOperator(
+            => TranslateSingleResultOperator(
                 source,
                 predicate,
                 returnType,
                 returnDefault
                     ? EnumerableMethods.LastOrDefaultWithoutPredicate
                     : EnumerableMethods.LastWithoutPredicate);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -746,12 +677,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression innerKeySelector,
             LambdaExpression resultSelector)
         {
-            Check.NotNull(outer, nameof(outer));
-            Check.NotNull(inner, nameof(inner));
-            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
-            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
-            Check.NotNull(resultSelector, nameof(resultSelector));
-
             var (newOuterKeySelector, newInnerKeySelector) = ProcessJoinKeySelector(outer, inner, outerKeySelector, innerKeySelector);
 
             if (newOuterKeySelector == null
@@ -782,8 +707,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
         {
-            Check.NotNull(source, nameof(source));
-
             if (predicate != null)
             {
                 var newSource = TranslateWhere(source, predicate);
@@ -821,11 +744,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             ShapedQueryExpression source,
             LambdaExpression? selector,
             Type resultType)
-        {
-            Check.NotNull(source, nameof(source));
-
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Max), resultType);
-        }
+            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Max), resultType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -834,11 +753,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        {
-            Check.NotNull(source, nameof(source));
-
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Min), resultType);
-        }
+            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Min), resultType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -848,9 +763,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(resultType, nameof(resultType));
-
             if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
             {
                 var entityType = entityShaperExpression.EntityType;
@@ -908,9 +820,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression keySelector,
             bool ascending)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(keySelector, nameof(keySelector));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             var newKeySelector = TranslateLambdaExpression(source, keySelector);
@@ -939,8 +848,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateReverse(ShapedQueryExpression source)
         {
-            Check.NotNull(source, nameof(source));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             inMemoryQueryExpression.UpdateServerQueryExpression(
@@ -959,9 +866,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(selector, nameof(selector));
-
             if (selector.Body == selector.Parameters[0])
             {
                 return source;
@@ -985,10 +889,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression collectionSelector,
             LambdaExpression resultSelector)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(collectionSelector, nameof(collectionSelector));
-            Check.NotNull(resultSelector, nameof(resultSelector));
-
             var defaultIfEmpty = new DefaultIfEmptyFindingExpressionVisitor().IsOptional(collectionSelector);
             var collectionSelectorBody = RemapLambdaBody(source, collectionSelector);
 
@@ -1020,8 +920,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 if (methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                 {
@@ -1040,9 +938,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(selector, nameof(selector));
-
             var innerParameter = Expression.Parameter(selector.ReturnType.GetSequenceType(), "i");
             var resultSelector = Expression.Lambda(
                 innerParameter, Expression.Parameter(source.Type.GetSequenceType()), innerParameter);
@@ -1061,18 +956,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression? predicate,
             Type returnType,
             bool returnDefault)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(returnType, nameof(returnType));
-
-            return TranslateSingleResultOperator(
+            => TranslateSingleResultOperator(
                 source,
                 predicate,
                 returnType,
                 returnDefault
                     ? EnumerableMethods.SingleOrDefaultWithoutPredicate
                     : EnumerableMethods.SingleWithoutPredicate);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1082,9 +972,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateSkip(ShapedQueryExpression source, Expression count)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(count, nameof(count));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
             var newCount = TranslateExpression(count);
             if (newCount == null)
@@ -1110,12 +997,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(predicate, nameof(predicate));
-
-            return null;
-        }
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1124,12 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(resultType, nameof(resultType));
-
-            return TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum), resultType);
-        }
+            => TranslateScalarAggregate(source, selector, nameof(Enumerable.Sum), resultType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1139,9 +1016,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateTake(ShapedQueryExpression source, Expression count)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(count, nameof(count));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
             var newCount = TranslateExpression(count);
             if (newCount == null)
@@ -1167,12 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate)
-        {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(predicate, nameof(predicate));
-
-            return null;
-        }
+            => null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1185,9 +1054,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             LambdaExpression keySelector,
             bool ascending)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(keySelector, nameof(keySelector));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
             var newKeySelector = TranslateLambdaExpression(source, keySelector);
             if (newKeySelector == null)
@@ -1214,12 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
-        {
-            Check.NotNull(source1, nameof(source1));
-            Check.NotNull(source2, nameof(source2));
-
-            return TranslateSetOperation(EnumerableMethods.Union, source1, source2);
-        }
+            => TranslateSetOperation(EnumerableMethods.Union, source1, source2);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1229,9 +1090,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override ShapedQueryExpression? TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
-            Check.NotNull(source, nameof(source));
-            Check.NotNull(predicate, nameof(predicate));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
             var newPredicate = TranslateLambdaExpression(source, predicate, preserveType: true);
             if (newPredicate == null)
@@ -1323,8 +1181,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                Check.NotNull(memberExpression, nameof(memberExpression));
-
                 var innerExpression = Visit(memberExpression.Expression);
 
                 return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
@@ -1333,8 +1189,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
                 if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
                 {
                     source = Visit(source);
@@ -1343,26 +1197,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
-                if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
-                {
-                    source = Visit(source);
-
-                    return TryExpand(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
-                }
-
                 return base.VisitMethodCall(methodCallExpression);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression
+                => extensionExpression is EntityShaperExpression
                     || extensionExpression is ShapedQueryExpression
                         ? extensionExpression
                         : base.VisitExtension(extensionExpression);
-            }
 
             private Expression? TryExpand(Expression? source, MemberIdentity member)
             {

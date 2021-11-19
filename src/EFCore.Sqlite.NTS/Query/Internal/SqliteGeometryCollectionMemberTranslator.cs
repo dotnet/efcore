@@ -44,12 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
-            return Equals(member, _count)
+            => Equals(member, _count)
                 ? _sqlExpressionFactory.Function(
                     "NumGeometries",
                     new[] { instance! },
@@ -57,6 +52,5 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     argumentsPropagateNullability: new[] { true },
                     returnType)
                 : null;
-        }
     }
 }

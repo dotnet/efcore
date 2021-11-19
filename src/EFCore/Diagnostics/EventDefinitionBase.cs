@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -32,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogLevel level,
             string eventIdCode)
         {
-            Check.NotNull(loggingOptions, nameof(loggingOptions));
-            Check.NotEmpty(eventIdCode, nameof(eventIdCode));
-
             EventId = eventId;
             EventIdCode = eventIdCode;
 

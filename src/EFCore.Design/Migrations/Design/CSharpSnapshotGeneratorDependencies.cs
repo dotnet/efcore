@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -47,8 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IRelationalTypeMappingSource relationalTypeMappingSource,
             IAnnotationCodeGenerator annotationCodeGenerator)
         {
-            Check.NotNull(csharpHelper, nameof(csharpHelper));
-
             CSharpHelper = csharpHelper;
             RelationalTypeMappingSource = relationalTypeMappingSource;
             AnnotationCodeGenerator = annotationCodeGenerator;

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -54,9 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalTypeMappingSource typeMappingSource,
             ICoreSingletonOptions coreOptions)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(coreOptions, nameof(coreOptions));
-
             TypeMappingSource = typeMappingSource;
             CoreOptions = coreOptions;
         }

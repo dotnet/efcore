@@ -78,14 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IUpdateAdapterFactory updateAdapterFactory,
             CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-            Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
-#pragma warning disable EF1001 // Internal EF Core API usage.
-            Check.NotNull(changeDetector, nameof(changeDetector));
-#pragma warning restore EF1001 // Internal EF Core API usage.
-            Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
-            Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
-
             TypeMappingSource = typeMappingSource;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
@@ -166,8 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IEnumerable<MigrationOperation> operations,
             DiffContext diffContext)
         {
-            Check.NotNull(operations, nameof(operations));
-
             var dropForeignKeyOperations = new List<MigrationOperation>();
             var dropOperations = new List<MigrationOperation>();
             var dropColumnOperations = new List<MigrationOperation>();
@@ -1146,16 +1136,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DefaultValueUnspecified(
-                        column.Name,
-                        (column.Table.Name, column.Table.Schema).FormatTable()));
+                        (column.Table.Name, column.Table.Schema).FormatTable(),
+                        column.Name));
             }
 
             if (column.DefaultValueSql?.Length == 0)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DefaultValueSqlUnspecified(
-                        column.Name,
-                        (column.Table.Name, column.Table.Schema).FormatTable()));
+                        (column.Table.Name, column.Table.Schema).FormatTable(),
+                        column.Name));
             }
 
             if (column.ComputedColumnSql?.Length == 0)
@@ -1754,8 +1744,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IRelationalModel? target,
             DiffContext diffContext)
         {
-            Check.NotNull(diffContext, nameof(diffContext));
-
             if (source == null
                 || target == null)
             {

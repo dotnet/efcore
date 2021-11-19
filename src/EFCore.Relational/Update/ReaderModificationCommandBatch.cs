@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -36,8 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="dependencies">Service dependencies.</param>
         protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
             CachedCommandText = new StringBuilder();
         }
@@ -84,8 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </returns>
         public override bool AddCommand(IReadOnlyModificationCommand modificationCommand)
         {
-            Check.NotNull(modificationCommand, nameof(modificationCommand));
-
             if (ModificationCommands.Count == 0)
             {
                 ResetCommandText();
@@ -241,8 +236,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="connection">The connection to the database to update.</param>
         public override void Execute(IRelationalConnection connection)
         {
-            Check.NotNull(connection, nameof(connection));
-
             var storeCommand = CreateStoreCommand();
 
             try
@@ -277,8 +270,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
         {
-            Check.NotNull(connection, nameof(connection));
-
             var storeCommand = CreateStoreCommand();
 
             try
@@ -332,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             IReadOnlyList<IColumnModification> columnModifications)
             => Dependencies.ValueBufferFactoryFactory
                 .Create(
-                    Check.NotNull(columnModifications, nameof(columnModifications))
+                    columnModifications
                         .Where(c => c.IsRead)
                         .Select(c => new TypeMaterializationInfo(c.Property!.ClrType, c.Property, c.TypeMapping!))
                         .ToArray());

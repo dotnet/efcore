@@ -5,7 +5,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -52,10 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             INavigationBase navigation,
             bool setLoaded)
         {
-            Check.NotNull(entityExpression, nameof(entityExpression));
-            Check.NotNull(navigationExpression, nameof(navigationExpression));
-            Check.NotNull(navigation, nameof(navigation));
-
             EntityExpression = entityExpression;
             NavigationExpression = navigationExpression;
             Navigation = navigation;
@@ -97,8 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            Check.NotNull(visitor, nameof(visitor));
-
             var newEntityExpression = visitor.Visit(EntityExpression);
             var newNavigationExpression = visitor.Visit(NavigationExpression);
 
@@ -113,20 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigationExpression">The <see cref="NavigationExpression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual IncludeExpression Update(Expression entityExpression, Expression navigationExpression)
-        {
-            Check.NotNull(entityExpression, nameof(entityExpression));
-            Check.NotNull(navigationExpression, nameof(navigationExpression));
-
-            return entityExpression != EntityExpression || navigationExpression != NavigationExpression
+            => entityExpression != EntityExpression || navigationExpression != NavigationExpression
                 ? new IncludeExpression(entityExpression, navigationExpression, Navigation, SetLoaded)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.AppendLine("IncludeExpression(");
             using (expressionPrinter.Indent())
             {

@@ -55,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         public EntityEntry(InternalEntityEntry internalEntry)
         {
-            Check.NotNull(internalEntry, nameof(internalEntry));
-
             InternalEntry = internalEntry;
         }
 
@@ -72,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     <para>
         ///         This method sets only the state of the single entity represented by this entry. It does
-        ///         not change the state of other entities reachable from this one.
+        ///         not change the state of other entities reachable from this one. However, this may cause cascading actions on other
+        ///         entities when setting the state to <see cref="EntityState.Deleted" /> or <see cref="EntityState.Detached" />.
+        ///         This can be changed by changing <see cref="ChangeTracker.CascadeDeleteTiming"/>.
         ///     </para>
         ///     <para>
         ///         When setting the state, the entity will always end up in the specified state. For example, if you

@@ -14,9 +14,10 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         See https://docs.microsoft.com/sql/t-sql/functions/newsequentialid-transact-sql.
     ///         Although this generator achieves the same goals as SQL Server's NEWSEQUENTIALID, the algorithm used
-    ///         to generate the GUIDs is different.
+    ///         to generate the GUIDs is different. See
+    ///         <see href="https://docs.microsoft.com/sql/t-sql/functions/newsequentialid-transact-sql">NEWSEQUENTIALID</see>
+    ///         for more information on the advantages of sequential GUIDs.
     ///     </para>
     ///     <para>
     ///         The generated values are non-temporary, meaning they will be saved to the database.

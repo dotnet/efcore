@@ -43,9 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
             IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             _logger = logger;
             _typeMappingSource = typeMappingSource;
         }
@@ -58,9 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         /// </summary>
         public override DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
-            Check.NotNull(connectionString, nameof(connectionString));
-            Check.NotNull(options, nameof(options));
-
             using var connection = new SqliteConnection(connectionString);
             return Create(connection, options);
         }
@@ -73,9 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         /// </summary>
         public override DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
         {
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(options, nameof(options));
-
             if (options.Schemas.Any())
             {
                 _logger.SchemasNotSupportedWarning();

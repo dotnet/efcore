@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="RelationalModelConvention" />.
+        ///     Creates a new instance of <see cref="RelationalRuntimeModelConvention" />.
         /// </summary>
         /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
@@ -32,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             RelationalDependencies = relationalDependencies;
         }
 

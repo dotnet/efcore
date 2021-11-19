@@ -63,14 +63,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (!skipBuild)
             {
                 var assembly = build.BuildInMemory();
-                var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
-                var context = (DbContext)assembly.CreateInstance(
-                    !string.IsNullOrEmpty(contextNamespace)
-                        ? contextNamespace + "." + options.ContextName
-                        : options.ContextName);
 
                 if (assertModel != null)
                 {
+                    var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
+                    var context = (DbContext)assembly.CreateInstance(
+                        !string.IsNullOrEmpty(contextNamespace)
+                            ? contextNamespace + "." + options.ContextName
+                            : options.ContextName);
+
                     var compiledModel = context.GetService<IDesignTimeModel>().Model;
                     assertModel(compiledModel);
                 }

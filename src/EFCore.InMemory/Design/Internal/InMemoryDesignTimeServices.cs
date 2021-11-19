@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 [assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.InMemory.Design.Internal.InMemoryDesignTimeServices")]
@@ -26,9 +25,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
+
 #pragma warning disable EF1001 // Internal EF Core API usage.
             new EntityFrameworkDesignServicesBuilder(serviceCollection)
                 .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, InMemoryCSharpRuntimeAnnotationCodeGenerator>()

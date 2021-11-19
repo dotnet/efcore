@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
@@ -51,11 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         [EntityFrameworkInternal]
         public RelationalConventionSetBuilderDependencies(IRelationalAnnotationProvider relationalAnnotationProvider)
         {
-            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-
-#pragma warning disable CS0618 // Type or member is obsolete
             RelationalAnnotationProvider = relationalAnnotationProvider;
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>

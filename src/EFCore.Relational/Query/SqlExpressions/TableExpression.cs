@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// <remarks>
     ///     This is a simple wrapper around a table and schema name. Instances of this type cannot be constructed by
     ///     application or database provider code. If this is a problem for your application or provider, then please file
-    ///     an issue at https://github.com/dotnet/efcore.
+    ///     an issue at <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
     /// </remarks>
     public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
     {
@@ -29,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             if (!string.IsNullOrEmpty(Schema))
             {
                 expressionPrinter.Append(Schema).Append(".");

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -49,20 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     the constructor at any point in this process.
         /// </remarks>
         [EntityFrameworkInternal]
-        public ModelCustomizerDependencies(IDbSetFinder setFinder)
+        public ModelCustomizerDependencies()
         {
-            Check.NotNull(setFinder, nameof(setFinder));
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            SetFinder = setFinder;
-#pragma warning restore CS0618 // Type or member is obsolete
         }
-
-        /// <summary>
-        ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
-        ///     on the derived context.
-        /// </summary>
-        [Obsolete("This is part of ProviderConventionSetBuilderDependencies now")]
-        public IDbSetFinder SetFinder { get; init; }
     }
 }

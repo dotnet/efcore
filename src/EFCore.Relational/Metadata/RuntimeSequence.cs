@@ -143,13 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <inheritdoc />
-        Type IReadOnlySequence.ClrType
-        {
-            [DebuggerStepThrough]
-            get => _type;
-        }
-
-        /// <inheritdoc />
         bool IReadOnlySequence.IsCyclic
         {
             [DebuggerStepThrough]

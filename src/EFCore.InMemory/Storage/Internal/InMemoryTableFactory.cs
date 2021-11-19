@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -35,9 +34,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             ILoggingOptions loggingOptions,
             IInMemorySingletonOptions options)
         {
-            Check.NotNull(loggingOptions, nameof(loggingOptions));
-            Check.NotNull(options, nameof(options));
-
             _sensitiveLoggingEnabled = loggingOptions.IsSensitiveDataLoggingEnabled;
             _nullabilityCheckEnabled = options.IsNullabilityCheckEnabled;
         }

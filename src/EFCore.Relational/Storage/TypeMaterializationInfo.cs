@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalTypeMapping mapping,
             bool? nullable = null)
         {
-            Check.NotNull(modelClrType, nameof(modelClrType));
-
             ProviderClrType = mapping.Converter?.ProviderClrType ?? modelClrType;
             ModelClrType = modelClrType;
             Mapping = mapping;

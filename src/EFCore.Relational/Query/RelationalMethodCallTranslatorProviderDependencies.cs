@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -56,10 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEnumerable<IMethodCallTranslatorPlugin> plugins,
             IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-            Check.NotNull(plugins, nameof(plugins));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             SqlExpressionFactory = sqlExpressionFactory;
             Plugins = plugins;
             RelationalTypeMappingSource = typeMappingSource;

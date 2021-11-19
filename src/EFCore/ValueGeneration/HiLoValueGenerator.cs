@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
@@ -33,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="generatorState">The state used to keep track of which value to return next.</param>
         protected HiLoValueGenerator(HiLoValueGeneratorState generatorState)
         {
-            Check.NotNull(generatorState, nameof(generatorState));
-
             _generatorState = generatorState;
         }
 

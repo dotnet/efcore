@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -29,9 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IRelationalTypeMappingSource typeMappingSource)
             : base(invariantName)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
-
             Name = name;
             _typeMappingSource = typeMappingSource;
         }
@@ -52,8 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void AddDbParameter(DbCommand command, object? value)
         {
-            Check.NotNull(command, nameof(command));
-
             if (value == null)
             {
                 command.Parameters

@@ -1064,7 +1064,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             l => l.AnotherBookLabel, ab =>
                             {
                                 ab.Ignore(l => l.Book);
-                                ab.OwnsOne(l => l.SpecialBookLabel).Ignore(l => l.Book).Ignore(s => s.BookLabel);
+                                ab.OwnsOne(l => l.SpecialBookLabel)
+                                    .Ignore(l => l.Book)
+                                    .Ignore(s => s.BookLabel)
+                                    .HasIndex(l => l.BookId);
                             });
                         bb.OwnsOne(
                             l => l.SpecialBookLabel, sb =>

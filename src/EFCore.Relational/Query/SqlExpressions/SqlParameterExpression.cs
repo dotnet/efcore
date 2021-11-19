@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// <remarks>
     ///     This is a simple wrapper around a <see cref="ParameterExpression" /> in the SQL tree.
     ///     Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
-    ///     application or provider, then please file an issue at https://github.com/dotnet/efcore.
+    ///     application or provider, then please file an issue at
+    ///     <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
     /// </remarks>
     public sealed class SqlParameterExpression : SqlExpression
     {
@@ -52,19 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return this;
-        }
+            => this;
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
-        {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
-            expressionPrinter.Append("@" + _parameterExpression.Name);
-        }
+            => expressionPrinter.Append("@" + _parameterExpression.Name);
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

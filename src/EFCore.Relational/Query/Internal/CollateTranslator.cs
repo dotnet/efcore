@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -32,17 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        {
-            Check.NotNull(method, nameof(method));
-            Check.NotNull(arguments, nameof(arguments));
-            Check.NotNull(logger, nameof(logger));
-
-            return method.IsGenericMethod
+            => method.IsGenericMethod
                 && Equals(method.GetGenericMethodDefinition(), _methodInfo)
                 && arguments[2] is SqlConstantExpression constantExpression
                 && constantExpression.Value is string collation
                     ? new CollateExpression(arguments[1], collation)
                     : null;
-        }
     }
 }

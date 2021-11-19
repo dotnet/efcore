@@ -391,8 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         Backing fields are normally found by convention as described
-        ///         here: http://go.microsoft.com/fwlink/?LinkId=723277.
+        ///         Backing fields are normally found by convention.
         ///         This method is useful for setting backing fields explicitly in cases where the
         ///         correct field is not found by convention.
         ///     </para>
@@ -401,6 +400,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
         ///         <see cref="UsePropertyAccessMode" />.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information.
         ///     </para>
         /// </remarks>
         /// <param name="fieldName">The field name.</param>

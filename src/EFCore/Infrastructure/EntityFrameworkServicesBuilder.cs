@@ -22,7 +22,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -166,8 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceCollection">The collection to which services will be registered.</param>
         public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
         {
-            Check.NotNull(serviceCollection, nameof(serviceCollection));
-
             ServiceCollectionMap = new ServiceCollectionMap(serviceCollection);
         }
 
@@ -226,8 +223,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAddProviderSpecificServices(Action<ServiceCollectionMap> serviceMap)
         {
-            Check.NotNull(serviceMap, nameof(serviceMap));
-
             ServiceCollectionMap.Validate = serviceType =>
             {
                 if (TryGetServiceCharacteristics(serviceType) != null)
@@ -398,9 +393,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(Type serviceType, Type implementationType)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementationType, nameof(implementationType));
-
             var characteristics = GetServiceCharacteristics(serviceType);
 
             if (characteristics.MultipleRegistrations)
@@ -465,10 +457,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Type implementationType,
             Func<IServiceProvider, object> factory)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementationType, nameof(implementationType));
-            Check.NotNull(factory, nameof(factory));
-
             var characteristics = GetServiceCharacteristics(serviceType);
 
             if (characteristics.MultipleRegistrations)
@@ -519,9 +507,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Type serviceType,
             object implementation)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-            Check.NotNull(implementation, nameof(implementation));
-
             var characteristics = GetServiceCharacteristics(serviceType);
 
             if (characteristics.Lifetime != ServiceLifetime.Singleton)

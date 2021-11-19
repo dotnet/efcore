@@ -10,7 +10,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -99,9 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyModel model,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
             Model = model;
             Name = name;
             _schema = schema;
@@ -115,12 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("Use the other constructor")]
+        [Obsolete("Use the other constructor")] // DO NOT REMOVE
+        // Used in snapsnot model processor. See issue#18557
         public Sequence(IReadOnlyModel model, string annotationName)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotEmpty(annotationName, nameof(annotationName));
-
             Model = model;
             _configurationSource = ConfigurationSource.Explicit;
 
@@ -200,10 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sequence sequence,
             string name)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(sequence, nameof(sequence));
-            Check.NotEmpty(name, nameof(name));
-
             sequence.EnsureMutable();
 
             var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
@@ -545,39 +535,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [Obsolete("Use Type")]
-        public virtual Type ClrType
-        {
-            get => Type;
-            set => Type = value;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete("Use SetType")]
-        public virtual Type? SetClrType(Type? type, ConfigurationSource configurationSource)
-            => SetType(type, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete("Use GetTypeConfigurationSource")]
-        public virtual ConfigurationSource? GetClrTypeConfigurationSource()
-            => GetTypeConfigurationSource();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual bool IsCyclic
         {
             get => _isCyclic ?? DefaultIsCyclic;
@@ -716,16 +673,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        Type? IConventionSequence.SetClrType(Type? type, bool fromDataAnnotation)
-            => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
         Type? IConventionSequence.SetType(Type? type, bool fromDataAnnotation)
             => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -739,7 +686,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         bool? IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        [Obsolete("Don't use this in any new code")]
+        [Obsolete("Don't use this in any new code")] // DO NOT REMOVE
+        // Used in model snapshot processor code path. See issue#18557
         private sealed class SequenceData
         {
             public string Name { get; set; } = default!;
@@ -760,8 +708,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public static SequenceData Deserialize(string value)
             {
-                Check.NotEmpty(value, nameof(value));
-
                 try
                 {
                     var data = new SequenceData();

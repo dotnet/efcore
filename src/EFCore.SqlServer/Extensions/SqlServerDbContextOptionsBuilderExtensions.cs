@@ -44,8 +44,6 @@ namespace Microsoft.EntityFrameworkCore
             this DbContextOptionsBuilder optionsBuilder,
             Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
 
             ConfigureWarnings(optionsBuilder);
@@ -72,7 +70,6 @@ namespace Microsoft.EntityFrameworkCore
             string connectionString,
             Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
             var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
@@ -107,7 +104,6 @@ namespace Microsoft.EntityFrameworkCore
             DbConnection connection,
             Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 
             var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection);

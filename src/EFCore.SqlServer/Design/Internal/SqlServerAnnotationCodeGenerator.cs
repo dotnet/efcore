@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 {
@@ -285,9 +284,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         /// </summary>
         protected override bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(annotation, nameof(annotation));
-
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
                 return (string?)annotation.Value == "dbo";

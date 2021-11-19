@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         public static void Migrate(this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate();
+            => databaseFacade.GetRelationalService<IMigrator>().Migrate();
 
         /// <summary>
         ///     Gets all the migrations that are defined in the configured migrations assembly.
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
         public static IEnumerable<string> GetMigrations(this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrationsAssembly>().Migrations.Keys;
+            => databaseFacade.GetRelationalService<IMigrationsAssembly>().Migrations.Keys;
 
         /// <summary>
         ///     Gets all migrations that have been applied to the target database.
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
         public static IEnumerable<string> GetAppliedMigrations(this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IHistoryRepository>()
+            => databaseFacade.GetRelationalService<IHistoryRepository>()
                 .GetAppliedMigrations().Select(hr => hr.MigrationId);
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
-            => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IHistoryRepository>()
+            => (await databaseFacade.GetRelationalService<IHistoryRepository>()
                 .GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(hr => hr.MigrationId);
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task MigrateAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
+            => databaseFacade.GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
         /// <summary>
@@ -252,7 +252,6 @@ namespace Microsoft.EntityFrameworkCore
             string sql,
             IEnumerable<object> parameters)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
@@ -458,7 +457,6 @@ namespace Microsoft.EntityFrameworkCore
             IEnumerable<object> parameters,
             CancellationToken cancellationToken = default)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
@@ -828,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="false" /> otherwise.
         /// </returns>
         public static bool IsRelational(this DatabaseFacade databaseFacade)
-            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade)))
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade)
                 .Context.GetService<IDbContextOptions>().Extensions.OfType<RelationalOptionsExtension>().Any();
 
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
@@ -845,8 +843,6 @@ namespace Microsoft.EntityFrameworkCore
 
         private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
-            Check.NotNull(databaseFacade, nameof(databaseFacade));
-
             var service = databaseFacade.Instance.GetService<TService>();
             if (service == null)
             {
@@ -857,6 +853,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IDbContextTransactionManager GetTransactionManager(this DatabaseFacade databaseFacade)
-            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies.TransactionManager;
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager;
     }
 }

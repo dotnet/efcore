@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public InternalDbSet(DbContext context, string? entityTypeName)
         {
-            Check.NotNull(context, nameof(context));
-
             // Just storing context/service locator here so that the context will be initialized by the time the
             // set is used and services will be obtained from the correctly scoped container when this happens.
             _context = context;

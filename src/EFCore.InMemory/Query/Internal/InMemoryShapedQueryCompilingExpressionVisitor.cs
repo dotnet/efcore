@@ -8,7 +8,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -40,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(extensionExpression, nameof(extensionExpression));
-
             switch (extensionExpression)
             {
                 case InMemoryTableExpression inMemoryTableExpression:
@@ -62,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression)
         {
-            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
-
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             inMemoryQueryExpression.ApplyProjection();
 

@@ -891,7 +891,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.Property(e => e.TestDateTimeOffset).HasConversion(
                             v => v.ToUnixTimeMilliseconds(),
-                            v => DateTimeOffset.FromUnixTimeMilliseconds(v));
+                            v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0)));
 
                         b.Property(e => e.TestDouble).HasConversion(
                             new ValueConverter<double, decimal>(
@@ -941,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.Property(e => e.TestNullableDateTimeOffset).HasConversion(
                             v => v.Value.ToUnixTimeMilliseconds(),
-                            v => (DateTimeOffset?)DateTimeOffset.FromUnixTimeMilliseconds(v));
+                            v => (DateTimeOffset?)DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0)));
 
                         b.Property(e => e.TestNullableDouble).HasConversion(
                             new ValueConverter<double?, decimal?>(
@@ -1005,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(nameof(BuiltInDataTypes.TestDateTimeOffset)).HasConversion(
                             new ValueConverter<DateTimeOffset, long>(
                                 v => v.ToUnixTimeMilliseconds(),
-                                v => DateTimeOffset.FromUnixTimeMilliseconds(v)));
+                                v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0))));
 
                         b.Property(nameof(BuiltInDataTypes.TestDouble)).HasConversion(
                             new ValueConverter<double, decimal>(
@@ -1106,9 +1106,7 @@ namespace Microsoft.EntityFrameworkCore
                         var property = b.Property(e => e.Id)
                             .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-#pragma warning disable 618
-                        property.SetKeyValueComparer(caseInsensitiveComparer);
-#pragma warning restore 618
+                        property.SetValueComparer(caseInsensitiveComparer);
                     });
 
                 modelBuilder.Entity<StringForeignKeyDataType>(

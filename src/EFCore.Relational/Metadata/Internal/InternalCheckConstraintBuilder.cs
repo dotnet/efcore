@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -69,9 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string? sql,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(sql, nameof(sql));
-
             List<IConventionCheckConstraint>? checkConstraintsToBeDetached = null;
             var constraint = entityType.FindCheckConstraint(name);
             if (constraint != null)
@@ -155,9 +151,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string? sql,
             ConfigurationSource configurationSource)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(sql, nameof(sql));
-
             var constraint = entityType.FindCheckConstraint(name);
             if (constraint != null)
             {

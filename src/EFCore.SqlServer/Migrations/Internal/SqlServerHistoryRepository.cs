@@ -6,7 +6,6 @@ using System.IO;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
 {
@@ -116,8 +115,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override string GetBeginIfNotExistsScript(string migrationId)
         {
-            Check.NotEmpty(migrationId, nameof(migrationId));
-
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder()
@@ -140,8 +137,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override string GetBeginIfExistsScript(string migrationId)
         {
-            Check.NotEmpty(migrationId, nameof(migrationId));
-
             var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder()

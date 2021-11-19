@@ -1942,14 +1942,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         b.HasMany<Beta>()
                             .WithOne(e => e.FirstNav)
-                            .HasForeignKey("ShadowId");
+                            .HasForeignKey("ShadowId")
+                            .IsRequired()
+                            .HasAnnotation("Test", "foo");
                     });
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                Assert.Equal(
-                    "ShadowId",
-                    modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                var fk = model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey;
+                Assert.Equal("ShadowId", fk.Properties.Single().Name);
+                Assert.True(fk.IsRequired);
+                Assert.Equal("foo", fk["Test"]);
             }
 
             [ConditionalFact]

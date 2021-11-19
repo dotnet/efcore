@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -37,11 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IMigrationsIdGenerator idGenerator,
             IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
         {
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(options, nameof(options));
-            Check.NotNull(idGenerator, nameof(idGenerator));
-            Check.NotNull(logger, nameof(logger));
-
             _contextType = currentContext.Context.GetType();
 
             var assemblyName = RelationalOptionsExtension.Extract(options)?.MigrationsAssembly;
@@ -139,8 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
         {
-            Check.NotNull(activeProvider, nameof(activeProvider));
-
             var migration = (Migration)Activator.CreateInstance(migrationClass.AsType())!;
             migration.ActiveProvider = activeProvider;
 

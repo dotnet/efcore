@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Utilities;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -32,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static void SetDbSetName(this IMutableEntityType entityType, string? value)
             => entityType.SetAnnotation(
                 ScaffoldingAnnotationNames.DbSetName,
-                Check.NullButNotEmpty(value, nameof(value)));
+                value);
     }
 }

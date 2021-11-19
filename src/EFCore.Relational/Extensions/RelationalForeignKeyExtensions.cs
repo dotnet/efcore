@@ -210,8 +210,6 @@ namespace Microsoft.EntityFrameworkCore
             this IReadOnlyForeignKey foreignKey,
             in StoreObjectIdentifier storeObject)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             var foreignKeyName = foreignKey.GetConstraintName(
                 storeObject,
                 StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName()!, foreignKey.PrincipalEntityType.GetSchema()));

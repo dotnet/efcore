@@ -31,9 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection)
         {
-            Check.NotNull(migrationCommands, nameof(migrationCommands));
-            Check.NotNull(connection, nameof(connection));
-
             var userTransaction = connection.CurrentTransaction;
             if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
             {
@@ -95,9 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
         {
-            Check.NotNull(migrationCommands, nameof(migrationCommands));
-            Check.NotNull(connection, nameof(connection));
-
             var userTransaction = connection.CurrentTransaction;
             if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
             {

@@ -627,6 +627,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     });
         }
 
+        [ConditionalFact]
+        public void Unmapped_entity_types_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder => {
+                    builder.HasDefaultSchema("default");
+                    builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null);
+                },
+                AddBoilerPlate(@"
+            modelBuilder
+                .HasDefaultSchema(""default"")
+                .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable((string)null);
+                });"),
+                o => {
+                    Assert.Null(o.GetEntityTypes().Single().GetTableName());
+                    Assert.Null(o.GetEntityTypes().Single().GetSchema());
+                });
+        }
+
         private class TestKeylessType
         {
             public string Something { get; set; }

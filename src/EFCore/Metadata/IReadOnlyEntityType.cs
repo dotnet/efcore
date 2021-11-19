@@ -31,28 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IReadOnlyEntityType? BaseType { get; }
 
         /// <summary>
-        ///     Gets the name of the defining navigation.
-        /// </summary>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        string? DefiningNavigationName
-            => null;
-
-        /// <summary>
-        ///     Gets the defining entity type.
-        /// </summary>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        IReadOnlyEntityType? DefiningEntityType
-            => null;
-
-        /// <summary>
-        ///     Gets a value indicating whether this entity type has a defining navigation.
-        /// </summary>
-        /// <returns><see langword="true" /> if this entity type has a defining navigation.</returns>
-        [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        bool HasDefiningNavigation()
-            => HasSharedClrType;
-
-        /// <summary>
         ///     Gets the change tracking strategy being used for this entity type. This strategy indicates how the
         ///     context detects changes to properties for an instance of the entity type.
         /// </summary>

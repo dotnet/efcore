@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -55,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IDbContextOptions options,
             IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
-            Check.NotNull(currentContext, nameof(currentContext));
-
             Options = options;
             CurrentContext = currentContext;
             Logger = logger;

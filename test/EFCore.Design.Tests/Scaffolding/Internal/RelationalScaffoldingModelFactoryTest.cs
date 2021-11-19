@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -455,7 +456,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 });
 
             Assert.Single(_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("E").GetProperties());
-            Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
+
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType), message);
         }
 
         [ConditionalTheory]
@@ -1135,11 +1139,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new DatabaseModel { Tables = { parentTable, childrenTable } },
                 new ModelReverseEngineerOptions());
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                        childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent"), message);
         }
 
         [ConditionalFact]
@@ -1194,10 +1197,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 new DatabaseModel { Tables = { parentTable, childrenTable } },
                 new ModelReverseEngineerOptions());
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo"), message);
         }
 
         [ConditionalFact]
@@ -1305,11 +1307,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var alternateKey = model.GetKeys().Single(k => !k.IsPrimaryKey());
             Assert.Equal(alternateKey, fk.PrincipalKey);
 
-            Assert.Single(
-                _reporter.Messages, t => t.Contains(
-                    "warn: "
-                    + DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
-                        table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId")));
+            var (level, message) = _reporter.Messages.Single();
+            Assert.Equal(LogLevel.Warning, level);
+            Assert.Equal(DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId"), message);
         }
 
         [ConditionalFact]
@@ -2253,6 +2254,123 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     var skipNavigation = Assert.Single(t3.GetSkipNavigations());
                     Assert.Equal("Blogs", skipNavigation.Name);
                     Assert.Equal("Posts", skipNavigation.Inverse.Name);
+                });
+
+        }
+
+        [ConditionalFact]
+        public void Scaffold_skip_navigation_for_many_to_many_join_table_self_ref()
+        {
+            var database = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Products",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "RelatedProducts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "ProductId",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey {
+                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("Id") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            },
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("ProductId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            }
+                        }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "SubProducts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "ProductId",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey {
+                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("Id") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            },
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("ProductId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Products"),
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(e => e.Name),
+                t1 =>
+                {
+                    Assert.Empty(t1.GetNavigations());
+                    Assert.Collection(t1.GetSkipNavigations(),
+                        s => Assert.Equal("Ids", s.Name),
+                        s => Assert.Equal("IdsNavigation", s.Name),
+                        s => Assert.Equal("Products", s.Name),
+                        s => Assert.Equal("ProductsNavigation", s.Name));
+                },
+                t2 =>
+                {
+                    Assert.Empty(t2.GetNavigations());
+                    Assert.Equal(2, t2.GetForeignKeys().Count());
+                },
+                t2 =>
+                {
+                    Assert.Empty(t2.GetNavigations());
+                    Assert.Equal(2, t2.GetForeignKeys().Count());
                 });
 
         }

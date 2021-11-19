@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="ascending">A value indicating if the ordering is ascending.</param>
         public OrderingExpression(SqlExpression expression, bool ascending)
         {
-            Check.NotNull(expression, nameof(expression));
-
             Expression = expression;
             IsAscending = ascending;
         }
@@ -51,11 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return Update((SqlExpression)visitor.Visit(Expression));
-        }
+            => Update((SqlExpression)visitor.Visit(Expression));
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -64,19 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="expression">The <see cref="Expression" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual OrderingExpression Update(SqlExpression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            return expression != Expression
+            => expression != Expression
                 ? new OrderingExpression(expression, IsAscending)
                 : this;
-        }
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Visit(Expression);
 
             expressionPrinter.Append(IsAscending ? " ASC" : " DESC");

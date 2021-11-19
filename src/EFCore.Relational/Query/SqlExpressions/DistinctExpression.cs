@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public DistinctExpression(SqlExpression operand)
             : base(operand.Type, operand.TypeMapping)
         {
-            Check.NotNull(operand, nameof(operand));
-
             Operand = operand;
         }
 
@@ -37,11 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            Check.NotNull(visitor, nameof(visitor));
-
-            return Update((SqlExpression)visitor.Visit(Operand));
-        }
+            => Update((SqlExpression)visitor.Visit(Operand));
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
@@ -50,19 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="operand">The <see cref="Operand" /> property of the result.</param>
         /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual DistinctExpression Update(SqlExpression operand)
-        {
-            Check.NotNull(operand, nameof(operand));
-
-            return operand != Operand
+            => operand != Operand
                 ? new DistinctExpression(operand)
                 : this;
-        }
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-
             expressionPrinter.Append("(DISTINCT ");
             expressionPrinter.Visit(Operand);
             expressionPrinter.Append(")");

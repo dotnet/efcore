@@ -60,10 +60,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(member, nameof(member));
-            Check.NotNull(returnType, nameof(returnType));
-            Check.NotNull(logger, nameof(logger));
-
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
                 Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");

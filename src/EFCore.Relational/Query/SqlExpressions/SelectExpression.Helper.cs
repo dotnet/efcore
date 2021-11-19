@@ -18,13 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression entityShaper
+                => extensionExpression is EntityShaperExpression entityShaper
                     ? entityShaper.MakeNullable()
                     : base.VisitExtension(extensionExpression);
-            }
         }
 
         private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
@@ -448,10 +444,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 bool nullable)
                 : base(type, typeMapping)
             {
-                Check.NotEmpty(name, nameof(name));
-                Check.NotNull(table, nameof(table));
-                Check.NotEmpty(table.Alias, $"{nameof(table)}.{nameof(table.Alias)}");
-
                 Name = name;
                 _table = table;
                 IsNullable = nullable;
@@ -469,11 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             /// <inheritdoc />
             protected override Expression VisitChildren(ExpressionVisitor visitor)
-            {
-                Check.NotNull(visitor, nameof(visitor));
-
-                return this;
-            }
+                => this;
 
             public override ConcreteColumnExpression MakeNullable()
                 => new(Name, _table, Type, TypeMapping!, true);

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,9 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
             MaxIdentifierLength = maxIdentifierLength;
             Dependencies = dependencies;
             RelationalDependencies = relationalDependencies;

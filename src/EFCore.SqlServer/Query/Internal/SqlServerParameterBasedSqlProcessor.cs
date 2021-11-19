@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -40,9 +39,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parametersValues, nameof(parametersValues));
-
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
 
             optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
@@ -64,12 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parametersValues, nameof(parametersValues));
-
-            return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
+            => new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(
                 selectExpression, parametersValues, out canCache);
-        }
     }
 }

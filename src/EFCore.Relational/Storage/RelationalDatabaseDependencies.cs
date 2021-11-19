@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -55,10 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IBatchExecutor batchExecutor,
             IRelationalConnection connection)
         {
-            Check.NotNull(batchPreparer, nameof(batchPreparer));
-            Check.NotNull(batchExecutor, nameof(batchExecutor));
-            Check.NotNull(connection, nameof(connection));
-
             BatchPreparer = batchPreparer;
             BatchExecutor = batchExecutor;
             Connection = connection;

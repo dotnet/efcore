@@ -109,13 +109,10 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
             await base.Join_customers_orders_with_subquery(async);
 
             AssertSql(
-                @"SELECT [c].[ContactName], [t].[OrderID]
+                @"SELECT [c].[ContactName], [o].[OrderID]
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID]
-    FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'");
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Join_customers_orders_with_subquery_with_take(bool async)
@@ -140,13 +137,10 @@ WHERE [t].[CustomerID] = N'ALFKI'");
             await base.Join_customers_orders_with_subquery_anonymous_property_method(async);
 
             AssertSql(
-                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-    FROM [Orders] AS [o]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'");
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Join_customers_orders_with_subquery_anonymous_property_method_with_take(bool async)

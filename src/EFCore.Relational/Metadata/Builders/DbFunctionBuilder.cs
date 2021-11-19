@@ -98,12 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     expression representing the desired translation.
         /// </summary>
         /// <remarks>
-        ///     <para>
-        ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
-        ///     </para>
-        ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
-        ///     </para>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
         /// </remarks>
         /// <param name="translation">The translation to use.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -57,18 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             ISnapshotModelProcessor snapshotModelProcessor,
             IMigrator migrator)
         {
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
-            Check.NotNull(migrationsModelDiffer, nameof(migrationsModelDiffer));
-            Check.NotNull(migrationsIdGenerator, nameof(migrationsIdGenerator));
-            Check.NotNull(migrationsCodeGeneratorSelector, nameof(migrationsCodeGeneratorSelector));
-            Check.NotNull(historyRepository, nameof(historyRepository));
-            Check.NotNull(operationReporter, nameof(operationReporter));
-            Check.NotNull(databaseProvider, nameof(databaseProvider));
-            Check.NotNull(snapshotModelProcessor, nameof(snapshotModelProcessor));
-            Check.NotNull(migrator, nameof(migrator));
-
             CurrentContext = currentContext;
             Model = model;
             MigrationsAssembly = migrationsAssembly;

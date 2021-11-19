@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -123,8 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool detailedErrorsEnabled,
             CommandSource commandSource)
         {
-            Check.NotNull(connection, nameof(connection));
-
             Connection = connection;
             ParameterValues = parameterValues;
             ReaderColumns = readerColumns;

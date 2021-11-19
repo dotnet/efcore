@@ -4,7 +4,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -24,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         protected override Expression VisitInvocation(InvocationExpression invocationExpression)
         {
-            Check.NotNull(invocationExpression, nameof(invocationExpression));
-
             var invokedExpression = StripTrivialConversions(invocationExpression.Expression);
 
             return invokedExpression is LambdaExpression lambdaExpression

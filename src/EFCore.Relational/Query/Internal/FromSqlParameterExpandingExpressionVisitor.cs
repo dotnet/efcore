@@ -45,8 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public FromSqlParameterExpandingExpressionVisitor(
             RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
             Dependencies = dependencies;
 
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -73,9 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
             _visitedFromSqlExpressions.Clear();
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parametersValues = parameterValues;

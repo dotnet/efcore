@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -18,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="additionalFiles">The paths of additional files used by the model.</param>
         public SavedModelFiles(string contextFile, IEnumerable<string> additionalFiles)
         {
-            Check.NotNull(contextFile, nameof(contextFile));
-            Check.NotNull(additionalFiles, nameof(additionalFiles));
-
             ContextFile = contextFile;
             AdditionalFiles = new List<string>(additionalFiles);
         }

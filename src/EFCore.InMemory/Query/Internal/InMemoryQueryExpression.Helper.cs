@@ -173,13 +173,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression entityShaper
+                => extensionExpression is EntityShaperExpression entityShaper
                     ? entityShaper.MakeNullable()
                     : base.VisitExtension(extensionExpression);
-            }
         }
 
         private sealed class QueryExpressionReplacingExpressionVisitor : ExpressionVisitor

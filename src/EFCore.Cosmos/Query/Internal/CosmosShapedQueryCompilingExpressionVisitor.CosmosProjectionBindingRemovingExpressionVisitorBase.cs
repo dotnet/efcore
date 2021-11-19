@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = typeof(JToken).GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
 
-            private static readonly MethodInfo _jTokenToObjectMethodInfo
+            private static readonly MethodInfo _jTokenToObjectWithSerializerMethodInfo
                 = typeof(JToken).GetRuntimeMethods()
-                    .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
+                    .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 1 && mi.IsGenericMethodDefinition);
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()
@@ -65,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private List<IncludeExpression> _pendingIncludes
                 = new();
 
-            private static readonly MethodInfo _toObjectMethodInfo
+            private static readonly MethodInfo _toObjectWithSerializerMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
-                    .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObject));
+                    .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
 
             public CosmosProjectionBindingRemovingExpressionVisitorBase(
                 ParameterExpression jObjectParameter,
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 storeName = projection.Alias;
                             }
                             else if (projectionExpression is UnaryExpression convertExpression
-                                && convertExpression.NodeType == ExpressionType.Convert)
+                                     && convertExpression.NodeType == ExpressionType.Convert)
                             {
                                 // Unwrap EntityProjectionExpression when the root entity is not projected
                                 projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;
@@ -242,9 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             projectionBindingExpression.Type, (projection.Expression as SqlExpression)?.TypeMapping);
                     }
 
-#pragma warning disable CS0618 // Type or member is obsolete
                     case CollectionShaperExpression collectionShaperExpression:
-#pragma warning restore CS0618 // Type or member is obsolete
                     {
                         ObjectArrayProjectionExpression objectArrayProjection;
                         switch (collectionShaperExpression.Projection)
@@ -700,7 +699,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             converter.ConvertFromProviderExpression.Parameters.Single(),
                             Expression.Call(
                                 jTokenParameter,
-                                _jTokenToObjectMethodInfo.MakeGenericMethod(converter.ProviderClrType)),
+                                _jTokenToObjectWithSerializerMethodInfo.MakeGenericMethod(converter.ProviderClrType),
+                                Expression.Constant(CosmosClientWrapper.Serializer)),
                             converter.ConvertFromProviderExpression.Body);
 
                     if (body.Type != type)
@@ -754,11 +754,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 => type == typeof(JToken)
                     ? jTokenExpression
                     : Expression.Call(
-                        _toObjectMethodInfo.MakeGenericMethod(type),
+                        _toObjectWithSerializerMethodInfo.MakeGenericMethod(type),
                         jTokenExpression);
 
             private static T SafeToObject<T>(JToken token)
                 => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>();
+
+            private static T SafeToObjectWithSerializer<T>(JToken token)
+                => token == null || token.Type == JTokenType.Null ? default : token.ToObject<T>(CosmosClientWrapper.Serializer);
         }
     }
 }

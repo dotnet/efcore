@@ -44,12 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new Type Type { get; set; }
 
         /// <summary>
-        ///     Gets or sets the <see cref="Type" /> of values returned by the sequence.
-        /// </summary>
-        [Obsolete("Use Type")]
-        new Type ClrType { get; set; }
-
-        /// <summary>
         ///     Gets or sets the a value indicating whether the sequence will start again from the beginning when the max value
         ///     is reached.
         /// </summary>

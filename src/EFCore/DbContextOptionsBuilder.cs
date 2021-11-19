@@ -638,11 +638,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TExtension">The type of extension to be added.</typeparam>
         /// <param name="extension">The extension to be added.</param>
         void IDbContextOptionsBuilderInfrastructure.AddOrUpdateExtension<TExtension>(TExtension extension)
-        {
-            Check.NotNull(extension, nameof(extension));
-
-            _options = _options.WithExtension(extension);
-        }
+            => _options = _options.WithExtension(extension);
 
         private DbContextOptionsBuilder WithOption(Func<CoreOptionsExtension, CoreOptionsExtension> withFunc)
         {

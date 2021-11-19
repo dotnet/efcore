@@ -322,23 +322,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the table.</param>
-        /// <param name="excludedFromMigrations">A value indicating whether the table should be managed by migrations.</param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use the overload with an Action parameter")]
-        public static OwnedNavigationBuilder ToTable(
-            this OwnedNavigationBuilder referenceOwnershipBuilder,
-            string? name,
-            bool excludedFromMigrations)
-            => referenceOwnershipBuilder.ToTable(name, null, excludedFromMigrations);
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-        /// </remarks>
-        /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
-        /// <param name="name">The name of the table.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
             this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
@@ -371,26 +354,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return referenceOwnershipBuilder;
         }
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-        /// </remarks>
-        /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
-        /// <param name="name">The name of the table.</param>
-        /// <param name="excludedFromMigrations">A value indicating whether the table should be managed by migrations.</param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use the overload with an Action parameter")]
-        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
-            string? name,
-            bool excludedFromMigrations)
-            where TOwnerEntity : class
-            where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToTable(
-                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, excludedFromMigrations);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -452,31 +415,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the table.</param>
         /// <param name="schema">The schema of the table.</param>
-        /// <param name="excludedFromMigrations">A value indicating whether the table should be managed by migrations.</param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use the overload with an Action parameter")]
-        public static OwnedNavigationBuilder ToTable(
-            this OwnedNavigationBuilder referenceOwnershipBuilder,
-            string? name,
-            string? schema,
-            bool excludedFromMigrations)
-        {
-            Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            return ToTable(referenceOwnershipBuilder, name, schema, (bool?)excludedFromMigrations);
-        }
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-        /// </remarks>
-        /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
-        /// <param name="name">The name of the table.</param>
-        /// <param name="schema">The schema of the table.</param>
         /// <param name="buildAction">An action that performs configuration of the table.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder ToTable(
@@ -524,28 +462,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the table.</param>
         /// <param name="schema">The schema of the table.</param>
-        /// <param name="excludedFromMigrations">A value indicating whether the table should be managed by migrations.</param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use the overload with an Action parameter")]
-        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
-            string? name,
-            string? schema,
-            bool excludedFromMigrations)
-            where TOwnerEntity : class
-            where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToTable(
-                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema, excludedFromMigrations);
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-        /// </remarks>
-        /// <param name="referenceOwnershipBuilder">The builder for the entity type being configured.</param>
-        /// <param name="name">The name of the table.</param>
-        /// <param name="schema">The schema of the table.</param>
         /// <param name="buildAction">An action that performs configuration of the table.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
@@ -563,24 +479,6 @@ namespace Microsoft.EntityFrameworkCore
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
             buildAction(new TableBuilder<TRelatedEntity>(name, schema, referenceOwnershipBuilder.OwnedEntityType));
-
-            return referenceOwnershipBuilder;
-        }
-
-        [Obsolete]
-        private static OwnedNavigationBuilder ToTable(
-            OwnedNavigationBuilder referenceOwnershipBuilder,
-            string? name,
-            string? schema,
-            bool? excludedFromMigrations)
-        {
-            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
-            referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-
-            if (excludedFromMigrations.HasValue)
-            {
-                referenceOwnershipBuilder.OwnedEntityType.SetIsTableExcludedFromMigrations(excludedFromMigrations.Value);
-            }
 
             return referenceOwnershipBuilder;
         }
@@ -799,7 +697,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             string? schema)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -873,7 +770,6 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             string? schema)
         {
-            Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
@@ -1124,7 +1020,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             ToFunction(name, entityTypeBuilder.Metadata);
@@ -1145,8 +1040,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             MethodInfo? function)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             ToFunction(function, entityTypeBuilder.Metadata);
 
             return entityTypeBuilder;
@@ -1167,7 +1060,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1191,7 +1083,6 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo function,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(function, nameof(function));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1281,7 +1172,6 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder ownedNavigationBuilder,
             string? name)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             ToFunction(name, ownedNavigationBuilder.OwnedEntityType);
@@ -1302,8 +1192,6 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder ownedNavigationBuilder,
             MethodInfo? function)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
-
             ToFunction(function, ownedNavigationBuilder.OwnedEntityType);
 
             return ownedNavigationBuilder;
@@ -1324,7 +1212,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1348,7 +1235,6 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo function,
             Action<TableValuedFunctionBuilder> configureFunction)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NotNull(function, nameof(function));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
@@ -1599,8 +1485,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? sql)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             InternalCheckConstraintBuilder.HasCheckConstraint(
                 (IConventionEntityType)entityTypeBuilder.Metadata,
                 name,
@@ -1690,8 +1574,6 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             string? sql)
         {
-            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
-
             InternalCheckConstraintBuilder.HasCheckConstraint(
                 (IConventionEntityType)ownedNavigationBuilder.OwnedEntityType,
                 name,
@@ -1790,30 +1672,11 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool fromDataAnnotation = false)
             => InternalCheckConstraintBuilder.HasCheckConstraint(
-                    Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                    entityTypeBuilder.Metadata,
                     name,
                     sql,
                     fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 ?.Builder;
-
-        /// <summary>
-        ///     Returns a value indicating whether the check constraint can be configured.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
-        /// </remarks>
-        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
-        /// <param name="name">The name of the check constraint.</param>
-        /// <param name="sql">The logical constraint sql used in the check constraint.</param>
-        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-        /// <returns><see langword="true" /> if the configuration can be applied.</returns>
-        [Obsolete("Use CanHaveCheckConstraint")]
-        public static bool CanSetCheckConstraint(
-            this IConventionEntityTypeBuilder entityTypeBuilder,
-            string name,
-            string? sql,
-            bool fromDataAnnotation = false)
-            => entityTypeBuilder.CanHaveCheckConstraint(name, sql, fromDataAnnotation);
 
         /// <summary>
         ///     Returns a value indicating whether the check constraint can be configured.
@@ -1832,7 +1695,7 @@ namespace Microsoft.EntityFrameworkCore
             string? sql,
             bool fromDataAnnotation = false)
             => InternalCheckConstraintBuilder.CanHaveCheckConstraint(
-                Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                entityTypeBuilder.Metadata,
                 name,
                 sql,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -1850,8 +1713,6 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             string? comment)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             entityTypeBuilder.Metadata.SetComment(comment);
             return entityTypeBuilder;
         }
@@ -1890,8 +1751,6 @@ namespace Microsoft.EntityFrameworkCore
             string? comment,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-
             if (!entityTypeBuilder.CanSetComment(comment, fromDataAnnotation))
             {
                 return null;

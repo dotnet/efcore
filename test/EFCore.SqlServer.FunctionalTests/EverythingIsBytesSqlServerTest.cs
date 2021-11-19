@@ -223,6 +223,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             public override DateTime DefaultDateTime
                 => new();
 
+            public override bool PreservesDateTimeKind
+                => false;
+
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base
                     .AddOptions(builder)

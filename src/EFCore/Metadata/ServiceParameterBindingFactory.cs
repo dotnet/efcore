@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -32,8 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="serviceType">The service type.</param>
         public ServiceParameterBindingFactory(Type serviceType)
         {
-            Check.NotNull(serviceType, nameof(serviceType));
-
             _serviceType = serviceType;
         }
 
@@ -85,15 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             IReadOnlyEntityType entityType,
             Type parameterType,
             string parameterName)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
-            return new DependencyInjectionParameterBinding(
+            => new DependencyInjectionParameterBinding(
                 _serviceType,
                 _serviceType,
                 entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => p.ClrType == _serviceType).ToArray());
-        }
     }
 }

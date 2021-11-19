@@ -5,7 +5,6 @@ using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
 {
@@ -36,9 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         /// </summary>
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotNull(columnModification, nameof(columnModification));
-
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, "rowid");
             commandStringBuilder.Append(" = ")
                 .Append("last_insert_rowid()");
@@ -56,9 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
             string? schema,
             int commandPosition)
         {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-            Check.NotEmpty(name, nameof(name));
-
             commandStringBuilder
                 .Append("SELECT changes()")
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
@@ -74,11 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-        {
-            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
-
-            commandStringBuilder.Append("changes() = ").Append(expectedRowsAffected);
-        }
+            => commandStringBuilder.Append("changes() = ").Append(expectedRowsAffected);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

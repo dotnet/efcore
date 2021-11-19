@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -55,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns>The newly created value generator.</returns>
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
             if (property.ValueGenerated != ValueGenerated.Never)
             {
                 var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
