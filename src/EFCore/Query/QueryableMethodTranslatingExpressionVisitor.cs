@@ -80,12 +80,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression switch
+        {
+            if (extensionExpression is QueryRootExpression queryRootExpression)
             {
-                ShapedQueryExpression _ => extensionExpression,
-                QueryRootExpression queryRootExpression => CreateShapedQueryExpression(queryRootExpression.EntityType),
-                _ => base.VisitExtension(extensionExpression),
-            };
+                // Query roots must be processed.
+                if (extensionExpression.GetType() == typeof(QueryRootExpression))
+                {
+                    // This requires exact type match on query root to avoid processing derived query roots.
+                    return CreateShapedQueryExpression(queryRootExpression.EntityType);
+                }
+
+                throw new InvalidOperationException(CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName()));
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
 
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
