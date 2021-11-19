@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     </para>
         ///     <para>
         ///         Warning: this is currently an internal API since converting nulls to and from the database can lead to broken
-        ///         queries and other issues. See https://github.com/dotnet/efcore/issues/26230 for more information.
+        ///         queries and other issues. See <see href="https://github.com/dotnet/efcore/issues/26230">GitHub issue #26230</see>
+        ///         for more information.
         ///     </para>
         /// </summary>
         /// <remarks>

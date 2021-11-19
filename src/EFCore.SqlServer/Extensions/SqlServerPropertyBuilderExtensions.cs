@@ -388,12 +388,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information. Also see
+        ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
+        ///     general information on SQL Server sparse columns.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
         /// <returns>A builder to further configure the property.</returns>
-        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static PropertyBuilder IsSparse(this PropertyBuilder propertyBuilder, bool sparse = true)
         {
             propertyBuilder.Metadata.SetIsSparse(sparse);
@@ -407,12 +408,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information. Also see
+        ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
+        ///     general information on SQL Server sparse columns.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
         /// <returns>A builder to further configure the property.</returns>
-        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static PropertyBuilder<TProperty> IsSparse<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             bool sparse = true)
@@ -424,13 +426,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information. Also see
+        ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
+        ///     general information on SQL Server sparse columns.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
-        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static IConventionPropertyBuilder? IsSparse(
             this IConventionPropertyBuilder propertyBuilder,
             bool? sparse,
@@ -452,7 +455,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information. Also see
+        ///     <see href="https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns">Sparse columns</see> for
+        ///     general information on SQL Server sparse columns.
         /// </remarks>
         /// <param name="property">The builder for the property being configured.</param>
         /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
@@ -461,7 +466,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the property's column can be configured as sparse when targeting SQL Server.
         /// </returns>
-        /// <remarks> See https://docs.microsoft.com/sql/relational-databases/tables/use-sparse-columns. </remarks>
         public static bool CanSetIsSparse(
             this IConventionPropertyBuilder property,
             bool? sparse,

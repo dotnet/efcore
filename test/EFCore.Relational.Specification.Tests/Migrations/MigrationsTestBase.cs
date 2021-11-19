@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValueSql());
-            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("Sum", "People"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueSqlUnspecified("People", "Sum"), ex.Message);
         }
 
         [ConditionalFact]
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder => { },
                 builder => builder.Entity("People").Property<int?>("Sum")
                     .HasDefaultValue());
-            Assert.Equal(RelationalStrings.DefaultValueUnspecified("Sum", "People"), ex.Message);
+            Assert.Equal(RelationalStrings.DefaultValueUnspecified("People", "Sum"), ex.Message);
         }
 
         [ConditionalTheory]
