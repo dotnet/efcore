@@ -148,12 +148,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -161,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -191,15 +187,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlInterpolated($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
-        ///     </code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -227,12 +219,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -240,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -301,15 +289,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
-        ///      </code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -336,20 +320,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
         ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not idempotent.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -382,12 +361,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -395,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -427,12 +402,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -440,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for examples and more information.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>

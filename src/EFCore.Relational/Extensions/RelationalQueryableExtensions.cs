@@ -68,9 +68,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a <see cref="DbParameter" />:
+        ///         arguments. Any parameter values you supply will automatically be converted to a <see cref="DbParameter" />.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM Blogs WHERE Name = {0}", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -78,13 +77,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This overload also accepts <see cref="DbParameter" /> instances as parameter values. In addition to using positional
-        ///         placeholders as above (<c>{0}</c>), you can also use named placeholders directly in the SQL query string:
+        ///         placeholders as above (<c>{0}</c>), you can also use named placeholders directly in the SQL query string.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM Blogs WHERE Name = @searchTerm", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
-        /// <para>
-        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///     for more information.
-        /// </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///         for examples and more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">
@@ -117,19 +115,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     <para>
         ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-        ///         LINQ operators:
+        ///         LINQ operators.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM Blogs").OrderBy(b => b.Name)</code>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
-        ///         you supply will automatically be converted to a <see cref="DbParameter" />:
+        ///         you supply will automatically be converted to a <see cref="DbParameter" />.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlInterpolated($"SELECT * FROM Blogs WHERE Name = {userSuppliedSearchTerm}")</code>
-        /// <para>
-        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///     for more information.
-        /// </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///         for examples and more information.
+        ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
         /// <param name="source">

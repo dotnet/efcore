@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         To avoid multiple instances being created use <see langword="static" /> lambdas:
+        ///         Use <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">static
+        ///         lambda expressions</see> to avoid creating multiple instances.
         ///     </para>
-        ///     <code>.HttpClientFactory(static () => new HttpClient())</code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.

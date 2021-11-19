@@ -2288,37 +2288,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     after this call.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for examples and more
+        ///     information.
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following query shows including a single level of related entities:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts)</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include(blog => blog.Posts).ThenInclude(post => post.Tags)
-        ///      </code>
-        ///     <para>
-        ///         The following query shows including multiple levels and branches of related data:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///     .Include(blog => blog.Contributors)
-        ///      </code>
-        ///     <para>
-        ///         The following query shows including a single level of related entities on a derived type using casting:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => ((SpecialBlog)blog).SpecialPosts)</code>
-        ///     <para>
-        ///         The following query shows including a single level of related entities on a derived type using 'as' operator:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => (blog as SpecialBlog).SpecialPosts)</code>
-        /// </example>
         /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
         /// <typeparam name="TProperty">The type of the related entity to be included.</typeparam>
         /// <param name="source">The source query.</param>
@@ -2385,39 +2357,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Specifies additional related data to be further included based on a related type that was just included.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for examples and more
+        ///     information.
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following query shows including a single level of related entities:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts)</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include(blog => blog.Posts).ThenInclude(post => post.Tags)
-        ///      </code>
-        ///     <para>
-        ///         The following query shows including multiple levels and branches of related data:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///     .Include(blog => blog.Contributors)
-        ///      </code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch, second one being on derived type using
-        ///         casting:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags)</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch, second one being on derived type using
-        ///         the <see langword="as" /> operator.
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags)</code>
-        /// </example>
         /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
         /// <typeparam name="TPreviousProperty">The type of the entity that was just included.</typeparam>
         /// <typeparam name="TProperty">The type of the related entity to be included.</typeparam>
@@ -2444,35 +2386,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Specifies additional related data to be further included based on a related type that was just included.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for examples and more
+        ///     information.
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following query shows including a single level of related entities:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts)</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => post.Tags)</code>
-        ///     <para>
-        ///         The following query shows including multiple levels and branches of related data:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
-        ///     .Include(blog => blog.Contributors)
-        ///      </code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch, second one being on derived type:
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => ((SpecialPost)post).SpecialTags)</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch, second one being on derived type using
-        ///         alternative method.
-        ///     </para>
-        ///     <code>context.Blogs.Include(blog => blog.Posts).ThenInclude(post => (post as SpecialPost).SpecialTags)</code>
-        /// </example>
         /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
         /// <typeparam name="TPreviousProperty">The type of the entity that was just included.</typeparam>
         /// <typeparam name="TProperty">The type of the related entity to be included.</typeparam>
@@ -2536,26 +2452,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     navigation properties to be included can be appended, separated by the '.' character.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for examples and more
+        ///     information.
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following query shows including a single level of related entities:
-        ///     </para>
-        ///     <code>context.Blogs.Include("Posts")</code>
-        ///     <para>
-        ///         The following query shows including two levels of entities on the same branch:
-        ///     </para>
-        ///     <code>context.Blogs.Include("Posts.Tags")</code>
-        ///     <para>
-        ///         The following query shows including multiple levels and branches of related data:
-        ///     </para>
-        ///     <code>
-        ///  context.Blogs
-        ///     .Include("Posts.Tags.TagInfo')
-        ///     .Include("Contributors")
-        ///      </code>
-        /// </example>
         /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
         /// <param name="source">The source query.</param>
         /// <param name="navigationPropertyPath">A string of '.' separated navigation property names to be included.</param>

@@ -35,15 +35,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information.
         ///     </para>
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following code performs a filter using the a LastUpdated shadow state property.
-        ///     </para>
-        ///     <code>
-        /// var blogs = context.Blogs
-        ///     .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5));
-        ///     </code>
-        /// </example>
         /// <typeparam name="TProperty">The type of the property being referenced.</typeparam>
         /// <param name="entity">The entity to access the property on.</param>
         /// <param name="propertyName">The name of the property.</param>
