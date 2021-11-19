@@ -57,32 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             /// <summary>
-            ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object.
-            /// </summary>
-            /// <param name="clrType">The .NET type used in the EF model.</param>
-            /// <param name="converter">Converts types to and from the store whenever this mapping is used.</param>
-            /// <param name="comparer">Supports custom value snapshotting and comparisons.</param>
-            /// <param name="keyComparer">Supports custom comparisons between keys--e.g. PK to FK comparison.</param>
-            /// <param name="structuralComparer">Supports structural snapshotting needed for mutable reference types.</param>
-            /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
-            [Obsolete(
-                "Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
-            public CoreTypeMappingParameters(
-                Type clrType,
-                ValueConverter? converter,
-                ValueComparer? comparer,
-                ValueComparer? keyComparer,
-                ValueComparer? structuralComparer,
-                Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
-            {
-                ClrType = clrType;
-                Converter = converter;
-                Comparer = comparer;
-                KeyComparer = keyComparer;
-                ValueGeneratorFactory = valueGeneratorFactory;
-            }
-
-            /// <summary>
             ///     The mapping CLR type.
             /// </summary>
             public Type ClrType { get; }
@@ -101,13 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ///     The mapping key comparer.
             /// </summary>
             public ValueComparer? KeyComparer { get; }
-
-            /// <summary>
-            ///     The mapping structural comparer.
-            /// </summary>
-            [Obsolete("Use KeyComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
-            public ValueComparer? StructuralComparer
-                => KeyComparer;
 
             /// <summary>
             ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
@@ -215,14 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ref _keyComparer,
                 this,
                 static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
-
-        /// <summary>
-        ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
-        ///     a deep/structural copy and/or comparison is needed.
-        /// </summary>
-        [Obsolete("Use KeyComparer. Key comparers must implement structural comparisons and deep copies.")]
-        public virtual ValueComparer StructuralComparer
-            => KeyComparer;
 
         /// <summary>
         ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />

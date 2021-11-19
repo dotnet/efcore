@@ -53,29 +53,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </remarks>
         [EntityFrameworkInternal]
         public RelationalDatabaseCreatorDependencies(
-            IModel model,
             IRelationalConnection connection,
             IMigrationsModelDiffer modelDiffer,
             IMigrationsSqlGenerator migrationsSqlGenerator,
             IMigrationCommandExecutor migrationCommandExecutor,
             ISqlGenerationHelper sqlGenerationHelper,
             IExecutionStrategy executionStrategy,
-            IExecutionStrategyFactory executionStrategyFactory,
             ICurrentDbContext currentContext,
             IRelationalCommandDiagnosticsLogger commandLogger)
         {
-#pragma warning disable CS0618 // Type or member is obsolete
-            Model = model;
-#pragma warning restore CS0618 // Type or member is obsolete
             Connection = connection;
             ModelDiffer = modelDiffer;
             MigrationsSqlGenerator = migrationsSqlGenerator;
             MigrationCommandExecutor = migrationCommandExecutor;
             SqlGenerationHelper = sqlGenerationHelper;
             ExecutionStrategy = executionStrategy;
-#pragma warning disable CS0618 // Type or member is obsolete
-            ExecutionStrategyFactory = executionStrategyFactory;
-#pragma warning restore CS0618 // Type or member is obsolete
             CurrentContext = currentContext;
             CommandLogger = commandLogger;
         }
@@ -89,12 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The Migrations SQL generator.
         /// </summary>
         public IMigrationsSqlGenerator MigrationsSqlGenerator { get; init; }
-
-        /// <summary>
-        ///     Gets the model for the context this creator is being used with.
-        /// </summary>
-        [Obsolete("Use CurrentContext.Context.GetService<IDesignTimeModel>().Model instead")]
-        public IModel Model { get; init; }
 
         /// <summary>
         ///     Gets the connection for the database.
@@ -115,12 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the execution strategy.
         /// </summary>
         public IExecutionStrategy ExecutionStrategy { get; }
-
-        /// <summary>
-        ///     Gets the execution strategy factory to be used.
-        /// </summary>
-        [Obsolete("Use ExecutionStrategy instead")]
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     Gets the command logger.

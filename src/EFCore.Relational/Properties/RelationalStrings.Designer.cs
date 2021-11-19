@@ -152,13 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
-        ///     The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.
-        /// </summary>
-        [Obsolete]
-        public static string DatabaseModelMissing
-            => GetString("DatabaseModelMissing");
-
-        /// <summary>
         ///     There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.
         /// </summary>
         public static string DataOperationNoProperty(object? table, object? column)
@@ -293,15 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DeleteDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
                 valuesCount, columnsCount, table);
-
-        /// <summary>
-        ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
-        /// </summary>
-        [Obsolete]
-        public static string DerivedTypeTable(object? entityType, object? baseType)
-            => string.Format(
-                GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
-                entityType, baseType);
 
         /// <summary>
         ///     Using 'Distinct' operation on a projection containing a collection is not supported.
@@ -2445,32 +2429,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Possible unintended use of a potentially throwing aggregate operator ('Min', 'Max', 'Average') in a subquery. Client evaluation will be used and the operator will throw if no data exists. Changing the subquery result type to a nullable type will allow the operator to be translated.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition LogQueryPossibleExceptionWithAggregateOperatorWarning(IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning,
-                    logger,
-                    static logger => new EventDefinition(
-                        logger.Options,
-                        RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
-                        LogLevel.Warning,
-                        "RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
-                            _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperatorWarning")!)));
-            }
-
-            return (EventDefinition)definition;
         }
 
         /// <summary>

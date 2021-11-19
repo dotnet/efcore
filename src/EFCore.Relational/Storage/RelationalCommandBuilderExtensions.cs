@@ -152,33 +152,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The name to be used for the parameter when the command is executed against the database.
         /// </param>
-        /// <param name="property">The property that the type for this parameter will come from.</param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use overload with relationalTypeMapping")]
-        public static IRelationalCommandBuilder AddParameter(
-            this IRelationalCommandBuilder commandBuilder,
-            string invariantName,
-            string name,
-            IProperty property)
-            => commandBuilder.AddParameter(
-                new TypeMappedRelationalParameter(
-                    invariantName,
-                    name,
-                    property.GetRelationalTypeMapping(),
-                    property.IsNullable));
-
-        /// <summary>
-        ///     Adds a parameter.
-        /// </summary>
-        /// <param name="commandBuilder">The command builder.</param>
-        /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
-        ///     placeholder for a parameter and not the actual value. This is because the same command can be
-        ///     reused multiple times with different parameter values.
-        /// </param>
-        /// <param name="name">
-        ///     The name to be used for the parameter when the command is executed against the database.
-        /// </param>
         /// <param name="relationalTypeMapping">The relational type mapping for this parameter.</param>
         /// <param name="nullable">A value indicating whether the parameter could contain a null value.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -240,35 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbParameter dbParameter)
             => commandBuilder.AddParameter(
                 new RawRelationalParameter(invariantName, dbParameter));
-
-        /// <summary>
-        ///     Adds a parameter.
-        /// </summary>
-        /// <param name="commandBuilder">The command builder.</param>
-        /// <param name="invariantName">
-        ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
-        ///     placeholder for a parameter and not the actual value. This is because the same command can be
-        ///     reused multiple times with different parameter values.
-        /// </param>
-        /// <param name="name">
-        ///     The name to be used for the parameter when the command is executed against the database.
-        /// </param>
-        /// <param name="property">
-        ///     The property that values for this parameter will come from.
-        /// </param>
-        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        [Obsolete("Use overload with relationalTypeMapping")]
-        public static IRelationalCommandBuilder AddPropertyParameter(
-            this IRelationalCommandBuilder commandBuilder,
-            string invariantName,
-            string name,
-            IProperty property)
-            => commandBuilder.AddParameter(
-                new TypeMappedPropertyRelationalParameter(
-                    invariantName,
-                    name,
-                    property.GetRelationalTypeMapping(),
-                    property));
 
         private sealed class Indenter : IDisposable
         {

@@ -636,16 +636,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MakeQueryId(Id.QueryPossibleUnintendedUseOfEqualsWarning);
 
         /// <summary>
-        ///     A query is using a possibly throwing aggregate operation in a sub-query.
-        /// </summary>
-        /// <remarks>
-        ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        /// </remarks>
-        [Obsolete]
-        public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
-            MakeQueryId(Id.Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning);
-
-        /// <summary>
         ///     A query is loading multiple related collections without configuring a <see cref="QuerySplittingBehavior" />.
         /// </summary>
         /// <remarks>

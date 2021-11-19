@@ -57,19 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual IProperty? Property { get; }
 
         /// <summary>
-        ///     The index of the underlying result set that should be used for this type,
-        ///     or -1 if no index mapping is needed.
-        /// </summary>
-        [Obsolete]
-        public virtual int Index { get; } = -1;
-
-        /// <summary>
-        ///     Whether or not the value is coming from a LEFT OUTER JOIN operation.
-        /// </summary>
-        [Obsolete]
-        public virtual bool? IsFromLeftOuterJoin { get; }
-
-        /// <summary>
         ///     Whether or not the value can be null.
         /// </summary>
         public virtual bool? IsNullable { get; }
@@ -84,10 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && ModelClrType == other.ModelClrType
                 && Equals(Mapping, other.Mapping)
                 && Equals(Property, other.Property)
-#pragma warning disable CS0612 // Type or member is obsolete
-                && Index == other.Index
-                && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin
-#pragma warning restore CS0612 // Type or member is obsolete
                 && IsNullable == other.IsNullable;
 
         /// <summary>
@@ -106,8 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
-#pragma warning disable CS0612 // Type or member is obsolete
-            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, Index, IsFromLeftOuterJoin, IsNullable);
-#pragma warning restore CS0612 // Type or member is obsolete
+            => HashCode.Combine(ProviderClrType, ModelClrType, Mapping, Property, IsNullable);
     }
 }

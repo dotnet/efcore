@@ -396,18 +396,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal("builder.TestFunc(true, 42)", result);
         }
 
-#pragma warning disable 618 // Method name constructors on MethodCallCodeFragment have been obsoleted
-        [ConditionalFact]
-        public void Fragment_MethodCallCodeFragment_works_without_MethodInfo()
-        {
-            var method = new MethodCallCodeFragment("TestFunc", true, 42);
-
-            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
-
-            Assert.Equal(".TestFunc(true, 42)", result);
-        }
-#pragma warning restore 618
-
         [ConditionalFact]
         public void Really_unknown_literal_with_no_mapping_support()
         {

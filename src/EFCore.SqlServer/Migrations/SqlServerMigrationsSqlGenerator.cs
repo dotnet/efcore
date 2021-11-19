@@ -2192,16 +2192,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 && model?.GetRelationalModel().FindTable(operation.Table, operation.Schema) is var table
                 && operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
-        /// <summary>
-        ///     Checks whether or not <see cref="CreateIndexOperation" /> should have a filter generated for it by
-        ///     Migrations.
-        /// </summary>
-        /// <param name="model">The target model.</param>
-        /// <returns><see langword="true" /> if a filter should be generated.</returns>
-        [Obsolete("Use UseLegacyIndexFilters which accepts a CreateIndexOperation")]
-        protected virtual bool UseLegacyIndexFilters(IModel? model)
-            => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0;
-
         private string IntegerConstant(long value)
             => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 

@@ -169,10 +169,6 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
-  <data name="DatabaseModelMissing" xml:space="preserve">
-    <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
-    <comment>Obsolete</comment>
-  </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>
   </data>
@@ -223,10 +219,6 @@
   </data>
   <data name="DeleteDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.</value>
-  </data>
-  <data name="DerivedTypeTable" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
-    <comment>Obsolete</comment>
   </data>
   <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
     <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
@@ -594,10 +586,6 @@
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
-  </data>
-  <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
-    <value>Possible unintended use of a potentially throwing aggregate operator ('Min', 'Max', 'Average') in a subquery. Client evaluation will be used and the operator will throw if no data exists. Changing the subquery result type to a nullable type will allow the operator to be translated.</value>
-    <comment>Obsolete Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
   </data>
   <data name="LogReleasedTransactionSavepoint" xml:space="preserve">
     <value>Released transaction savepoint.</value>

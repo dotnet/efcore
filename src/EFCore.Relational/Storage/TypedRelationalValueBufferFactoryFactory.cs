@@ -114,23 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Dependencies,
                     CreateArrayInitializer(k, Dependencies.CoreOptions.AreDetailedErrorsEnabled)));
 
-        /// <summary>
-        ///     Creates value buffer assignment expressions for the given type information.
-        /// </summary>
-        /// <param name="types">Types and mapping for the values to be read.</param>
-        /// <returns>The value buffer assignment expressions.</returns>
-        [Obsolete]
-        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
-            => types
-                .Select(
-                    (mi, i) =>
-                        CreateGetValueExpression(
-                            DataReaderParameter,
-                            i,
-                            mi,
-                            Dependencies.CoreOptions.AreDetailedErrorsEnabled,
-                            box: false)).ToArray();
-
         private static Func<DbDataReader, object[]> CreateArrayInitializer(CacheKey cacheKey, bool detailedErrorsEnabled)
             => Expression.Lambda<Func<DbDataReader, object[]>>(
                     Expression.NewArrayInit(
@@ -191,11 +174,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool box = true)
         {
             var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            index = materializationInfo.Index == -1 ? index : materializationInfo.Index;
-#pragma warning restore CS0612 // Type or member is obsolete
-
             var indexExpression = Expression.Constant(index);
 
             Expression valueExpression
@@ -257,11 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 valueExpression = Expression.Convert(valueExpression, typeof(object));
             }
 
-#pragma warning disable CS0612 // Type or member is obsolete
-            if (materializationInfo.IsNullable != false
-                || materializationInfo.IsFromLeftOuterJoin != false)
+            if (materializationInfo.IsNullable != false)
             {
-#pragma warning restore CS0612 // Type or member is obsolete
 
                 Expression replaceExpression;
                 if (converter?.ConvertsNulls == true)

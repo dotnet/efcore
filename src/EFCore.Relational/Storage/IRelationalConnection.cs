@@ -118,14 +118,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the current transaction.
         /// </summary>
         new IDbContextTransaction? CurrentTransaction { get; }
-
-        /// <summary>
-        ///     Gets a semaphore used to serialize access to this connection.
-        /// </summary>
-        /// <value>
-        ///     The semaphore.
-        /// </value>
-        [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
-        SemaphoreSlim Semaphore { get; }
     }
 }

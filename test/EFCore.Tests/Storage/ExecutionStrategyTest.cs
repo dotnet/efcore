@@ -265,35 +265,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public void Execute_Action_doesnt_retry_if_suspended()
-        {
-            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(() => f()));
-        }
-
-        [ConditionalFact]
-        public void Execute_Func_doesnt_retry_if_suspended()
-        {
-            Execute_doesnt_retry_if_suspended((e, f) => e.Execute(f));
-        }
-
-        private void Execute_doesnt_retry_if_suspended(Action<ExecutionStrategy, Func<int>> execute)
-        {
-            TestExecutionStrategy.Suspended = true;
-            var executionCount = 0;
-            Assert.Throws<DbUpdateException>(
-                () =>
-                    execute(
-                        CreateFailOnRetryStrategy(), () =>
-                        {
-                            executionCount++;
-                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                        }));
-            TestExecutionStrategy.Suspended = false;
-
-            Assert.Equal(1, executionCount);
-        }
-
-        [ConditionalFact]
         public void Execute_Action_retries_until_successful()
         {
             Execute_retries_until_successful((e, f) => e.Execute(() => f()));
@@ -593,36 +564,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public Task ExecuteAsync_Action_doesnt_retry_if_suspended()
-        {
-            return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(() => (Task)f(CancellationToken.None)));
-        }
-
-        [ConditionalFact]
-        public Task ExecuteAsync_Func_doesnt_retry_if_suspended()
-        {
-            return ExecuteAsync_doesnt_retry_if_suspended((e, f) => e.ExecuteAsync(f, CancellationToken.None));
-        }
-
-        private async Task ExecuteAsync_doesnt_retry_if_suspended(
-            Func<ExecutionStrategy, Func<CancellationToken, Task<int>>, Task> executeAsync)
-        {
-            TestExecutionStrategy.Suspended = true;
-            var executionCount = 0;
-            await Assert.ThrowsAsync<DbUpdateException>(
-                () =>
-                    executeAsync(
-                        CreateFailOnRetryStrategy(), ct =>
-                        {
-                            executionCount++;
-                            throw new DbUpdateException("", new ArgumentOutOfRangeException());
-                        }));
-            TestExecutionStrategy.Suspended = false;
-
-            Assert.Equal(1, executionCount);
-        }
-
-        [ConditionalFact]
         public Task ExecuteAsync_Action_retries_until_successful()
         {
             return ExecuteAsync_retries_until_successful((e, f) => e.ExecuteAsync(ct => (Task)f(ct), CancellationToken.None));
@@ -810,11 +751,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 ExceptionsEncountered.Add(lastException);
                 return base.GetNextDelay(lastException);
-            }
-
-            public static new bool Suspended
-            {
-                set => ExecutionStrategy.Current = value ? new TestExecutionStrategy() : null;
             }
         }
     }
