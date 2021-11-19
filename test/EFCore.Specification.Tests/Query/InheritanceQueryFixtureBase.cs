@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = expectedData.Animals.Where(a => a.CountryId == 1).ToList();
                 var animalQueries = expectedData.AnimalQueries.Where(a => a.CountryId == 1).ToList();
-                expectedData = new InheritanceData(animals, animalQueries, expectedData.Countries, expectedData.Drinks, expectedData.Plants);
+                expectedData = new InheritanceData(
+                    animals, animalQueries, expectedData.Countries, expectedData.Drinks, expectedData.Plants);
             }
 
             _expectedDataCache[EnableFilters] = expectedData;

@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
-        protected override string StoreName => "OwnedEntityQueryTests";
+        protected override string StoreName
+            => "OwnedEntityQueryTests";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -25,21 +26,21 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = contextFactory.CreateContext())
             {
-                var query = context.Entities.AsNoTracking().Select(e => new
-                {
-                    Id = e.Id,
-                    FirstChild = e.Children
-                    .Where(c => c.Type == 1)
-                    .AsQueryable()
-                    .Select(_project)
-                    .FirstOrDefault(),
-
-                    SecondChild = e.Children
-                    .Where(c => c.Type == 2)
-                    .AsQueryable()
-                    .Select(_project)
-                    .FirstOrDefault(),
-                });
+                var query = context.Entities.AsNoTracking().Select(
+                    e => new
+                    {
+                        e.Id,
+                        FirstChild = e.Children
+                            .Where(c => c.Type == 1)
+                            .AsQueryable()
+                            .Select(_project)
+                            .FirstOrDefault(),
+                        SecondChild = e.Children
+                            .Where(c => c.Type == 2)
+                            .AsQueryable()
+                            .Select(_project)
+                            .FirstOrDefault(),
+                    });
 
                 var result = async
                     ? await query.ToListAsync()
@@ -57,23 +58,26 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context20277 : DbContext
         {
             public Context20277(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
-            public DbSet<Entity20277> Entities => Set<Entity20277>();
+            public DbSet<Entity20277> Entities
+                => Set<Entity20277>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<Entity20277>(cfg =>
-                {
-                    cfg.OwnsMany(e => e.Children, inner =>
+                modelBuilder.Entity<Entity20277>(
+                    cfg =>
                     {
-                        inner.OwnsOne(e => e.Owned);
+                        cfg.OwnsMany(
+                            e => e.Children, inner =>
+                            {
+                                inner.OwnsOne(e => e.Owned);
+                            });
                     });
-                });
             }
         }
 
@@ -104,11 +108,12 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = contextFactory.CreateContext())
             {
-                var results = await context.Contacts.Select(contact => new ContactDto22089()
-                {
-                    Id = contact.Id,
-                    Names = contact.Names.Select(name => new NameDto22089() { }).ToArray()
-                }).ToListAsync();
+                var results = await context.Contacts.Select(
+                        contact => new ContactDto22089
+                            {
+                                Id = contact.Id, Names = contact.Names.Select(name => new NameDto22089()).ToArray()
+                            })
+                    .ToListAsync();
             }
         }
 
@@ -139,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class SomeDbContext22089 : DbContext
         {
             public SomeDbContext22089(DbContextOptions options)
-                      : base(options)
+                : base(options)
             {
             }
 
@@ -160,16 +165,13 @@ namespace Microsoft.EntityFrameworkCore
 
             using var context = contextFactory.CreateContext();
             var query = context.Set<Blog24133>()
-                .Select(b => new BlogDto24133
-                {
-                    Id = b.Id,
-                    TotalComments = b.Posts.Sum(p => p.CommentsCount),
-                    Posts = b.Posts.Select(p => new PostDto24133
+                .Select(
+                    b => new BlogDto24133
                     {
-                        Title = p.Title,
-                        CommentsCount = p.CommentsCount
-                    })
-                });
+                        Id = b.Id,
+                        TotalComments = b.Posts.Sum(p => p.CommentsCount),
+                        Posts = b.Posts.Select(p => new PostDto24133 { Title = p.Title, CommentsCount = p.CommentsCount })
+                    });
 
             var result = async
                 ? await query.ToListAsync()
@@ -184,16 +186,16 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog24133>(blog =>
-                {
-                    blog.OwnsMany(b => b.Posts, p =>
+                => modelBuilder.Entity<Blog24133>(
+                    blog =>
                     {
-                        p.WithOwner().HasForeignKey("BlogId");
-                        p.Property("BlogId").HasMaxLength(40);
+                        blog.OwnsMany(
+                            b => b.Posts, p =>
+                            {
+                                p.WithOwner().HasForeignKey("BlogId");
+                                p.Property("BlogId").HasMaxLength(40);
+                            });
                     });
-                });
-            }
         }
 
         protected class Blog24133
@@ -201,15 +203,12 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; private set; }
 
             private List<Post24133> _posts = new();
-            public static Blog24133 Create(IEnumerable<Post24133> posts)
-            {
-                return new Blog24133
-                {
-                    _posts = posts.ToList()
-                };
-            }
 
-            public IReadOnlyCollection<Post24133> Posts => new ReadOnlyCollection<Post24133>(_posts);
+            public static Blog24133 Create(IEnumerable<Post24133> posts)
+                => new() { _posts = posts.ToList() };
+
+            public IReadOnlyCollection<Post24133> Posts
+                => new ReadOnlyCollection<Post24133>(_posts);
         }
 
         protected class Post24133
@@ -238,11 +237,12 @@ namespace Microsoft.EntityFrameworkCore
             var contextFactory = await InitializeAsync<MyContext18582>(seed: c => c.Seed());
 
             using var context = contextFactory.CreateContext();
-            var query = context.Warehouses.Select(x => new WarehouseModel
-            {
-                WarehouseCode = x.WarehouseCode,
-                DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
-            }).AsNoTracking();
+            var query = context.Warehouses.Select(
+                x => new WarehouseModel
+                {
+                    WarehouseCode = x.WarehouseCode,
+                    DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+                }).AsNoTracking();
 
             var result = async
                 ? await query.ToListAsync()
@@ -264,27 +264,26 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Seed()
             {
-                Add(new Warehouse
-                {
-                    WarehouseCode = "W001",
-                    DestinationCountries =
+                Add(
+                    new Warehouse
                     {
-                        new WarehouseDestinationCountry { Id = "1", CountryCode = "US" },
-                        new WarehouseDestinationCountry { Id = "2", CountryCode = "CA" }
-                    }
-                });
+                        WarehouseCode = "W001",
+                        DestinationCountries =
+                        {
+                            new WarehouseDestinationCountry { Id = "1", CountryCode = "US" },
+                            new WarehouseDestinationCountry { Id = "2", CountryCode = "CA" }
+                        }
+                    });
 
                 SaveChanges();
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Warehouse>()
+                => modelBuilder.Entity<Warehouse>()
                     .OwnsMany(x => x.DestinationCountries)
                     .WithOwner()
                     .HasForeignKey(x => x.WarehouseCode)
                     .HasPrincipalKey(x => x.WarehouseCode);
-            }
         }
 
         protected class Warehouse
@@ -308,7 +307,9 @@ namespace Microsoft.EntityFrameworkCore
             public ICollection<string> DestinationCountryCodes { get; set; }
         }
 
-        protected virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take_helper(MyContext26592Base context, bool async)
+        protected virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take_helper(
+            MyContext26592Base context,
+            bool async)
         {
             var query = context.Companies.Where(e => e.CustomerData != null).OrderBy(e => e.Id).Take(10);
             var result = async
@@ -322,7 +323,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(
-            MyContext26592Base context, bool async)
+            MyContext26592Base context,
+            bool async)
         {
             var query = context.Owners.Where(e => e.OwnedEntity.CustomerData != null).OrderBy(e => e.Id).Take(10);
             var result = async
@@ -348,35 +350,25 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Seed()
             {
-                Add(new Company
-                {
-                    Name = "Acme Inc.",
-                    CustomerData = new CustomerData
+                Add(
+                    new Company
                     {
-                        AdditionalCustomerData = "Regular"
-                    },
-                    SupplierData = new SupplierData
-                    {
-                        AdditionalSupplierData = "Free shipping"
-                    }
-                });
+                        Name = "Acme Inc.",
+                        CustomerData = new CustomerData { AdditionalCustomerData = "Regular" },
+                        SupplierData = new SupplierData { AdditionalSupplierData = "Free shipping" }
+                    });
 
-                Add(new Owner
-                {
-                    Name = "Owner1",
-                    OwnedEntity = new IntermediateOwnedEntity
+                Add(
+                    new Owner
                     {
-                        Name = "Intermediate1",
-                        CustomerData = new CustomerData
+                        Name = "Owner1",
+                        OwnedEntity = new IntermediateOwnedEntity
                         {
-                            AdditionalCustomerData = "IM Regular"
-                        },
-                        SupplierData = new SupplierData
-                        {
-                            AdditionalSupplierData = "IM Free shipping"
+                            Name = "Intermediate1",
+                            CustomerData = new CustomerData { AdditionalCustomerData = "IM Regular" },
+                            SupplierData = new SupplierData { AdditionalSupplierData = "IM Free shipping" }
                         }
-                    }
-                });
+                    });
 
                 SaveChanges();
             }

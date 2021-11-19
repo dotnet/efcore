@@ -121,8 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_contains_on_argument_with_wildcard_column(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -136,13 +135,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.fn, a.fn);
                     Assert.Equal(e.ln, a.ln);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -150,7 +147,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) == true));
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -286,8 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_starts_with_on_argument_with_wildcard_column(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -301,13 +296,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.fn, a.fn);
                     Assert.Equal(e.ln, a.ln);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_starts_with_on_argument_with_wildcard_column_negated(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -315,7 +308,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.StartsWith(xx))) == true));
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -413,8 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_on_argument_with_wildcard_column(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -428,13 +419,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.fn, a.fn);
                     Assert.Equal(e.ln, a.ln);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_on_argument_with_wildcard_column_negated(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -442,13 +431,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true));
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_inside_conditional(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -462,13 +449,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.fn, a.fn);
                     Assert.Equal(e.ln, a.ln);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_inside_conditional_negated(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
@@ -479,13 +464,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.EndsWith(xx))) == true
                             ? true
                             : false));
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_equals_nullable_column(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
@@ -495,13 +478,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.c1, a.c1);
                     AssertEqual(e.c2, a.c2);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_ends_with_not_equals_nullable_column(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
@@ -511,13 +492,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.c1, a.c1);
                     AssertEqual(e.c2, a.c2);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_FirstOrDefault_and_LastOrDefault(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<FunkyCustomer>().OrderBy(e => e.Id).Select(
                     e => new { first = (char?)e.FirstName.FirstOrDefault(), last = (char?)e.FirstName.LastOrDefault() }),
@@ -532,7 +511,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.first, a.first);
                     AssertEqual(e.last, a.last);
                 });
-        }
 
         protected FunkyDataContext CreateContext()
             => Fixture.CreateContext();

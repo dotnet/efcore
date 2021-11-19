@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : QueryFilterFuncletizationFixtureBase, new()
     {
         protected QueryFilterFuncletizationTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

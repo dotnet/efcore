@@ -33,100 +33,76 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Include with cycles are not allowed in no tracking query.
         public override async Task Include_multi_level_reference_and_collection_predicate(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multi_level_reference_and_collection_predicate(async))).Message);
-        }
 
         public override async Task Include_multi_level_reference_then_include_collection_predicate(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multi_level_reference_then_include_collection_predicate(async))).Message);
-        }
 
         public override async Task Include_multiple_references_and_collection_multi_level(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multiple_references_and_collection_multi_level(async))).Message);
-        }
 
         public override async Task Include_multiple_references_and_collection_multi_level_reverse(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multiple_references_and_collection_multi_level_reverse(async))).Message);
-        }
 
         public override async Task Include_multiple_references_then_include_collection_multi_level(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multiple_references_then_include_collection_multi_level(async))).Message);
-        }
 
         public override async Task Include_multiple_references_then_include_collection_multi_level_reverse(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_multiple_references_then_include_collection_multi_level_reverse(async))).Message);
-        }
 
         public override async Task Include_reference_and_collection_order_by(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_reference_and_collection_order_by(async))).Message);
-        }
 
         public override async Task Include_references_and_collection_multi_level(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_references_and_collection_multi_level(async))).Message);
-        }
 
         public override async Task Include_references_and_collection_multi_level_predicate(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_references_and_collection_multi_level_predicate(async))).Message);
-        }
 
         public override async Task Include_references_then_include_collection(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_references_then_include_collection(async))).Message);
-        }
 
         public override async Task Include_references_then_include_collection_multi_level(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_references_then_include_collection_multi_level(async))).Message);
-        }
 
         public override async Task Include_references_then_include_collection_multi_level_predicate(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle("Customer", "Orders"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_references_then_include_collection_multi_level_predicate(async))).Message);
-        }
 
         public override async Task Include_closes_reader(bool async)
         {

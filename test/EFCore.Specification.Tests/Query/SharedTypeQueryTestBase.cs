@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
-        protected override string StoreName => "SharedTypeQueryTests";
+        protected override string StoreName
+            => "SharedTypeQueryTests";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -39,17 +40,15 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Seed()
             {
-                Set<Dictionary<string, object>>("STET").Add(new Dictionary<string, object>
-                {
-                    ["Value"] = "Maumar"
-                });
+                Set<Dictionary<string, object>>("STET").Add(new Dictionary<string, object> { ["Value"] = "Maumar" });
 
                 SaveChanges();
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("STET",
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
+                    "STET",
                     b =>
                     {
                         b.IndexerProperty<int>("Id");

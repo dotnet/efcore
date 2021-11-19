@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
-        protected override string StoreName => "SimpleQueryTests";
+        protected override string StoreName
+            => "SimpleQueryTests";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -29,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, staff.ManagerId);
 
             var query = context.Appraisals
-                    .Include(ap => ap.Staff).ThenInclude(s => s.Manager)
-                    .Include(ap => ap.Staff).ThenInclude(s => s.SecondaryManager)
-                    .Where(ap => ap.Id == id);
+                .Include(ap => ap.Staff).ThenInclude(s => s.Manager)
+                .Include(ap => ap.Staff).ThenInclude(s => s.SecondaryManager)
+                .Where(ap => ap.Id == id);
 
             var appraisal = async
                 ? await query.SingleOrDefaultAsync()
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context24368 : DbContext
         {
             public Context24368(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
@@ -76,18 +77,40 @@ namespace Microsoft.EntityFrameworkCore
                     .OnDelete(DeleteBehavior.NoAction);
 
                 modelBuilder.Entity<Staff>().HasData(
-                    new Staff { Id = 1, Email = "mgr1@company.com", Logon = "mgr1", Name = "Manager 1" },
-                    new Staff { Id = 2, Email = "mgr2@company.com", Logon = "mgr2", Name = "Manager 2", ManagerId = 1 },
-                    new Staff { Id = 3, Email = "emp@company.com", Logon = "emp", Name = "Employee", ManagerId = 1, SecondaryManagerId = 2 }
+                    new Staff
+                    {
+                        Id = 1,
+                        Email = "mgr1@company.com",
+                        Logon = "mgr1",
+                        Name = "Manager 1"
+                    },
+                    new Staff
+                    {
+                        Id = 2,
+                        Email = "mgr2@company.com",
+                        Logon = "mgr2",
+                        Name = "Manager 2",
+                        ManagerId = 1
+                    },
+                    new Staff
+                    {
+                        Id = 3,
+                        Email = "emp@company.com",
+                        Logon = "emp",
+                        Name = "Employee",
+                        ManagerId = 1,
+                        SecondaryManagerId = 2
+                    }
                 );
 
-                modelBuilder.Entity<Appraisal>().HasData(new Appraisal()
-                {
-                    Id = 1,
-                    PeriodStart = new DateTimeOffset(new DateTime(2020, 1, 1).ToUniversalTime()),
-                    PeriodEnd = new DateTimeOffset(new DateTime(2020, 12, 31).ToUniversalTime()),
-                    StaffId = 3
-                });
+                modelBuilder.Entity<Appraisal>().HasData(
+                    new Appraisal
+                    {
+                        Id = 1,
+                        PeriodStart = new DateTimeOffset(new DateTime(2020, 1, 1).ToUniversalTime()),
+                        PeriodEnd = new DateTimeOffset(new DateTime(2020, 12, 31).ToUniversalTime()),
+                        StaffId = 3
+                    });
             }
         }
 
@@ -108,10 +131,13 @@ namespace Microsoft.EntityFrameworkCore
         protected class Staff
         {
             public int Id { get; set; }
+
             [MaxLength(100)]
             public string Logon { get; set; }
+
             [MaxLength(150)]
             public string Email { get; set; }
+
             [MaxLength(100)]
             public string Name { get; set; }
 
@@ -159,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var contextFactory = await InitializeAsync<Context21770>();
             using var context = contextFactory.CreateContext();
-            Expression<Func<Food, byte?>> memberAccess = (Food i) => i.Taste;
+            Expression<Func<Food, byte?>> memberAccess = i => i.Taste;
             var predicate = Expression.Lambda<Func<Food, bool>>(
                 Expression.Equal(
                     Expression.Convert(memberAccess.Body, typeof(int?)),
@@ -182,10 +208,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = contextFactory.CreateContext();
 
             var query = from f in context.Food
-                        select new
-                        {
-                            Bar = f.Taste != null ? (Taste)f.Taste : (Taste?)null
-                        };
+                        select new { Bar = f.Taste != null ? (Taste)f.Taste : (Taste?)null };
 
             var bitterFood = async
                 ? await query.ToListAsync()
@@ -195,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context21770 : DbContext
         {
             public Context21770(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
@@ -205,13 +228,28 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<IceCream>(
-                   entity =>
-                   {
-                       entity.HasData(
-                           new IceCream { IceCreamId = 1, Name = "Vanilla", Taste = (byte)Taste.Sweet },
-                           new IceCream { IceCreamId = 2, Name = "Chocolate", Taste = (byte)Taste.Sweet },
-                           new IceCream { IceCreamId = 3, Name = "Match", Taste = (byte)Taste.Bitter });
-                   });
+                    entity =>
+                    {
+                        entity.HasData(
+                            new IceCream
+                            {
+                                IceCreamId = 1,
+                                Name = "Vanilla",
+                                Taste = (byte)Taste.Sweet
+                            },
+                            new IceCream
+                            {
+                                IceCreamId = 2,
+                                Name = "Chocolate",
+                                Taste = (byte)Taste.Sweet
+                            },
+                            new IceCream
+                            {
+                                IceCreamId = 3,
+                                Name = "Match",
+                                Taste = (byte)Taste.Bitter
+                            });
+                    });
 
                 modelBuilder.Entity<Food>(
                     entity =>
@@ -259,36 +297,22 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context24657 : DbContext
         {
             public Context24657(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             public DbSet<Author> Authors { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>()
+                => modelBuilder.Entity<Blog>()
                     .HasDiscriminator<bool>(nameof(Blog.IsPhotoBlog))
                     .HasValue<DevBlog>(false)
                     .HasValue<PhotoBlog>(true);
-            }
 
             public void Seed()
             {
-                Add(new Author
-                {
-                    Blog = new DevBlog
-                    {
-                        Title = "Dev Blog",
-                    }
-                });
-                Add(new Author
-                {
-                    Blog = new PhotoBlog
-                    {
-                        Title = "Photo Blog",
-                    }
-                });
+                Add(new Author { Blog = new DevBlog { Title = "Dev Blog", } });
+                Add(new Author { Blog = new PhotoBlog { Title = "Photo Blog", } });
 
                 SaveChanges();
             }
@@ -333,10 +357,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = contextFactory.CreateContext();
 
             var query = context.Authors
-                    .Select(a => new
-                    {
-                        BooksCount = a.Books.Count
-                    });
+                .Select(a => new { BooksCount = a.Books.Count });
 
             var authors = async
                 ? await query.ToListAsync()
@@ -357,16 +378,16 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Seed()
             {
-
-                base.Add(new Author26433
+                base.Add(
+                    new Author26433
                     {
                         FirstName = "William",
                         LastName = "Shakespeare",
                         Books = new List<Book26433>
                         {
-                            new() {Title = "Hamlet"},
-                            new() {Title = "Othello"},
-                            new() {Title = "MacBeth"}
+                            new() { Title = "Hamlet" },
+                            new() { Title = "Othello" },
+                            new() { Title = "MacBeth" }
                         }
                     });
 
@@ -378,6 +399,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [Key]
             public int AuthorId { get; set; }
+
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public IReadOnlyCollection<Book26433> Books { get; set; }
@@ -387,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [Key]
             public int BookId { get; set; }
+
             public string Title { get; set; }
             public int AuthorId { get; set; }
             public Author26433 Author { get; set; }
@@ -418,8 +441,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public DbSet<Supplier> Suppliers => Set<Supplier>();
-            public DbSet<Location> Locations => Set<Location>();
+            public DbSet<Supplier> Suppliers
+                => Set<Supplier>();
+
+            public DbSet<Location> Locations
+                => Set<Location>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -432,16 +458,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public void Seed()
             {
-                var activeAddress = new Location
-                {
-                    Address = "Active address",
-                    IsDeleted = false
-                };
-                var deletedAddress = new Location
-                {
-                    Address = "Deleted address",
-                    IsDeleted = true
-                };
+                var activeAddress = new Location { Address = "Active address", IsDeleted = false };
+                var deletedAddress = new Location { Address = "Deleted address", IsDeleted = true };
 
                 var activeSupplier1 = new Supplier
                 {
@@ -455,16 +473,8 @@ namespace Microsoft.EntityFrameworkCore
                     IsDeleted = false,
                     Location = deletedAddress
                 };
-                var activeSupplier3 = new Supplier
-                {
-                    Name = "Active supplier 3",
-                    IsDeleted = false
-                };
-                var deletedSupplier = new Supplier
-                {
-                    Name = "Deleted supplier",
-                    IsDeleted = false
-                };
+                var activeSupplier3 = new Supplier { Name = "Active supplier 3", IsDeleted = false };
+                var deletedSupplier = new Supplier { Name = "Deleted supplier", IsDeleted = false };
 
                 AddRange(activeAddress, deletedAddress);
                 AddRange(activeSupplier1, activeSupplier2, activeSupplier3, deletedSupplier);
@@ -508,10 +518,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Select(m => m.User);
 
             var query = context.Users
-                .Select(u => new
-                {
-                    HasAccess = hasMembership.Contains(u)
-                });
+                .Select(u => new { HasAccess = hasMembership.Contains(u) });
 
             var users = async
                 ? await query.ToListAsync()
@@ -536,10 +543,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Select(m => m.User);
 
             var query = context.Users
-                .Select(u => new
-                {
-                    HasAccess = hasMembership.Contains(u)
-                });
+                .Select(u => new { HasAccess = hasMembership.Contains(u) });
 
             var users = async
                 ? await query.ToListAsync()
@@ -564,10 +568,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Select(m => m.User);
 
             var query = context.Users
-                .Select(u => new
-                {
-                    HasAccess = hasMembership.Any(e => e == u)
-                });
+                .Select(u => new { HasAccess = hasMembership.Any(e => e == u) });
 
             var users = async
                 ? await query.ToListAsync()
@@ -630,18 +631,17 @@ namespace Microsoft.EntityFrameworkCore
 
             var orderItems = context.OrderItems.Where(o => o.OrderId == orderId);
             var items = orderItems
-                .GroupBy(o => o.OrderId, (o, g) => new
-                {
-                    Key = o,
-                    IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
-                })
+                .GroupBy(
+                    o => o.OrderId,
+                    (o, g) => new
+                    {
+                        Key = o, IsPending = g.Max(y => y.ShippingDate == null && y.CancellationDate == null ? o : (o - 10000000))
+                    })
                 .OrderBy(e => e.Key);
-
 
             var query = orderItems
                 .Join(items, x => x.OrderId, x => x.Key, (x, y) => x)
                 .OrderBy(x => x.OrderId);
-
 
             var users = async
                 ? await query.ToListAsync()

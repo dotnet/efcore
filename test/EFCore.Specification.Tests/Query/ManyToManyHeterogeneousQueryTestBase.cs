@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,9 +12,11 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
-        protected override string StoreName => "ManyToManyHeterogeneousQueryTests";
+        protected override string StoreName
+            => "ManyToManyHeterogeneousQueryTests";
 
-        protected virtual void ClearLog() => ListLoggerFactory.Clear();
+        protected virtual void ClearLog()
+            => ListLoggerFactory.Clear();
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -85,20 +85,18 @@ namespace Microsoft.EntityFrameworkCore
         protected class Context20277 : DbContext
         {
             public Context20277(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<ManyM_DB>()
+                => modelBuilder.Entity<ManyM_DB>()
                     .HasMany(e => e.ManyN_DB)
                     .WithMany(e => e.ManyM_DB)
                     .UsingEntity<ManyMN_DB>(
                         r => r.HasOne(e => e.ManyN_DB).WithMany(e => e.ManyNM_DB).HasForeignKey(e => e.ManyN_Id),
                         l => l.HasOne(e => e.ManyM_DB).WithMany(e => e.ManyNM_DB).HasForeignKey(e => e.ManyM_Id),
                         b => b.HasKey(e => e.Id));
-            }
         }
 
         public class ManyM_DB
