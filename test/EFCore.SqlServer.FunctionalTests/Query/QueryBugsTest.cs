@@ -9101,7 +9101,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
         #region Issue22841
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Flaky, #26763")]
         public async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true_22841()
         {
             var contextFactory = await InitializeAsync<MyContext22841>();
