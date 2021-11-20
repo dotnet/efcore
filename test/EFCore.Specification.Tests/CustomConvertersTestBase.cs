@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Contains(
-                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             var sameRole = Roles.Seller;
             Assert.Contains(
-                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
