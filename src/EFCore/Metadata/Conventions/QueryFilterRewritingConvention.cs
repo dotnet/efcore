@@ -1,178 +1,171 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     Convention that converts accesses of <see cref="DbSet{TEntity}" /> inside query filters into <see cref="QueryRootExpression" />.
+///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
+///     query pipeline.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
+/// </remarks>
+public class QueryFilterRewritingConvention : IModelFinalizingConvention
 {
     /// <summary>
-    ///     Convention that converts accesses of <see cref="DbSet{TEntity}" /> inside query filters into <see cref="QueryRootExpression" />.
-    ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
-    ///     query pipeline.
+    ///     Creates a new instance of <see cref="QueryFilterRewritingConvention" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
-    /// </remarks>
-    public class QueryFilterRewritingConvention : IModelFinalizingConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="QueryFilterRewritingConvention" />.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-        public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
+        Dependencies = dependencies;
+        DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
+    }
+
+    /// <summary>
+    ///     Dependencies for this service.
+    /// </summary>
+    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="QueryRootExpression" />.
+    /// </summary>
+    protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; set; }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            Dependencies = dependencies;
-            DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
+            var queryFilter = entityType.GetQueryFilter();
+            if (queryFilter != null)
+            {
+                entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="QueryRootExpression" />.
+    /// </summary>
+    protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
+    {
+        private readonly Type _contextType;
+        private IReadOnlyModel? _model;
+
+        /// <summary>
+        ///     Creates a new instance of <see cref="DbSetAccessRewritingExpressionVisitor" />.
+        /// </summary>
+        /// <param name="contextType">The clr type of derived DbContext.</param>
+        public DbSetAccessRewritingExpressionVisitor(Type contextType)
+        {
+            _contextType = contextType;
         }
 
         /// <summary>
-        ///     Dependencies for this service.
+        ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression" />.
         /// </summary>
-        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+        /// <param name="model">The model to look for entity types.</param>
+        /// <param name="expression">The query expression to rewrite.</param>
+        public Expression Rewrite(IReadOnlyModel model, Expression expression)
+        {
+            _model = model;
 
-        /// <summary>
-        ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="QueryRootExpression" />.
-        /// </summary>
-        protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; set; }
+            return Visit(expression);
+        }
 
         /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder,
-            IConventionContext<IConventionModelBuilder> context)
+        protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
+            if (memberExpression.Expression != null
+                && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
+                    || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
+                && memberExpression.Type.IsGenericType
+                && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                && _model != null)
             {
-                var queryFilter = entityType.GetQueryFilter();
-                if (queryFilter != null)
-                {
-                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
-                }
+                var entityClrType = memberExpression.Type.GetGenericArguments()[0];
+                return new QueryRootExpression(FindEntityType(entityClrType)!);
             }
+
+            return base.VisitMember(memberExpression);
         }
 
-        /// <summary>
-        ///     A visitor that rewrites DbSet accesses encountered in an expression to <see cref="QueryRootExpression" />.
-        /// </summary>
-        protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
+        /// <inheritdoc />
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            private readonly Type _contextType;
-            private IReadOnlyModel? _model;
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            /// <summary>
-            ///     Creates a new instance of <see cref="DbSetAccessRewritingExpressionVisitor" />.
-            /// </summary>
-            /// <param name="contextType">The clr type of derived DbContext.</param>
-            public DbSetAccessRewritingExpressionVisitor(Type contextType)
+            if (methodCallExpression.Method.Name == nameof(DbContext.Set)
+                && methodCallExpression.Object != null
+                && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
+                && methodCallExpression.Type.IsGenericType
+                && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
+                && _model != null)
             {
-                _contextType = contextType;
-            }
-
-            /// <summary>
-            ///     Rewrites DbSet accesses encountered in the expression to <see cref="QueryRootExpression" />.
-            /// </summary>
-            /// <param name="model">The model to look for entity types.</param>
-            /// <param name="expression">The query expression to rewrite.</param>
-            public Expression Rewrite(IReadOnlyModel model, Expression expression)
-            {
-                _model = model;
-
-                return Visit(expression);
-            }
-
-            /// <inheritdoc />
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                Check.NotNull(memberExpression, nameof(memberExpression));
-
-                if (memberExpression.Expression != null
-                    && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
-                        || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
-                    && memberExpression.Type.IsGenericType
-                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-                    && _model != null)
+                IEntityType? entityType;
+                var entityClrType = methodCallExpression.Type.GetGenericArguments()[0];
+                if (methodCallExpression.Arguments.Count == 1)
                 {
-                    var entityClrType = memberExpression.Type.GetGenericArguments()[0];
-                    return new QueryRootExpression(FindEntityType(entityClrType)!);
+                    // STET Set method
+                    var entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
+                    entityType = (IEntityType?)_model.FindEntityType(entityTypeName);
+                }
+                else
+                {
+                    entityType = FindEntityType(entityClrType);
                 }
 
-                return base.VisitMember(memberExpression);
-            }
-
-            /// <inheritdoc />
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-                if (methodCallExpression.Method.Name == nameof(DbContext.Set)
-                    && methodCallExpression.Object != null
-                    && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
-                    && methodCallExpression.Type.IsGenericType
-                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-                    && _model != null)
+                if (entityType == null)
                 {
-                    IEntityType? entityType;
-                    var entityClrType = methodCallExpression.Type.GetGenericArguments()[0];
-                    if (methodCallExpression.Arguments.Count == 1)
+                    if (_model.IsShared(entityClrType))
                     {
-                        // STET Set method
-                        var entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
-                        entityType = (IEntityType?)_model.FindEntityType(entityTypeName);
-                    }
-                    else
-                    {
-                        entityType = FindEntityType(entityClrType);
+                        throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
                     }
 
-                    if (entityType == null)
+                    var findSameTypeName = ((IModel)_model).FindSameTypeNameWithDifferentNamespace(entityClrType);
+                    //if the same name exists in your entity types we will show you the full namespace of the type
+                    if (!string.IsNullOrEmpty(findSameTypeName))
                     {
-                        if (_model.IsShared(entityClrType))
-                        {
-                            throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
-                        }
-
-                        var findSameTypeName = ((IModel)_model).FindSameTypeNameWithDifferentNamespace(entityClrType);
-                        //if the same name exists in your entity types we will show you the full namespace of the type
-                        if (!string.IsNullOrEmpty(findSameTypeName))
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
-                        }
-
-                        throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
                     }
 
-                    if (entityType.IsOwned())
-                    {
-                        var message = CoreStrings.InvalidSetTypeOwned(
-                            entityType.DisplayName(), entityType.FindOwnership()!.PrincipalEntityType.DisplayName());
-
-                        throw new InvalidOperationException(message);
-                    }
-
-                    if (entityType.ClrType != entityClrType)
-                    {
-                        var message = CoreStrings.DbSetIncorrectGenericType(
-                            entityType.ShortName(), entityType.ClrType.ShortDisplayName(), entityClrType.ShortDisplayName());
-
-                        throw new InvalidOperationException(message);
-                    }
-
-                    return new QueryRootExpression(entityType);
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
                 }
 
-                return base.VisitMethodCall(methodCallExpression);
+                if (entityType.IsOwned())
+                {
+                    var message = CoreStrings.InvalidSetTypeOwned(
+                        entityType.DisplayName(), entityType.FindOwnership()!.PrincipalEntityType.DisplayName());
+
+                    throw new InvalidOperationException(message);
+                }
+
+                if (entityType.ClrType != entityClrType)
+                {
+                    var message = CoreStrings.DbSetIncorrectGenericType(
+                        entityType.ShortName(), entityType.ClrType.ShortDisplayName(), entityClrType.ShortDisplayName());
+
+                    throw new InvalidOperationException(message);
+                }
+
+                return new QueryRootExpression(entityType);
             }
 
-            private IEntityType? FindEntityType(Type entityClrType)
-                => ((IModel)_model!).FindRuntimeEntityType(entityClrType);
+            return base.VisitMethodCall(methodCallExpression);
         }
+
+        private IEntityType? FindEntityType(Type entityClrType)
+            => ((IModel)_model!).FindRuntimeEntityType(entityClrType);
     }
 }

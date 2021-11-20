@@ -3,33 +3,32 @@
 
 using System.Collections;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+/// <summary>
+///     <para>
+///         Interface that can be implemented by a database provider's <see cref="IEnumerable" /> implementation to
+///         provide the query string for debugging purposes.
+///     </para>
+///     <para>
+///         This interface is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
+/// </remarks>
+public interface IQueryingEnumerable
 {
     /// <summary>
     ///     <para>
-    ///         Interface that can be implemented by a database provider's <see cref="IEnumerable" /> implementation to
-    ///         provide the query string for debugging purposes.
+    ///         A string representation of the query used.
     ///     </para>
     ///     <para>
-    ///         This interface is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
+    ///         Warning: this string may not be suitable for direct execution is intended only for use in debugging.
     ///     </para>
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
-    /// </remarks>
-    public interface IQueryingEnumerable
-    {
-        /// <summary>
-        ///     <para>
-        ///         A string representation of the query used.
-        ///     </para>
-        ///     <para>
-        ///         Warning: this string may not be suitable for direct execution is intended only for use in debugging.
-        ///     </para>
-        /// </summary>
-        /// <returns>The query string.</returns>
-        string ToQueryString();
-    }
+    /// <returns>The query string.</returns>
+    string ToQueryString();
 }
