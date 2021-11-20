@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
     {
         protected IncludeOneToOneTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         public TFixture Fixture { get; }
 

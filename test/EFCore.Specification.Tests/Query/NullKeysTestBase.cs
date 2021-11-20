@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : NullKeysTestBase<TFixture>.NullKeysFixtureBase, new()
     {
         protected NullKeysTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected virtual TFixture Fixture { get; }
 

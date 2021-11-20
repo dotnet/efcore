@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [CallerMemberName] string testMethodName = null)
             where TResult : class
             => QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName, filteredQuery: true);
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName,
+                filteredQuery: true);
 
         public Task AssertFilteredQueryScalar<TResult>(
             bool async,

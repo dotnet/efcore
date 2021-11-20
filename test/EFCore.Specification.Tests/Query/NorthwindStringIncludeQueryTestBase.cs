@@ -34,37 +34,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_non_existing_navigation(bool async)
-        {
-            Assert.Contains(
+            => Assert.Contains(
                 CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                     .GenerateMessage("ArcticMonkeys", "ArcticMonkeys"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include("ArcticMonkeys")))).Message);
-        }
 
         public override async Task Include_property(bool async)
-        {
-            Assert.Contains(
+            => Assert.Contains(
                 CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                     .GenerateMessage("OrderDate", "OrderDate"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include(o => o.OrderDate)))).Message);
-        }
 
         public override async Task Include_property_after_navigation(bool async)
-        {
-            Assert.Contains(
+            => Assert.Contains(
                 CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
                     .GenerateMessage("CustomerID", "Customer.CustomerID"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
-        }
 
         // Property expression cannot be converted to string include
         public override Task Include_property_expression_invalid(bool async)
@@ -152,14 +146,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Task.CompletedTask;
 
         public override async Task Include_specified_on_non_entity_not_supported(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeOnNonEntity("\"Item1.Orders\""),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
                         ss => ss.Set<Customer>().Select(c => new Tuple<Customer, int>(c, 5)).Include(t => t.Item1.Orders)))).Message);
-        }
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
         {

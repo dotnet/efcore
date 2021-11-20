@@ -45,17 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task WithConversion(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<GeoPointEntity>());
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Area(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Area = e.Polygon == null ? (double?)null : e.Polygon.Area }),
                 elementSorter: x => x.Id,
@@ -72,13 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Area, a.Area);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsBinary(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point.AsBinary() }),
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.AsBinary() }),
@@ -88,13 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Binary, a.Binary);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsBinary_with_null_check(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.AsBinary() }),
                 elementSorter: x => x.Id,
@@ -103,13 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Binary, a.Binary);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsText(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point.AsText() }),
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null : e.Point.AsText() }),
@@ -119,13 +110,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Text, a.Text, WKTComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Boundary(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Boundary = e.Polygon == null ? null : e.Polygon.Boundary }),
                 elementSorter: x => x.Id,
@@ -134,13 +123,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Boundary, a.Boundary, GeometryComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Buffer(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon.Buffer(1.0) }),
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null : e.Polygon.Buffer(1.0) }),
@@ -159,13 +146,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Buffer_quadrantSegments(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon.Buffer(1.0, 8) }),
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Buffer = e.Polygon == null ? null : e.Polygon.Buffer(1.0, 8) }),
@@ -184,13 +169,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Buffer.Area, a.Buffer.Area, precision: 0);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Centroid(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Centroid = e.Polygon == null ? null : e.Polygon.Centroid }),
                 elementSorter: x => x.Id,
@@ -199,7 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Centroid, a.Centroid, GeometryComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -218,8 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ConvexHull(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon.ConvexHull() }),
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ConvexHull = e.Polygon == null ? null : e.Polygon.ConvexHull() }),
@@ -229,29 +210,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.ConvexHull, a.ConvexHull, GeometryComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IGeometryCollection_Count(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new { e.Id, Count = e.MultiLineString == null ? (int?)null : e.MultiLineString.Count }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LineString_Count(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(
                     e => new { e.Id, Count = e.LineString == null ? (int?)null : e.LineString.Count }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -322,12 +298,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Dimension(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Dimension = e.Point == null ? (Dimension?)null : e.Point.Dimension }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -439,8 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_constant(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(0, 1)) }),
                 ss => ss.Set<PointEntity>().Select(
@@ -459,13 +432,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Distance, a.Distance);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_constant_srid_4326(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>()
                     .Select(e => new { e.Id, Distance = (double?)e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
@@ -485,13 +456,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Distance, a.Distance);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_constant_lhs(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Distance = (double?)new Point(0, 1).Distance(e.Point) }),
                 ss => ss.Set<PointEntity>().Select(
@@ -510,7 +479,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Distance, a.Distance);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -543,8 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_on_converted_geometry_type_constant(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<GeoPointEntity>().Select(
                     e => new { e.Id, Distance = e.Location.Distance(new GeoPoint(1, 0)) }),
@@ -557,13 +524,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Distance, a.Distance);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Distance_on_converted_geometry_type_constant_lhs(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<GeoPointEntity>().Select(
                     e => new { e.Id, Distance = new GeoPoint(1, 0).Distance(e.Location) }),
@@ -576,23 +541,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Distance, a.Distance);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task EndPoint(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, EndPoint = e.LineString == null ? null : e.LineString.EndPoint }),
                 elementSorter: e => e.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Envelope(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Envelope = e.Polygon == null ? null : e.Polygon.Envelope }),
                 elementSorter: x => x.Id,
@@ -601,7 +562,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Envelope, a.Envelope, GeometryComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -620,41 +580,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ExteriorRing(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, ExteriorRing = e.Polygon == null ? null : e.Polygon.ExteriorRing }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GeometryType(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(
                     e => new { e.Id, GeometryType = e.Point == null ? null : e.Point.GeometryType }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetGeometryN(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = e.MultiLineString.GetGeometryN(0) }),
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new { e.Id, Geometry0 = e.MultiLineString == null ? null : e.MultiLineString.GetGeometryN(0) }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetGeometryN_with_null_argument(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new
@@ -664,13 +617,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }),
                 ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Geometry0 = default(Geometry) }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetInteriorRingN(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(
                     e => new
@@ -689,25 +640,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                             : e.Polygon.GetInteriorRingN(0)
                     }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GetPointN(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Point0 = e.LineString.GetPointN(0) }),
                 ss => ss.Set<LineStringEntity>()
                     .Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task InteriorPoint(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(
                     e => new
@@ -730,7 +677,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.True(a.Polygon.Contains(e.InteriorPoint));
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -770,69 +716,57 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ICurve_IsClosed(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(
                     e => new { e.Id, IsClosed = e.LineString == null ? (bool?)null : e.LineString.IsClosed }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IMultiCurve_IsClosed(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new { e.Id, IsClosed = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsClosed }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsEmpty(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new { e.Id, IsEmpty = e.MultiLineString == null ? (bool?)null : e.MultiLineString.IsEmpty }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsRing(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>()
                     .Select(e => new { e.Id, IsRing = e.LineString == null ? (bool?)null : e.LineString.IsRing }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsSimple(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(
                     e =>
                         new { e.Id, IsSimple = e.LineString == null ? (bool?)null : e.LineString.IsSimple }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task IsValid(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>()
                     .Select(e => new { e.Id, IsValid = e.Point == null ? (bool?)null : e.Point.IsValid }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -864,20 +798,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Item(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Item0 = e.MultiLineString[0] }),
                 ss => ss.Set<MultiLineStringEntity>()
                     .Select(e => new { e.Id, Item0 = e.MultiLineString == null ? null : e.MultiLineString[0] }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Length(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>()
                     .Select(e => new { e.Id, Length = e.LineString == null ? (double?)null : e.LineString.Length }),
@@ -895,13 +826,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Length, a.Length);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task M(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, M = e.Point == null ? (double?)null : e.Point.M }),
                 elementSorter: e => e.Id,
@@ -918,13 +847,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.M, a.M ?? double.NaN);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Normalized(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon.Normalized() }),
                 ss => ss.Set<PolygonEntity>().Select(e => new { e.Id, Normalized = e.Polygon == null ? null : e.Polygon.Normalized() }),
@@ -934,51 +861,42 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Normalized, a.Normalized, GeometryComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumGeometries(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(
                     e => new { e.Id, NumGeometries = e.MultiLineString == null ? (int?)null : e.MultiLineString.NumGeometries }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumInteriorRings(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(
                     e => new { e.Id, NumInteriorRings = e.Polygon == null ? (int?)null : e.Polygon.NumInteriorRings }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task NumPoints(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(
                     e => new { e.Id, NumPoints = e.LineString == null ? (int?)null : e.LineString.NumPoints }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OgcGeometryType(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(
                     e => new { e.Id, OgcGeometryType = e.Point == null ? (OgcGeometryType?)null : e.Point.OgcGeometryType }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -998,8 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task PointOnSurface(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PolygonEntity>().Select(
                     e => new
@@ -1022,7 +939,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.True(a.Polygon.Contains(e.PointOnSurface));
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1042,46 +958,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Reverse(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString.Reverse() }),
                 ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Reverse = e.LineString == null ? null : e.LineString.Reverse() }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SRID(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(
                     e => new { e.Id, SRID = e.Point == null ? (int?)null : e.Point.SRID }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SRID_geometry(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(
                     e => new { e.Id, SRID = e.Geometry == null ? (int?)null : e.Geometry.SRID }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task StartPoint(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<LineStringEntity>()
                     .Select(e => new { e.Id, StartPoint = e.LineString == null ? null : e.LineString.StartPoint }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1106,8 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ToBinary(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point.ToBinary() }),
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Binary = e.Point == null ? null : e.Point.ToBinary() }),
@@ -1117,13 +1024,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Binary, a.Binary);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task ToText(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point.ToText() }),
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Text = e.Point == null ? null : e.Point.ToText() }),
@@ -1133,7 +1038,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Id, a.Id);
                     Assert.Equal(e.Text, a.Text, WKTComparer.Instance);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1172,14 +1076,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_void(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<MultiLineStringEntity>().Select(e => new { e.Id, Union = e.MultiLineString.Union() }),
                 ss => ss.Set<MultiLineStringEntity>()
                     .Select(e => new { e.Id, Union = e.MultiLineString == null ? null : e.MultiLineString.Union() }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1201,28 +1103,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task X(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, X = e.Point == null ? (double?)null : e.Point.X }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Y(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Y = e.Point == null ? (double?)null : e.Point.Y }),
                 elementSorter: x => x.Id);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Z(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<PointEntity>().Select(e => new { e.Id, Z = e.Point == null ? (double?)null : e.Point.Z }),
                 elementSorter: e => e.Id,
@@ -1239,33 +1136,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Z, a.Z ?? double.NaN);
                     }
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task XY_with_collection_join(bool async)
-        {
-            return AssertFirstOrDefault(
+            => AssertFirstOrDefault(
                 async,
                 ss => ss.Set<PointEntity>()
                     .OrderBy(e => e.Id)
-                    .Select(e => new
-                    {
-                        e.Id,
-                        I = new
+                    .Select(
+                        e => new
                         {
-                            X = e.Point == null ? (double?)null : e.Point.X,
-                            Y = e.Point == null ? (double?)null : e.Point.Y
-                        },
-                        List = ss.Set<PointEntity>().Where(i => i.Id == e.Id).ToList()
-                    }),
+                            e.Id,
+                            I = new
+                            {
+                                X = e.Point == null ? (double?)null : e.Point.X, Y = e.Point == null ? (double?)null : e.Point.Y
+                            },
+                            List = ss.Set<PointEntity>().Where(i => i.Id == e.Id).ToList()
+                        }),
                 asserter: (e, a) =>
                 {
                     AssertEqual(e.Id, a.Id);
                     AssertEqual(e.I, a.I);
                     AssertCollection(e.List, a.List);
                 });
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1274,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<PointEntity>().Where(e => (bool?)e.Point.IsEmpty == null).Select(e => e.Id),
+                ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<PointEntity>().Where(e => e.Point == null).Select(e => e.Id));
         }
@@ -1286,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<PointEntity>().Where(e => (bool?)e.Point.IsEmpty != null).Select(e => e.Id),
+                ss => ss.Set<PointEntity>().Where(e => e.Point.IsEmpty != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<PointEntity>().Where(e => e.Point != null).Select(e => e.Id));
         }
@@ -1300,14 +1194,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<LineStringEntity>().Where(e => (bool?)e.LineString.Intersects(lineString) == null).Select(e => e.Id),
+                ss => ss.Set<LineStringEntity>().Where(e => e.LineString.Intersects(lineString) == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<LineStringEntity>().Where(e => e.LineString == null).Select(e => e.Id));
 
             await AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<LineStringEntity>().Where(e => (bool?)lineString.Intersects(e.LineString) == null).Select(e => e.Id),
+                ss => ss.Set<LineStringEntity>().Where(e => lineString.Intersects(e.LineString) == null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<LineStringEntity>().Where(e => e.LineString == null).Select(e => e.Id));
         }
@@ -1321,14 +1215,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<LineStringEntity>().Where(e => (bool?)e.LineString.Intersects(lineString) != null).Select(e => e.Id),
+                ss => ss.Set<LineStringEntity>().Where(e => e.LineString.Intersects(lineString) != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<LineStringEntity>().Where(e => e.LineString != null).Select(e => e.Id));
 
             await AssertQueryScalar(
                 async,
 #pragma warning disable CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
-                ss => ss.Set<LineStringEntity>().Where(e => (bool?)lineString.Intersects(e.LineString) != null).Select(e => e.Id),
+                ss => ss.Set<LineStringEntity>().Where(e => lineString.Intersects(e.LineString) != null).Select(e => e.Id),
 #pragma warning restore CS0472 // The result of the expression is always the same since a value of this type is never equal to 'null'
                 ss => ss.Set<LineStringEntity>().Where(e => e.LineString != null).Select(e => e.Id));
         }

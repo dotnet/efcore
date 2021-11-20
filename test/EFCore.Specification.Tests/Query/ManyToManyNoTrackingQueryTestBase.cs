@@ -46,18 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ApplyNoTracking(serverQueryExpression);
 
             static Expression ApplyNoTracking(Expression source)
-            {
-                return Expression.Call(
+                => Expression.Call(
                     _asNoTrackingMethodInfo.MakeGenericMethod(source.Type.TryGetSequenceType()),
                     source);
-            }
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_skip_navigation_then_include_inverse_throws_in_no_tracking(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.IncludeWithCycle(nameof(EntityThree.OneSkipPayloadFullShared), nameof(EntityOne.ThreeSkipPayloadFullShared)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
@@ -68,7 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e, a,
                             new ExpectedInclude<EntityThree>(et => et.OneSkipPayloadFullShared),
                             new ExpectedInclude<EntityOne>(et => et.ThreeSkipPayloadFullShared, "OneSkipPayloadFullShared"))))).Message);
-        }
 
         public override Task Include_skip_navigation_then_include_inverse_works_for_tracking_query(bool async)
             => Task.CompletedTask;
