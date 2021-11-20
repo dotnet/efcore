@@ -73,7 +73,10 @@ public class RelationshipDiscoveryConvention :
             var navigationPropertyInfo = candidateTuple.Key;
             var (targetClrType, shouldBeOwned) = candidateTuple.Value;
 
-            if (!IsCandidateNavigationProperty(entityTypeBuilder, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo))
+            if (entityType.FindNavigation(navigationPropertyInfo) == null
+                && entityType.FindSkipNavigation(navigationPropertyInfo) == null
+                && (!IsCandidateNavigationProperty(entityType, targetClrType, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo)
+                    || IsNewSharedType(targetClrType, entityType)))
             {
                 continue;
             }
@@ -189,8 +192,10 @@ public class RelationshipDiscoveryConvention :
                 {
                     var inversePropertyInfo = inverseCandidateTuple.Key;
                     if (navigationPropertyInfo.IsSameAs(inversePropertyInfo)
-                        || !IsCandidateNavigationProperty(
-                            candidateTargetEntityTypeBuilder, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo))
+                        || (candidateTargetEntityType.FindNavigation(inversePropertyInfo) == null
+                            && candidateTargetEntityType.FindSkipNavigation(inversePropertyInfo) == null
+                            && !IsCandidateNavigationProperty(
+                                candidateTargetEntityType, entityType.ClrType, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo)))
                     {
                         continue;
                     }
@@ -246,10 +251,18 @@ public class RelationshipDiscoveryConvention :
                 new RelationshipCandidate(
                     candidateTargetEntityTypeBuilder, navigations, inverseNavigationCandidates, shouldBeOwnership);
 
-            Continue: ;
+            Continue:;
         }
 
         return UpdateTargetEntityTypes(entityTypeBuilder, relationshipCandidates);
+
+        bool IsNewSharedType(Type targetClrType, IConventionEntityType entityType)
+            => (entityType.Model.IsShared(targetClrType)
+                || targetClrType.IsGenericType
+                    && targetClrType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                && ShouldBeOwned(targetClrType, entityType.Model) != true
+                && !entityType.Model.IsOwned(targetClrType)
+                && !entityType.IsInOwnershipPath(targetClrType);
     }
 
     private List<RelationshipCandidate> UpdateTargetEntityTypes(
@@ -821,9 +834,8 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.NavigationProperties.RemoveAll(
-                p =>
-                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.NavigationProperties.RemoveAll(p =>
+                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
 
         if (relationshipCandidate.InverseProperties.Count > 1
@@ -844,9 +856,8 @@ public class RelationshipDiscoveryConvention :
                 }
             }
 
-            relationshipCandidate.InverseProperties.RemoveAll(
-                p =>
-                    p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
+            relationshipCandidate.InverseProperties.RemoveAll(p =>
+                p.GetMemberType().IsAssignableFrom(mostDerivedType) && p.GetMemberType() != mostDerivedType);
         }
     }
 
@@ -1072,12 +1083,13 @@ public class RelationshipDiscoveryConvention :
         if ((targetEntityTypeBuilder.Metadata.IsInModel
                 || !sourceEntityTypeBuilder.ModelBuilder.IsIgnored(targetEntityTypeBuilder.Metadata.Name))
             && memberInfo != null
-            && IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, memberInfo)
+            && IsCandidateNavigationProperty(
+                sourceEntityTypeBuilder.Metadata, targetEntityTypeBuilder.Metadata.ClrType, navigationName, memberInfo)
             && Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
                 memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
             != null)
         {
-            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
+            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo!, context);
         }
     }
 
@@ -1100,16 +1112,17 @@ public class RelationshipDiscoveryConvention :
         }
     }
 
-    private static bool IsCandidateNavigationProperty(
-        IConventionEntityTypeBuilder? sourceEntityTypeBuilder,
-        string navigationName,
-        MemberInfo memberInfo)
-        => sourceEntityTypeBuilder?.IsIgnored(navigationName) == false
-            && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
-            && sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) == null
-            && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)
-            && (!sourceEntityTypeBuilder.Metadata.IsKeyless
-                || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
+        private bool IsCandidateNavigationProperty(
+            IConventionEntityType sourceEntityType,
+            Type targetClrType,
+            string navigationName,
+            MemberInfo memberInfo)
+            => sourceEntityType.Builder?.IsIgnored(navigationName) == false
+                && sourceEntityType.FindProperty(navigationName) == null
+                && sourceEntityType.FindServiceProperty(navigationName) == null
+                && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)
+                && (!sourceEntityType.IsKeyless
+                    || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeIgnored(
