@@ -320,7 +320,7 @@ WHERE [s].[ParentId] = @__p_0");
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE ([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentId] = @__p_1)");
+WHERE [c].[ParentAlternateId] = @__p_0 AND [c].[ParentId] = @__p_1");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
@@ -333,7 +333,7 @@ WHERE ([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentId] = @__p_1)");
 
 SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
+WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
@@ -346,7 +346,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
 
 SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
+WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
@@ -359,7 +359,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
 
 SELECT [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE ([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentId] = @__p_1)");
+WHERE [s].[ParentAlternateId] = @__p_0 AND [s].[ParentId] = @__p_1");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)

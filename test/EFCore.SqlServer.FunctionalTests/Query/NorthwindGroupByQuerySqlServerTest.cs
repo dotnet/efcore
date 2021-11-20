@@ -1295,7 +1295,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
     GROUP BY [o0].[CustomerID]
-    HAVING (COUNT(*) > 30) AND (([o0].[CustomerID] = [o].[CustomerID]) OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))");
+    HAVING COUNT(*) > 30 AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))");
         }
 
         public override async Task GroupBy_aggregate_Pushdown(bool async)
@@ -1684,7 +1684,7 @@ ORDER BY [o].[OrderID], [t].[ProductID]");
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING ([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        HAVING [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1767,7 +1767,7 @@ GROUP BY [o].[CustomerID]");
 
             AssertSql(
                 @"SELECT COUNT(CASE
-    WHEN (([o].[OrderID] < 10300) AND [o].[OrderDate] IS NOT NULL) AND (DATEPART(year, [o].[OrderDate]) = 1997) THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
@@ -1779,7 +1779,7 @@ GROUP BY [o].[CustomerID]");
 
             AssertSql(
                 @"SELECT COUNT(CASE
-    WHEN (([o].[OrderID] < 10300) AND [o].[OrderDate] IS NOT NULL) AND (DATEPART(year, [o].[OrderDate]) = 1997) THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
@@ -1791,7 +1791,7 @@ GROUP BY [o].[CustomerID]");
 
             AssertSql(
                 @"SELECT COUNT(CASE
-    WHEN (([o].[OrderID] < 10300) AND [o].[OrderDate] IS NOT NULL) AND (DATEPART(year, [o].[OrderDate]) = 1997) THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
@@ -1803,7 +1803,7 @@ GROUP BY [o].[CustomerID]");
 
             AssertSql(
                 @"SELECT MIN(CASE
-    WHEN (([o].[OrderID] < 10300) AND [o].[OrderDate] IS NOT NULL) AND (DATEPART(year, [o].[OrderDate]) = 1997) THEN [o].[OrderID]
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN [o].[OrderID]
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
@@ -1894,9 +1894,9 @@ GROUP BY [o].[EmployeeID]");
                 @"SELECT (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    WHERE (([e0].[Title] = N'Sales Representative') AND ([e0].[EmployeeID] = 1)) AND (([e].[Title] = [e0].[Title]) OR ([e].[Title] IS NULL AND [e0].[Title] IS NULL)))
+    WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1 AND ([e].[Title] = [e0].[Title] OR ([e].[Title] IS NULL AND [e0].[Title] IS NULL)))
 FROM [Employees] AS [e]
-WHERE ([e].[Title] = N'Sales Representative') AND ([e].[EmployeeID] = 1)
+WHERE [e].[Title] = N'Sales Representative' AND [e].[EmployeeID] = 1
 GROUP BY [e].[Title]");
         }
 
@@ -1909,7 +1909,7 @@ GROUP BY [e].[Title]");
 FROM (
     SELECT [e].[Title]
     FROM [Employees] AS [e]
-    WHERE ([e].[Title] = N'Sales Representative') AND ([e].[EmployeeID] = 1)
+    WHERE [e].[Title] = N'Sales Representative' AND [e].[EmployeeID] = 1
     GROUP BY [e].[Title]
 ) AS [t]
 LEFT JOIN (
@@ -1917,7 +1917,7 @@ LEFT JOIN (
     FROM (
         SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], ROW_NUMBER() OVER(PARTITION BY [e0].[Title] ORDER BY [e0].[EmployeeID]) AS [row]
         FROM [Employees] AS [e0]
-        WHERE ([e0].[Title] = N'Sales Representative') AND ([e0].[EmployeeID] = 1)
+        WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Title] = [t0].[Title]");
@@ -1931,7 +1931,7 @@ LEFT JOIN (
                 @"SELECT (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    WHERE ([e0].[EmployeeID] = 1) AND ([e].[EmployeeID] = [e0].[EmployeeID]))
+    WHERE [e0].[EmployeeID] = 1 AND [e].[EmployeeID] = [e0].[EmployeeID])
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1
 GROUP BY [e].[EmployeeID]");
@@ -1982,7 +1982,7 @@ LEFT JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'A%'
-) AS [t0] ON ([t].[City] = [t0].[City]) OR ([t].[City] IS NULL AND [t0].[City] IS NULL)
+) AS [t0] ON [t].[City] = [t0].[City] OR ([t].[City] IS NULL AND [t0].[City] IS NULL)
 ORDER BY [t].[City]");
         }
 
@@ -2054,7 +2054,7 @@ GROUP BY [o].[CustomerID]");
     FROM (
         SELECT DISTINCT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
         FROM [Orders] AS [o0]
-        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)
     ) AS [t]) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
@@ -2260,7 +2260,7 @@ GROUP BY [t0].[Key0]");
     WHEN EXISTS (
         SELECT 1
         FROM [Order Details] AS [o0]
-        WHERE ([o].[OrderID] = [o0].[OrderID]) AND ([o0].[ProductID] < 25)) THEN CAST(1 AS bit)
+        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[ProductID] < 25) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasOrderDetails], CASE
     WHEN (
@@ -2269,7 +2269,7 @@ END AS [HasOrderDetails], CASE
             SELECT [p].[ProductName]
             FROM [Order Details] AS [o1]
             INNER JOIN [Products] AS [p] ON [o1].[ProductID] = [p].[ProductID]
-            WHERE ([o].[OrderID] = [o1].[OrderID]) AND ([o1].[ProductID] < 25)
+            WHERE [o].[OrderID] = [o1].[OrderID] AND [o1].[ProductID] < 25
             GROUP BY [p].[ProductName]
         ) AS [t]) > 1 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -2457,7 +2457,7 @@ HAVING COUNT(*) <> 2");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [c].[CustomerID]
-HAVING (COUNT(*) < 2) OR (COUNT(*) > 2)");
+HAVING COUNT(*) < 2 OR COUNT(*) > 2");
         }
 
         public override async Task GroupBy_aggregate_over_a_subquery(bool async)
@@ -2498,7 +2498,7 @@ FROM (
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
-INNER JOIN [Orders] AS [o0] ON (([t].[Key] = [o0].[CustomerID]) OR ([t].[Key] IS NULL AND [o0].[CustomerID] IS NULL)) AND (([t].[LastOrderDate] = [o0].[OrderDate]) OR ([t].[LastOrderDate] IS NULL AND [o0].[OrderDate] IS NULL))");
+INNER JOIN [Orders] AS [o0] ON ([t].[Key] = [o0].[CustomerID] OR ([t].[Key] IS NULL AND [o0].[CustomerID] IS NULL)) AND ([t].[LastOrderDate] = [o0].[OrderDate] OR ([t].[LastOrderDate] IS NULL AND [o0].[OrderDate] IS NULL))");
         }
 
         public override async Task GroupBy_aggregate_from_right_side_of_join(bool async)
@@ -2695,7 +2695,7 @@ GROUP BY [o].[OrderID]");
     WHEN (2020 - DATEPART(year, [o].[OrderDate])) <= 30 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [Sum1], COALESCE(SUM(CASE
-    WHEN ((2020 - DATEPART(year, [o].[OrderDate])) > 30) AND ((2020 - DATEPART(year, [o].[OrderDate])) <= 60) THEN [o].[OrderID]
+    WHEN (2020 - DATEPART(year, [o].[OrderDate])) > 30 AND (2020 - DATEPART(year, [o].[OrderDate])) <= 60 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [Sum2]
 FROM [Orders] AS [o]
@@ -2880,7 +2880,7 @@ OUTER APPLY (
         FROM [Order Details] AS [o1]
         INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         LEFT JOIN [Customers] AS [c1] ON [o2].[CustomerID] = [c1].[CustomerID]
-        WHERE ([c1].[CustomerID] = N'ALFKI') AND ([t].[ProductID] = [o1].[ProductID]))
+        WHERE [c1].[CustomerID] = N'ALFKI' AND [t].[ProductID] = [o1].[ProductID])
 ) AS [t0]
 ORDER BY [t].[ProductID], [t0].[CustomerID]");
         }

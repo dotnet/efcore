@@ -29,7 +29,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-    WHERE ([e].[Id] = [j].[OneId]) AND NOT ([e0].[Name] LIKE N'%B%'))");
+    WHERE [e].[Id] = [j].[OneId] AND NOT ([e0].[Name] LIKE N'%B%'))");
         }
 
         public override async Task Skip_navigation_any_without_predicate(bool async)
@@ -43,7 +43,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
-    WHERE ([e].[Id] = [j].[OneId]) AND ([e0].[Name] LIKE N'%B%'))");
+    WHERE [e].[Id] = [j].[OneId] AND ([e0].[Name] LIKE N'%B%'))");
         }
 
         public override async Task Skip_navigation_any_with_predicate(bool async)
@@ -57,7 +57,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [EntityOneEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
-    WHERE ([e].[Id] = [e0].[OneSkipSharedId]) AND ([e1].[Name] LIKE N'%B%'))");
+    WHERE [e].[Id] = [e0].[OneSkipSharedId] AND ([e1].[Name] LIKE N'%B%'))");
         }
 
         public override async Task Skip_navigation_contains(bool async)
@@ -71,7 +71,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [JoinOneToThreePayloadFullShared] AS [j]
     INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
-    WHERE ([e].[Id] = [j].[OneId]) AND ([e0].[Id] = 1))");
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Id] = 1)");
         }
 
         public override async Task Skip_navigation_count_without_predicate(bool async)
@@ -106,7 +106,7 @@ ORDER BY (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE ([e].[Id] = [j].[EntityOneId]) AND ([t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%'))), [e].[Id]");
+    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%')), [e].[Id]");
         }
 
         public override async Task Skip_navigation_long_count_without_predicate(bool async)
@@ -134,7 +134,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE ([e].[Id] = [e0].[SelfSkipSharedRightId]) AND ([e1].[Name] IS NOT NULL AND ([e1].[Name] LIKE N'L%'))) DESC, [e].[Id]");
+    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] IS NOT NULL AND ([e1].[Name] LIKE N'L%')) DESC, [e].[Id]");
         }
 
         public override async Task Skip_navigation_select_many_average(bool async)
@@ -147,7 +147,7 @@ FROM [EntityTwos] AS [e]
 INNER JOIN (
     SELECT [e1].[Key1], [e0].[TwoSkipSharedId]
     FROM [EntityCompositeKeyEntityTwo] AS [e0]
-    INNER JOIN [EntityCompositeKeys] AS [e1] ON (([e0].[CompositeKeySkipSharedKey1] = [e1].[Key1]) AND ([e0].[CompositeKeySkipSharedKey2] = [e1].[Key2])) AND ([e0].[CompositeKeySkipSharedKey3] = [e1].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e1] ON [e0].[CompositeKeySkipSharedKey1] = [e1].[Key1] AND [e0].[CompositeKeySkipSharedKey2] = [e1].[Key2] AND [e0].[CompositeKeySkipSharedKey3] = [e1].[Key3]
 ) AS [t] ON [e].[Id] = [t].[TwoSkipSharedId]");
         }
 
@@ -161,7 +161,7 @@ FROM [EntityThrees] AS [e]
 INNER JOIN (
     SELECT [e0].[Key1], [j].[ThreeId]
     FROM [JoinThreeToCompositeKeyFull] AS [j]
-    INNER JOIN [EntityCompositeKeys] AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e0] ON [j].[CompositeId1] = [e0].[Key1] AND [j].[CompositeId2] = [e0].[Key2] AND [j].[CompositeId3] = [e0].[Key3]
 ) AS [t] ON [e].[Id] = [t].[ThreeId]");
         }
 
@@ -192,7 +192,7 @@ FROM [Roots] AS [r]
 INNER JOIN (
     SELECT [e0].[Key1], [e].[RootSkipSharedId]
     FROM [EntityCompositeKeyEntityRoot] AS [e]
-    INNER JOIN [EntityCompositeKeys] AS [e0] ON (([e].[CompositeKeySkipSharedKey1] = [e0].[Key1]) AND ([e].[CompositeKeySkipSharedKey2] = [e0].[Key2])) AND ([e].[CompositeKeySkipSharedKey3] = [e0].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e0] ON [e].[CompositeKeySkipSharedKey1] = [e0].[Key1] AND [e].[CompositeKeySkipSharedKey2] = [e0].[Key2] AND [e].[CompositeKeySkipSharedKey3] = [e0].[Key3]
 ) AS [t] ON [r].[Id] = [t].[RootSkipSharedId]");
         }
 
@@ -204,7 +204,7 @@ INNER JOIN (
                 @"SELECT (
     SELECT AVG(CAST([e].[Key1] AS float))
     FROM [JoinCompositeKeyToLeaf] AS [j]
-    INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e] ON [j].[CompositeId1] = [e].[Key1] AND [j].[CompositeId2] = [e].[Key2] AND [j].[CompositeId3] = [e].[Key3]
     WHERE [r].[Id] = [j].[LeafId])
 FROM [Roots] AS [r]
 INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
@@ -341,7 +341,7 @@ LEFT JOIN (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[LeafId] = [t].[Id]
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeId1] AND [e].[Key2] = [t0].[CompositeId2] AND [e].[Key3] = [t0].[CompositeId3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3]");
         }
 
@@ -365,7 +365,7 @@ LEFT JOIN (
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [e0].[RootSkipSharedId] = [t].[Id]
     WHERE [t].[Discriminator] = N'EntityLeaf'
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]");
         }
 
@@ -395,12 +395,12 @@ LEFT JOIN [EntityCompositeKeys] AS [e0] ON (
     SELECT TOP(1) [e2].[Id]
     FROM [EntityCompositeKeyEntityTwo] AS [e1]
     INNER JOIN [EntityTwos] AS [e2] ON [e1].[TwoSkipSharedId] = [e2].[Id]
-    WHERE (([e].[Key1] = [e1].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [e1].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [e1].[CompositeKeySkipSharedKey3])
+    WHERE [e].[Key1] = [e1].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [e1].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [e1].[CompositeKeySkipSharedKey3]
     ORDER BY [e2].[Id]) = (
     SELECT TOP(1) [e3].[Id]
     FROM [JoinThreeToCompositeKeyFull] AS [j]
     INNER JOIN [EntityThrees] AS [e3] ON [j].[ThreeId] = [e3].[Id]
-    WHERE (([e0].[Key1] = [j].[CompositeId1]) AND ([e0].[Key2] = [j].[CompositeId2])) AND ([e0].[Key3] = [j].[CompositeId3])
+    WHERE [e0].[Key1] = [j].[CompositeId1] AND [e0].[Key2] = [j].[CompositeId2] AND [e0].[Key3] = [j].[CompositeId3]
     ORDER BY [e3].[Id])
 ORDER BY [e].[Key1], [e0].[Key1], [e].[Key2], [e0].[Key2]");
         }
@@ -483,7 +483,7 @@ INNER JOIN (
         FROM [JoinOneToThreePayloadFullShared] AS [j]
         INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
     ) AS [t]
-    WHERE (2 < [t].[row]) AND ([t].[row] <= 5)
+    WHERE 2 < [t].[row] AND [t].[row] <= 5
 ) AS [t0] ON [e].[Id] = [t0].[OneId]");
         }
 
@@ -566,7 +566,7 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT [e4].[Key1], [e4].[Key2], [e4].[Key3], [e4].[Name], [e3].[TwoSkipSharedId], [e3].[CompositeKeySkipSharedKey1], [e3].[CompositeKeySkipSharedKey2], [e3].[CompositeKeySkipSharedKey3]
     FROM [EntityCompositeKeyEntityTwo] AS [e3]
-    INNER JOIN [EntityCompositeKeys] AS [e4] ON (([e3].[CompositeKeySkipSharedKey1] = [e4].[Key1]) AND ([e3].[CompositeKeySkipSharedKey2] = [e4].[Key2])) AND ([e3].[CompositeKeySkipSharedKey3] = [e4].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e4] ON [e3].[CompositeKeySkipSharedKey1] = [e4].[Key1] AND [e3].[CompositeKeySkipSharedKey2] = [e4].[Key2] AND [e3].[CompositeKeySkipSharedKey3] = [e4].[Key3]
 ) AS [t1] ON [e].[Id] = [t1].[TwoSkipSharedId]
 ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId], [t0].[Id], [t1].[TwoSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[Key1], [t1].[Key2]");
         }
@@ -583,7 +583,7 @@ LEFT JOIN (
     FROM (
         SELECT [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [j].[ThreeId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Key1], [e0].[Key2]) AS [row]
         FROM [JoinThreeToCompositeKeyFull] AS [j]
-        INNER JOIN [EntityCompositeKeys] AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
+        INNER JOIN [EntityCompositeKeys] AS [e0] ON [j].[CompositeId1] = [e0].[Key1] AND [j].[CompositeId2] = [e0].[Key2] AND [j].[CompositeId3] = [e0].[Key3]
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [e].[Id] = [t0].[ThreeId]
@@ -609,7 +609,7 @@ LEFT JOIN (
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [e0].[RootSkipSharedId] = [t].[Id]
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]");
         }
 
@@ -650,7 +650,7 @@ LEFT JOIN (
         FROM [JoinOneToBranch] AS [j0]
         INNER JOIN [EntityOnes] AS [e0] ON [j0].[EntityOneId] = [e0].[Id]
     ) AS [t0] ON [t].[Id] = [t0].[EntityBranchId]
-) AS [t1] ON (([e].[Key1] = [t1].[CompositeId1]) AND ([e].[Key2] = [t1].[CompositeId2])) AND ([e].[Key3] = [t1].[CompositeId3])
+) AS [t1] ON [e].[Key1] = [t1].[CompositeId1] AND [e].[Key2] = [t1].[CompositeId2] AND [e].[Key3] = [t1].[CompositeId3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t1].[LeafId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id], [t1].[EntityBranchId], [t1].[EntityOneId]");
         }
 
@@ -756,7 +756,7 @@ LEFT JOIN (
         INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
     ) AS [t]
     WHERE [t].[row] <= 2
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id]");
         }
 
@@ -774,8 +774,8 @@ LEFT JOIN (
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
     ) AS [t]
-    WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
+    WHERE 1 < [t].[row] AND [t].[row] <= 3
+) AS [t0] ON [e].[Key1] = [t0].[CompositeId1] AND [e].[Key2] = [t0].[CompositeId2] AND [e].[Key3] = [t0].[CompositeId3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0]");
         }
 
@@ -820,7 +820,7 @@ LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN (
     SELECT [e].[RootSkipSharedId], [e].[CompositeKeySkipSharedKey1], [e].[CompositeKeySkipSharedKey2], [e].[CompositeKeySkipSharedKey3], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [t0].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[ReferenceInverseId]
     FROM [EntityCompositeKeyEntityRoot] AS [e]
-    INNER JOIN [EntityCompositeKeys] AS [e0] ON (([e].[CompositeKeySkipSharedKey1] = [e0].[Key1]) AND ([e].[CompositeKeySkipSharedKey2] = [e0].[Key2])) AND ([e].[CompositeKeySkipSharedKey3] = [e0].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e0] ON [e].[CompositeKeySkipSharedKey1] = [e0].[Key1] AND [e].[CompositeKeySkipSharedKey2] = [e0].[Key2] AND [e].[CompositeKeySkipSharedKey3] = [e0].[Key3]
     LEFT JOIN (
         SELECT [t].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[ThreeId], [t].[Id0], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId]
         FROM (
@@ -828,8 +828,8 @@ LEFT JOIN (
             FROM [JoinThreeToCompositeKeyFull] AS [j]
             INNER JOIN [EntityThrees] AS [e1] ON [j].[ThreeId] = [e1].[Id]
         ) AS [t]
-        WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
-    ) AS [t0] ON (([e0].[Key1] = [t0].[CompositeId1]) AND ([e0].[Key2] = [t0].[CompositeId2])) AND ([e0].[Key3] = [t0].[CompositeId3])
+        WHERE 1 < [t].[row] AND [t].[row] <= 3
+    ) AS [t0] ON [e0].[Key1] = [t0].[CompositeId1] AND [e0].[Key2] = [t0].[CompositeId2] AND [e0].[Key3] = [t0].[CompositeId3]
 ) AS [t1] ON [r].[Id] = [t1].[RootSkipSharedId]
 ORDER BY [r].[Id], [t1].[RootSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id0]");
         }
@@ -846,12 +846,12 @@ INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN (
     SELECT [j].[LeafId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t].[TwoSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name] AS [Name0], [t].[ReferenceInverseId]
     FROM [JoinCompositeKeyToLeaf] AS [j]
-    INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e] ON [j].[CompositeId1] = [e].[Key1] AND [j].[CompositeId2] = [e].[Key2] AND [j].[CompositeId3] = [e].[Key3]
     LEFT JOIN (
         SELECT [e0].[TwoSkipSharedId], [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[ReferenceInverseId]
         FROM [EntityCompositeKeyEntityTwo] AS [e0]
         INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
-    ) AS [t] ON (([e].[Key1] = [t].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t].[CompositeKeySkipSharedKey3])
+    ) AS [t] ON [e].[Key1] = [t].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t].[CompositeKeySkipSharedKey3]
     WHERE [e].[Key1] < 5
 ) AS [t0] ON [r].[Id] = [t0].[LeafId]
 ORDER BY [r].[Id], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]");
@@ -902,7 +902,7 @@ LEFT JOIN (
             FROM [JoinTwoToThree] AS [j0]
             INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
         ) AS [t]
-        WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
+        WHERE 1 < [t].[row] AND [t].[row] <= 3
     ) AS [t0] ON [e0].[Id] = [t0].[TwoId]
     WHERE [e0].[Id] < 10
 ) AS [t1] ON [e].[Id] = [t1].[OneId]
@@ -945,7 +945,7 @@ LEFT JOIN (
             FROM [JoinOneToTwo] AS [j0]
             INNER JOIN [EntityTwos] AS [e1] ON [j0].[TwoId] = [e1].[Id]
         ) AS [t]
-        WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
+        WHERE 1 < [t].[row] AND [t].[row] <= 3
     ) AS [t0] ON [e0].[Id] = [t0].[OneId]
     LEFT JOIN (
         SELECT [j1].[EntityBranchId], [j1].[EntityOneId], [t2].[Id], [t2].[Name], [t2].[Number], [t2].[IsGreen], [t2].[Discriminator]
@@ -1044,7 +1044,7 @@ INNER JOIN (
         LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [e0].[RootSkipSharedId] = [t].[Id]
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]");
         }
 
@@ -1088,7 +1088,7 @@ INNER JOIN (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[LeafId] = [t].[Id]
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeId1] AND [e].[Key2] = [t0].[CompositeId2] AND [e].[Key3] = [t0].[CompositeId3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]",
                 //
                 @"SELECT [t1].[EntityBranchId], [t1].[EntityOneId], [t1].[Id], [t1].[Name], [e].[Key1], [e].[Key2], [e].[Key3], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]
@@ -1102,7 +1102,7 @@ INNER JOIN (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[LeafId] = [t].[Id]
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeId1] AND [e].[Key2] = [t0].[CompositeId2] AND [e].[Key3] = [t0].[CompositeId3]
 INNER JOIN (
     SELECT [j0].[EntityBranchId], [j0].[EntityOneId], [e0].[Id], [e0].[Name]
     FROM [JoinOneToBranch] AS [j0]
@@ -1248,7 +1248,7 @@ INNER JOIN (
         INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
     ) AS [t]
     WHERE [t].[row] <= 2
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [e].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [e].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [e].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id]");
         }
 
@@ -1270,8 +1270,8 @@ INNER JOIN (
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
     ) AS [t]
-    WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
+    WHERE 1 < [t].[row] AND [t].[row] <= 3
+) AS [t0] ON [e].[Key1] = [t0].[CompositeId1] AND [e].[Key2] = [t0].[CompositeId2] AND [e].[Key3] = [t0].[CompositeId3]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0]");
         }
 
@@ -1333,7 +1333,7 @@ FROM [Roots] AS [r]
 INNER JOIN (
     SELECT [e].[RootSkipSharedId], [e].[CompositeKeySkipSharedKey1], [e].[CompositeKeySkipSharedKey2], [e].[CompositeKeySkipSharedKey3], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name]
     FROM [EntityCompositeKeyEntityRoot] AS [e]
-    INNER JOIN [EntityCompositeKeys] AS [e0] ON (([e].[CompositeKeySkipSharedKey1] = [e0].[Key1]) AND ([e].[CompositeKeySkipSharedKey2] = [e0].[Key2])) AND ([e].[CompositeKeySkipSharedKey3] = [e0].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e0] ON [e].[CompositeKeySkipSharedKey1] = [e0].[Key1] AND [e].[CompositeKeySkipSharedKey2] = [e0].[Key2] AND [e].[CompositeKeySkipSharedKey3] = [e0].[Key3]
 ) AS [t] ON [r].[Id] = [t].[RootSkipSharedId]
 ORDER BY [r].[Id], [t].[RootSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[Key1], [t].[Key2], [t].[Key3]",
                 //
@@ -1342,7 +1342,7 @@ FROM [Roots] AS [r]
 INNER JOIN (
     SELECT [e].[RootSkipSharedId], [e].[CompositeKeySkipSharedKey1], [e].[CompositeKeySkipSharedKey2], [e].[CompositeKeySkipSharedKey3], [e0].[Key1], [e0].[Key2], [e0].[Key3]
     FROM [EntityCompositeKeyEntityRoot] AS [e]
-    INNER JOIN [EntityCompositeKeys] AS [e0] ON (([e].[CompositeKeySkipSharedKey1] = [e0].[Key1]) AND ([e].[CompositeKeySkipSharedKey2] = [e0].[Key2])) AND ([e].[CompositeKeySkipSharedKey3] = [e0].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e0] ON [e].[CompositeKeySkipSharedKey1] = [e0].[Key1] AND [e].[CompositeKeySkipSharedKey2] = [e0].[Key2] AND [e].[CompositeKeySkipSharedKey3] = [e0].[Key3]
 ) AS [t] ON [r].[Id] = [t].[RootSkipSharedId]
 INNER JOIN (
     SELECT [t1].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[ThreeId], [t1].[Id0], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
@@ -1351,8 +1351,8 @@ INNER JOIN (
         FROM [JoinThreeToCompositeKeyFull] AS [j]
         INNER JOIN [EntityThrees] AS [e1] ON [j].[ThreeId] = [e1].[Id]
     ) AS [t1]
-    WHERE (1 < [t1].[row]) AND ([t1].[row] <= 3)
-) AS [t0] ON (([t].[Key1] = [t0].[CompositeId1]) AND ([t].[Key2] = [t0].[CompositeId2])) AND ([t].[Key3] = [t0].[CompositeId3])
+    WHERE 1 < [t1].[row] AND [t1].[row] <= 3
+) AS [t0] ON [t].[Key1] = [t0].[CompositeId1] AND [t].[Key2] = [t0].[CompositeId2] AND [t].[Key3] = [t0].[CompositeId3]
 ORDER BY [r].[Id], [t].[RootSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[Key1], [t].[Key2], [t].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0]");
         }
 
@@ -1374,7 +1374,7 @@ INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 INNER JOIN (
     SELECT [j].[LeafId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name]
     FROM [JoinCompositeKeyToLeaf] AS [j]
-    INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e] ON [j].[CompositeId1] = [e].[Key1] AND [j].[CompositeId2] = [e].[Key2] AND [j].[CompositeId3] = [e].[Key3]
     WHERE [e].[Key1] < 5
 ) AS [t] ON [r].[Id] = [t].[LeafId]
 ORDER BY [r].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Key1], [t].[Key2], [t].[Key3]",
@@ -1386,14 +1386,14 @@ INNER JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 INNER JOIN (
     SELECT [j].[LeafId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [e].[Key1], [e].[Key2], [e].[Key3]
     FROM [JoinCompositeKeyToLeaf] AS [j]
-    INNER JOIN [EntityCompositeKeys] AS [e] ON (([j].[CompositeId1] = [e].[Key1]) AND ([j].[CompositeId2] = [e].[Key2])) AND ([j].[CompositeId3] = [e].[Key3])
+    INNER JOIN [EntityCompositeKeys] AS [e] ON [j].[CompositeId1] = [e].[Key1] AND [j].[CompositeId2] = [e].[Key2] AND [j].[CompositeId3] = [e].[Key3]
     WHERE [e].[Key1] < 5
 ) AS [t] ON [r].[Id] = [t].[LeafId]
 INNER JOIN (
     SELECT [e0].[TwoSkipSharedId], [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[ReferenceInverseId]
     FROM [EntityCompositeKeyEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
-) AS [t0] ON (([t].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([t].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([t].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+) AS [t0] ON [t].[Key1] = [t0].[CompositeKeySkipSharedKey1] AND [t].[Key2] = [t0].[CompositeKeySkipSharedKey2] AND [t].[Key3] = [t0].[CompositeKeySkipSharedKey3]
 ORDER BY [r].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Key1], [t].[Key2], [t].[Key3]");
         }
 
@@ -1415,7 +1415,7 @@ INNER JOIN (
         FROM [JoinOneToTwo] AS [j]
         INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     ) AS [t]
-    WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
+    WHERE 1 < [t].[row] AND [t].[row] <= 3
 ) AS [t0] ON [e].[Id] = [t0].[OneId]
 ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]",
                 //
@@ -1428,7 +1428,7 @@ INNER JOIN (
         FROM [JoinOneToTwo] AS [j]
         INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
     ) AS [t]
-    WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
+    WHERE 1 < [t].[row] AND [t].[row] <= 3
 ) AS [t0] ON [e].[Id] = [t0].[OneId]
 INNER JOIN (
     SELECT [j0].[ThreeId], [j0].[TwoId], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId]
@@ -1473,7 +1473,7 @@ INNER JOIN (
         FROM [JoinTwoToThree] AS [j0]
         INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
     ) AS [t1]
-    WHERE (1 < [t1].[row]) AND ([t1].[row] <= 3)
+    WHERE 1 < [t1].[row] AND [t1].[row] <= 3
 ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[TwoId], [t0].[Id]");
         }
@@ -1545,7 +1545,7 @@ INNER JOIN (
         FROM [JoinOneToTwo] AS [j0]
         INNER JOIN [EntityTwos] AS [e1] ON [j0].[TwoId] = [e1].[Id]
     ) AS [t1]
-    WHERE (1 < [t1].[row]) AND ([t1].[row] <= 3)
+    WHERE 1 < [t1].[row] AND [t1].[row] <= 3
 ) AS [t0] ON [t].[Id] = [t0].[OneId]
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t0].[OneId], [t0].[Id]",
                 //

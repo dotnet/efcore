@@ -44,7 +44,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])");
         }
 
         public override async Task String_StartsWith_Column(bool async)
@@ -54,7 +54,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])");
         }
 
         public override async Task String_StartsWith_MethodCall(bool async)
@@ -84,7 +84,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%b')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])");
         }
 
         public override async Task String_EndsWith_Column(bool async)
@@ -94,7 +94,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c]
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])");
         }
 
         public override async Task String_EndsWith_MethodCall(bool async)
@@ -128,7 +128,7 @@ WHERE [c].[ContactName] LIKE N'%M%'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] LIKE N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
+WHERE ([c].[ContactName] LIKE N'') OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0");
         }
 
         public override async Task String_Contains_Column(bool async)
@@ -138,7 +138,7 @@ WHERE ([c].[ContactName] LIKE N'') OR (CHARINDEX([c].[ContactName], [c].[Contact
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] LIKE N'') OR (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0)");
+WHERE ([c].[ContactName] LIKE N'') OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0");
         }
 
         public override async Task String_Contains_constant_with_whitespace(bool async)
@@ -160,7 +160,7 @@ WHERE [c].[ContactName] LIKE N'%     %'");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__pattern_0 LIKE N'') OR (CHARINDEX(@__pattern_0, [c].[ContactName]) > 0)");
+WHERE (@__pattern_0 LIKE N'') OR CHARINDEX(@__pattern_0, [c].[ContactName]) > 0");
         }
 
         public override async Task String_FirstOrDefault_MethodCall(bool async)
@@ -366,11 +366,11 @@ WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] >= N'ALFKI') AND ([c].[CustomerID] < N'CACTU')",
+WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR [c].[Country] IS NULL)");
+WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)");
         }
 
         public override async Task String_Compare_to_simple_zero(bool async)
@@ -542,11 +542,11 @@ WHERE [c].[CustomerID] < REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] >= N'ALFKI') AND ([c].[CustomerID] < N'CACTU')",
+WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR [c].[Country] IS NULL)");
+WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)");
         }
 
         public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
@@ -564,7 +564,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderDate] <> @__myDatetime_0) OR [o].[OrderDate] IS NULL",
+WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL",
                 //
                 @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
@@ -650,7 +650,7 @@ WHERE ABS([p].[ProductID]) > 10");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[UnitPrice] < 7.0) AND (ABS([o].[Quantity]) > CAST(10 AS smallint))");
+WHERE [o].[UnitPrice] < 7.0 AND ABS([o].[Quantity]) > CAST(10 AS smallint)");
         }
 
         public override async Task Where_math_abs3(bool async)
@@ -660,7 +660,7 @@ WHERE ([o].[UnitPrice] < 7.0) AND (ABS([o].[Quantity]) > CAST(10 AS smallint))")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ABS([o].[UnitPrice]) > 10.0)");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND ABS([o].[UnitPrice]) > 10.0");
         }
 
         public override async Task Where_math_abs_uncorrelated(bool async)
@@ -670,7 +670,7 @@ WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ABS([o].[UnitPrice]) > 10.0)")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[UnitPrice] < 7.0) AND (10 < [o].[ProductID])");
+WHERE [o].[UnitPrice] < 7.0 AND 10 < [o].[ProductID]");
         }
 
         public override async Task Where_math_ceiling1(bool async)
@@ -680,7 +680,7 @@ WHERE ([o].[UnitPrice] < 7.0) AND (10 < [o].[ProductID])");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[UnitPrice] < 7.0) AND (CEILING(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[UnitPrice] < 7.0 AND CEILING(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_ceiling2(bool async)
@@ -690,7 +690,7 @@ WHERE ([o].[UnitPrice] < 7.0) AND (CEILING(CAST([o].[Discount] AS float)) > 0.0E
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CEILING([o].[UnitPrice]) > 10.0)");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND CEILING([o].[UnitPrice]) > 10.0");
         }
 
         public override async Task Where_math_floor(bool async)
@@ -700,7 +700,7 @@ WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CEILING([o].[UnitPrice]) > 10.
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR([o].[UnitPrice]) > 10.0)");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND FLOOR([o].[UnitPrice]) > 10.0");
         }
 
         public override async Task Where_math_power(bool async)
@@ -731,7 +731,7 @@ WHERE POWER(CAST([o].[Discount] AS float), 2.0E0) > 0.05000000074505806E0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND([o].[UnitPrice], 0) > 10.0)");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND ROUND([o].[UnitPrice], 0) > 10.0");
         }
 
         public override async Task Select_math_round_int(bool async)
@@ -771,7 +771,7 @@ WHERE ROUND([o].[UnitPrice], 2) > 100.0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND([o].[UnitPrice], 0, 1) > 10.0)");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND ROUND([o].[UnitPrice], 0, 1) > 10.0");
         }
 
         public override async Task Where_math_exp(bool async)
@@ -781,7 +781,7 @@ WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND([o].[UnitPrice], 0, 1) >
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (EXP(CAST([o].[Discount] AS float)) > 1.0E0)");
+WHERE [o].[OrderID] = 11077 AND EXP(CAST([o].[Discount] AS float)) > 1.0E0");
         }
 
         public override async Task Where_math_log10(bool async)
@@ -791,7 +791,7 @@ WHERE ([o].[OrderID] = 11077) AND (EXP(CAST([o].[Discount] AS float)) > 1.0E0)")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG10(CAST([o].[Discount] AS float)) < 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG10(CAST([o].[Discount] AS float)) < 0.0E0");
         }
 
         public override async Task Where_math_log(bool async)
@@ -801,7 +801,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG1
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(CAST([o].[Discount] AS float)) < 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float)) < 0.0E0");
         }
 
         public override async Task Where_math_log_new_base(bool async)
@@ -811,7 +811,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(CAST([o].[Discount] AS float), 7.0E0) < 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG(CAST([o].[Discount] AS float), 7.0E0) < 0.0E0");
         }
 
         public override async Task Where_math_sqrt(bool async)
@@ -821,7 +821,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SQRT(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND SQRT(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_acos(bool async)
@@ -831,7 +831,7 @@ WHERE ([o].[OrderID] = 11077) AND (SQRT(CAST([o].[Discount] AS float)) > 0.0E0)"
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ACOS(CAST([o].[Discount] AS float)) > 1.0E0)");
+WHERE [o].[OrderID] = 11077 AND ACOS(CAST([o].[Discount] AS float)) > 1.0E0");
         }
 
         public override async Task Where_math_asin(bool async)
@@ -841,7 +841,7 @@ WHERE ([o].[OrderID] = 11077) AND (ACOS(CAST([o].[Discount] AS float)) > 1.0E0)"
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ASIN(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND ASIN(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_atan(bool async)
@@ -851,7 +851,7 @@ WHERE ([o].[OrderID] = 11077) AND (ASIN(CAST([o].[Discount] AS float)) > 0.0E0)"
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATAN(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND ATAN(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_atan2(bool async)
@@ -861,7 +861,7 @@ WHERE ([o].[OrderID] = 11077) AND (ATAN(CAST([o].[Discount] AS float)) > 0.0E0)"
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATN2(CAST([o].[Discount] AS float), 1.0E0) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND ATN2(CAST([o].[Discount] AS float), 1.0E0) > 0.0E0");
         }
 
         public override async Task Where_math_cos(bool async)
@@ -871,7 +871,7 @@ WHERE ([o].[OrderID] = 11077) AND (ATN2(CAST([o].[Discount] AS float), 1.0E0) > 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (COS(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND COS(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_sin(bool async)
@@ -881,7 +881,7 @@ WHERE ([o].[OrderID] = 11077) AND (COS(CAST([o].[Discount] AS float)) > 0.0E0)")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIN(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND SIN(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_tan(bool async)
@@ -891,7 +891,7 @@ WHERE ([o].[OrderID] = 11077) AND (SIN(CAST([o].[Discount] AS float)) > 0.0E0)")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (TAN(CAST([o].[Discount] AS float)) > 0.0E0)");
+WHERE [o].[OrderID] = 11077 AND TAN(CAST([o].[Discount] AS float)) > 0.0E0");
         }
 
         public override async Task Where_math_sign(bool async)
@@ -901,7 +901,7 @@ WHERE ([o].[OrderID] = 11077) AND (TAN(CAST([o].[Discount] AS float)) > 0.0E0)")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
+WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0");
         }
 
         [ConditionalTheory(Skip = "Issue#17328")]
@@ -929,7 +929,7 @@ WHERE ABS(CAST([p].[ProductID] AS real)) > CAST(10 AS real)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[UnitPrice] < 7.0) AND (CEILING([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[UnitPrice] < 7.0 AND CEILING([o].[Discount]) > CAST(0 AS real)");
         }
         
         public override async Task Where_mathf_floor(bool async)
@@ -939,7 +939,7 @@ WHERE ([o].[UnitPrice] < 7.0) AND (CEILING([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR(CAST([o].[UnitPrice] AS real)) > CAST(10 AS real))");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND FLOOR(CAST([o].[UnitPrice] AS real)) > CAST(10 AS real)");
         }
 
         public override async Task Where_mathf_power(bool async)
@@ -999,7 +999,7 @@ WHERE [o].[Quantity] < CAST(5 AS smallint)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real) > CAST(10 AS real))");
+WHERE [o].[Quantity] < CAST(5 AS smallint) AND CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real) > CAST(10 AS real)");
         }
 
         public override async Task Select_mathf_truncate(bool async)
@@ -1019,7 +1019,7 @@ WHERE [o].[Quantity] < CAST(5 AS smallint)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (EXP([o].[Discount]) > CAST(1 AS real))");
+WHERE [o].[OrderID] = 11077 AND EXP([o].[Discount]) > CAST(1 AS real)");
         }
 
         public override async Task Where_mathf_log10(bool async)
@@ -1029,7 +1029,7 @@ WHERE ([o].[OrderID] = 11077) AND (EXP([o].[Discount]) > CAST(1 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG10([o].[Discount]) < CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG10([o].[Discount]) < CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_log(bool async)
@@ -1039,7 +1039,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG1
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount]) < CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount]) < CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_log_new_base(bool async)
@@ -1049,7 +1049,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND [o].[Discount] > CAST(0 AS real) AND LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_sqrt(bool async)
@@ -1059,7 +1059,7 @@ WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG(
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SQRT([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND SQRT([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_acos(bool async)
@@ -1069,7 +1069,7 @@ WHERE ([o].[OrderID] = 11077) AND (SQRT([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ACOS([o].[Discount]) > CAST(1 AS real))");
+WHERE [o].[OrderID] = 11077 AND ACOS([o].[Discount]) > CAST(1 AS real)");
         }
 
         public override async Task Where_mathf_asin(bool async)
@@ -1079,7 +1079,7 @@ WHERE ([o].[OrderID] = 11077) AND (ACOS([o].[Discount]) > CAST(1 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ASIN([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND ASIN([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_atan(bool async)
@@ -1089,7 +1089,7 @@ WHERE ([o].[OrderID] = 11077) AND (ASIN([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATAN([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND ATAN([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_atan2(bool async)
@@ -1099,7 +1099,7 @@ WHERE ([o].[OrderID] = 11077) AND (ATAN([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATN2([o].[Discount], CAST(1 AS real)) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND ATN2([o].[Discount], CAST(1 AS real)) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_cos(bool async)
@@ -1109,7 +1109,7 @@ WHERE ([o].[OrderID] = 11077) AND (ATN2([o].[Discount], CAST(1 AS real)) > CAST(
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (COS([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND COS([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_sin(bool async)
@@ -1119,7 +1119,7 @@ WHERE ([o].[OrderID] = 11077) AND (COS([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIN([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND SIN([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_tan(bool async)
@@ -1129,7 +1129,7 @@ WHERE ([o].[OrderID] = 11077) AND (SIN([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (TAN([o].[Discount]) > CAST(0 AS real))");
+WHERE [o].[OrderID] = 11077 AND TAN([o].[Discount]) > CAST(0 AS real)");
         }
 
         public override async Task Where_mathf_sign(bool async)
@@ -1139,7 +1139,7 @@ WHERE ([o].[OrderID] = 11077) AND (TAN([o].[Discount]) > CAST(0 AS real))");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
+WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0");
         }
 
         public override async Task Where_guid_newguid(bool async)
@@ -1189,35 +1189,35 @@ WHERE POWER(CAST(CAST(LEN([c].[CustomerID]) AS int) AS float), 2.0E0) = 25.0E0")
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(bit, [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(bit, [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(tinyint, [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(tinyint, [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(decimal(18, 2), [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(decimal(18, 2), [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(float, [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(float, [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CAST(CONVERT(float, [o].[OrderID] % 3) AS real)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CAST(CONVERT(float, [o].[OrderID] % 3) AS real)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(smallint, [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(smallint, [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(int, [o].[OrderID] % 3)) = CAST(1 AS bit))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(int, [o].[OrderID] % 3)) = CAST(1 AS bit)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(bigint, [o].[OrderID] % 3)) = CAST(1 AS bit))");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bit, CONVERT(bigint, [o].[OrderID] % 3)) = CAST(1 AS bit)");
         }
 
         public override async Task Convert_ToByte(bool async)
@@ -1227,39 +1227,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bit, CONVERT(bigint, [o].[Order
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS tinyint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint))");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS tinyint)");
         }
 
         public override async Task Convert_ToDecimal(bool async)
@@ -1269,39 +1269,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(tinyint, CONVERT(nvarchar(max),
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(bit, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(bit, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(tinyint, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(tinyint, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(float, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(float, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(smallint, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(smallint, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(int, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(int, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0)");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0");
         }
 
         public override async Task Convert_ToDouble(bool async)
@@ -1311,39 +1311,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(decimal(18, 2), CONVERT(nvarcha
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(bit, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(bit, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(float, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(float, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(smallint, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(smallint, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(int, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(int, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0E0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(bigint, [o].[OrderID] % 1)) >= 0.0E0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0)");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(float, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0.0E0");
         }
 
         public override async Task Convert_ToInt16(bool async)
@@ -1353,39 +1353,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(float, CONVERT(nvarchar(max), [
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS smallint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS smallint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint))");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(smallint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS smallint)");
         }
 
         public override async Task Convert_ToInt32(bool async)
@@ -1395,39 +1395,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(smallint, CONVERT(nvarchar(max)
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(bit, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(bit, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(float, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(float, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(smallint, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(smallint, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(int, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(int, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(bigint, [o].[OrderID] % 1)) >= 0)",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(bigint, [o].[OrderID] % 1)) >= 0",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0)");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(int, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= 0");
         }
 
         public override async Task Convert_ToInt64(bool async)
@@ -1437,39 +1437,39 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(int, CONVERT(nvarchar(max), [o]
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(bit, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(tinyint, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(decimal(18, 2), [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(float, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(smallint, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(int, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS bigint))",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(bigint, [o].[OrderID] % 1)) >= CAST(0 AS bigint)",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint))");
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(bigint, CONVERT(nvarchar(max), [o].[OrderID] % 1)) >= CAST(0 AS bigint)");
         }
 
         public override async Task Convert_ToString(bool async)
@@ -1479,43 +1479,43 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(nvarchar(max), 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(bit, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(bit, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(tinyint, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(tinyint, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(float, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(float, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(smallint, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(smallint, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(int, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(int, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')",
+WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%') OR (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%'))");
+WHERE [o].[CustomerID] = N'ALFKI' AND ((CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%') OR (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%'))");
         }
 
         public override async Task Indexof_with_emptystring(bool async)
@@ -1712,7 +1712,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
+WHERE [c].[Region] IS NULL OR [c].[Region] = N''");
         }
 
         public override async Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)

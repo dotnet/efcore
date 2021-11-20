@@ -318,7 +318,7 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)) AS [OrderDates]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500) AS [OrderDates]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -331,7 +331,7 @@ WHERE [c].[CustomerID] LIKE N'A%'");
                 @"SELECT (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([o].[OrderID] < 10500) AND ([c].[CustomerID] = [o].[CustomerID])) AS [OrderDates]
+    WHERE [o].[OrderID] < 10500 AND [c].[CustomerID] = [o].[CustomerID]) AS [OrderDates]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -345,9 +345,9 @@ WHERE [c].[CustomerID] LIKE N'A%'");
     SELECT TOP(1) (
         SELECT COUNT(*)
         FROM [Order Details] AS [o0]
-        WHERE ([o].[OrderID] = [o0].[OrderID]) AND ([o0].[OrderID] > 10))
+        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] > 10)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -361,15 +361,15 @@ WHERE [c].[CustomerID] LIKE N'A%'");
     SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
-        WHERE ([o].[OrderID] = [o0].[OrderID]) AND (([o0].[OrderID] <> (
+        WHERE [o].[OrderID] = [o0].[OrderID] AND ([o0].[OrderID] <> (
             SELECT COUNT(*)
             FROM [Orders] AS [o1]
-            WHERE [c].[CustomerID] = [o1].[CustomerID])) OR (
+            WHERE [c].[CustomerID] = [o1].[CustomerID]) OR (
             SELECT COUNT(*)
             FROM [Orders] AS [o1]
             WHERE [c].[CustomerID] = [o1].[CustomerID]) IS NULL)), 0)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -383,9 +383,9 @@ WHERE [c].[CustomerID] LIKE N'A%'");
     SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
-        WHERE ([o].[OrderID] = [o0].[OrderID]) AND ([o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int))), 0)
+        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)), 0)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 10500)), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
@@ -952,7 +952,7 @@ FROM [Orders] AS [o]");
 
             AssertSql(
                 @"SELECT [o].[CustomerID], CASE
-    WHEN ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [o].[CustomerID] = N'ALFKI' AND [o].[CustomerID] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [o].[OrderID], CAST(LEN([o].[CustomerID]) AS int)
 FROM [Orders] AS [o]");
@@ -1058,7 +1058,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [c].[City]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
+    WHERE [c].[CustomerID] <> [o].[CustomerID] OR [o].[CustomerID] IS NULL
 ) AS [t]");
         }
 
@@ -1072,7 +1072,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] <> [o].[CustomerID]) OR [o].[CustomerID] IS NULL
+    WHERE [c].[CustomerID] <> [o].[CustomerID] OR [o].[CustomerID] IS NULL
     ORDER BY [c].[City], [o].[OrderID]
 ) AS [t]");
         }
@@ -1577,10 +1577,10 @@ LEFT JOIN (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10750
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE ([c].[CustomerID] LIKE N'A%') AND ((
+WHERE ([c].[CustomerID] LIKE N'A%') AND (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[OrderID] < 11000)) > 0)
+    WHERE [o].[CustomerID] = [c].[CustomerID] AND [o].[OrderID] < 11000) > 0
 ORDER BY [c].[CustomerID]");
         }
 
@@ -1590,7 +1590,7 @@ ORDER BY [c].[CustomerID]");
 
             AssertSql(
                 @"SELECT CASE
-    WHEN ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN [c].[City] = N'Seattle' AND [c].[City] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Customers] AS [c]
@@ -1788,7 +1788,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[CustomerID] = [o0].[CustomerID] OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
 ) AS [t0]
 ORDER BY [t].[CustomerID], [t0].[OrderID]");
         }
@@ -1806,7 +1806,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
+    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND [t].[OrderID] = [o0].[OrderID]
 ) AS [t0]
 ORDER BY [t].[OrderID]");
         }
@@ -1824,7 +1824,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderDate] AS [Outer1], [t].[CustomerID] AS [Outer2], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[CustomerID] = [o0].[CustomerID] OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
 ) AS [t0]
 ORDER BY [t].[OrderDate], [t].[CustomerID]");
         }
@@ -1861,7 +1861,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
+    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND [t].[OrderID] = [o0].[OrderID]
 ) AS [t0]
 ORDER BY [t].[OrderID]");
         }
@@ -1881,7 +1881,7 @@ OUTER APPLY (
         FROM [Orders] AS [o0]
         WHERE [o].[CustomerID] = [c].[CustomerID]
     ) AS [t]
-    WHERE (DATEPART(year, [o].[OrderDate]) = 1997) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE DATEPART(year, [o].[OrderDate]) = 1997 AND [c].[CustomerID] = [o].[CustomerID]
 ) AS [t0]
 WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID], [t0].[OrderID], [t0].[OrderID00]");
@@ -1903,12 +1903,12 @@ OUTER APPLY (
     FROM (
         SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE (([o].[CustomerID] = [t].[City]) OR ([o].[CustomerID] IS NULL AND [t].[City] IS NULL)) AND (DATEPART(year, [o].[OrderDate]) = 1997)
+        WHERE ([o].[CustomerID] = [t].[City] OR ([o].[CustomerID] IS NULL AND [t].[City] IS NULL)) AND DATEPART(year, [o].[OrderDate]) = 1997
     ) AS [t0]
     OUTER APPLY (
         SELECT [t0].[OrderID], [o0].[OrderID] AS [OrderID0]
         FROM [Orders] AS [o0]
-        WHERE ([t0].[CustomerID] = [t].[City]) OR ([t0].[CustomerID] IS NULL AND [t].[City] IS NULL)
+        WHERE [t0].[CustomerID] = [t].[City] OR ([t0].[CustomerID] IS NULL AND [t].[City] IS NULL)
     ) AS [t2]
 ) AS [t1]
 ORDER BY [t].[City], [t1].[OrderID], [t1].[OrderID00]");
@@ -2005,7 +2005,7 @@ FROM (
 ) AS [t]
 OUTER APPLY (
     SELECT CASE
-        WHEN ([t1].[CustomerID] = [c0].[CustomerID]) OR ([t1].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL) THEN N'A'
+        WHEN [t1].[CustomerID] = [c0].[CustomerID] OR ([t1].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL) THEN N'A'
         ELSE N'B'
     END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
     FROM (
@@ -2045,7 +2045,7 @@ ORDER BY [t].[CustomerID]");
                 @"SELECT [c].[CustomerID], (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 11000)), [c].[City], N'test' + COALESCE([c].[City], N'')
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 11000), [c].[City], N'test' + COALESCE([c].[City], N'')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
         }

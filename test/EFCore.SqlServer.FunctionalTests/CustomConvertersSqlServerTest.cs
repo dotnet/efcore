@@ -220,7 +220,7 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-INNER JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
+INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
 WHERE [b].[IsVisible] = N'Y'");
         }
 
@@ -234,7 +234,7 @@ WHERE [b].[IsVisible] = N'Y'");
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
-LEFT JOIN [Post] AS [p] ON (([b].[BlogId] = [p].[BlogId]) AND ([b].[IsVisible] = N'Y')) AND ([b].[BlogId] = @__blogId_0)
+LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
 WHERE [b].[IsVisible] = N'Y'");
         }
 

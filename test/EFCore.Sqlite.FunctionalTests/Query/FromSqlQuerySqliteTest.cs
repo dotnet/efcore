@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM (
     SELECT * FROM ""Customers""
 ) AS ""m""
-WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)";
+WHERE 'z' = '' OR instr(""m"".""ContactName"", 'z') > 0";
 
             Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
@@ -87,7 +87,7 @@ FROM (
     )
     SELECT * FROM ""Customers2""
 ) AS ""m""
-WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)");
+WHERE 'z' = '' OR instr(""m"".""ContactName"", 'z') > 0");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)

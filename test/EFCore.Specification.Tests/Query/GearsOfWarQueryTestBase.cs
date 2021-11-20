@@ -9282,6 +9282,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>().Where(m => m.Rating.Equals(null)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bool_column_and_Contains(bool async)
+        {
+            var values = new[] { false, true };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && values.Contains(g.HasSoulPatch)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bool_column_or_Contains(bool async)
+        {
+            var values = new[] { false, true };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch && values.Contains(g.HasSoulPatch)));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 
