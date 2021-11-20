@@ -86,12 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         Use
-        ///         <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">
-        ///             static
-        ///             lambda expressions
-        ///         </see>
-        ///         to avoid creating multiple instances.
+        ///         Use <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">
+        ///         static lambda expressions</see> to avoid creating multiple instances.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and

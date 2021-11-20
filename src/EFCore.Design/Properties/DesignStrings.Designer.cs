@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("VerboseDescription");
 
         /// <summary>
-        ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information and examples.
+        ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.
         /// </summary>
         public static string VersionMismatch(object? toolsVersion, object? runtimeVersion)
             => string.Format(

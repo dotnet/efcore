@@ -859,13 +859,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 strategy, getExecutionStrategyMethod);
 
         /// <summary>
-        ///     An exception was thrown while attempting to evaluate a LINQ query parameter expression. See the inner exception for more information and examples. To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.
+        ///     An exception was thrown while attempting to evaluate a LINQ query parameter expression. See the inner exception for more information. To show additional information call 'DbContextOptionsBuilder.EnableSensitiveDataLogging'.
         /// </summary>
         public static string ExpressionParameterizationException
             => GetString("ExpressionParameterizationException");
 
         /// <summary>
-        ///     An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'. See the inner exception for more information and examples.
+        ///     An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'. See the inner exception for more information.
         /// </summary>
         public static string ExpressionParameterizationExceptionSensitive(object? expression)
             => string.Format(
@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'. See https://aka.ms/efcore-docs-owned for more information and examples.
+        ///     Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'. See https://aka.ms/efcore-docs-owned for more information.
         /// </summary>
         public static string InvalidSetTypeOwned(object? typeName, object? ownerType)
             => string.Format(
@@ -1332,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType, referencedNavigation, referencedEntityType);
 
         /// <summary>
-        ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type. See https://aka.ms/efcore-docs-owned for more information and examples.
+        ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type. See https://aka.ms/efcore-docs-owned for more information.
         /// </summary>
         public static string InverseToOwnedType(object? principalEntityType, object? navigation, object? ownedType, object? ownerType)
             => string.Format(
@@ -1598,7 +1598,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, referenceMethod, collectionMethod, propertyMethod);
 
         /// <summary>
-        ///     The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation. See https://aka.ms/efcore-docs-owned for more information and examples.
+        ///     The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation. See https://aka.ms/efcore-docs-owned for more information.
         /// </summary>
         public static string NavigationlessOwnership(object? principalEntityType, object? dependentEntityType)
             => string.Format(
@@ -1900,7 +1900,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     The owned entity type '{entityType}' cannot have a base type. See https://aka.ms/efcore-docs-owned for more information and examples.
+        ///     The owned entity type '{entityType}' cannot have a base type. See https://aka.ms/efcore-docs-owned for more information.
         /// </summary>
         public static string OwnedDerivedType(object? entityType)
             => string.Format(
@@ -2070,7 +2070,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
-        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information and examples. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped because the database provider does not support this type. Consider converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
         public static string PropertyNotMapped(object? propertyType, object? entityType, object? property)
             => string.Format(
@@ -2172,7 +2172,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 member, entityType);
 
         /// <summary>
-        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information and examples.
+        ///     Translation of method '{declaringTypeName}.{methodName}' failed. If this method can be mapped to your custom function, see https://go.microsoft.com/fwlink/?linkid=2132413 for more information.
         /// </summary>
         public static string QueryUnableToTranslateMethod(object? declaringTypeName, object? methodName)
             => string.Format(
@@ -2180,7 +2180,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 declaringTypeName, methodName);
 
         /// <summary>
-        ///     Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information and examples.
+        ///     Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported. See https://go.microsoft.com/fwlink/?linkid=2129535 for more information.
         /// </summary>
         public static string QueryUnableToTranslateStringEqualsWithStringComparison
             => GetString("QueryUnableToTranslateStringEqualsWithStringComparison");
@@ -2594,7 +2594,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("TransactionsNotSupported");
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.
+        ///     The LINQ expression '{expression}' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
         /// </summary>
         public static string TranslationFailed(object? expression)
             => string.Format(
@@ -2602,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.
+        ///     The LINQ expression '{expression}' could not be translated. Additional information: {details} Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.
         /// </summary>
         public static string TranslationFailedWithDetails(object? expression, object? details)
             => string.Format(
@@ -2698,7 +2698,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The value of shadow key property '{entityType}.{property}' is unknown when attempting to save changes. This is because shadow property values cannot be preserved when the entity is not being tracked. Consider adding the property to the entity's .NET type. See https://aka.ms/efcore-docs-owned-collections for more information and examples.
+        ///     The value of shadow key property '{entityType}.{property}' is unknown when attempting to save changes. This is because shadow property values cannot be preserved when the entity is not being tracked. Consider adding the property to the entity's .NET type. See https://aka.ms/efcore-docs-owned-collections for more information.
         /// </summary>
         public static string UnknownShadowKeyValue(object? entityType, object? property)
             => string.Format(
@@ -3779,7 +3779,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Entity '{principalEntityType}' has a global query filter defined and is the required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information and examples.
+        ///     Entity '{principalEntityType}' has a global query filter defined and is the required end of a relationship with the entity '{declaringEntityType}'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
         /// </summary>
         public static EventDefinition<string, string> LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(IDiagnosticsLogger logger)
         {

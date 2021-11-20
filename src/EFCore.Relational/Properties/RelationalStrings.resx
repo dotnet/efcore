@@ -311,13 +311,13 @@
     <value>Either {param1} or {param2} must be null.</value>
   </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
-    <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information and examples.</value>
+    <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
   </data>
   <data name="ErrorMaterializingPropertyNullReference" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
   <data name="ErrorMaterializingValue" xml:space="preserve">
-    <value>An error occurred while reading a database value. See the inner exception for more information and examples.</value>
+    <value>An error occurred while reading a database value. See the inner exception for more information.</value>
   </data>
   <data name="ErrorMaterializingValueInvalidCast" xml:space="preserve">
     <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was of type '{actualType}'.</value>
@@ -540,7 +540,7 @@
     <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
   </data>
   <data name="LogMultipleCollectionIncludeWarning" xml:space="preserve">
-    <value>Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information and examples. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
+    <value>Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.</value>
     <comment>Warning RelationalEventId.MultipleCollectionIncludeWarning</comment>
   </data>
   <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
@@ -669,7 +669,7 @@
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
   </data>
   <data name="NamedConnectionStringNotFound" xml:space="preserve">
-    <value>A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information and examples.</value>
+    <value>A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.</value>
   </data>
   <data name="NestedAmbientTransactionError" xml:space="preserve">
     <value>A root ambient transaction was completed before the nested transaction. The nested transactions should be completed first.</value>
@@ -693,10 +693,10 @@
     <value>Cannot set 'PropagatesNullability' on parameter '{parameterName}' of DbFunction '{functionName}' since function does not represent a scalar function.</value>
   </data>
   <data name="NonTPHTableClash" xml:space="preserve">
-    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.</value>
+    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="NonTPHViewClash" xml:space="preserve">
-    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.</value>
+    <value>Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using 'OnConfiguring' or by creating an ImmutableDbContextOptions with a configured database provider and passing it to the context.</value>
@@ -717,13 +717,13 @@
     <value>Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.</value>
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
-    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information and examples. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
   </data>
   <data name="QueryFromSqlInsideExists" xml:space="preserve">
-    <value>The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information and examples.</value>
+    <value>The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.</value>
@@ -765,10 +765,10 @@
     <value>The underlying reader doesn't have as many fields as expected. Expected: {expected}, actual: {actual}.</value>
   </data>
   <data name="TPHTableMismatch" xml:space="preserve">
-    <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.</value>
+    <value>'{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="TPHViewMismatch" xml:space="preserve">
-    <value>'{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.</value>
+    <value>'{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
   </data>
   <data name="TransactionAlreadyStarted" xml:space="preserve">
     <value>The connection is already in a transaction and cannot participate in another transaction.</value>

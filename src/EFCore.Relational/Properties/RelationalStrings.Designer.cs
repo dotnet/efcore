@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 param1, param2);
 
         /// <summary>
-        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information and examples.
+        ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingProperty(object? entityType, object? property)
             => string.Format(
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, expectedType);
 
         /// <summary>
-        ///     An error occurred while reading a database value. See the inner exception for more information and examples.
+        ///     An error occurred while reading a database value. See the inner exception for more information.
         /// </summary>
         public static string ErrorMaterializingValue
             => GetString("ErrorMaterializingValue");
@@ -850,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("MultipleProvidersConfigured");
 
         /// <summary>
-        ///     A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information and examples.
+        ///     A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.
         /// </summary>
         public static string NamedConnectionStringNotFound(object? name)
             => string.Format(
@@ -904,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameterName, functionName);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the table '{table}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string NonTPHTableClash(object? entityType, object? otherEntityType, object? table)
             => string.Format(
@@ -912,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, otherEntityType, table);
 
         /// <summary>
-        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.
+        ///     Both '{entityType}' and '{otherEntityType}' are mapped to the view '{view}'. All the entity types in a hierarchy that don't have a discriminator must be mapped to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string NonTPHViewClash(object? entityType, object? otherEntityType, object? view)
             => string.Format(
@@ -962,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ProjectionMappingCountMismatch");
 
         /// <summary>
-        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information and examples. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The '{propertyType}' property '{entityType}.{property}' could not be mapped to the database type '{storeType}' because the database provider does not support mapping '{propertyType}' properties to '{storeType}' columns. Consider mapping to a different database type or converting the property value to a type supported by the database using a value converter. See https://aka.ms/efcore-docs-value-converters for more information. Alternately, exclude the property from the model using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
         public static string PropertyNotMapped(object? propertyType, object? entityType, object? property, object? storeType)
             => string.Format(
@@ -978,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, table);
 
         /// <summary>
-        ///     The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information and examples.
+        ///     The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.
         /// </summary>
         public static string QueryFromSqlInsideExists
             => GetString("QueryFromSqlInsideExists");
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expected, actual);
 
         /// <summary>
-        ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.
+        ///     '{entityType}' is mapped to the table '{table}' while '{otherEntityType}' is mapped to the table '{otherTable}'. Map all the entity types in the hierarchy to the same table, or remove the discriminator and map them all to different tables. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string TPHTableMismatch(object? entityType, object? table, object? otherEntityType, object? otherTable)
             => string.Format(
@@ -1088,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, table, otherEntityType, otherTable);
 
         /// <summary>
-        ///     '{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information and examples.
+        ///     '{entityType}' is mapped to the view '{view}' while '{otherEntityType}' is mapped to the view '{otherView}'. Map all the entity types in the hierarchy to the same view, or remove the discriminator and map them all to different views. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.
         /// </summary>
         public static string TPHViewMismatch(object? entityType, object? view, object? otherEntityType, object? otherView)
             => string.Format(
@@ -2135,7 +2135,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information and examples. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+        ///     Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
         /// </summary>
         public static EventDefinition LogMultipleCollectionIncludeWarning(IDiagnosticsLogger logger)
         {
