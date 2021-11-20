@@ -58,9 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>),
             "Microsoft.EntityFrameworkCore.Utilities.TypeNameHelperTest+OuterGeneric<int>+InnerNonGeneric+InnerGeneric<int, string>+InnerGenericLeafNode<bool>")]
         public void Can_pretty_print_CLR_full_name(Type type, string expected)
-        {
-            Assert.Equal(expected, type.DisplayName());
-        }
+            => Assert.Equal(expected, type.DisplayName());
 
         [ConditionalTheory]
         // Predefined Types
@@ -84,9 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(
             typeof(OuterGeneric<int>.InnerNonGeneric.InnerGeneric<int, string>.InnerGenericLeafNode<bool>), "InnerGenericLeafNode<bool>")]
         public void Can_pretty_print_CLR_name(Type type, string expected)
-        {
-            Assert.Equal(expected, type.ShortDisplayName());
-        }
+            => Assert.Equal(expected, type.ShortDisplayName());
 
         [ConditionalTheory]
         [InlineData(typeof(bool), "bool")]
@@ -106,9 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(typeof(ushort), "ushort")]
         [InlineData(typeof(void), "void")]
         public void Returns_common_name_for_built_in_types(Type type, string expected)
-        {
-            Assert.Equal(expected, type.DisplayName());
-        }
+            => Assert.Equal(expected, type.DisplayName());
 
         [ConditionalTheory]
         [InlineData(typeof(int[]), true, "int[]")]
@@ -119,9 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         [InlineData(typeof(List<int[,][,,]>), true, "System.Collections.Generic.List<int[,][,,]>")]
         [InlineData(typeof(List<int[,,][,]>[,][,,]), false, "List<int[,,][,]>[,][,,]")]
         public void Can_pretty_print_array_name(Type type, bool fullName, string expected)
-        {
-            Assert.Equal(expected, type.DisplayName(fullName));
-        }
+            => Assert.Equal(expected, type.DisplayName(fullName));
 
         public static TheoryData OpenGenericsTestData { get; } = CreateOpenGenericsTestData();
 

@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : UpdatesFixtureBase
     {
         protected UpdatesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -95,8 +97,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Save_partial_update_on_missing_record_throws()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entry = context.Products.Attach(
@@ -109,7 +110,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateConcurrencyException>(
                             () => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
@@ -301,8 +301,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Remove_partial_on_missing_record_throws()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Products.Remove(
@@ -313,7 +312,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateConcurrencyException>(
                             () => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Remove_partial_on_concurrency_token_original_value_mismatch_throws()
@@ -338,8 +336,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Save_replaced_principal()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var category = context.Categories.Single();
@@ -366,12 +363,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("New Category", category.Name);
                     Assert.Equal(2, products.Count);
                 });
-        }
 
         [ConditionalFact]
         public virtual void SaveChanges_processes_all_tracked_entities()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var stateManager = context.GetService<IStateManager>();
@@ -405,12 +400,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, entry2.EntityState);
                     Assert.Equal(EntityState.Unchanged, entry3.EntityState);
                 });
-        }
 
         [ConditionalFact]
         public virtual void SaveChanges_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var stateManager = context.GetService<IStateManager>();
@@ -446,12 +439,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, entry3.EntityState);
                     Assert.Equal(EntityState.Deleted, entry4.EntityState);
                 });
-        }
 
         [ConditionalFact]
         public Task SaveChangesAsync_processes_all_tracked_entities()
-        {
-            return ExecuteWithStrategyInTransactionAsync(
+            => ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var stateManager = context.GetService<IStateManager>();
@@ -485,12 +476,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, entry2.EntityState);
                     Assert.Equal(EntityState.Unchanged, entry3.EntityState);
                 });
-        }
 
         [ConditionalFact]
         public Task SaveChangesAsync_false_processes_all_tracked_entities_without_calling_AcceptAllChanges()
-        {
-            return ExecuteWithStrategyInTransactionAsync(
+            => ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var stateManager = context.GetService<IStateManager>();
@@ -526,7 +515,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, entry3.EntityState);
                     Assert.Equal(EntityState.Deleted, entry4.EntityState);
                 });
-        }
 
         protected abstract string UpdateConcurrencyMessage { get; }
 

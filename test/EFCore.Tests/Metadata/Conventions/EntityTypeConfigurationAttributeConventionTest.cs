@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            Assert.Equal(CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(UserConfiguration), nameof(User)),
+            Assert.Equal(
+                CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(UserConfiguration), nameof(User)),
                 Assert.Throws<InvalidOperationException>(() => builder.Entity<User>()).Message);
         }
 
@@ -37,7 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            Assert.Equal(CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(CustomerConfiguration), nameof(InvalidCustomer)),
+            Assert.Equal(
+                CoreStrings.InvalidEntityTypeConfigurationAttribute(nameof(CustomerConfiguration), nameof(InvalidCustomer)),
                 Assert.Throws<InvalidOperationException>(() => builder.Entity<InvalidCustomer>()).Message);
         }
 
@@ -59,9 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         {
             public void Configure(EntityTypeBuilder<Customer> builder)
-            {
-                builder.Property(c => c.Name).HasMaxLength(1000);
-            }
+                => builder.Property(c => c.Name).HasMaxLength(1000);
         }
 
         [EntityTypeConfiguration(typeof(CustomerConfiguration))]

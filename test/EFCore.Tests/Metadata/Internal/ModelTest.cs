@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -57,9 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Snapshot_change_tracking_is_used_by_default()
-        {
-            Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
-        }
+            => Assert.Equal(ChangeTrackingStrategy.Snapshot, CreateModel().GetChangeTrackingStrategy());
 
         [ConditionalFact]
         public void Change_tracking_strategy_can_be_changed()
@@ -156,9 +153,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var model = CreateModel();
 
-            Assert.Equal(CoreStrings.AmbiguousSharedTypeEntityTypeName(typeof(Customer).DisplayName()),
-                Assert.Throws<InvalidOperationException>(()
-                    => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
+            Assert.Equal(
+                CoreStrings.AmbiguousSharedTypeEntityTypeName(typeof(Customer).DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => model.AddEntityType(typeof(Customer).DisplayName(), typeof(Customer))).Message);
         }
 
         [ConditionalFact]

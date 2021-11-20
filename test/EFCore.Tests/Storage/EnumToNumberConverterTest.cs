@@ -70,9 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_enums_to_numbers()
-        {
-            ValueConverterTest.OrderingTest(_enumToNumber, Beatles.Ringo, Beatles.George, Beatles.Paul, Beatles.John);
-        }
+            => ValueConverterTest.OrderingTest(_enumToNumber, Beatles.Ringo, Beatles.George, Beatles.Paul, Beatles.John);
 
         private static readonly ValueConverter<Beatles, double> _enumToDouble
             = new EnumToNumberConverter<Beatles, double>();

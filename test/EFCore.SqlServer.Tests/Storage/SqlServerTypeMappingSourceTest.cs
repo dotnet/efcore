@@ -972,12 +972,15 @@ namespace Microsoft.EntityFrameworkCore
             var property = ((IMutableModel)new Model()).AddEntityType("Entity1")
                 .AddProperty("Strange", typeof(object));
             var ex = Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource().GetMapping((IProperty)property));
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1 (Dictionary<string, object>)", "Strange", "object"), ex.Message);
+            Assert.Equal(
+                RelationalStrings.UnsupportedPropertyType("Entity1 (Dictionary<string, object>)", "Strange", "object"), ex.Message);
 
-            Assert.Equal(RelationalStrings.UnsupportedType("object"),
+            Assert.Equal(
+                RelationalStrings.UnsupportedType("object"),
                 Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource().GetMapping(typeof(object))).Message);
 
-            Assert.Equal(RelationalStrings.UnsupportedStoreType("object"),
+            Assert.Equal(
+                RelationalStrings.UnsupportedStoreType("object"),
                 Assert.Throws<InvalidOperationException>(() => CreateRelationalTypeMappingSource().GetMapping("object")).Message);
         }
 
@@ -1235,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
         }
 
-        class FakeTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
+        private class FakeTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
         {
             public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
                 => new StringTypeMapping("datetime2", null);
@@ -1301,24 +1304,16 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override DbParameter CreateDbParameter()
-            {
-                return new TestParameter();
-            }
+                => new TestParameter();
 
             protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override int ExecuteNonQuery()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override object ExecuteScalar()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
         }
     }
 }

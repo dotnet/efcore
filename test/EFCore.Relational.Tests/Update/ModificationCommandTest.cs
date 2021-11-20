@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -499,11 +498,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IComparer<IUpdateEntry> comparer)
-            => new ModificationCommandFactory().CreateModificationCommand(new ModificationCommandParameters(
-                tableName,
-                schemaName,
-                sensitiveLoggingEnabled,
-                comparer,
-                generateParameterName));
+            => new ModificationCommandFactory().CreateModificationCommand(
+                new ModificationCommandParameters(
+                    tableName,
+                    schemaName,
+                    sensitiveLoggingEnabled,
+                    comparer,
+                    generateParameterName));
     }
 }

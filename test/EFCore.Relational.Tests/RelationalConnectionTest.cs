@@ -861,24 +861,20 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Throws_if_no_relational_store_configured()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 RelationalStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeRelationalConnection(CreateOptions())).Message);
-        }
 
         [ConditionalFact]
         public void Throws_if_multiple_relational_stores_configured()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 RelationalStrings.MultipleProvidersConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeRelationalConnection(
                         CreateOptions(
                             new FakeRelationalOptionsExtension(),
                             new AnotherFakeRelationalOptionsExtension()))).Message);
-        }
 
         private class AnotherFakeRelationalOptionsExtension : RelationalOptionsExtension
         {

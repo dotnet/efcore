@@ -113,14 +113,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     CoreAnnotationNames.DiscriminatorProperty, ("Id",
-                        _toTable + ";" + _nl
+                        _toTable
+                        + ";"
+                        + _nl
                         + _nl
                         + "entityTypeBuilder.HasDiscriminator"
                         + @"<int>(""Id"")")
                 },
                 {
                     CoreAnnotationNames.DiscriminatorValue, ("MyDiscriminatorValue",
-                        _toTable + ";" + _nl
+                        _toTable
+                        + ";"
+                        + _nl
                         + _nl
                         + "entityTypeBuilder.HasDiscriminator"
                         + "()."
@@ -129,7 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     RelationalAnnotationNames.Comment, ("My Comment",
-                        _toTable + ";" + _nl
+                        _toTable
+                        + ";"
+                        + _nl
                         + _nl
                         + @"entityTypeBuilder.HasComment(""My Comment"")")
                 },
@@ -137,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 #pragma warning disable CS0612 // Type or member is obsolete
                     CoreAnnotationNames.DefiningQuery,
 #pragma warning restore CS0612 // Type or member is obsolete
-                    (Expression.Lambda(Expression.Constant(null)) , "")
+                    (Expression.Lambda(Expression.Constant(null)), "")
                 },
                 {
                     RelationalAnnotationNames.ViewName,
@@ -265,8 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ("My Comment", $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasComment)}(""My Comment"")")
                 },
                 {
-                    RelationalAnnotationNames.Collation,
-                    ("Some Collation",
+                    RelationalAnnotationNames.Collation, ("Some Collation",
                         $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.UseCollation)}(""Some Collation"")")
                 },
                 {
@@ -313,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var field in coreAnnotations.Concat(
-                typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
+                         typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
             {
                 var annotationName = (string)field.GetValue(null);
 
@@ -321,9 +326,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
                     var metadataItem = createMetadataItem(modelBuilder);
-                    metadataItem.SetAnnotation(annotationName, validAnnotations.ContainsKey(annotationName)
-                        ? validAnnotations[annotationName].Value
-                        : null);
+                    metadataItem.SetAnnotation(
+                        annotationName, validAnnotations.ContainsKey(annotationName)
+                            ? validAnnotations[annotationName].Value
+                            : null);
 
                     modelBuilder.FinalizeModel(designTime: true);
 

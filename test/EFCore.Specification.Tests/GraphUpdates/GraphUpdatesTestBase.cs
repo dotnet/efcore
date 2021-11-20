@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
         protected GraphUpdatesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -398,26 +400,28 @@ namespace Microsoft.EntityFrameworkCore
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
 
-                modelBuilder.Entity<SharedFkRoot>(builder =>
-                {
-                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
+                modelBuilder.Entity<SharedFkRoot>(
+                    builder =>
+                    {
+                        builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                        builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
 
-                modelBuilder.Entity<SharedFkParent>(builder =>
-                {
-                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-                });
+                modelBuilder.Entity<SharedFkParent>(
+                    builder =>
+                    {
+                        builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                            .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                            .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                            .OnDelete(DeleteBehavior.ClientSetNull);
+                    });
 
                 modelBuilder.Entity<SharedFkDependant>();
 
@@ -512,19 +516,13 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             new()
                             {
-                                Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance)
-                                {
-                                    new(), new()
-                                },
+                                Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                             },
                             new()
                             {
-                                Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance)
-                                {
-                                    new(), new()
-                                },
+                                Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                             }
@@ -554,10 +552,7 @@ namespace Microsoft.EntityFrameworkCore
                                     new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        new(), new()
-                                    }
+                                    new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
                             },
                             new()
                             {
@@ -567,10 +562,7 @@ namespace Microsoft.EntityFrameworkCore
                                     new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        new(), new()
-                                    }
+                                    new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
                             }
                         },
                     OptionalChildrenAk =
@@ -584,10 +576,7 @@ namespace Microsoft.EntityFrameworkCore
                                     new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        new(), new()
-                                    }
+                                    new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
                             },
                             new()
                             {
@@ -597,10 +586,7 @@ namespace Microsoft.EntityFrameworkCore
                                     new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
-                                    {
-                                        new(), new()
-                                    }
+                                    new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
                             }
                         },
                     RequiredSingleAk =
@@ -691,17 +677,10 @@ namespace Microsoft.EntityFrameworkCore
                 var root = new SharedFkRoot();
                 context.Add(root);
 
-                var parent = new SharedFkParent
-                {
-                    Root = root
-                };
+                var parent = new SharedFkParent { Root = root };
                 context.Add(parent);
 
-                context.Add(new SharedFkDependant
-                {
-                    Root = root,
-                    Parent = parent
-                });
+                context.Add(new SharedFkDependant { Root = root, Parent = parent });
 
                 context.SaveChanges();
             }
@@ -738,17 +717,14 @@ namespace Microsoft.EntityFrameworkCore
             => query;
 
         protected Root LoadRequiredGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadOptionalGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
@@ -756,11 +732,9 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadRequiredNonPkGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Root)
@@ -769,22 +743,18 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadRequiredAkGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadOptionalAkGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
@@ -793,11 +763,9 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadRequiredNonPkAkGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Root)
@@ -806,26 +774,21 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadOptionalOneToManyGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected Root LoadRequiredCompositeGraph(DbContext context)
-        {
-            return ModifyQueryRoot(context.Set<Root>())
+            => ModifyQueryRoot(context.Set<Root>())
                 .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
                 .OrderBy(e => e.Id)
                 .Single(IsTheRoot);
-        }
 
         protected static void AssertEntries(IReadOnlyList<EntityEntry> expectedEntries, IReadOnlyList<EntityEntry> actualEntries)
         {
@@ -1861,7 +1824,9 @@ namespace Microsoft.EntityFrameworkCore
         protected class MyDiscriminator
         {
             public MyDiscriminator(int value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             public int Value { get; }
 

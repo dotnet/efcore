@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -176,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             void RewriteSourceWithNewBaseline(string fileName, int lineNumber)
             {
-                var fileLock = _queryBaselineRewritingLocks.GetOrAdd(fileName, _ => new());
+                var fileLock = _queryBaselineRewritingLocks.GetOrAdd(fileName, _ => new object());
                 lock (fileLock)
                 {
                     // Parse the file to find the line where the relevant AssertSql is
@@ -306,7 +305,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             private readonly bool _shouldLogCommands;
 
             public TestSqlLogger(bool shouldLogCommands)
-                => _shouldLogCommands = shouldLogCommands;
+            {
+                _shouldLogCommands = shouldLogCommands;
+            }
 
             public List<string> SqlStatements { get; } = new();
             public List<string> Parameters { get; } = new();

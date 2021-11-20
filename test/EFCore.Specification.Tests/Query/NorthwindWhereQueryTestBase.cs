@@ -1657,6 +1657,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Where_compare_with_both_cast_to_object(bool async)
             => AssertQuery(
                 async,
+                // ReSharper disable twice RedundantCast
                 ss => ss.Set<Customer>().Where(c => (object)c.City == (object)"London"),
                 entryCount: 6);
 
@@ -2417,23 +2418,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Like_and_comparison(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") && c.City == "Seattle"),
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") && c.City == "Seattle"),
                 entryCount: 0);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Like_or_comparison(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => EF.Functions.Like(c.CustomerID, "F%") || c.City == "Seattle"),
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F") || c.City == "Seattle"),
                 entryCount: 9);
-        }
     }
 }

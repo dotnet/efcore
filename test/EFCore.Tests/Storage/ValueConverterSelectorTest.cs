@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Can_get_converters_for_int_enums()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Queen)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, int>), default),
                 (typeof(EnumToNumberConverter<Queen, long>), default),
@@ -34,12 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Queen, sbyte>), default),
                 (typeof(EnumToNumberConverter<Queen, double>), default),
                 (typeof(EnumToNumberConverter<Queen, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_ulong_enums()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Gnr)).ToList(),
                 (typeof(EnumToNumberConverter<Gnr, ulong>), default),
                 (typeof(EnumToNumberConverter<Gnr, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
@@ -54,12 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Gnr, sbyte>), default),
                 (typeof(EnumToNumberConverter<Gnr, double>), default),
                 (typeof(EnumToNumberConverter<Gnr, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_long_enums()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Velvets)).ToList(),
                 (typeof(EnumToNumberConverter<Velvets, long>), default),
                 (typeof(EnumToNumberConverter<Velvets, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
@@ -74,12 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Velvets, sbyte>), default),
                 (typeof(EnumToNumberConverter<Velvets, double>), default),
                 (typeof(EnumToNumberConverter<Velvets, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_byte_enums()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Nwa)).ToList(),
                 (typeof(EnumToNumberConverter<Nwa, byte>), default),
                 (typeof(EnumToNumberConverter<Nwa, short>), default),
@@ -94,44 +87,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Nwa, sbyte>), default),
                 (typeof(EnumToNumberConverter<Nwa, double>), default),
                 (typeof(EnumToNumberConverter<Nwa, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_enum_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Queen), typeof(string)).ToList(),
                 (typeof(EnumToStringConverter<Queen>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_enum_to_underlying_enum_type()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Queen), typeof(int)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, int>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_enum_to_other_integer_type()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Queen), typeof(sbyte)).ToList(),
                 (typeof(EnumToNumberConverter<Queen, sbyte>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_enum_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Queen), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<Queen, int, byte[]>), new ConverterMappingHints(size: 4)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_int()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(int)).ToList(),
                 (typeof(CastingConverter<int, long>), default),
                 (typeof(CastingConverter<int, decimal>), default),
@@ -145,12 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<int, sbyte>), default),
                 (typeof(CastingConverter<int, double>), default),
                 (typeof(CastingConverter<int, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_uint()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(uint)).ToList(),
                 (typeof(CastingConverter<uint, long>), default),
                 (typeof(CastingConverter<uint, ulong>), default),
@@ -164,12 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<uint, sbyte>), default),
                 (typeof(CastingConverter<uint, double>), default),
                 (typeof(CastingConverter<uint, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_sbyte()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(sbyte)).ToList(),
                 (typeof(CastingConverter<sbyte, short>), default),
                 (typeof(CastingConverter<sbyte, int>), default),
@@ -183,12 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<sbyte, ushort>), default),
                 (typeof(CastingConverter<sbyte, double>), default),
                 (typeof(CastingConverter<sbyte, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_byte()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(byte)).ToList(),
                 (typeof(CastingConverter<byte, short>), default),
                 (typeof(CastingConverter<byte, ushort>), default),
@@ -202,12 +179,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<byte, sbyte>), default),
                 (typeof(CastingConverter<byte, double>), default),
                 (typeof(CastingConverter<byte, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_double()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(double)).ToList(),
                 (typeof(CastingConverter<double, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
                 (typeof(NumberToStringConverter<double>), new ConverterMappingHints(size: 64)),
@@ -221,12 +196,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<double, ushort>), default),
                 (typeof(CastingConverter<double, sbyte>), default),
                 (typeof(CastingConverter<double, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_float()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(float)).ToList(),
                 (typeof(CastingConverter<float, double>), default),
                 (typeof(CastingConverter<float, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
@@ -240,12 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<float, uint>), default),
                 (typeof(CastingConverter<float, ushort>), default),
                 (typeof(CastingConverter<float, sbyte>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_decimal()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(decimal)).ToList(),
                 (typeof(NumberToStringConverter<decimal>), new ConverterMappingHints(size: 64)),
                 (typeof(NumberToBytesConverter<decimal>), new ConverterMappingHints(size: 16)),
@@ -259,23 +230,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<decimal, sbyte>), default),
                 (typeof(CastingConverter<decimal, double>), default),
                 (typeof(CastingConverter<decimal, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_double_to_float()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(double), typeof(float)).ToList(),
                 (typeof(CastingConverter<double, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_float_to_double()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(float), typeof(double)).ToList(),
                 (typeof(CastingConverter<float, double>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_explicit_converters_for_numeric_types()
@@ -317,8 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Can_get_converters_for_char()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(char)).ToList(),
                 (typeof(CharToStringConverter), new ConverterMappingHints(size: 1)),
                 (typeof(CastingConverter<char, int>), default),
@@ -333,36 +298,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(CastingConverter<char, sbyte>), default),
                 (typeof(CastingConverter<char, double>), default),
                 (typeof(CastingConverter<char, float>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_char_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(char), typeof(string)).ToList(),
                 (typeof(CharToStringConverter), new ConverterMappingHints(size: 1)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_char_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(char), typeof(byte[])).ToList(),
                 (typeof(NumberToBytesConverter<char>), new ConverterMappingHints(size: 2)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_char_to_specific_numeric()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(char), typeof(ushort)).ToList(),
                 (typeof(CastingConverter<char, ushort>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_bool()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(bool)).ToList(),
                 (typeof(BoolToZeroOneConverter<int>), default),
                 (typeof(BoolToZeroOneConverter<long>), default),
@@ -377,326 +334,247 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(BoolToZeroOneConverter<float>), default),
                 (typeof(BoolToStringConverter), new ConverterMappingHints(size: 1)),
                 (typeof(CompositeValueConverter<bool, byte, byte[]>), new ConverterMappingHints(size: 1)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_GUID()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Guid)).ToList(),
                 (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)),
                 (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_GUID_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Guid), typeof(string)).ToList(),
                 (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_GUID_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Guid), typeof(byte[])).ToList(),
                 (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_strings()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string)).ToList(),
                 (typeof(StringToBytesConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_int()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(int)).ToList(),
                 (typeof(StringToNumberConverter<int>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_long()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(long)).ToList(),
                 (typeof(StringToNumberConverter<long>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_short()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(short)).ToList(),
                 (typeof(StringToNumberConverter<short>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_byte()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(byte)).ToList(),
                 (typeof(StringToNumberConverter<byte>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_ulong()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(ulong)).ToList(),
                 (typeof(StringToNumberConverter<ulong>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_uint()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(uint)).ToList(),
                 (typeof(StringToNumberConverter<uint>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_ushort()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(ushort)).ToList(),
                 (typeof(StringToNumberConverter<ushort>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_sbyte()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(sbyte)).ToList(),
                 (typeof(StringToNumberConverter<sbyte>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_decimal()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(decimal)).ToList(),
                 (typeof(StringToNumberConverter<decimal>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_double()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(double)).ToList(),
                 (typeof(StringToNumberConverter<double>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_float()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(float)).ToList(),
                 (typeof(StringToNumberConverter<float>), new ConverterMappingHints(size: 64)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_enum()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(Queen)).ToList(),
                 (typeof(StringToEnumConverter<Queen>), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_DateTime()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(DateTime)).ToList(),
                 (typeof(StringToDateTimeConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_DateTimeOffset()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(DateTimeOffset)).ToList(),
                 (typeof(StringToDateTimeOffsetConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_TimeSpan()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(TimeSpan)).ToList(),
                 (typeof(StringToTimeSpanConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_Guid()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(Guid)).ToList(),
                 (typeof(StringToGuidConverter), new ConverterMappingHints(size: 36)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_Uri()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(Uri)).ToList(),
                 (typeof(StringToUriConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_bool()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(bool)).ToList(),
                 (typeof(StringToBoolConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_char()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(char)).ToList(),
                 (typeof(StringToCharConverter), new ConverterMappingHints(size: 1)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_string_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(string), typeof(byte[])).ToList(),
                 (typeof(StringToBytesConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(byte[])).ToList(),
                 (typeof(BytesToStringConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_bytes_to_strings()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(byte[]), typeof(string)).ToList(),
                 (typeof(BytesToStringConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTime()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTime)).ToList(),
                 (typeof(DateTimeToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(DateTimeToBinaryConverter), default),
                 (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTime_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTime), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<DateTime, long, byte[]>), new ConverterMappingHints(size: 8)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTime_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTime), typeof(string)).ToList(),
                 (typeof(DateTimeToStringConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTime_to_long()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTime), typeof(long)).ToList(),
                 (typeof(DateTimeToBinaryConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTimeOffset()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTimeOffset)).ToList(),
                 (typeof(DateTimeOffsetToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(DateTimeOffsetToBinaryConverter), default),
                 (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTimeOffset_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTimeOffset), typeof(byte[])).ToList(),
                 (typeof(DateTimeOffsetToBytesConverter), new ConverterMappingHints(size: 12)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTimeOffset_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTimeOffset), typeof(string)).ToList(),
                 (typeof(DateTimeOffsetToStringConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_DateTimeOffset_to_long()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(DateTimeOffset), typeof(long)).ToList(),
                 (typeof(DateTimeOffsetToBinaryConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_TimeSpan()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(TimeSpan)).ToList(),
                 (typeof(TimeSpanToStringConverter), new ConverterMappingHints(size: 48)),
                 (typeof(TimeSpanToTicksConverter), default),
                 (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_TimeSpan_to_bytes()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(TimeSpan), typeof(byte[])).ToList(),
                 (typeof(CompositeValueConverter<TimeSpan, long, byte[]>), new ConverterMappingHints(size: 8)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_TimeSpan_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(TimeSpan), typeof(string)).ToList(),
                 (typeof(TimeSpanToStringConverter), new ConverterMappingHints(size: 48)));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_TimeSpan_to_long()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(TimeSpan), typeof(long)).ToList(),
                 (typeof(TimeSpanToTicksConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_Uri_to_string()
-        {
-            AssertConverters(
+            => AssertConverters(
                 _selector.Select(typeof(Uri), typeof(string)).ToList(),
                 (typeof(UriToStringConverter), default));
-        }
 
         [ConditionalFact]
         public void Can_get_converters_for_IPAddress_to_string()

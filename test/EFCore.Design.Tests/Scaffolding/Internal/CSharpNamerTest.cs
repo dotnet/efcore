@@ -17,9 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(" ", "_")]
         [InlineData("", "_")]
         public void Sanitizes_name_with_no_singularize_or_pluralize(string input, string output)
-        {
-            Assert.Equal(output, new CSharpNamer<string>(s => s, new CSharpUtilities(), null).GetName(input));
-        }
+            => Assert.Equal(output, new CSharpNamer<string>(s => s, new CSharpUtilities(), null).GetName(input));
 
         [ConditionalTheory]
         [InlineData("Name ending with s", "Name_ending_with_")]

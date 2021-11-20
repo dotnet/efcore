@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>
+    public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestBase<
+        GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>
     {
         public GraphUpdatesSqlServerClientCascadeTest(SqlServerFixture fixture)
             : base(fixture)
@@ -29,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
 
                 foreach (var foreignKey in modelBuilder.Model
-                    .GetEntityTypes()
-                    .SelectMany(e => e.GetDeclaredForeignKeys())
-                    .Where(e => e.DeleteBehavior == DeleteBehavior.Cascade))
+                             .GetEntityTypes()
+                             .SelectMany(e => e.GetDeclaredForeignKeys())
+                             .Where(e => e.DeleteBehavior == DeleteBehavior.Cascade))
                 {
                     foreignKey.DeleteBehavior = DeleteBehavior.ClientCascade;
                 }

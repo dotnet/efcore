@@ -238,33 +238,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_deleted()
-        {
-            return TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
-        }
+            => TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_graph()
-        {
-            return TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
+            => TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_graph_async()
-        {
-            return TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
-        }
+            => TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_attached_graph()
-        {
-            return TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
-        }
+            => TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_updated_graph()
-        {
-            return TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
-        }
+            => TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
 
         private static Task TrackEntitiesTest(
             Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
@@ -324,48 +314,38 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set()
-        {
-            return TrackMultipleEntitiesTest(
+            => TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AddRange(e[0], e[1]),
                 (c, e) => c.Products.AddRange(e[0], e[1]),
                 EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_async()
-        {
-            return TrackMultipleEntitiesTest(
+            => TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AddRangeAsync(e[0], e[1]),
                 (c, e) => c.Products.AddRangeAsync(e[0], e[1]),
                 EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_attached()
-        {
-            return TrackMultipleEntitiesTest(
+            => TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.AttachRange(e[0], e[1]),
                 (c, e) => c.Products.AttachRange(e[0], e[1]),
                 EntityState.Unchanged);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_updated()
-        {
-            return TrackMultipleEntitiesTest(
+            => TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.UpdateRange(e[0], e[1]),
                 (c, e) => c.Products.UpdateRange(e[0], e[1]),
                 EntityState.Modified);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_deleted()
-        {
-            return TrackMultipleEntitiesTest(
+            => TrackMultipleEntitiesTest(
                 (c, e) => c.Categories.RemoveRange(e[0], e[1]),
                 (c, e) => c.Products.RemoveRange(e[0], e[1]),
                 EntityState.Deleted);
-        }
 
         private static Task TrackMultipleEntitiesTest(
             Action<EarlyLearningCenter, Category[]> categoryAdder,
@@ -426,9 +406,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_new_entities_to_set()
-        {
-            TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
-        }
+            => TrackNoEntitiesTest(c => c.Categories.AddRange(), c => c.Products.AddRange());
 
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_async()
@@ -441,21 +419,15 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_attached()
-        {
-            TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
-        }
+            => TrackNoEntitiesTest(c => c.Categories.AttachRange(), c => c.Products.AttachRange());
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_updated()
-        {
-            TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
-        }
+            => TrackNoEntitiesTest(c => c.Categories.UpdateRange(), c => c.Products.UpdateRange());
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_deleted()
-        {
-            TrackNoEntitiesTest(c => c.Categories.RemoveRange(), c => c.Products.RemoveRange());
-        }
+            => TrackNoEntitiesTest(c => c.Categories.RemoveRange(), c => c.Products.RemoveRange());
 
         private static void TrackNoEntitiesTest(Action<EarlyLearningCenter> categoryAdder, Action<EarlyLearningCenter> productAdder)
         {
@@ -467,48 +439,38 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
-        {
-            return TrackMultipleEntitiesTestEnumerable(
+            => TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.RemoveRange(e),
                 (c, e) => c.Products.RemoveRange(e),
                 EntityState.Deleted);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable(
+            => TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AddRange(e),
                 (c, e) => c.Products.AddRange(e),
                 EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_set_Enumerable_graph_async()
-        {
-            return TrackMultipleEntitiesTestEnumerable(
+            => TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AddRangeAsync(e),
                 (c, e) => c.Products.AddRangeAsync(e),
                 EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable(
+            => TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.AttachRange(e),
                 (c, e) => c.Products.AttachRange(e),
                 EntityState.Unchanged);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable(
+            => TrackMultipleEntitiesTestEnumerable(
                 (c, e) => c.Categories.UpdateRange(e),
                 (c, e) => c.Products.UpdateRange(e),
                 EntityState.Modified);
-        }
 
         private static Task TrackMultipleEntitiesTestEnumerable(
             Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
@@ -571,15 +533,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
 
         [ConditionalFact]
         public void Can_add_no_new_entities_to_set_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
 
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_Enumerable_graph_async()
@@ -592,15 +550,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
 
         private static void TrackNoEntitiesTestEnumerable(
             Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,

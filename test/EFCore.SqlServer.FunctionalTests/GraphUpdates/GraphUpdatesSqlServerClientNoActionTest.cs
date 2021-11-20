@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class GraphUpdatesSqlServerClientNoActionTest : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerClientNoActionTest.SqlServerFixture>
+    public class GraphUpdatesSqlServerClientNoActionTest : GraphUpdatesSqlServerTestBase<
+        GraphUpdatesSqlServerClientNoActionTest.SqlServerFixture>
     {
         public GraphUpdatesSqlServerClientNoActionTest(SqlServerFixture fixture)
             : base(fixture)
@@ -29,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
 
                 foreach (var foreignKey in modelBuilder.Model
-                    .GetEntityTypes()
-                    .SelectMany(e => e.GetDeclaredForeignKeys()))
+                             .GetEntityTypes()
+                             .SelectMany(e => e.GetDeclaredForeignKeys()))
                 {
                     foreignKey.DeleteBehavior = DeleteBehavior.ClientNoAction;
                 }

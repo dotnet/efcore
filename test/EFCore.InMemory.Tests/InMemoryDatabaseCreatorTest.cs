@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,15 +57,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task EnsureDeleted_clears_all_in_memory_data_and_returns_true()
-        {
-            return Delete_clears_all_in_memory_data_test(async: false);
-        }
+            => Delete_clears_all_in_memory_data_test(async: false);
 
         [ConditionalFact]
         public Task EnsureDeletedAsync_clears_all_in_memory_data_and_returns_true()
-        {
-            return Delete_clears_all_in_memory_data_test(async: true);
-        }
+            => Delete_clears_all_in_memory_data_test(async: true);
 
         private static async Task Delete_clears_all_in_memory_data_test(bool async)
         {

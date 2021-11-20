@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -64,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected class Baz
-        { }
+        {
+        }
 
         protected class Foo
         {

@@ -247,16 +247,12 @@ namespace Microsoft.EntityFrameworkCore
                     => throw new NotImplementedException();
 
                 public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
-                {
-                    throw new NotImplementedException();
-                }
+                    => throw new NotImplementedException();
 
                 public Task<int> ExecuteNonQueryAsync(
                     RelationalCommandParameterObject parameterObject,
                     CancellationToken cancellationToken = default)
-                {
-                    throw new NotImplementedException();
-                }
+                    => throw new NotImplementedException();
 
                 public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
@@ -267,16 +263,12 @@ namespace Microsoft.EntityFrameworkCore
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
 
                 public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
-                {
-                    throw new NotImplementedException();
-                }
+                    => throw new NotImplementedException();
 
                 public Task<RelationalDataReader> ExecuteReaderAsync(
                     RelationalCommandParameterObject parameterObject,
                     CancellationToken cancellationToken = default)
-                {
-                    throw new NotImplementedException();
-                }
+                    => throw new NotImplementedException();
 
                 public DbCommand CreateDbCommand(
                     RelationalCommandParameterObject parameterObject,

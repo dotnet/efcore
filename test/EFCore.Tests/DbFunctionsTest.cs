@@ -14,11 +14,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public void Like_on_client_throws()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.FunctionOnClient(nameof(DbFunctionsExtensions.Like)),
                 Assert.Throws<InvalidOperationException>(
                     () => EF.Functions.Like("abc", "abc")).Message);
-        }
     }
 }

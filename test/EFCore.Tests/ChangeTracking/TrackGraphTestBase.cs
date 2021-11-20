@@ -852,12 +852,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             IList<string> TrackGraph()
-            {
-                return this.TrackGraph(
+                => this.TrackGraph(
                     context,
                     newCategory,
                     node => node.Entry.State = EntityState.Modified);
-            }
         }
 
         [ConditionalFact]
@@ -928,8 +926,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Assert.False(context.ChangeTracker.HasChanges());
 
             foreach (var entity in new object[] { category }
-                .Concat(category.Products)
-                .Concat(category.Products.Select(e => e.Details)))
+                         .Concat(category.Products)
+                         .Concat(category.Products.Select(e => e.Details)))
             {
                 Assert.Equal(EntityState.Detached, context.Entry(entity).State);
             }
@@ -937,8 +935,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Can_attach_parent_with_some_new_and_some_existing_entities()
-        {
-            KeyValueAttachTest(
+            => KeyValueAttachTest(
                 GetType().Name,
                 (category, changeTracker) =>
                 {
@@ -957,7 +954,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                 ? EntityState.Added
                                 : EntityState.Unchanged));
                 });
-        }
 
         [ConditionalFact]
         public void Can_attach_graph_using_built_in_tracker()

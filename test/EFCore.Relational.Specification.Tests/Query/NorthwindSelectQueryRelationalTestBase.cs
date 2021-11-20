@@ -17,24 +17,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public override async Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
+        public override async Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(
+            bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-              () => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async))).Message;
+                () => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async))).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool async)
-        {
-            return AssertTranslationFailed(() => base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async));
-        }
+            => AssertTranslationFailed(() => base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async));
 
         public override Task Reverse_without_explicit_ordering(bool async)
-        {
-            return AssertTranslationFailedWithDetails(
+            => AssertTranslationFailedWithDetails(
                 () => base.Reverse_without_explicit_ordering(async), RelationalStrings.MissingOrderingInSelectExpression);
-        }
 
         protected virtual bool CanExecuteQueryString
             => false;

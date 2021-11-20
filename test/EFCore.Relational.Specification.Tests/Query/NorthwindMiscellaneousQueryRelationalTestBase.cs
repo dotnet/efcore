@@ -21,21 +21,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_collection_split(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(e => e.CustomerID).AsSplitQuery()
                     .Select(c => c.Orders),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 63);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_collection_then_include_split(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                     .Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
@@ -45,49 +42,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e, a,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails))),
                 entryCount: 227);
-        }
 
         public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
-        {
-            return AssertTranslationFailedWithDetails(() => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
+            => AssertTranslationFailedWithDetails(
+                () => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-        }
 
         public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
-        {
-            return AssertTranslationFailedWithDetails(() => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
+            => AssertTranslationFailedWithDetails(
+                () => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-        }
 
         public override Task Random_next_is_not_funcletized_1(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_1(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_1(async));
 
         public override Task Random_next_is_not_funcletized_2(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_2(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_2(async));
 
         public override Task Random_next_is_not_funcletized_3(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_3(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_3(async));
 
         public override Task Random_next_is_not_funcletized_4(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_4(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_4(async));
 
         public override Task Random_next_is_not_funcletized_5(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_5(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_5(async));
 
         public override Task Random_next_is_not_funcletized_6(bool async)
-        {
-            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
-        }
+            => AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
 
         protected virtual bool CanExecuteQueryString
             => false;

@@ -225,6 +225,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int Id { get; set; }
 
             private readonly Dictionary<string, int> _values = new();
+
             public int this[string name]
             {
                 get => _values.TryGetValue(name, out var value) ? value : default;
@@ -237,6 +238,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int Id { get; set; }
 
             private readonly Dictionary<string, int?> _values = new();
+
             public int? this[string name]
             {
                 get => _values.TryGetValue(name, out var value) ? value : default;
@@ -249,6 +251,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int Id { get; set; }
 
             private readonly Dictionary<string, string> _values = new();
+
             public string this[string name]
             {
                 get => _values.TryGetValue(name, out var value) ? value : default;
@@ -261,6 +264,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int Id { get; set; }
 
             private readonly Dictionary<string, object> _values = new();
+
             public object this[string name]
             {
                 get => _values.TryGetValue(name, out var value) ? value : default;
@@ -271,11 +275,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class DefaultValuesContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase(GetType().FullName!);
-            }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {

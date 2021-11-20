@@ -836,7 +836,6 @@ OUTER APPLY (
     ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 ) AS [t1]
 ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[TwoId0]");
-
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take(bool async)

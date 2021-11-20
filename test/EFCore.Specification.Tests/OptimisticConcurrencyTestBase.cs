@@ -73,20 +73,17 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_client_values()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 ClientPodiums, (c, ex) =>
                 {
                     var driverEntry = ex.Entries.Single();
                     driverEntry.OriginalValues.SetValues(driverEntry.GetDatabaseValues());
                     ResolveConcurrencyTokens(driverEntry);
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
                 {
                     var driverEntry = ex.Entries.Single();
@@ -95,12 +92,10 @@ namespace Microsoft.EntityFrameworkCore
                     driverEntry.OriginalValues.SetValues(storeValues);
                     ResolveConcurrencyTokens(driverEntry);
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_new_values()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 10, (c, ex) =>
                 {
                     var driverEntry = ex.Entries.Single();
@@ -108,12 +103,10 @@ namespace Microsoft.EntityFrameworkCore
                     ResolveConcurrencyTokens(driverEntry);
                     ((Driver)driverEntry.Entity).Podiums = 10;
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 StorePodiums, (c, ex) =>
                 {
                     var driverEntry = ex.Entries.Single();
@@ -122,18 +115,14 @@ namespace Microsoft.EntityFrameworkCore
                     driverEntry.OriginalValues.SetValues(storeValues);
                     driverEntry.State = EntityState.Unchanged;
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_Reload()
-        {
-            return ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
-        }
+            => ConcurrencyTestAsync(StorePodiums, (c, ex) => ex.Entries.Single().Reload());
 
         [ConditionalFact]
         public virtual Task Two_concurrency_issues_in_one_to_one_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c =>
                 {
                     var chassis = c.Set<Chassis>().Single(c => c.Name == "MP4-25");
@@ -177,12 +166,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("MP4-25b", team.Chassis.Name);
                     Assert.Equal("Larry David", team.Principal);
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Two_concurrency_issues_in_one_to_many_related_entities_can_be_handled_by_dealing_with_dependent_first()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c =>
                 {
                     var driver = c.Drivers.Single(d => d.Name == "Jenson Button");
@@ -226,12 +213,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(1, team.Drivers.Single(d => d.Name == "Jenson Button").Poles);
                     Assert.Equal("Larry David", team.Principal);
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Concurrency_issue_where_the_FK_is_the_concurrency_token_can_be_handled()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Engines.Single(e => e.Name == "056").EngineSupplierId =
                     c.EngineSuppliers.Single(s => s.Name == "Cosworth").Name,
                 c => c.Engines.Single(e => e.Name == "056").EngineSupplier =
@@ -246,7 +231,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         "Cosworth",
                         c.Engines.Single(e => e.Name == "056").EngineSupplier.Name));
-        }
 
         #endregion
 
@@ -254,8 +238,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual Task Change_in_independent_association_results_in_independent_association_exception()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).Engine = c.Engines.Single(s => s.Name == "FO 108X"),
                 (c, ex) =>
                 {
@@ -263,13 +246,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public virtual Task
             Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Teams.Single(t => t.Id == Team.Ferrari).FastestLaps = 0,
                 c =>
                     c.Teams.Single(t => t.Constructor == "Ferrari").Engine =
@@ -280,12 +261,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.IsAssignableFrom<Team>(entry.Entity);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c =>
                 {
                     c.Teams.Include(e => e.Sponsors).Load();
@@ -297,7 +276,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
@@ -326,8 +304,7 @@ namespace Microsoft.EntityFrameworkCore
         // Depends on an aggregate-friendly Reload, see #13890
         [ConditionalFact(Skip = "Issue#13890")]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
                 {
@@ -337,7 +314,6 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 c =>
                     Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
-        }
 
         #endregion
 
@@ -377,8 +353,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual Task Deleting_the_same_entity_twice_results_in_DbUpdateConcurrencyException()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
                 {
@@ -387,12 +362,10 @@ namespace Microsoft.EntityFrameworkCore
                     entry.Reload();
                 },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
-        }
 
         [ConditionalFact]
         public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
@@ -402,13 +375,11 @@ namespace Microsoft.EntityFrameworkCore
                     entry.Reload();
                 },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
-        }
 
         [ConditionalFact]
         public virtual Task
             Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 (c, ex) =>
@@ -423,12 +394,10 @@ namespace Microsoft.EntityFrameworkCore
                     ResolveConcurrencyTokens(entry);
                 },
                 c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
-        }
 
         [ConditionalFact]
         public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
@@ -438,13 +407,11 @@ namespace Microsoft.EntityFrameworkCore
                     entry.Reload();
                 },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
-        }
 
         [ConditionalFact]
         public virtual Task
             Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
                 c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
                 (c, ex) =>
@@ -456,7 +423,6 @@ namespace Microsoft.EntityFrameworkCore
                     entry.State = EntityState.Detached;
                 },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
-        }
 
         #endregion
 
@@ -759,6 +725,7 @@ namespace Microsoft.EntityFrameworkCore
                             LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
                                 l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
                     }
+
                     Fixture.ListLoggerFactory.Clear();
 
                     resolver(context, updateException);

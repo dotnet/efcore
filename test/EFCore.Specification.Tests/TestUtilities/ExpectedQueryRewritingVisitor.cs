@@ -306,8 +306,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 return memberExpression.Member.DeclaringType.IsNullableType()
                     && memberExpression.Member.Name == "HasValue"
-                    ? Expression.Coalesce(maybeMethodCall, Expression.Constant(false))
-                    : maybeMethodCall;
+                        ? Expression.Coalesce(maybeMethodCall, Expression.Constant(false))
+                        : maybeMethodCall;
             }
 
             return Visit(expression);

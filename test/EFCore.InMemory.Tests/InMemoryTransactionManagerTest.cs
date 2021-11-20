@@ -106,14 +106,12 @@ namespace Microsoft.EntityFrameworkCore
             => AssertThrows(() => new InMemoryTransactionManager(CreateLogger()).RollbackTransactionAsync().GetAwaiter().GetResult());
 
         private static void AssertThrows(Action action)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     InMemoryEventId.TransactionIgnoredWarning,
                     InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
                     "InMemoryEventId.TransactionIgnoredWarning"),
                 Assert.Throws<InvalidOperationException>(action).Message);
-        }
 
         private DiagnosticsLogger<DbLoggerCategory.Database.Transaction> CreateLogger()
         {

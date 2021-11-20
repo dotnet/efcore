@@ -1,5 +1,5 @@
-﻿﻿// Licensed to the .NET Foundation under one or more agreements.
-﻿// The .NET Foundation licenses this file to you under the MIT license.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -195,7 +195,8 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [o].[OrderID], [c].[CustomerID]
 
-" + RelationalStrings.SplitQueryString,
+"
+                + RelationalStrings.SplitQueryString,
                 context.Set<Order>().Include(o => o.Customer).Include(o => o.OrderDetails).AsSplitQuery().ToQueryString(),
                 ignoreLineEndingDifferences: true,
                 ignoreWhiteSpaceDifferences: true);

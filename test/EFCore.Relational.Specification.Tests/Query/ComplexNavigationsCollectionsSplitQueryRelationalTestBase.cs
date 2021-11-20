@@ -3,12 +3,11 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsCollectionsSplitQueryRelationalTestBase<TFixture> : ComplexNavigationsCollectionsQueryTestBase<TFixture>
+    public abstract class
+        ComplexNavigationsCollectionsSplitQueryRelationalTestBase<TFixture> : ComplexNavigationsCollectionsQueryTestBase<TFixture>
         where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
         protected ComplexNavigationsCollectionsSplitQueryRelationalTestBase(TFixture fixture)

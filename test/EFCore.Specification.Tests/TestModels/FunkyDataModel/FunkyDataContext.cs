@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel
         public DbSet<FunkyCustomer> FunkyCustomers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<FunkyCustomer>().Property(e => e.Id).ValueGeneratedNever();
-        }
+            => modelBuilder.Entity<FunkyCustomer>().Property(e => e.Id).ValueGeneratedNever();
 
         public static void Seed(FunkyDataContext context)
         {

@@ -308,10 +308,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     var baseName = isAnsi ? "varchar" : "nvarchar";
                     var maxSize = isAnsi ? 8000 : 4000;
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
                     if (size > maxSize)
                     {
-                        size = isFixedLength ? maxSize : (int?)null;
+                        size = isFixedLength ? maxSize : null;
                     }
 
                     return new SqlServerStringTypeMapping(
@@ -319,7 +319,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                         !isAnsi,
                         size,
                         isFixedLength,
-                        storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+                        storeTypePostfix: size == null ? StoreTypePostfix.None : null);
                 }
 
                 return null;

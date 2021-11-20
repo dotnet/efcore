@@ -408,7 +408,8 @@ ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
 ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
                 : @"FakeEntity [Added] <-
 ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
-ForeignKey { 'RelatedId' } FakeEntity [Added]" + CoreStrings.SensitiveDataDisabled;
+ForeignKey { 'RelatedId' } FakeEntity [Added]"
+                + CoreStrings.SensitiveDataDisabled;
 
             Assert.Equal(
                 CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
@@ -454,7 +455,8 @@ Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
                 : @"FakeEntity [Added] <-
 ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
 ForeignKey { 'RelatedId' } FakeEntity [Modified] <-
-Index { 'UniqueValue' } FakeEntity [Added]" + CoreStrings.SensitiveDataDisabled;
+Index { 'UniqueValue' } FakeEntity [Added]"
+                + CoreStrings.SensitiveDataDisabled;
 
             Assert.Equal(
                 CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),
@@ -492,7 +494,8 @@ RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <-
 FakeEntity { 'Id': 1 } [Deleted]"
                 : @"FakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
 RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
-FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
+FakeEntity [Deleted]"
+                + CoreStrings.SensitiveDataDisabled;
 
             Assert.Equal(
                 CoreStrings.CircularDependency(ListLoggerFactory.NormalizeLineEndings(expectedCycle)),

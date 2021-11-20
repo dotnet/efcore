@@ -31,9 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_byte_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_byteToBytesConverter, (byte)0, (byte)7, (byte)77, (byte)255);
-        }
+            => ValueConverterTest.OrderingTest(_byteToBytesConverter, (byte)0, (byte)7, (byte)77, (byte)255);
 
         private static readonly NumberToBytesConverter<byte?> _nullableByteToBytesConverter = new();
 
@@ -57,9 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_nullable_byte_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_nullableByteToBytesConverter, (byte?)0, (byte?)7, (byte?)77, (byte?)255);
-        }
+            => ValueConverterTest.OrderingTest(_nullableByteToBytesConverter, (byte?)0, (byte?)7, (byte?)77, (byte?)255);
 
         private static readonly NumberToBytesConverter<short> _shortToBytesConverter = new();
 
@@ -210,9 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_ushort_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_ushortToBytesConverter, (ushort)0, (ushort)7, (ushort)777, (ushort)7777);
-        }
+            => ValueConverterTest.OrderingTest(_ushortToBytesConverter, (ushort)0, (ushort)7, (ushort)777, (ushort)7777);
 
         private static readonly NumberToBytesConverter<uint> _uintToBytesConverter = new();
 
@@ -255,9 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_uint_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_uintToBytesConverter, (uint)0, (uint)7, (uint)777777, (uint)77777777);
-        }
+            => ValueConverterTest.OrderingTest(_uintToBytesConverter, (uint)0, (uint)7, (uint)777777, (uint)77777777);
 
         private static readonly NumberToBytesConverter<ulong> _ulongToBytesConverter = new();
 
@@ -280,9 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_ulong_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_ulongToBytesConverter, (ulong)0, (ulong)777, (ulong)77777777, (ulong)7777777777777777);
-        }
+            => ValueConverterTest.OrderingTest(_ulongToBytesConverter, (ulong)0, (ulong)777, (ulong)77777777, (ulong)7777777777777777);
 
         private static readonly NumberToBytesConverter<char> _charToBytesConverter = new();
 
@@ -305,9 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Ordering_preserved_for_char_to_bytes()
-        {
-            ValueConverterTest.OrderingTest(_charToBytesConverter, '\u0000', 'A', 'Z', '\u7777');
-        }
+            => ValueConverterTest.OrderingTest(_charToBytesConverter, '\u0000', 'A', 'Z', '\u7777');
 
         private static readonly NumberToBytesConverter<decimal> _decimalToBytesConverter = new();
 
@@ -483,14 +471,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Enum_to_integer_converter_throws_for_bad_types()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.ConverterBadType(
                     "NumberToBytesConverter<Guid>",
                     "Guid",
                     "'double', 'float', 'decimal', 'char', 'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte'"),
                 Assert.Throws<InvalidOperationException>(
                     () => new NumberToBytesConverter<Guid>()).Message);
-        }
     }
 }

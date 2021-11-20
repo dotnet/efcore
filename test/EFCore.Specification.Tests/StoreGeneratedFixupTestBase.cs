@@ -22,14 +22,15 @@ namespace Microsoft.EntityFrameworkCore
         protected static readonly Guid Guid78 = new("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
 
         protected StoreGeneratedFixupTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -50,12 +51,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -74,12 +73,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -98,12 +95,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -123,12 +118,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -148,12 +141,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -167,12 +158,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -190,12 +179,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -216,12 +203,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -240,12 +225,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -264,12 +247,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -289,12 +270,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -314,12 +293,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -333,12 +310,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -356,7 +331,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, Category principal, Product dependent)
         {
@@ -389,8 +363,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -409,12 +382,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -433,12 +404,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -458,12 +427,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -477,12 +444,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -502,12 +467,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -521,7 +484,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, CategoryPN principal, ProductPN dependent)
         {
@@ -552,8 +514,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -572,12 +533,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -597,12 +556,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -620,12 +577,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -644,12 +599,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -669,12 +622,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -692,7 +643,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, CategoryDN principal, ProductDN dependent)
         {
@@ -723,8 +673,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_many_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
@@ -743,12 +692,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_many_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
@@ -767,7 +714,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, CategoryNN principal, ProductNN dependent)
         {
@@ -796,8 +742,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -818,12 +763,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -842,12 +785,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -866,12 +807,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -891,12 +830,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -916,12 +853,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -935,12 +870,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -958,12 +891,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -984,12 +915,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1008,12 +937,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1032,12 +959,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1057,12 +982,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1082,12 +1005,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1101,12 +1022,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -1124,7 +1043,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, Parent principal, Child dependent)
         {
@@ -1157,8 +1075,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1177,12 +1094,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1201,12 +1116,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1226,12 +1139,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1245,12 +1156,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1270,12 +1179,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -1289,7 +1196,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, ParentPN principal, ChildPN dependent)
         {
@@ -1320,8 +1226,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1340,12 +1245,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1365,12 +1268,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1388,12 +1289,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1412,12 +1311,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1437,12 +1334,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -1460,7 +1355,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, ParentDN principal, ChildDN dependent)
         {
@@ -1491,8 +1385,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_then_principal_one_to_one_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
@@ -1511,12 +1404,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_then_dependent_one_to_one_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
@@ -1535,7 +1426,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, principal, dependent);
                 });
-        }
 
         private void AssertFixupAndSave(DbContext context, ParentNN principal, ChildNN dependent)
         {
@@ -1564,8 +1454,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1608,12 +1497,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1654,12 +1541,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1707,12 +1592,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1761,12 +1644,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1808,12 +1689,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1858,12 +1737,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1903,12 +1780,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1951,12 +1826,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -1997,12 +1870,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -2041,12 +1912,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -2088,12 +1957,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -2133,12 +2000,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -2180,12 +2045,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
@@ -2223,12 +2086,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2274,12 +2135,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2316,12 +2175,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2368,12 +2225,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2416,12 +2271,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2461,12 +2314,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
@@ -2504,12 +2355,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2555,12 +2404,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2600,12 +2447,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2643,12 +2488,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2685,12 +2528,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2728,12 +2569,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
@@ -2769,12 +2608,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_many_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
@@ -2818,12 +2655,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_many_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
@@ -2858,12 +2693,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -2906,12 +2739,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -2952,12 +2783,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3005,12 +2834,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3059,12 +2886,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3106,12 +2931,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3156,12 +2979,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3201,12 +3022,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3249,12 +3068,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_not_set_both_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3295,12 +3112,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3339,12 +3154,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3386,12 +3199,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3431,12 +3242,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3476,12 +3285,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
@@ -3519,12 +3326,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3570,12 +3375,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_prin_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3612,12 +3415,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3664,12 +3465,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3712,12 +3511,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_prin_uni_FK_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3757,12 +3554,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_prin_uni_FK_not_set_principal_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
@@ -3800,12 +3595,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -3851,12 +3644,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -3896,12 +3687,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -3939,12 +3728,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_dep_uni_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -3981,12 +3768,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_dep_uni_FK_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -4024,12 +3809,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_dep_uni_FK_not_set_dependent_nav_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
@@ -4065,12 +3848,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_dependent_but_not_principal_one_to_one_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
@@ -4114,12 +3895,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EnforcesFKs ? EntityState.Added : EntityState.Unchanged, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_principal_but_not_dependent_one_to_one_no_navs_FK_set_no_navs_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
@@ -4154,12 +3933,10 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_overlapping_graph_from_level()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var game = new Game { Id = Guid77 };
@@ -4173,12 +3950,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, game, level, item);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_overlapping_graph_from_game()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var level = new Level { Id = -77 };
@@ -4193,12 +3968,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, game, level, item);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Add_overlapping_graph_from_item()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var game = new Game { Id = Guid77 };
@@ -4211,7 +3984,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertFixupAndSave(context, game, level, item);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Temporary_value_equals_database_generated_value()
@@ -4297,8 +4069,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Multi_level_add_replace_and_save()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var firstLevel = context.Set<FirstLevel>().Single();
@@ -4338,7 +4109,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertValidFks(context, firstLevel, tempKeys: false);
                 });
-        }
 
         private static void AssertValidFks(DbContext context, FirstLevel firstLevel, bool tempKeys)
         {
@@ -4394,13 +4164,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void AddData(FirstLevel first)
-        {
-            first.SecondLevels = new List<SecondLevel>
+            => first.SecondLevels = new List<SecondLevel>
             {
                 new() { ThirdLevels = new List<ThirdLevel> { new(), new() } },
                 new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }
             };
-        }
 
         protected class SecondLevel
         {

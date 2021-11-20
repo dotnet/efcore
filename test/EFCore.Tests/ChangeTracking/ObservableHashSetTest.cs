@@ -218,9 +218,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         [ConditionalFact]
         public void Not_read_only()
-        {
-            Assert.False(new ObservableHashSet<Random>().IsReadOnly);
-        }
+            => Assert.False(new ObservableHashSet<Random>().IsReadOnly);
 
         [ConditionalFact]
         public void Can_union_with()

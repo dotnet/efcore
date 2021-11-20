@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         protected class FakeValueComparer : ValueComparer<double>
         {
-            public FakeValueComparer() : base(false)
+            public FakeValueComparer()
+                : base(false)
             {
             }
         }
@@ -62,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(double), (double)1, (double)2, null)]
         [InlineData(typeof(JustAnEnum), JustAnEnum.A, JustAnEnum.B, null)]
         public ValueComparer Default_comparer_works_for_normal_types(Type type, object value1, object value2, int? hashCode)
-        {
-            return CompareTest(type, value1, value2, hashCode);
-        }
+            => CompareTest(type, value1, value2, hashCode);
 
         private static ValueComparer CompareTest(Type type, object value1, object value2, int? hashCode = null)
             => CompareTest(type, value1, value2, hashCode, false);
@@ -114,9 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Default_comparer_works_for_decimals()
-        {
-            CompareTest(typeof(decimal), (decimal)1, (decimal)2);
-        }
+            => CompareTest(typeof(decimal), (decimal)1, (decimal)2);
 
         [ConditionalFact]
         public void Default_comparer_works_for_structs()
@@ -140,12 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Default_comparer_works_for_structs_with_equality()
-        {
-            CompareTest(
+            => CompareTest(
                 typeof(JustAStructWithEquality),
                 new JustAStructWithEquality { A = 1, B = "B" },
                 new JustAStructWithEquality { A = 2, B = "B" });
-        }
 
         private struct JustAStructWithEquality
         {
@@ -164,12 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Default_comparer_works_for_structs_with_equality_operators()
-        {
-            CompareTest(
+            => CompareTest(
                 typeof(JustAStructWithEqualityOperators),
                 new JustAStructWithEqualityOperators { A = 1, B = "B" },
                 new JustAStructWithEqualityOperators { A = 2, B = "B" });
-        }
 
 #pragma warning disable 660,661
         private struct JustAStructWithEqualityOperators
@@ -188,12 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Default_comparer_works_for_classes()
-        {
-            CompareTest(
+            => CompareTest(
                 typeof(JustAClass), // Reference equality
                 new JustAClass { A = 1 },
                 new JustAClass { A = 1 });
-        }
 
         private class JustAClass
         {

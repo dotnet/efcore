@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public virtual void Save_two_entity_cycle_with_lazy_loading()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.AddRange(
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var owner0 = cars[0].Owner;
                     var owner1 = cars[1].Owner;
-                    
+
                     (cars[1].Owner, cars[0].Owner) = (cars[0].Owner, cars[1].Owner);
 
                     cars[0].Owner.Vehicle = cars[0];
@@ -63,12 +62,10 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
                     }
                 });
-        }
 
         [ConditionalFact]
         public virtual void Avoid_nulling_shared_FK_property_when_deleting()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context
@@ -144,14 +141,12 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(root.Id, parent.RootId);
                     Assert.Null(parent.DependantId);
                 });
-        }
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context
@@ -233,7 +228,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(root.Id, parent.RootId);
                     Assert.Null(parent.DependantId);
                 });
-        }
 
         [ConditionalFact]
         public virtual void No_fixup_to_Deleted_entities()
@@ -267,8 +261,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Sometimes_not_calling_DetectChanges_when_required_does_not_throw_for_null_ref()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var dependent = context.Set<BadOrder>().Single();
@@ -298,6 +291,5 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(dependent.BadCustomer);
                     Assert.Empty(principal.BadOrders);
                 });
-        }
     }
 }

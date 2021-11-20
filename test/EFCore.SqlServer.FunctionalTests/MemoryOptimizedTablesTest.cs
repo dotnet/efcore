@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         protected MemoryOptimizedTablesFixture Fixture { get; }
 
         public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         [ConditionalFact]
         public void Can_create_memoryOptimized_table()

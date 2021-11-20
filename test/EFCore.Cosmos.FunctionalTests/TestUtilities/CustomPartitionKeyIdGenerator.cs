@@ -16,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => false;
 
         public override T Next(EntityEntry entry)
-        {
-            return (T)NextValue(entry);
-        }
+            => (T)NextValue(entry);
 
         protected override object NextValue(EntityEntry entry)
         {

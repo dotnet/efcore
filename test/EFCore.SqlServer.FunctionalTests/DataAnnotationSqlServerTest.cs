@@ -270,13 +270,10 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         }
 
         public override void TimestampAttribute_throws_if_value_in_database_changed()
-        {
-            base.TimestampAttribute_throws_if_value_in_database_changed();
+            => base.TimestampAttribute_throws_if_value_in_database_changed();
 
-            // Not validating SQL because not significantly different from other tests and
-            // row version value is not stable.
-        }
-
+        // Not validating SQL because not significantly different from other tests and
+        // row version value is not stable.
         private static readonly string _eol = Environment.NewLine;
 
         private void AssertSql(params string[] expected)

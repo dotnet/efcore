@@ -1123,7 +1123,8 @@ ORDER BY c[""CustomerID""]");
         {
             await base.Projection_take_predicate_projection(async);
 
-            AssertSql(@"@__p_0='10'
+            AssertSql(
+                @"@__p_0='10'
 
 SELECT VALUE {""Aggregate"" : ((c[""CustomerID""] || "" "") || c[""City""])}
 FROM root c
@@ -1136,7 +1137,8 @@ OFFSET 0 LIMIT @__p_0");
         {
             await base.Projection_take_projection_doesnt_project_intermittent_column(async);
 
-            AssertSql(@"@__p_0='10'
+            AssertSql(
+                @"@__p_0='10'
 
 SELECT VALUE {""Aggregate"" : ((c[""CustomerID""] || "" "") || c[""City""])}
 FROM root c

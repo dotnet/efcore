@@ -583,9 +583,7 @@ FROM ""PointEntity"" AS ""p""");
 
         // No Sqlite Translation
         public override Task Normalized(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task NumGeometries(bool async)
         {

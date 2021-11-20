@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Thing
         {
             public Guid ThingId { get; set; }
-            public List<OwnedByThing> OwnedByThings { get; set; } = new List<OwnedByThing>();
+            public List<OwnedByThing> OwnedByThings { get; set; } = new();
         }
 
         private class OwnedByThing
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ThingId = Guid.NewGuid(),
                 OwnedByThings = new List<OwnedByThing>
                 {
-                    new OwnedByThing { OwnedByThingId = Guid.NewGuid() }, new OwnedByThing { OwnedByThingId = Guid.NewGuid() }
+                    new() { OwnedByThingId = Guid.NewGuid() }, new() { OwnedByThingId = Guid.NewGuid() }
                 }
             };
 
@@ -1659,7 +1659,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
                 dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
@@ -1669,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
                 dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Same(subDependent1, dependent1.SubChild);
@@ -1768,7 +1768,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
                 dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             var dependent2Entry = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
@@ -1925,7 +1925,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
                 newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal.Id, newDependentEntry2.Property("ParentId").CurrentValue);
@@ -1934,7 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
                 newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
@@ -3584,7 +3584,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + nameof(ChildPN),
                 dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
@@ -3594,7 +3594,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + nameof(ChildPN),
                 dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Same(subDependent1, dependent1.SubChild);
@@ -3869,7 +3869,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection2) + "#" + nameof(ChildPN),
                 newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
@@ -3878,7 +3878,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.ChildCollection1) + "#" + nameof(ChildPN),
                 newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
@@ -4042,7 +4042,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child),
                 newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal2.Id, newDependentEntry1.Property("ParentId").CurrentValue);
@@ -4051,7 +4051,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
                 newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
@@ -4264,15 +4264,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 => optionsBuilder.UseInMemoryDatabase(_databaseName);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Distributor>().OwnsMany(
+                => modelBuilder.Entity<Distributor>().OwnsMany(
                     rt => rt.ShippingCenters, image =>
                     {
                         image.WithOwner().HasForeignKey("DistributorId");
                         image.Property<int>("Id");
                         image.HasKey("DistributorId", "Id");
                     });
-            }
         }
 
         [ConditionalFact]
@@ -4463,9 +4461,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public static void OnModelCreating<T>(OwnedNavigationBuilder<T, Info> rob)
                 where T : class
-            {
-                rob.Property(e => e.Title);
-            }
+                => rob.Property(e => e.Title);
         }
 
         private class BooksContext : DbContext
@@ -4492,14 +4488,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using var context = new TestCurrencyContext(nameof(TestCurrencyContext));
             var items = new List<TestOrderItem>
             {
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR }
-                },
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD }
-                }
+                new() { ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR } },
+                new() { ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD } }
             };
 
             var order = new TestOrder { CustomerName = "Test Customer", TestOrderItems = items };
@@ -4549,8 +4539,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestCurrency
         {
-            public static readonly TestCurrency EUR = new TestCurrency(49, "EUR", 978, "Euro");
-            public static readonly TestCurrency USD = new TestCurrency(148, "USD", 840, "United States dollar");
+            public static readonly TestCurrency EUR = new(49, "EUR", 978, "Euro");
+            public static readonly TestCurrency USD = new(148, "USD", 840, "United States dollar");
 
             private TestCurrency()
             {
@@ -4614,22 +4604,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var items = new List<TestOrderItem>
             {
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR }
-                },
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 2", Price = new TestMoney { Amount = 10, Currency = TestCurrency.EUR }
-                },
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD }
-                },
-                new TestOrderItem
-                {
-                    ProductName = "Test Product 4", Price = new TestMoney { Amount = 2.99, Currency = TestCurrency.USD }
-                }
+                new() { ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR } },
+                new() { ProductName = "Test Product 2", Price = new TestMoney { Amount = 10, Currency = TestCurrency.EUR } },
+                new() { ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD } },
+                new() { ProductName = "Test Product 4", Price = new TestMoney { Amount = 2.99, Currency = TestCurrency.USD } }
             };
 
             var order = new TestOrder { CustomerName = "Test Customer", TestOrderItems = items };
@@ -4728,7 +4706,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Contains("COBOL", roles);
 
                 user.SetRoles(
-                    new List<Role> { new Role { Value = "BASIC" } });
+                    new List<Role> { new() { Value = "BASIC" } });
 
                 Assert.Equal(5, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, GetEntryState<User>(context));
@@ -4828,7 +4806,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public IReadOnlyList<Role> Roles
                 => _roles.AsReadOnly();
 
-            private readonly List<Role> _roles = new List<Role>();
+            private readonly List<Role> _roles = new();
 
             public void SetRoles(IList<Role> roles)
             {

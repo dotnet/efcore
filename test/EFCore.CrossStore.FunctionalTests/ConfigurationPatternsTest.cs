@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
                 .CreateScope();
 
             var serviceProvider = scope.ServiceProvider;
-            
+
             using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
             {
                 Assert.True(context.SimpleEntities.Any());

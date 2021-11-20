@@ -164,14 +164,10 @@ COMMIT;
         }
 
         public override void Can_generate_idempotent_up_scripts()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
 
         public override void Can_generate_idempotent_up_scripts_noTransactions()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts_noTransactions());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts_noTransactions());
 
         public override void Can_generate_down_scripts()
         {
@@ -240,9 +236,7 @@ COMMIT;
         }
 
         public override void Can_generate_idempotent_down_scripts()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
 
         public override void Can_get_active_provider()
         {

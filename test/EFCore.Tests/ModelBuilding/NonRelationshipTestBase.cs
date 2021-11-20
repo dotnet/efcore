@@ -418,17 +418,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             [ConditionalFact]
             public virtual void Int32_cannot_be_ignored()
-            {
-                Assert.Equal(CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
+                => Assert.Equal(
+                    CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<int>())).Message);
-            }
 
             [ConditionalFact]
             public virtual void Object_cannot_be_ignored()
-            {
-                Assert.Equal(CoreStrings.UnconfigurableType("string", "Ignored", "Property", "object"),
+                => Assert.Equal(
+                    CoreStrings.UnconfigurableType("string", "Ignored", "Property", "object"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<object>())).Message);
-            }
 
             [ConditionalFact]
             public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
@@ -587,8 +585,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             [ConditionalFact]
             public virtual void Key_properties_cannot_be_made_optional()
-            {
-                Assert.Equal(
+                => Assert.Equal(
                     CoreStrings.KeyPropertyCannotBeNullable(nameof(Quarks.Down), nameof(Quarks), "{'" + nameof(Quarks.Down) + "'}"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
@@ -599,7 +596,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                         e => new { e.Down });
                                     b.Property(e => e.Down).IsRequired(false);
                                 })).Message);
-            }
 
             [ConditionalFact]
             public virtual void Non_nullable_properties_cannot_be_made_optional()
@@ -728,10 +724,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                modelBuilder.Entity<Hob>(b =>
-                {
-                    b.HasKey(e => e.Id1);
-                });
+                modelBuilder.Entity<Hob>(
+                    b =>
+                    {
+                        b.HasKey(e => e.Id1);
+                    });
                 modelBuilder.Ignore<Nob>();
 
                 modelBuilder.Entity<Quarks>(
@@ -851,7 +848,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property(e => e.Up);
                         b.Property(e => e.Down).HasConversion(typeof(UTF8StringToBytesConverter));
                         b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
-                        b.Property<string>("Strange").HasConversion(typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
+                        b.Property<string>("Strange").HasConversion(
+                            typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
                         b.Property<string>("Strange").HasConversion((ValueConverter)null, null);
                     });
 
@@ -961,12 +959,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Properties_can_have_value_converter_configured_by_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties(typeof(IWrapped<>)).AreUnicode(false);
-                    c.Properties<WrappedStringBase>().HaveMaxLength(20);
-                    c.Properties<WrappedString>().HaveConversion(typeof(WrappedStringToStringConverter));
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties(typeof(IWrapped<>)).AreUnicode(false);
+                        c.Properties<WrappedStringBase>().HaveMaxLength(20);
+                        c.Properties<WrappedString>().HaveConversion(typeof(WrappedStringToStringConverter));
+                    });
 
                 modelBuilder.Entity<WrappedStringEntity>();
 
@@ -983,10 +982,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -1009,11 +1009,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Value_converter_configured_on_nullable_type_overrides_non_nullable()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int?>().HaveConversion<NumberToStringConverter<int?>, CustomValueComparer<int?>>();
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int?>().HaveConversion<NumberToStringConverter<int?>, CustomValueComparer<int?>>();
+                        c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -1036,17 +1037,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Value_converter_configured_on_base_type_is_not_applied()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<WrappedStringBase>().HaveConversion(typeof(WrappedStringToStringConverter));
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<WrappedStringBase>().HaveConversion(typeof(WrappedStringToStringConverter));
+                    });
 
                 modelBuilder.Entity<WrappedStringEntity>();
 
-                Assert.Equal(CoreStrings.PropertyNotMapped(
-                            nameof(WrappedString),
-                            nameof(WrappedStringEntity),
-                            nameof(WrappedStringEntity.WrappedString)),
+                Assert.Equal(
+                    CoreStrings.PropertyNotMapped(
+                        nameof(WrappedString),
+                        nameof(WrappedStringEntity),
+                        nameof(WrappedStringEntity.WrappedString)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
@@ -1082,15 +1085,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Throws_for_conflicting_base_configurations_by_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
+                var modelBuilder = CreateModelBuilder(
+                    c =>
                     {
                         c.Properties<WrappedString>();
                         c.IgnoreAny<IWrapped<string>>();
                     });
 
-                Assert.Equal(CoreStrings.TypeConfigurationConflict(
-                    nameof(WrappedString), "Property",
-                    "IWrapped<string>", "Ignored"),
+                Assert.Equal(
+                    CoreStrings.TypeConfigurationConflict(
+                        nameof(WrappedString), "Property",
+                        "IWrapped<string>", "Ignored"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<WrappedStringEntity>()).Message);
             }
 
@@ -1249,11 +1254,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_max_length_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().HaveMaxLength(0);
-                    c.Properties<string>().HaveMaxLength(100);
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().HaveMaxLength(0);
+                        c.Properties<string>().HaveMaxLength(100);
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -1314,11 +1320,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_precision_and_scale_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().HavePrecision(1, 0);
-                    c.Properties<string>().HavePrecision(100, 10);
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().HavePrecision(1, 0);
+                        c.Properties<string>().HavePrecision(100, 10);
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -1380,9 +1387,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             private class CustomValueGenerator : ValueGenerator<int>
             {
                 public override int Next(EntityEntry entry)
-                {
-                    throw new NotImplementedException();
-                }
+                    => throw new NotImplementedException();
 
                 public override bool GeneratesTemporaryValues
                     => false;
@@ -1465,19 +1470,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             [ConditionalFact]
             public virtual void Object_cannot_be_configured_as_property()
-            {
-                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "object"),
+                => Assert.Equal(
+                    CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "object"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<object>())).Message);
-            }
 
             [ConditionalFact]
             public virtual void Property_bag_cannot_be_configured_as_property()
             {
-                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "Dictionary<string, object>"),
-                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<Dictionary<string, object>>())).Message);
+                Assert.Equal(
+                    CoreStrings.UnconfigurableType(
+                        "Dictionary<string, object>", "Property", "SharedTypeEntityType", "Dictionary<string, object>"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<Dictionary<string, object>>()))
+                        .Message);
 
-                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "IDictionary<string, object>"),
-                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<IDictionary<string, object>>())).Message);
+                Assert.Equal(
+                    CoreStrings.UnconfigurableType(
+                        "Dictionary<string, object>", "Property", "SharedTypeEntityType", "IDictionary<string, object>"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<IDictionary<string, object>>()))
+                        .Message);
             }
 
             [ConditionalFact]
@@ -1625,11 +1635,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_unicode_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().AreUnicode();
-                    c.Properties<string>().AreUnicode(false);
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().AreUnicode();
+                        c.Properties<string>().AreUnicode(false);
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -1654,8 +1665,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             [ConditionalFact]
             public virtual void PropertyBuilder_methods_can_be_chained()
-            {
-                CreateModelBuilder()
+                => CreateModelBuilder()
                     .Entity<Quarks>()
                     .Property(e => e.Up)
                     .IsRequired()
@@ -1674,7 +1684,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                     .HasValueGenerator((_, __) => null)
                     .IsRequired();
-            }
 
             [ConditionalFact]
             public virtual void Can_add_index()
@@ -2143,14 +2152,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_shared_type_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared1", b =>
-                {
-                    b.IndexerProperty<int>("Key");
-                    b.Property<int>("Keys");
-                    b.Property<byte[]>("Values");
-                    b.Property<string>("Count");
-                    b.HasKey("Key");
-                });
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
+                    "Shared1", b =>
+                    {
+                        b.IndexerProperty<int>("Key");
+                        b.Property<int>("Keys");
+                        b.Property<byte[]>("Values");
+                        b.Property<string>("Count");
+                        b.HasKey("Key");
+                    });
 
                 modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared2", b => b.IndexerProperty<int>("Id"));
 

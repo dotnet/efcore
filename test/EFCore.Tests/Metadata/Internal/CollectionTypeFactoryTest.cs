@@ -31,19 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Returns_ObservableHashSet_if_notifying_and_assignable()
-        {
-            Assert.Same(
+            => Assert.Same(
                 typeof(ObservableHashSet<Random>),
                 new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>), false));
-        }
 
         [ConditionalFact]
         public void Returns_ObservableHashSet_if_full_notification_required()
-        {
-            Assert.Same(
+            => Assert.Same(
                 typeof(ObservableHashSet<Random>),
                 new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>), true));
-        }
 
         [ConditionalFact]
         public void Returns_HashSet_if_assignable()
@@ -57,11 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Returns_List_if_assignable()
-        {
-            Assert.Same(
+            => Assert.Same(
                 typeof(List<Random>),
                 new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(object), typeof(IList<Random>), false));
-        }
 
         [ConditionalFact]
         public void Returns_null_when_no_usable_concrete_type_found()

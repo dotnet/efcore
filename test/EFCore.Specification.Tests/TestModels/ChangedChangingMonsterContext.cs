@@ -118,9 +118,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             private IBarcodeDetail _detail;
 
             public void InitializeCollections()
-            {
-                BadScans ??= new ObservableCollection<IIncorrectScan>();
-            }
+                => BadScans ??= new ObservableCollection<IIncorrectScan>();
 
             public byte[] Code
             {
@@ -1108,9 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             private ICollection<IProductWebFeature> _features;
 
             public void InitializeCollections()
-            {
-                Features ??= new ObservableCollection<IProductWebFeature>();
-            }
+                => Features ??= new ObservableCollection<IProductWebFeature>();
 
             public int ProductId
             {
@@ -1146,9 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             private ICollection<IProductWebFeature> _features;
 
             public void InitializeCollections()
-            {
-                Features ??= new ObservableCollection<IProductWebFeature>();
-            }
+                => Features ??= new ObservableCollection<IProductWebFeature>();
 
             public int ProductId
             {

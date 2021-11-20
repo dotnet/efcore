@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             => new()
             {
                 {
-                    (typeof(Gear), "AssignedCityName"),
-                    e => GetExpectedData().Set<Gear>().AsEnumerable().SingleOrDefault(g => g.Nickname == ((Gear)e)?.Nickname)?.AssignedCity
+                    (typeof(Gear), "AssignedCityName"), e => GetExpectedData().Set<Gear>().AsEnumerable()
+                        .SingleOrDefault(g => g.Nickname == ((Gear)e)?.Nickname)?.AssignedCity
                         ?.Name
                 },
             };

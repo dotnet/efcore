@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ((FullNotificationEntity)entry.Entity).RelatedCollection = new List<ChangedOnlyNotificationEntity>();
 
             Assert.Equal(
-                CoreStrings.NonNotifyingCollection("RelatedCollection", "FullNotificationEntity", "List<ChangedOnlyNotificationEntity>", changeTrackingStrategy),
+                CoreStrings.NonNotifyingCollection(
+                    "RelatedCollection", "FullNotificationEntity", "List<ChangedOnlyNotificationEntity>", changeTrackingStrategy),
                 Assert.Throws<InvalidOperationException>(
                     () => entry.SetEntityState(EntityState.Unchanged)).Message);
         }
@@ -207,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool ourCollection,
             params ChangedOnlyNotificationEntity[] items)
             => ourCollection
-                ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
+                ? new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
                 : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
 
         private static TestNavigationListener SetupTestCollectionListener(

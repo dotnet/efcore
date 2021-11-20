@@ -277,9 +277,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual void ApplyServices(IServiceCollection services)
-            {
-                _log.Add(GetType().ShortDisplayName());
-            }
+                => _log.Add(GetType().ShortDisplayName());
 
             public virtual void Validate(IDbContextOptions options)
             {
@@ -305,9 +303,7 @@ namespace Microsoft.EntityFrameworkCore
                     => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-                {
-                    debugInfo["Fake1"] = "1";
-                }
+                    => debugInfo["Fake1"] = "1";
             }
         }
 
@@ -330,9 +326,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public virtual void ApplyServices(IServiceCollection services)
-            {
-                _log.Add(GetType().ShortDisplayName());
-            }
+                => _log.Add(GetType().ShortDisplayName());
 
             public virtual void Validate(IDbContextOptions options)
             {
@@ -358,9 +352,7 @@ namespace Microsoft.EntityFrameworkCore
                     => "";
 
                 public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-                {
-                    debugInfo["Fake2"] = "1";
-                }
+                    => debugInfo["Fake2"] = "1";
             }
         }
     }

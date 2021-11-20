@@ -770,7 +770,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public async override Task Count_with_order_by(bool async)
+        public override async Task Count_with_order_by(bool async)
         {
             await base.Count_with_order_by(async);
 
@@ -798,7 +798,6 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))")
                 @"SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
-
         }
 
         public override async Task OrderBy_Count_with_predicate(bool async)
@@ -933,20 +932,16 @@ ORDER BY c[""CustomerID""]");
         }
 
         public override async Task Distinct_OrderBy(bool async)
-        {
             // Subquery pushdown. Issue #16156.
-            Assert.Equal(
+            => Assert.Equal(
                 "See issue#16156",
                 (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.Distinct_OrderBy(async))).Message);
-        }
 
         public override async Task Distinct_OrderBy2(bool async)
-        {
             // Subquery pushdown. Issue #16156.
-            Assert.Equal(
+            => Assert.Equal(
                 "See issue#16156",
                 (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.Distinct_OrderBy2(async))).Message);
-        }
 
         public override async Task Distinct_OrderBy3(bool async)
         {

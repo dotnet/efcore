@@ -55,11 +55,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<KettleChips>()
+                => modelBuilder.Entity<KettleChips>()
                     .Property(e => e.BestBuyDate)
                     .HasDefaultValue(new DateTime(2035, 9, 25));
-            }
         }
 
         private class KettleChips

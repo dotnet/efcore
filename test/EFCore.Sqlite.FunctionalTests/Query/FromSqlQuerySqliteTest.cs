@@ -52,28 +52,20 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
         }
 
         public override Task Bad_data_error_handling_invalid_cast_key(bool async)
-        {
             // Not supported on SQLite
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override Task Bad_data_error_handling_invalid_cast(bool async)
-        {
             // Not supported on SQLite
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override Task Bad_data_error_handling_invalid_cast_projection(bool async)
-        {
             // Not supported on SQLite
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override Task Bad_data_error_handling_invalid_cast_no_tracking(bool async)
-        {
             // Not supported on SQLite
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task FromSqlRaw_composed_with_common_table_expression(bool async)
         {

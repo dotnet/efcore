@@ -11,14 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class SharedTypeQueryInMemoryTest : SharedTypeQueryTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Can_use_shared_type_entity_type_in_ToInMemoryQuery(bool async)
         {
             var contextFactory = await InitializeAsync<MyContextInMemory24601>(
-                   seed: c => c.Seed());
+                seed: c => c.Seed());
 
             using var context = contextFactory.CreateContext();
 
@@ -36,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("STET",
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>(
+                    "STET",
                     b =>
                     {
                         b.IndexerProperty<int>("Id");
@@ -44,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
 
                 modelBuilder.Entity<ViewQuery24601>().HasNoKey()
-                    .ToInMemoryQuery(() => Set<Dictionary<string, object>>("STET").Select(e => new ViewQuery24601 { Value = (string)e["Value"] }));
+                    .ToInMemoryQuery(
+                        () => Set<Dictionary<string, object>>("STET").Select(e => new ViewQuery24601 { Value = (string)e["Value"] }));
             }
         }
     }

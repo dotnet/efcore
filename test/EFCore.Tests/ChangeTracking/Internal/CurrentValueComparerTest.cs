@@ -201,17 +201,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_sort_NullableIntStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableIntStruct),
-                i => new Godzilla { NullableIntStruct = i.HasValue ? new IntStruct { Value = i.Value } : (IntStruct?)null },
+                i => new Godzilla { NullableIntStruct = i.HasValue ? new IntStruct { Value = i.Value } : null },
                 g => g.NullableIntStruct?.Value);
 
         [ConditionalFact]
         public void Can_sort_NullableComparableIntStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableComparableIntStruct),
-                i => new Godzilla
-                {
-                    NullableComparableIntStruct = i.HasValue ? new ComparableIntStruct { Value = i.Value } : (ComparableIntStruct?)null
-                },
+                i => new Godzilla { NullableComparableIntStruct = i.HasValue ? new ComparableIntStruct { Value = i.Value } : null },
                 g => g.NullableComparableIntStruct?.Value);
 
         [ConditionalFact]
@@ -221,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 i => new Godzilla
                 {
                     NullableGenericComparableIntStruct =
-                        i.HasValue ? new GenericComparableIntStruct { Value = i.Value } : (GenericComparableIntStruct?)null
+                        i.HasValue ? new GenericComparableIntStruct { Value = i.Value } : null
                 },
                 g => g.NullableGenericComparableIntStruct?.Value);
 
@@ -244,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => CanSortNullable(
                 nameof(Godzilla.String),
                 i => new Godzilla { String = i?.ToString() },
-                g => g.String == null ? (int?)null : int.Parse(g.String));
+                g => g.String == null ? null : int.Parse(g.String));
 
         [ConditionalFact]
         public void Can_sort_IntClasses()
@@ -296,17 +293,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_sort_NullableBytesStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableBytesStruct),
-                i => new Godzilla { NullableBytesStruct = i == null ? (BytesStruct?)null : new BytesStruct { Value = i } },
+                i => new Godzilla { NullableBytesStruct = i == null ? null : new BytesStruct { Value = i } },
                 g => g.NullableBytesStruct?.Value);
 
         [ConditionalFact]
         public void Can_sort_NullableComparableBytesStructs()
             => CanSortNullable(
                 nameof(Godzilla.NullableComparableBytesStruct),
-                i => new Godzilla
-                {
-                    NullableComparableBytesStruct = i == null ? (ComparableBytesStruct?)null : new ComparableBytesStruct { Value = i }
-                },
+                i => new Godzilla { NullableComparableBytesStruct = i == null ? null : new ComparableBytesStruct { Value = i } },
                 g => g.NullableComparableBytesStruct?.Value);
 
         [ConditionalFact]
@@ -316,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 i => new Godzilla
                 {
                     NullableGenericComparableBytesStruct =
-                        i == null ? (GenericComparableBytesStruct?)null : new GenericComparableBytesStruct { Value = i }
+                        i == null ? null : new GenericComparableBytesStruct { Value = i }
                 },
                 g => g.NullableGenericComparableBytesStruct?.Value);
 
@@ -327,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 i => new Godzilla
                 {
                     NullableStructuralComparableBytesStruct = i == null
-                        ? (StructuralComparableBytesStruct?)null
+                        ? null
                         : new StructuralComparableBytesStruct { Value = i }
                 },
                 g => g.NullableStructuralComparableBytesStruct?.Value);
@@ -382,8 +376,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 => optionsBuilder.UseInMemoryDatabase(nameof(GodzillaContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Godzilla>(
+                => modelBuilder.Entity<Godzilla>(
                     b =>
                     {
                         b.Property(e => e.IntStruct).HasConversion(IntStruct.Converter);
@@ -409,7 +402,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         b.Property(e => e.NotComparable);
                         b.Property(e => e.NotComparableConverted).HasConversion(NotComparable.Converter);
                     });
-            }
         }
 
         private class Godzilla
@@ -444,13 +436,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct NotComparable
         {
-            public static ValueConverter<NotComparable, NotComparable> Converter
+            public static readonly ValueConverter<NotComparable, NotComparable> Converter
                 = new(v => new NotComparable(), v => new NotComparable());
         }
 
         private struct IntStruct
         {
-            public static ValueConverter<IntStruct, int> Converter
+            public static readonly ValueConverter<IntStruct, int> Converter
                 = new(v => v.Value, v => new IntStruct { Value = v });
 
             public int Value { get; set; }
@@ -458,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct BytesStruct
         {
-            public static ValueConverter<BytesStruct, byte[]> Converter
+            public static readonly ValueConverter<BytesStruct, byte[]> Converter
                 = new(v => v.Value, v => new BytesStruct { Value = v });
 
             public byte[] Value { get; set; }
@@ -486,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct ComparableIntStruct : IComparable
         {
-            public static ValueConverter<ComparableIntStruct, int> Converter
+            public static readonly ValueConverter<ComparableIntStruct, int> Converter
                 = new(v => v.Value, v => new ComparableIntStruct { Value = v });
 
             public int Value { get; set; }
@@ -497,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct ComparableBytesStruct : IComparable
         {
-            public static ValueConverter<ComparableBytesStruct, byte[]> Converter
+            public static readonly ValueConverter<ComparableBytesStruct, byte[]> Converter
                 = new(v => v.Value, v => new ComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
@@ -536,7 +528,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct GenericComparableIntStruct : IComparable<GenericComparableIntStruct>
         {
-            public static ValueConverter<GenericComparableIntStruct, int> Converter
+            public static readonly ValueConverter<GenericComparableIntStruct, int> Converter
                 = new(v => v.Value, v => new GenericComparableIntStruct { Value = v });
 
             public int Value { get; set; }
@@ -547,7 +539,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct GenericComparableBytesStruct : IComparable<GenericComparableBytesStruct>
         {
-            public static ValueConverter<GenericComparableBytesStruct, byte[]> Converter
+            public static readonly ValueConverter<GenericComparableBytesStruct, byte[]> Converter
                 = new(v => v.Value, v => new GenericComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
@@ -586,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private struct StructuralComparableBytesStruct : IStructuralComparable
         {
-            public static ValueConverter<StructuralComparableBytesStruct, byte[]> Converter
+            public static readonly ValueConverter<StructuralComparableBytesStruct, byte[]> Converter
                 = new(v => v.Value, v => new StructuralComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
@@ -619,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var result = Value.Length - typedOther.Value.Length;
 
                 while (result == 0
-                    && ++i < Value.Length)
+                       && ++i < Value.Length)
                 {
                     result = comparer.Compare(Value[i], typedOther.Value[i]);
                 }
@@ -630,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class IntClass
         {
-            public static ValueConverter<IntClass, int> Converter
+            public static readonly ValueConverter<IntClass, int> Converter
                 = new(v => v.Value, v => new IntClass { Value = v });
 
             private bool Equals(IntClass other)
@@ -649,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class ComparableIntClass : IComparable
         {
-            public static ValueConverter<ComparableIntClass, int> Converter
+            public static readonly ValueConverter<ComparableIntClass, int> Converter
                 = new(v => v.Value, v => new ComparableIntClass { Value = v });
 
             public int Value { get; set; }
@@ -671,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class GenericComparableIntClass : IComparable<GenericComparableIntClass>
         {
-            public static ValueConverter<GenericComparableIntClass, int> Converter
+            public static readonly ValueConverter<GenericComparableIntClass, int> Converter
                 = new(v => v.Value, v => new GenericComparableIntClass { Value = v });
 
             public int Value { get; set; }

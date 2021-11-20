@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -26,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var temporalEntityTypes = new List<Type>
             {
-                typeof(TestModels.ManyToManyModel.EntityOne),
-                typeof(TestModels.ManyToManyModel.EntityTwo),
-                typeof(TestModels.ManyToManyModel.EntityThree),
-                typeof(TestModels.ManyToManyModel.EntityCompositeKey),
-                typeof(TestModels.ManyToManyModel.EntityRoot),
-                typeof(TestModels.ManyToManyModel.EntityBranch),
-                typeof(TestModels.ManyToManyModel.EntityLeaf),
+                typeof(EntityOne),
+                typeof(EntityTwo),
+                typeof(EntityThree),
+                typeof(EntityCompositeKey),
+                typeof(EntityRoot),
+                typeof(EntityBranch),
+                typeof(EntityLeaf),
             };
 
             var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);

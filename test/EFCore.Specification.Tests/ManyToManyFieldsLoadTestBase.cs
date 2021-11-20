@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ManyToManyFieldsLoadTestBase<TFixture>.ManyToManyFieldsLoadFixtureBase
     {
         protected ManyToManyFieldsLoadTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
@@ -151,13 +153,13 @@ namespace Microsoft.EntityFrameworkCore
             if (state != EntityState.Unchanged)
             {
                 foreach (var child in left.TwoSkip.Cast<object>()
-                    .Concat(left.TwoSkipShared)
-                    .Concat(left.SelfSkipPayloadLeft)
-                    .Concat(left.SelfSkipPayloadRight)
-                    .Concat(left.BranchSkip)
-                    .Concat(left.ThreeSkipPayloadFull)
-                    .Concat(left.TwoSkipShared)
-                    .Concat(left.ThreeSkipPayloadFullShared))
+                             .Concat(left.TwoSkipShared)
+                             .Concat(left.SelfSkipPayloadLeft)
+                             .Concat(left.SelfSkipPayloadRight)
+                             .Concat(left.BranchSkip)
+                             .Concat(left.ThreeSkipPayloadFull)
+                             .Concat(left.TwoSkipShared)
+                             .Concat(left.ThreeSkipPayloadFullShared))
                 {
                     context.Entry(child).State = state;
                 }

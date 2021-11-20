@@ -27,9 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
         public virtual string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
 
         public override string ToString()
-        {
-            return Name;
-        }
+            => Name;
     }
 
     public class IdentityRole : IdentityRole<string>

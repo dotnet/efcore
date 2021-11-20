@@ -17,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore
         private readonly TestHelpers _testHelpers;
 
         protected EntityFrameworkServiceCollectionExtensionsTestBase(TestHelpers testHelpers)
-            => _testHelpers = testHelpers;
+        {
+            _testHelpers = testHelpers;
+        }
 
         [ConditionalFact]
         public void Calling_AddEntityFramework_explicitly_does_not_change_services()
@@ -32,17 +34,13 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Repeated_calls_to_add_do_not_modify_collection()
-        {
-            AssertServicesSame(
+            => AssertServicesSame(
                 AddServices(new ServiceCollection()),
                 AddServices(AddServices(new ServiceCollection())));
-        }
 
         [ConditionalFact]
         public virtual void Required_services_are_registered_with_expected_lifetimes()
-        {
-            LifetimeTest(EntityFrameworkServicesBuilder.CoreServices);
-        }
+            => LifetimeTest(EntityFrameworkServicesBuilder.CoreServices);
 
         protected virtual void LifetimeTest(
             params IDictionary<Type, ServiceCharacteristics>[] serviceDefinitions)

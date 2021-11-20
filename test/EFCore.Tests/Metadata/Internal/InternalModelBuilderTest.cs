@@ -345,8 +345,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ClashingOwnedEntityType(typeof(Details).Name),
-                Assert.Throws<InvalidOperationException>(()
-                    => modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Explicit));
 
@@ -518,12 +519,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static void Cleanup(InternalModelBuilder modelBuilder)
-        {
-            new ModelCleanupConvention(CreateDependencies())
+            => new ModelCleanupConvention(CreateDependencies())
                 .ProcessModelFinalizing(
                     modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
-        }
 
         private static ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();

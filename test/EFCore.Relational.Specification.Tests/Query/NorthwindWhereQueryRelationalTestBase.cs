@@ -15,14 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override Task Where_bool_client_side_negated(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_bool_client_side_negated(async));
-        }
+            => AssertTranslationFailed(() => base.Where_bool_client_side_negated(async));
 
         public override Task Where_equals_method_string_with_ignore_case(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
-        }
+            => AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
 
         protected virtual bool CanExecuteQueryString
             => false;

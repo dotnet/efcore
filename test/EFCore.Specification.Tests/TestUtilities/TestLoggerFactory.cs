@@ -11,12 +11,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public TestLogger Logger { get; }
 
-        public LogLevel? LoggedAt => Logger.LoggedAt;
-        public EventId LoggedEvent => Logger.LoggedEvent;
-        public string Message => Logger.Message;
+        public LogLevel? LoggedAt
+            => Logger.LoggedAt;
+
+        public EventId LoggedEvent
+            => Logger.LoggedEvent;
+
+        public string Message
+            => Logger.Message;
 
         public TestLoggerFactory(LoggingDefinitions definitions)
-            => Logger = new TestLogger(definitions);
+        {
+            Logger = new TestLogger(definitions);
+        }
 
         public ILogger CreateLogger(string categoryName)
             => Logger;
@@ -24,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void AddProvider(ILoggerProvider provider)
             => throw new NotSupportedException();
 
-        public void Dispose() {}
+        public void Dispose() { }
     }
 }

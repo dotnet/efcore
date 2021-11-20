@@ -6,7 +6,6 @@ using System.Linq;
 using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -275,8 +274,7 @@ namespace Microsoft.EntityFrameworkCore
         // tests scenario in https://github.com/dotnet/efcore/issues/15958
         [ConditionalFact]
         public void Throws_if_attempt_to_add_proxy_type_to_model_builder()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
                     () =>
@@ -284,7 +282,6 @@ namespace Microsoft.EntityFrameworkCore
                         var context = new CannotAddProxyTypeToModel();
                         context.Set<ClassToBeProxied>().Add(new ClassToBeProxied { Id = 0 });
                     }).Message);
-        }
 
         public class March82GGtp
         {
@@ -501,17 +498,14 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<ClassToBeProxied> _entityToBeProxied { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseLazyLoadingProxies()
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
                             .AddEntityFrameworkProxies()
                             .BuildServiceProvider(validateScopes: true))
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    ;
-            }
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

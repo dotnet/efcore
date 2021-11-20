@@ -21,19 +21,19 @@ namespace Microsoft.EntityFrameworkCore
         public void Different_stores_are_used_when_options_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase(nameof(BooFooContext))
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .UseInMemoryDatabase(nameof(BooFooContext))
+                           .Options))
             {
                 context.Add(new Foo());
                 context.SaveChanges();
             }
 
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase(nameof(BooFooContext))
-                    .EnableSensitiveDataLogging()
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .UseInMemoryDatabase(nameof(BooFooContext))
+                           .EnableSensitiveDataLogging()
+                           .Options))
             {
                 Assert.Empty(context.Foos.ToList());
             }
@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore
         public void AddDbContext_does_not_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase(nameof(BooFooContext))
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .UseInMemoryDatabase(nameof(BooFooContext))
+                           .Options))
             {
                 context.Add(new Foo());
                 context.SaveChanges();
@@ -67,21 +67,21 @@ namespace Microsoft.EntityFrameworkCore
         public void Global_store_can_be_used_when_options_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .EnableServiceProviderCaching(false)
-                    .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .EnableServiceProviderCaching(false)
+                           .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                           .Options))
             {
                 context.Add(new Foo());
                 context.SaveChanges();
             }
 
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .EnableServiceProviderCaching(false)
-                    .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                    .EnableSensitiveDataLogging()
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .EnableServiceProviderCaching(false)
+                           .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                           .EnableSensitiveDataLogging()
+                           .Options))
             {
                 Assert.Equal(1, context.Foos.Count());
             }
@@ -127,10 +127,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Global_store_can_be_used_when_AddDbContext_force_different_internal_service_provider()
         {
             using (var context = new BooFooContext(
-                new DbContextOptionsBuilder()
-                    .EnableServiceProviderCaching(false)
-                    .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                    .Options))
+                       new DbContextOptionsBuilder()
+                           .EnableServiceProviderCaching(false)
+                           .UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                           .Options))
             {
                 context.Add(new Boo());
                 context.SaveChanges();

@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     {
         [ConditionalFact]
         public void Alter_database_edition_options()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.HasDatabaseMaxSize("100 MB")
                     .HasPerformanceLevel("S0"),
@@ -48,12 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         "EDITION = 'basic'",
                         alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_table_MemoryOptimized()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Person",
                     x =>
@@ -106,12 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Empty(alterTableOperation.GetAnnotations());
                     Assert.Single(alterTableOperation.OldTable.GetAnnotations());
                 });
-        }
 
         [ConditionalFact]
         public void Add_table_MemoryOptimized()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 _ => { },
                 target => target.Entity(
@@ -154,12 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Empty(alterDatabaseOperation.GetAnnotations());
                     Assert.Single(alterDatabaseOperation.OldDatabase.GetAnnotations());
                 });
-        }
 
         [ConditionalFact]
         public void Add_column_with_dependencies()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Person",
                     x =>
@@ -186,12 +179,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
                     Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_identity()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Lamb").ToTable("Lamb", "bah").Property<int>("Id").ValueGeneratedNever(),
                 target => target.Entity("Lamb").ToTable("Lamb", "bah").Property<int>("Id").ValueGeneratedOnAdd(),
                 operations =>
@@ -204,12 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Id", operation.Name);
                     Assert.Equal("1, 1", operation["SqlServer:Identity"]);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_non_key_identity()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Lamb",
                     x =>
@@ -236,12 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Num", operation.Name);
                     Assert.Equal("1, 1", operation["SqlServer:Identity"]);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_computation()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Sheep",
                     x =>
@@ -268,12 +255,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Now", operation.Name);
                     Assert.Equal("CAST(CURRENT_TIMESTAMP AS int)", operation.ComputedColumnSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_primary_key_clustering()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Ram",
                     x =>
@@ -305,12 +290,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("PK_Ram", addOperation.Name);
                     Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
                 });
-        }
 
         [ConditionalFact]
         public void Add_non_clustered_primary_key_with_owned()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target => target.Entity(
                     "Ram",
@@ -329,12 +312,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("PK_Ram", addKey.Name);
                     Assert.False((bool)addKey[SqlServerAnnotationNames.Clustered]);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_unique_constraint_clustering()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Ewe",
                     x =>
@@ -368,12 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("AK_Ewe_AlternateId", addOperation.Name);
                     Assert.True((bool)addOperation[SqlServerAnnotationNames.Clustered]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_shared_table_with_two_entity_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -405,12 +384,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("Time", timeColumn.Name);
                     Assert.True(timeColumn.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Add_SequenceHiLo_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Firefly",
                     x =>
@@ -461,12 +438,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             m.KeyValues,
                             v => Assert.Equal(43, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Alter_index_clustering()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Mutton",
                     x =>
@@ -502,12 +477,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("IX_Mutton_Value", createOperation.Name);
                     Assert.True((bool)createOperation[SqlServerAnnotationNames.Clustered]);
                 });
-        }
 
         public static int Function()
-        {
-            return default;
-        }
+            => default;
 
         [ConditionalFact]
         public void Add_dbfunction_ignore()
@@ -522,8 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public void Alter_column_rowversion()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -550,12 +521,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.True(operation.IsRowVersion);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void SeedData_all_operations()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -724,12 +693,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             v => Assert.Equal(0, v),
                             v => Assert.Equal("", v));
                     }));
-        }
 
         [ConditionalFact]
         public void Dont_reseed_value_with_value_generated_on_add_property()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity(
@@ -746,12 +713,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 source => { },
                 target => { },
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Dont_rebuild_index_with_equal_include()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Address",
@@ -775,12 +740,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 .IncludeProperties("City");
                         }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Rebuild_index_with_different_include()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Address",
@@ -826,12 +789,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Single(annotationValue);
                     Assert.Equal("Street", annotationValue[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Dont_rebuild_index_with_unchanged_online_option()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Address",
@@ -855,12 +816,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 .IsCreatedOnline();
                         }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Rebuild_index_when_changing_online_option()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source
                     .Entity(
@@ -921,12 +880,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Empty(operation2.GetAnnotations());
                 });
-        }
 
         [ConditionalFact]
         public void Noop_TPT_with_FKs_and_seed_data()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                 },
@@ -1086,7 +1043,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 upOps => Assert.Empty(upOps),
                 downOps => Assert.Empty(downOps),
                 skipSourceConventions: true);
-        }
 
         protected override TestHelpers TestHelpers
             => SqlServerTestHelpers.Instance;
@@ -1099,8 +1055,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public void Dont_rebuild_index_with_unchanged_fillfactor_option()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Address",
@@ -1124,12 +1079,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 .HasFillFactor(90);
                         }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Rebuild_index_when_adding_fillfactor_option()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source
                     .Entity(
@@ -1190,12 +1143,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Empty(operation2.GetAnnotations());
                 });
-        }
 
         [ConditionalFact]
         public void Rebuild_index_with_different_fillfactor_value()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Address",
@@ -1241,6 +1192,5 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Equal(90, annotationValue);
                 });
-        }
     }
 }

@@ -251,7 +251,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
-
         [ConditionalFact]
         public void DropSchemaOperation_is_ignored()
         {

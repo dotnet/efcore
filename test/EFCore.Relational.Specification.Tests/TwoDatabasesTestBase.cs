@@ -88,11 +88,11 @@ namespace Microsoft.EntityFrameworkCore
             context1.Database.EnsureCreatedResiliently();
 
             using (var context = new TwoDatabasesContext(
-                CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString: true)
-                    .AddInterceptors(
-                        new ConnectionStringConnectionInterceptor(
-                            connectionString1, DummyConnectionString))
-                    .Options))
+                       CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString: true)
+                           .AddInterceptors(
+                               new ConnectionStringConnectionInterceptor(
+                                   connectionString1, DummyConnectionString))
+                           .Options))
             {
                 var data = context.Foos.ToList();
                 data[0].Bar = "Modified One";
@@ -149,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Foo>();
-            }
+                => modelBuilder.Entity<Foo>();
 
             public IQueryable<Foo> Foos
                 => Set<Foo>().OrderBy(e => e.Id);

@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     _engineEdition = GetEngineEdition();
                     _productMajorVersion = GetProductMajorVersion();
 
-                    _supportsTemporalTablesCascadeDelete = (_productMajorVersion >= 14/* && _engineEdition != 6*/) || IsSqlAzure;
+                    _supportsTemporalTablesCascadeDelete = (_productMajorVersion >= 14 /* && _engineEdition != 6*/) || IsSqlAzure;
                 }
                 catch (PlatformNotSupportedException)
                 {
@@ -239,10 +239,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static string ElasticPoolName { get; } = Config["ElasticPoolName"];
 
         public static bool? GetFlag(string key)
-            => bool.TryParse(Config[key], out var flag) ? flag : (bool?)null;
+            => bool.TryParse(Config[key], out var flag) ? flag : null;
 
         public static int? GetInt(string key)
-            => int.TryParse(Config[key], out var value) ? value : (int?)null;
+            => int.TryParse(Config[key], out var value) ? value : null;
 
         private static int GetEngineEdition()
         {

@@ -268,9 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public DbContext Context { get; private set; }
 
             void IPatchServiceInjectionSite.InjectServices(IServiceProvider serviceProvider)
-            {
-                Context = serviceProvider.GetService<ICurrentDbContext>().Context;
-            }
+                => Context = serviceProvider.GetService<ICurrentDbContext>().Context;
         }
 
         private class DerivedFakeService : FakeService

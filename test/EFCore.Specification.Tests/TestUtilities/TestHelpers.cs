@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected virtual EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(IServiceCollection services)
-            => new EntityFrameworkDesignServicesBuilder(services);
+            => new(services);
 
         public IServiceProvider CreateDesignServiceProvider(
             IServiceCollection customServices = null,
@@ -87,24 +87,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
             Type additionalDesignTimeServices = null,
             IOperationReporter reporter = null)
-            => CreateServiceProvider(customServices, services =>
-            {
-                if (replaceServices != null)
+            => CreateServiceProvider(
+                customServices, services =>
                 {
-                    var builder = CreateEntityFrameworkDesignServicesBuilder(services);
-                    replaceServices(builder);
-                }
+                    if (replaceServices != null)
+                    {
+                        var builder = CreateEntityFrameworkDesignServicesBuilder(services);
+                        replaceServices(builder);
+                    }
 
-                if (additionalDesignTimeServices != null)
-                {
-                    ConfigureDesignTimeServices(additionalDesignTimeServices, services);
-                }
+                    if (additionalDesignTimeServices != null)
+                    {
+                        ConfigureDesignTimeServices(additionalDesignTimeServices, services);
+                    }
 
-                ConfigureProviderServices(provider, services);
-                services.AddEntityFrameworkDesignTimeServices(reporter);
+                    ConfigureProviderServices(provider, services);
+                    services.AddEntityFrameworkDesignTimeServices(reporter);
 
-                return services;
-            });
+                    return services;
+                });
 
         private void ConfigureProviderServices(string provider, IServiceCollection services)
         {
@@ -489,7 +490,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ModelDependencies modelDependencies,
                 IModelRuntimeInitializer modelRuntimeInitializer,
                 IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-                => new(Conventions,
+                => new(
+                    Conventions,
                     modelDependencies,
                     ModelConfiguration.IsEmpty() ? null : ModelConfiguration.Validate(),
                     modelRuntimeInitializer,

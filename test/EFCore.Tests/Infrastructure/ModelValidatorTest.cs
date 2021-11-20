@@ -28,11 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableKey>(eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<WithNonComparableKey>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    eb.HasKey(e => e.Id);
+                });
 
             VerifyError(
                 CoreStrings.NonComparableKeyType(nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable)),
@@ -49,10 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableUniqueIndex>(eb =>
-            {
-                eb.HasIndex(e => e.Index).IsUnique();
-            });
+            modelBuilder.Entity<WithNonComparableUniqueIndex>(
+                eb =>
+                {
+                    eb.HasIndex(e => e.Index).IsUnique();
+                });
 
             VerifyError(
                 CoreStrings.NonComparableKeyType(
@@ -71,12 +73,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableNormalProperty>(eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.HasKey(e => e.Id);
-                eb.Property(e => e.Foo);
-            });
+            modelBuilder.Entity<WithNonComparableNormalProperty>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    eb.HasKey(e => e.Id);
+                    eb.Property(e => e.Foo);
+                });
 
             Validate(modelBuilder);
         }
@@ -97,15 +100,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             IMutableProperty convertedProperty = null;
-            modelBuilder.Entity<WithCollectionConversion>(eb =>
-            {
-                eb.Property(e => e.Id);
-                convertedProperty = eb.Property(e => e.SomeStrings).Metadata;
-                convertedProperty.SetValueConverter(
-                new ValueConverter<string[], string>(
-                    v => string.Join(',', v),
-                    v => v.Split(',', StringSplitOptions.None)));
-            });
+            modelBuilder.Entity<WithCollectionConversion>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    convertedProperty = eb.Property(e => e.SomeStrings).Metadata;
+                    convertedProperty.SetValueConverter(
+                        new ValueConverter<string[], string>(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.None)));
+                });
 
             VerifyWarning(
                 CoreResources.LogCollectionWithoutComparer(
@@ -119,15 +123,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             IMutableProperty convertedProperty = null;
-            modelBuilder.Entity<WithCollectionConversion>(eb =>
-            {
-                eb.Property(e => e.Id);
-                convertedProperty = eb.Property(e => e.SomeStrings).Metadata;
-                convertedProperty.SetValueConverter(
-                new ValueConverter<string[], string>(
-                    v => string.Join(',', v),
-                    v => v.Split(',', StringSplitOptions.None)));
-            });
+            modelBuilder.Entity<WithCollectionConversion>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    convertedProperty = eb.Property(e => e.SomeStrings).Metadata;
+                    convertedProperty.SetValueConverter(
+                        new ValueConverter<string[], string>(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.None)));
+                });
 
             convertedProperty.SetValueComparer(
                 new ValueComparer<string[]>(
@@ -183,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             entityTypeD.SetQueryFilter((Expression<Func<D, bool>>)(_ => true));
 
-            VerifyError(CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
+            VerifyError(
+                CoreStrings.BadFilterDerivedType(entityTypeD.GetQueryFilter(), entityTypeD.DisplayName(), entityTypeA.DisplayName()),
                 modelBuilder);
         }
 
@@ -291,7 +297,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     nameof(DependentTwo.PrincipalTwoId)),
                 modelBuilder);
         }
-
 
         [ConditionalFact]
         public virtual void Warns_on_uniquified_shadow_key_due_to_use_in_another_relationship()
@@ -836,14 +841,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
 
             ownedTypeBuilder.HasRelationship(
-                    entityTypeBuilder.Metadata, null, nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Convention, setTargetAsPrincipal: true)
+                    entityTypeBuilder.Metadata, null, nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Convention,
+                    setTargetAsPrincipal: true)
                 .Metadata.IsOwnership = true;
 
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.Id), ConfigurationSource.Explicit);
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             VerifyError(
-                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.AnotherReferencedEntity'"),
+                CoreStrings.MultipleOwnerships(
+                    nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.AnotherReferencedEntity'"),
                 builder);
         }
 
@@ -1308,7 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 e =>
                 {
                     e.HasMany(o => o.Products)
-                     .WithMany(p => p.Orders);
+                        .WithMany(p => p.Orders);
                     e.HasData(
                         new Order { Id = 1, Products = new List<Product> { new() } });
                 });
@@ -1503,10 +1510,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     e.HasNoKey();
                     e.HasData(
-                        new KeylessSeed
-                        {
-                            Species = "Apple"
-                        });
+                        new KeylessSeed { Species = "Apple" });
                 });
 
             VerifyError(CoreStrings.SeedKeylessEntity(nameof(KeylessSeed)), modelBuilder);

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -130,32 +131,26 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual Task Can_use_with_redundant_relationships()
-        {
-            return Test_roundtrip(OnModelCreating);
-        }
+            => Test_roundtrip(OnModelCreating);
 
         [ConditionalFact]
         public virtual Task Can_use_with_chained_relationships()
-        {
-            return Test_roundtrip(
+            => Test_roundtrip(
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
                     modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Can_use_with_fanned_relationships()
-        {
-            return Test_roundtrip(
+            => Test_roundtrip(
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
                     modelBuilder.Entity<CombustionEngine>().HasOne(e => e.FuelTank).WithOne().HasForeignKey<FuelTank>(e => e.VehicleName);
                     modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Engine));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task Can_share_required_columns()
@@ -555,19 +550,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             await InitializeSharedAsync(OnSharedModelCreating);
 
-            var meterReading = new MeterReading
-            {
-                MeterReadingDetails = new MeterReadingDetail()
-            };
+            var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
             using var context = CreateSharedContext();
             context.Add(meterReading);
 
             context.SaveChanges();
 
-            var expected = RelationalResources.LogOptionalDependentWithAllNullPropertiesSensitive(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail), "{Id: -2147482647}");
+            var expected = RelationalResources
+                .LogOptionalDependentWithAllNullPropertiesSensitive(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage(nameof(MeterReadingDetail), "{Id: -2147482647}");
 
-            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == LogLevel.Warning);
 
             Assert.Equal(expected, log.Message);
         }
@@ -577,10 +571,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             await InitializeSharedAsync(OnSharedModelCreating, sensitiveLogEnabled: false);
 
-            var meterReading = new MeterReading
-            {
-                MeterReadingDetails = new MeterReadingDetail()
-            };
+            var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
             using var context = CreateSharedContext();
             context.Add(meterReading);
@@ -589,9 +580,10 @@ namespace Microsoft.EntityFrameworkCore
 
             context.SaveChanges();
 
-            var expected = RelationalResources.LogOptionalDependentWithAllNullProperties(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
+            var expected = RelationalResources.LogOptionalDependentWithAllNullProperties(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage(nameof(MeterReadingDetail));
 
-            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == LogLevel.Warning);
 
             Assert.Equal(expected, log.Message);
         }
@@ -603,13 +595,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using var context = CreateSharedContext();
 
-            var meterReading = new MeterReading
-            {
-                MeterReadingDetails = new MeterReadingDetail()
-                {
-                    CurrentRead = "100"
-                }
-            };
+            var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail { CurrentRead = "100" } };
 
             context.Add(meterReading);
 
@@ -617,14 +603,16 @@ namespace Microsoft.EntityFrameworkCore
 
             context.SaveChanges();
 
-            var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == Extensions.Logging.LogLevel.Warning);
+            var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == LogLevel.Warning);
 
             Assert.Null(log.Message);
         }
 
         protected override string StoreName { get; } = "TableSplittingTest";
+
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
+
         protected ContextFactory<TransportationContext> ContextFactory { get; private set; }
         protected ContextFactory<SharedTableContext> SharedContextFactory { get; private set; }
 
@@ -658,34 +646,30 @@ namespace Microsoft.EntityFrameworkCore
                     dob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
                 });
             modelBuilder.Entity<MeterReading>(
-                   ob =>
-                   {
-                       ob.ToTable("MeterReadings");
-                       ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
-                       ob.HasOne(o => o.MeterReadingDetails).WithOne()
-                           .HasForeignKey<MeterReadingDetail>(o => o.Id);
-                   });
+                ob =>
+                {
+                    ob.ToTable("MeterReadings");
+                    ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                    ob.HasOne(o => o.MeterReadingDetails).WithOne()
+                        .HasForeignKey<MeterReadingDetail>(o => o.Id);
+                });
         }
 
         protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
-        {
-            ContextFactory = await InitializeAsync<TransportationContext>(
+            => ContextFactory = await InitializeAsync<TransportationContext>(
                 onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
-        }
 
         protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
-        {
-            SharedContextFactory = await InitializeAsync<SharedTableContext>(
+            => SharedContextFactory = await InitializeAsync<SharedTableContext>(
                 onModelCreating,
                 shouldLogCategory: _ => true,
                 onConfiguring: options =>
                 {
                     options.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning))
-                    .ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning))
-                    .EnableSensitiveDataLogging(sensitiveLogEnabled);
+                        .ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning))
+                        .EnableSensitiveDataLogging(sensitiveLogEnabled);
                 }
-                );
-        }
+            );
 
         protected virtual TransportationContext CreateContext()
             => ContextFactory.CreateContext();

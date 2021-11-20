@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -72,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 builderOptionsAction(targetOptionsBuilder);
             }
+
             var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
             var operationsUp = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());

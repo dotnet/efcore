@@ -108,9 +108,7 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Buffer_quadrantSegments(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Centroid(bool async)
         {
@@ -161,15 +159,11 @@ FROM [LineStringEntity] AS [l]");
 
         // No SqlServer Translation
         public override Task CoveredBy(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Covers(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Crosses(bool async)
         {
@@ -395,10 +389,8 @@ FROM [MultiLineStringEntity] AS [m]");
         }
 
         public override Task GetGeometryN_with_null_argument(bool async)
-        {
             // 'geometry::STGeometryN' failed because parameter 1 is not allowed to be null.
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task GetInteriorRingN(bool async)
         {
@@ -549,9 +541,7 @@ FROM [PointEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Normalized(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task NumGeometries(bool async)
         {
@@ -633,9 +623,7 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Reverse(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task SRID(bool async)
         {
@@ -717,9 +705,7 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Union_void(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Within(bool async)
         {

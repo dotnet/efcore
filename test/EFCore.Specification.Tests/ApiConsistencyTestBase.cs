@@ -952,102 +952,88 @@ namespace Microsoft.EntityFrameworkCore
                 = new()
                 {
                     {
-                        typeof(IReadOnlyModel),
-                        (typeof(IMutableModel),
-                        typeof(IConventionModel),
-                        typeof(IConventionModelBuilder),
-                        typeof(IModel))
+                        typeof(IReadOnlyModel), (typeof(IMutableModel),
+                            typeof(IConventionModel),
+                            typeof(IConventionModelBuilder),
+                            typeof(IModel))
                     },
                     {
-                        typeof(IReadOnlyAnnotatable),
-                        (typeof(IMutableAnnotatable),
-                        typeof(IConventionAnnotatable),
-                        typeof(IConventionAnnotatableBuilder),
-                        typeof(IAnnotatable))
+                        typeof(IReadOnlyAnnotatable), (typeof(IMutableAnnotatable),
+                            typeof(IConventionAnnotatable),
+                            typeof(IConventionAnnotatableBuilder),
+                            typeof(IAnnotatable))
                     },
                     {
-                        typeof(IAnnotation),
-                        (typeof(IAnnotation),
-                        typeof(IConventionAnnotation),
-                        null,
-                        null)
+                        typeof(IAnnotation), (typeof(IAnnotation),
+                            typeof(IConventionAnnotation),
+                            null,
+                            null)
                     },
                     {
-                        typeof(IReadOnlyEntityType),
-                        (typeof(IMutableEntityType),
-                        typeof(IConventionEntityType),
-                        typeof(IConventionEntityTypeBuilder),
-                        typeof(IEntityType))
+                        typeof(IReadOnlyEntityType), (typeof(IMutableEntityType),
+                            typeof(IConventionEntityType),
+                            typeof(IConventionEntityTypeBuilder),
+                            typeof(IEntityType))
                     },
                     {
-                        typeof(IReadOnlyTypeBase),
-                        (typeof(IMutableTypeBase),
-                        typeof(IConventionTypeBase),
-                        null,
-                        typeof(ITypeBase))
+                        typeof(IReadOnlyTypeBase), (typeof(IMutableTypeBase),
+                            typeof(IConventionTypeBase),
+                            null,
+                            typeof(ITypeBase))
                     },
                     {
-                        typeof(IReadOnlyKey),
-                        (typeof(IMutableKey),
-                        typeof(IConventionKey),
-                        typeof(IConventionKeyBuilder),
-                        typeof(IKey))
+                        typeof(IReadOnlyKey), (typeof(IMutableKey),
+                            typeof(IConventionKey),
+                            typeof(IConventionKeyBuilder),
+                            typeof(IKey))
                     },
                     {
-                        typeof(IReadOnlyForeignKey),
-                        (typeof(IMutableForeignKey),
-                        typeof(IConventionForeignKey),
-                        typeof(IConventionForeignKeyBuilder),
-                        typeof(IForeignKey))
+                        typeof(IReadOnlyForeignKey), (typeof(IMutableForeignKey),
+                            typeof(IConventionForeignKey),
+                            typeof(IConventionForeignKeyBuilder),
+                            typeof(IForeignKey))
                     },
                     {
-                        typeof(IReadOnlyIndex),
-                        (typeof(IMutableIndex),
-                        typeof(IConventionIndex),
-                        typeof(IConventionIndexBuilder),
-                        typeof(IIndex))
+                        typeof(IReadOnlyIndex), (typeof(IMutableIndex),
+                            typeof(IConventionIndex),
+                            typeof(IConventionIndexBuilder),
+                            typeof(IIndex))
                     },
                     {
-                        typeof(IReadOnlyProperty),
-                        (typeof(IMutableProperty),
-                        typeof(IConventionProperty),
-                        typeof(IConventionPropertyBuilder),
-                        typeof(IProperty))
+                        typeof(IReadOnlyProperty), (typeof(IMutableProperty),
+                            typeof(IConventionProperty),
+                            typeof(IConventionPropertyBuilder),
+                            typeof(IProperty))
                     },
                     {
-                        typeof(IReadOnlyNavigation),
-                        (typeof(IMutableNavigation),
-                        typeof(IConventionNavigation),
-                        typeof(IConventionNavigationBuilder),
-                        typeof(INavigation))
+                        typeof(IReadOnlyNavigation), (typeof(IMutableNavigation),
+                            typeof(IConventionNavigation),
+                            typeof(IConventionNavigationBuilder),
+                            typeof(INavigation))
                     },
                     {
-                        typeof(IReadOnlySkipNavigation),
-                        (typeof(IMutableSkipNavigation),
-                        typeof(IConventionSkipNavigation),
-                        typeof(IConventionSkipNavigationBuilder),
-                        typeof(ISkipNavigation))
+                        typeof(IReadOnlySkipNavigation), (typeof(IMutableSkipNavigation),
+                            typeof(IConventionSkipNavigation),
+                            typeof(IConventionSkipNavigationBuilder),
+                            typeof(ISkipNavigation))
                     },
                     {
-                        typeof(IReadOnlyServiceProperty),
-                        (typeof(IMutableServiceProperty),
-                        typeof(IConventionServiceProperty),
-                        typeof(IConventionServicePropertyBuilder),
-                        typeof(IServiceProperty))
+                        typeof(IReadOnlyServiceProperty), (typeof(IMutableServiceProperty),
+                            typeof(IConventionServiceProperty),
+                            typeof(IConventionServicePropertyBuilder),
+                            typeof(IServiceProperty))
                     },
                     {
-                        typeof(IReadOnlyNavigationBase),
-                        (typeof(IMutableNavigationBase),
-                        typeof(IConventionNavigationBase),
-                        null,
-                        typeof(INavigationBase))
+                        typeof(IReadOnlyNavigationBase), (typeof(IMutableNavigationBase),
+                            typeof(IConventionNavigationBase),
+                            null,
+                            typeof(INavigationBase))
                     },
                     {
-                        typeof(IReadOnlyPropertyBase),
-                        (typeof(IMutablePropertyBase),
-                        typeof(IConventionPropertyBase),
-                        null,
-                        typeof(IPropertyBase))
+                        typeof(IReadOnlyPropertyBase), (typeof(IMutablePropertyBase),
+                            typeof(IConventionPropertyBase),
+                            null,
+                            typeof(IPropertyBase))
                     }
                 };
 
@@ -1066,10 +1052,10 @@ namespace Microsoft.EntityFrameworkCore
                 = new();
 
             public List<(IReadOnlyList<MethodInfo> ReadOnly,
-                IReadOnlyList<MethodInfo> Mutable,
-                IReadOnlyList<MethodInfo> Convention,
-                IReadOnlyList<MethodInfo> ConventionBuilder,
-                IReadOnlyList<MethodInfo> Runtime)>
+                    IReadOnlyList<MethodInfo> Mutable,
+                    IReadOnlyList<MethodInfo> Convention,
+                    IReadOnlyList<MethodInfo> ConventionBuilder,
+                    IReadOnlyList<MethodInfo> Runtime)>
                 MetadataMethods { get; } = new();
 
             protected virtual void Initialize()
@@ -1085,20 +1071,20 @@ namespace Microsoft.EntityFrameworkCore
                     var type = extensionTypeTuple.Type;
                     var (mutableType, conventionType, conventionBuilderType, runtimeType) = MetadataTypes[type];
                     var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray()
+                            .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray()
                         ?? new MethodInfo[0];
                     var mutableMethods = extensionTypeTuple.MutableExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray()
+                            .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray()
                         ?? new MethodInfo[0];
                     var conventionMethods = extensionTypeTuple.ConventionExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray()
+                            .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray()
                         ?? new MethodInfo[0];
                     var conventionBuilderMethods = extensionTypeTuple.ConventionBuilderExtensions
-                        ?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray()
+                            ?.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                            .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray()
                         ?? new MethodInfo[0];
                     var runtimeMethods = extensionTypeTuple.RuntimeExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == runtimeType).ToArray()
+                            .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == runtimeType).ToArray()
                         ?? new MethodInfo[0];
                     MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));
                 }
@@ -1109,15 +1095,20 @@ namespace Microsoft.EntityFrameworkCore
                 foreach (var typeTuple in types)
                 {
                     var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray() ?? new MethodInfo[0];
+                            .Where(m => !IsObsolete(m)).ToArray()
+                        ?? new MethodInfo[0];
                     var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray() ?? new MethodInfo[0];
+                            .Where(m => !IsObsolete(m)).ToArray()
+                        ?? new MethodInfo[0];
                     var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray() ?? new MethodInfo[0];
+                            .Where(m => !IsObsolete(m)).ToArray()
+                        ?? new MethodInfo[0];
                     var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray() ?? new MethodInfo[0];
+                            .Where(m => !IsObsolete(m)).ToArray()
+                        ?? new MethodInfo[0];
                     var runtimeMethods = typeTuple.Value.Runtime?.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray() ?? new MethodInfo[0];
+                            .Where(m => !IsObsolete(m)).ToArray()
+                        ?? new MethodInfo[0];
                     MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));
                 }
             }

@@ -97,9 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void Create_and_clone_sized_mappings_with_converter()
-        {
-            ConversionCloneTest(typeof(ByteArrayTypeMapping), typeof(byte[]));
-        }
+            => ConversionCloneTest(typeof(ByteArrayTypeMapping), typeof(byte[]));
 
         protected virtual void ConversionCloneTest(
             Type mappingType,
@@ -160,9 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void Create_and_clone_unicode_sized_mappings_with_converter()
-        {
-            UnicodeConversionCloneTest(typeof(StringTypeMapping), typeof(string));
-        }
+            => UnicodeConversionCloneTest(typeof(StringTypeMapping), typeof(string));
 
         protected virtual void UnicodeConversionCloneTest(
             Type mappingType,
@@ -244,8 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 bool unicode = false,
                 bool fixedLength = false,
                 StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
-            {
-                return new RelationalTypeMappingParameters(
+                => new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
                         type,
                         new FakeValueConverter(),
@@ -257,7 +252,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     size: size,
                     unicode: unicode,
                     fixedLength: fixedLength);
-            }
 
             protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
                 => new FakeTypeMapping(parameters);
@@ -353,9 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalTypeMapping typeMapping,
             object value,
             string literalValue)
-        {
-            Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
-        }
+            => Assert.Equal(literalValue, typeMapping.GenerateSqlLiteral(value));
 
         [ConditionalFact]
         public virtual void Bool_literal_generated_correctly()
@@ -368,9 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void ByteArray_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(new ByteArrayTypeMapping("byte[]"), new byte[] { 0xDA, 0x7A }, "X'DA7A'");
-        }
+            => Test_GenerateSqlLiteral_helper(new ByteArrayTypeMapping("byte[]"), new byte[] { 0xDA, 0x7A }, "X'DA7A'");
 
         [ConditionalFact]
         public virtual void Byte_literal_generated_correctly()
@@ -390,48 +380,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void DateTimeOffset_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new DateTimeOffsetTypeMapping("DateTimeOffset"),
                 new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
                 "TIMESTAMP '2015-03-12 13:36:37.3710000-07:00'");
-        }
 
         [ConditionalFact]
         public virtual void DateTime_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new DateTimeTypeMapping("DateTime"),
                 new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
                 "TIMESTAMP '2015-03-12 13:36:37.3710000'");
-        }
 
         [ConditionalFact]
         public virtual void DateOnly_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new DateOnlyTypeMapping("DateOnly"),
                 new DateOnly(2015, 3, 12),
                 "DATE '2015-03-12'");
-        }
 
         [ConditionalFact]
         public virtual void TimeOnly_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new TimeOnlyTypeMapping("TimeOnly"),
                 new TimeOnly(13, 10, 15),
                 "TIME '13:10:15'");
-        }
 
         [ConditionalFact]
         public virtual void TimeOnly_literal_generated_correctly_with_milliseconds()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new TimeOnlyTypeMapping("TimeOnly"),
                 new TimeOnly(13, 10, 15, 500),
                 "TIME '13:10:15.5'");
-        }
 
         [ConditionalFact]
         public virtual void Decimal_literal_generated_correctly()
@@ -468,12 +448,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void Guid_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 new GuidTypeMapping("guid"),
                 new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
                 "'c6f43a9e-91e1-45ef-a320-832ea23b7292'");
-        }
 
         [ConditionalFact]
         public virtual void NullableInt_literal_generated_correctly()
@@ -522,15 +500,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public virtual void String_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(new StringTypeMapping("string", DbType.String), "Text", "'Text'");
-        }
+            => Test_GenerateSqlLiteral_helper(new StringTypeMapping("string", DbType.String), "Text", "'Text'");
 
         [ConditionalFact]
         public virtual void Timespan_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(7, 14, 30), "'07:14:30'");
-        }
+            => Test_GenerateSqlLiteral_helper(new TimeSpanTypeMapping("time"), new TimeSpan(7, 14, 30), "'07:14:30'");
 
         [ConditionalFact]
         public virtual void UInt_literal_generated_correctly()

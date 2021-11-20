@@ -31,9 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         protected override DbTransaction DbTransaction { get; set; }
 
         public override void Cancel()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override string CommandText { get; set; }
 
@@ -50,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             = new FakeDbParameterCollection();
 
         public override void Prepare()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override int ExecuteNonQuery()
         {

@@ -81,9 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<KettleChips> Chips { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.UseHiLo();
-            }
+                => modelBuilder.UseHiLo();
         }
 
         private class KettleChips

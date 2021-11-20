@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -204,7 +203,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             private readonly string _resolvedConnectionString;
 
             public TestNamedConnectionStringResolver(string resolvedConnectionString)
-                => _resolvedConnectionString = resolvedConnectionString;
+            {
+                _resolvedConnectionString = resolvedConnectionString;
+            }
 
             public string ResolveConnectionString(string connectionString)
                 => _resolvedConnectionString;

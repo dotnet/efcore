@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         [ConditionalFact]
         public void Create_sequences_with_facets()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE DefaultFacetsSequence;
 
@@ -75,12 +74,10 @@ CREATE SEQUENCE db2.CustomFacetsSequence
 DROP SEQUENCE DefaultFacetsSequence;
 
 DROP SEQUENCE db2.CustomFacetsSequence");
-        }
 
         [ConditionalFact]
         public void Sequence_min_max_start_values_are_null_if_default()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [TinyIntSequence] AS tinyint;
 
@@ -110,12 +107,10 @@ DROP SEQUENCE [SmallIntSequence];
 DROP SEQUENCE [IntSequence];
 
 DROP SEQUENCE [BigIntSequence];");
-        }
 
         [ConditionalFact]
         public void Sequence_min_max_start_values_are_not_null_if_decimal()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [DecimalSequence] AS decimal;
 
@@ -137,12 +132,10 @@ CREATE SEQUENCE [NumericSequence] AS numeric;",
 DROP SEQUENCE [DecimalSequence];
 
 DROP SEQUENCE [NumericSequence];");
-        }
 
         [ConditionalFact]
         public void Sequence_high_min_max_start_values_are_not_null_if_decimal()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [dbo].[HighDecimalSequence]
  AS [numeric](38, 0)
@@ -169,7 +162,6 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
                 },
                 @"
 DROP SEQUENCE [HighDecimalSequence];");
-        }
 
         [ConditionalFact]
         public void Sequence_using_type_alias()
@@ -203,8 +195,7 @@ DROP TYPE [dbo].[TestTypeAlias];");
 
         [ConditionalFact]
         public void Sequence_using_type_with_facets()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                 Enumerable.Empty<string>(),
@@ -221,12 +212,10 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                 },
                 @"
 DROP SEQUENCE [TypeFacetSequence];");
-        }
 
         [ConditionalFact]
         public void Filter_sequences_based_on_schema()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [dbo].[Sequence];
 
@@ -247,7 +236,6 @@ CREATE SEQUENCE [db2].[Sequence]",
 DROP SEQUENCE [dbo].[Sequence];
 
 DROP SEQUENCE [db2].[Sequence];");
-        }
 
         #endregion
 
@@ -255,8 +243,7 @@ DROP SEQUENCE [db2].[Sequence];");
 
         [ConditionalFact]
         public void Set_default_schema()
-        {
-            Test(
+            => Test(
                 "SELECT 1",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -266,12 +253,10 @@ DROP SEQUENCE [db2].[Sequence];");
                     Assert.Equal(defaultSchema, dbModel.DefaultSchema);
                 },
                 null);
-        }
 
         [ConditionalFact]
         public void Create_tables()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[Everest] ( id int );
 
@@ -297,18 +282,15 @@ CREATE TABLE [dbo].[Denali] ( id int );",
 DROP TABLE [dbo].[Everest];
 
 DROP TABLE [dbo].[Denali];");
-        }
 
         [ConditionalFact]
         public void Default_database_collation_is_not_scaffolded()
-        {
-            Test(
+            => Test(
                 @"",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel => Assert.Null(dbModel.Collation),
                 @"");
-        }
 
         #endregion
 
@@ -316,8 +298,7 @@ DROP TABLE [dbo].[Denali];");
 
         [ConditionalFact]
         public void Filter_schemas()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [db2].[K2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -337,12 +318,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B));",
 DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [db2].[K2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -362,12 +341,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
 DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_quote_in_name()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K2'] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -387,12 +364,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
 DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2'];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_qualified_name()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -412,12 +387,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
 DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K.2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name1()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -441,12 +414,10 @@ DROP TABLE [dbo].[Kilimanjaro];
 DROP TABLE [dbo].[K2];
 
 DROP TABLE [db2].[K2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name2()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -470,12 +441,10 @@ DROP TABLE [db.2].[Kilimanjaro];
 DROP TABLE [dbo].[K.2];
 
 DROP TABLE [db.2].[K.2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name3()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -499,12 +468,10 @@ DROP TABLE [dbo].[Kilimanjaro];
 DROP TABLE [dbo].[K.2];
 
 DROP TABLE [db2].[K.2];");
-        }
 
         [ConditionalFact]
         public void Filter_tables_with_schema_qualified_name4()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 
@@ -528,12 +495,10 @@ DROP TABLE [db.2].[Kilimanjaro];
 DROP TABLE [dbo].[K2];
 
 DROP TABLE [db.2].[K2];");
-        }
 
         [ConditionalFact]
         public void Complex_filtering_validation()
-        {
-            Test(
+            => Test(
                 @"
 CREATE SEQUENCE [dbo].[Sequence];
 CREATE SEQUENCE [db2].[Sequence];
@@ -626,7 +591,6 @@ DROP TABLE [db2].[SimpleTableName];
 DROP TABLE [db2].[JustTableName];
 DROP TABLE [db2].[DependentTable];
 DROP TABLE [db2].[PrincipalTable];");
-        }
 
         #endregion
 
@@ -635,8 +599,7 @@ DROP TABLE [db2].[PrincipalTable];");
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
         public void Set_memory_optimized_table_annotation()
-        {
-            Test(
+            => Test(
                 @"
 IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
 BEGIN
@@ -686,12 +649,10 @@ CREATE TABLE [Blogs] (
                     Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]);
                 },
                 "DROP TABLE [Blogs]");
-        }
 
         [ConditionalFact]
         public void Create_columns()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE [dbo].[Blogs] (
     Id int,
@@ -729,12 +690,10 @@ On multiple lines.", c.Table.Comment);
                     Assert.Single(table.Columns.Where(c => c.Comment != null));
                 },
                 "DROP TABLE [dbo].[Blogs]");
-        }
 
         [ConditionalFact]
         public void Create_view_columns()
-        {
-            Test(
+            => Test(
                 @"
 CREATE VIEW [dbo].[BlogsView]
  AS
@@ -760,12 +719,10 @@ SELECT
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 },
                 "DROP VIEW [dbo].[BlogsView];");
-        }
 
         [ConditionalFact]
         public void Create_primary_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrimaryKeyTable (
     Id int PRIMARY KEY
@@ -784,12 +741,10 @@ CREATE TABLE PrimaryKeyTable (
                         new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE PrimaryKeyTable;");
-        }
 
         [ConditionalFact]
         public void Create_unique_constraints()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE UniqueConstraint (
     Id int,
@@ -813,12 +768,10 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
                         new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE UniqueConstraint;");
-        }
 
         [ConditionalFact]
         public void Create_indexes()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE IndexTable (
     Id int,
@@ -846,12 +799,10 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                     Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
                 },
                 "DROP TABLE IndexTable;");
-        }
 
         [ConditionalFact]
         public void Create_multiple_indexes_on_same_column()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE IndexTable (
     Id int,
@@ -888,12 +839,10 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
                         });
                 },
                 "DROP TABLE IndexTable;");
-        }
 
         [ConditionalFact]
         public void Create_foreign_keys()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -943,7 +892,6 @@ CREATE TABLE SecondDependent (
 DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
-        }
 
         #endregion
 
@@ -980,8 +928,7 @@ DROP TYPE db2.TestTypeAlias;");
 
         [ConditionalFact]
         public void Column_with_sysname_assigns_underlying_store_type_and_nullability()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE TypeAlias (
     Id int,
@@ -999,12 +946,10 @@ CREATE TABLE TypeAlias (
                 },
                 @"
 DROP TABLE TypeAlias;");
-        }
 
         [ConditionalFact]
         public void Decimal_numeric_types_have_precision_scale()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NumericColumns (
     Id int,
@@ -1031,12 +976,10 @@ CREATE TABLE NumericColumns (
                     Assert.Equal("numeric(38, 5)", columns.Single(c => c.Name == "numericDefaultPrecisionColumn").StoreType);
                 },
                 "DROP TABLE NumericColumns;");
-        }
 
         [ConditionalFact]
         public void Max_length_of_negative_one_translate_to_max_in_store_type()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE MaxColumns (
     Id int,
@@ -1064,12 +1007,10 @@ CREATE TABLE MaxColumns (
                     Assert.Equal("nvarchar(max)", columns.Single(c => c.Name == "nationalCharacterVaryingMaxColumn").StoreType);
                 },
                 "DROP TABLE MaxColumns;");
-        }
 
         [ConditionalFact]
         public void Specific_max_length_are_add_to_store_type()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE LengthColumns (
     Id int,
@@ -1108,12 +1049,10 @@ CREATE TABLE LengthColumns (
                     Assert.Equal("nvarchar(188)", columns.Single(c => c.Name == "nationalCharacterVarying188Column").StoreType);
                 },
                 "DROP TABLE LengthColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_binary_varbinary()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthBinaryColumns (
     Id int,
@@ -1132,12 +1071,10 @@ CREATE TABLE DefaultRequiredLengthBinaryColumns (
                     Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "varbinaryColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthBinaryColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_char_1()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthCharColumns (
     Id int,
@@ -1152,12 +1089,10 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                     Assert.Equal("char(8000)", columns.Single(c => c.Name == "charColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthCharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_char_2()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthCharColumns (
     Id int,
@@ -1172,12 +1107,10 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                     Assert.Equal("char(8000)", columns.Single(c => c.Name == "characterColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthCharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_varchar()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthVarcharColumns (
     Id int,
@@ -1196,12 +1129,10 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
                     Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "varcharColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthVarcharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_1()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthNcharColumns (
     Id int,
@@ -1216,12 +1147,10 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                     Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_2()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthNcharColumns (
     Id int,
@@ -1236,12 +1165,10 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                     Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharacterColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_nchar_3()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthNcharColumns (
     Id int,
@@ -1256,12 +1183,10 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                     Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "ncharColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthNcharColumns;");
-        }
 
         [ConditionalFact]
         public void Default_max_length_are_added_to_nvarchar()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultRequiredLengthNvarcharColumns (
     Id int,
@@ -1280,12 +1205,10 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
                     Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nvarcharColumn").StoreType);
                 },
                 "DROP TABLE DefaultRequiredLengthNvarcharColumns;");
-        }
 
         [ConditionalFact]
         public void Datetime_types_have_precision_if_non_null_scale()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE LengthColumns (
     Id int,
@@ -1304,12 +1227,10 @@ CREATE TABLE LengthColumns (
                     Assert.Equal("datetimeoffset(5)", columns.Single(c => c.Name == "datetimeoffset5Column").StoreType);
                 },
                 "DROP TABLE LengthColumns;");
-        }
 
         [ConditionalFact]
         public void Types_with_required_length_uses_length_of_one()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE OneLengthColumns (
     Id int,
@@ -1350,12 +1271,10 @@ CREATE TABLE OneLengthColumns (
                     Assert.Equal("varchar(1)", columns.Single(c => c.Name == "varcharColumn").StoreType);
                 },
                 "DROP TABLE OneLengthColumns;");
-        }
 
         [ConditionalFact]
         public void Store_types_without_any_facets()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NoFacetTypes (
     Id int,
@@ -1428,12 +1347,10 @@ CREATE TABLE RowversionType (
                 @"
 DROP TABLE NoFacetTypes;
 DROP TABLE RowversionType;");
-        }
 
         [ConditionalFact]
         public void Default_and_computed_values_are_stored()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultComputedValues (
     Id int,
@@ -1469,7 +1386,6 @@ CREATE TABLE DefaultComputedValues (
                     Assert.True(sumOfAAndBPersisted.IsStored);
                 },
                 "DROP TABLE DefaultComputedValues;");
-        }
 
         [ConditionalFact]
         public void Default_value_matching_clr_default_is_not_stored()
@@ -1540,8 +1456,7 @@ DROP TYPE timeAlias;");
 
         [ConditionalFact]
         public void ValueGenerated_is_set_for_identity_and_computed_column()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ValueGeneratedProperties (
     Id int IDENTITY(1, 1),
@@ -1563,12 +1478,10 @@ CREATE TABLE ValueGeneratedProperties (
                     Assert.Equal(ValueGenerated.OnAddOrUpdate, columns.Single(c => c.Name == "rowversionColumn").ValueGenerated);
                 },
                 "DROP TABLE ValueGeneratedProperties;");
-        }
 
         [ConditionalFact]
         public void ConcurrencyToken_is_set_for_rowVersion()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE RowVersionTable (
     Id int,
@@ -1583,12 +1496,10 @@ CREATE TABLE RowVersionTable (
                     Assert.True((bool)columns.Single(c => c.Name == "rowversionColumn")[ScaffoldingAnnotationNames.ConcurrencyToken]);
                 },
                 "DROP TABLE RowVersionTable;");
-        }
 
         [ConditionalFact]
         public void Column_nullability_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NullableColumns (
     Id int,
@@ -1605,12 +1516,10 @@ CREATE TABLE NullableColumns (
                     Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                 },
                 "DROP TABLE NullableColumns;");
-        }
 
         [ConditionalFact]
         public void Column_collation_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ColumnsWithCollation (
     Id int,
@@ -1627,12 +1536,10 @@ CREATE TABLE ColumnsWithCollation (
                     Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
                 },
                 "DROP TABLE ColumnsWithCollation;");
-        }
 
         [ConditionalFact]
         public void Column_sparseness_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ColumnsWithSparseness (
     Id int,
@@ -1649,13 +1556,11 @@ CREATE TABLE ColumnsWithSparseness (
                     Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
                 },
                 "DROP TABLE ColumnsWithSparseness;");
-        }
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
         public void Hidden_period_columns_are_not_created()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE dbo.HiddenColumnsTable
 (
@@ -1686,13 +1591,11 @@ ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
 DROP TABLE dbo.HiddenColumnsTableHistory;
 DROP TABLE dbo.HiddenColumnsTable;
 ");
-        }
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
         public void Period_columns_are_not_created()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE dbo.HiddenColumnsTable
 (
@@ -1723,7 +1626,6 @@ ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
 DROP TABLE dbo.HiddenColumnsTableHistory;
 DROP TABLE dbo.HiddenColumnsTable;
 ");
-        }
 
         #endregion
 
@@ -1731,8 +1633,7 @@ DROP TABLE dbo.HiddenColumnsTable;
 
         [ConditionalFact]
         public void Create_composite_primary_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositePrimaryKeyTable (
     Id1 int,
@@ -1752,12 +1653,10 @@ CREATE TABLE CompositePrimaryKeyTable (
                         new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositePrimaryKeyTable;");
-        }
 
         [ConditionalFact]
         public void Set_clustered_false_for_non_clustered_primary_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NonClusteredPrimaryKeyTable (
     Id1 int PRIMARY KEY NONCLUSTERED,
@@ -1777,12 +1676,10 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
                         new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE NonClusteredPrimaryKeyTable;");
-        }
 
         [ConditionalFact]
         public void Set_clustered_false_for_primary_key_if_different_clustered_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredIndex (
     Id1 int PRIMARY KEY NONCLUSTERED,
@@ -1804,12 +1701,10 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
                         new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredIndex;");
-        }
 
         [ConditionalFact]
         public void Set_clustered_false_for_primary_key_if_different_clustered_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
     Id1 int PRIMARY KEY,
@@ -1830,12 +1725,10 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
                         new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint;");
-        }
 
         [ConditionalFact]
         public void Set_primary_key_name_from_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrimaryKeyName (
     Id1 int,
@@ -1856,7 +1749,6 @@ CREATE TABLE PrimaryKeyName (
                         new List<string> { "Id2" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE PrimaryKeyName;");
-        }
 
         #endregion
 
@@ -1864,8 +1756,7 @@ CREATE TABLE PrimaryKeyName (
 
         [ConditionalFact]
         public void Create_composite_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositeUniqueConstraintTable (
     Id1 int,
@@ -1886,12 +1777,10 @@ CREATE TABLE CompositeUniqueConstraintTable (
                         new List<string> { "Id2", "Id1" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositeUniqueConstraintTable;");
-        }
 
         [ConditionalFact]
         public void Set_clustered_true_for_clustered_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ClusteredUniqueConstraintTable (
     Id1 int,
@@ -1912,12 +1801,10 @@ CREATE TABLE ClusteredUniqueConstraintTable (
                         new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE ClusteredUniqueConstraintTable;");
-        }
 
         [ConditionalFact]
         public void Set_unique_constraint_name_from_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE UniqueConstraintName (
     Id1 int,
@@ -1938,7 +1825,6 @@ CREATE TABLE UniqueConstraintName (
                         new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE UniqueConstraintName;");
-        }
 
         #endregion
 
@@ -1946,8 +1832,7 @@ CREATE TABLE UniqueConstraintName (
 
         [ConditionalFact]
         public void Create_composite_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositeIndexTable (
     Id1 int,
@@ -1969,12 +1854,10 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
                         new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositeIndexTable;");
-        }
 
         [ConditionalFact]
         public void Set_clustered_true_for_clustered_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ClusteredIndexTable (
     Id1 int,
@@ -1997,12 +1880,10 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
                         new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE ClusteredIndexTable;");
-        }
 
         [ConditionalFact]
         public void Set_unique_true_for_unique_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE UniqueIndexTable (
     Id1 int,
@@ -2026,12 +1907,10 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
                         new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE UniqueIndexTable;");
-        }
 
         [ConditionalFact]
         public void Set_filter_for_filtered_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE FilteredIndexTable (
     Id1 int,
@@ -2054,12 +1933,10 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                         new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE FilteredIndexTable;");
-        }
 
         [ConditionalFact]
         public void Ignore_hypothetical_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE HypotheticalIndexTable (
     Id1 int,
@@ -2074,12 +1951,10 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
                     Assert.Empty(dbModel.Tables.Single().Indexes);
                 },
                 "DROP TABLE HypotheticalIndexTable;");
-        }
 
         [ConditionalFact]
         public void Ignore_columnstore_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ColumnStoreIndexTable (
     Id1 int,
@@ -2094,12 +1969,10 @@ CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( I
                     Assert.Empty(dbModel.Tables.Single().Indexes);
                 },
                 "DROP TABLE ColumnStoreIndexTable;");
-        }
 
         [ConditionalFact]
         public void Set_include_for_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE IncludeIndexTable (
     Id int,
@@ -2117,12 +1990,10 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
                     Assert.Null(index[SqlServerAnnotationNames.Include]);
                 },
                 "DROP TABLE IncludeIndexTable;");
-        }
 
         [ConditionalFact]
         public void Index_fill_factor()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE IndexFillFactor
 (
@@ -2144,7 +2015,6 @@ WITH (FILLFACTOR = 80) ON [PRIMARY]",
                     Assert.Equal(80, index[SqlServerAnnotationNames.FillFactor]);
                 },
                 "DROP TABLE IndexFillFactor;");
-        }
 
         #endregion
 
@@ -2152,8 +2022,7 @@ WITH (FILLFACTOR = 80) ON [PRIMARY]",
 
         [ConditionalFact]
         public void Create_composite_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id1 int,
@@ -2187,12 +2056,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Create_multiple_foreign_key_in_same_table()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -2247,12 +2114,10 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Create_foreign_key_referencing_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id1 int,
@@ -2284,12 +2149,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Set_name_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -2321,12 +2184,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Set_referential_action_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -2357,7 +2218,6 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         #endregion
 
@@ -2365,8 +2225,7 @@ DROP TABLE PrincipalTable;");
 
         [ConditionalFact]
         public void Warn_missing_schema()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Blank (
     Id int,
@@ -2381,15 +2240,13 @@ CREATE TABLE Blank (
 
                     Assert.Equal(
                         SqlServerResources.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MySchema"),
-                        message);  
+                        message);
                 },
                 "DROP TABLE Blank;");
-        }
 
         [ConditionalFact]
         public void Warn_missing_table()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Blank (
     Id int,
@@ -2407,12 +2264,10 @@ CREATE TABLE Blank (
                         message);
                 },
                 "DROP TABLE Blank;");
-        }
 
         [ConditionalFact]
         public void Warn_missing_principal_table_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -2437,12 +2292,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Skip_reflexive_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
@@ -2453,8 +2306,10 @@ CREATE TABLE PrincipalTable (
                 dbModel =>
                 {
                     var level = Fixture.OperationReporter.Messages
-                        .Single(m => m.Message == SqlServerResources.LogReflexiveConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
-                            .GenerateMessage("MYFK", "dbo.PrincipalTable")).Level;
+                        .Single(
+                            m => m.Message
+                                == SqlServerResources.LogReflexiveConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
+                                    .GenerateMessage("MYFK", "dbo.PrincipalTable")).Level;
 
                     Assert.Equal(LogLevel.Debug, level);
 
@@ -2463,12 +2318,10 @@ CREATE TABLE PrincipalTable (
                 },
                 @"
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Skip_duplicate_foreign_key()
-        {
-            Test(
+            => Test(
                 @"CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
 );
@@ -2489,8 +2342,10 @@ CREATE TABLE DependentTable (
                 dbModel =>
                 {
                     var level = Fixture.OperationReporter.Messages
-                        .Single(m => m.Message == SqlServerResources.LogDuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
-                            .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1")).Level;
+                        .Single(
+                            m => m.Message
+                                == SqlServerResources.LogDuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
+                                    .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1")).Level;
 
                     Assert.Equal(LogLevel.Warning, level);
 
@@ -2501,7 +2356,6 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;
 DROP TABLE OtherPrincipalTable;");
-        }
 
         #endregion
 
@@ -2548,7 +2402,7 @@ DROP TABLE OtherPrincipalTable;");
             public new SqlServerTestStore TestStore
                 => (SqlServerTestStore)base.TestStore;
 
-            public TestOperationReporter OperationReporter { get; } = new TestOperationReporter();
+            public TestOperationReporter OperationReporter { get; } = new();
 
             public override async Task InitializeAsync()
             {

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static TResult? MaybeScalar<TSource, TResult>(this TSource caller, Func<TSource, TResult> result)
             where TResult : struct
-            => caller != null ? (TResult?)result(caller) : null;
+            => caller != null ? result(caller) : null;
 
         public static TResult? MaybeScalar<TSource, TResult>(this TSource caller, Func<TSource, TResult?> result)
             where TResult : struct

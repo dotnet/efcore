@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, new object[0][] });
             var columns = new ReaderColumn[]
             {
-                new ReaderColumn<int>(false, null,  null,(r, _) => r.GetInt32(0)),
-                new ReaderColumn<object>(true, null,  null,(r, _) => r.GetValue(1))
+                new ReaderColumn<int>(false, null, null, (r, _) => r.GetInt32(0)),
+                new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(1))
             };
 
             var bufferedDataReader = new BufferedDataReader(reader, false);
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var columns = new[]
             {
-                ReaderColumn.Create(columnType, true, null,  null,(Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
+                ReaderColumn.Create(columnType, true, null, null, (Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
             };
 
             var bufferedReader = new BufferedDataReader(reader, false);

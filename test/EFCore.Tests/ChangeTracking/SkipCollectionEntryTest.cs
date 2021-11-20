@@ -598,15 +598,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .UseInMemoryDatabase(nameof(ExplicitFreezerContext));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .Entity<Cherry>().HasMany(e => e.Chunkies).WithMany(e => e.Cherries)
                     .UsingEntity<Dictionary<string, object>>(
                         "CherryChunky",
                         b => b.HasOne<Chunky>().WithMany().HasForeignKey("ChunkyId"),
                         b => b.HasOne<Cherry>().WithMany().HasForeignKey("CherryId"))
                     .IndexerProperty<int>("Id");
-            }
         }
     }
 }

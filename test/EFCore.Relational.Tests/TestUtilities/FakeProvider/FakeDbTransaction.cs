@@ -21,16 +21,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public int CommitCount { get; private set; }
 
         public override void Commit()
-        {
-            CommitCount++;
-        }
+            => CommitCount++;
 
         public int RollbackCount { get; private set; }
 
         public override void Rollback()
-        {
-            RollbackCount++;
-        }
+            => RollbackCount++;
 
         public int DisposeCount { get; private set; }
 

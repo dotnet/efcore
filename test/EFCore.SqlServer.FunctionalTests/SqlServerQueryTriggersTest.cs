@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
     {
         public SqlServerQueryTriggersTest(SqlServerTriggersFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         private SqlServerTriggersFixture Fixture { get; }
 
@@ -92,8 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             public virtual DbSet<Product> Products { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Product>(
+                => modelBuilder.Entity<Product>(
                     eb =>
                     {
                         eb.Property(e => e.StoreUpdated)
@@ -101,7 +102,6 @@ namespace Microsoft.EntityFrameworkCore
                             .ValueGeneratedOnAddOrUpdate();
                         eb.ToTable("UpdatedProducts");
                     });
-            }
         }
 
         protected class Product

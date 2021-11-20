@@ -47,9 +47,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             => throw new NotImplementedException();
 
         public override void ChangeDatabase(string databaseName)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public int OpenCount { get; private set; }
 

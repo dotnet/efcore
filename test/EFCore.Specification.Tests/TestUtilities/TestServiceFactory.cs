@@ -41,8 +41,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var exceptions = specialCases.Concat(_wellKnownExceptions).ToList();
 
             return _factories.GetOrAdd(
-                typeof(TService),
-                t => AddType(new ServiceCollection(), typeof(TService), exceptions).BuildServiceProvider(validateScopes: true)).GetService<TService>();
+                    typeof(TService),
+                    t => AddType(new ServiceCollection(), typeof(TService), exceptions).BuildServiceProvider(validateScopes: true))
+                .GetService<TService>();
         }
 
         private static ServiceCollection AddType(

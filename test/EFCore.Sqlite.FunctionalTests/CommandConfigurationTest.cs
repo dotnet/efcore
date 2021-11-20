@@ -11,7 +11,9 @@ namespace Microsoft.EntityFrameworkCore
     public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
     {
         public CommandConfigurationTest(CommandConfigurationTestFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected CommandConfigurationTestFixture Fixture { get; }
 

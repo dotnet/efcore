@@ -66,15 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 public MockOperation(IOperationResultHandler resultHandler, Action action)
                     : base(resultHandler)
-                    => Execute(action);
+                {
+                    Execute(action);
+                }
 
                 public MockOperation(IOperationResultHandler resultHandler, Func<T> action)
                     : base(resultHandler)
-                    => Execute(action);
+                {
+                    Execute(action);
+                }
 
                 public MockOperation(IOperationResultHandler resultHandler, Func<IEnumerable<T>> action)
                     : base(resultHandler)
-                    => Execute(action);
+                {
+                    Execute(action);
+                }
             }
         }
     }

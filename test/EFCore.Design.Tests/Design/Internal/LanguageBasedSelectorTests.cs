@@ -94,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private class TestLanguageBasedService : ILanguageBasedService
         {
             public TestLanguageBasedService(string language)
-                => Language = language;
+            {
+                Language = language;
+            }
 
             public string Language { get; }
         }

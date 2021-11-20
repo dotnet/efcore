@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -90,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new ChangeContext<ChangeValueEntity>();
 
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications,
+            Assert.Equal(
+                ChangeTrackingStrategy.ChangingAndChangedNotifications,
                 context.GetService<IDesignTimeModel>().Model.GetChangeTrackingStrategy());
         }
 
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Proxies_correct_interfaces_for_ChangingAndChangedNotifications()
         {
-            using var context = new  ChangingAndChangedNotificationsContext();
+            using var context = new ChangingAndChangedNotificationsContext();
             var proxy = context.CreateProxy<ChangeValueEntity>();
             var proxyType = proxy.GetType();
 
@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore
         private class DefaultContext : TestContext<ChangeValueEntity>
         {
             public DefaultContext()
-                : base(nameof(DefaultContext), false, true, true, null)
+                : base(nameof(DefaultContext), false, true)
             {
             }
         }
@@ -451,7 +451,9 @@ namespace Microsoft.EntityFrameworkCore
         private class ChangingAndChangedNotificationsContext : TestContext<ChangeValueEntity>
         {
             public ChangingAndChangedNotificationsContext()
-                : base(nameof(ChangingAndChangedNotificationsContext), false, true, true, ChangeTrackingStrategy.ChangingAndChangedNotifications)
+                : base(
+                    nameof(ChangingAndChangedNotificationsContext), false, true, true,
+                    ChangeTrackingStrategy.ChangingAndChangedNotifications)
             {
             }
         }

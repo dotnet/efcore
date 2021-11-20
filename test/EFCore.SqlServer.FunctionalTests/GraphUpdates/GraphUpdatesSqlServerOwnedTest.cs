@@ -17,13 +17,14 @@ namespace Microsoft.EntityFrameworkCore
 
         // Owned dependents are always loaded
         public override void Required_one_to_one_are_cascade_deleted_in_store(
-            CascadeTiming? cascadeDeleteTiming, CascadeTiming? deleteOrphansTiming)
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
         }
 
-
         public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store(
-            CascadeTiming? cascadeDeleteTiming, CascadeTiming? deleteOrphansTiming)
+            CascadeTiming? cascadeDeleteTiming,
+            CascadeTiming? deleteOrphansTiming)
         {
         }
 
@@ -69,15 +70,16 @@ namespace Microsoft.EntityFrameworkCore
                             .HasForeignKey(e => e.ParentId)
                             .OnDelete(DeleteBehavior.SetNull);
 
-                        b.OwnsOne(e => e.RequiredSingle, r =>
-                        {
-                            r.WithOwner(e => e.Root)
-                                .HasForeignKey(e => e.Id);
+                        b.OwnsOne(
+                            e => e.RequiredSingle, r =>
+                            {
+                                r.WithOwner(e => e.Root)
+                                    .HasForeignKey(e => e.Id);
 
-                            r.OwnsOne(e => e.Single)
-                                .WithOwner(e => e.Back)
-                                .HasForeignKey(e => e.Id);
-                        });
+                                r.OwnsOne(e => e.Single)
+                                    .WithOwner(e => e.Back)
+                                    .HasForeignKey(e => e.Id);
+                            });
 
                         b.HasOne(e => e.OptionalSingle)
                             .WithOne(e => e.Root)
@@ -150,48 +152,51 @@ namespace Microsoft.EntityFrameworkCore
                             .HasForeignKey(e => e.ParentId)
                             .OnDelete(DeleteBehavior.SetNull);
 
-                        b.OwnsOne(e => e.RequiredSingleAk, r =>
-                        {
-                            r.WithOwner(e => e.Root)
-                                .HasPrincipalKey(e => e.AlternateId)
-                                .HasForeignKey(e => e.RootId);
-
-                            r.HasKey(e => e.Id);
-
-                            r.Property(e => e.AlternateId)
-                                .ValueGeneratedOnAdd();
-
-                            r.OwnsOne(e => e.Single, r2 =>
+                        b.OwnsOne(
+                            e => e.RequiredSingleAk, r =>
                             {
-                                r2.WithOwner(e => e.Back)
-                                    .HasForeignKey(e => e.BackId)
-                                    .HasPrincipalKey(e => e.AlternateId);
+                                r.WithOwner(e => e.Root)
+                                    .HasPrincipalKey(e => e.AlternateId)
+                                    .HasForeignKey(e => e.RootId);
 
-                                r2.HasKey(e => e.Id);
+                                r.HasKey(e => e.Id);
 
-                                r2.Property(e => e.Id)
+                                r.Property(e => e.AlternateId)
                                     .ValueGeneratedOnAdd();
 
-                                r2.Property(e => e.AlternateId)
-                                    .ValueGeneratedOnAdd();
+                                r.OwnsOne(
+                                    e => e.Single, r2 =>
+                                    {
+                                        r2.WithOwner(e => e.Back)
+                                            .HasForeignKey(e => e.BackId)
+                                            .HasPrincipalKey(e => e.AlternateId);
 
-                                r2.ToTable("RequiredSingleAk2");
+                                        r2.HasKey(e => e.Id);
+
+                                        r2.Property(e => e.Id)
+                                            .ValueGeneratedOnAdd();
+
+                                        r2.Property(e => e.AlternateId)
+                                            .ValueGeneratedOnAdd();
+
+                                        r2.ToTable("RequiredSingleAk2");
+                                    });
+
+                                r.OwnsOne(
+                                    e => e.SingleComposite, r2 =>
+                                    {
+                                        r2.WithOwner(e => e.Back)
+                                            .HasForeignKey(e => new { e.BackId, e.BackAlternateId })
+                                            .HasPrincipalKey(e => new { e.Id, e.AlternateId });
+
+                                        r2.HasKey(e => e.Id);
+
+                                        r2.ToTable("RequiredSingleComposite2");
+                                    });
+
+                                // Table splitting using AK is not supported #23208
+                                r.ToTable("RequiredSingleAk1");
                             });
-
-                            r.OwnsOne(e => e.SingleComposite, r2 =>
-                            {
-                                r2.WithOwner(e => e.Back)
-                                    .HasForeignKey(e => new { e.BackId, e.BackAlternateId })
-                                    .HasPrincipalKey(e => new { e.Id, e.AlternateId });
-
-                                r2.HasKey(e => e.Id);
-
-                                r2.ToTable("RequiredSingleComposite2");
-                            });
-
-                            // Table splitting using AK is not supported #23208
-                            r.ToTable("RequiredSingleAk1");
-                        });
 
                         b.HasOne(e => e.OptionalSingleAk)
                             .WithOne(e => e.Root)
@@ -418,26 +423,28 @@ namespace Microsoft.EntityFrameworkCore
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
 
-                modelBuilder.Entity<SharedFkRoot>(builder =>
-                {
-                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
+                modelBuilder.Entity<SharedFkRoot>(
+                    builder =>
+                    {
+                        builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
-                        .HasForeignKey(x => new { x.RootId })
-                        .HasPrincipalKey(x => x.Id)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                        builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
 
-                modelBuilder.Entity<SharedFkParent>(builder =>
-                {
-                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
-                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
-                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
-                        .OnDelete(DeleteBehavior.ClientSetNull);
-                });
+                modelBuilder.Entity<SharedFkParent>(
+                    builder =>
+                    {
+                        builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                            .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                            .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                            .OnDelete(DeleteBehavior.ClientSetNull);
+                    });
 
                 modelBuilder.Entity<SharedFkDependant>();
 
@@ -508,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Property(e => e.AccessStateId).ValueGeneratedNever();
-                        b.HasData(new AccessState {AccessStateId = 1});
+                        b.HasData(new AccessState { AccessStateId = 1 });
                     });
 
                 modelBuilder.Entity<Cruiser>(

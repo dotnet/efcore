@@ -22,7 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : StoreGeneratedTestBase<TFixture>.StoreGeneratedFixtureBase, new()
     {
         protected StoreGeneratedTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -86,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(nameof(Anais.OnUpdateThrowBeforeIgnoreAfter))]
         [InlineData(nameof(Anais.OnUpdateThrowBeforeThrowAfter))]
         public virtual void Before_save_throw_always_throws_if_value_set(string propertyName)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(WithValue(propertyName));
@@ -96,7 +97,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave(propertyName, "Anais"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalTheory]
         [InlineData(nameof(Anais.NeverThrowBeforeUseAfter), null)]
@@ -260,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(nameof(Anais.OnUpdateIgnoreBeforeThrowAfter))]
         [InlineData(nameof(Anais.OnUpdateThrowBeforeThrowAfter))]
         public virtual void After_save_throw_always_throws_if_value_modified(string propertyName)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Attach(WithValue(propertyName, 1)).Property(propertyName).IsModified = true;
@@ -270,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyAfterSave(propertyName, "Anais"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalTheory]
         [InlineData(nameof(Anais.NeverUseBeforeThrowAfter), null)]
@@ -480,8 +478,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Identity_key_with_read_only_before_save_throws_if_explicit_values_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(new Gumball { Id = 1 });
@@ -490,7 +487,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave("Id", "Gumball"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store()
@@ -516,6 +512,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
+
             public int? StoreGenPrincipalId { get; set; }
             public int HasTemp { get; set; }
             public StoreGenPrincipal StoreGenPrincipal { get; set; }
@@ -530,14 +527,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Modified)]
         [InlineData(EntityState.Deleted)]
         public void Change_state_of_entity_with_temp_non_key_does_not_throw(EntityState targetState)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var dependent = new NonStoreGenDependent
-                    {
-                        Id = 89,
-                    };
+                    var dependent = new NonStoreGenDependent { Id = 89, };
 
                     context.Add(dependent);
 
@@ -551,11 +544,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new StoreGenPrincipal();
-                    var dependent = new NonStoreGenDependent
-                    {
-                        Id = 89,
-                        StoreGenPrincipal = principal
-                    };
+                    var dependent = new NonStoreGenDependent { Id = 89, StoreGenPrincipal = principal };
 
                     context.Add(dependent);
 
@@ -578,12 +567,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(context.Entry(dependent).Property(e => e.HasTemp).IsTemporary);
                     Assert.False(context.Entry(dependent).Property(e => e.StoreGenPrincipalId).IsTemporary);
                 });
-        }
 
         [ConditionalFact] // Issue #19137
         public void Clearing_optional_FK_does_not_leave_temporary_value()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var product = new OptionalProduct();
@@ -701,7 +688,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(1, categoryEntry.Property(e => e.Id).CurrentValue);
                     Assert.False(categoryEntry.Property(e => e.Id).IsTemporary);
                 });
-        }
 
         protected class OptionalProduct
         {
@@ -755,8 +741,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(new Gumball { IdentityReadOnlyBeforeSave = "Masami" });
@@ -765,7 +750,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave("IdentityReadOnlyBeforeSave", "Gumball"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Identity_property_on_Added_entity_can_have_value_set_explicitly()
@@ -913,8 +897,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Always_identity_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(new Gumball { AlwaysIdentityReadOnlyBeforeSave = "Masami" });
@@ -923,7 +906,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave("AlwaysIdentityReadOnlyBeforeSave", "Gumball"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Always_identity_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
@@ -1023,8 +1005,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(new Gumball { ComputedReadOnlyBeforeSave = "Masami" });
@@ -1033,7 +1014,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave("ComputedReadOnlyBeforeSave", "Gumball"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Computed_property_on_Added_entity_can_have_value_set_explicitly()
@@ -1181,8 +1161,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Always_computed_property_on_Added_entity_with_read_only_before_save_throws_if_explicit_values_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Add(new Gumball { AlwaysComputedReadOnlyBeforeSave = "Masami" });
@@ -1191,7 +1170,6 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.PropertyReadOnlyBeforeSave("AlwaysComputedReadOnlyBeforeSave", "Gumball"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Always_computed_property_on_Modified_entity_with_read_only_after_save_throws_if_value_is_in_modified_state()
@@ -1275,8 +1253,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Nullable_fields_get_defaults_when_not_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(new WithNullableBackingFields()).Entity;
@@ -1297,12 +1274,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(0, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Nullable_fields_store_non_defaults_when_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(
@@ -1330,12 +1305,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Nullable_fields_store_any_value_when_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(
@@ -1363,12 +1336,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(5, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Object_fields_get_defaults_when_not_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(new WithObjectBackingFields()).Entity;
@@ -1389,12 +1360,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(0, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Object_fields_store_non_defaults_when_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(
@@ -1422,12 +1391,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(-1, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Object_fields_store_any_value_when_set()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Add(
@@ -1455,7 +1422,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(entity.NullableBackedBoolFalseDefault);
                     Assert.Equal(5, entity.NullableBackedIntZeroDefault);
                 });
-        }
 
         protected class Darwin
         {
@@ -1480,7 +1446,6 @@ namespace Microsoft.EntityFrameworkCore
 
             public int? DarwinId { get; set; }
             public int? MetaphoricId { get; set; }
-
         }
 
         protected class Gumball

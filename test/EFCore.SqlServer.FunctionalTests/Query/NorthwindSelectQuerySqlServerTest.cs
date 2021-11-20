@@ -1,11 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -1119,9 +1116,7 @@ FROM [Customers] AS [c]");
         }
 
         public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
-        {
-            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
-        }
+            => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
 
         public override async Task Filtered_collection_projection_is_tracked(bool async)
         {
@@ -1400,7 +1395,6 @@ ORDER BY [e].[EmployeeID]");
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID] DESC, [e].[City]");
         }
-
 
         public override async Task Reverse_in_subquery_via_pushdown(bool async)
         {
@@ -1829,7 +1823,8 @@ OUTER APPLY (
 ORDER BY [t].[OrderDate], [t].[CustomerID]");
         }
 
-        public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+        public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(
+            bool async)
         {
             await base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async);
 

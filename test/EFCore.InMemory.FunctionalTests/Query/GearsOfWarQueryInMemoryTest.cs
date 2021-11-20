@@ -20,20 +20,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
-        {
-            return AssertTranslationFailedWithDetails(() => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),
+            => AssertTranslationFailedWithDetails(
+                () => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),
                 CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
-        }
 
         public override async Task
             Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "Nullable object must have a value.",
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
-                           async))).Message);
-        }
+                    () => base
+                        .Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                            async))).Message);
 
         [ConditionalTheory(Skip = "issue #19683")]
         public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)

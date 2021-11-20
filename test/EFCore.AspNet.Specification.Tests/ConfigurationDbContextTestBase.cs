@@ -22,14 +22,15 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ConfigurationDbContextTestBase<TFixture>.ConfigurationDbContextFixtureBase
     {
         protected ConfigurationDbContextTestBase(ConfigurationDbContextFixtureBase fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected ConfigurationDbContextFixtureBase Fixture { get; }
 
         [ConditionalFact]
         public async Task Can_call_ResourceStore_FindApiScopesByNameAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveApiScopes(context);
@@ -41,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, (await store.FindApiScopesByNameAsync(new[] { "ApiScope2", "ApiScope1" })).Count());
                 }
             );
-        }
 
         private static async Task SaveApiScopes(ConfigurationDbContext context)
         {
@@ -82,8 +82,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task Can_call_ClientStore_FindClientByIdAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     context.AddRange(
@@ -109,12 +108,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("D2", (await store.FindClientByIdAsync("C2")).Description);
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_ResourceStore_FindIdentityResourcesByScopeNameAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveIdentityResources(context);
@@ -127,12 +124,10 @@ namespace Microsoft.EntityFrameworkCore
                         2, (await store.FindIdentityResourcesByScopeNameAsync(new[] { "IdentityResource2", "IdentityResource1" })).Count());
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_ResourceStore_FindApiResourcesByScopeNameAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveApiResources(context);
@@ -144,12 +139,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, (await store.FindApiResourcesByScopeNameAsync(new[] { "S1", "S4" })).Count());
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_ResourceStore_GetAllResourcesAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveIdentityResources(context);
@@ -167,7 +160,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(3, resources.IdentityResources.Count);
                 }
             );
-        }
 
         private static async Task SaveIdentityResources(ConfigurationDbContext context)
         {
@@ -229,8 +221,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task Can_call_ResourceStore_FindApiResourcesByNameAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveApiResources(context);
@@ -242,7 +233,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, (await store.FindApiResourcesByNameAsync(new[] { "ApiResource2", "ApiResource1" })).Count());
                 }
             );
-        }
 
         [ConditionalFact]
         public void Can_build_ConfigurationDbContext_model()
@@ -258,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResource",
                     TableName = "ApiResources",
@@ -286,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiResource.UserClaims (List<ApiResourceClaim>) Collection ToDependent ApiResourceClaim Inverse: ApiResource",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceClaim",
                     TableName = "ApiResourceClaims",
@@ -304,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: UserClaims", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceProperty",
                     TableName = "ApiResourceProperties",
@@ -326,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiResourceProperty.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Properties",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceScope",
                     TableName = "ApiResourceScopes",
@@ -344,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Scopes", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiResourceSecret",
                     TableName = "ApiResourceSecrets",
@@ -366,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Secrets", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScope",
                     TableName = "ApiScopes",
@@ -389,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ApiScope.UserClaims (List<ApiScopeClaim>) Collection ToDependent ApiScopeClaim Inverse: Scope",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScopeClaim",
                     TableName = "ApiScopeClaims",
@@ -407,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) ToPrincipal ApiScope Inverse: UserClaims", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ApiScopeProperty",
                     TableName = "ApiScopeProperties",
@@ -426,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) ToPrincipal ApiScope Inverse: Properties", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.Client",
                     TableName = "Clients",
@@ -492,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: Client.RedirectUris (List<ClientRedirectUri>) Collection ToDependent ClientRedirectUri Inverse: Client",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientClaim",
                     TableName = "ClientClaims",
@@ -508,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
                     FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} ToDependent: Claims ToPrincipal: Client Cascade", },
                     Navigations = { "Navigation: ClientClaim.Client (Client) ToPrincipal Client Inverse: Claims", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientCorsOrigin",
                     TableName = "ClientCorsOrigins",
@@ -526,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientCorsOrigin.Client (Client) ToPrincipal Client Inverse: AllowedCorsOrigins", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientGrantType",
                     TableName = "ClientGrantTypes",
@@ -544,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientGrantType.Client (Client) ToPrincipal Client Inverse: AllowedGrantTypes", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientIdPRestriction",
                     TableName = "ClientIdPRestrictions",
@@ -565,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ClientIdPRestriction.Client (Client) ToPrincipal Client Inverse: IdentityProviderRestrictions",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientPostLogoutRedirectUri",
                     TableName = "ClientPostLogoutRedirectUris",
@@ -586,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: ClientPostLogoutRedirectUri.Client (Client) ToPrincipal Client Inverse: PostLogoutRedirectUris",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientProperty",
                     TableName = "ClientProperties",
@@ -605,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientProperty.Client (Client) ToPrincipal Client Inverse: Properties", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientRedirectUri",
                     TableName = "ClientRedirectUris",
@@ -623,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientRedirectUri.Client (Client) ToPrincipal Client Inverse: RedirectUris", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientScope",
                     TableName = "ClientScopes",
@@ -641,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientScope.Client (Client) ToPrincipal Client Inverse: AllowedScopes", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.ClientSecret",
                     TableName = "ClientSecrets",
@@ -663,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Navigations = { "Navigation: ClientSecret.Client (Client) ToPrincipal Client Inverse: ClientSecrets", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResource",
                     TableName = "IdentityResources",
@@ -689,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: IdentityResource.UserClaims (List<IdentityResourceClaim>) Collection ToDependent IdentityResourceClaim Inverse: IdentityResource",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceClaim",
                     TableName = "IdentityResourceClaims",
@@ -710,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: IdentityResourceClaim.IdentityResource (IdentityResource) ToPrincipal IdentityResource Inverse: UserClaims",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.IdentityResourceProperty",
                     TableName = "IdentityResourceProperties",

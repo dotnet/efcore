@@ -442,14 +442,12 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     b =>
                     {
                         b.HasKey(c => c.CustomerID);
                         b.ToTable("Customers");
                     });
-            }
         }
 
         private class Customer

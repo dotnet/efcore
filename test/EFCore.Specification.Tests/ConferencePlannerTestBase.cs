@@ -30,8 +30,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual async Task AttendeesController_Get()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -48,12 +47,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(21, sessions.Count);
                     Assert.All(sessions, s => Assert.NotEmpty(s.Title));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_GetSessions()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -65,12 +62,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.All(sessions, s => Assert.NotEmpty(s.Speakers));
                     Assert.All(sessions, s => Assert.NotNull(s.Track));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_Post_with_new_attendee()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -91,12 +86,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("Discord!", result.UserName);
                     Assert.Null(result.Sessions);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_Post_with_existing_attendee()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -112,12 +105,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Null(result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_AddSession()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -157,12 +148,10 @@ namespace Microsoft.EntityFrameworkCore
                             .OrderBy(i => i)
                             .ToList());
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_AddSession_bad_session()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -171,12 +160,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal("No session", result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_AddSession_bad_attendee()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -187,12 +174,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal("No attendee", result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_RemoveSession()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -222,12 +207,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.DoesNotContain(sessionId, afterRemove);
                     Assert.All(afterRemove, s => Assert.Contains(s, beforeRemove));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_RemoveSession_bad_session()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -236,12 +219,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal("No session", result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task AttendeesController_RemoveSession_bad_attendee()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new AttendeesController(context);
@@ -252,7 +233,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal("No attendee", result);
                 });
-        }
 
         protected class AttendeesController
         {
@@ -274,15 +254,13 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public async Task<List<SessionResponse>> GetSessions(string username)
-            {
-                return await _db.Sessions.AsNoTracking()
+                => await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Speaker)
                     .Where(s => s.SessionAttendees.Any(sa => sa.Attendee.UserName == username))
                     .Select(m => m.MapSessionResponse())
                     .ToListAsync();
-            }
 
             public async Task<AttendeeResponse> Post(Attendee input)
             {
@@ -371,8 +349,7 @@ namespace Microsoft.EntityFrameworkCore
             string searchTerm,
             int totalCount,
             int sessionCount)
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SearchController(context);
@@ -395,7 +372,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.All(speakers, s => Assert.NotEqual(default, s.Id));
                     Assert.All(speakers, s => Assert.NotEmpty(s.Sessions));
                 });
-        }
 
         protected class SearchController
         {
@@ -440,8 +416,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual async Task SessionsController_Get()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SessionsController(context);
@@ -454,12 +429,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.All(results, s => Assert.NotEmpty(s.Speakers));
                     Assert.All(results, s => Assert.NotNull(s.Track));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Get_with_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
@@ -472,12 +445,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEmpty(result.Speakers);
                     Assert.NotNull(result.Track);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Get_with_bad_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SessionsController(context);
@@ -486,12 +457,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Null(result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Post()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var track = context.Tracks.AsNoTracking().OrderBy(e => e.Id).First();
@@ -515,12 +484,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotNull(result.Track);
                     Assert.Equal(track.Id, result.Track.Id);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Put()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
@@ -546,12 +513,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(session.Id, updatedSession.Id);
                     Assert.StartsWith("F# and Rust: combining ", updatedSession.Title);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Put_with_bad_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SessionsController(context);
@@ -560,12 +525,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal("Not found", result);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Delete()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var session = context.Sessions.AsNoTracking().Single(e => e.Title.StartsWith("C# and Rust: combining "));
@@ -580,12 +543,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Null(context.Sessions.AsNoTracking().SingleOrDefault(e => e.Id == session.Id));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SessionsController_Delete_with_bad_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SessionsController(context);
@@ -594,7 +555,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Null(result);
                 });
-        }
 
         protected class SessionsController
         {
@@ -606,14 +566,12 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public async Task<List<SessionResponse>> Get()
-            {
-                return await _db.Sessions.AsNoTracking()
+                => await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Speaker)
                     .Select(m => m.MapSessionResponse())
                     .ToListAsync();
-            }
 
             public async Task<SessionResponse> Get(int id)
             {
@@ -682,8 +640,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual async Task SpeakersController_GetSpeakers()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SpeakersController(context);
@@ -695,12 +652,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.All(results, s => Assert.NotEqual(default, s.Id));
                     Assert.All(results, s => Assert.NotEmpty(s.Sessions));
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SpeakersController_GetSpeaker_with_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var speaker = context.Speakers.AsNoTracking().Single(e => e.Name == "Julie Lerman");
@@ -712,12 +667,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(speaker.Id, result.Id);
                     Assert.NotEmpty(result.Sessions);
                 });
-        }
 
         [ConditionalFact]
         public virtual async Task SpeakersController_GetSpeaker_with_bad_ID()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     var controller = new SpeakersController(context);
@@ -726,7 +679,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Null(result);
                 });
-        }
 
         protected class SpeakersController
         {
@@ -738,13 +690,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public async Task<List<SpeakerResponse>> GetSpeakers()
-            {
-                return await _db.Speakers.AsNoTracking()
+                => await _db.Speakers.AsNoTracking()
                     .Include(s => s.SessionSpeakers)
                     .ThenInclude(ss => ss.Session)
                     .Select(s => s.MapSpeakerResponse())
                     .ToListAsync();
-            }
 
             public async Task<SpeakerResponse> GetSpeaker(int id)
             {

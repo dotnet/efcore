@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     AddressTitle = new AddressTitle()
                 };
 
-                context.Add(new Person { Id = 1, Addresses = new List<Address> { address} });
+                context.Add(new Person { Id = 1, Addresses = new List<Address> { address } });
                 Assert.Equal("DefaultTitle", address.AddressTitle.Title);
 
                 await context.SaveChangesAsync();
@@ -499,9 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             private object AdditionalModelCacheKey { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                OnModelCreatingAction?.Invoke(modelBuilder);
-            }
+                => OnModelCreatingAction?.Invoke(modelBuilder);
 
             public DbContextOptions CreateOptions(
                 Action<ModelBuilder> onModelCreating = null,
@@ -610,9 +608,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         private class TitleGenerator : ValueGenerator<string>
         {
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
 
-            public override string Next(EntityEntry entry) => "DefaultTitle";
+            public override string Next(EntityEntry entry)
+                => "DefaultTitle";
         }
 
         private abstract class PersonBase

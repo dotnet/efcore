@@ -21,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
     {
         protected BuiltInDataTypesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -1136,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 711 && e.TestNullableInt16 == param1).ToList().Single());
                 Assert.Same(
                     entity,
-                    context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 711 && (long?)(int?)e.TestNullableInt16 == param1).ToList()
+                    context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 711 && (long?)e.TestNullableInt16 == param1).ToList()
                         .Single());
 
                 int? param2 = null;
@@ -1331,7 +1333,8 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.TestInt64);
                 AssertEqualIfMapped(entityType, -1.23456789, () => dt.TestDouble);
                 AssertEqualIfMapped(entityType, -1234567890.01M, () => dt.TestDecimal);
-                AssertEqualIfMapped(entityType, DateTime.Parse("01/01/2000 12:34:56", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal),
+                AssertEqualIfMapped(
+                    entityType, DateTime.Parse("01/01/2000 12:34:56", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal),
                     () => dt.TestDateTime);
                 AssertEqualIfMapped(
                     entityType, new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
@@ -1419,13 +1422,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             BinaryKeyDataType QueryByBinaryKey(DbContext context, byte[] bytes)
-            {
-                return context
+                => context
                     .Set<BinaryKeyDataType>()
                     .Include(e => e.Dependents)
                     .Where(e => e.Id == bytes)
                     .ToList().Single();
-            }
 
             using (var context = CreateContext())
             {
@@ -1549,13 +1550,16 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.True(Equal(Convert.ToUInt64(expected), Convert.ToUInt64(actual)), $"Expected:\t{expected}\r\nActual:\t{actual}");
                 }
-                else if(type == typeof(DateTime))
+                else if (type == typeof(DateTime))
                 {
-                    Assert.True(Equal((DateTime)(object)expected, (DateTime)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
+                    Assert.True(
+                        Equal((DateTime)(object)expected, (DateTime)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
                 }
                 else if (type == typeof(DateTimeOffset))
                 {
-                    Assert.True(Equal((DateTimeOffset)(object)expected, (DateTimeOffset)(object)actual), $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
+                    Assert.True(
+                        Equal((DateTimeOffset)(object)expected, (DateTimeOffset)(object)actual),
+                        $"Expected:\t{expected:O}\r\nActual:\t{actual:O}");
                 }
                 else
                 {
@@ -2222,7 +2226,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         foreach (var property in modelBuilder.Entity<BuiltInDataTypes>().Metadata
-                            .GetProperties().Where(p => p.Name != "Id"))
+                                     .GetProperties().Where(p => p.Name != "Id"))
                         {
                             b.Property(property.ClrType, property.Name);
                         }
@@ -2232,7 +2236,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         foreach (var property in modelBuilder.Entity<BuiltInNullableDataTypes>().Metadata
-                            .GetProperties().Where(p => p.Name != "Id"))
+                                     .GetProperties().Where(p => p.Name != "Id"))
                         {
                             b.Property(property.ClrType, property.Name);
                         }
@@ -2376,11 +2380,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<StringEnclosure>()
                     .HasData(
-                        new StringEnclosure
-                        {
-                            Id = 1,
-                            Value = ReallyLargeString
-                        });
+                        new StringEnclosure { Id = 1, Value = ReallyLargeString });
             }
 
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)

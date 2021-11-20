@@ -24,17 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         [ConditionalFact]
         public void Model_differ_does_not_detect_views()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
-        }
 
         [ConditionalFact]
         public void Model_differ_does_not_detect_views_with_owned_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target => target.Entity<Order>(
                     x =>
@@ -43,12 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.OwnsOne(y => y.Shipping);
                     }),
                 upOperations => Assert.Equal(0, upOperations.Count));
-        }
 
         [ConditionalFact]
         public void Model_differ_does_not_detect_views_with_weak_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target => target.Entity<Order>(
                     x =>
@@ -58,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.OwnsOne(y => y.Shipping);
                     }),
                 upOperations => Assert.Equal(0, upOperations.Count));
-        }
 
         [ConditionalFact]
         public void Model_differ_does_not_detect_defining_queries()
@@ -75,17 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Model_differ_does_not_detect_queries()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<TestKeylessType>().HasNoKey().ToSqlQuery("SELECT * FROM Vista"),
                 result => Assert.Empty(result));
-        }
 
         [ConditionalFact]
         public void Model_differ_detects_adding_store_type()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -117,12 +108,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cat", m.Table);
                         Assert.Same(typeof(short), m.ClrType);
                     }));
-        }
 
         [ConditionalFact]
         public void Model_differ_detects_adding_value_converter()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -154,12 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cat", m.Table);
                         Assert.Same(typeof(short), m.ClrType);
                     }));
-        }
 
         [ConditionalFact]
         public void Model_differ_detects_changing_store_type_with_conversions()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -191,12 +178,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Cat", m.Table);
                         Assert.Same(typeof(int), m.ClrType);
                     }));
-        }
 
         [ConditionalFact]
         public void Model_differ_breaks_foreign_key_cycles_in_create_table_operations()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -233,12 +218,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Single(createSecondTableOperation.ForeignKeys);
                     Assert.Equal(createFirstTableOperation.Name, addFkOperation.Table);
                 });
-        }
 
         [ConditionalFact]
         public void Model_differ_breaks_foreign_key_cycles_in_drop_table_operations()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -268,12 +251,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         o => Assert.IsType<DropTableOperation>(o),
                         o => Assert.IsType<DropTableOperation>(o));
                 });
-        }
 
         [ConditionalFact]
         public void Model_differ_breaks_double_foreign_key_cycles_in_create_table_operations()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -335,15 +316,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     Assert.Equal(3, result.OfType<CreateTableOperation>().Count());
                     Assert.Equal(7, result.OfType<CreateIndexOperation>().Count());
-                    Assert.Equal(7, result.OfType<CreateTableOperation>().SelectMany(t => t.ForeignKeys).Count()
+                    Assert.Equal(
+                        7, result.OfType<CreateTableOperation>().SelectMany(t => t.ForeignKeys).Count()
                         + result.OfType<AddForeignKeyOperation>().Count());
                 });
-        }
 
         [ConditionalFact]
         public void Create_table()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 _ => { },
                 modelBuilder => modelBuilder.Entity(
@@ -387,7 +367,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var operation = Assert.IsType<DropTableOperation>(o);
                         Assert.Equal("Node", operation.Name);
                     }));
-        }
 
         private class CreateTableEntity1
         {
@@ -413,8 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Create_table_columns_use_property_order()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<CreateTableEntity1>(),
                 operations =>
@@ -427,12 +405,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("B", x.Name),
                         x => Assert.Equal("A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_use_dependent_to_principal_and_key_order_when_shadow_fk()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -458,12 +434,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_uses_defining_navigation_order()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<CreateTableEntity2>().OwnsOne(e => e.D),
                 operations =>
@@ -477,12 +451,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("D_C", x.Name),
                         x => Assert.Equal("A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_uses_principal_to_dependent_order_when_splitting()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<CreateTableEntity2B>().ToTable("CreateTableEntity2")
                     .HasOne<CreateTableEntity2>().WithOne(x => x.D).HasForeignKey<CreateTableEntity2B>("Id"),
@@ -497,12 +469,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("C", x.Name),
                         x => Assert.Equal("A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_groups_and_sorts_type_hierarchy()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -522,12 +492,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("A", x.Name),
                         x => Assert.Equal("C", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_aliased_columns()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<CreateTableEntity1>(
                     b =>
@@ -544,12 +512,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("C", x.Name),
                         x => Assert.Equal("B", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_shadow_defining_navigation()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity(
                     "X",
@@ -566,12 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("Id", x.Name),
                         x => Assert.Equal("Y_A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_shadow_principal_to_dependent_when_splitting()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity("X", x => x.Property<int>("Id"))
@@ -593,12 +557,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("Id", x.Name),
                         x => Assert.Equal("A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_no_principal_to_dependent_when_splitting()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity("X", x => x.Property<int>("Id"))
@@ -620,12 +582,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("Id", x.Name),
                         x => Assert.Equal("A", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_shadow_dependent_to_principal()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity("X", x => x.Property<int>("Id"))
@@ -650,12 +610,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_no_dependent_to_principal()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity("X", x => x.Property<int>("Id"))
@@ -680,12 +638,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_self_referencing_one_to_many()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity(
@@ -707,12 +663,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[1]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_handles_self_referencing_one_to_one()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity(
@@ -734,12 +688,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[1]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_columns_use_explicit_order()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.Entity<CreateTableEntity1>(
                     b =>
@@ -762,18 +714,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("C", x.Name),
                         x => Assert.Equal("Id", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Create_FK_to_excluded_principal()
-        {
-            Execute(
+            => Execute(
                 common => common
-                    .Entity("X", x =>
-                    {
-                        x.Property<int>("Id");
-                        x.ToTable("X", t => t.ExcludeFromMigrations());
-                    })
+                    .Entity(
+                        "X", x =>
+                        {
+                            x.Property<int>("Id");
+                            x.ToTable("X", t => t.ExcludeFromMigrations());
+                        })
                     .Entity(
                         "Y",
                         x =>
@@ -828,12 +779,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var operation = Assert.IsType<DropColumnOperation>(o);
                         Assert.Equal("XId", operation.Name);
                     }));
-        }
 
         [ConditionalFact]
         public void Create_table_no_key()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 _ => { },
                 modelBuilder => modelBuilder.Entity("Anonymous").HasNoKey().Property<int>("Value"),
@@ -852,12 +801,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<DropTableOperation>(downOps[0]);
                     Assert.Equal("Anonymous", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_from_view()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity("Material").ToView("Immaterial").HasNoKey().Property<int>("Value"),
                 target => target.Entity("Material").HasNoKey().Property<int>("Value"),
@@ -875,12 +822,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<DropTableOperation>(downOps[0]);
                     Assert.Equal("Material", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_table_comment()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "MountainLion",
                     x =>
@@ -907,12 +852,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("New comment", operation.Comment);
                     Assert.Equal("Old comment", operation.OldTable.Comment);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Cat").ToTable("Cat", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Cat",
@@ -932,12 +875,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Cats", operation.NewName);
                     Assert.Equal("dbo", operation.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void Move_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Person").ToTable("People", "dbo").Property<int>("Id"),
                 target => target.Entity("Person").ToTable("People", "public").Property<int>("Id"),
                 operations =>
@@ -953,12 +894,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("People", renameTableOperation.NewName);
                     Assert.Equal("public", renameTableOperation.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_entity_type()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Dog",
                     x =>
@@ -975,12 +914,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.HasKey("Id").HasName("PK_Dog");
                     }),
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Create_shared_table_with_two_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 _ => { },
                 modelBuilder =>
@@ -1022,12 +959,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var dropTableOperation = Assert.IsType<DropTableOperation>(downOps[0]);
                     Assert.Equal("Animal", dropTableOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_type_to_shared_table()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -1066,12 +1001,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var alterTableOperation = Assert.IsType<DropColumnOperation>(downOps[0]);
                     Assert.Equal("BoneId", alterTableOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Move_type_from_one_shared_table_to_another_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -1178,12 +1111,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Columns,
                             v => Assert.Equal("HandlerId", v));
                     }));
-        }
 
         [ConditionalFact]
         public void Can_split_entity_in_two_using_shared_table_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -1229,12 +1160,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 upOps => Assert.Equal(0, upOps.Count),
                 downOps => Assert.Equal(0, downOps.Count));
-        }
 
         [ConditionalFact]
         public void Add_owned_type_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -1352,12 +1281,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("ShippingAddress_Street", m.Name);
                         Assert.Equal("Order", m.Table);
                     }));
-        }
 
         [ConditionalFact]
         public void Rename_entity_type_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithIdWrongName",
@@ -1382,12 +1309,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Add_column_with_computed_value()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
@@ -1414,12 +1339,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("", operation.DefaultValue);
                     Assert.Equal("CreateDragonName()", operation.ComputedColumnSql);
                 });
-        }
 
         [ConditionalFact] // Issue #4501
         public void Add_column_ValueGeneratedOnAddOrUpdate_with_default_value_sql()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
@@ -1443,12 +1366,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.ComputedColumnSql);
                     Assert.Equal("GETDATE()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Add_column_ValueGeneratedOnUpdate_with_default_value_sql()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
@@ -1472,7 +1393,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.ComputedColumnSql);
                     Assert.Equal("GETDATE()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalTheory]
         [InlineData(typeof(int), 0)]
@@ -1482,8 +1402,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [InlineData(typeof(SomeEnum), 0)]
         [InlineData(typeof(SomeEnum?), 0)]
         public void Add_column_not_null(Type type, object expectedDefault)
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Robin").Property<int>("Id"),
                 target => target.Entity(
                     "Robin",
@@ -1501,12 +1420,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Value", operation.Name);
                     Assert.Equal(expectedDefault, operation.DefaultValue);
                 });
-        }
 
         [ConditionalFact]
         public void Add_property_converted_to_nullable()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Capybara").Property<int>("Id"),
                 target => target.Entity(
                     "Capybara",
@@ -1521,12 +1438,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<AddColumnOperation>(Assert.Single(operations));
                     Assert.Equal(typeof(int), operation.ClrType);
                 });
-        }
 
         [ConditionalFact]
         public void Add_column_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "Firefly",
@@ -1592,12 +1507,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Firefly", operation.Table);
                         Assert.Equal("Name", operation.Name);
                     }));
-        }
 
         [ConditionalFact]
         public void Add_column_with_order()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Peacock").Property<int>("Id"),
                 target => target.Entity(
                     "Peacock",
@@ -1617,12 +1530,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(typeof(string), operation.ClrType);
                     Assert.Equal(1, operation[RelationalAnnotationNames.ColumnOrder]);
                 });
-        }
 
         [ConditionalFact]
         public void Add_seed_data_with_non_writable_column_insert_operations_with_batching()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "Firefly",
@@ -1707,7 +1618,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(45, v));
                     }),
                 builderOptions => builderOptions.UseFakeRelational(a => a.MaxBatchSize(4)));
-        }
 
         private enum SomeEnum
         {
@@ -1717,8 +1627,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Rename_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Zebra",
                     x =>
@@ -1745,12 +1654,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Name", operation.Name);
                     Assert.Equal("ZebraName", operation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -1857,12 +1764,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal(32, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Rename_property()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Buffalo",
                     x =>
@@ -1880,12 +1785,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                     }),
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Rename_property_with_same_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target => target.Entity(
                     "Zebra",
@@ -1909,12 +1812,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Rename_property_and_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Buffalo").Property<int>("BuffaloId"),
                 target => target.Entity("Buffalo").Property<int>("Id"),
                 operations =>
@@ -1926,12 +1827,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("BuffaloId", operation.Name);
                     Assert.Equal("Id", operation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_property_and_column_when_snapshot()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     typeof(Crab).FullName,
                     x =>
@@ -1953,12 +1852,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Id", operation.NewName);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Add_table_sharing_to_TPT()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity(
@@ -2000,12 +1897,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("DetailedOrder", operation.Table);
                     Assert.Equal("OrderDate", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_in_TPT_with_table_sharing_and_seed_data()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity(
@@ -2068,7 +1963,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Description", operation.Name);
                     Assert.Equal("OrderDescription", operation.NewName);
                 });
-        }
 
         private class Crab
         {
@@ -2077,8 +1971,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Add_custom_value_generator()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2095,12 +1988,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             .HasValueGenerator<CustomValueGenerator>();
                     }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Remove_custom_value_generator()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2117,14 +2008,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Name");
                     }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         private class CustomValueGenerator : ValueGenerator<string>
         {
             public override string Next(EntityEntry entry)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override bool GeneratesTemporaryValues
                 => false;
@@ -2132,8 +2020,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Alter_column_nullability()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Bison",
                     x =>
@@ -2170,12 +2057,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.DefaultValue);
                     Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_nullability_to_required()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Bison",
                     x =>
@@ -2212,12 +2097,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(string.Empty, operation.DefaultValue);
                     Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_type()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Puma",
                     x =>
@@ -2256,12 +2139,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.DefaultValue);
                     Assert.Equal("CreatePumaName()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_type_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Puma",
                     x =>
@@ -2302,12 +2183,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         operation.Values,
                         v => Assert.Equal(20, v));
                 });
-        }
 
         [ConditionalFact]
         public void Alter_key_column_type_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "Firefly",
@@ -2394,12 +2273,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal(43, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Alter_column_max_length()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2425,12 +2302,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(30, operation.MaxLength);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_precision()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2457,12 +2332,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.Scale);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_precision_and_scale()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2489,12 +2362,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(5, operation.Scale);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_unicode()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2520,12 +2391,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.False(operation.IsUnicode);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_fixed_length()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Toad",
                     x =>
@@ -2551,12 +2420,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.True(operation.IsFixedLength);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_default()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Cougar",
                     x =>
@@ -2593,12 +2460,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Cosmo", operation.DefaultValue);
                     Assert.Null(operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_default_expression()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "MountainLion",
                     x =>
@@ -2635,12 +2500,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.DefaultValue);
                     Assert.Equal("CreateCatamountName()", operation.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_computed_expression()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "MountainLion",
                     x =>
@@ -2677,12 +2540,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.DefaultValue);
                     Assert.Equal("CreateCatamountName()", operation.ComputedColumnSql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_comment()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "MountainLion",
                     x =>
@@ -2716,12 +2577,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("New comment", operation.Comment);
                     Assert.Equal("Old comment", operation.OldColumn.Comment);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_order()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Pangolin",
                     x =>
@@ -2748,12 +2607,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(2, operation[RelationalAnnotationNames.ColumnOrder]);
                     Assert.Equal(1, operation.OldColumn[RelationalAnnotationNames.ColumnOrder]);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_but_not_order()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Crane",
                     x =>
@@ -2781,12 +2638,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Null(operation.FindAnnotation(RelationalAnnotationNames.ColumnOrder));
                     Assert.Null(operation.OldColumn.FindAnnotation(RelationalAnnotationNames.ColumnOrder));
                 });
-        }
 
         [ConditionalFact]
         public void Add_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Flamingo",
                     x =>
@@ -2814,12 +2669,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AK_Flamingo_AlternateId", operation.Name);
                     Assert.Equal(new[] { "AlternateId" }, operation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Penguin",
                     x =>
@@ -2846,12 +2699,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Penguin", operation.Table);
                     Assert.Equal("AK_Penguin_AlternateId", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Pelican",
                     x =>
@@ -2885,12 +2736,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AK_dbo.Pelican_AlternateId", addOperation.Name);
                     Assert.Equal(new[] { "AlternateId" }, addOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_unique_constraint_columns()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Rook",
                     x =>
@@ -2926,12 +2775,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AK_Rook_AlternateId", addOperation.Name);
                     Assert.Equal(new[] { "AlternateRookId" }, addOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Add_check_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Flamingo",
                     x =>
@@ -2959,12 +2806,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
                     Assert.Equal("AlternateId > Id", operation.Sql);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_check_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Penguin",
                     x =>
@@ -2991,12 +2836,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Penguin", operation.Table);
                     Assert.Equal("CK_Penguin_AlternateId", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_check_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Pelican",
                     x =>
@@ -3030,12 +2873,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("CK_Flamingo", createOperation.Name);
                     Assert.Equal("AlternateId > Id", createOperation.Sql);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_check_constraint_expression()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Rook",
                     x =>
@@ -3069,12 +2910,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("CK_Rook_AlternateId", createOperation.Name);
                     Assert.Equal("AlternateId < Id", createOperation.Sql);
                 });
-        }
 
         [ConditionalFact]
         public void Add_primary_key()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity("Puffin").ToTable("Puffin", "dbo").HasNoKey().Property<int>("Id"),
                 target => target.Entity("Puffin").ToTable("Puffin", "dbo").Property<int>("Id"),
@@ -3098,12 +2937,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("PK_Puffin", operation.Name);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Rename_primary_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Puffin").ToTable("Puffin", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Puffin",
@@ -3128,12 +2965,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("PK_dbo.Puffin", addOperation.Name);
                     Assert.Equal(new[] { "Id" }, addOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_primary_key_columns()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Raven",
                     x =>
@@ -3168,12 +3003,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "RavenId" }, addOperation.Columns);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Alter_primary_key_column_order_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Raven",
                     x =>
@@ -3206,12 +3039,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "RavenId", "Id" }, addOperation.Columns);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Add_foreign_key()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "Amoeba",
                     x =>
@@ -3246,12 +3077,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.Cascade, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_optional_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3290,12 +3119,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_optional_foreign_key_with_cascade_delete()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3334,12 +3161,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.Cascade, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_required_foreign_key_with_restrict()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3378,12 +3203,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_required_foreign_key_with_default()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3422,12 +3245,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_optional_foreign_key_with_set_null()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3466,12 +3287,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.SetNull, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Add_optional_foreign_key_with_restrict()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Amoeba",
                     x =>
@@ -3510,12 +3329,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.Restrict, addFkOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addFkOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Remove_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Anemone",
                     x =>
@@ -3547,12 +3364,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Anemone", dropIndexOperation.Table);
                     Assert.Equal("IX_Anemone_ParentId", dropIndexOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Nematode",
                     x =>
@@ -3589,12 +3404,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Nematode", addOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_foreign_key_columns()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Mushroom",
                     x =>
@@ -3644,12 +3457,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Mushroom", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_foreign_key_cascade_delete()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Mushroom",
                     x =>
@@ -3690,12 +3501,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(ReferentialAction.Cascade, addOperation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, addOperation.OnUpdate);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_foreign_key_on_delete_from_ClientSetNull_to_NoAction()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Mushroom",
                     x =>
@@ -3717,12 +3526,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("ParentId2");
                     }),
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Alter_foreign_key_target()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Lion").ToTable("Lion", "odb").Property<int>("LionId");
@@ -3769,12 +3576,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Tiger", addOperation.PrincipalTable);
                     Assert.Equal(new[] { "TigerId" }, addOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Create_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Hippo",
                     x =>
@@ -3803,12 +3608,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "Value" }, operation.Columns);
                     Assert.True(operation.IsUnique);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Horse",
                     x =>
@@ -3835,12 +3638,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Horse", operation.Table);
                     Assert.Equal("IX_Horse_Value", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Donkey",
                     x =>
@@ -3869,12 +3670,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Donkey_Value", operation.Name);
                     Assert.Equal("IX_dbo.Donkey_Value", operation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_index_columns()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Muel",
                     x =>
@@ -3910,12 +3709,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Muel_Value", createOperation.Name);
                     Assert.Equal(new[] { "MuleValue" }, createOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_index_uniqueness()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Pony",
                     x =>
@@ -3949,12 +3746,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Pony_Value", createOperation.Name);
                     Assert.True(createOperation.IsUnique);
                 });
-        }
 
         [ConditionalFact]
         public void Create_sequence()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder.HasSequence<int>("Tango", "dbo")
                     .StartsAt(2)
@@ -3978,12 +3773,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(4, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_sequence()
-        {
-            Execute(
+            => Execute(
                 modelBuilder => modelBuilder.HasSequence("Bravo", "dbo"),
                 _ => { },
                 operations =>
@@ -3994,12 +3787,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Bravo", operation.Name);
                     Assert.Equal("dbo", operation.Schema);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_sequence()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence("Bravo", "dbo"),
                 target => target.HasSequence("bravo", "dbo"),
                 operations =>
@@ -4012,12 +3803,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("bravo", operation.NewName);
                     Assert.Equal("dbo", operation.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void Move_sequence()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence("Charlie", "dbo"),
                 target => target.HasSequence("Charlie", "odb"),
                 operations =>
@@ -4032,12 +3821,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Charlie", operation.NewName);
                     Assert.Equal("odb", operation.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_sequence_increment_by()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Alpha", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4063,12 +3850,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.True(operation.IsCyclic);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Alter_sequence_max_value()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Echo", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4094,12 +3879,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.True(operation.IsCyclic);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Alter_sequence_min_value()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Delta", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4124,12 +3907,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(4, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_sequence_cycle()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Foxtrot", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4155,12 +3936,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.False(operation.IsCyclic);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Alter_sequence_type()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Hotel", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4192,12 +3971,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.True(createOperation.IsCyclic);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Alter_sequence_start()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Golf", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4221,12 +3998,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(5, operation.StartValue);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Restart_altered_sequence()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence<int>("Golf", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
@@ -4244,12 +4019,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AlterSequenceOperation>(o),
                     o => Assert.IsType<RestartSequenceOperation>(o)),
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Diff_IProperty_destructive_when_null_to_not_null()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Lizard",
                     x =>
@@ -4271,12 +4044,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Diff_IProperty_not_destructive_when_not_null_to_null()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Frog",
                     x =>
@@ -4298,12 +4069,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
                     Assert.False(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Diff_IProperty_destructive_when_type_changed()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Frog",
                     x =>
@@ -4325,12 +4094,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
                     Assert.True(operation.IsDestructiveChange);
                 });
-        }
 
         [ConditionalFact]
         public void Sort_works_with_primary_keys_and_columns()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Jaguar").Property<int>("Id"),
                 target => target.Entity(
                     "Jaguar",
@@ -4345,12 +4112,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropColumnOperation>(o),
                     o => Assert.IsType<AddColumnOperation>(o),
                     o => Assert.IsType<AddPrimaryKeyOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_adds_unique_constraint_after_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Panther").Property<int>("Id"),
                 target => target.Entity(
                     "Panther",
@@ -4364,12 +4129,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     operations,
                     o => Assert.IsType<AddColumnOperation>(o),
                     o => Assert.IsType<AddUniqueConstraintOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_drops_unique_constraint_before_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Bobcat",
                     x =>
@@ -4383,12 +4146,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     operations,
                     o => Assert.IsType<DropUniqueConstraintOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_creates_index_after_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Coyote").Property<int>("Id"),
                 target => target.Entity(
                     "Coyote",
@@ -4402,12 +4163,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     operations,
                     o => Assert.IsType<AddColumnOperation>(o),
                     o => Assert.IsType<CreateIndexOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_drops_index_before_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Wolf",
                     x =>
@@ -4421,12 +4180,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     operations,
                     o => Assert.IsType<DropIndexOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_adds_foreign_key_after_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Algae").Property<int>("Id"),
                 target => target.Entity(
                     "Algae",
@@ -4441,12 +4198,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddColumnOperation>(o),
                     o => Assert.IsType<CreateIndexOperation>(o),
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_drops_foreign_key_before_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Bacteria",
                     x =>
@@ -4461,12 +4216,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropForeignKeyOperation>(o),
                     o => Assert.IsType<DropIndexOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_adds_foreign_key_after_target_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Car",
                     x =>
@@ -4491,12 +4244,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<CreateTableOperation>(o),
                     o => Assert.IsType<CreateIndexOperation>(o),
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_drops_foreign_key_before_target_table()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Maker").Property<int>("Id");
@@ -4521,12 +4272,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropForeignKeyOperation>(o),
                     o => Assert.IsType<DropTableOperation>(o),
                     o => Assert.IsType<DropIndexOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_adds_foreign_key_after_target_column_and_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Maker").Property<int>("Id");
@@ -4562,12 +4311,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<AddUniqueConstraintOperation>(o),
                     o => Assert.IsType<CreateIndexOperation>(o),
                     o => Assert.IsType<AddForeignKeyOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_drops_foreign_key_before_target_column_and_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity(
@@ -4603,12 +4350,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     o => Assert.IsType<DropIndexOperation>(o),
                     o => Assert.IsType<DropUniqueConstraintOperation>(o),
                     o => Assert.IsType<DropColumnOperation>(o)));
-        }
 
         [ConditionalFact]
         public void Sort_creates_tables_in_topologic_order()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -4635,12 +4380,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation3 = Assert.IsType<CreateIndexOperation>(operations[2]);
                     Assert.Equal("IX_Helicopter_MakerId", operation3.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Sort_drops_tables_in_topologic_order()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity("Maker").Property<int>("Id");
@@ -4664,12 +4407,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation2 = Assert.IsType<DropTableOperation>(operations[1]);
                     Assert.Equal("Maker", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_primary_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Hornet").Property<int>("Id"),
                 target => target.Entity("Hornet").Property<int>("Id").HasColumnName("HornetId"),
                 operations =>
@@ -4678,12 +4419,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameColumnOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Wasp",
                     x =>
@@ -4708,12 +4447,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<RenameColumnOperation>(operations[1]);
                     Assert.IsType<AddUniqueConstraintOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Bee",
                     x =>
@@ -4737,12 +4474,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<RenameColumnOperation>(operations[0]);
                     Assert.IsType<RenameIndexOperation>(operations[1]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_table_with_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Fly",
                     x =>
@@ -4767,12 +4502,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_table_with_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Gnat",
                     x =>
@@ -4797,12 +4530,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_entity_type_with_primary_key_and_unique_constraint()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Grasshopper",
                     x =>
@@ -4826,12 +4557,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_entity_type_with_index()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Cricket",
                     x =>
@@ -4855,12 +4584,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Yeast",
                     x =>
@@ -4886,12 +4613,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<RenameIndexOperation>(operations[2]);
                     Assert.IsType<AddForeignKeyOperation>(operations[3]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_with_referencing_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Mucor",
                     x =>
@@ -4913,12 +4638,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operations.Count);
                     Assert.IsType<RenameColumnOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Add_column_with_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Yeast",
                     x =>
@@ -4933,7 +4656,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("ParentId").IsFixedLength(false);
                         x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                     }),
-                operations => Assert.Collection(operations, o =>
+                operations => Assert.Collection(
+                    operations, o =>
                     {
                         var operation = Assert.IsType<AddColumnOperation>(o);
                         Assert.Equal("ParentId", operation.Name);
@@ -4948,12 +4672,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal(new[] { "ParentId" }, operation.Columns);
                     }
                 ));
-        }
 
         [ConditionalFact]
         public void Change_principal_column_facets()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Yeast",
                     x =>
@@ -4970,7 +4692,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("ParentId").IsFixedLength(false);
                         x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                     }),
-                operations => Assert.Collection(operations, o =>
+                operations => Assert.Collection(
+                    operations, o =>
                     {
                         var operation = Assert.IsType<AlterColumnOperation>(o);
                         Assert.Equal("ParentId", operation.Name);
@@ -4982,12 +4705,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("ansi_string_fixed(127)", operation.ColumnType);
                     }
                 ));
-        }
 
         [ConditionalFact]
         public void Rename_table_with_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Zebra").Property<int>("Id");
@@ -5020,12 +4741,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operations.Count);
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_table_with_referencing_foreign_key()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Jaguar").Property<int>("Id");
@@ -5063,12 +4782,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operations.Count);
                     Assert.IsType<RenameTableOperation>(operations[0]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5085,12 +4802,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.Contains(operation.Columns, c => c.Name == "Name");
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_required_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5107,12 +4822,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.True(operation.Columns.First(c => c.Name == "Value").IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Add_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5132,12 +4845,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal("Name", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_required_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").Property<int>("Id");
@@ -5157,12 +4868,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Value", operation.Name);
                     Assert.True(operation.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Remove_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5182,12 +4891,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal("Name", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_property_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5209,12 +4916,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Name", operation.Name);
                     Assert.Equal("varchar(30)", operation.ColumnType);
                 });
-        }
 
         [ConditionalFact]
         public void Create_index_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5243,12 +4948,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Animal_Name", operation.Name);
                     Assert.Equal(new[] { "Name" }, operation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_index_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5283,12 +4986,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Animal_Name", operation.Name);
                     Assert.Equal("IX_Animal_Pike_Name", operation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_index_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
@@ -5316,12 +5017,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal("IX_Animal_Name", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_foreign_key_on_base_type()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5356,12 +5055,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Animal_HandlerId", createIndexOperation.Name);
                     Assert.Equal(new[] { "HandlerId" }, createIndexOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_foreign_key_on_subtype()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5397,12 +5094,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Animal_HandlerId", createIndexOperation.Name);
                     Assert.Equal(new[] { "HandlerId" }, createIndexOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_foreign_key_to_subtype()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5438,12 +5133,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Person_PetId", createIndexOperation.Name);
                     Assert.Equal(new[] { "PetId" }, createIndexOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_selfReferencing_foreign_key_in_hierarchy()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -5475,12 +5168,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("IX_Animal_PreyId", createIndexOperation.Name);
                     Assert.Equal(new[] { "PreyId" }, createIndexOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 _ => { },
                 target => target.Entity(
@@ -5518,12 +5209,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Null(operation.Schema);
                         Assert.Equal("Zebra", operation.Name);
                     }));
-        }
 
         [ConditionalFact]
         public void Add_subtype_with_shared_column_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity("Animal").Property<int>("Id");
@@ -5567,12 +5256,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.KeyValues,
                             v => Assert.Equal(43, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Change_TPH_to_TPT_with_FKs_and_seed_data()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -6215,12 +5902,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
                         Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
                     }));
-        }
 
         [ConditionalFact]
         public void Change_TPH_to_TPT_with_FKs_and_seed_data_readonly_discriminator()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -6893,12 +6578,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
                         Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
                     }));
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_on_base_type()
-        {
-            Execute(
+            => Execute(
                 modelBuilder =>
                 {
                     modelBuilder.Entity("Person").Property<int>("Id");
@@ -6940,12 +6623,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Person", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Add_shared_foreign_key_on_subtypes()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity("Person").Property<int>("Id");
@@ -6987,12 +6668,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Person", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Add_shared_property_with_foreign_key_on_subtypes()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity("Person").Property<int>("Id");
@@ -7019,12 +6698,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         });
                 },
                 operations => Assert.Equal(0, operations.Count));
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_to_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Animal").Property<int>("Id");
@@ -7066,12 +6743,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", addFkOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addFkOperation.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_foreign_key_on_subtype()
-        {
-            Execute(
+            => Execute(
                 source =>
                 {
                     source.Entity("Person").Property<int>("Id");
@@ -7103,12 +6778,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Animal", dropIndexOperation.Table);
                     Assert.Equal("IX_Animal_RiderId", dropIndexOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Create_shared_table_with_two_entity_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -7132,12 +6805,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Time", timeColumn.Name);
                     Assert.True(timeColumn.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Create_shared_table_with_required_dependent()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -7162,12 +6833,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Time", timeColumn.Name);
                     Assert.False(timeColumn.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Create_shared_table_with_inheritance_and_three_entity_types()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -7193,12 +6862,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Time", timeColumn.Name);
                     Assert.True(timeColumn.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Split_out_subtype_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity<Animal>(
@@ -7300,24 +6967,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(1, v),
                             v => Assert.Equal("Bob", v));
                     }));
-        }
 
         private class Animal
         {
             public int Id { get; set; }
             public string Name { get; set; }
         }
+
         private class Eagle : Animal
         {
         }
+
         private class Shark : Animal
         {
         }
 
         [ConditionalFact] // See #2802
         public void Diff_IProperty_compares_values_not_references()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Stork",
                     x =>
@@ -7333,12 +7000,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<bool>("Value").HasDefaultValue(true);
                     }),
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Add_column_to_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Table").ToTable("Table", "old").Property<int>("Id"),
                 target => target
                     .Entity(
@@ -7363,12 +7028,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", addColumnOperation.Table);
                     Assert.Equal("Value", addColumnOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_to_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
@@ -7406,12 +7069,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", addForeignKeyOperation.Table);
                     Assert.Equal("FK_RenamedTable_ReferencedTable_ForeignId", addForeignKeyOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_to_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
@@ -7444,12 +7105,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("FK_Table_ReferencedTable_RenamedForeignId", addForeignKeyOperation.Name);
                     Assert.Equal(new[] { "RenamedForeignId" }, addForeignKeyOperation.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_referencing_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity("ReferencedTable", x => x.ToTable("ReferencedTable", "old").Property<int>("Id"))
                     .Entity(
@@ -7490,12 +7149,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedReferencedTable", addForeignKeyOperation.PrincipalTable);
                     Assert.Equal("FK_Table_RenamedReferencedTable_ForeignId", addForeignKeyOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_referencing_renamed_column_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common => common
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
@@ -7602,12 +7259,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.Values,
                             v => Assert.Equal(0, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Create_table_with_foreign_key_referencing_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("ReferencedTable").ToTable("ReferencedTable", "old").Property<int>("Id"),
                 target => target
                     .Entity(
@@ -7644,12 +7299,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[3]);
                 });
-        }
 
         [ConditionalFact]
         public void Create_table_with_foreign_key_referencing_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("ReferencedTable").Property<int>("Id"),
                 target => target
                     .Entity("ReferencedTable", x => x.Property<int>("Id").HasColumnName("ReferencedTableId"))
@@ -7676,12 +7329,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_primary_key_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Table").ToTable("Table", "old").Property<int>("Id"),
                 target => target.Entity("Table").ToTable("RenamedTable", "new").Property<int>("Id"),
                 operations =>
@@ -7702,12 +7353,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", addPrimaryKeyOperation.Table);
                     Assert.Equal("PK_RenamedTable", addPrimaryKeyOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_primary_key_on_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Table").Property<int>("Id"),
                 target => target.Entity(
                     "Table",
@@ -7728,12 +7377,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "RenamedId" }, addPrimaryKeyOperation.Columns);
                     Assert.Equal("PK_Table_Renamed", addPrimaryKeyOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_alternate_key_to_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7765,12 +7412,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", addUniqueConstraintOperation.Table);
                     Assert.Equal("AK_RenamedTable_AlternateId", addUniqueConstraintOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_alternate_key_to_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7796,12 +7441,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "RenamedAlternateId" }, addUniqueConstraintOperation.Columns);
                     Assert.Equal("AK_Table_RenamedAlternateId", addUniqueConstraintOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_column_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7832,12 +7475,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", alterColumnOperation.Table);
                     Assert.Equal("Value", alterColumnOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7862,12 +7503,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Table", alterColumnOperation.Table);
                     Assert.Equal("RenamedValue", alterColumnOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Alter_renamed_sequence()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence("Sequence", "old"),
                 target => target.HasSequence("Sequence", "new").IncrementsBy(2),
                 operations =>
@@ -7883,12 +7522,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Sequence", alterSequenceOperation.Name);
                 },
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void Create_index_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7920,12 +7557,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", createIndexOperation.Table);
                     Assert.Equal("IX_RenamedTable_Value", createIndexOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Create_index_on_renamed_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -7951,12 +7586,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(new[] { "RenamedValue" }, createIndexOperation.Columns);
                     Assert.Equal("IX_Table_RenamedValue", createIndexOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_column_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Table",
@@ -7988,12 +7621,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_foreign_key_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity("ReferencedTable", x => x.Property<int>("Id"))
                     .Entity(
@@ -8031,12 +7662,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_alternate_key_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -8068,12 +7697,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Drop_index_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -8105,12 +7732,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<RenameTableOperation>(operations[2]);
                 });
-        }
 
         [ConditionalFact]
         public void Restart_renamed_sequence()
-        {
-            Execute(
+            => Execute(
                 source => source.HasSequence("Sequence", "old"),
                 target => target.HasSequence("Sequence", "new").StartsAt(2),
                 operations =>
@@ -8125,12 +7750,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("new", alterSequenceOperation.Schema);
                     Assert.Equal("Sequence", alterSequenceOperation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_column_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity(
                         "Table",
@@ -8163,12 +7786,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", renameColumnOperation.Table);
                     Assert.Equal("RenamedValue", renameColumnOperation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_index_on_renamed_table()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity(
                     "Table",
                     x =>
@@ -8201,12 +7822,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("RenamedTable", renameIndexOperation.Table);
                     Assert.Equal("IX_RenamedTable_Value", renameIndexOperation.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Add_alternate_key_on_added_column()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity("Table").Property<int>("Id"),
                 target => target
                     .Entity(
@@ -8224,12 +7843,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.IsType<AddColumnOperation>(operations[0]);
                     Assert.IsType<AddUniqueConstraintOperation>(operations[1]);
                 });
-        }
 
         [ConditionalFact]
         public void Add_foreign_key_referencing_added_alternate_key_with_seed_data()
-        {
-            Execute(
+            => Execute(
                 common => common
                     .Entity(
                         "Table",
@@ -8319,12 +7936,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             operation.KeyValues,
                             v => Assert.Equal(42, v));
                     }));
-        }
 
         [ConditionalFact]
         public void Update_AK_seed_value_with_a_referencing_foreign_key()
-        {
-            Execute(
+            => Execute(
                 common => common
                     .Entity(
                         "ReferencedTable", x =>
@@ -8399,12 +8014,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(42, v),
                             v => Assert.Equal(4242, v));
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_with_guid_AK_and_multiple_owned_types()
-        {
-            Execute(
+            => Execute(
                 target =>
                 {
                     target.Entity<SomeEntity>(
@@ -8413,15 +8026,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             builder.HasAlternateKey(x => x.Guid);
                             builder.Property(x => x.Id).ValueGeneratedNever();
 
-                            var data = new[]
-                            {
-                                new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5"))
-                            };
+                            var data = new[] { new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5")) };
 
-                            var owned = data.Select(x => new
-                            {
-                                SomeEntityId = x.Id,
-                            }).ToArray();
+                            var owned = data.Select(x => new { SomeEntityId = x.Id, }).ToArray();
 
                             builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
                             builder.HasData(data);
@@ -8434,17 +8041,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var data = new[]
                             {
-                                new ApplicationUser()
-                                {
-                                    Id = 12345,
-                                    Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE")
-                                }
+                                new ApplicationUser { Id = 12345, Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE") }
                             };
 
-                            var owned = data.Select(x => new
-                            {
-                                ApplicationUserId = x.Id,
-                            }).ToArray();
+                            var owned = data.Select(x => new { ApplicationUserId = x.Id, }).ToArray();
 
                             builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
                             builder.HasData(data);
@@ -8454,7 +8054,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source => { },
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         protected class SomeEntity
         {
@@ -8464,18 +8063,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Guid = guid;
             }
 
-            public virtual SomeOwnedEntity OwnedEntity { get; private set; } = new SomeOwnedEntity();
+            public virtual SomeOwnedEntity OwnedEntity { get; } = new();
 
             public Guid Guid { get; protected set; }
 
             public long Id { get; protected set; }
-
         }
 
         protected class ApplicationUser
         {
             private readonly SomeOwnedEntity _ownedEntity;
-
 
             public ApplicationUser()
             {
@@ -8484,10 +8081,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             public virtual long Id { get; set; }
 
-            public virtual SomeOwnedEntity OwnedEntity => _ownedEntity;
+            public virtual SomeOwnedEntity OwnedEntity
+                => _ownedEntity;
 
             public Guid Guid { get; set; }
-
         }
 
         protected class SomeOwnedEntity
@@ -8496,8 +8093,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void SeedData_and_PK_rename()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -8556,12 +8152,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Id", operation.Name);
                         Assert.Equal("Key", operation.NewName);
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_and_change_PK_type()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -8654,12 +8248,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("PK_EntityWithTwoProperties", operation.Name);
                         Assert.Equal(new[] { "Key" }, operation.Columns);
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_binary_change()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -8703,12 +8295,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal(new byte[] { 2, 1 }, v));
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_binary_no_change()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -8730,12 +8320,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 upOps => Assert.Empty(upOps),
                 downOps => Assert.Empty(downOps));
-        }
 
         [ConditionalFact]
         public void SeedData_update_with_table_rename()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -8853,12 +8441,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal(32, v));
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
                     x => x.Property<int>("Id")),
@@ -8881,12 +8467,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion_to_value_type()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
                     x => x.Property<int>("Id")),
@@ -8910,12 +8494,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion_to_value_type_store_generated()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
                     x => x.Property<int>("Id")),
@@ -8943,12 +8525,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_nonkey_refactoring_value_conversion_with_structural_provider_type()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
                     x => x.Property<int>("Id")),
@@ -8974,12 +8554,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_key_refactoring_value_conversion()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithOneProperty",
                     x => x.Property<int>("Value1")),
@@ -9002,12 +8580,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_change_enum_conversion()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity(
                     "EntityWithEnumProperty",
                     x =>
@@ -9073,12 +8649,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             m.Values,
                             v => Assert.Equal((int)SomeEnum.NonDefault, v));
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_no_change_enum_key()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithEnumKey",
@@ -9102,12 +8676,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }),
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_all_operations()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTwoProperties",
@@ -9287,12 +8859,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(0, v),
                             v => Assert.Equal("", v));
                     }));
-        }
 
         [ConditionalFact]
         public void SeedData_with_timestamp_column()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source => source.Entity(
                     "EntityWithTimeStamp",
@@ -9454,12 +9024,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 v => Assert.Equal("Deleted", v));
                         });
                 });
-        }
 
         [ConditionalFact]
         public void SeedData_with_shadow_navigation_properties()
-        {
-            SeedData_with_navigation_properties(
+            => SeedData_with_navigation_properties(
                 target =>
                 {
                     target.Entity(
@@ -9504,12 +9072,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 });
                         });
                 });
-        }
 
         [ConditionalFact]
         public void SeedData_with_CLR_navigation_properties()
-        {
-            SeedData_with_navigation_properties(
+            => SeedData_with_navigation_properties(
                 target =>
                 {
                     target.Entity<Blog>(
@@ -9552,11 +9118,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 });
                         });
                 });
-        }
 
         private void SeedData_with_navigation_properties(Action<ModelBuilder> buildTargetAction)
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 source =>
                 {
@@ -9728,7 +9292,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(32, v),
                             v => Assert.Equal("Post To Be Removed", v));
                     }));
-        }
 
         private class OldOrder
         {
@@ -9775,8 +9338,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Add_property_on_owned_type()
-        {
-            Execute(
+            => Execute(
                 common => common.Entity<Order>(
                     x =>
                     {
@@ -9797,12 +9359,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Order", operation.Table);
                     Assert.Equal("Shipping_AddressLine2", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_ownership()
-        {
-            Execute(
+            => Execute(
                 common => { },
                 source => source.Entity<OldOrder>().ToTable("Order").Ignore(x => x.AddressLine1)
                     .Ignore(x => x.AddressLine2).OwnsOne(y => y.Billing),
@@ -9836,12 +9396,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Order", operation2.Table);
                     Assert.Equal("Shipping_AddressLine2", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_type_with_additional_ownership()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity<Customer>()
                     .Ignore(c => c.Orders)
@@ -9861,12 +9419,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
                     Assert.Equal("Order", operation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Add_type_with_ownership_SeedData()
-        {
-            Execute(
+            => Execute(
                 common => common.Ignore<Customer>(),
                 _ => { },
                 target => target
@@ -9909,12 +9465,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Order", m.Name);
                     }),
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void SeedData_type_with_ownership_no_changes()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Ignore<Customer>();
@@ -9934,12 +9488,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void SeedData_type_with_owned_collection_no_changes()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity<Customer>(
@@ -9969,12 +9521,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty,
                 Assert.Empty,
                 skipSourceConventions: true);
-        }
 
         [ConditionalFact]
         public void SeedData_type_with_excluded_owned_collection()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity<Customer>(
@@ -10016,7 +9566,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Assert.Empty,
                 Assert.Empty,
                 skipSourceConventions: true);
-        }
 
         public class Parent
         {
@@ -10034,8 +9583,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Old_style_ownership_to_new_style()
-        {
-            Execute(
+            => Execute(
                 common =>
                 {
                     common.Entity(
@@ -10154,12 +9702,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 Assert.Empty,
                 Assert.Empty);
-        }
 
         [ConditionalFact]
         public void Move_properties_to_owned_type()
-        {
-            Execute(
+            => Execute(
                 source => source.Ignore<Address>().Entity<OldOrder>(),
                 target => target.Entity<OldOrder>().Ignore(x => x.AddressLine1).Ignore(x => x.AddressLine2)
                     .OwnsOne(y => y.Billing),
@@ -10177,12 +9723,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AddressLine1", operation2.Name);
                     Assert.Equal("Billing_AddressLine1", operation2.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Move_properties_to_owned_type_with_existing_ownership()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity<OldOrder>().ToTable("Order").OwnsOne(o => o.Billing),
                 target => target.Entity<Order>(
                     x =>
@@ -10204,12 +9748,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AddressLine1", operation2.Name);
                     Assert.Equal("Shipping_AddressLine1", operation2.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_property_on_owned_type_and_add_similar_to_owner()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity<Order>(
                     x =>
                     {
@@ -10236,12 +9778,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Order", operation2.Table);
                     Assert.Equal("NotZip", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_property_on_owning_type_and_add_similar_to_owned()
-        {
-            Execute(
+            => Execute(
                 source => source.Entity<Order>(
                     x =>
                     {
@@ -10269,12 +9809,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Order", operation2.Table);
                     Assert.Equal("Billing_AnotherDate", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_property_on_dependent_and_add_similar_to_principal_with_shared_table()
-        {
-            Execute(
+            => Execute(
                 common => common
                     .Entity<OldOrder>(x => x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"))
                     .Entity<Address>().ToTable("OldOrder"),
@@ -10297,12 +9835,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("OldOrder", operation2.Table);
                     Assert.Equal("NotZip", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Rename_property_on_subtype_and_add_similar_to_base()
-        {
-            Execute(
+            => Execute(
                 source => source
                     .Entity("AddressBase", x => x.Property<int>("Id"))
                     .Entity("Address").HasBaseType("AddressBase").Property<int>("OldZip"),
@@ -10328,12 +9864,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("AddressBase", operation2.Table);
                     Assert.Equal("NotZip", operation2.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Owner_pk_properties_appear_before_owned_pk_which_preserves_annotations()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target => target.Entity<Customer13300>(
                     builder =>
@@ -10372,12 +9906,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     );
                 });
-        }
 
         [ConditionalFact]
         public void Alter_database_collation()
-        {
-            Execute(
+            => Execute(
                 source => source.UseCollation("Some collation"),
                 target => target.UseCollation("Some other collation"),
                 operations =>
@@ -10388,7 +9920,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Some other collation", operation.Collation);
                     Assert.Equal("Some collation", operation.OldDatabase.Collation);
                 });
-        }
 
         public class Customer13300 : ProviderTenantEntity13300
         {
@@ -10413,8 +9944,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Primary_key_properties_are_sorted_first()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 target =>
                 {
@@ -10443,7 +9973,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         c => Assert.Equal("RealFkNavigationId", c.Name),
                         c => Assert.Equal("ShadowFkNavigationId", c.Name));
                 });
-        }
 
         public abstract class Base
         {
@@ -10516,8 +10045,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Create_table_handles_same_name_but_different_schemas_and_identifying_relationship()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder => modelBuilder
                     .Entity(
@@ -10562,12 +10090,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x => Assert.Equal("Id", x.Name),
                         x => Assert.Equal("Property2", x.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_1()
-        {
-            Execute(
+            => Execute(
                 modelBuilder => modelBuilder
                     .Entity(
                         "User",
@@ -10645,12 +10171,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .WithMany()
                     .HasForeignKey("UserId"),
                 ops => { });
-        }
 
         [ConditionalFact]
         public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_2()
-        {
-            Execute(
+            => Execute(
                 modelBuilder => modelBuilder
                     .Entity(
                         "User",
@@ -10732,7 +10256,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .WithMany()
                     .HasForeignKey("UserId"),
                 ops => { });
-        }
 
         private class TestKeylessType
         {
@@ -10744,8 +10267,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         [ConditionalFact]
         public void Model_differ_does_not_detect_entity_type_mapped_to_TVF()
-        {
-            Execute(
+            => Execute(
                 _ => { },
                 modelBuilder =>
                 {
@@ -10758,7 +10280,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 result => Assert.Equal(0, result.Count),
                 skipSourceConventions: true);
-        }
 
         protected override TestHelpers TestHelpers
             => RelationalTestHelpers.Instance;

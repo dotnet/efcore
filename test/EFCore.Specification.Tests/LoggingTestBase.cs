@@ -18,25 +18,19 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public void Logs_context_initialization_default_options()
-        {
-            Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder));
-        }
+            => Assert.Equal(ExpectedMessage(DefaultOptions), ActualMessage(CreateOptionsBuilder));
 
         [ConditionalFact]
         public void Logs_context_initialization_no_tracking()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 ExpectedMessage("NoTracking " + DefaultOptions),
                 ActualMessage(s => CreateOptionsBuilder(s).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
-        }
 
         [ConditionalFact]
         public void Logs_context_initialization_sensitive_data_logging()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 ExpectedMessage("SensitiveDataLoggingEnabled " + DefaultOptions),
                 ActualMessage(s => CreateOptionsBuilder(s).EnableSensitiveDataLogging()));
-        }
 
         protected virtual string ExpectedMessage(string optionsFragment)
             => CoreResources.LogContextInitialized(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(

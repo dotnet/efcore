@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ManyToManyHeterogeneousQuerySqlServerTest : ManyToManyHeterogeneousQueryRelationalTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
         {

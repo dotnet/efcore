@@ -45,15 +45,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
         }
 
         protected bool Equals(CompositeFour other)
-        {
-            return Id1 == other.Id1
+            => Id1 == other.Id1
                 && Id2 == other.Id2
                 && string.Equals(Name, other.Name)
                 && Level3_Required_Id1 == other.Level3_Required_Id1
                 && Level3_Required_Id2 == other.Level3_Required_Id2
                 && Level3_Optional_Id1 == other.Level3_Optional_Id1
                 && Level3_Optional_Id2 == other.Level3_Optional_Id2;
-        }
 
         public override int GetHashCode()
             => HashCode.Combine(Id1, Id2, Name, Level3_Required_Id1, Level3_Required_Id2, Level3_Optional_Id1, Level3_Optional_Id2);

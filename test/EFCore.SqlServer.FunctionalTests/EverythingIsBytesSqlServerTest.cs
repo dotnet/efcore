@@ -304,17 +304,17 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
                     if (size > 8000)
                     {
-                        size = isFixedLength ? 8000 : (int?)null;
+                        size = isFixedLength ? 8000 : null;
                     }
 
                     return new SqlServerByteArrayTypeMapping(
                         "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
                         size,
                         isFixedLength,
-                        storeTypePostfix: size == null ? StoreTypePostfix.None : (StoreTypePostfix?)null);
+                        storeTypePostfix: size == null ? StoreTypePostfix.None : null);
                 }
 
                 return null;

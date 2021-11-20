@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static RawSqlCommandBuilder CreateBuilder()
-        {
-            return new(
+            => new(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
                         new TestRelationalTypeMappingSource(
@@ -33,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(
                     new ParameterNameGeneratorDependencies()));
-        }
 
         [ConditionalFact]
         public virtual void Builds_RelationalCommand_with_empty_parameter_list()

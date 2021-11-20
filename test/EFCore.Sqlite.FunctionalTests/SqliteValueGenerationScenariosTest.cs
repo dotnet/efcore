@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Insert_uint_to_Identity_column_using_value_converter()
         {
             using (var context = new BlogContextUIntToIdentityUsingValueConverter(
-                nameof(Insert_uint_to_Identity_column_using_value_converter)))
+                       nameof(Insert_uint_to_Identity_column_using_value_converter)))
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             using (var context = new BlogContextUIntToIdentityUsingValueConverter(
-                nameof(Insert_uint_to_Identity_column_using_value_converter)))
+                       nameof(Insert_uint_to_Identity_column_using_value_converter)))
             {
                 var blogs = context.UnsignedBlogs.OrderBy(e => e.Id).ToList();
 
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Insert_string_to_Identity_column_using_value_converter()
         {
             using (var context = new BlogContextStringToIdentityUsingValueConverter(
-                nameof(Insert_string_to_Identity_column_using_value_converter)))
+                       nameof(Insert_string_to_Identity_column_using_value_converter)))
             {
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             using (var context = new BlogContextStringToIdentityUsingValueConverter(
-                nameof(Insert_string_to_Identity_column_using_value_converter)))
+                       nameof(Insert_string_to_Identity_column_using_value_converter)))
             {
                 var blogs = context.StringyBlogs.OrderBy(e => e.Id).ToList();
 
@@ -658,7 +658,9 @@ namespace Microsoft.EntityFrameworkCore
         public class NeedsConverter
         {
             public NeedsConverter(int value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             public int Value { get; }
 
@@ -714,8 +716,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>()
+                => modelBuilder.Entity<Blog>()
                     .Property(e => e.NeedsConverter)
                     .HasConversion(
                         v => v.Value,
@@ -725,7 +726,6 @@ namespace Microsoft.EntityFrameworkCore
                             v => v.Value.GetHashCode(),
                             v => new NeedsConverter(v.Value)))
                     .HasDefaultValue(new NeedsConverter(999));
-            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

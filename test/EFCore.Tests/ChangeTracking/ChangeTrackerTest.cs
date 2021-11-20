@@ -34,19 +34,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using var context = new EarlyLearningCenter();
 
-            var added1 = context.Add(new DependentGG { Id = dependentKeyValue, PrincipalGG = new PrincipalGG { Id = principalKeyValue} }).Entity;
+            var added1 = context.Add(new DependentGG { Id = dependentKeyValue, PrincipalGG = new PrincipalGG { Id = principalKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added1).State);
             Assert.Equal(EntityState.Added, context.Entry(added1.PrincipalGG).State);
 
-            var added2 = context.Add(new DependentNG { Id = dependentKeyValue, PrincipalNG = new PrincipalNG { Id = principalKeyValue} }).Entity;
+            var added2 = context.Add(new DependentNG { Id = dependentKeyValue, PrincipalNG = new PrincipalNG { Id = principalKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added2).State);
             Assert.Equal(EntityState.Added, context.Entry(added2.PrincipalNG).State);
 
-            var added3 = context.Add(new DependentNN { Id = dependentKeyValue, PrincipalNN = new PrincipalNN { Id = principalKeyValue} }).Entity;
+            var added3 = context.Add(new DependentNN { Id = dependentKeyValue, PrincipalNN = new PrincipalNN { Id = principalKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added3).State);
             Assert.Equal(EntityState.Added, context.Entry(added3.PrincipalNN).State);
 
-            var added4 = context.Add(new DependentGN { Id = dependentKeyValue, PrincipalGN = new PrincipalGN { Id = principalKeyValue} }).Entity;
+            var added4 = context.Add(new DependentGN { Id = dependentKeyValue, PrincipalGN = new PrincipalGN { Id = principalKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
 
@@ -62,19 +66,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using var context = new EarlyLearningCenter();
 
-            var added1 = context.Add(new PrincipalGG { Id = principalKeyValue, DependentGG = new DependentGG { Id = dependentKeyValue} }).Entity;
+            var added1 = context.Add(new PrincipalGG { Id = principalKeyValue, DependentGG = new DependentGG { Id = dependentKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added1).State);
             Assert.Equal(EntityState.Added, context.Entry(added1.DependentGG).State);
 
-            var added2 = context.Add(new PrincipalNG { Id = principalKeyValue, DependentNG = new DependentNG { Id = dependentKeyValue} }).Entity;
+            var added2 = context.Add(new PrincipalNG { Id = principalKeyValue, DependentNG = new DependentNG { Id = dependentKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added2).State);
             Assert.Equal(EntityState.Added, context.Entry(added2.DependentNG).State);
 
-            var added3 = context.Add(new PrincipalNN { Id = principalKeyValue, DependentNN = new DependentNN { Id = dependentKeyValue} }).Entity;
+            var added3 = context.Add(new PrincipalNN { Id = principalKeyValue, DependentNN = new DependentNN { Id = dependentKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added3).State);
             Assert.Equal(EntityState.Added, context.Entry(added3.DependentNN).State);
 
-            var added4 = context.Add(new PrincipalGN { Id = principalKeyValue, DependentGN = new DependentGN { Id = dependentKeyValue} }).Entity;
+            var added4 = context.Add(new PrincipalGN { Id = principalKeyValue, DependentGN = new DependentGN { Id = dependentKeyValue } })
+                .Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
 
@@ -984,9 +992,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             void ClearMessages()
-            {
-                _loggerFactory.Log.Clear();
-            }
+                => _loggerFactory.Log.Clear();
 
             switch (cascadeDeleteTiming)
             {
@@ -1104,9 +1110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             void ClearMessages()
-            {
-                _loggerFactory.Log.Clear();
-            }
+                => _loggerFactory.Log.Clear();
 
             switch (deleteOrphansTiming)
             {
@@ -1608,7 +1612,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class Cat
         {
             public Cat(int id)
-                => Id = id;
+            {
+                Id = id;
+            }
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -1623,7 +1629,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class Hat
         {
             public Hat(int id)
-                => Id = id;
+            {
+                Id = id;
+            }
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -1637,7 +1645,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class Mat
         {
             public Mat(int id)
-                => Id = id;
+            {
+                Id = id;
+            }
 
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; private set; }
@@ -2144,7 +2154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public int Id { get; set; }
             public string Name { get; set; }
-            public List<KontainerRoom> Rooms { get; set; } = new();
+            public List<KontainerRoom> Rooms { get; } = new();
         }
 
         private class KontainerRoom
@@ -2161,20 +2171,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public int Id { get; set; }
             public string Description { get; set; }
-            public List<KontainerRoom> Rooms { get; set; } = new();
+            public List<KontainerRoom> Rooms { get; } = new();
         }
 
         private class KontainerContext : DbContext
         {
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<KontainerRoom>()
+                => modelBuilder.Entity<KontainerRoom>()
                     .HasOne(room => room.Troduct)
                     .WithMany(product => product.Rooms)
                     .HasForeignKey(room => room.TroductId)
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.Cascade);
-            }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -2405,7 +2413,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalTheory] // Issue #1207
         [InlineData(false)]
         [InlineData(true)]
-        public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation(bool callDetectChangesTwice)
+        public void Can_add_identifying_dependents_and_principal_with_reverse_post_nav_fixup_with_key_generation(
+            bool callDetectChangesTwice)
         {
             using var context = new EarlyLearningCenter();
             var product1 = new Product();

@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -19,9 +19,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
-                { typeof(CosmosSqlQuery), () => new CosmosSqlQuery(
-                    "Some SQL...",
-                    new[] { new SqlParameter("P1", "V1"), new SqlParameter("P2", "V2") }) },
+                {
+                    typeof(CosmosSqlQuery), () => new CosmosSqlQuery(
+                        "Some SQL...",
+                        new[] { new SqlParameter("P1", "V1"), new SqlParameter("P2", "V2") })
+                },
                 { typeof(string), () => "Fake" }
             };
 

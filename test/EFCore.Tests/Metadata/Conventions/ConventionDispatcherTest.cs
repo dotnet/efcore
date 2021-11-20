@@ -30,8 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.Equal(
                 CoreStrings.ConventionsInfiniteLoop,
-                Assert.Throws<InvalidOperationException>(() =>
-                    entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention)).Message);
         }
 
         private class InfinitePropertyAddedConvention : IPropertyAddedConvention
@@ -41,9 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public void ProcessPropertyAdded(
                 IConventionPropertyBuilder propertyBuilder,
                 IConventionContext<IConventionPropertyBuilder> context)
-            {
-                propertyBuilder.Metadata.DeclaringEntityType.AddProperty("TempProperty" + _count++, typeof(int));
-            }
+                => propertyBuilder.Metadata.DeclaringEntityType.AddProperty("TempProperty" + _count++, typeof(int));
         }
 
         [InlineData(false)]
@@ -540,7 +539,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else
             {
                 builder.Metadata.SetBaseType(
-                    builder.Metadata.Model.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Explicit), ConfigurationSource.Convention);
+                    builder.Metadata.Model.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Explicit),
+                    ConfigurationSource.Convention);
             }
 
             if (useScope)

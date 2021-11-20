@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
             Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
-            Assert.Equal(useNull ? null : (object)2, testListener.KeyChange.Item5);
+            Assert.Equal(useNull ? null : 2, testListener.KeyChange.Item5);
             Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
@@ -1502,7 +1502,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
             Assert.Equal("DependentId", testListener.KeyChange.Item2.Name);
-            Assert.Equal(useNull ? null : (object)2, testListener.KeyChange.Item5);
+            Assert.Equal(useNull ? null : 2, testListener.KeyChange.Item5);
             Assert.Equal(1, testListener.KeyChange.Item6);
         }
 
@@ -2003,14 +2003,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public event PropertyChangedEventHandler PropertyChanged;
 
             private void NotifyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
             private void NotifyChanging(string propertyName)
-            {
-                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
-            }
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         private static IModel BuildNotifyingModel()
@@ -2098,14 +2094,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)));
 
         private static IServiceProvider CreateContextServices(IModel model = null)
-        {
-            return InMemoryTestHelpers.Instance.CreateContextServices(
+            => InMemoryTestHelpers.Instance.CreateContextServices(
                 new ServiceCollection()
                     .AddScoped<TestRelationshipListener>()
                     .AddScoped<IEntityGraphAttacher, TestAttacher>()
                     .AddScoped<INavigationFixer>(p => p.GetRequiredService<TestRelationshipListener>()),
                 model ?? BuildModel());
-        }
 
         private class TestAttacher : EntityGraphAttacher
         {

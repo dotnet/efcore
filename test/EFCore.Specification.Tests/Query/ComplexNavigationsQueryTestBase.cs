@@ -1924,8 +1924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_result_operator(bool async)
-        {
-            return AssertQuery(
+            => AssertQuery(
                 async,
                 ss =>
                     from l1 in ss.Set<Level1>()
@@ -1936,7 +1935,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         > 7
                     where l1.Id < 3
                     select l1.Name);
-        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

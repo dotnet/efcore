@@ -349,12 +349,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                 }
                 else if (exception.Message.StartsWith(
-                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning", StringComparison.Ordinal))
+                             @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning",
+                             StringComparison.Ordinal))
                 {
                 }
                 else if (exception.Message
-                    == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
-                ) // 12788
+                         == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
+                        ) // 12788
                 {
                 }
                 else if (exception.Message.Contains(@"Incorrect syntax near the keyword 'AS'.")) // 12826

@@ -108,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return builder;
             }
 
-            protected abstract TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure);
+            protected abstract TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure);
         }
 
         public abstract class TestModelBuilder
@@ -393,7 +395,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TGenerator : ValueGenerator;
 
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
-            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory);
+
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(
+                Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory);
 
             public abstract TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
                 where TFactory : ValueGeneratorFactory;
@@ -413,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
             public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
             public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
+
             public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
                 where TConverter : ValueConverter
                 where TComparer : ValueComparer;

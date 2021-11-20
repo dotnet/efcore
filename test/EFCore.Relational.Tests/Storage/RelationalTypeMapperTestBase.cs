@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return builder.Model.FindEntityType(typeof(TEntity));
         }
 
-        protected IModel CreateModel() => CreateEntityType<MyType>().Model.FinalizeModel();
+        protected IModel CreateModel()
+            => CreateEntityType<MyType>().Model.FinalizeModel();
 
         protected RelationalTypeMapping GetTypeMapping(
             Type propertyType,
@@ -43,47 +44,48 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (useConfiguration)
             {
-                var model = CreateModelBuilder(c =>
-                {
-                    var scalarBuilder = c.DefaultTypeMapping(propertyType);
-
-                    if (maxLength.HasValue)
+                var model = CreateModelBuilder(
+                    c =>
                     {
-                        scalarBuilder.HasMaxLength(maxLength.Value);
-                    }
+                        var scalarBuilder = c.DefaultTypeMapping(propertyType);
 
-                    if (precision.HasValue)
-                    {
-                        if (scale.HasValue)
+                        if (maxLength.HasValue)
                         {
-                            scalarBuilder.HasPrecision(precision.Value, scale.Value);
+                            scalarBuilder.HasMaxLength(maxLength.Value);
                         }
-                        else
+
+                        if (precision.HasValue)
                         {
-                            scalarBuilder.HasPrecision(precision.Value);
+                            if (scale.HasValue)
+                            {
+                                scalarBuilder.HasPrecision(precision.Value, scale.Value);
+                            }
+                            else
+                            {
+                                scalarBuilder.HasPrecision(precision.Value);
+                            }
                         }
-                    }
 
-                    if (providerType != null)
-                    {
-                        scalarBuilder.HasConversion(providerType);
-                    }
+                        if (providerType != null)
+                        {
+                            scalarBuilder.HasConversion(providerType);
+                        }
 
-                    if (unicode.HasValue)
-                    {
-                        scalarBuilder.IsUnicode(unicode.Value);
-                    }
+                        if (unicode.HasValue)
+                        {
+                            scalarBuilder.IsUnicode(unicode.Value);
+                        }
 
-                    if (fixedLength.HasValue)
-                    {
-                        scalarBuilder.IsFixedLength(fixedLength.Value);
-                    }
+                        if (fixedLength.HasValue)
+                        {
+                            scalarBuilder.IsFixedLength(fixedLength.Value);
+                        }
 
-                    if (storeTypeName != null)
-                    {
-                        scalarBuilder.HasColumnType(storeTypeName);
-                    }
-                }).FinalizeModel();
+                        if (storeTypeName != null)
+                        {
+                            scalarBuilder.HasColumnType(storeTypeName);
+                        }
+                    }).FinalizeModel();
 
                 return CreateRelationalTypeMappingSource().GetMapping(propertyType, model);
             }

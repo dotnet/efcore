@@ -82,8 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
 
         [ConditionalFact]
         public void Filter_tables()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
@@ -99,12 +98,10 @@ CREATE TABLE Denali ( id int );",
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
-        }
 
         [ConditionalFact]
         public void Filter_tables_is_case_insensitive()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
@@ -120,7 +117,6 @@ CREATE TABLE Denali ( id int );",
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
-        }
 
         #endregion
 
@@ -128,8 +124,7 @@ DROP TABLE Denali;");
 
         [ConditionalFact]
         public void Create_tables()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Everest ( id int );
 CREATE TABLE Denali ( id int );",
@@ -145,12 +140,10 @@ CREATE TABLE Denali ( id int );",
                 @"
 DROP TABLE Everest;
 DROP TABLE Denali;");
-        }
 
         [ConditionalFact]
         public void Create_columns()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE MountainsColumns (
     Id integer primary key,
@@ -170,12 +163,10 @@ CREATE TABLE MountainsColumns (
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 },
                 "DROP TABLE MountainsColumns;");
-        }
 
         [ConditionalFact]
         public void Create_view_columns()
-        {
-            Test(
+            => Test(
                 @"
 CREATE VIEW MountainsColumnsView
  AS
@@ -197,12 +188,10 @@ SELECT
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 },
                 "DROP VIEW MountainsColumnsView;");
-        }
 
         [ConditionalFact]
         public void Create_primary_key()
-        {
-            Test(
+            => Test(
                 "CREATE TABLE Place ( Id int PRIMARY KEY );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -215,12 +204,10 @@ SELECT
                         new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE Place;");
-        }
 
         [ConditionalFact]
         public void Create_unique_constraints()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Place (
     Id int PRIMARY KEY,
@@ -241,12 +228,10 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
                         new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE Place;");
-        }
 
         [ConditionalFact]
         public void Create_indexes()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE IndexTable (
     Id int,
@@ -270,12 +255,10 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                     Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
                 },
                 "DROP TABLE IndexTable;");
-        }
 
         [ConditionalFact]
         public void Create_foreign_keys()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -321,12 +304,10 @@ CREATE TABLE SecondDependent (
 DROP TABLE SecondDependent;
 DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Create_composite_foreign_key_with_default_columns()
-        {
-            Test(
+            => Test(
                 @"
                     CREATE TABLE MinimalFKTest1 (
                         Id1 INTEGER,
@@ -359,7 +340,6 @@ DROP TABLE PrincipalTable;");
                     DROP TABLE MinimalFKTest2;
                     DROP TABLE MinimalFKTest1;
                 ");
-        }
 
         #endregion
 
@@ -367,8 +347,7 @@ DROP TABLE PrincipalTable;");
 
         [ConditionalFact]
         public void Column_storetype_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE StoreType (
     IntegerProperty integer,
@@ -390,12 +369,10 @@ CREATE TABLE StoreType (
                     Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
                 },
                 "DROP TABLE StoreType;");
-        }
 
         [ConditionalFact]
         public void Column_nullability_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE Nullable (
     Id int,
@@ -412,12 +389,10 @@ CREATE TABLE Nullable (
                     Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                 },
                 "DROP TABLE Nullable;");
-        }
 
         [ConditionalFact]
         public void Column_default_value_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE DefaultValue (
     Id int,
@@ -436,12 +411,10 @@ CREATE TABLE DefaultValue (
                     Assert.Equal("'October 20, 2015 11am'", columns.Single(c => c.Name == "Created").DefaultValueSql);
                 },
                 "DROP TABLE DefaultValue;");
-        }
 
         [ConditionalFact]
         public void Column_computed_column_sql_is_set()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE ComputedColumnSql (
     Id int,
@@ -463,7 +436,6 @@ CREATE TABLE ComputedColumnSql (
                     Assert.True(generatedColumnStored.IsStored);
                 },
                 "DROP TABLE ComputedColumnSql;");
-        }
 
         [ConditionalTheory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
@@ -474,8 +446,7 @@ CREATE TABLE ComputedColumnSql (
         [InlineData("NULL DEFAULT NULL")]
         [InlineData("NOT NULL DEFAULT NULL")]
         public void Column_default_value_is_ignored_when_clr_default(string columnSql)
-        {
-            Test(
+            => Test(
                 $"CREATE TABLE DefaultValueClr (IgnoredDefault {columnSql})",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -485,14 +456,12 @@ CREATE TABLE ComputedColumnSql (
                     Assert.Null(column.DefaultValueSql);
                 },
                 "DROP TABLE DefaultValueClr");
-        }
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public void Column_ValueGenerated_is_set(bool autoIncrement)
-        {
-            Test(
+            => Test(
                 $@"
                     CREATE TABLE AutoIncTest (
                         Id INTEGER PRIMARY KEY {(autoIncrement ? "AUTOINCREMENT" : null)}
@@ -514,7 +483,6 @@ CREATE TABLE ComputedColumnSql (
                         column.ValueGenerated);
                 },
                 "DROP TABLE AutoIncTest");
-        }
 
         #endregion
 
@@ -522,8 +490,7 @@ CREATE TABLE ComputedColumnSql (
 
         [ConditionalFact]
         public void Create_composite_primary_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositePrimaryKey (
     Id1 int,
@@ -541,12 +508,10 @@ CREATE TABLE CompositePrimaryKey (
                         new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositePrimaryKey;");
-        }
 
         [ConditionalFact]
         public void Create_primary_key_when_integer_primary_key_aliased_to_rowid()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE RowidPrimaryKey (
     Id integer PRIMARY KEY
@@ -562,12 +527,10 @@ CREATE TABLE RowidPrimaryKey (
                         new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE RowidPrimaryKey;");
-        }
 
         [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_primary_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrimaryKeyName (
     Id int,
@@ -585,7 +548,6 @@ CREATE TABLE PrimaryKeyName (
                         new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE PrimaryKeyName;");
-        }
 
         #endregion
 
@@ -593,8 +555,7 @@ CREATE TABLE PrimaryKeyName (
 
         [ConditionalFact]
         public void Create_composite_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositeUniqueConstraint (
     Id1 int,
@@ -613,12 +574,10 @@ CREATE TABLE CompositeUniqueConstraint (
                         new List<string> { "Id2", "Id1" }, constraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositeUniqueConstraint;");
-        }
 
         [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE UniqueConstraintName (
     Id int,
@@ -637,7 +596,6 @@ CREATE TABLE UniqueConstraintName (
                         new List<string> { "Id" }, constraint.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE UniqueConstraintName;");
-        }
 
         #endregion
 
@@ -645,8 +603,7 @@ CREATE TABLE UniqueConstraintName (
 
         [ConditionalFact]
         public void Create_composite_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE CompositeIndex (
     Id1 int,
@@ -667,12 +624,10 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                         new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE CompositeIndex;");
-        }
 
         [ConditionalFact]
         public void Set_unique_for_unique_index()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE UniqueIndex (
     Id1 int,
@@ -694,7 +649,6 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                         new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
                 },
                 "DROP TABLE UniqueIndex;");
-        }
 
         #endregion
 
@@ -702,8 +656,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
 
         [ConditionalFact]
         public void Create_composite_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id1 int,
@@ -735,12 +688,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Create_multiple_foreign_key_in_same_table()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -791,12 +742,10 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE AnotherPrincipalTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Create_foreign_key_referencing_unique_constraint()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id1 int,
@@ -826,12 +775,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact(Skip = "See issue#8802")]
         public void Set_name_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -861,12 +808,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Set_referential_action_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -895,7 +840,6 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         #endregion
 
@@ -903,8 +847,7 @@ DROP TABLE PrincipalTable;");
 
         [ConditionalFact]
         public void Warn_for_schema_filtering()
-        {
-            Test(
+            => Test(
                 "CREATE TABLE Everest ( id int );",
                 Enumerable.Empty<string>(),
                 new[] { "dbo" },
@@ -918,12 +861,10 @@ DROP TABLE PrincipalTable;");
                         Message);
                 },
                 "DROP TABLE Everest;");
-        }
 
         [ConditionalFact]
         public void Warn_missing_table()
-        {
-            Test(
+            => Test(
                 "CREATE TABLE Blank ( Id int );",
                 new[] { "MyTable" },
                 Enumerable.Empty<string>(),
@@ -938,12 +879,10 @@ DROP TABLE PrincipalTable;");
                         SqliteResources.LogMissingTable(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("MyTable"), Message);
                 },
                 "DROP TABLE Blank;");
-        }
 
         [ConditionalFact]
         public void Warn_missing_principal_table_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -970,12 +909,10 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         [ConditionalFact]
         public void Warn_missing_principal_column_for_foreign_key()
-        {
-            Test(
+            => Test(
                 @"
 CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY
@@ -1001,7 +938,6 @@ CREATE TABLE DependentTable (
                 @"
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
-        }
 
         #endregion
 

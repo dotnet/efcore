@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -1165,16 +1164,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => new(CreateDependencies());
 
         private void Cleanup(InternalModelBuilder modelBuilder)
-        {
-            new ModelCleanupConvention(CreateDependencies())
+            => new ModelCleanupConvention(CreateDependencies())
                 .ProcessModelFinalizing(
                     modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
-        }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                with { Logger = CreateLogger() };
+                with
+                {
+                    Logger = CreateLogger()
+                };
 
         private InternalModelBuilder CreateInternalModeBuilder(params Action<IConventionEntityTypeBuilder>[] onEntityAdded)
         {

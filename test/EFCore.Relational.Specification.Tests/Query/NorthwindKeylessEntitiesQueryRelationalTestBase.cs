@@ -47,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery(
                     async,
-                    ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => new
-                    {
-                        c.City,
-                        Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
-                    })))).Message;
+                    ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
+                        c => new
+                        {
+                            c.City, Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
+                        })))).Message;
 
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }

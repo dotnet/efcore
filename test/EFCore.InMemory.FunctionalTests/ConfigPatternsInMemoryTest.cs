@@ -169,8 +169,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Throws_on_attempt_to_use_context_with_no_store()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () =>
@@ -180,7 +179,6 @@ namespace Microsoft.EntityFrameworkCore
                             new Blog { Name = "The Waffle Cart" });
                         context.SaveChanges();
                     }).Message);
-        }
 
         private class NoServicesAndNoConfigBlogContext : DbContext
         {

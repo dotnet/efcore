@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         [ConditionalFact]
         public void KeylessAttribute_is_generated_for_key_less_entity()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Vista").HasNoKey(),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -92,12 +90,10 @@ namespace TestNamespace
                     var entityType = model.FindEntityType("TestNamespace.Vista");
                     Assert.Null(entityType.FindPrimaryKey());
                 });
-        }
 
         [ConditionalFact]
         public void TableAttribute_is_generated_for_custom_name()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity(
@@ -137,12 +133,10 @@ namespace TestNamespace
                     Assert.Equal("Vistas", entityType.GetTableName());
                     Assert.Null(entityType.GetSchema());
                 });
-        }
 
         [ConditionalFact]
         public void TableAttribute_is_not_generated_for_default_schema()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.HasDefaultSchema("dbo");
@@ -182,12 +176,10 @@ namespace TestNamespace
                     Assert.Equal("Vista", entityType.GetTableName());
                     Assert.Null(entityType.GetSchema()); // Takes through model default schema
                 });
-        }
 
         [ConditionalFact]
         public void TableAttribute_is_generated_for_non_default_schema()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.HasDefaultSchema("dbo");
@@ -228,12 +220,10 @@ namespace TestNamespace
                     Assert.Equal("Vista", entityType.GetTableName());
                     Assert.Equal("custom", entityType.GetSchema());
                 });
-        }
 
         [ConditionalFact]
         public void TableAttribute_is_not_generated_for_views()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vistas", "dbo"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
@@ -263,12 +253,10 @@ namespace TestNamespace
                     Assert.Equal("dbo", entityType.GetViewSchema());
                     Assert.Null(entityType.GetSchema());
                 });
-        }
 
         [ConditionalFact]
         public void IndexAttribute_is_generated_for_multiple_indexes_with_name_unique()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithIndexes",
@@ -321,12 +309,10 @@ namespace TestNamespace
                         t => Assert.Equal("IndexOnAAndB", t.Name),
                         t => Assert.Equal("IndexOnBAndC", t.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Entity_with_indexes_generates_IndexAttribute_only_for_indexes_without_annotations()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithIndexes",
@@ -420,12 +406,10 @@ namespace TestNamespace
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
-        }
 
         [ConditionalFact]
         public void KeyAttribute_is_generated_for_single_property_and_no_fluent_api()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -505,12 +489,10 @@ namespace TestNamespace
                 },
                 model =>
                     Assert.Equal("PrimaryKey", model.FindEntityType("TestNamespace.Entity").FindPrimaryKey().Properties[0].Name));
-        }
 
         [ConditionalFact]
         public void KeyAttribute_is_generated_on_multiple_properties_but_configuring_using_fluent_api_for_composite_key()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Post",
@@ -596,12 +578,10 @@ namespace TestNamespace
                     var postType = model.FindEntityType("TestNamespace.Post");
                     Assert.Equal(new[] { "Key", "Serial" }, postType.FindPrimaryKey().Properties.Select(p => p.Name));
                 });
-        }
 
         [ConditionalFact]
         public void Required_and_not_required_properties_without_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -647,12 +627,10 @@ namespace TestNamespace
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Required_and_not_required_properties_with_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -697,12 +675,10 @@ namespace TestNamespace
                     Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
                     Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public void Required_and_not_required_navigations_without_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -772,12 +748,10 @@ namespace TestNamespace
                     Assert.True(entityType.FindNavigation("RequiredValueNavigation")!.ForeignKey.IsRequired);
                     Assert.False(entityType.FindNavigation("OptionalValueNavigation")!.ForeignKey.IsRequired);
                 });
-        }
 
         [ConditionalFact]
         public void Required_and_not_required_reference_navigations_with_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -846,12 +820,10 @@ namespace TestNamespace
                     Assert.True(entityType.FindNavigation("RequiredNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
                     Assert.False(entityType.FindNavigation("OptionalNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
                 });
-        }
 
         [ConditionalFact]
         public void Required_and_not_required_collection_navigations_with_nrt()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -927,12 +899,10 @@ namespace TestNamespace
                     Assert.True(entityType.FindNavigation("RequiredNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
                     Assert.False(entityType.FindNavigation("OptionalNavigationWithValueForeignKey")!.ForeignKey.IsRequired);
                 });
-        }
 
         [ConditionalFact]
         public void RequiredAttribute_is_not_generated_for_key_property()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -964,12 +934,10 @@ namespace TestNamespace
                 },
                 model =>
                     Assert.False(model.FindEntityType("TestNamespace.Entity").GetProperty("RequiredString").IsNullable));
-        }
 
         [ConditionalFact]
         public void ColumnAttribute_is_generated_for_property()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -1069,12 +1037,10 @@ namespace TestNamespace
                     Assert.Equal("random", entitType.GetProperty("C").GetColumnBaseName());
                     Assert.Equal("varchar(200)", entitType.GetProperty("C").GetColumnType());
                 });
-        }
 
         [ConditionalFact]
         public void MaxLengthAttribute_is_generated_for_property()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -1115,12 +1081,10 @@ namespace TestNamespace
                     Assert.Equal(34, entitType.GetProperty("A").GetMaxLength());
                     Assert.Equal(10, entitType.GetProperty("B").GetMaxLength());
                 });
-        }
 
         [ConditionalFact]
         public void UnicodeAttribute_is_generated_for_property()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -1167,28 +1131,26 @@ namespace TestNamespace
                     Assert.False(entitType.GetProperty("B").IsUnicode());
                     Assert.Null(entitType.GetProperty("C").IsUnicode());
                 });
-        }
 
         [ConditionalFact]
         public void PrecisionAttribute_is_generated_for_property()
-        {
-            Test(
-                   modelBuilder => modelBuilder
-                       .Entity(
-                           "Entity",
-                           x =>
-                           {
-                               x.Property<int>("Id");
-                               x.Property<decimal>("A").HasPrecision(10);
-                               x.Property<decimal>("B").HasPrecision(14, 3);
-                               x.Property<DateTime>("C").HasPrecision(5);
-                               x.Property<DateTimeOffset>("D").HasPrecision(3);
-                           }),
-                   new ModelCodeGenerationOptions { UseDataAnnotations = true },
-                   code =>
-                   {
-                       AssertFileContents(
-                           @"using System;
+            => Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<decimal>("A").HasPrecision(10);
+                            x.Property<decimal>("B").HasPrecision(14, 3);
+                            x.Property<DateTime>("C").HasPrecision(5);
+                            x.Property<DateTimeOffset>("D").HasPrecision(3);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1211,23 +1173,21 @@ namespace TestNamespace
     }
 }
 ",
-                           code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
-                   },
-                   model =>
-                   {
-                       var entitType = model.FindEntityType("TestNamespace.Entity");
-                       Assert.Equal(10, entitType.GetProperty("A").GetPrecision());
-                       Assert.Equal(14, entitType.GetProperty("B").GetPrecision());
-                       Assert.Equal(3, entitType.GetProperty("B").GetScale());
-                       Assert.Equal(5, entitType.GetProperty("C").GetPrecision());
-                       Assert.Equal(3, entitType.GetProperty("D").GetPrecision());
-                   });
-        }
+                        code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                },
+                model =>
+                {
+                    var entitType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(10, entitType.GetProperty("A").GetPrecision());
+                    Assert.Equal(14, entitType.GetProperty("B").GetPrecision());
+                    Assert.Equal(3, entitType.GetProperty("B").GetScale());
+                    Assert.Equal(5, entitType.GetProperty("C").GetPrecision());
+                    Assert.Equal(3, entitType.GetProperty("D").GetPrecision());
+                });
 
         [ConditionalFact]
         public void Comments_are_generated()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -1236,7 +1196,7 @@ namespace TestNamespace
                             x.HasComment("Entity Comment");
                             x.Property<int>("Id").HasComment("Property Comment");
                         })
-                    ,
+                ,
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
@@ -1265,25 +1225,25 @@ namespace TestNamespace
                         code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
                 },
                 model => { });
-        }
 
         [ConditionalFact]
         public void Comments_complex_are_generated()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
                         x =>
                         {
-                            x.HasComment(@"Entity Comment
+                            x.HasComment(
+                                @"Entity Comment
 On multiple lines
 With XML content <br/>");
-                            x.Property<int>("Id").HasComment(@"Property Comment
+                            x.Property<int>("Id").HasComment(
+                                @"Property Comment
 On multiple lines
 With XML content <br/>");
                         })
-                    ,
+                ,
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
@@ -1316,12 +1276,10 @@ namespace TestNamespace
                         code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
                 },
                 model => { });
-        }
 
         [ConditionalFact]
         public void Properties_are_sorted_in_order_of_definition_in_table()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity",
@@ -1356,12 +1314,10 @@ namespace TestNamespace
                         code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
                 },
                 model => { });
-        }
 
         [ConditionalFact]
         public void Navigation_properties_are_sorted_after_properties_and_collection_are_initialized_in_ctor()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Person",
@@ -1447,12 +1403,10 @@ namespace TestNamespace
                     Assert.False(contributionsNav.IsOnDependent);
                     Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
                 });
-        }
 
         [ConditionalFact]
         public void ForeignKeyAttribute_is_generated_for_composite_fk()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Blog",
@@ -1558,12 +1512,10 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, blogNavigation.ForeignKey.Properties.Select(p => p.Name));
                 });
-        }
 
         [ConditionalFact]
         public void ForeignKeyAttribute_InversePropertyAttribute_is_not_generated_for_alternate_key()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Blog",
@@ -1675,12 +1627,10 @@ namespace TestNamespace
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, blogNavigation.ForeignKey.Properties.Select(p => p.Name));
                     Assert.Equal(new[] { "Id1", "Id2" }, blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
                 });
-        }
 
         [ConditionalFact]
         public void InverseProperty_when_navigation_property_with_same_type_and_navigation_name()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Blog",
@@ -1730,12 +1680,10 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void InverseProperty_when_navigation_property_with_same_type_and_property_name()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Blog",
@@ -1785,12 +1733,10 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void InverseProperty_when_navigation_property_with_same_type_and_other_navigation_name()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "Blog",
@@ -1855,12 +1801,10 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
                 });
-        }
 
         [ConditionalFact]
         public void Entity_with_custom_annotation()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithAnnotation",
@@ -1942,12 +1886,10 @@ namespace TestNamespace
                 },
                 assertModel: null,
                 skipBuild: true);
-        }
 
         [ConditionalFact]
         public void Entity_property_with_custom_annotation()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
                     .Entity(
                         "EntityWithPropertyAnnotation",
@@ -2029,26 +1971,27 @@ namespace TestNamespace
                 },
                 assertModel: null,
                 skipBuild: true);
-        }
 
         [ConditionalFact]
         public void Scaffold_skip_navigations_default()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
-                    .Entity("Blog",
+                    .Entity(
+                        "Blog",
                         x => x.Property<int>("Id"))
-                    .Entity("Post",
+                    .Entity(
+                        "Post",
                         x => x.Property<int>("Id"))
                     .Entity("BlogPost", _ => { })
                     .Entity("Blog")
-                        .HasMany("Post", "Posts")
-                        .WithMany("Blogs")
-                        .UsingEntity("BlogPost"),
+                    .HasMany("Post", "Posts")
+                    .WithMany("Blogs")
+                    .UsingEntity("BlogPost"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
                 {
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -2116,7 +2059,8 @@ namespace TestNamespace
 ",
                         code.ContextFile);
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 
 namespace TestNamespace
@@ -2136,7 +2080,8 @@ namespace TestNamespace
 ",
                         code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 
 namespace TestNamespace
@@ -2179,26 +2124,27 @@ namespace TestNamespace
                     Assert.Single(joinEntityType.GetIndexes());
                     Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
                 });
-        }
 
         [ConditionalFact]
         public void Scaffold_skip_navigations_different_key_type()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
-                    .Entity("Blog",
+                    .Entity(
+                        "Blog",
                         x => x.Property<int>("Id"))
-                    .Entity("Post",
+                    .Entity(
+                        "Post",
                         x => x.Property<string>("Id"))
                     .Entity("BlogPost", _ => { })
                     .Entity("Blog")
-                        .HasMany("Post", "Posts")
-                        .WithMany("Blogs")
-                        .UsingEntity("BlogPost"),
+                    .HasMany("Post", "Posts")
+                    .WithMany("Blogs")
+                    .UsingEntity("BlogPost"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = false },
                 code =>
                 {
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -2261,7 +2207,8 @@ namespace TestNamespace
 ",
                         code.ContextFile);
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 
 namespace TestNamespace
@@ -2281,7 +2228,8 @@ namespace TestNamespace
 ",
                         code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 
 namespace TestNamespace
@@ -2324,26 +2272,27 @@ namespace TestNamespace
                     Assert.Single(joinEntityType.GetIndexes());
                     Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
                 });
-        }
 
         [ConditionalFact]
         public void Scaffold_skip_navigations_default_data_annotations()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder
-                    .Entity("Blog",
+                    .Entity(
+                        "Blog",
                         x => x.Property<int>("Id"))
-                    .Entity("Post",
+                    .Entity(
+                        "Post",
                         x => x.Property<int>("Id"))
                     .Entity("BlogPost", _ => { })
                     .Entity("Blog")
-                        .HasMany("Post", "Posts")
-                        .WithMany("Blogs")
-                        .UsingEntity("BlogPost"),
+                    .HasMany("Post", "Posts")
+                    .WithMany("Blogs")
+                    .UsingEntity("BlogPost"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -2411,7 +2360,8 @@ namespace TestNamespace
 ",
                         code.ContextFile);
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -2437,7 +2387,8 @@ namespace TestNamespace
 ",
                         code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
-                    AssertFileContents(@"using System;
+                    AssertFileContents(
+                        @"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -2486,17 +2437,12 @@ namespace TestNamespace
                     Assert.Single(joinEntityType.GetIndexes());
                     Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
                 });
-        }
 
         protected override void AddModelServices(IServiceCollection services)
-        {
-            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
-        }
+            => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
         protected override void AddScaffoldingServices(IServiceCollection services)
-        {
-            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
-        }
+            => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
         private class TestModelAnnotationProvider : SqlServerAnnotationProvider
         {
@@ -2548,14 +2494,15 @@ namespace TestNamespace
                 => annotation.Name switch
                 {
                     "Custom:EntityAnnotation" => new AttributeCodeFragment(
-                        typeof(CustomEntityDataAnnotationAttribute), new object[] { annotation.Value as string }),
+                        typeof(CustomEntityDataAnnotationAttribute), annotation.Value as string),
                     _ => base.GenerateDataAnnotation(entityType, annotation)
                 };
 
             protected override AttributeCodeFragment GenerateDataAnnotation(IProperty property, IAnnotation annotation)
                 => annotation.Name switch
                 {
-                    "Custom:PropertyAnnotation" => new AttributeCodeFragment(typeof(CustomPropertyDataAnnotationAttribute), new object[] { annotation.Value as string }),
+                    "Custom:PropertyAnnotation" => new AttributeCodeFragment(
+                        typeof(CustomPropertyDataAnnotationAttribute), annotation.Value as string),
                     _ => base.GenerateDataAnnotation(property, annotation)
                 };
         }
@@ -2564,7 +2511,9 @@ namespace TestNamespace
         public class CustomEntityDataAnnotationAttribute : Attribute
         {
             public CustomEntityDataAnnotationAttribute(string argument)
-                => Argument = argument;
+            {
+                Argument = argument;
+            }
 
             public virtual string Argument { get; }
         }
@@ -2573,7 +2522,9 @@ namespace TestNamespace
         public class CustomPropertyDataAnnotationAttribute : Attribute
         {
             public CustomPropertyDataAnnotationAttribute(string argument)
-                => Argument = argument;
+            {
+                Argument = argument;
+            }
 
             public virtual string Argument { get; }
         }

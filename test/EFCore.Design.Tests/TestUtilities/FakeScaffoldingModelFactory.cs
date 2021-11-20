@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IScaffoldingTypeMapper scaffoldingTypeMapper,
             LoggingDefinitions loggingDefinitions,
             IModelRuntimeInitializer modelRuntimeInitializer)
-            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions, modelRuntimeInitializer)
+            : base(
+                reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions,
+                modelRuntimeInitializer)
         {
         }
 

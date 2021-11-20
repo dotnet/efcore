@@ -55,9 +55,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
         [ConditionalFact(Skip = "See issue#17246")]
         public override void Auto_initialized_view_set()
-        {
-            base.Auto_initialized_view_set();
-        }
+            => base.Auto_initialized_view_set();
 
         [ConditionalFact(Skip = "issue #17246")] // collection support
         public override void KeylessEntity_with_nav_defining_query()
@@ -91,9 +89,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task KeylessEntity_with_included_nav(bool async)
-        {
-            return base.KeylessEntity_with_included_nav(async);
-        }
+            => base.KeylessEntity_with_included_nav(async);
 
         public override async Task KeylessEntity_with_defining_query(bool async)
         {

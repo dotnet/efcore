@@ -103,14 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseCosmos(
                         _connectionUri,
                         _authToken,
                         _name,
                         b => b.ApplyConfiguration());
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

@@ -953,14 +953,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             ManyToManyContext context,
             EntityOne one,
             EntityTwo two)
-        {
-            return CreateInstance(
+            => CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityOneEntityTwo"), (e, p) =>
                 {
                     e["OneSkipSharedId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
                     e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
                 });
-        }
 
         private Dictionary<string, object>[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
             => new[]
