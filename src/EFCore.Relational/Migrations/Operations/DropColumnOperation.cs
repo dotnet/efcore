@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing column.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     [DebuggerDisplay("ALTER TABLE {Table} DROP COLUMN {Name}")]
     public class DropColumnOperation : MigrationOperation, ITableMigrationOperation
@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         // ReSharper disable once VirtualMemberCallInConstructor
         public DropColumnOperation()
-            => IsDestructiveChange = true;
+        {
+            IsDestructiveChange = true;
+        }
 
         /// <summary>
         ///     The name of the column.

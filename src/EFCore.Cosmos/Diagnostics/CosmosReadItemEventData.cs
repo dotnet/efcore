@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for Cosmos read-item events.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class CosmosReadItemEventData : EventData
     {

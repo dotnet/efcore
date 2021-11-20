@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public interface IParameterBindingFactories

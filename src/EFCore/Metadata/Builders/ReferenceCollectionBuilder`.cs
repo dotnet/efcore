@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TPrincipalEntity">The principal entity type in this relationship.</typeparam>

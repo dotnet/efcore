@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     Provides a simple API surface for setting discriminator values from conventions.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public interface IConventionDiscriminatorBuilder
     {

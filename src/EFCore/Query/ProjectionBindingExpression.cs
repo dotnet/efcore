@@ -2,11 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -22,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public class ProjectionBindingExpression : Expression, IPrintableExpression
     {

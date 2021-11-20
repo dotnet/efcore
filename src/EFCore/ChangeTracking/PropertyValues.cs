@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         concurrency exceptions signaled by the throwing of a <see cref="DbUpdateConcurrencyException" />.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public abstract class PropertyValues
@@ -55,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     values from this object.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <returns>The values of this object copied into a new entity instance.</returns>
         public abstract object ToObject();
@@ -71,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         simple Data Transfer Objects (DTOs).
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="obj">The object to read values from.</param>
@@ -82,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     reflected in this object and vice versa.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <returns>A clone of this object.</returns>
         public abstract PropertyValues Clone();
@@ -97,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         from the type for this object.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="propertyValues">The object from which values should be copied.</param>
@@ -112,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         that does not match the name of a property in the entity type will be ignored.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="values">The dictionary to read values from.</param>
@@ -133,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Gets the properties for which this object is storing values.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <value> The properties. </value>
         public abstract IReadOnlyList<IProperty> Properties { get; }
@@ -166,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     typed to the type of the generic parameter.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <typeparam name="TValue">The type of the property.</typeparam>
         /// <param name="propertyName">The property name.</param>
@@ -179,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     If property exists it return the value into the out parameter, otherwise the default value of TValue
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <typeparam name="TValue">The type of the property.</typeparam>
         /// <param name="propertyName">The property name.</param>
@@ -203,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     typed to the type of the generic parameter.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <typeparam name="TValue">The type of the property.</typeparam>
         /// <param name="property">The property.</param>

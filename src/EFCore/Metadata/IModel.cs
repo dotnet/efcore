@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public interface IModel : IReadOnlyModel, IAnnotatable
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The name of the entity type to find.</param>
         /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The name of the entity type to find.</param>
         /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type to find the corresponding entity type for.</param>
         /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
@@ -87,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets all entity types defined in the model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <returns>All entity types defined in the model.</returns>
         new IEnumerable<IEntityType> GetEntityTypes();
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type to find the corresponding entity type for.</param>
         /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
@@ -133,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type of the entity type to find.</param>
         /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the entity types matching the given type.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type of the entity type to find.</param>
         /// <returns>The entity types found.</returns>
@@ -160,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the entity types corresponding to the least derived types from the given.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The base type.</param>
         /// <param name="condition">An optional condition for filtering entity types.</param>
@@ -175,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets a value indicating whether the given <see cref="MethodInfo" /> reprensents an indexer access.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="methodInfo">The <see cref="MethodInfo" /> to check.</param>
         bool IsIndexerMethod(MethodInfo methodInfo);
@@ -184,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets all the pre-convention configurations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <returns>The pre-convention configurations.</returns>
         IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations();
@@ -193,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Finds the pre-convention configuration for a given scalar <see cref="Type" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="scalarType">The CLR type.</param>
         /// <returns>The pre-convention configuration or <see langword="null" /> if none is found.</returns>

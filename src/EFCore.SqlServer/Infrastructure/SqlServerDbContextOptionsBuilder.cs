@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure()
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="maxRetryCount">The maximum number of retry attempts.</param>

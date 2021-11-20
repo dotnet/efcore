@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for events correlated with a <see cref="DbCommand" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class CommandCorrelatedEventData : DbContextEventData
     {

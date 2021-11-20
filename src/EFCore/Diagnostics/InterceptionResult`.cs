@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         The value in the result is then used as a substitute return value for the operation that was suppressed.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TResult">The new result to use.</typeparam>

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public interface IDbContextOptionsBuilderInfrastructure
     {
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <typeparam name="TExtension">The type of extension to be added.</typeparam>
         /// <param name="extension">The extension to be added.</param>

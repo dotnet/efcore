@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
-    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     {

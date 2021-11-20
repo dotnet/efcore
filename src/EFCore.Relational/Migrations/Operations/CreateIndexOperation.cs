@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for creating a new index.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     [DebuggerDisplay("CREATE INDEX {Name} ON {Table}")]
     public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class NavigationEntry : MemberEntry
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public abstract void Load();
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <returns>The query to load related entities.</returns>
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <value>

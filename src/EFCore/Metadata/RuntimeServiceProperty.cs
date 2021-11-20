@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     injected service from the <see cref="DbContext" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
     {
@@ -59,12 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _parameterBinding, (IServiceProperty)this, static property =>
-                    {
-                        var entityType = property.DeclaringEntityType;
-                        var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories
-                            .FindFactory(property.ClrType, property.Name)!;
-                        return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
-                    });
+                {
+                    var entityType = property.DeclaringEntityType;
+                    var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories
+                        .FindFactory(property.ClrType, property.Name)!;
+                    return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
+                });
 
             [DebuggerStepThrough]
             set => _parameterBinding = value;

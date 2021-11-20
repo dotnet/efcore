@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         application code but can be used in extension methods written by database providers etc.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TService">The type of service to be resolved.</typeparam>

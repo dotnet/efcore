@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="tableBuilder">The builder for the table being configured.</param>
         /// <param name="temporal">A value indicating whether the table is temporal.</param>
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="tableBuilder">The builder for the table being configured.</param>
         /// <param name="buildAction">An action that performs configuration of the temporal table.</param>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="tableBuilder">The builder for the table being configured.</param>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="tableBuilder">The builder for the table being configured.</param>

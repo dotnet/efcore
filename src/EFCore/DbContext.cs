@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore
     ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
     ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
     ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+    ///         and examples.
     ///     </para>
     ///     <para>
     ///         Typically you create a class that derives from DbContext and contains <see cref="DbSet{TEntity}" />
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
     ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>,
     ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class DbContext :
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         protected DbContext()
             : this(new DbContextOptions<DbContext>())
@@ -103,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see> and
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
         /// </remarks>
         /// <param name="options">The options for this context.</param>
         public DbContext(DbContextOptions options)
@@ -149,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Provides access to information and operations for entity instances this context is tracking.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         /// </remarks>
         public virtual ChangeTracker ChangeTracker
             => _changeTracker ??= InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create();
@@ -159,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     May not include all the information necessary to initialize the database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         public virtual IModel Model
         {
@@ -311,11 +312,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        ///         and examples.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> and
-        ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
+        ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
@@ -335,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>,
         ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
-        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see>  for more information.
+        ///         <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see>  for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="name">The name for the shared-type entity type to use.</param>
@@ -466,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
@@ -487,7 +489,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         then this method will not be run.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="configurationBuilder">
@@ -508,7 +511,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         then this method will not be run.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">
@@ -533,10 +537,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        ///         and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <returns>
@@ -566,10 +571,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        ///         and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="acceptAllChangesOnSuccess">
@@ -658,10 +664,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        ///         and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -694,10 +701,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
+        ///         and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="acceptAllChangesOnSuccess">
@@ -773,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
-        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information and examples.
         /// </remarks>
         public event EventHandler<SavingChangesEventArgs>? SavingChanges;
 
@@ -782,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
-        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information and examples.
         /// </remarks>
         public event EventHandler<SavedChangesEventArgs>? SavedChanges;
 
@@ -791,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
-        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information and examples.
         /// </remarks>
         public event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
 
@@ -813,9 +821,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         void IDbContextPoolable.SetLease(DbContextLease lease)
-        {
-            SetLeaseInternal(lease);
-        }
+            => SetLeaseInternal(lease);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -946,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public virtual void Dispose()
         {
@@ -970,11 +976,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual async ValueTask DisposeAsync()
@@ -1030,7 +1036,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     access to change tracking information and operations for the entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
         /// <param name="entity">The entity to get the entry for.</param>
@@ -1063,7 +1070,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         to have the context begin tracking the entity in the specified state.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to get the entry for.</param>
@@ -1106,8 +1114,7 @@ namespace Microsoft.EntityFrameworkCore
             InternalEntityEntry entry,
             EntityState entityState,
             CancellationToken cancellationToken)
-        {
-            return entry.EntityState == EntityState.Detached
+            => entry.EntityState == EntityState.Detached
                 ? DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
                     entry,
                     entityState,
@@ -1119,7 +1126,6 @@ namespace Microsoft.EntityFrameworkCore
                     acceptChanges: true,
                     forceStateWhenUnknownKey: entityState,
                     cancellationToken: cancellationToken);
-        }
 
         /// <summary>
         ///     Begins tracking the given entity, and any other reachable entities that are
@@ -1131,7 +1137,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -1164,10 +1170,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -1223,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -1269,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -1305,7 +1311,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -1360,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to add.</param>
@@ -1394,10 +1400,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to add.</param>
@@ -1451,7 +1457,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to attach.</param>
@@ -1495,7 +1501,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to update.</param>
@@ -1529,7 +1535,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entity">The entity to remove.</param>
@@ -1577,7 +1583,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(params object[] entities)
@@ -1603,12 +1609,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
@@ -1651,7 +1657,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to attach.</param>
@@ -1693,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to update.</param>
@@ -1722,7 +1728,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to remove.</param>
@@ -1751,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(IEnumerable<object> entities)
@@ -1777,12 +1783,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to add.</param>
@@ -1840,7 +1846,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to attach.</param>
@@ -1882,7 +1888,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to update.</param>
@@ -1911,7 +1917,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
         ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entities">The entities to remove.</param>
@@ -1949,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         /// </remarks>
         /// <param name="entityType">The type of entity to find.</param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
@@ -1974,10 +1980,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entityType">The type of entity to find.</param>
@@ -2003,10 +2009,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="entityType">The type of entity to find.</param>
@@ -2032,7 +2038,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The type of entity to find.</typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
@@ -2058,10 +2064,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of entity to find.</typeparam>
@@ -2088,10 +2094,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
         ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
         ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of entity to find.</typeparam>
@@ -2117,7 +2123,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information and examples.
         /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => InternalServiceProvider;
@@ -2126,7 +2132,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Creates a queryable for given query expression.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TResult">The result type of the query expression.</typeparam>
         /// <param name="expression">The query expression to create.</param>

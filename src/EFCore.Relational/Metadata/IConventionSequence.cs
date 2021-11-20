@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     can be mutated while building the model.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information and examples.
     /// </remarks>
     public interface IConventionSequence : IReadOnlySequence, IConventionAnnotatable
     {

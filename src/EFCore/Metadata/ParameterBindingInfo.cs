@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Carries information about a parameter binding.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information and examples.
     /// </remarks>
     public readonly struct ParameterBindingInfo
     {

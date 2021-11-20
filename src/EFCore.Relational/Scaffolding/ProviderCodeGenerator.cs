@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-scaffolding">Reverse engineering (scaffolding) an existing database</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class ProviderCodeGenerator : IProviderConfigurationCodeGenerator

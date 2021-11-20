@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts <see cref="bool" /> values to and from two string values.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public class BoolToStringConverter : BoolToTwoValuesConverter<string>
     {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     when converting from the store.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="falseValue">The string to use for <see langword="false" />.</param>
         /// <param name="trueValue">The string to use for <see langword="true" />.</param>

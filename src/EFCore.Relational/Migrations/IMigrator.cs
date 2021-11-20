@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IMigrator
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     ending at specified migrations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="fromMigration">
         ///     The migration to start from, or <see langword="null" /> to start from the empty database.

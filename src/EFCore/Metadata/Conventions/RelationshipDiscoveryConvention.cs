@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     as long as there is no ambiguity as to which is the corresponding inverse navigation.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class RelationshipDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     foreach (var inverseProperty in relationshipCandidate.InverseProperties)
                     {
                         if (AreCompatible(
-                            navigationProperty, inverseProperty, entityTypeBuilder, targetEntityTypeBuilder))
+                                navigationProperty, inverseProperty, entityTypeBuilder, targetEntityTypeBuilder))
                         {
                             if (compatibleInverse == null)
                             {
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             foreach (var inverseProperty in relationshipCandidate.InverseProperties.ToList())
                             {
                                 if (!AreCompatible(
-                                    null, inverseProperty, entityTypeBuilder, targetEntityTypeBuilder))
+                                        null, inverseProperty, entityTypeBuilder, targetEntityTypeBuilder))
                                 {
                                     relationshipCandidate.InverseProperties.Remove(inverseProperty);
                                 }
@@ -499,8 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
                 else if (IsImplicitlyCreatedUnusedType(relationshipCandidate.TargetTypeBuilder.Metadata)
-                    && filteredRelationshipCandidates.All(
-                        c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                         && filteredRelationshipCandidates.All(
+                             c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
                     entityTypeBuilder.ModelBuilder
                         .HasNoEntityType(relationshipCandidate.TargetTypeBuilder.Metadata);
@@ -659,8 +659,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
                 else if (IsImplicitlyCreatedUnusedType(relationshipCandidate.TargetTypeBuilder.Metadata)
-                    && filteredRelationshipCandidates.All(
-                        c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
+                         && filteredRelationshipCandidates.All(
+                             c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
                     entityTypeBuilder.ModelBuilder
                         .HasNoEntityType(relationshipCandidate.TargetTypeBuilder.Metadata);
@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         mostDerivedType = propertyType;
                     }
                     else if (!propertyType.IsAssignableFrom(mostDerivedType)
-                        && mostDerivedType.IsAssignableFrom(propertyType))
+                             && mostDerivedType.IsAssignableFrom(propertyType))
                     {
                         mostDerivedType = propertyType;
                     }
@@ -849,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         mostDerivedType = inverseType;
                     }
                     else if (!inverseType.IsAssignableFrom(mostDerivedType)
-                        && mostDerivedType.IsAssignableFrom(inverseType))
+                             && mostDerivedType.IsAssignableFrom(inverseType))
                     {
                         mostDerivedType = inverseType;
                     }
@@ -963,8 +963,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
                 else if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                        .HasNoRelationship(existingNavigation.ForeignKey)
-                    == null)
+                             .HasNoRelationship(existingNavigation.ForeignKey)
+                         == null)
                 {
                     removed = existingNavigation.ForeignKey.Builder.HasNavigation((string?)null, existingNavigation.IsOnDependent)
                         != null;

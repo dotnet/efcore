@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of entity being tracked by this entry.</typeparam>
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     property of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
@@ -100,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
@@ -126,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
@@ -148,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
@@ -168,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     property of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <typeparam name="TProperty">The type of the property.</typeparam>
         /// <param name="propertyName">The property to access information and operations for.</param>

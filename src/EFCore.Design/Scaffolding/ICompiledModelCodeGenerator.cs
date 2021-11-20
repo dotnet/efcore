@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-compiled-models">EF Core compiled models</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     /// </remarks>
     public interface ICompiledModelCodeGenerator : ILanguageBasedService
     {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     /// </remarks>
     public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IndentedStringBuilder stringBuilder)
         {
             foreach (var entityType in entityTypes.Where(
-                e => e.FindOwnership() == null))
+                         e => e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -93,9 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => e.FindOwnership() == null
-                    && (e.GetDeclaredForeignKeys().Any()
-                        || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
+                         e => e.FindOwnership() == null
+                             && (e.GetDeclaredForeignKeys().Any()
+                                 || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
                 stringBuilder.AppendLine();
 
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => e.FindOwnership() == null
-                    && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
+                         e => e.FindOwnership() == null
+                             && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
             {
                 stringBuilder.AppendLine();
 
@@ -539,9 +539,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (primaryKey?.DeclaringEntityType.IsOwned() != true)
             {
                 foreach (var key in keys.Where(
-                    key => key != primaryKey
-                        && (!key.GetReferencingForeignKeys().Any()
-                            || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
+                             key => key != primaryKey
+                                 && (!key.GetReferencingForeignKeys().Any()
+                                     || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
                 {
                     GenerateKey(entityTypeBuilderName, key, stringBuilder);
                 }

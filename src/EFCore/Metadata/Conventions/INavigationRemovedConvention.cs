@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     Represents an operation that should be performed when a navigation is removed from the entity type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public interface INavigationRemovedConvention : IConvention
     {

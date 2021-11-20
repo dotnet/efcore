@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>

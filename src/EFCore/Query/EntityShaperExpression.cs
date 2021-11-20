@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public class EntityShaperExpression : Expression, IPrintableExpression
     {
@@ -72,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 materializationCondition = GenerateMaterializationCondition(entityType, nullable);
             }
             else if (materializationCondition.Parameters.Count != 1
-                || materializationCondition.Parameters[0].Type != typeof(ValueBuffer)
-                || materializationCondition.ReturnType != typeof(IEntityType))
+                     || materializationCondition.Parameters[0].Type != typeof(ValueBuffer)
+                     || materializationCondition.ReturnType != typeof(IEntityType))
             {
                 throw new InvalidOperationException(CoreStrings.QueryEntityMaterializationConditionWrongShape(entityType.DisplayName()));
             }
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
                 else
                 {
-                    Expression conditions = exception;
+                    var conditions = exception;
                     for (var i = concreteEntityTypes.Length - 1; i >= 0; i--)
                     {
                         conditions = Condition(

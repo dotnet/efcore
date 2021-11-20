@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public class RuntimeModel : AnnotatableBase, IRuntimeModel
@@ -51,9 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
         /// </summary>
         public virtual void SetSkipDetectChanges(bool skipDetectChanges)
-        {
-            _skipDetectChanges = skipDetectChanges;
-        }
+            => _skipDetectChanges = skipDetectChanges;
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.

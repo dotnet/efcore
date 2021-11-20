@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="ISkipNavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public interface IMutableSkipNavigation : IReadOnlySkipNavigation, IMutableNavigationBase

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public static class RelationalDbFunctionsExtensions
     {
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         information.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TProperty">The type of the operand on which the collation is being specified.</typeparam>

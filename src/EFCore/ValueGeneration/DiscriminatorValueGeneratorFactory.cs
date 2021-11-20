@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     the discriminator value for the given entity type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     public class DiscriminatorValueGeneratorFactory : ValueGeneratorFactory
     {

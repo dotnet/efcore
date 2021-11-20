@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     error event with an <see cref="Exception" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public interface IErrorEventData
     {

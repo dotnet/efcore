@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TProperty">The type of the property.</typeparam>
     public sealed class EntryCurrentValueComparer<TProperty> : IComparer<IUpdateEntry>, IEqualityComparer<IUpdateEntry>

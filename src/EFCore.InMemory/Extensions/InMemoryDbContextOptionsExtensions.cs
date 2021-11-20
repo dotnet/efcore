@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TContext">The type of context being configured.</typeparam>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
         /// </remarks>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TContext">The type of context being configured.</typeparam>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
         /// </remarks>
         /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">

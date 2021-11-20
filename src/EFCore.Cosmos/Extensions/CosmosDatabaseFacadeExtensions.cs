@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the underlying <see cref="CosmosClient" /> for this <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The <see cref="CosmosClient" /></returns>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         provider to use as part of configuring the context.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>

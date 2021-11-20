@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing column.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     [DebuggerDisplay("ALTER TABLE {Table} RENAME COLUMN {Name} TO {NewName}")]
     public class RenameColumnOperation : MigrationOperation, ITableMigrationOperation

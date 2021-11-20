@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Foreign key extension methods for relational database metadata.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public static class RelationalForeignKeyExtensions
     {
@@ -101,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IReadOnlyForeignKey? linkedForeignKey = null;
                 foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
+                             .FindRowInternalForeignKeys(storeObject)
+                             .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
                 {
                     if (principalStoreObject.Name == otherForeignKey.PrincipalEntityType.GetTableName()
                         && principalStoreObject.Schema == otherForeignKey.PrincipalEntityType.GetSchema())
@@ -221,8 +221,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IReadOnlyForeignKey? linkedForeignKey = null;
                 foreach (var otherForeignKey in rootForeignKey.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
+                             .FindRowInternalForeignKeys(storeObject)
+                             .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
                 {
                     if (otherForeignKey.GetConstraintName(
                             storeObject,

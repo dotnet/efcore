@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         and <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///         and <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IDbContextTransactionManager : IResettableService

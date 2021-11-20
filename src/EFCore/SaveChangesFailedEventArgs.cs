@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
-    ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information and examples.
     /// </remarks>
     public class SaveChangesFailedEventArgs : SaveChangesEventArgs
     {

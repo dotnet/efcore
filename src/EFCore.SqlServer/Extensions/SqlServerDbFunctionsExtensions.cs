@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerDbFunctionsExtensions
     {
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="propertyReference">The property on which the search will be performed.</param>
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -611,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -630,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -668,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -725,7 +725,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -763,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -820,7 +820,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -839,7 +839,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -858,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -877,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -915,7 +915,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -934,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -953,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -972,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -991,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
@@ -1010,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -1029,7 +1029,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -1048,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="expression">Expression to validate</param>
@@ -1104,7 +1104,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -1136,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -1158,7 +1158,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -1236,7 +1236,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="year">The year (1753 through 9999).</param>
@@ -1261,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="hour">The hours (0 through 23).</param>
@@ -1287,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1303,7 +1303,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1319,7 +1319,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1351,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1367,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1383,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1399,7 +1399,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1415,7 +1415,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="arg">The value to be examined for data length.</param>
@@ -1432,7 +1432,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="expression">Expression to validate</param>

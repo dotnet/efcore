@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         behavior of warnings.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public static class CoreEventId
@@ -485,7 +485,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="UniquifiedPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         public static readonly EventId ShadowForeignKeyPropertyCreated = MakeModelValidationId(Id.ShadowForeignKeyPropertyCreated);

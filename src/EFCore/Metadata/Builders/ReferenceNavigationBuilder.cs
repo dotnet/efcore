@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public class ReferenceNavigationBuilder : IInfrastructure<IConventionForeignKeyBuilder>
@@ -132,12 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns>An object to further configure the relationship.</returns>
         public virtual ReferenceCollectionBuilder WithMany(string? collection = null)
-        {
-            return new(
+            => new ReferenceCollectionBuilder(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(Check.NullButNotEmpty(collection, nameof(collection))).Metadata);
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

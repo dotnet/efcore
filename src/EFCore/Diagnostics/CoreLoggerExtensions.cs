@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class CoreLoggerExtensions
     {
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
@@ -99,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
@@ -147,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
@@ -226,8 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateDbContextErrorEventData(context, exception, definition);
 
@@ -2955,8 +2955,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesStartingEventData(context, definition);
 
@@ -2992,8 +2992,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesStartingEventData(context, definition);
 
@@ -3041,8 +3041,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
 
@@ -3080,8 +3080,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
 
             if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition,
+                    out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = CreateSaveChangesCompletedEventData(context, entitiesSavedCount, definition);
 

@@ -54,12 +54,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         an optional action to configure the <see cref="DbContextOptions" /> for the context.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information and examples.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The type of context to be registered.</typeparam>

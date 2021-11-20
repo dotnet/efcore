@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a primary or alternate key on an entity type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public class RuntimeKey : AnnotatableBase, IRuntimeKey
     {
@@ -119,19 +119,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
             => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
                 ref _principalKeyValueFactory, this, static key =>
-                    {
-                        key.EnsureReadOnly();
-                        return new KeyValueFactoryFactory().Create<TKey>(key);
-                    });
+                {
+                    key.EnsureReadOnly();
+                    return new KeyValueFactoryFactory().Create<TKey>(key);
+                });
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _identityMapFactory, this, static key =>
-                    {
-                        key.EnsureReadOnly();
-                        return new IdentityMapFactoryFactory().Create(key);
-                    });
+                {
+                    key.EnsureReadOnly();
+                    return new IdentityMapFactoryFactory().Create(key);
+                });
     }
 }

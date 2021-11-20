@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class RelationalLoggerExtensions
     {
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarting(
                     diagnostics,
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarting(diagnostics, isolationLevel, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarting(
                     diagnostics,
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarted(diagnostics, transaction, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarted(
                     diagnostics,
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionStarted(diagnostics, transaction, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionStarted(
                     diagnostics,
@@ -339,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionUsed(diagnostics, transaction, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionUsed(
                     diagnostics,
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionUsed(diagnostics, transaction, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionUsed(
                     diagnostics,
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitting(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitting(
                     diagnostics,
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitting(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitting(
                     diagnostics,
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitted(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitted(
                     diagnostics,
@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionCommitted(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionCommitted(
                     diagnostics,
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRolledBack(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRolledBack(
                     diagnostics,
@@ -778,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRolledBack(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRolledBack(
                     diagnostics,
@@ -860,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRollingBack(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRollingBack(
                     diagnostics,
@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionRollingBack(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionRollingBack(
                     diagnostics,
@@ -985,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCreatingTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCreatingTransactionSavepoint(
                     diagnostics,
@@ -1031,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCreatingTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCreatingTransactionSavepoint(
                     diagnostics,
@@ -1109,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCreatedTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCreatedTransactionSavepoint(
                     diagnostics,
@@ -1150,7 +1150,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCreatedTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastCreatedTransactionSavepoint(
                     diagnostics,
@@ -1229,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogRollingBackToTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastRollingBackToTransactionSavepoint(
                     diagnostics,
@@ -1275,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogRollingBackToTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastRollingBackToTransactionSavepoint(
                     diagnostics,
@@ -1353,7 +1353,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogRolledBackToTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastRolledBackToTransactionSavepoint(
                     diagnostics,
@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogCreatedTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastRolledBackToTransactionSavepoint(
                     diagnostics,
@@ -1473,7 +1473,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogReleasingTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastReleasingTransactionSavepoint(
                     diagnostics,
@@ -1519,7 +1519,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogReleasingTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastReleasingTransactionSavepoint(
                     diagnostics,
@@ -1597,7 +1597,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogReleasedTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastReleasedTransactionSavepoint(
                     diagnostics,
@@ -1638,7 +1638,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogReleasedTransactionSavepoint(diagnostics, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastReleasedTransactionSavepoint(
                     diagnostics,
@@ -1760,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionError(diagnostics, exception, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionError(
                     diagnostics,
@@ -1810,7 +1810,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             LogTransactionError(diagnostics, exception, definition);
 
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
-                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+                    definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = BroadcastTransactionError(
                     diagnostics,

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts <see cref="DateTime" /> to and <see cref="DateTime.Ticks" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public class DateTimeToTicksConverter : ValueConverter<DateTime, long>
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public DateTimeToTicksConverter()
             : this(null)
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
     /// </remarks>
     public class DefiningQueryRewritingConvention : QueryFilterRewritingConvention
     {

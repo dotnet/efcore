@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class StoreKeyConvention :
@@ -181,9 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)
-        {
-            ProcessIdProperty(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
-        }
+            => ProcessIdProperty(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
 
         /// <inheritdoc />
         public virtual void ProcessForeignKeyRemoved(

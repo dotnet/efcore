@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public class ModelValidator : IModelValidator
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         // ReSharper restore CheckForReferenceEqualityInstead.1
                     }
                     else if (targetSequenceType == null && propertyType.IsInterface
-                        || targetSequenceType?.IsInterface == true)
+                             || targetSequenceType?.IsInterface == true)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InterfacePropertyNotAdded(
@@ -685,8 +685,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(
-                        fk => !fk.IsOwnership
-                            && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                                 fk => !fk.IsOwnership
+                                     && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.PrincipalOwnedType(
@@ -702,9 +702,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     foreach (var fk in entityType.GetDeclaredForeignKeys().Where(
-                        fk => !fk.IsOwnership
-                            && fk.PrincipalToDependent != null
-                            && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
+                                 fk => !fk.IsOwnership
+                                     && fk.PrincipalToDependent != null
+                                     && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InverseToOwnedType(
@@ -715,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
                 }
                 else if (((IConventionModel)model).IsOwned(entityType.ClrType)
-                    || entityType.IsOwned())
+                         || entityType.IsOwned())
                 {
                     throw new InvalidOperationException(CoreStrings.OwnerlessOwnedType(entityType.DisplayName()));
                 }
@@ -815,28 +815,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 foreach (var propertyBase in properties)
                 {
                     if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: true,
-                        forSet: true,
-                        memberInfo: out _,
-                        errorMessage: out var errorMessage))
+                            forConstruction: true,
+                            forSet: true,
+                            memberInfo: out _,
+                            errorMessage: out var errorMessage))
                     {
                         throw new InvalidOperationException(errorMessage);
                     }
 
                     if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
-                        forSet: true,
-                        memberInfo: out _,
-                        errorMessage: out errorMessage))
+                            forConstruction: false,
+                            forSet: true,
+                            memberInfo: out _,
+                            errorMessage: out errorMessage))
                     {
                         throw new InvalidOperationException(errorMessage);
                     }
 
                     if (!propertyBase.TryGetMemberInfo(
-                        forConstruction: false,
-                        forSet: false,
-                        memberInfo: out _,
-                        errorMessage: out errorMessage))
+                            forConstruction: false,
+                            forSet: false,
+                            memberInfo: out _,
+                            errorMessage: out errorMessage))
                     {
                         throw new InvalidOperationException(errorMessage);
                     }
@@ -966,8 +966,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                         }
                         else if (property.RequiresValueGenerator()
-                            && property.IsPrimaryKey()
-                            && property.ClrType.IsDefaultValue(value))
+                                 && property.IsPrimaryKey()
+                                 && property.ClrType.IsDefaultValue(value))
                         {
                             if (property.ClrType.IsSignedInteger())
                             {

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder

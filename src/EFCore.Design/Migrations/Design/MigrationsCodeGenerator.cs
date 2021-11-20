@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     /// </remarks>
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     {

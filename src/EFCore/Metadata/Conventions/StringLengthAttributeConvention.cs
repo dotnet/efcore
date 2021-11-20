@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the maximum length based on the <see cref="StringLengthAttribute" /> applied on the property.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class StringLengthAttributeConvention : PropertyAttributeConventionBase<StringLengthAttribute>
     {

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     public static class CosmosEntityTypeBuilderExtensions
     {
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the container.</param>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the container.</param>
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the container.</param>
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the parent property.</param>
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the parent property.</param>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the parent property.</param>
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the parent property.</param>
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the partition key property.</param>
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the partition key property.</param>
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="propertyExpression">The  partition key property.</param>
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the partition key property.</param>
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the partition key property.</param>
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="seconds">The time to live.</param>
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>
@@ -602,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="throughput">The throughput to set.</param>

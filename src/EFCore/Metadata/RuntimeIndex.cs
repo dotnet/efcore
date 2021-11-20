@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents an index on a set of properties.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public class RuntimeIndex : AnnotatableBase, IIndex
     {
@@ -118,9 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IDependentKeyValueFactory<TKey> IIndex.GetNullableValueFactory<TKey>()
             => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
                 ref _nullableValueFactory, this, static index =>
-                    {
-                        index.EnsureReadOnly();
-                        return new CompositeValueFactory(index.Properties);
-                    });
+                {
+                    index.EnsureReadOnly();
+                    return new CompositeValueFactory(index.Properties);
+                });
     }
 }

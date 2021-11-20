@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerNetTopologySuiteServiceCollectionExtensions
     {

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     // ReSharper disable once InconsistentNaming
     public static class DbFunctionsExtensions

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in a model.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public interface IDbFunction : IReadOnlyDbFunction, IAnnotatable
     {

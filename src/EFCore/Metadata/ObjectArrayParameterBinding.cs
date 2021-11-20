@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     creating proxies.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information and examples.
     /// </remarks>
     public class ObjectArrayParameterBinding : ParameterBinding
     {
@@ -44,16 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 typeof(object),
                 _bindings.Select(
                     b =>
+                    {
+                        var expression = b.BindToParameter(bindingInfo);
+
+                        if (expression.Type.IsValueType)
                         {
-                            var expression = b.BindToParameter(bindingInfo);
+                            expression = Expression.Convert(expression, typeof(object));
+                        }
 
-                            if (expression.Type.IsValueType)
-                            {
-                                expression = Expression.Convert(expression, typeof(object));
-                            }
-
-                            return expression;
-                        }));
+                        return expression;
+                    }));
 
         /// <summary>
         ///     Creates a copy that contains the given consumed properties.

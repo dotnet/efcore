@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public abstract class MemberEntry : IInfrastructure<InternalEntityEntry>
@@ -63,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         be updated in the database  when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         public abstract bool IsModified { get; set; }
@@ -79,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     for the context to detect the change.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public virtual object? CurrentValue
         {
@@ -91,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry" /> to which this member belongs.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <value> An entry for the entity that owns this member. </value>
         public virtual EntityEntry EntityEntry

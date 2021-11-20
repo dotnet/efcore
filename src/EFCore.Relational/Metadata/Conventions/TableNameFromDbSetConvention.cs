@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the table name based on the <see cref="DbSet{TEntity}" /> property name.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
     {
@@ -89,9 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
             }
             else if (oldBaseType != null
-                && newBaseType == null
-                && !entityType.HasSharedClrType
-                && _sets.TryGetValue(entityType.ClrType, out var setName))
+                     && newBaseType == null
+                     && !entityType.HasSharedClrType
+                     && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
                 entityTypeBuilder.ToTable(setName);
             }

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     public static class SpatialiteLoader
     {
@@ -139,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         foreach (var file in group.RuntimeFiles)
                         {
                             if (string.Equals(
-                                Path.GetFileName(file.Path),
-                                "mod_spatialite" + _sharedLibraryExtension,
-                                StringComparison.OrdinalIgnoreCase))
+                                    Path.GetFileName(file.Path),
+                                    "mod_spatialite" + _sharedLibraryExtension,
+                                    StringComparison.OrdinalIgnoreCase))
                             {
                                 var fallbacks = rids.IndexOf(group.Runtime);
                                 if (fallbacks != -1 && library.Path is not null)

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     an entity update entry.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class UpdateEntryEventData : DbContextEventData
     {

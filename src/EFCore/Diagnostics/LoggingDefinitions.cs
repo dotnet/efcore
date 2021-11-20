@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class LoggingDefinitions

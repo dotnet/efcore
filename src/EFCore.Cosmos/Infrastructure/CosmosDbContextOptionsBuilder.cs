@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfrastructure
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="optionsBuilder">The options builder.</param>
         public CosmosDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="getExecutionStrategy">A function that returns a new instance of an execution strategy.</param>
         public virtual CosmosDbContextOptionsBuilder ExecutionStrategy(
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="region">Azure Cosmos DB region name.</param>
         public virtual CosmosDbContextOptionsBuilder Region(string region)
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="enable"><see langword="true" /> to limit the operations to the provided endpoint.</param>
         public virtual CosmosDbContextOptionsBuilder LimitToEndpoint(bool enable = true)
@@ -86,12 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         To avoid multiple instances being created use <see langword="static" /> lambdas:
+        ///         Use <see href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions">
+        ///         static lambda expressions</see> to avoid creating multiple instances.
         ///     </para>
-        ///     <code>.HttpClientFactory(static () => new HttpClient())</code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="httpClientFactory">A function that returns an <see cref="HttpClient" />.</param>
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="connectionMode">Azure Cosmos DB connection mode.</param>
         public virtual CosmosDbContextOptionsBuilder ConnectionMode(ConnectionMode connectionMode)
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="proxy">The proxy information used for web requests.</param>
         public virtual CosmosDbContextOptionsBuilder WebProxy(IWebProxy proxy)
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="timeout">Request timeout.</param>
         public virtual CosmosDbContextOptionsBuilder RequestTimeout(TimeSpan timeout)
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="timeout">Open TCP connection timeout.</param>
         public virtual CosmosDbContextOptionsBuilder OpenTcpConnectionTimeout(TimeSpan timeout)
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="timeout">Idle connection timeout.</param>
         public virtual CosmosDbContextOptionsBuilder IdleTcpConnectionTimeout(TimeSpan timeout)
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="connectionLimit">The maximum number of concurrent connections allowed.</param>
         public virtual CosmosDbContextOptionsBuilder GatewayModeMaxConnectionLimit(int connectionLimit)
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="connectionLimit">The maximum number of TCP connections that may be opened to each Cosmos DB back-end.</param>
         public virtual CosmosDbContextOptionsBuilder MaxTcpConnectionsPerEndpoint(int connectionLimit)
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="requestLimit">The number of requests allowed simultaneously over a single TCP connection.</param>
         public virtual CosmosDbContextOptionsBuilder MaxRequestsPerTcpConnection(int requestLimit)
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="enabled"><see langword="false" /> to have null resource</param>
         public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)

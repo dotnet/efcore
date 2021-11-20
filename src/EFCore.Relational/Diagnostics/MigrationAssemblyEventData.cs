@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     <see cref="RelationalEventId" /> migrations assembly events.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class MigrationAssemblyEventData : MigratorEventData
     {
@@ -29,7 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IMigrator migrator,
             IMigrationsAssembly migrationsAssembly)
             : base(eventDefinition, messageGenerator, migrator)
-            => MigrationsAssembly = migrationsAssembly;
+        {
+            MigrationsAssembly = migrationsAssembly;
+        }
 
         /// <summary>
         ///     The <see cref="IMigrationsAssembly" /> in use.

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     a constructor, factory method, or similar.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information and examples.
     /// </remarks>
     public abstract class ServiceParameterBinding : ParameterBinding
     {
@@ -72,16 +72,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual Func<MaterializationContext, IEntityType, object, object> ServiceDelegate
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _serviceDelegate, this, static b =>
-                    {
-                        var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
-                        var entityTypeParam = Expression.Parameter(typeof(IEntityType));
-                        var entityParam = Expression.Parameter(typeof(object));
+                {
+                    var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
+                    var entityTypeParam = Expression.Parameter(typeof(IEntityType));
+                    var entityParam = Expression.Parameter(typeof(object));
 
-                        return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
-                            b.BindToParameter(materializationContextParam, entityTypeParam),
-                            materializationContextParam,
-                            entityTypeParam,
-                            entityParam).Compile();
-                    });
+                    return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
+                        b.BindToParameter(materializationContextParam, entityTypeParam),
+                        materializationContextParam,
+                        entityTypeParam,
+                        entityParam).Compile();
+                });
     }
 }

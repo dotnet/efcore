@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class MigrationsSqlGenerator : IMigrationsSqlGenerator

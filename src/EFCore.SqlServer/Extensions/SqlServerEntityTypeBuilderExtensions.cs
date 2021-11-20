@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerEntityTypeBuilderExtensions
     {
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="collectionOwnershipBuilder">The builder for the entity type being configured.</param>
         /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity being configured.</param>
         /// <param name="temporal">A value indicating whether the table is temporal.</param>
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="temporal">A value indicating whether the table is temporal.</param>
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity being configured.</param>
         /// <param name="name">The name of the history table.</param>
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="name">The name of the history table.</param>
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity being configured.</param>
         /// <param name="schema">The schema of the history table.</param>
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="schema">The schema of the history table.</param>
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity being configured.</param>
         /// <param name="propertyName">The name of the period start property.</param>
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="propertyName">The name of the period start property.</param>
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity being configured.</param>
         /// <param name="propertyName">The name of the period end property.</param>
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
         /// <param name="propertyName">The name of the period end property.</param>

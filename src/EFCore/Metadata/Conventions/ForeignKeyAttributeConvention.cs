@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class ForeignKeyAttributeConvention :
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             MemberInfo? candidateProperty = null;
 
             foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
-                .Concat(entityType.GetRuntimeFields().Values))
+                         .Concat(entityType.GetRuntimeFields().Values))
             {
                 if (!Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true)
                     || !entityType.Builder.CanHaveProperty(memberInfo, fromDataAnnotation: true))

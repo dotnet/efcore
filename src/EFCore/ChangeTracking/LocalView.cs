@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
@@ -86,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Use this for WPF data binding.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <returns>The collection.</returns>
         public virtual ObservableCollection<TEntity> ToObservableCollection()
@@ -201,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         the given entity are not automatically tracked.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="item">The item to start tracking.</param>
@@ -248,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         delete it from the database.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         public virtual void Clear()
@@ -264,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     marked as Deleted.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="item">The entity to check.</param>
         /// <returns><see langword="true" /> if the entity is being tracked by the context and has not been marked as Deleted.</returns>
@@ -280,7 +285,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     not marked as Deleted.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="array">The array into which to copy entities.</param>
         /// <param name="arrayIndex">The index into the array to start copying.</param>
@@ -303,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         delete it from the database.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="item">The entity to delete.</param>
@@ -381,7 +388,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     as Deleted.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public virtual int Count
         {
@@ -463,7 +471,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Use this for WinForms data binding.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <returns>The binding list.</returns>
         public virtual BindingList<TEntity> ToBindingList()

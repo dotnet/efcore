@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     public class IdValueGeneratorFactory : ValueGeneratorFactory
     {

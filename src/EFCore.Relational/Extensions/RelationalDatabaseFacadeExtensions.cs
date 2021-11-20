@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets all the migrations that are defined in the configured migrations assembly.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets all migrations that have been applied to the target database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously gets all migrations that have been applied to the target database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         that is created cannot be later updated using migrations.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -148,12 +148,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -161,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -191,15 +187,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlInterpolated($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
-        ///     </code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -227,12 +219,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -240,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -301,15 +289,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
-        ///      </code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -336,20 +320,15 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
         ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-        ///         idempotent.
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not idempotent.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks.
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -382,12 +361,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -395,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -427,12 +402,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
         ///     </para>
-        ///     <code>
-        ///          var userSuppliedSearchTerm = ".NET";
-        ///          context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
-        ///      </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
         ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
@@ -440,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -502,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         passed to Entity Framework in 'UseMyProvider'.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -521,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -533,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the underlying connection string configured for this <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The connection string.</returns>
@@ -548,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         It may not be possible to change the connection string if existing connection, if any, is open.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -560,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         public static void OpenConnection(this DatabaseFacade databaseFacade)
@@ -571,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -589,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         public static void CloseConnection(this DatabaseFacade databaseFacade)
@@ -599,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
@@ -610,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="isolationLevel">The <see cref="IsolationLevel" /> to use.</param>
@@ -631,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="isolationLevel">The <see cref="IsolationLevel" /> to use.</param>
@@ -659,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction">The <see cref="DbTransaction" /> to use.</param>
@@ -673,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction">The <see cref="DbTransaction" /> to use.</param>
@@ -691,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction">The <see cref="DbTransaction" /> to use.</param>
@@ -708,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction">The <see cref="DbTransaction" /> to use.</param>
@@ -745,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         will override any value set in the connection string.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -762,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="SetCommandTimeout(DatabaseFacade,int?)" />.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -797,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         set on the database connection string.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -809,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Generates a script to create all tables for the current model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <returns>
         ///     A SQL script.

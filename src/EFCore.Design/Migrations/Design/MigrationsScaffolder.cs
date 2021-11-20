@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     /// </remarks>
     public class MigrationsScaffolder : IMigrationsScaffolder
     {
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
+                        model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try

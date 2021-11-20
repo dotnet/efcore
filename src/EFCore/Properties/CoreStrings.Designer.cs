@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependentToPrincipalNavigationSpecification, principalToDependentNavigationSpecification);
 
         /// <summary>
-        ///     Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string AmbiguousOwnedNavigation(object? entityTypeNavigationSpecification, object? otherEntityType)
             => string.Format(
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType, clrType);
 
         /// <summary>
-        ///     The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information.
+        ///     The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string BadFilterOwnedType(object? filter, object? entityType)
             => string.Format(
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, otherClrType);
 
         /// <summary>
-        ///     An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingNamedOwnedType(object? ownedTypeName, object? ownerEntityType, object? navigation)
             => string.Format(
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedTypeName, ownerEntityType, navigation);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingNonOwnedDerivedEntityType(object? entityType, object? derivedType)
             => string.Format(
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, derivedType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information.
+        ///     The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingNonOwnedEntityType(object? entityType)
             => string.Format(
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, type);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingOwnedDerivedEntityType(object? entityType, object? derivedType)
             => string.Format(
@@ -369,7 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, derivedType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in `OwnsOne` or `OwnsMany` on the owner entity type builder to further configure this type. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in `OwnsOne` or `OwnsMany` on the owner entity type builder to further configure this type. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string ClashingOwnedEntityType(object? entityType)
             => string.Format(
@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        ///     The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.
         /// </summary>
         public static string ClientProjectionCapturingConstantInMethodArgument(object? constantType, object? methodName)
             => string.Format(
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 constantType, methodName);
 
         /// <summary>
-        ///     The client projection contains a reference to a constant expression of '{constantType}' through the instance method '{methodName}'. This could potentially cause a memory leak; consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        ///     The client projection contains a reference to a constant expression of '{constantType}' through the instance method '{methodName}'. This could potentially cause a memory leak; consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.
         /// </summary>
         public static string ClientProjectionCapturingConstantInMethodInstance(object? constantType, object? methodName)
             => string.Format(
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 constantType, methodName);
 
         /// <summary>
-        ///     The client projection contains a reference to a constant expression of '{constantType}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        ///     The client projection contains a reference to a constant expression of '{constantType}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.
         /// </summary>
         public static string ClientProjectionCapturingConstantInTree(object? constantType)
             => string.Format(
@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information.
+        ///     Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information and examples.
         /// </summary>
         public static string DerivedEntityOwnershipMismatch(object? baseEntityType, object? derivedEntityType, object? ownedEntityType, object? nonOwnedEntityType)
             => string.Format(

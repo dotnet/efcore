@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="T">The type.</typeparam>
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 || unwrappedType == typeof(bool)
                 || unwrappedType == typeof(decimal)
                 || unwrappedType == typeof(object)
-            )
+               )
             {
                 return Expression.Lambda<Func<T?, T?, bool>>(
                     Expression.Equal(param1, param2),
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             while (typedEquals == null
-                && type != null)
+                   && type != null)
             {
                 var declaredMethods = type.GetTypeInfo().DeclaredMethods;
                 typedEquals = declaredMethods.FirstOrDefault(

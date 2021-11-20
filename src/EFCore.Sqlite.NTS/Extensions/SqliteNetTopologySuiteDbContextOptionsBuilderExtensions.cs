@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     public static class SqliteNetTopologySuiteDbContextOptionsBuilderExtensions
     {
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="optionsBuilder">The build being used to configure SQLite.</param>
         /// <returns>The options builder so that further configuration can be chained.</returns>

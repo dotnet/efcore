@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     been modified since it was loaded into memory.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-optimistic-concurrency">Handling concurrency conflicts</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-optimistic-concurrency">Handling concurrency conflicts</see> for more information and
+    ///     examples.
     /// </remarks>
     [Serializable]
     public class DbUpdateConcurrencyException : DbUpdateException

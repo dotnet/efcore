@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     Extension methods for <see cref="IMigrationsAssembly" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     public static class MigrationsAssemblyExtensions
     {
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         <see cref="IMigrationsAssembly.FindMigrationId" /> if the migration may not exist.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="assembly">The assembly.</param>

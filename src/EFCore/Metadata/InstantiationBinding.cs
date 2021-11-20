@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     example, constructor parameters or parameters of a factory method.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information and examples.
     /// </remarks>
     public abstract class InstantiationBinding
     {

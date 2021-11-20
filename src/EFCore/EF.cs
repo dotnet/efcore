@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> and
-    ///     <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information and examples.
     /// </remarks>
     // ReSharper disable once InconsistentNaming
     public static partial class EF
@@ -32,18 +32,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information and examples.
         ///     </para>
         /// </remarks>
-        /// <example>
-        ///     <para>
-        ///         The following code performs a filter using the a LastUpdated shadow state property.
-        ///     </para>
-        ///     <code>
-        /// var blogs = context.Blogs
-        ///     .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5));
-        ///     </code>
-        /// </example>
         /// <typeparam name="TProperty">The type of the property being referenced.</typeparam>
         /// <param name="entity">The entity to access the property on.</param>
         /// <param name="propertyName">The name of the property.</param>
@@ -62,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that this is a static property accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public static DbFunctions Functions

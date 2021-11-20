@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     Provides a simple API for configuring a <see cref="IConventionDbFunction" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public interface IConventionDbFunctionBuilder : IConventionAnnotatableBuilder
     {
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     expression representing the desired translation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         /// </remarks>
         /// <param name="translation">The translation to use.</param>
         /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

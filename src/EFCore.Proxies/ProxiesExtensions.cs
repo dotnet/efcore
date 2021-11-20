@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>

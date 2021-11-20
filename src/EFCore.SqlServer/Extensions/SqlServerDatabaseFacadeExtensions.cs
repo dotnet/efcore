@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>

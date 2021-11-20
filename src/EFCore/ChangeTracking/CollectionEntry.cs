@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>,
     ///         <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
-    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class CollectionEntry : NavigationEntry
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public new virtual IEnumerable? CurrentValue
         {
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public override bool IsModified
         {
@@ -171,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     var joinEntityType = skipNavigation.JoinEntityType;
                     var foreignKey = skipNavigation.ForeignKey;
                     foreach (var joinEntry in stateManager
-                        .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
-                            e => e.EntityType == joinEntityType
-                                && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
-                        .ToList())
+                                 .GetEntriesForState(added: !value, modified: !value, deleted: !value, unchanged: value).Where(
+                                     e => e.EntityType == joinEntityType
+                                         && stateManager.FindPrincipal(e, foreignKey) == InternalEntry)
+                                 .ToList())
                     {
                         joinEntry.SetEntityState(value ? EntityState.Modified : EntityState.Unchanged);
                     }
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public override void Load()
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
+        ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public override IQueryable Query()
@@ -286,7 +286,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="entity">The entity to get the entry for.</param>
         /// <value> An entry for an entity that this navigation targets. </value>

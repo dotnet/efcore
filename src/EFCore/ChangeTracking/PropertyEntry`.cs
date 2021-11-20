@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The type of the entity the property belongs to.</typeparam>
@@ -53,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <value> An entry for the entity that owns this member. </value>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public new virtual EntityEntry<TEntity> EntityEntry
             => new(InternalEntry);
@@ -64,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     for the context to detect the change.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public new virtual TProperty CurrentValue
         {
@@ -79,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     saved with a different context instance.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public new virtual TProperty OriginalValue
         {

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVisitor
     {
@@ -90,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return CreateShapedQueryExpression(queryRootExpression.EntityType);
                 }
 
-                throw new InvalidOperationException(CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName()));
             }
 
             return base.VisitExtension(extensionExpression);
@@ -100,15 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression? translated)
-            {
-                return translated
+                => translated
                     ?? throw new InvalidOperationException(
                         TranslationErrorDetails == null
                             ? CoreStrings.TranslationFailed(methodCallExpression.Print())
                             : CoreStrings.TranslationFailedWithDetails(
                                 methodCallExpression.Print(),
                                 TranslationErrorDetails));
-            }
 
             var method = methodCallExpression.Method;
             if (method.DeclaringType == typeof(Queryable)
@@ -544,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType);
 
         /// <summary>
-        ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource, bool}})" /> method over the given source.
+        ///     Translates <see cref="Queryable.All{TSource}(IQueryable{TSource}, Expression{Func{TSource,bool}})" /> method over the given source.
         /// </summary>
         /// <param name="source">The shaped query on which the operator is applied.</param>
         /// <param name="predicate">The predicate supplied in the call.</param>

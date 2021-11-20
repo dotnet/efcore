@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -10,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     Base class for factories that create value generators.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     public abstract class ValueGeneratorFactory
     {
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Creates a new value generator.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         /// <param name="property">The property to create the value generator for.</param>
         /// <param name="entityType">The entity type for which the value generator will be used.</param>

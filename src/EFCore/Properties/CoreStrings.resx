@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -142,7 +142,7 @@
     <value>The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship, configure them independently via separate method chains in 'OnModelCreating'. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
   </data>
   <data name="AmbiguousOwnedNavigation" xml:space="preserve">
-    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="AmbiguousSharedTypeEntityTypeName" xml:space="preserve">
     <value>The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.</value>
@@ -172,7 +172,7 @@
     <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.</value>
   </data>
   <data name="BadFilterOwnedType" xml:space="preserve">
-    <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="BadValueComparerType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.</value>
@@ -232,34 +232,34 @@
     <value>The shared-type entity type '{entityType}' cannot be added because the model already contains an entity type with the same name, but with a different CLR type '{otherClrType}'. Ensure all entity type names are unique.</value>
   </data>
   <data name="ClashingNamedOwnedType" xml:space="preserve">
-    <value>An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.</value>
   </data>
   <data name="ClashingOwnedDerivedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in `OwnsOne` or `OwnsMany` on the owner entity type builder to further configure this type. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in `OwnsOne` or `OwnsMany` on the owner entity type builder to further configure this type. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because its CLR type has been configured as a shared type.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInMethodArgument" xml:space="preserve">
-    <value>The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}' which is being passed as an argument to the method '{methodName}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInMethodInstance" xml:space="preserve">
-    <value>The client projection contains a reference to a constant expression of '{constantType}' through the instance method '{methodName}'. This could potentially cause a memory leak; consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}' through the instance method '{methodName}'. This could potentially cause a memory leak; consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.</value>
   </data>
   <data name="ClientProjectionCapturingConstantInTree" xml:space="preserve">
-    <value>The client projection contains a reference to a constant expression of '{constantType}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+    <value>The client projection contains a reference to a constant expression of '{constantType}'. This could potentially cause a memory leak; consider assigning this constant to a local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information and examples.</value>
   </data>
   <data name="CollectionIsReference" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is being accessed using '{collectionMethod}', but is defined in the model as a non-collection, reference navigation. Use '{referenceMethod}' to access reference navigations.</value>
@@ -334,7 +334,7 @@
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined. Only root types can have keys.</value>
   </data>
   <data name="DerivedEntityOwnershipMismatch" xml:space="preserve">
-    <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information.</value>
+    <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
     <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>

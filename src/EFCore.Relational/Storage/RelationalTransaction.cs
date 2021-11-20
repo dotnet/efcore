@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>

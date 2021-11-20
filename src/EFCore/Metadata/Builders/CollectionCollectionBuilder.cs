@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public class CollectionCollectionBuilder
@@ -159,9 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 LeftNavigation.JoinEntityType == RightNavigation.JoinEntityType,
                 "LeftNavigation.JoinEntityType != RightNavigation.JoinEntityType");
 
-            configureJoinEntityType(new(LeftNavigation.JoinEntityType));
+            configureJoinEntityType(new EntityTypeBuilder(LeftNavigation.JoinEntityType));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -178,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityType));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -195,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityName));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -309,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(configureRight, configureLeft));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -330,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityType, configureRight, configureLeft));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -351,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityName, configureRight, configureLeft));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         /// <summary>
@@ -374,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             configureJoinEntityType(UsingEntity(joinEntityName, joinEntityType, configureRight, configureLeft));
 
-            return new(RightEntityType);
+            return new EntityTypeBuilder(RightEntityType);
         }
 
         private EntityTypeBuilder Using(

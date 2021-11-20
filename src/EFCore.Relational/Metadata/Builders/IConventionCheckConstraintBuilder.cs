@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
-    ///     <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
     /// </remarks>
     public interface IConventionCheckConstraintBuilder : IConventionAnnotatableBuilder
     {

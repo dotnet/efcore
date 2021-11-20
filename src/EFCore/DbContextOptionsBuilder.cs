@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         externally and passing it to the context constructor.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
@@ -491,14 +491,6 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </remarks>
-        /// <example>
-        ///     <code>
-        ///  optionsBuilder.ConfigureWarnings(warnings =>
-        ///      warnings.Default(WarningBehavior.Ignore)
-        ///          .Log(CoreEventId.IncludeIgnoredWarning, CoreEventId.ModelValidationWarning)
-        ///          .Throw(RelationalEventId.BoolWithDefaultWarning));
-        ///      </code>
-        /// </example>
         /// <param name="warningsConfigurationBuilderAction">
         ///     An action to configure the warning behavior.
         /// </param>

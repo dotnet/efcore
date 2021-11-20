@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.CommandExecuted" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class CommandExecutedEventData : CommandEndEventData
     {
@@ -61,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 duration,
                 commandSource)
-            => Result = result;
+        {
+            Result = result;
+        }
 
         /// <summary>
         ///     The result of executing the command.

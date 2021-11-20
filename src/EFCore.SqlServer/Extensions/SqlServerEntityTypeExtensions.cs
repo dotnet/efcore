@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerEntityTypeExtensions
     {
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
             => (entityType is RuntimeEntityType)
                 ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
                 : entityType[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
-                    ?? entityType[RelationalAnnotationNames.Schema] as string;
+                ?? entityType[RelationalAnnotationNames.Schema] as string;
 
         /// <summary>
         ///     Sets a value representing the schema of the history table associated with the entity mapped to a temporal table.

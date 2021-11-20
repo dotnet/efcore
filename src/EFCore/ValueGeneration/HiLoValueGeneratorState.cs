@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     public class HiLoValueGeneratorState : IDisposable
     {

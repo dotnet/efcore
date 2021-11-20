@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts a <see cref="Guid" /> to and from an array of <see cref="byte" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public class GuidToBytesConverter : ValueConverter<Guid, byte[]>
     {
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         in the standard string representation.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public GuidToBytesConverter()
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         in the standard string representation.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="mappingHints">

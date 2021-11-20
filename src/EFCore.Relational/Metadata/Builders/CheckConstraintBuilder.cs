@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     Provides a simple API for configuring a check constraint.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
     /// </remarks>
     public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraintBuilder>
     {
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets the database name of the check constraint.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The database name of the check constraint.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

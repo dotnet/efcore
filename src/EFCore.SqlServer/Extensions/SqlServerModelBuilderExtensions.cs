@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerModelBuilderExtensions
     {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="name">The name of the sequence.</param>
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="name">The name of the sequence.</param>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="name">The name of the sequence.</param>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="seed">The value that is used for the very first row loaded into the table.</param>
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="increment">The incremental value that is added to the identity value of the previous row that was loaded.</param>
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="valueGenerationStrategy">The value generation strategy.</param>
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="valueGenerationStrategy">The value generation strategy.</param>
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="maxSize">The maximum size of the database.</param>
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="serviceTier">The expression for the service tier of the database.</param>
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The model builder.</param>
         /// <param name="performanceLevel">The performance level of the database expression.</param>

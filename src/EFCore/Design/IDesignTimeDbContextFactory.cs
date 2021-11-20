@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TContext">The type of the context.</typeparam>
     public interface IDesignTimeDbContextFactory<out TContext>

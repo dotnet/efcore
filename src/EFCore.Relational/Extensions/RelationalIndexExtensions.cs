@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Index extension methods for relational database metadata.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
     /// </remarks>
     public static class RelationalIndexExtensions
     {
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IReadOnlyIndex? linkedIndex = null;
                 foreach (var otherIndex in rootIndex.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+                             .FindRowInternalForeignKeys(storeObject)
+                             .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {
                     var otherColumnNames = otherIndex.Properties.GetColumnNames(storeObject);
                     if ((otherColumnNames != null)
@@ -124,11 +124,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index">The index.</param>
         /// <param name="name">The value to set.</param>
         public static void SetDatabaseName(this IMutableIndex index, string? name)
-        {
-            index.SetOrRemoveAnnotation(
+            => index.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
                 Check.NullButNotEmpty(name, nameof(name)));
-        }
 
         /// <summary>
         ///     Sets the name of the index in the database.
@@ -261,8 +259,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IReadOnlyIndex? linkedIndex = null;
                 foreach (var otherIndex in rootIndex.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
+                             .FindRowInternalForeignKeys(storeObject)
+                             .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
                 {
                     if (otherIndex.GetDatabaseName(storeObject) == indexName)
                     {

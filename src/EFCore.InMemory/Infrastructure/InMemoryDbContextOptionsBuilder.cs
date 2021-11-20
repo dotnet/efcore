@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderInfrastructure
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
         /// </remarks>
         /// <param name="nullChecksEnabled">If <see langword="true" />, then nullability check is enforced.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         used to make the names unique.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class ForeignKeyPropertyDiscoveryConvention :
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 invertible = false;
             }
             else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                && (foreignKey.PrincipalEntityType.FindOwnership() != null
-                    && foreignKey.PrincipalToDependent != null
-                    && foreignKey.DependentToPrincipal == null))
+                     && (foreignKey.PrincipalEntityType.FindOwnership() != null
+                         && foreignKey.PrincipalToDependent != null
+                         && foreignKey.DependentToPrincipal == null))
             {
                 var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
             else if (invertible
-                && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
+                     && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
             {
                 var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                 if (candidatePropertiesOnPrincipal != null)
@@ -441,15 +441,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             if (!ForeignKey.AreCompatible(
-                propertiesToReference,
-                foreignKeyProperties,
-                principalEntityType,
-                dependentEntityType,
-                shouldThrow: false))
+                    propertiesToReference,
+                    foreignKeyProperties,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldThrow: false))
             {
                 if (propertiesToReference.All(
-                    p => !p.IsImplicitlyCreated()
-                        || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
+                        p => !p.IsImplicitlyCreated()
+                            || p.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)))
                 {
                     var dependentNavigationSpec = onDependent
                         ? foreignKey.DependentToPrincipal?.Name
@@ -574,9 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
             IConventionContext<string> context)
-        {
-            Process(entityTypeBuilder.Metadata, context);
-        }
+            => Process(entityTypeBuilder.Metadata, context);
 
         private void Process(IConventionEntityType entityType, IConventionContext context)
         {
@@ -610,9 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             FieldInfo? newFieldInfo,
             FieldInfo? oldFieldInfo,
             IConventionContext<FieldInfo> context)
-        {
-            Process(propertyBuilder, context);
-        }
+            => Process(propertyBuilder, context);
 
         /// <summary>
         ///     Called after the nullability for a property is changed.
@@ -711,9 +707,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<IConventionForeignKeyBuilder> context)
-        {
-            ProcessForeignKeyAdded(relationshipBuilder, context);
-        }
+            => ProcessForeignKeyAdded(relationshipBuilder, context);
 
         /// <summary>
         ///     Called after a key is added to the entity type.
@@ -724,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var key = keyBuilder.Metadata;
             foreach (var foreignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
-                .SelectMany(t => t.GetDeclaredForeignKeys()).ToList())
+                         .SelectMany(t => t.GetDeclaredForeignKeys()).ToList())
             {
                 if (key.Properties.All(p => foreignKey.Properties.Contains(p))
                     && (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null))

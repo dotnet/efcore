@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies
-                                .ValueConverterSelector
-                                .Select(sourceType, providerType))
+                                         .ValueConverterSelector
+                                         .Select(sourceType, providerType))
                             {
                                 var mappingInfoUsed = info.WithConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
@@ -161,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                     && providerType != null)
                                 {
                                     foreach (var secondConverterInfo in Dependencies
-                                        .ValueConverterSelector
-                                        .Select(providerType))
+                                                 .ValueConverterSelector
+                                                 .Select(providerType))
                                     {
                                         mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             }
                         }
                         else if (int.TryParse(
-                            storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
+                                     storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim(), out var parsedSize))
                         {
                             size = parsedSize;
                         }

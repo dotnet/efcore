@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     this will be updated with the new object.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="T">The metadata type</typeparam>
     public interface IMetadataReference<out T> : IDisposable

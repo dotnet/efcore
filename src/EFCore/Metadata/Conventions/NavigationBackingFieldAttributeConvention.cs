@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     based on the <see cref="BackingFieldAttribute" /> attribute.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class NavigationBackingFieldAttributeConvention : NavigationAttributeConventionBase<BackingFieldAttribute>
     {
@@ -34,17 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionNavigationBuilder navigationBuilder,
             BackingFieldAttribute attribute,
             IConventionContext<IConventionNavigationBuilder> context)
-        {
-            navigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
-        }
+            => navigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
 
         /// <inheritdoc />
         public override void ProcessSkipNavigationAdded(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             BackingFieldAttribute attribute,
             IConventionContext<IConventionSkipNavigationBuilder> context)
-        {
-            skipNavigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
-        }
+            => skipNavigationBuilder.HasField(attribute.Name, fromDataAnnotation: true);
     }
 }

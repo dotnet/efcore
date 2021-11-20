@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     <see cref="RelationalEventId" /> connection ending events.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class ConnectionEndEventData : ConnectionEventData
     {
@@ -37,7 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
             : base(eventDefinition, messageGenerator, connection, context, connectionId, async, startTime)
-            => Duration = duration;
+        {
+            Duration = duration;
+        }
 
         /// <summary>
         ///     The duration this event.

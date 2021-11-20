@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
     /// </remarks>
     public static class CosmosQueryableExtensions
     {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
         /// <param name="source">The source query.</param>
@@ -61,18 +61,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///         You can compose on top of the raw SQL query using LINQ operators:
+        ///         The returned <see cref="IQueryable{T}" /> can be composed over using LINQ to build more complex queries.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlRaw("SELECT * FROM root c).OrderBy(b => b.Name)</code>
         ///     <para>
         ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
         ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-        ///         arguments. Any parameter values you supply will automatically be converted to a Cosmos parameter:
+        ///         arguments. Any parameter values you supply will automatically be converted to a Cosmos parameter.
         ///     </para>
-        ///     <code>context.Blogs.FromSqlRaw(""SELECT * FROM root c WHERE c["Name"] = {0})", userSuppliedSearchTerm)</code>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        ///         <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information
+        ///         and examples.
         ///     </para>
         /// </remarks>
         /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>

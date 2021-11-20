@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public interface ISqlQueryMapping : ITableMappingBase
     {

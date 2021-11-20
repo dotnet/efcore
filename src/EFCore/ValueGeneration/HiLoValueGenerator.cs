@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     a new low value must be fetched from the database.
     /// </remarks>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TValue">The type of values that are generated.</typeparam>
     public abstract class HiLoValueGenerator<TValue> : ValueGenerator<TValue>

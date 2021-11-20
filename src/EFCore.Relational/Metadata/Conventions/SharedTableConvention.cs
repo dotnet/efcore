@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class SharedTableConvention : IModelFinalizingConvention
     {
@@ -142,7 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         continue;
                     }
 
-                    clashingTables ??= new();
+                    clashingTables ??=
+                        new Dictionary<(string Name, string? Schema),
+                            Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
 
                     if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                     {

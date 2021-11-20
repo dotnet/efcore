@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public enum SqlServerValueGenerationStrategy
     {

@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     public static class SqliteNetTopologySuiteServiceCollectionExtensions
     {

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures properties as required if they have the <see cref="RequiredAttribute" /> applied.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class RequiredPropertyAttributeConvention : PropertyAttributeConventionBase<RequiredAttribute>
     {
@@ -37,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RequiredAttribute attribute,
             MemberInfo clrMember,
             IConventionContext context)
-        {
-            propertyBuilder.IsRequired(true, fromDataAnnotation: true);
-        }
+            => propertyBuilder.IsRequired(true, fromDataAnnotation: true);
     }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing table.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     [DebuggerDisplay("DROP TABLE {Name}")]
     public class DropTableOperation : MigrationOperation, ITableMigrationOperation
@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         // ReSharper disable once VirtualMemberCallInConstructor
         public DropTableOperation()
-            => IsDestructiveChange = true;
+        {
+            IsDestructiveChange = true;
+        }
 
         /// <summary>
         ///     The name of the table.

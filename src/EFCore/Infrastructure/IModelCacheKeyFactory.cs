@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IModelCacheKeyFactory

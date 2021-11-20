@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         If more than one matching field is found an exception is thrown.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class BackingFieldConvention :
@@ -59,25 +59,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
-        {
-            DiscoverField(propertyBuilder);
-        }
+            => DiscoverField(propertyBuilder);
 
         /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context)
-        {
-            DiscoverField(navigationBuilder);
-        }
+            => DiscoverField(navigationBuilder);
 
         /// <inheritdoc />
         public virtual void ProcessSkipNavigationAdded(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             IConventionContext<IConventionSkipNavigationBuilder> context)
-        {
-            DiscoverField(skipNavigationBuilder);
-        }
+            => DiscoverField(skipNavigationBuilder);
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(

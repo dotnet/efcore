@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that ignores entity types that have the <see cref="KeylessAttribute" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class KeylessEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<KeylessAttribute>
     {
@@ -33,8 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder,
             KeylessAttribute attribute,
             IConventionContext<IConventionEntityTypeBuilder> context)
-        {
-            entityTypeBuilder.HasNoKey(fromDataAnnotation: true);
-        }
+            => entityTypeBuilder.HasNoKey(fromDataAnnotation: true);
     }
 }

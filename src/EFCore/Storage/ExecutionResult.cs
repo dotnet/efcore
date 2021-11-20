@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public class ExecutionResult<TResult>

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         is configured using the foreign key properties with an extra property that matches the naming convention above.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class KeyDiscoveryConvention :
@@ -238,9 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
-        {
-            TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
-        }
+            => TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
 
         /// <inheritdoc />
         public virtual void ProcessKeyRemoved(
@@ -285,9 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)
-        {
-            TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
-        }
+            => TryConfigurePrimaryKey(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
 
         /// <inheritdoc />
         public virtual void ProcessForeignKeyRemoved(

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public abstract class RelationalTypeMapping : CoreTypeMapping
     {
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 storeType = storeTypeNameBase + "(" + size + ")";
             }
             else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+                     || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
             {
                 var precision = parameters.Precision;
                 if (precision != null)

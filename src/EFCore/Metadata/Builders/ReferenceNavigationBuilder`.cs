@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
@@ -76,13 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>An object to further configure the relationship.</returns>
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             string? navigationName = null)
-        {
-            return new(
+            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(
                     Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
-        }
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.
@@ -100,12 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>An object to further configure the relationship.</returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>>? navigationExpression)
-        {
-            return new(
+            => new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(navigationExpression?.GetMemberAccess()).Metadata);
-        }
 
         /// <summary>
         ///     Configures this as a one-to-one relationship.

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the Unicode based on the <see cref="UnicodeAttribute" /> applied on the property.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class UnicodeAttributeConvention : PropertyAttributeConventionBase<UnicodeAttribute>
     {
@@ -36,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             UnicodeAttribute attribute,
             MemberInfo clrMember,
             IConventionContext context)
-        {
-            propertyBuilder.IsUnicode(attribute.IsUnicode, fromDataAnnotation: true);
-        }
+            => propertyBuilder.IsUnicode(attribute.IsUnicode, fromDataAnnotation: true);
     }
 }
