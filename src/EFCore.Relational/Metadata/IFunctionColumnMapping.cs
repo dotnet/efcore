@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents property mapping to a column.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public interface IFunctionColumnMapping : IColumnMappingBase
     {

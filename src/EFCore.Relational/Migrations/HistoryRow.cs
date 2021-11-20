@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     An entity type that represents a row in the Migrations history table.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     public class HistoryRow
     {

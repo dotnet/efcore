@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="typeName">The name of the data type of the column.</param>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="fixedLength">A value indicating whether the property is constrained to fixed length values.</param>
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information and examples.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="collation">The collation for the column.</param>
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information and examples.
         /// </remarks>
         /// <param name="propertyBuilder">The builder for the property being configured.</param>
         /// <param name="collation">The collation for the column.</param>

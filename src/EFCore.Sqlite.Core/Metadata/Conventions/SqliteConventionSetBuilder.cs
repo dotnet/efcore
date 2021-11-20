@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class SqliteConventionSetBuilder : RelationalConventionSetBuilder

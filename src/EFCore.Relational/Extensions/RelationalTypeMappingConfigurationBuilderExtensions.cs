@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Relational database specific extension methods for <see cref="TypeMappingConfigurationBuilder" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public static class RelationalTypeMappingConfigurationBuilderExtensions
     {
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="scalarBuilder">The builder for the scalar being configured.</param>
         /// <param name="typeName">The name of the data type of the column.</param>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TScalar">The type of the scalar being configured.</typeparam>
         /// <param name="scalarBuilder">The builder for the scalar being configured.</param>
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the scalar as capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="scalarBuilder">The builder for the scalar being configured.</param>
         /// <param name="fixedLength">A value indicating whether the scalar is constrained to fixed length values.</param>
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the scalar as capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TScalar">The type of the scalar being configured.</typeparam>
         /// <param name="scalarBuilder">The builder for the scalar being configured.</param>

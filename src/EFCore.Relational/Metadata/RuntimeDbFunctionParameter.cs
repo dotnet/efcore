@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a function parameter.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionParameter
     {
@@ -70,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _typeMapping, this, static parameter =>
-                    {
-                        var relationalTypeMappingSource =
-                            (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
-                        return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
-                    });
+                {
+                    var relationalTypeMappingSource =
+                        (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
+                    return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
+                });
 
             set => _typeMapping = value;
         }

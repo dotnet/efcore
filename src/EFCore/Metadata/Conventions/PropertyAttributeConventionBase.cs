@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A base type for conventions that perform configuration based on an attribute applied to a property.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TAttribute">The attribute type to look for.</typeparam>
     public abstract class PropertyAttributeConventionBase<TAttribute> : IPropertyAddedConvention, IPropertyFieldChangedConvention

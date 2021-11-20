@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class CompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
@@ -127,12 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
             /// </returns>
             public bool Equals(CompiledQueryCacheKey other)
-            {
-                return ReferenceEquals(_model, other._model)
+                => ReferenceEquals(_model, other._model)
                     && _queryTrackingBehavior == other._queryTrackingBehavior
                     && _async == other._async
                     && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
-            }
 
             /// <summary>
             ///     Gets the hash code for the key.

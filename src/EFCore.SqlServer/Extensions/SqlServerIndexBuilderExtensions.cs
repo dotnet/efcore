@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
     ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class SqlServerIndexBuilderExtensions
     {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="clustered">A value indicating whether the index is clustered.</param>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="clustered">A value indicating whether the index is clustered.</param>
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="clustered">A value indicating whether the index is clustered.</param>
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="clustered">A value indicating whether the index is clustered.</param>
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="includeExpression">
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
@@ -389,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>

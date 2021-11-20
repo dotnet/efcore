@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     Represents a migration operation on a table.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     public interface ITableMigrationOperation
     {

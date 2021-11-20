@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     the check constraints on the base type. And also ensures that the declaring type is current.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, IEntityTypeAddedConvention
     {
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                constraintsToReattach ??= new();
+                constraintsToReattach ??= new List<IConventionCheckConstraint>();
 
                 constraintsToReattach.Add(checkConstraint);
             }

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="T">The type of the property being hidden.</typeparam>
     public interface IInfrastructure<out T>

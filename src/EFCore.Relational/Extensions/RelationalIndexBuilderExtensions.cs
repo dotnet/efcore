@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Relational database specific extension methods for <see cref="IndexBuilder" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
     /// </remarks>
     public static class RelationalIndexBuilderExtensions
     {
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the index in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="name">The name of the index.</param>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the index in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="name">The name of the index.</param>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the index in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the index in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="name">The name of the index.</param>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the given name can be set for the index.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="name">The name of the index.</param>
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the filter expression for the index.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="sql">The filter expression for the index.</param>
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the filter expression for the index.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <typeparam name="TEntity">The entity type being configured.</typeparam>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the filter expression for the index.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="sql">The filter expression for the index.</param>
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the given expression can be set as the filter for the index.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information and examples.
         /// </remarks>
         /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="sql">The filter expression for the index.</param>

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public class MethodCallCodeFragment
     {
@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the method's name.
         /// </summary>
         /// <value> The method's name. </value>
-        public virtual string Method => MethodInfo.Name;
+        public virtual string Method
+            => MethodInfo.Name;
 
         /// <summary>
         ///     Gets the method call's arguments.

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public class ModelCustomizer : IModelCustomizer
@@ -54,8 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The context instance that the model is being created for.
         /// </param>
         public virtual void Customize(ModelBuilder modelBuilder, DbContext context)
-        {
-            context.OnModelCreating(modelBuilder);
-        }
+            => context.OnModelCreating(modelBuilder);
     }
 }

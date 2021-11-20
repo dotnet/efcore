@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures a property as a concurrency token if it has the <see cref="ConcurrencyCheckAttribute" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class ConcurrencyCheckAttributeConvention : PropertyAttributeConventionBase<ConcurrencyCheckAttribute>
     {
@@ -37,8 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ConcurrencyCheckAttribute attribute,
             MemberInfo clrMember,
             IConventionContext context)
-        {
-            propertyBuilder.IsConcurrencyToken(true, fromDataAnnotation: true);
-        }
+            => propertyBuilder.IsConcurrencyToken(true, fromDataAnnotation: true);
     }
 }

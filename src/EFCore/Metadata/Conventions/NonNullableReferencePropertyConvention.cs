@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the properties of non-nullable types as required.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
         IPropertyAddedConvention,
@@ -46,9 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
-        {
-            Process(propertyBuilder);
-        }
+            => Process(propertyBuilder);
 
         /// <summary>
         ///     Called after the backing field for a property is changed.
@@ -62,8 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             FieldInfo? newFieldInfo,
             FieldInfo? oldFieldInfo,
             IConventionContext<FieldInfo> context)
-        {
-            Process(propertyBuilder);
-        }
+            => Process(propertyBuilder);
     }
 }

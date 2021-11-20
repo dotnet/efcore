@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in a model.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     {
@@ -100,13 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get => _isScalar
                 ? NonCapturingLazyInitializer.EnsureInitialized(
                     ref _typeMapping, this, static dbFunction =>
-                        {
-                            var relationalTypeMappingSource =
-                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
-                            return !string.IsNullOrEmpty(dbFunction._storeType)
-                                ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                : relationalTypeMappingSource.FindMapping(dbFunction._returnType, dbFunction.Model)!;
-                        })
+                    {
+                        var relationalTypeMappingSource =
+                            (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                        return !string.IsNullOrEmpty(dbFunction._storeType)
+                            ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                            : relationalTypeMappingSource.FindMapping(dbFunction._returnType, dbFunction.Model)!;
+                    })
                 : _typeMapping;
             set => _typeMapping = value;
         }

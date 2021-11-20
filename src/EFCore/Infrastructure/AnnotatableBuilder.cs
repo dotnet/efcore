@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     [DebuggerDisplay("Builder {" + nameof(Metadata) + ",nq}")]
     public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConventionAnnotatableBuilder

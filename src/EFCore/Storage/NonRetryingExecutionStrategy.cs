@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public sealed class NonRetryingExecutionStrategy : IExecutionStrategy
@@ -30,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dependencies">Dependencies for this execution strategy.</param>
         public NonRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
-            => Dependencies = dependencies;
+        {
+            Dependencies = dependencies;
+        }
 
         private ExecutionStrategyDependencies Dependencies { get; }
 
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public bool RetriesOnFailure
             => false;
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">

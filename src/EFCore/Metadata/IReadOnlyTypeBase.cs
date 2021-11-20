@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a type in the model.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     {
@@ -27,12 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///         Gets the CLR class that is used to represent instances of this type.
-        ///         Returns <see langword="null" /> if the type does not have a corresponding CLR class (known as a shadow type).
+        ///     Gets the CLR class that is used to represent instances of this type.
+        ///     Returns <see langword="null" /> if the type does not have a corresponding CLR class (known as a shadow type).
         /// </summary>
         /// <remarks>
-        ///         Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
-        ///         Therefore, shadow types will only exist in migration model snapshots, etc.
+        ///     Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///     Therefore, shadow types will only exist in migration model snapshots, etc.
         /// </remarks>
         Type ClrType { get; }
 
@@ -141,21 +141,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for properties and navigations of this type.
+        ///     Gets the <see cref="PropertyAccessMode" /> being used for properties and navigations of this type.
         /// </summary>
         /// <remarks>
-        ///         Note that individual properties and navigations can override this access mode. The value returned here will
-        ///         be used for any property or navigation for which no override has been specified.
+        ///     Note that individual properties and navigations can override this access mode. The value returned here will
+        ///     be used for any property or navigation for which no override has been specified.
         /// </remarks>
         /// <returns>The access mode being used.</returns>
         PropertyAccessMode GetPropertyAccessMode();
 
         /// <summary>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for navigations of this type.
+        ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this type.
         /// </summary>
         /// <remarks>
-        ///         Note that individual navigations can override this access mode. The value returned here will
-        ///         be used for any navigation for which no override has been specified.
+        ///     Note that individual navigations can override this access mode. The value returned here will
+        ///     be used for any navigation for which no override has been specified.
         /// </remarks>
         /// <returns>The access mode being used.</returns>
         PropertyAccessMode GetNavigationAccessMode();

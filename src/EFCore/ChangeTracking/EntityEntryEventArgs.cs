@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     Event arguments for events relating to tracked <see cref="EntityEntry" />s.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
     /// </remarks>
     public class EntityEntryEventArgs : EventArgs
     {

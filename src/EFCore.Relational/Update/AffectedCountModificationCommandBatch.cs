@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public abstract class AffectedCountModificationCommandBatch : ReaderModificationCommandBatch
     {
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
-                        && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                           && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                     {
                         commandIndex++;
                     }
@@ -68,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
-                    && reader.DbDataReader.NextResult());
+                       && reader.DbDataReader.NextResult());
 
 #if DEBUG
                 while (commandIndex < CommandResultSet.Count
-                    && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                 {
                     commandIndex++;
                 }
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
-                        && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                           && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                     {
                         commandIndex++;
                     }
@@ -134,11 +134,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
-                    && await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
+                       && await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
 #if DEBUG
                 while (commandIndex < CommandResultSet.Count
-                    && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                 {
                     commandIndex++;
                 }
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < CommandResultSet.Count
-                        && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                           && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
                     }
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 rowsAffected++;
             }
             while (++commandIndex < CommandResultSet.Count
-                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
+                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
         }
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < CommandResultSet.Count
-                        && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                           && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
                     }
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 rowsAffected++;
             }
             while (++commandIndex < CommandResultSet.Count
-                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
+                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
         }
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count
-                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
 
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count
-                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
 
@@ -344,10 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             int commandIndex,
             int expectedRowsAffected,
             int rowsAffected)
-        {
-            throw new DbUpdateConcurrencyException(
+            => throw new DbUpdateConcurrencyException(
                 RelationalStrings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                 AggregateEntries(commandIndex, expectedRowsAffected));
-        }
     }
 }

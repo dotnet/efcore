@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     specified on the other navigation property.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class InversePropertyAttributeConvention :
         NavigationAttributeConventionBase<InversePropertyAttribute>,
@@ -121,13 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 AddInverseNavigation(entityType, navigationMemberInfo, targetEntityType, inverseNavigationPropertyInfo);
 
             if (TryRemoveIfAmbiguous(
-                entityType,
-                navigationMemberInfo,
-                targetEntityType,
-                targetEntityType.BaseType,
-                inverseNavigationPropertyInfo,
-                referencingNavigationsWithAttribute,
-                out var conventionForeignKeyBuilder))
+                    entityType,
+                    navigationMemberInfo,
+                    targetEntityType,
+                    targetEntityType.BaseType,
+                    inverseNavigationPropertyInfo,
+                    referencingNavigationsWithAttribute,
+                    out var conventionForeignKeyBuilder))
             {
                 return conventionForeignKeyBuilder;
             }
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var ambiguousInverse = FindAmbiguousInverse(
                 navigationMemberInfo, entityType, referencingNavigationsWithAttribute);
             while (ambiguousInverse == null
-                && targetBaseType != null)
+                   && targetBaseType != null)
             {
                 var navigationMap = GetInverseNavigations(targetBaseType);
                 if (navigationMap != null
@@ -487,13 +487,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     foreach (var referencingNavigationWithAttribute in inverseNavigation.References)
                     {
                         if (TryRemoveIfAmbiguous(
-                            referencingNavigationWithAttribute.Item2,
-                            referencingNavigationWithAttribute.Item1,
-                            entityType,
-                            newBaseType,
-                            inverseNavigation.Navigation,
-                            inverseNavigation.References,
-                            out _))
+                                referencingNavigationWithAttribute.Item2,
+                                referencingNavigationWithAttribute.Item1,
+                                entityType,
+                                newBaseType,
+                                inverseNavigation.Navigation,
+                                inverseNavigation.References,
+                                out _))
                         {
                             break;
                         }
@@ -564,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         var baseType = entityType.BaseType;
                         while (ambiguousInverse == null
-                            && baseType != null)
+                               && baseType != null)
                         {
                             var navigationMap = GetInverseNavigations(baseType);
                             if (navigationMap != null
@@ -784,10 +784,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
                 else if (referencingTuple.Item1.IsSameAs(navigation)
-                    && ((!referencingTuple.Item2.IsInModel
-                            && declaringType!.IsAssignableFrom(referencingTuple.Item2.ClrType))
-                        || (referencingTuple.Item2.IsInModel
-                            && declaringEntityType!.IsAssignableFrom(referencingTuple.Item2))))
+                         && ((!referencingTuple.Item2.IsInModel
+                                 && declaringType!.IsAssignableFrom(referencingTuple.Item2.ClrType))
+                             || (referencingTuple.Item2.IsInModel
+                                 && declaringEntityType!.IsAssignableFrom(referencingTuple.Item2))))
                 {
                     anyRemoved = true;
                     referencingNavigationsWithAttribute.RemoveAt(index--);

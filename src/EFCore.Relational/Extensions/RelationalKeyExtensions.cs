@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Key extension methods for relational database metadata.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
     /// </remarks>
     public static class RelationalKeyExtensions
     {
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     IReadOnlyKey? linkedKey = null;
                     foreach (var otherKey in rootKey.DeclaringEntityType
-                        .FindRowInternalForeignKeys(storeObject)
-                        .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
+                                 .FindRowInternalForeignKeys(storeObject)
+                                 .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                     {
                         var otherColumnNames = otherKey.Properties.GetColumnNames(storeObject);
                         if ((otherColumnNames != null)
@@ -211,8 +211,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 IReadOnlyKey? linkedKey = null;
                 foreach (var otherKey in rootKey.DeclaringEntityType
-                    .FindRowInternalForeignKeys(storeObject)
-                    .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
+                             .FindRowInternalForeignKeys(storeObject)
+                             .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
                 {
                     if (otherKey.GetName(storeObject) == keyName)
                     {

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts strings to and from arrays of bytes.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public class StringToBytesConverter : ValueConverter<string?, byte[]?>
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new instance of this converter.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="encoding">The string encoding to use.</param>
         /// <param name="mappingHints">

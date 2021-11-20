@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     CLR type hierarchy.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class BaseTypeDiscoveryConvention :
         IEntityTypeAddedConvention,
@@ -100,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             IConventionEntityType? baseEntityType = null;
             while (baseEntityType == null
-                && baseType != typeof(object)
-                && baseType != null)
+                   && baseType != typeof(object)
+                   && baseType != null)
             {
                 baseEntityType = model.FindEntityType(baseType);
                 if (baseEntityType == null)

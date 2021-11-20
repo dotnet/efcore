@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IExecutionStrategy
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         bool RetriesOnFailure { get; }
 
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">

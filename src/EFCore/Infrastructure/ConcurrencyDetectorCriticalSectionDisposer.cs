@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public readonly struct ConcurrencyDetectorCriticalSectionDisposer : IDisposable
     {
@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The <see cref="IConcurrencyDetector" /> on which the critical section will be exited.
         /// </param>
         public ConcurrencyDetectorCriticalSectionDisposer(IConcurrencyDetector concurrencyDetector)
-            => _concurrencyDetector = concurrencyDetector;
+        {
+            _concurrencyDetector = concurrencyDetector;
+        }
 
         /// <inheritdoc />
         public void Dispose()

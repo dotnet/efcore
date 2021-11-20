@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     <see cref="RelationalEventId" /> transaction end events.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class TransactionEndEventData : TransactionEventData
     {
@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
             : base(eventDefinition, messageGenerator, transaction, context, transactionId, connectionId, async, startTime)
-            => Duration = duration;
+        {
+            Duration = duration;
+        }
 
         /// <summary>
         ///     The duration of this event.

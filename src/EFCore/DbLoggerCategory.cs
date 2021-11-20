@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         <see cref="IDiagnosticsLogger{TLoggerCategory}" /> to create a logger.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public static class DbLoggerCategory

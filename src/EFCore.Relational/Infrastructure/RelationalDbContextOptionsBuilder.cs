@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         particular relational database provider.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : IRelationalDbContextOptionsBuilderInfrastructure
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     during <see cref="DbContext.SaveChanges()" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="maxBatchSize">The maximum number of statements.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     during <see cref="DbContext.SaveChanges()" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information and examples.
         /// </remarks>
         /// <param name="minBatchSize">The minimum number of statements.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="commandTimeout">The time in seconds to wait for the command to execute.</param>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the assembly where migrations are maintained for this context.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="assemblyName">The name of the assembly.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the name of the table used to record which migrations have been applied to the database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="tableName">The name of the table.</param>
         /// <param name="schema">The schema of the table.</param>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     in how the database handles nulls.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-relational-nulls">Relational database null semantics</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-relational-nulls">Relational database null semantics</see> for more information and examples.
         /// </remarks>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TBuilder UseRelationalNulls(bool useRelationalNulls = true)
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the <see cref="QuerySplittingBehavior" /> to use when loading related collections in a query.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information and examples.
         /// </remarks>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual TBuilder UseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="getExecutionStrategy">A function that returns a new instance of an execution strategy.</param>
         public virtual TBuilder ExecutionStrategy(

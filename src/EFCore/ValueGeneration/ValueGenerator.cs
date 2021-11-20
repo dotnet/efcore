@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     Generates values for properties when an entity is added to a context.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     public abstract class ValueGenerator
     {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Gets a value to be assigned to a property.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
         /// <returns>The value to be assigned to a property.</returns>
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
         /// <returns>The generated value.</returns>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Gets a value to be assigned to a property.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///         key which are saved to the database.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public abstract bool GeneratesTemporaryValues { get; }
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     be marked as unknown.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
         /// </remarks>
         public virtual bool GeneratesStableValues
             => false;

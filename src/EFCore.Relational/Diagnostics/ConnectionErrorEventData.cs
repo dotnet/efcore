@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for <see cref="RelationalEventId.ConnectionError" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
     /// </remarks>
     public class ConnectionErrorEventData : ConnectionEndEventData, IErrorEventData
     {
@@ -38,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DateTimeOffset startTime,
             TimeSpan duration)
             : base(eventDefinition, messageGenerator, connection, context, connectionId, async, startTime, duration)
-            => Exception = exception;
+        {
+            Exception = exception;
+        }
 
         /// <summary>
         ///     The exception that was thrown when the connection failed.

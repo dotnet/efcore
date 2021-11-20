@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="migrationBuilder">
         ///     The migrationBuilder from the parameters on <see cref="Migration.Up(MigrationBuilder)" /> or

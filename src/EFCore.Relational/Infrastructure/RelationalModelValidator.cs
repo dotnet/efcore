@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public class RelationalModelValidator : ModelValidator
@@ -1366,9 +1366,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             case StoreObjectType.Table:
                                 if (!entityType.GetDerivedTypesInclusive().Any(
-                                    d =>
-                                        d.GetTableName() == name
-                                        && d.GetSchema() == schema))
+                                        d =>
+                                            d.GetTableName() == name
+                                            && d.GetSchema() == schema))
                                 {
                                     throw new InvalidOperationException(
                                         RelationalStrings.TableOverrideMismatch(
@@ -1379,9 +1379,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 break;
                             case StoreObjectType.View:
                                 if (!entityType.GetDerivedTypesInclusive().Any(
-                                    d =>
-                                        d.GetViewName() == name
-                                        && d.GetViewSchema() == schema))
+                                        d =>
+                                            d.GetViewName() == name
+                                            && d.GetViewSchema() == schema))
                                 {
                                     throw new InvalidOperationException(
                                         RelationalStrings.ViewOverrideMismatch(
@@ -1429,7 +1429,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var index in entityType.GetDeclaredIndexes()
-                    .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
+                             .Where(i => ConfigurationSource.Convention != ((IConventionIndex)i).GetConfigurationSource()))
                 {
                     IProperty? propertyNotMappedToAnyTable = null;
                     Tuple<string, List<(string Table, string? Schema)>>? firstPropertyTables = null;

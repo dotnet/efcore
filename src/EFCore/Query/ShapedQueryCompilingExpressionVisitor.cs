@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
@@ -215,12 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private bool ValidConstant(ConstantExpression constantExpression)
-            {
-                return constantExpression.Value == null
+                => constantExpression.Value == null
                     || _typeMappingSource.FindMapping(constantExpression.Type) != null
                     || constantExpression.Value is Array array
                     && array.Length == 0;
-            }
 
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
@@ -268,8 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static Expression? RemoveConvert(Expression? expression)
             {
                 while (expression != null
-                    && (expression.NodeType == ExpressionType.Convert
-                        || expression.NodeType == ExpressionType.ConvertChecked))
+                       && (expression.NodeType == ExpressionType.Convert
+                           || expression.NodeType == ExpressionType.ConvertChecked))
                 {
                     expression = RemoveConvert(((UnaryExpression)expression).Operand);
                 }
@@ -304,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     nameof(QueryContext.StartTracking), typeof(IEntityType), typeof(object), typeof(ValueBuffer));
 
             private static readonly MethodInfo _createNullKeyValueInNoTrackingQuery
-                = typeof(EntityMaterializerInjectingExpressionVisitor).GetRequiredDeclaredMethod(nameof(CreateNullKeyValueInNoTrackingQuery));
+                = typeof(EntityMaterializerInjectingExpressionVisitor).GetRequiredDeclaredMethod(
+                    nameof(CreateNullKeyValueInNoTrackingQuery));
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
             private readonly QueryTrackingBehavior _queryTrackingBehavior;
@@ -441,13 +440,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                             expressions.Add(
                                 Expression.IfThen(
                                     primaryKey.Properties.Select(
-                                        p => Expression.NotEqual(
-                                            valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                            Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.AndAlso(a, b)),
-                                MaterializeEntity(
-                                    entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
-                                    null)));
+                                            p => Expression.NotEqual(
+                                                valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                                Expression.Constant(null)))
+                                        .Aggregate((a, b) => Expression.AndAlso(a, b)),
+                                    MaterializeEntity(
+                                        entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable,
+                                        instanceVariable,
+                                        null)));
                         }
                         else
                         {
@@ -455,27 +455,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                             expressions.Add(
                                 Expression.IfThenElse(
                                     primaryKey.Properties.Select(
-                                        p => Expression.NotEqual(
-                                            valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
-                                            Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.AndAlso(a, b)),
-                                MaterializeEntity(
-                                    entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable, instanceVariable,
-                                    null),
-                                Expression.Block(
-                                    new[] { keyValuesVariable },
-                                    Expression.Assign(
-                                        keyValuesVariable,
-                                        Expression.NewArrayInit(
-                                            typeof(object),
-                                            primaryKey.Properties.Select(
-                                                p => valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p)))),
-                                    Expression.Call(
-                                        _createNullKeyValueInNoTrackingQuery,
-                                        Expression.Constant(entityType),
-                                        Expression.Constant(primaryKey.Properties),
-                                        keyValuesVariable))));
-
+                                            p => Expression.NotEqual(
+                                                valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
+                                                Expression.Constant(null)))
+                                        .Aggregate((a, b) => Expression.AndAlso(a, b)),
+                                    MaterializeEntity(
+                                        entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable,
+                                        instanceVariable,
+                                        null),
+                                    Expression.Block(
+                                        new[] { keyValuesVariable },
+                                        Expression.Assign(
+                                            keyValuesVariable,
+                                            Expression.NewArrayInit(
+                                                typeof(object),
+                                                primaryKey.Properties.Select(
+                                                    p => valueBufferExpression.CreateValueBufferReadValueExpression(
+                                                        typeof(object), p.GetIndex(), p)))),
+                                        Expression.Call(
+                                            _createNullKeyValueInNoTrackingQuery,
+                                            Expression.Constant(entityType),
+                                            Expression.Constant(primaryKey.Properties),
+                                            keyValuesVariable))));
                         }
                     }
                     else
@@ -617,7 +618,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             [UsedImplicitly]
             private static Exception CreateNullKeyValueInNoTrackingQuery(
-                IEntityType entityType, IReadOnlyList<IProperty> properties, object?[] keyValues)
+                IEntityType entityType,
+                IReadOnlyList<IProperty> properties,
+                object?[] keyValues)
             {
                 var index = -1;
                 for (var i = 0; i < keyValues.Length; i++)

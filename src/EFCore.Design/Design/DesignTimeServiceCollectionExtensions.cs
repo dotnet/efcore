@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     <see cref="IServiceCollection" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
     /// </remarks>
     public static class DesignTimeServiceCollectionExtensions
     {
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Adds the Entity Framework Core design-time services.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
         /// </remarks>
         /// <param name="services">The <see cref="IServiceCollection" /> the services will be added to.</param>
         /// <param name="reporter">Used to report design-time messages.</param>
@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                         .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
                         .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
 
-            var loggerFactory = new LoggerFactory(new[] { new OperationLoggerProvider(reporter) }, new LoggerFilterOptions { MinLevel = LogLevel.Debug });
+            var loggerFactory = new LoggerFactory(
+                new[] { new OperationLoggerProvider(reporter) }, new LoggerFilterOptions { MinLevel = LogLevel.Debug });
             services.AddScoped<ILoggerFactory>(_ => loggerFactory);
 
             return services;
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Adds services from the <see cref="DbContext" /> which are used at design time.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information and examples.
         /// </remarks>
         /// <param name="services">The <see cref="IServiceCollection" /> the services will be added to.</param>
         /// <param name="context">The <see cref="DbContext" /> the services will be added from.</param>

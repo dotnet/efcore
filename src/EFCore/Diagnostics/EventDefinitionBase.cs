@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public abstract class EventDefinitionBase
     {
@@ -104,9 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 TState state,
                 Exception? exception,
                 Func<TState, Exception?, string> formatter)
-            {
-                Message = formatter(state, exception);
-            }
+                => Message = formatter(state, exception);
 
             bool ILogger.IsEnabled(LogLevel logLevel)
                 => true;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -120,11 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var principal = context.Add(
-                        new NullablePrincipal
-                        {
-                            Id = 1,
-                            Dependents = new List<NonNullableDependent> { new() { Id = 1 } }
-                        })
+                        new NullablePrincipal { Id = 1, Dependents = new List<NonNullableDependent> { new() { Id = 1 } } })
                     .Entity;
 
                 var pkEntry = context.Entry(principal).Property(e => e.Id);
@@ -213,7 +208,9 @@ namespace Microsoft.EntityFrameworkCore
             private readonly string _value;
 
             private Email(string value)
-                => _value = value;
+            {
+                _value = value;
+            }
 
             public static Email Create(string value)
                 => new(value);
@@ -252,7 +249,9 @@ namespace Microsoft.EntityFrameworkCore
         protected struct Fuel
         {
             public Fuel(double volume)
-                => Volume = volume;
+            {
+                Volume = volume;
+            }
 
             public double Volume { get; }
         }
@@ -367,9 +366,7 @@ namespace Microsoft.EntityFrameworkCore
             public string StringValue { get; }
 
             public static OrderId Parse(string stringValue)
-            {
-                return new(stringValue);
-            }
+                => new OrderId(stringValue);
 
             public static explicit operator string(OrderId orderId)
                 => orderId.StringValue;
@@ -660,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
             Assert.Contains(
-                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -690,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             var sameRole = Roles.Seller;
             Assert.Contains(
-                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information and examples.",
                 Assert.Throws<InvalidOperationException>(
                         () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
@@ -776,12 +773,13 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.TranslationFailed(
                     @"l => new {     H = l.Height,     W = l.Width }"),
                 Assert.Throws<InvalidOperationException>(
-                        () => context.Set<Dashboard>().AsNoTracking().Select(d => new
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Layouts = d.Layouts.Select(l => new { H = l.Height, W = l.Width }).ToList()
-                        }).ToList())
+                        () => context.Set<Dashboard>().AsNoTracking().Select(
+                            d => new
+                            {
+                                d.Id,
+                                d.Name,
+                                Layouts = d.Layouts.Select(l => new { H = l.Height, W = l.Width }).ToList()
+                            }).ToList())
                     .Message.Replace("\r", "").Replace("\n", ""));
         }
 
@@ -925,23 +923,23 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.Property(e => e.TestNullableDateTime).HasConversion(
                             v => v.Value.ToBinary(),
-                            v => (DateTime?)DateTime.FromBinary(v));
+                            v => DateTime.FromBinary(v));
 
                         b.Property(e => e.TestNullableTimeSpan).HasConversion(
                             v => v.Value.TotalMilliseconds,
-                            v => (TimeSpan?)TimeSpan.FromMilliseconds(v));
+                            v => TimeSpan.FromMilliseconds(v));
 
                         b.Property(e => e.EnumS8).HasConversion(
                             v => v.ToString(),
-                            v => v == nameof(EnumS8.SomeValue) ? (EnumS8?)EnumS8.SomeValue : null);
+                            v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : null);
 
                         b.Property(e => e.Enum8).HasConversion(
                             v => v.ToString(),
-                            v => v == nameof(Enum8.SomeValue) ? (Enum8?)Enum8.SomeValue : null);
+                            v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : null);
 
                         b.Property(e => e.TestNullableDateTimeOffset).HasConversion(
                             v => v.Value.ToUnixTimeMilliseconds(),
-                            v => (DateTimeOffset?)DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0)));
+                            v => DateTimeOffset.FromUnixTimeMilliseconds(v).ToOffset(TimeSpan.FromHours(-8.0)));
 
                         b.Property(e => e.TestNullableDouble).HasConversion(
                             new ValueConverter<double?, decimal?>(
@@ -953,11 +951,11 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Property(nameof(BuiltInDataTypes.PartitionId))
-                            .HasConversion(new ValueConverter<int, long>(v => (long)v, v => (int)v));
+                            .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
                         b.Property(nameof(BuiltInDataTypes.TestInt16))
-                            .HasConversion(new ValueConverter<short, long>(v => (long)v, v => (short)v));
+                            .HasConversion(new ValueConverter<short, long>(v => v, v => (short)v));
                         b.Property(nameof(BuiltInDataTypes.TestInt32))
-                            .HasConversion(new ValueConverter<int, long>(v => (long)v, v => (int)v));
+                            .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
                         b.Property(nameof(BuiltInDataTypes.TestInt64)).HasConversion(new ValueConverter<long, long>(v => v, v => v));
                         b.Property(nameof(BuiltInDataTypes.TestDecimal))
                             .HasConversion(NumberToBytesConverter<decimal>.DefaultInfo.Create());
@@ -968,17 +966,17 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(nameof(BuiltInDataTypes.TestSingle)).HasConversion(new CastingConverter<float, double>());
                         b.Property(nameof(BuiltInDataTypes.TestBoolean)).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
                         b.Property(nameof(BuiltInDataTypes.TestByte))
-                            .HasConversion(new ValueConverter<byte, ushort>(v => (ushort)v, v => (byte)v));
+                            .HasConversion(new ValueConverter<byte, ushort>(v => v, v => (byte)v));
                         b.Property(nameof(BuiltInDataTypes.TestUnsignedInt16))
-                            .HasConversion(new ValueConverter<ushort, ulong>(v => (ulong)v, v => (ushort)v));
+                            .HasConversion(new ValueConverter<ushort, ulong>(v => v, v => (ushort)v));
                         b.Property(nameof(BuiltInDataTypes.TestUnsignedInt32))
-                            .HasConversion(new ValueConverter<uint, ulong>(v => (ulong)v, v => (uint)v));
+                            .HasConversion(new ValueConverter<uint, ulong>(v => v, v => (uint)v));
                         b.Property(nameof(BuiltInDataTypes.TestUnsignedInt64))
                             .HasConversion(new ValueConverter<ulong, long>(v => (long)v, v => (ulong)v));
                         b.Property(nameof(BuiltInDataTypes.TestCharacter))
-                            .HasConversion(new ValueConverter<char, int>(v => (int)v, v => (char)v));
+                            .HasConversion(new ValueConverter<char, int>(v => v, v => (char)v));
                         b.Property(nameof(BuiltInDataTypes.TestSignedByte))
-                            .HasConversion(new ValueConverter<sbyte, decimal>(v => (decimal)v, v => (sbyte)v));
+                            .HasConversion(new ValueConverter<sbyte, decimal>(v => v, v => (sbyte)v));
                         b.Property(nameof(BuiltInDataTypes.Enum64))
                             .HasConversion(new ValueConverter<Enum64, long>(v => (long)v, v => (Enum64)v));
                         b.Property(nameof(BuiltInDataTypes.Enum32))
@@ -1018,11 +1016,11 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Property(nameof(BuiltInNullableDataTypes.PartitionId))
-                            .HasConversion(new ValueConverter<int, long>(v => (long)v, v => (int)v));
+                            .HasConversion(new ValueConverter<int, long>(v => v, v => (int)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt16))
-                            .HasConversion(new ValueConverter<short?, long?>(v => (long?)v, v => (short?)v));
+                            .HasConversion(new ValueConverter<short?, long?>(v => v, v => (short?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt32))
-                            .HasConversion(new ValueConverter<int?, long?>(v => (long?)v, v => (int?)v));
+                            .HasConversion(new ValueConverter<int?, long?>(v => v, v => (int?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableInt64))
                             .HasConversion(new ValueConverter<long?, long?>(v => v, v => v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableDecimal))
@@ -1032,17 +1030,17 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableBoolean))
                             .HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableByte))
-                            .HasConversion(new ValueConverter<byte?, ushort?>(v => (ushort?)v, v => (byte?)v));
+                            .HasConversion(new ValueConverter<byte?, ushort?>(v => v, v => (byte?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt16))
-                            .HasConversion(new ValueConverter<ushort?, ulong?>(v => (ulong?)v, v => (ushort?)v));
+                            .HasConversion(new ValueConverter<ushort?, ulong?>(v => v, v => (ushort?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt32))
-                            .HasConversion(new ValueConverter<uint?, ulong?>(v => (ulong?)v, v => (uint?)v));
+                            .HasConversion(new ValueConverter<uint?, ulong?>(v => v, v => (uint?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableUnsignedInt64))
                             .HasConversion(new ValueConverter<ulong?, long?>(v => (long?)v, v => (ulong?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableCharacter))
-                            .HasConversion(new ValueConverter<char?, int?>(v => (int?)v, v => (char?)v));
+                            .HasConversion(new ValueConverter<char?, int?>(v => v, v => (char?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableSignedByte)).HasConversion(
-                            new ValueConverter<sbyte?, decimal?>(v => (decimal?)v, v => (sbyte?)v));
+                            new ValueConverter<sbyte?, decimal?>(v => v, v => (sbyte?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.Enum64))
                             .HasConversion(new ValueConverter<Enum64?, long?>(v => (long?)v, v => (Enum64?)v));
                         b.Property(nameof(BuiltInNullableDataTypes.Enum32))
@@ -1059,27 +1057,27 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateTime)).HasConversion(
                             new ValueConverter<DateTime?, long>(
                                 v => v.Value.ToBinary(),
-                                v => (DateTime?)DateTime.FromBinary(v)));
+                                v => DateTime.FromBinary(v)));
 
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableTimeSpan)).HasConversion(
                             new ValueConverter<TimeSpan?, double>(
                                 v => v.Value.TotalMilliseconds,
-                                v => (TimeSpan?)TimeSpan.FromMilliseconds(v)));
+                                v => TimeSpan.FromMilliseconds(v)));
 
                         b.Property(nameof(BuiltInNullableDataTypes.EnumS8)).HasConversion(
                             new ValueConverter<EnumS8?, string>(
                                 v => v.ToString(),
-                                v => v == nameof(EnumS8.SomeValue) ? (EnumS8?)EnumS8.SomeValue : null));
+                                v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : null));
 
                         b.Property(nameof(BuiltInNullableDataTypes.Enum8)).HasConversion(
                             new ValueConverter<Enum8?, string>(
                                 v => v.ToString(),
-                                v => v == nameof(Enum8.SomeValue) ? (Enum8?)Enum8.SomeValue : null));
+                                v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : null));
 
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateTimeOffset)).HasConversion(
                             new ValueConverter<DateTimeOffset?, long>(
                                 v => v.Value.ToUnixTimeMilliseconds(),
-                                v => (DateTimeOffset?)DateTimeOffset.FromUnixTimeMilliseconds(v)));
+                                v => DateTimeOffset.FromUnixTimeMilliseconds(v)));
 
                         b.Property(nameof(BuiltInNullableDataTypes.TestNullableDouble)).HasConversion(
                             new ValueConverter<double?, decimal?>(
@@ -1300,8 +1298,18 @@ namespace Microsoft.EntityFrameworkCore
                             new ValueComparer<List<MessageGroup>>(favorStructuralComparisons: true));
 
                         b.HasData(
-                            new User23059 { Id = 1, IsSoftDeleted = true, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } },
-                            new User23059 { Id = 2, IsSoftDeleted = false, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } });
+                            new User23059
+                            {
+                                Id = 1,
+                                IsSoftDeleted = true,
+                                MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup }
+                            },
+                            new User23059
+                            {
+                                Id = 2,
+                                IsSoftDeleted = false,
+                                MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup }
+                            });
                     });
 
                 modelBuilder.Entity<Dashboard>()
@@ -1317,9 +1325,7 @@ namespace Microsoft.EntityFrameworkCore
             private static class StringToDictionarySerializer
             {
                 public static string Serialize(IDictionary<string, string> dictionary)
-                {
-                    return string.Join(Environment.NewLine, dictionary.Select(kvp => $"{{{kvp.Key},{kvp.Value}}}"));
-                }
+                    => string.Join(Environment.NewLine, dictionary.Select(kvp => $"{{{kvp.Key},{kvp.Value}}}"));
 
                 public static IDictionary<string, string> Deserialize(string s)
                 {
@@ -1334,12 +1340,11 @@ namespace Microsoft.EntityFrameworkCore
                     return dictionary;
                 }
             }
+
             private static class LayoutsToStringSerializer
             {
                 public static string Serialize(List<Layout> layouts)
-                {
-                    return string.Join(Environment.NewLine, layouts.Select(layout => $"({layout.Height},{layout.Width})"));
-                }
+                    => string.Join(Environment.NewLine, layouts.Select(layout => $"({layout.Height},{layout.Width})"));
 
                 public static List<Layout> Deserialize(string s)
                 {
@@ -1348,11 +1353,11 @@ namespace Microsoft.EntityFrameworkCore
                     foreach (var keyValuePair in keyValuePairs)
                     {
                         var parts = keyValuePair[1..^1].Split(",");
-                        list.Add(new Layout
-                        {
-                            Height = int.Parse(parts[0]),
-                            Width = int.Parse(parts[1]),
-                        });
+                        list.Add(
+                            new Layout
+                            {
+                                Height = int.Parse(parts[0]), Width = int.Parse(parts[1]),
+                            });
                     }
 
                     return list;

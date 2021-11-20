@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public abstract class QueryContext : IParameterValues
     {
@@ -65,10 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entity">The entity instance.</param>
         /// <param name="navigation">The navigation property.</param>
         public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
-        {
             // InitializeStateManager will populate the field before calling here
-            _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
-        }
+            => _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
 
         /// <summary>
         ///     The execution strategy to use while executing the query.

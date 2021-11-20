@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     implemented by database providers to update provider annotations when creating a read-only model.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private RuntimeDbFunction Create(IDbFunction function, RuntimeModel runtimeModel)
-            => new RuntimeDbFunction(
+            => new(
                 function.ModelName,
                 runtimeModel,
                 function.ReturnType,
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
-            => new RuntimeSequence(
+            => new(
                 sequence.Name,
                 runtimeModel,
                 sequence.Type,
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private RuntimeRelationalPropertyOverrides Create(
             IRelationalPropertyOverrides propertyOverrides,
             RuntimeProperty runtimeProperty)
-            => new RuntimeRelationalPropertyOverrides(
+            => new(
                 runtimeProperty,
                 propertyOverrides.ColumnNameOverriden,
                 propertyOverrides.ColumnName);

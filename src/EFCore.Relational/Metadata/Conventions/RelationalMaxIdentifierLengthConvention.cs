@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the maximum object identifier length supported by the database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class RelationalMaxIdentifierLengthConvention : IModelInitializedConvention
     {
@@ -53,8 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessModelInitialized(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
-        {
-            modelBuilder.Metadata.Builder.HasMaxIdentifierLength(MaxIdentifierLength);
-        }
+            => modelBuilder.Metadata.Builder.HasMaxIdentifierLength(MaxIdentifierLength);
     }
 }

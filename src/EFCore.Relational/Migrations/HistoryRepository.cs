@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     ///     </para>
     /// </remarks>
     // TODO: Leverage query pipeline for GetAppliedMigrations
@@ -194,10 +194,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///         Configures the entity type mapped to the history table.
+        ///     Configures the entity type mapped to the history table.
         /// </summary>
         /// <remarks>
-        ///         Database providers can override this to add or replace configuration.
+        ///     Database providers can override this to add or replace configuration.
         /// </remarks>
         /// <param name="history">A builder for the <see cref="HistoryRow" /> entity type.</param>
         protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)

@@ -8,7 +8,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     See <see cref="ChangeTracker.CascadeDeleteTiming" /> and <see cref="ChangeTracker.DeleteOrphansTiming" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information and
+    ///     examples.
     /// </remarks>
     public enum CascadeTiming
     {

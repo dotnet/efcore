@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that applies the entity type configuration specified in <see cref="EntityTypeConfigurationAttribute" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class EntityTypeConfigurationEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<EntityTypeConfigurationAttribute>
     {
@@ -45,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityTypeConfigurationType = attribute.EntityTypeConfigurationType;
 
             if (!entityTypeConfigurationType.GetInterfaces().Any(
-                x =>
-                    x.IsGenericType
-                    && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
-                    && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
+                    x =>
+                        x.IsGenericType
+                        && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
+                        && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidEntityTypeConfigurationAttribute(

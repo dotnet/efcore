@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures database indexes based on the <see cref="IndexAttribute" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
     {
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             bool shouldThrow)
         {
             foreach (var indexAttribute in
-                entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
+                     entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
             {
                 IConventionIndexBuilder? indexBuilder;
                 if (!shouldThrow)

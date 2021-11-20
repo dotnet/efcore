@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IExecutionStrategyFactory
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
         IExecutionStrategy Create();

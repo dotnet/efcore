@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public static class InMemoryEventId

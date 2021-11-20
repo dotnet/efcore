@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets the name of the database function.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The name of the function in the database.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets the schema of the database function.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         /// </remarks>
         /// <param name="schema">The schema of the function in the database.</param>
         /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>

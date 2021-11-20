@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public static class UpdateEntryExtensions
     {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information and examples.
         /// </remarks>
         /// <param name="updateEntry">The entry.</param>
         /// <param name="options">Options for generating the string.</param>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             if ((options & ChangeTrackerDebugStringOptions.IncludeNavigations) != 0)
             {
                 foreach (var navigation in entry.EntityType.GetNavigations()
-                    .Concat<INavigationBase>(entry.EntityType.GetSkipNavigations()))
+                             .Concat<INavigationBase>(entry.EntityType.GetSkipNavigations()))
                 {
                     builder.AppendLine().Append(indentString);
 
@@ -263,14 +263,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + string.Join(
                     ", ", properties.Select(
                         p =>
-                            {
-                                var currentValue = entry.GetCurrentValue(p);
-                                return p.Name
-                                    + ": "
-                                    + (currentValue == null
-                                        ? "<null>"
-                                        : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
-                            }))
+                        {
+                            var currentValue = entry.GetCurrentValue(p);
+                            return p.Name
+                                + ": "
+                                + (currentValue == null
+                                    ? "<null>"
+                                    : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
+                        }))
                 + "}";
 
         /// <summary>
@@ -288,14 +288,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + string.Join(
                     ", ", properties.Select(
                         p =>
-                            {
-                                var originalValue = entry.GetOriginalValue(p);
-                                return p.Name
-                                    + ": "
-                                    + (originalValue == null
-                                        ? "<null>"
-                                        : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
-                            }))
+                        {
+                            var originalValue = entry.GetOriginalValue(p);
+                            return p.Name
+                                + ": "
+                                + (originalValue == null
+                                    ? "<null>"
+                                    : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
+                        }))
                 + "}";
     }
 }

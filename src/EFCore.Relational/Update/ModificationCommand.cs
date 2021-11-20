@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
+    ///     for more information and examples.
     /// </remarks>
     public class ModificationCommand : IModificationCommand
     {
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             if (_columnModifications == null)
             {
-                _columnModifications = new();
+                _columnModifications = new List<IColumnModification>();
             }
 
             _columnModifications.Add(modification);
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                         }
                         else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                            || (!isKey && nonMainEntry))
+                                 || (!isKey && nonMainEntry))
                         {
                             writeValue = columnPropagator?.TryPropagate(property, entry)
                                 ?? (entry.EntityState == EntityState.Added || entry.IsModified(property));

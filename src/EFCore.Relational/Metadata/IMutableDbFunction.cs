@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     the form that can be mutated while the model is being built.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public interface IMutableDbFunction : IReadOnlyDbFunction, IMutableAnnotatable
     {

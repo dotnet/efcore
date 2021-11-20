@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     part of the primary key and not part of any foreign keys.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public class ValueGenerationConvention :
         IEntityTypePrimaryKeyChangedConvention,
@@ -67,9 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionForeignKey foreignKey,
             IConventionContext<IConventionForeignKey> context)
-        {
-            OnForeignKeyRemoved(foreignKey.Properties);
-        }
+            => OnForeignKeyRemoved(foreignKey.Properties);
 
         /// <summary>
         ///     Called after the foreign key properties or principal key are changed.

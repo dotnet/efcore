@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     {
@@ -979,6 +979,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionEntityTypeBuilder? HasNoDiscriminator(bool fromDataAnnotation = false);
+
         /// <summary>
         ///     Returns a value indicating whether the discriminator property can be configured.
         /// </summary>

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     This is the base interface for all convention interfaces, it should not be implemented directly.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public interface IConvention
     {

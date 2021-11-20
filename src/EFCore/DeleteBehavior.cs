@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore
     ///         the <see cref="DbContext" /> can be different from the behavior that happens in the database.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public enum DeleteBehavior

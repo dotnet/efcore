@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     A base class inherited by each EF Core migration.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     public abstract class Migration
     {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         public virtual IModel TargetModel
         {
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         with regard to this migration.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual IReadOnlyList<MigrationOperation> UpOperations
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         state that it was in before this migration was applied.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual IReadOnlyList<MigrationOperation> DownOperations
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         can be made to the database depending on the type of database being used.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         [DisallowNull]
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="modelBuilder">The <see cref="ModelBuilder" /> to use to build the model.</param>
         protected virtual void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         This method must be overridden in each class that inherits from <see cref="Migration" />.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="migrationBuilder">The <see cref="MigrationBuilder" /> that will build the operations.</param>
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         will throw and it will not be possible to migrate in the 'down' direction.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="migrationBuilder">The <see cref="MigrationBuilder" /> that will build the operations.</param>

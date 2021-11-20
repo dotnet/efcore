@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     An <see cref="EventSource" /> emitting Entity Framework performance counter data.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
     /// </remarks>
     public sealed class EntityFrameworkEventSource : EventSource
     {
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public static readonly EntityFrameworkEventSource Log = new();
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a new <see cref="DbContext" /> instance is being initialized.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void DbContextInitializing()
             => Interlocked.Increment(ref _activeDbContexts);
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a <see cref="DbContext" /> instance is being disposed.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void DbContextDisposing()
             => Interlocked.Decrement(ref _activeDbContexts);
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a query is about to begin execution.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void QueryExecuting()
             => Interlocked.Increment(ref _totalQueries);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that changes are about to be saved.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void SavingChanges()
             => Interlocked.Increment(ref _totalSaveChanges);
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void CompiledQueryCacheHit()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void CompiledQueryCacheMiss()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void ExecutionStrategyOperationFailure()
             => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that an optimistic concurrency failure has occurred.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information and examples.
         /// </remarks>
         public void OptimisticConcurrencyFailure()
             => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);
@@ -138,13 +138,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
 
                 _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => Interlocked.Read(ref _totalQueries))
-                    { DisplayName = "Queries (Total)" };
+                {
+                    DisplayName = "Queries (Total)"
+                };
 
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
-                        "queries-per-second",
-                        this,
-                        () => Interlocked.Read(ref _totalQueries))
-                    { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    "queries-per-second",
+                    this,
+                    () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => Interlocked.Read(ref _totalSaveChanges))
                 {
@@ -152,45 +153,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
 
                 _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
-                        "save-changes-per-second",
-                        this,
-                        () => Interlocked.Read(ref _totalSaveChanges))
-                    { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    "save-changes-per-second",
+                    this,
+                    () => Interlocked.Read(ref _totalSaveChanges))
+                {
+                    DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
-                        "compiled-query-cache-hit-rate",
-                        this,
-                        () => _compiledQueryCacheInfo.CalculateAndReset())
-                    { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
+                    "compiled-query-cache-hit-rate",
+                    this,
+                    () => _compiledQueryCacheInfo.CalculateAndReset()) { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
 
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
-                        "total-execution-strategy-operation-failures",
-                        this,
-                        () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
-                    { DisplayName = "Execution Strategy Operation Failures (Total)" };
+                    "total-execution-strategy-operation-failures",
+                    this,
+                    () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
+                {
+                    DisplayName = "Execution Strategy Operation Failures (Total)"
+                };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
                     this,
                     () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
                 {
-                    DisplayName = "Execution Strategy Operation Failures",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
 
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
-                        "total-optimistic-concurrency-failures",
-                        this,
-                        () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
-                    { DisplayName = "Optimistic Concurrency Failures (Total)" };
+                    "total-optimistic-concurrency-failures",
+                    this,
+                    () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
+                {
+                    DisplayName = "Optimistic Concurrency Failures (Total)"
+                };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",
                     this,
                     () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
                 {
-                    DisplayName = "Optimistic Concurrency Failures",
-                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
             }
         }

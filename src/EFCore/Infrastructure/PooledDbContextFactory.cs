@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see>,
     ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class PooledDbContextFactory<TContext> : IDbContextFactory<TContext>
@@ -35,7 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public PooledDbContextFactory(IDbContextPool<TContext> pool)
-            => _pool = pool;
+        {
+            _pool = pool;
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="PooledDbContextFactory{TContext}" /> class.

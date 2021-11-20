@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Defines a factory for creating <see cref="DbContext" /> instances.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContextFactory</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContextFactory</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TContext">The <see cref="DbContext" /> type to create.</typeparam>
     public interface IDbContextFactory<TContext>

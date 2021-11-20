@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     generated values when the entity is saved.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
     /// </remarks>
     public class TemporaryGuidValueGenerator : GuidValueGenerator
     {

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Relational database specific extension methods for <see cref="KeyBuilder" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
     /// </remarks>
     public static class RelationalKeyBuilderExtensions
     {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the key constraint in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
         /// </remarks>
         /// <param name="keyBuilder">The builder for the key being configured.</param>
         /// <param name="name">The name of the key.</param>
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the key constraint in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
         /// </remarks>
         /// <param name="keyBuilder">The builder for the key being configured.</param>
         /// <param name="name">The name of the key.</param>
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the name of the key constraint in the database when targeting a relational database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
         /// </remarks>
         /// <param name="keyBuilder">The builder for the key being configured.</param>
         /// <param name="name">The name of the key.</param>
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the given name can be set for the key constraint.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information and examples.
         /// </remarks>
         /// <param name="keyBuilder">The builder for the key being configured.</param>
         /// <param name="name">The name of the index.</param>

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Provides extension methods for <see cref="ConfigurationSource" />
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public static class ConfigurationSourceExtensions
     {
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns a value indicating whether the new configuration source can override configuration set with the old configuration source.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="newConfigurationSource">The new configuration source.</param>
         /// <param name="oldConfigurationSource">The old configuration source.</param>
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns a value indicating whether the new configuration source can override configuration set with the old configuration source.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="newConfigurationSource">The new configuration source.</param>
         /// <param name="oldConfigurationSource">The old configuration source.</param>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns a value indicating whether the configuration source always takes precedence over the other configuration source.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="newConfigurationSource">The new configuration source.</param>
         /// <param name="oldConfigurationSource">The old configuration source.</param>
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns a value indicating whether the configuration source always takes precedence over the other configuration source.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="newConfigurationSource">The new configuration source.</param>
         /// <param name="oldConfigurationSource">The old configuration source.</param>
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the configuration source which has higher priority.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="left">The left configuration source.</param>
         /// <param name="right">The right configuration source.</param>
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the configuration source which has higher priority.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
         /// </remarks>
         /// <param name="left">The left configuration source.</param>
         /// <param name="right">The right configuration source.</param>

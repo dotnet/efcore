@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public readonly struct DbContextId
@@ -97,8 +97,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns>The instance ID and lease number.</returns>
         public override string ToString()
-        {
-            return InstanceId + ":" + Lease.ToString(CultureInfo.InvariantCulture);
-        }
+            => InstanceId + ":" + Lease.ToString(CultureInfo.InvariantCulture);
     }
 }

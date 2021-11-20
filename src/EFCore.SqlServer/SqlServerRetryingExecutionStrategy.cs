@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
@@ -106,7 +106,9 @@ namespace Microsoft.EntityFrameworkCore
                 context,
                 maxRetryCount,
                 maxRetryDelay)
-            => _additionalErrorNumbers = errorNumbersToAdd;
+        {
+            _additionalErrorNumbers = errorNumbersToAdd;
+        }
 
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -121,7 +123,9 @@ namespace Microsoft.EntityFrameworkCore
             TimeSpan maxRetryDelay,
             ICollection<int>? errorNumbersToAdd)
             : base(dependencies, maxRetryCount, maxRetryDelay)
-            => _additionalErrorNumbers = errorNumbersToAdd;
+        {
+            _additionalErrorNumbers = errorNumbersToAdd;
+        }
 
         /// <summary>
         ///     Determines whether the specified exception represents a transient failure that can be

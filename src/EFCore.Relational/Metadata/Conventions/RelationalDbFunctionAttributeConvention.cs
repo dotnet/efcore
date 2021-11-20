@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
-    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
     /// </remarks>
     public class RelationalDbFunctionAttributeConvention : IModelInitializedConvention, IModelFinalizingConvention
     {
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var contextType = Dependencies.ContextType;
             while (contextType != null
-                && contextType != typeof(DbContext))
+                   && contextType != typeof(DbContext))
             {
                 var functions = contextType.GetMethods(
                         BindingFlags.Public

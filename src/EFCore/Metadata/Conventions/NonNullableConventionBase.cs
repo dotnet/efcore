@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     is a non-nullable reference type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
     /// </remarks>
     public abstract class NonNullableConventionBase : IModelFinalizingConvention
     {
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             // First look for NullableAttribute on the member itself
             if (Attribute.GetCustomAttributes(memberInfo)
-                .FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is Attribute attribute)
+                    .FirstOrDefault(a => a.GetType().FullName == NullableAttributeFullName) is Attribute attribute)
             {
                 var attributeType = attribute.GetType();
 
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             if (Attribute.GetCustomAttributes(type)
-                .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
+                    .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
             {
                 var attributeType = contextAttr.GetType();
 

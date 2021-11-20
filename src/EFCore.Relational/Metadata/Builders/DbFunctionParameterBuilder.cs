@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets the store type of the function parameter in the database.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         /// </remarks>
         /// <param name="storeType">The store type of the function parameter in the database.</param>
         /// <returns>The same builder instance so that further configuration calls can be chained.</returns>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Indicates whether parameter propagates nullability, meaning if it's value is null the database function itself returns null.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
         /// </remarks>
         /// <param name="propagatesNullability">Value which indicates whether parameter propagates nullability.</param>
         /// <returns>The same builder instance so that further configuration calls can be chained.</returns>

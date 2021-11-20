@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 foreach (var column in table.Columns.Where(c => c.Order.HasValue).OrderBy(c => c.Order.Value)
-                    .Concat(table.Columns.Where(c => !c.Order.HasValue)))
+                             .Concat(table.Columns.Where(c => !c.Order.HasValue)))
                 {
                     if (!column.TryGetDefaultValue(out var defaultValue))
                     {

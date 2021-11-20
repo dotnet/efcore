@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the table to be ignored by migrations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
         /// </remarks>
         /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>

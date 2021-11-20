@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public class ExpressionPrinter : ExpressionVisitor
     {
@@ -210,9 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expressionType">The expression type to generate binary operator for.</param>
         /// <returns>The binary operator string.</returns>
         public virtual string GenerateBinaryOperator(ExpressionType expressionType)
-        {
-            return _binaryOperandMap[expressionType];
-        }
+            => _binaryOperandMap[expressionType];
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("expression")]

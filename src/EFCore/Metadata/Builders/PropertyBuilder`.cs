@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     public class PropertyBuilder<TProperty> : PropertyBuilder
@@ -312,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         <see cref="UsePropertyAccessMode" />.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-backing-fields">Backing fields</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="fieldName">The field name.</param>

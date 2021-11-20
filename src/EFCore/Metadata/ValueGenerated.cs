@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
-    ///         See <see href="https://aka.ms/efcore-value-generation">Value generation in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-value-generation">Value generation in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     [Flags]

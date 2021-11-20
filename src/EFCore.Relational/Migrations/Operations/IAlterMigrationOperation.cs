@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///         annotations on that 'old' database object.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IAlterMigrationOperation

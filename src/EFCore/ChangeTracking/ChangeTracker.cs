@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     to be directly constructed in your application code.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     /// </remarks>
     public class ChangeTracker : IResettableService
     {

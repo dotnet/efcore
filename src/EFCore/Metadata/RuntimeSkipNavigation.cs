@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     that is forwarded through a third entity type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     {
@@ -160,18 +160,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ref _collectionAccessorInitialized,
                 this,
                 static navigation =>
-                    {
-                        navigation.EnsureReadOnly();
-                        return new ClrCollectionAccessorFactory().Create(navigation);
-                    });
+                {
+                    navigation.EnsureReadOnly();
+                    return new ClrCollectionAccessorFactory().Create(navigation);
+                });
 
         /// <inheritdoc />
         ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _manyToManyLoader, this, static navigation =>
-                    {
-                        navigation.EnsureReadOnly();
-                        return new ManyToManyLoaderFactory().Create(navigation);
-                    });
+                {
+                    navigation.EnsureReadOnly();
+                    return new ManyToManyLoaderFactory().Create(navigation);
+                });
     }
 }

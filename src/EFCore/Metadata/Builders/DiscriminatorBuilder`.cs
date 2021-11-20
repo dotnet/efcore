@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     Provides a simple API surface for setting discriminator values.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     /// <typeparam name="TDiscriminator">The type of the discriminator property.</typeparam>
     public class DiscriminatorBuilder<TDiscriminator>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="complete">The value indicating if this discriminator mapping is complete.</param>
         /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder<TDiscriminator> IsComplete(bool complete = true)
-            => new DiscriminatorBuilder<TDiscriminator>(Builder.IsComplete(complete));
+            => new(Builder.IsComplete(complete));
 
         /// <summary>
         ///     Configures the default discriminator value to use.
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value">The discriminator value.</param>
         /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value)
-            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(value));
+            => new(Builder.HasValue(value));
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given generic type.
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value">The discriminator value.</param>
         /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value)
-            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(entityType, value));
+            => new(Builder.HasValue(entityType, value));
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
@@ -70,6 +70,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value">The discriminator value.</param>
         /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator value)
-            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(entityTypeName, value));
+            => new(Builder.HasValue(entityTypeName, value));
     }
 }

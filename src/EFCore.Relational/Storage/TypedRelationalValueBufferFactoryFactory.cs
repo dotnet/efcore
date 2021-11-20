@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information.
+    ///         for more information and examples.
     ///     </para>
     /// </remarks>
     public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
@@ -77,7 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
             public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo)
-                => TypeMaterializationInfo = materializationInfo;
+            {
+                TypeMaterializationInfo = materializationInfo;
+            }
 
             public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
@@ -237,7 +239,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (materializationInfo.IsNullable != false)
             {
-
                 Expression replaceExpression;
                 if (converter?.ConvertsNulls == true)
                 {

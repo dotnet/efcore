@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts <see cref="bool" /> values to and from two different values.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public class BoolToTwoValuesConverter<TProvider> : ValueConverter<bool, TProvider>
     {
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         Use <see cref="BoolToZeroOneConverter{TProvider}" /> for converting a <see cref="bool" /> to zero/one.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         ///     </para>
         /// </remarks>
         /// <param name="falseValue">The value to convert to for <see langword="false" />.</param>

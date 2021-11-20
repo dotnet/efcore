@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public interface IDbConnectionInterceptor : IInterceptor

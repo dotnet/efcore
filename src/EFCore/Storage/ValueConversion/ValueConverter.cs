@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     different type in the store.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
     public abstract class ValueConverter
     {
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="convertToProviderExpression">
         ///     The expression to convert objects when writing data to the store,
@@ -56,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     <para>
         ///         Warning: this is currently an internal API since converting nulls to and from the database can lead to broken
         ///         queries and other issues. See <see href="https://github.com/dotnet/efcore/issues/26230">GitHub issue #26230</see>
-        ///         for more information.
+        ///         for more information and examples.
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="convertToProviderExpression">
         ///     The expression to convert objects when writing data to the store,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public abstract Func<object?, object?> ConvertToProvider { get; }
 
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public abstract Func<object?, object?> ConvertFromProvider { get; }
 
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public virtual LambdaExpression ConvertToProviderExpression { get; }
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public virtual LambdaExpression ConvertFromProviderExpression { get; }
 
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The CLR type used in the EF model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public abstract Type ModelClrType { get; }
 
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The CLR type used when reading and writing from the store.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public abstract Type ProviderClrType { get; }
 
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         public virtual ConverterMappingHints? MappingHints { get; }
 
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         a primary key) can be used for correlated nullable properties, such as any corresponding foreign key properties.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual bool ConvertsNulls { get; }
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     the result of the first conversion is used as the input to the second conversion.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
         /// </remarks>
         /// <param name="secondConverter">The second converter.</param>
         /// <returns>The composed converter.</returns>

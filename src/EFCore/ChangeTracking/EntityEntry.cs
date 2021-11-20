@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
@@ -72,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         This method sets only the state of the single entity represented by this entry. It does
         ///         not change the state of other entities reachable from this one. However, this may cause cascading actions on other
         ///         entities when setting the state to <see cref="EntityState.Deleted" /> or <see cref="EntityState.Detached" />.
-        ///         This can be changed by changing <see cref="ChangeTracker.CascadeDeleteTiming"/>.
+        ///         This can be changed by changing <see cref="ChangeTracker.CascadeDeleteTiming" />.
         ///     </para>
         ///     <para>
         ///         When setting the state, the entity will always end up in the specified state. For example, if you
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         will be disconnected (rather than marked for deletion) if it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         public virtual EntityState State
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     disabled <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-change-detection">Change detection and notifications</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-change-detection">Change detection and notifications</see> for more information and examples.
         /// </remarks>
         public virtual void DetectChanges()
         {
@@ -143,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     property or navigation property of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="propertyName">The property to access information and operations for.</param>
         /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
@@ -175,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     properties and navigation properties of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public virtual IEnumerable<MemberEntry> Members
             => Properties.Cast<MemberEntry>().Concat(Navigations);
@@ -187,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyName">The property to access information and operations for.</param>
         /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
@@ -224,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public virtual IEnumerable<NavigationEntry> Navigations
         {
@@ -245,7 +249,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     property of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <param name="propertyName">The property to access information and operations for.</param>
         /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
@@ -261,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     properties of this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         public virtual IEnumerable<PropertyEntry> Properties
             => InternalEntry.EntityType.GetProperties().Select(property => new PropertyEntry(InternalEntry, property));
@@ -273,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
@@ -294,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public virtual IEnumerable<ReferenceEntry> References
             => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection)
@@ -307,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         /// <param name="propertyName">The name of the navigation property.</param>
         /// <returns>
@@ -328,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
         ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
-        ///     for more information.
+        ///     for more information and examples.
         /// </remarks>
         public virtual IEnumerable<CollectionEntry> Collections
         {
@@ -356,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         true since any value is considered a valid key value.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual bool IsKeySet
@@ -366,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Gets the current property values for this entity.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///     examples.
         /// </remarks>
         /// <value> The current values. </value>
         public virtual PropertyValues CurrentValues
@@ -386,7 +393,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         current property values of this entity.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <value> The original values. </value>
@@ -406,7 +414,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         in the database.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <returns>The store values, or <see langword="null" /> if the entity does not exist in the database.</returns>
@@ -431,7 +440,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -459,7 +469,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         public virtual void Reload()
@@ -477,7 +488,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -526,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     <para>
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> and
-        ///         <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
+        ///         <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information and examples.
         ///     </para>
         /// </remarks>
         public virtual DebugView DebugView

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         externally and passing it to the context constructor.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure

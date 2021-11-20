@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     Provides a simple API surface for setting discriminator values.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public class DiscriminatorBuilder : IConventionDiscriminatorBuilder
     {
@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             else
             {
                 if (!((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
-                    CoreAnnotationNames.DiscriminatorMappingComplete, complete,
-                    configurationSource == ConfigurationSource.DataAnnotation))
+                        CoreAnnotationNames.DiscriminatorMappingComplete, complete,
+                        configurationSource == ConfigurationSource.DataAnnotation))
                 {
                     return null;
                 }
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             else
             {
                 if (!((IConventionDiscriminatorBuilder)this).CanSetValue(
-                    entityTypeBuilder.Metadata, value, configurationSource == ConfigurationSource.DataAnnotation))
+                        entityTypeBuilder.Metadata, value, configurationSource == ConfigurationSource.DataAnnotation))
                 {
                     return null;
                 }

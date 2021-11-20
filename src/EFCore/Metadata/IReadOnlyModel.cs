@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     <see cref="DbContext.OnModelCreating(ModelBuilder)" /> method on a derived <see cref="DbContext" />.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public interface IReadOnlyModel : IReadOnlyAnnotatable
     {
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     context detects changes to properties for an instance of an entity type.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <returns>The change tracking strategy.</returns>
         ChangeTrackingStrategy GetChangeTrackingStrategy();
@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         be used for any property for which no override has been specified.
         ///     </para>
         ///     <para>
-        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+        ///         examples.
         ///     </para>
         /// </remarks>
         /// <returns>The access mode being used.</returns>
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the EF Core assembly version used to build this model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         string? GetProductVersion()
             => this[CoreAnnotationNames.ProductVersion] as string;
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets a value indicating whether the CLR type is used by shared type entities in the model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The CLR type.</param>
         /// <returns>Whether the CLR type is used by shared type entities in the model.</returns>
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets all entity types defined in the model.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <returns>All entity types defined in the model.</returns>
         IEnumerable<IReadOnlyEntityType> GetEntityTypes();
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The name of the entity type to find.</param>
         /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
@@ -93,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="name">The name of the entity type to find.</param>
         /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
@@ -110,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type to find the corresponding entity type for.</param>
         /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
@@ -121,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type of the entity type to find.</param>
         /// <param name="definingNavigationName">The defining navigation of the entity type to find.</param>
@@ -136,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the entity types matching the given type.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The type of the entity type to find.</param>
         /// <returns>The entity types found.</returns>
@@ -146,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the entity types corresponding to the least derived types from the given.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
         /// </remarks>
         /// <param name="type">The base type.</param>
         /// <param name="condition">An optional condition for filtering entity types.</param>
@@ -209,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
-        ///     <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
+        ///     <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information and examples.
         /// </remarks>
         /// <param name="options">Options for generating the string.</param>
         /// <param name="indent">The number of indent spaces to use before each new line.</param>

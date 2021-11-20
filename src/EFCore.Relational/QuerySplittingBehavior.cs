@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Indicates how the related collections in a query should be loaded from database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-split-queries">EF Core split queries</see> for more information and examples.
     /// </remarks>
     public enum QuerySplittingBehavior
     {

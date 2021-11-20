@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
     /// </remarks>
     public static class QueryableMethods
     {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     The <see cref="MethodInfo" /> for
-        ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
+        ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
         /// </summary>
         public static MethodInfo AnyWithPredicate { get; }
 
@@ -475,19 +475,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Concat = GetMethod(
                 nameof(Queryable.Concat), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(IEnumerable<>).MakeGenericType(types[0])
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0]) });
 
             Contains = GetMethod(
                 nameof(Queryable.Contains), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    types[0]
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), types[0] });
 
             CountWithoutPredicate = GetMethod(
                 nameof(Queryable.Count), 1,
@@ -507,37 +499,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             DefaultIfEmptyWithArgument = GetMethod(
                 nameof(Queryable.DefaultIfEmpty), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    types[0]
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), types[0] });
 
             Distinct = GetMethod(nameof(Queryable.Distinct), 1, types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]) });
 
             ElementAt = GetMethod(
                 nameof(Queryable.ElementAt), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(int)
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(int) });
 
             ElementAtOrDefault = GetMethod(
                 nameof(Queryable.ElementAtOrDefault), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(int)
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(int) });
 
             Except = GetMethod(
                 nameof(Queryable.Except), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(IEnumerable<>).MakeGenericType(types[0])
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0]) });
 
             FirstWithoutPredicate = GetMethod(
                 nameof(Queryable.First), 1, types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]) });
@@ -617,11 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Intersect = GetMethod(
                 nameof(Queryable.Intersect), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(IEnumerable<>).MakeGenericType(types[0])
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0]) });
 
             Join = GetMethod(
                 nameof(Queryable.Join), 4,
@@ -762,11 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Skip = GetMethod(
                 nameof(Queryable.Skip), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(int)
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(int) });
 
             SkipWhile = GetMethod(
                 nameof(Queryable.SkipWhile), 1,
@@ -778,11 +746,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Take = GetMethod(
                 nameof(Queryable.Take), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(int)
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(int) });
 
             TakeWhile = GetMethod(
                 nameof(Queryable.TakeWhile), 1,
@@ -810,11 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Union = GetMethod(
                 nameof(Queryable.Union), 1,
-                types => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(types[0]),
-                    typeof(IEnumerable<>).MakeGenericType(types[0])
-                });
+                types => new[] { typeof(IQueryable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0]) });
 
             Where = GetMethod(
                 nameof(Queryable.Where), 1,
@@ -848,7 +808,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 AverageWithoutSelectorMethods[type] = GetMethod(
                     nameof(Queryable.Average), 0, types => new[] { typeof(IQueryable<>).MakeGenericType(type) });
                 AverageWithSelectorMethods[type] = GetMethod(
-                    nameof(Queryable.Average), 1, types => new[]
+                    nameof(Queryable.Average), 1,
+                    types => new[]
                     {
                         typeof(IQueryable<>).MakeGenericType(types[0]),
                         typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], type))
@@ -856,7 +817,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SumWithoutSelectorMethods[type] = GetMethod(
                     nameof(Queryable.Sum), 0, types => new[] { typeof(IQueryable<>).MakeGenericType(type) });
                 SumWithSelectorMethods[type] = GetMethod(
-                    nameof(Queryable.Sum), 1, types => new[]
+                    nameof(Queryable.Sum), 1,
+                    types => new[]
                     {
                         typeof(IQueryable<>).MakeGenericType(types[0]),
                         typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(types[0], type))

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Base type for navigations and properties.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
     /// </remarks>
     public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBase
     {
@@ -116,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _indexes, this,
                 static property =>
-                    {
-                        var _ = ((IRuntimeEntityType)property.DeclaringEntityType).Counts;
-                    });
+                {
+                    var _ = ((IRuntimeEntityType)property.DeclaringEntityType).Counts;
+                });
             set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
         }
 
