@@ -2,102 +2,98 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Storage;
 
 #nullable disable
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+
+public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
-    public partial class CosmosShapedQueryCompilingExpressionVisitor
+    private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
     {
-        private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IReadOnlyDictionary<string, object> _parametersValues;
+
+        public InExpressionValuesExpandingExpressionVisitor(
+            ISqlExpressionFactory sqlExpressionFactory,
+            IReadOnlyDictionary<string, object> parametersValues)
         {
-            private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private readonly IReadOnlyDictionary<string, object> _parametersValues;
+            _sqlExpressionFactory = sqlExpressionFactory;
+            _parametersValues = parametersValues;
+        }
 
-            public InExpressionValuesExpandingExpressionVisitor(
-                ISqlExpressionFactory sqlExpressionFactory,
-                IReadOnlyDictionary<string, object> parametersValues)
+        public override Expression Visit(Expression expression)
+        {
+            if (expression is InExpression inExpression)
             {
-                _sqlExpressionFactory = sqlExpressionFactory;
-                _parametersValues = parametersValues;
-            }
+                var inValues = new List<object>();
+                var hasNullValue = false;
+                CoreTypeMapping typeMapping = null;
 
-            public override Expression Visit(Expression expression)
-            {
-                if (expression is InExpression inExpression)
+                switch (inExpression.Values)
                 {
-                    var inValues = new List<object>();
-                    var hasNullValue = false;
-                    CoreTypeMapping typeMapping = null;
-
-                    switch (inExpression.Values)
+                    case SqlConstantExpression sqlConstant:
                     {
-                        case SqlConstantExpression sqlConstant:
+                        typeMapping = sqlConstant.TypeMapping;
+                        var values = (IEnumerable)sqlConstant.Value;
+                        foreach (var value in values)
                         {
-                            typeMapping = sqlConstant.TypeMapping;
-                            var values = (IEnumerable)sqlConstant.Value;
-                            foreach (var value in values)
+                            if (value == null)
                             {
-                                if (value == null)
-                                {
-                                    hasNullValue = true;
-                                    continue;
-                                }
-
-                                inValues.Add(value);
+                                hasNullValue = true;
+                                continue;
                             }
-                        }
-                            break;
 
-                        case SqlParameterExpression sqlParameter:
+                            inValues.Add(value);
+                        }
+                    }
+                        break;
+
+                    case SqlParameterExpression sqlParameter:
+                    {
+                        typeMapping = sqlParameter.TypeMapping;
+                        var values = (IEnumerable)_parametersValues[sqlParameter.Name];
+                        foreach (var value in values)
                         {
-                            typeMapping = sqlParameter.TypeMapping;
-                            var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                            foreach (var value in values)
+                            if (value == null)
                             {
-                                if (value == null)
-                                {
-                                    hasNullValue = true;
-                                    continue;
-                                }
-
-                                inValues.Add(value);
+                                hasNullValue = true;
+                                continue;
                             }
+
+                            inValues.Add(value);
                         }
-                            break;
                     }
-
-                    var updatedInExpression = inValues.Count > 0
-                        ? _sqlExpressionFactory.In(
-                            (SqlExpression)Visit(inExpression.Item),
-                            _sqlExpressionFactory.Constant(inValues, typeMapping),
-                            inExpression.IsNegated)
-                        : null;
-
-                    var nullCheckExpression = hasNullValue
-                        ? _sqlExpressionFactory.IsNull(inExpression.Item)
-                        : null;
-
-                    if (updatedInExpression != null
-                        && nullCheckExpression != null)
-                    {
-                        return _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
-                    }
-
-                    if (updatedInExpression == null
-                        && nullCheckExpression == null)
-                    {
-                        return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(false));
-                    }
-
-                    return (SqlExpression)updatedInExpression ?? nullCheckExpression;
+                        break;
                 }
 
-                return base.Visit(expression);
+                var updatedInExpression = inValues.Count > 0
+                    ? _sqlExpressionFactory.In(
+                        (SqlExpression)Visit(inExpression.Item),
+                        _sqlExpressionFactory.Constant(inValues, typeMapping),
+                        inExpression.IsNegated)
+                    : null;
+
+                var nullCheckExpression = hasNullValue
+                    ? _sqlExpressionFactory.IsNull(inExpression.Item)
+                    : null;
+
+                if (updatedInExpression != null
+                    && nullCheckExpression != null)
+                {
+                    return _sqlExpressionFactory.OrElse(updatedInExpression, nullCheckExpression);
+                }
+
+                if (updatedInExpression == null
+                    && nullCheckExpression == null)
+                {
+                    return _sqlExpressionFactory.Equal(_sqlExpressionFactory.Constant(true), _sqlExpressionFactory.Constant(false));
+                }
+
+                return (SqlExpression)updatedInExpression ?? nullCheckExpression;
             }
+
+            return base.Visit(expression);
         }
     }
 }

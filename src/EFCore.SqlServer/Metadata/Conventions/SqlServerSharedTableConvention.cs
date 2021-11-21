@@ -5,38 +5,37 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     for more information and examples.
+/// </remarks>
+public class SqlServerSharedTableConvention : SharedTableConvention
 {
     /// <summary>
-    ///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
+    ///     Creates a new instance of <see cref="SqlServerSharedTableConvention" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
-    ///     for more information and examples.
-    /// </remarks>
-    public class SqlServerSharedTableConvention : SharedTableConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+    public SqlServerSharedTableConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
+        : base(dependencies, relationalDependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerSharedTableConvention" />.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
-        public SqlServerSharedTableConvention(
-            ProviderConventionSetBuilderDependencies dependencies,
-            RelationalConventionSetBuilderDependencies relationalDependencies)
-            : base(dependencies, relationalDependencies)
-        {
-        }
-
-        /// <inheritdoc />
-        protected override bool AreCompatible(IReadOnlyKey key, IReadOnlyKey duplicateKey, in StoreObjectIdentifier storeObject)
-            => base.AreCompatible(key, duplicateKey, storeObject)
-                && key.AreCompatibleForSqlServer(duplicateKey, storeObject, shouldThrow: false);
-
-        /// <inheritdoc />
-        protected override bool AreCompatible(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, in StoreObjectIdentifier storeObject)
-            => base.AreCompatible(index, duplicateIndex, storeObject)
-                && index.AreCompatibleForSqlServer(duplicateIndex, storeObject, shouldThrow: false);
     }
+
+    /// <inheritdoc />
+    protected override bool AreCompatible(IReadOnlyKey key, IReadOnlyKey duplicateKey, in StoreObjectIdentifier storeObject)
+        => base.AreCompatible(key, duplicateKey, storeObject)
+            && key.AreCompatibleForSqlServer(duplicateKey, storeObject, shouldThrow: false);
+
+    /// <inheritdoc />
+    protected override bool AreCompatible(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, in StoreObjectIdentifier storeObject)
+        => base.AreCompatible(index, duplicateIndex, storeObject)
+            && index.AreCompatibleForSqlServer(duplicateIndex, storeObject, shouldThrow: false);
 }

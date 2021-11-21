@@ -3,13 +3,12 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Tools
-{
-    internal static class AnsiConsole
-    {
-        public static readonly AnsiTextWriter _out = new(Console.Out);
+namespace Microsoft.EntityFrameworkCore.Tools;
 
-        public static void WriteLine(string? text)
-            => _out.WriteLine(text);
-    }
+internal static class AnsiConsole
+{
+    public static readonly AnsiTextWriter _out = new(Console.Out);
+
+    public static void WriteLine(string? text)
+        => _out.WriteLine(text);
 }

@@ -1,11 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public sealed class StringDictionaryComparer<TElement, TCollection> : ValueComparer<TCollection>
+    where TCollection : class, IEnumerable<KeyValuePair<string, TElement>>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -13,87 +18,77 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public sealed class StringDictionaryComparer<TElement, TCollection> : ValueComparer<TCollection>
-        where TCollection : class, IEnumerable<KeyValuePair<string, TElement>>
+    public StringDictionaryComparer(ValueComparer elementComparer, bool readOnly)
+        : base(
+            (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
+            o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
+            source => Snapshot(source, (ValueComparer<TElement>)elementComparer, readOnly))
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public StringDictionaryComparer(ValueComparer elementComparer, bool readOnly)
-            : base(
-                (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
-                o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
-                source => Snapshot(source, (ValueComparer<TElement>)elementComparer, readOnly))
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override Type Type
+        => typeof(TCollection);
+
+    private static bool Compare(TCollection? a, TCollection? b, ValueComparer<TElement> elementComparer)
+    {
+        if (a is not IReadOnlyDictionary<string, TElement> aDict)
         {
+            return b is not IReadOnlyDictionary<string, TElement>;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override Type Type
-            => typeof(TCollection);
-
-        private static bool Compare(TCollection? a, TCollection? b, ValueComparer<TElement> elementComparer)
+        if (b is not IReadOnlyDictionary<string, TElement> bDict || aDict.Count != bDict.Count)
         {
-            if (a is not IReadOnlyDictionary<string, TElement> aDict)
-            {
-                return b is not IReadOnlyDictionary<string, TElement>;
-            }
+            return false;
+        }
 
-            if (b is not IReadOnlyDictionary<string, TElement> bDict || aDict.Count != bDict.Count)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(aDict, bDict))
-            {
-                return true;
-            }
-
-            foreach (var aPair in aDict)
-            {
-                if (!bDict.TryGetValue(aPair.Key, out var bValue)
-                    || !elementComparer.Equals(aPair.Value, bValue))
-                {
-                    return false;
-                }
-            }
-
+        if (ReferenceEquals(aDict, bDict))
+        {
             return true;
         }
 
-        private static int GetHashCode(TCollection source, ValueComparer<TElement> elementComparer)
+        foreach (var aPair in aDict)
         {
-            var hash = new HashCode();
-            foreach (var el in source)
+            if (!bDict.TryGetValue(aPair.Key, out var bValue)
+                || !elementComparer.Equals(aPair.Value, bValue))
             {
-                hash.Add(el.Key);
-                hash.Add(el.Value, elementComparer);
+                return false;
             }
-
-            return hash.ToHashCode();
         }
 
-        private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
+        return true;
+    }
+
+    private static int GetHashCode(TCollection source, ValueComparer<TElement> elementComparer)
+    {
+        var hash = new HashCode();
+        foreach (var el in source)
         {
-            if (readOnly)
-            {
-                return source;
-            }
-
-            var snapshot = new Dictionary<string, TElement>(((IReadOnlyDictionary<string, TElement>)source).Count);
-            foreach (var e in source)
-            {
-                snapshot.Add(e.Key, e.Value is null ? default! : elementComparer.Snapshot(e.Value));
-            }
-
-            return (TCollection)(object)snapshot;
+            hash.Add(el.Key);
+            hash.Add(el.Value, elementComparer);
         }
+
+        return hash.ToHashCode();
+    }
+
+    private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
+    {
+        if (readOnly)
+        {
+            return source;
+        }
+
+        var snapshot = new Dictionary<string, TElement>(((IReadOnlyDictionary<string, TElement>)source).Count);
+        foreach (var e in source)
+        {
+            snapshot.Add(e.Key, e.Value is null ? default! : elementComparer.Snapshot(e.Value));
+        }
+
+        return (TCollection)(object)snapshot;
     }
 }

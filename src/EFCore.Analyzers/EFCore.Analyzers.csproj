@@ -8,7 +8,14 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq.Expressions" />
+    <Using Include="System.Reflection" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeAnnotations.cs" />

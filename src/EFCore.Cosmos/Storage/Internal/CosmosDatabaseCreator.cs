@@ -1,239 +1,229 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Update;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class CosmosDatabaseCreator : IDatabaseCreator
 {
+    private readonly ICosmosClientWrapper _cosmosClient;
+    private readonly IDesignTimeModel _designTimeModel;
+    private readonly IUpdateAdapterFactory _updateAdapterFactory;
+    private readonly IDatabase _database;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CosmosDatabaseCreator : IDatabaseCreator
+    public CosmosDatabaseCreator(
+        ICosmosClientWrapper cosmosClient,
+        IDesignTimeModel designTimeModel,
+        IUpdateAdapterFactory updateAdapterFactory,
+        IDatabase database)
     {
-        private readonly ICosmosClientWrapper _cosmosClient;
-        private readonly IDesignTimeModel _designTimeModel;
-        private readonly IUpdateAdapterFactory _updateAdapterFactory;
-        private readonly IDatabase _database;
+        _cosmosClient = cosmosClient;
+        _designTimeModel = designTimeModel;
+        _updateAdapterFactory = updateAdapterFactory;
+        _database = database;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public CosmosDatabaseCreator(
-            ICosmosClientWrapper cosmosClient,
-            IDesignTimeModel designTimeModel,
-            IUpdateAdapterFactory updateAdapterFactory,
-            IDatabase database)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool EnsureCreated()
+    {
+        var model = _designTimeModel.Model;
+        var created = _cosmosClient.CreateDatabaseIfNotExists(model.GetThroughput());
+
+        foreach (var container in GetContainersToCreate(model))
         {
-            _cosmosClient = cosmosClient;
-            _designTimeModel = designTimeModel;
-            _updateAdapterFactory = updateAdapterFactory;
-            _database = database;
+            created |= _cosmosClient.CreateContainerIfNotExists(container);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool EnsureCreated()
+        if (created)
         {
-            var model = _designTimeModel.Model;
-            var created = _cosmosClient.CreateDatabaseIfNotExists(model.GetThroughput());
-
-            foreach (var container in GetContainersToCreate(model))
-            {
-                created |= _cosmosClient.CreateContainerIfNotExists(container);
-            }
-
-            if (created)
-            {
-                Seed();
-            }
-
-            return created;
+            Seed();
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
+        return created;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
+    {
+        var model = _designTimeModel.Model;
+        var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
+            .ConfigureAwait(false);
+
+        foreach (var container in GetContainersToCreate(model))
         {
-            var model = _designTimeModel.Model;
-            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
+            created |= await _cosmosClient.CreateContainerIfNotExistsAsync(container, cancellationToken)
                 .ConfigureAwait(false);
-
-            foreach (var container in GetContainersToCreate(model))
-            {
-                created |= await _cosmosClient.CreateContainerIfNotExistsAsync(container, cancellationToken)
-                    .ConfigureAwait(false);
-            }
-
-            if (created)
-            {
-                await SeedAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            return created;
         }
 
-        private IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
+        if (created)
         {
-            var containers = new Dictionary<string, List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+            await SeedAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        return created;
+    }
+
+    private IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
+    {
+        var containers = new Dictionary<string, List<IEntityType>>();
+        foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+        {
+            var container = entityType.GetContainer();
+            if (container == null)
             {
-                var container = entityType.GetContainer();
-                if (container == null)
-                {
-                    continue;
-                }
-
-                if (!containers.TryGetValue(container, out var mappedTypes))
-                {
-                    mappedTypes = new List<IEntityType>();
-                    containers[container] = mappedTypes;
-                }
-
-                mappedTypes.Add(entityType);
+                continue;
             }
 
-            foreach (var containerMapping in containers)
+            if (!containers.TryGetValue(container, out var mappedTypes))
             {
-                var mappedTypes = containerMapping.Value;
-                var containerName = containerMapping.Key;
-                string? partitionKey = null;
-                int? analyticalTTL = null;
-                int? defaultTTL = null;
-                ThroughputProperties? throughput = null;
+                mappedTypes = new List<IEntityType>();
+                containers[container] = mappedTypes;
+            }
 
-                foreach (var entityType in mappedTypes)
-                {
-                    partitionKey ??= GetPartitionKeyStoreName(entityType);
-                    analyticalTTL ??= entityType.GetAnalyticalStoreTimeToLive();
-                    defaultTTL ??= entityType.GetDefaultTimeToLive();
-                    throughput ??= entityType.GetThroughput();
-                }
+            mappedTypes.Add(entityType);
+        }
 
-                yield return new ContainerProperties(
-                    containerName,
-                    partitionKey!,
-                    analyticalTTL,
-                    defaultTTL,
-                    throughput);
+        foreach (var containerMapping in containers)
+        {
+            var mappedTypes = containerMapping.Value;
+            var containerName = containerMapping.Key;
+            string? partitionKey = null;
+            int? analyticalTTL = null;
+            int? defaultTTL = null;
+            ThroughputProperties? throughput = null;
+
+            foreach (var entityType in mappedTypes)
+            {
+                partitionKey ??= GetPartitionKeyStoreName(entityType);
+                analyticalTTL ??= entityType.GetAnalyticalStoreTimeToLive();
+                defaultTTL ??= entityType.GetDefaultTimeToLive();
+                throughput ??= entityType.GetThroughput();
+            }
+
+            yield return new ContainerProperties(
+                containerName,
+                partitionKey!,
+                analyticalTTL,
+                defaultTTL,
+                throughput);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Seed()
+    {
+        var updateAdapter = AddSeedData();
+
+        _database.SaveChanges(updateAdapter.GetEntriesToSave());
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task SeedAsync(CancellationToken cancellationToken = default)
+    {
+        var updateAdapter = AddSeedData();
+
+        return _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
+    }
+
+    private IUpdateAdapter AddSeedData()
+    {
+        var updateAdapter = _updateAdapterFactory.CreateStandalone();
+        foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
+        {
+            IEntityType? targetEntityType = null;
+            foreach (var targetSeed in entityType.GetSeedData())
+            {
+                targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
+                var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                entry.EntityState = EntityState.Added;
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Seed()
-        {
-            var updateAdapter = AddSeedData();
+        return updateAdapter;
+    }
 
-            _database.SaveChanges(updateAdapter.GetEntriesToSave());
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool EnsureDeleted()
+        => _cosmosClient.DeleteDatabase();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
+        => _cosmosClient.DeleteDatabaseAsync(cancellationToken);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanConnect()
+        => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+        => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
+
+    /// <summary>
+    ///     Returns the store name of the property that is used to store the partition key.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the partition key property name for.</param>
+    /// <returns>The name of the partition key property.</returns>
+    private static string GetPartitionKeyStoreName(IEntityType entityType)
+    {
+        var name = entityType.GetPartitionKeyPropertyName();
+        if (name != null)
+        {
+            return entityType.FindProperty(name)!.GetJsonPropertyName();
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Task SeedAsync(CancellationToken cancellationToken = default)
-        {
-            var updateAdapter = AddSeedData();
-
-            return _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
-        }
-
-        private IUpdateAdapter AddSeedData()
-        {
-            var updateAdapter = _updateAdapterFactory.CreateStandalone();
-            foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
-            {
-                IEntityType? targetEntityType = null;
-                foreach (var targetSeed in entityType.GetSeedData())
-                {
-                    targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
-                    var entry = updateAdapter.CreateEntry(targetSeed, entityType);
-                    entry.EntityState = EntityState.Added;
-                }
-            }
-
-            return updateAdapter;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool EnsureDeleted()
-            => _cosmosClient.DeleteDatabase();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
-            => _cosmosClient.DeleteDatabaseAsync(cancellationToken);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool CanConnect()
-            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
-
-        /// <summary>
-        ///     Returns the store name of the property that is used to store the partition key.
-        /// </summary>
-        /// <param name="entityType">The entity type to get the partition key property name for.</param>
-        /// <returns>The name of the partition key property.</returns>
-        private static string GetPartitionKeyStoreName(IEntityType entityType)
-        {
-            var name = entityType.GetPartitionKeyPropertyName();
-            if (name != null)
-            {
-                return entityType.FindProperty(name)!.GetJsonPropertyName();
-            }
-
-            return CosmosClientWrapper.DefaultPartitionKey;
-        }
+        return CosmosClientWrapper.DefaultPartitionKey;
     }
 }
