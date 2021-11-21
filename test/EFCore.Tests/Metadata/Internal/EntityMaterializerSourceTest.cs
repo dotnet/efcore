@@ -29,12 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Throws_for_abstract_types()
         {
-            var entityType = ((IMutableModel)CreateConventionalModelBuilder().Model).AddEntityType(typeof(SomeAbstractEntity));
+            var entityType = CreateConventionalModelBuilder().Model.AddEntityType(typeof(SomeAbstractEntity));
             var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies());
 
             Assert.Equal(
                 CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
-                Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression((IEntityType)entityType, "", null!)).Message);
+                Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression((IEntityType)entityType, "", null!))
+                    .Message);
         }
 
         [ConditionalFact]
@@ -47,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(SomeEntity).GetTypeInfo().DeclaredConstructors.Single(c => c.GetParameters().Length == 2),
                     new List<ParameterBinding>
                     {
-                        new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Id))),
-                        new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Goo)))
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     }
                 );
 
@@ -84,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.Factory)),
                     new List<ParameterBinding>
                     {
-                        new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Id))),
-                        new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Goo)))
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
+                        new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                     },
                     entityType.ClrType);
 
@@ -124,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         new ObjectArrayParameterBinding(
                             new List<ParameterBinding>
                             {
-                                new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Id))),
-                                new PropertyParameterBinding((IProperty)entityType.FindProperty(nameof(SomeEntity.Goo)))
+                                new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
+                                new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                             })
                     },
                     entityType.ClrType);
@@ -222,16 +223,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_create_materializer_for_entity_with_fields()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<SomeEntityWithFields>(eb =>
-            {
-                eb.UsePropertyAccessMode(PropertyAccessMode.Field);
+            modelBuilder.Entity<SomeEntityWithFields>(
+                eb =>
+                {
+                    eb.UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                eb.Property(e => e.Enum).HasField("_enum");
-                eb.Property(e => e.Foo).HasField("_foo");
-                eb.Property(e => e.Goo).HasField("_goo");
-                eb.Property(e => e.Id).HasField("_id");
-                eb.Property(e => e.MaybeEnum).HasField("_maybeEnum");
-            });
+                    eb.Property(e => e.Enum).HasField("_enum");
+                    eb.Property(e => e.Foo).HasField("_foo");
+                    eb.Property(e => e.Goo).HasField("_goo");
+                    eb.Property(e => e.Id).HasField("_id");
+                    eb.Property(e => e.MaybeEnum).HasField("_maybeEnum");
+                });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntityWithFields));
 
@@ -254,11 +256,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_read_nulls()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<SomeEntity>(eb =>
-            {
-                eb.Ignore(e => e.Enum);
-                eb.Ignore(e => e.MaybeEnum);
-            });
+            modelBuilder.Entity<SomeEntity>(
+                eb =>
+                {
+                    eb.Ignore(e => e.Enum);
+                    eb.Ignore(e => e.MaybeEnum);
+                });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
@@ -266,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entity = (SomeEntity)factory(
                 new MaterializationContext(
-                    new ValueBuffer(new object[] { 77, null, null}),
+                    new ValueBuffer(new object[] { 77, null, null }),
                     _fakeContext));
 
             Assert.Equal(77, entity.Id);
@@ -279,17 +282,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<SomeEntity>(eb =>
-            {
-                eb.UsePropertyAccessMode(PropertyAccessMode.Property);
+            modelBuilder.Entity<SomeEntity>(
+                eb =>
+                {
+                    eb.UsePropertyAccessMode(PropertyAccessMode.Property);
 
-                eb.Ignore(e => e.Enum);
-                eb.Ignore(e => e.MaybeEnum);
+                    eb.Ignore(e => e.Enum);
+                    eb.Ignore(e => e.MaybeEnum);
 
-                eb.Property<int>("IdShadow");
-                eb.Property<string>("FooShadow");
-                eb.Property<Guid>("GooShadow");
-            });
+                    eb.Property<int>("IdShadow");
+                    eb.Property<string>("FooShadow");
+                    eb.Property<Guid>("GooShadow");
+                });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(SomeEntity));
 
@@ -328,7 +332,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static readonly ParameterExpression _contextParameter
             = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-        public virtual Func<MaterializationContext, object> GetMaterializer(IEntityMaterializerSource source, IReadOnlyEntityType entityType)
+        public virtual Func<MaterializationContext, object> GetMaterializer(
+            IEntityMaterializerSource source,
+            IReadOnlyEntityType entityType)
             => Expression.Lambda<Func<MaterializationContext, object>>(
                     source.CreateMaterializeExpression((IEntityType)entityType, "instance", _contextParameter),
                     _contextParameter)

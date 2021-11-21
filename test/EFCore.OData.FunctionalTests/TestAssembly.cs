@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     internal sealed class TestAssembly : Assembly
     {
-        readonly Type[] _types;
+        private readonly Type[] _types;
 
         public TestAssembly(params Type[] types)
         {
@@ -16,8 +16,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override Type[] GetTypes()
-        {
-            return _types;
-        }
+            => _types;
     }
 }

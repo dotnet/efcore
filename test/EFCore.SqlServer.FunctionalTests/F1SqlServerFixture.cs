@@ -26,10 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder
                 .Entity<OptimisticParent>()
                 .HasData(
-                    new OptimisticParent()
-                    {
-                        Id = new("AF8451C3-61CB-4EDA-8282-92250D85EF03"),
-                    }
+                    new OptimisticParent { Id = new Guid("AF8451C3-61CB-4EDA-8282-92250D85EF03"), }
                 );
         }
 

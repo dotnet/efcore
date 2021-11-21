@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : GearsOfWarQueryRelationalFixture, new()
     {
         protected GearsOfWarFromSqlQueryTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

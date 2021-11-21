@@ -176,9 +176,11 @@ ORDER BY [c].[CustomerID]");
 
             AssertSql(
                 @"-- Yanni
--- " + @"
+-- "
+                + @"
 -- AND
--- " + @"
+-- "
+                + @"
 -- Laurel
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

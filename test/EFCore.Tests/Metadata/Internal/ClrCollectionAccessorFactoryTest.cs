@@ -6,13 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -32,159 +30,107 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         [ConditionalFact]
         public void Delegate_accessor_is_returned_for_IEnumerable_navigation()
-        {
-            AccessorTest("AsIEnumerable", e => e.AsIEnumerable);
-        }
+            => AccessorTest("AsIEnumerable", e => e.AsIEnumerable);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_for_ICollection_navigation()
-        {
-            AccessorTest("AsICollection", e => e.AsICollection);
-        }
+            => AccessorTest("AsICollection", e => e.AsICollection);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_for_interface_navigation_derived_from_ICollection()
-        {
-            AccessorTest("AsIList", e => e.AsIList);
-        }
+            => AccessorTest("AsIList", e => e.AsIList);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_for_concrete_generic_type_navigation()
-        {
-            AccessorTest("AsList", e => e.AsList);
-        }
+            => AccessorTest("AsList", e => e.AsList);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_for_concrete_non_generic_type_navigation()
-        {
-            AccessorTest("AsMyCollection", e => e.AsMyCollection);
-        }
+            => AccessorTest("AsMyCollection", e => e.AsMyCollection);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_no_setter()
-        {
-            AccessorTest("WithNoSetter", e => e.WithNoSetter);
-        }
+            => AccessorTest("WithNoSetter", e => e.WithNoSetter);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_no_backing_field_found()
-        {
-            AccessorTest("NoBackingFound", e => e.NoBackingFound);
-        }
+            => AccessorTest("NoBackingFound", e => e.NoBackingFound);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_no_public_constructor()
-        {
-            AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
-        }
+            => AccessorTest("AsMyPrivateCollection", e => e.AsMyPrivateCollection);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_no_internal_constructor()
-        {
-            AccessorTest("AsMyInternalCollection", e => e.AsMyInternalCollection);
-        }
+            => AccessorTest("AsMyInternalCollection", e => e.AsMyInternalCollection);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_no_parameterless_constructor()
-        {
-            AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
-        }
+            => AccessorTest("AsMyUnavailableCollection", e => e.AsMyUnavailableCollection);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_auto_prop()
-        {
-            AccessorTest("AutoProp", e => e.AutoProp);
-        }
+            => AccessorTest("AutoProp", e => e.AutoProp);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_read_only_prop()
-        {
-            AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp);
-        }
+            => AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_read_only_auto_prop()
-        {
-            AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp);
-        }
+            => AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_read_only_field_prop()
-        {
-            AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp);
-        }
+            => AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_write_only_prop()
-        {
-            AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp);
-        }
+            => AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_prop_no_field_found()
-        {
-            AccessorTest("FullPropNoField", e => e.FullPropNoField);
-        }
+            => AccessorTest("FullPropNoField", e => e.FullPropNoField);
 
         [ConditionalFact]
         public void Delegate_accessor_is_returned_when_read_only_prop_no_field_found()
-        {
-            AccessorTest("ReadOnlyPropNoField", e => e.ReadOnlyPropNoField);
-        }
+            => AccessorTest("ReadOnlyPropNoField", e => e.ReadOnlyPropNoField);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_with_no_setter()
-        {
-            AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
-        }
+            => AccessorTest("WithNoSetter", e => e.WithNoSetter, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections()
-        {
-            AccessorTest("AsICollection", e => e.AsICollection, initializeCollections: false);
-        }
+            => AccessorTest("AsICollection", e => e.AsICollection, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_for_interface_navigation_derived_from_ICollection()
-        {
-            AccessorTest("AsIList", e => e.AsIList, initializeCollections: false);
-        }
+            => AccessorTest("AsIList", e => e.AsIList, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_for_concrete_generic_type_navigation()
-        {
-            AccessorTest("AsList", e => e.AsList, initializeCollections: false);
-        }
+            => AccessorTest("AsList", e => e.AsList, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_for_concrete_non_generic_type_navigation()
-        {
-            AccessorTest("AsMyCollection", e => e.AsMyCollection, initializeCollections: false);
-        }
+            => AccessorTest("AsMyCollection", e => e.AsMyCollection, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_auto_prop()
-        {
-            AccessorTest("AutoProp", e => e.AutoProp, initializeCollections: false);
-        }
+            => AccessorTest("AutoProp", e => e.AutoProp, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_read_only_prop()
-        {
-            AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp, initializeCollections: false);
-        }
+            => AccessorTest("ReadOnlyProp", e => e.ReadOnlyProp, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_write_only_prop()
-        {
-            AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp, initializeCollections: false);
-        }
+            => AccessorTest("WriteOnlyProp", e => e.ReadWriteOnlyProp, initializeCollections: false);
 
         [ConditionalFact]
         public void Delegate_accessor_handles_uninitialized_collections_prop_no_field_found()
-        {
-            AccessorTest("FullPropNoField", e => e.FullPropNoField, initializeCollections: false);
-        }
+            => AccessorTest("FullPropNoField", e => e.FullPropNoField, initializeCollections: false);
 
         private void AccessorTest(
             string navigationName,
@@ -257,27 +203,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Add_for_enumerable_backed_by_non_collection_throws()
-        {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v, forMaterialization: false));
-        }
+            => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Add(e, v, forMaterialization: false));
 
         [ConditionalFact]
         public void Contains_for_enumerable_backed_by_non_collection_throws()
-        {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Contains(e, v));
-        }
+            => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Contains(e, v));
 
         [ConditionalFact]
         public void Remove_for_enumerable_backed_by_non_collection_throws()
-        {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.Remove(e, v));
-        }
+            => Enumerable_backed_by_non_collection_throws((a, e, v) => a.Remove(e, v));
 
         [ConditionalFact]
         public void GetOrCreate_for_enumerable_backed_by_non_collection_throws()
-        {
-            Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e, forMaterialization: false));
-        }
+            => Enumerable_backed_by_non_collection_throws((a, e, v) => a.GetOrCreate(e, forMaterialization: false));
 
         private void Enumerable_backed_by_non_collection_throws(Action<IClrCollectionAccessor, MyEntity, MyOtherEntity> test)
         {
@@ -326,15 +264,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Initialization_for_read_only_auto_prop_navigation()
-        {
-            AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp, initializeCollections: false);
-        }
+            => AccessorTest("ReadOnlyAutoProp", e => e.ReadOnlyAutoProp, initializeCollections: false);
 
         [ConditionalFact]
         public void Initialization_for_read_only_navigation_backed_by_readonly_field()
-        {
-            AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp, initializeCollections: false);
-        }
+            => AccessorTest("ReadOnlyFieldProp", e => e.ReadOnlyFieldProp, initializeCollections: false);
 
         [ConditionalFact]
         public void Initialization_for_navigation_with_private_constructor_throws()
@@ -585,9 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => obj != null && obj is MyEntityWithCustomComparer other && Id == other.Id;
 
             public override int GetHashCode()
-            {
-                return Id.GetHashCode();
-            }
+                => Id.GetHashCode();
         }
 
         private class MyCollection : List<MyOtherEntity>
@@ -601,9 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public static MyPrivateCollection Create()
-            {
-                return new();
-            }
+                => new();
         }
 
         private class MyInternalCollection : List<MyOtherEntity>
@@ -623,9 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class MyEnumerable : IEnumerable<MyOtherEntity>
         {
             public IEnumerator<MyOtherEntity> GetEnumerator()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerator IEnumerable.GetEnumerator()
                 => GetEnumerator();

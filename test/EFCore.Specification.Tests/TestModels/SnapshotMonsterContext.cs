@@ -53,9 +53,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public class Barcode : IBarcode
         {
             public void InitializeCollections()
-            {
-                BadScans ??= new HashSet<IIncorrectScan>();
-            }
+                => BadScans ??= new HashSet<IIncorrectScan>();
 
             public byte[] Code { get; set; }
             public int ProductId { get; set; }
@@ -344,9 +342,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public class ProductPhoto : IProductPhoto
         {
             public void InitializeCollections()
-            {
-                Features ??= new HashSet<IProductWebFeature>();
-            }
+                => Features ??= new HashSet<IProductWebFeature>();
 
             public int ProductId { get; set; }
             public int PhotoId { get; set; }
@@ -358,9 +354,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public class ProductReview : IProductReview
         {
             public void InitializeCollections()
-            {
-                Features ??= new HashSet<IProductWebFeature>();
-            }
+                => Features ??= new HashSet<IProductWebFeature>();
 
             public int ProductId { get; set; }
             public int ReviewId { get; set; }

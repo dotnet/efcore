@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
     {
         protected CompositeKeyEndToEndTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         private TFixture Fixture { get; }
 
@@ -220,7 +222,12 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new { e.Id1, e.Id2, e.Discriminator });
+                            e => new
+                            {
+                                e.Id1,
+                                e.Id2,
+                                e.Discriminator
+                            });
                     });
 
                 modelBuilder.Entity<Pegasus>();

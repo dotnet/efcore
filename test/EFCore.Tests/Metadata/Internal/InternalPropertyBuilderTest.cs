@@ -253,13 +253,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.Null(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
+            Assert.Null(
+                builder.HasValueGenerator(
+                    (Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
 
             Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.NotNull(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
+            Assert.NotNull(
+                builder.HasValueGenerator(
+                    (Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
 
             Assert.Null(metadata.GetValueGeneratorFactory());
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -311,9 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class CustomValueGenerator1 : ValueGenerator<string>
         {
             public override string Next(EntityEntry entry)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override bool GeneratesTemporaryValues
                 => false;
@@ -322,9 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class CustomValueGenerator2 : ValueGenerator<string>
         {
             public override string Next(EntityEntry entry)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override bool GeneratesTemporaryValues
                 => false;

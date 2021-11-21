@@ -613,7 +613,9 @@ namespace Microsoft.EntityFrameworkCore
             private readonly DbContextOptions<WoolacombeContext> _options;
 
             public WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options)
-                => _options = options;
+            {
+                _options = options;
+            }
 
             public WoolacombeContext CreateDbContext()
                 => new(_options);
@@ -1021,7 +1023,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (validateScopes
                 && (contextLifetime == ServiceLifetime.Scoped
-                || effectiveOptionsLifetime == ServiceLifetime.Scoped))
+                    || effectiveOptionsLifetime == ServiceLifetime.Scoped))
             {
                 Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<WoolacombeContext>());
             }

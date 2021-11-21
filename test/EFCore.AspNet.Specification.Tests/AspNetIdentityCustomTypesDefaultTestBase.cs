@@ -48,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task Can_lazy_load_Role_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -61,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, role.RoleClaims.Count);
                     Assert.Equal(1, role.UserRoles.Count);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_User_navigations_many_to_many()
@@ -85,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task Can_lazy_load_Role_navigations_many_to_many()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -97,12 +94,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(1, role.Users.Count);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_UserRole_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -114,12 +109,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotNull(userRole.Role);
                     Assert.NotNull(userRole.User);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_UserClaim_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -129,12 +122,10 @@ namespace Microsoft.EntityFrameworkCore
                     var userClaim = await context.UserClaims.OrderBy(e => e.ClaimType).ThenBy(e => e.ClaimValue).FirstAsync();
                     Assert.NotNull(userClaim.User);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_UserLogin_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -144,12 +135,10 @@ namespace Microsoft.EntityFrameworkCore
                     var userLogin = await context.UserLogins.OrderBy(e => e.LoginProvider).FirstAsync();
                     Assert.NotNull(userLogin.User);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_RoleClaim_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -159,12 +148,10 @@ namespace Microsoft.EntityFrameworkCore
                     var roleClaim = await context.RoleClaims.OrderBy(e => e.Role.Name).FirstAsync();
                     Assert.NotNull(roleClaim.Role);
                 });
-        }
 
         [ConditionalFact]
         public async Task Can_lazy_load_UserToken_navigations()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
@@ -174,12 +161,11 @@ namespace Microsoft.EntityFrameworkCore
                     var userToken = await context.UserTokens.OrderBy(e => e.Name).FirstAsync();
                     Assert.NotNull(userToken.User);
                 });
-        }
 
         protected override List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
                     TableName = "MyRoleClaims",
@@ -201,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
                     TableName = "MyRoles",
@@ -224,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
                         "SkipNavigation: CustomRoleString.Users (ICollection<CustomUserString>) CollectionCustomUserString Inverse: Roles PropertyAccessMode.Field"
                     }
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
                     TableName = "MyUserClaims",
@@ -246,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
                     TableName = "MyUserLogins",
@@ -268,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
                     TableName = "MyUserRoles",
@@ -290,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
                     }
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserString",
                     TableName = "MyUsers",
@@ -330,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
                         "SkipNavigation: CustomUserString.Roles (ICollection<CustomRoleString>) CollectionCustomRoleString Inverse: Users PropertyAccessMode.Field"
                     }
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
                     TableName = "MyUserTokens",

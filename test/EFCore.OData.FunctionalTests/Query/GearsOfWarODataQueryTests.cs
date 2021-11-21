@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var result = await response.Content.ReadAsObject<JObject>();
 
-            Assert.Contains("$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer", result["@odata.context"].ToString());
+            Assert.Contains(
+                "$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer", result["@odata.context"].ToString());
             var gears = result["value"] as JArray;
 
             Assert.Equal(2, gears.Count);
@@ -60,7 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var result = await response.Content.ReadAsObject<JObject>();
 
-            Assert.Contains("$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer/$entity", result["@odata.context"].ToString());
+            Assert.Contains(
+                "$metadata#Gears/Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel.Officer/$entity",
+                result["@odata.context"].ToString());
             Assert.Equal("Marcus", result["Nickname"].ToString());
         }
 

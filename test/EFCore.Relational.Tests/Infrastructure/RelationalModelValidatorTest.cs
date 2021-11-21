@@ -26,11 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableKey>(eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.HasKey(e => e.Id);
-            });
+            modelBuilder.Entity<WithNonComparableKey>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    eb.HasKey(e => e.Id);
+                });
 
             VerifyError(
                 CoreStrings.PropertyNotMapped(nameof(NotComparable), nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id)),
@@ -41,10 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableUniqueIndex>(eb =>
-            {
-                eb.HasIndex(e => e.Index).IsUnique();
-            });
+            modelBuilder.Entity<WithNonComparableUniqueIndex>(
+                eb =>
+                {
+                    eb.HasIndex(e => e.Index).IsUnique();
+                });
 
             VerifyError(
                 CoreStrings.PropertyNotMapped(
@@ -56,12 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            modelBuilder.Entity<WithNonComparableNormalProperty>(eb =>
-            {
-                eb.Property(e => e.Id);
-                eb.HasKey(e => e.Id);
-                eb.Property(e => e.Foo);
-            });
+            modelBuilder.Entity<WithNonComparableNormalProperty>(
+                eb =>
+                {
+                    eb.Property(e => e.Id);
+                    eb.HasKey(e => e.Id);
+                    eb.Property(e => e.Foo);
+                });
 
             VerifyError(
                 CoreStrings.PropertyNotMapped(
@@ -81,8 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityC = model.AddEntityType(typeof(C));
             entityC.BaseType = entityA;
 
-            VerifyError(RelationalStrings.NonTPHTableClash(
-                entityC.DisplayName(), entityA.DisplayName(), entityA.DisplayName()), modelBuilder);
+            VerifyError(
+                RelationalStrings.NonTPHTableClash(
+                    entityC.DisplayName(), entityA.DisplayName(), entityA.DisplayName()), modelBuilder);
         }
 
         [ConditionalFact]
@@ -432,7 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<Owner>().OwnsOne(e => e.Owned);
 
-            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
+            var definition =
+                RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
             VerifyWarning(definition.GenerateMessage(nameof(OwnedEntity)), modelBuilder);
         }
 
@@ -1699,12 +1704,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .HasOne<Person>().WithMany()
                 .HasForeignKey("FavoritePersonId");
 
-            var definition = RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(new TestLogger<TestRelationalLoggingDefinitions>());
-            VerifyWarning(definition.GenerateMessage(l => l.Log(
+            var definition =
+                RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(
+                definition.GenerateMessage(
+                    l => l.Log(
                         definition.Level,
                         definition.EventId,
                         definition.MessageFormat,
-                        "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}", nameof(Person))),
+                        "{'FavoritePersonId'}", nameof(Cat), nameof(Person), "{'FavoritePersonId'}", nameof(Cat), "{'Id'}",
+                        nameof(Person))),
                 modelBuilder,
                 LogLevel.Error);
         }
@@ -1715,7 +1724,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
             modelBuilder.Entity<Dog>().ToTable("Dog");
-            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog", null));
+            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog"));
 
             Validate(modelBuilder);
         }
@@ -1725,7 +1734,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
-            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog", null));
+            property.HasColumnName("DogName", StoreObjectIdentifier.Table("Dog"));
 
             VerifyError(
                 RelationalStrings.TableOverrideMismatch("Animal.Name", "Dog"),
@@ -1738,7 +1747,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().ToView("Animal").Property(a => a.Name).GetInfrastructure();
             modelBuilder.Entity<Dog>().ToView("Dog");
-            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
+            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog"));
 
             Validate(modelBuilder);
         }
@@ -1748,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             var property = modelBuilder.Entity<Animal>().Property(a => a.Name).GetInfrastructure();
-            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog", null));
+            property.HasColumnName("DogName", StoreObjectIdentifier.View("Dog"));
 
             VerifyError(
                 RelationalStrings.ViewOverrideMismatch("Animal.Name", "Dog"),
@@ -2131,7 +2140,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 e =>
                 {
                     e.ToTable("foo");
-                    e.Property(p => p.Name).Metadata.SetColumnName("bar", StoreObjectIdentifier.Table("foo", null));
+                    e.Property(p => p.Name).Metadata.SetColumnName("bar", StoreObjectIdentifier.Table("foo"));
                 });
 
             Validate(modelBuilder);

@@ -121,21 +121,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class UserContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase(GetType().FullName);
-            }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<User>(
+                => modelBuilder.Entity<User>(
                     b =>
                     {
                         b.Property(e => e.Name).IsRequired();
                         b.Property(e => e.LongName).IsRequired();
                     });
-            }
         }
 
         [ConditionalFact]
@@ -1117,9 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public event PropertyChangedEventHandler PropertyChanged;
 
             protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private abstract class HasChangedAndChanging : HasChanged, INotifyPropertyChanging
@@ -1127,9 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public event PropertyChangingEventHandler PropertyChanging;
 
             protected void OnPropertyChanging([CallerMemberName] string propertyName = "")
-            {
-                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
-            }
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         public static IModel BuildModel(
@@ -1178,16 +1170,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase(GetType().FullName);
-            }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                BuildModel(_fullNotificationStrategy, modelBuilder, finalize: false);
-            }
+                => BuildModel(_fullNotificationStrategy, modelBuilder, finalize: false);
         }
     }
 }

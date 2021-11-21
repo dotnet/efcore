@@ -3,6 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void QueryFilter_containing_db_set_with_not_included_type()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
-            Expression<Func<Blog, bool>> lambda = (Blog e) => new MyContext().Set<Post>().Single().Id == e.Id;
+            Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
             modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
                 .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
@@ -38,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
-            Expression<Func<Blog, bool>> lambda = (Blog e) => new MyContext().Set<Post>().Single().Id == e.Id;
+            Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Post>().Single().Id == e.Id;
             modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
                 .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             modelBuilder.SharedTypeEntity("Post1", typeof(Post), ConfigurationSource.Explicit);
-            Expression<Func<Blog, bool>> lambda = (Blog e) => new MyContext().Set<Blog>("Post1").Single().Id == e.Id;
+            Expression<Func<Blog, bool>> lambda = e => new MyContext().Set<Blog>("Post1").Single().Id == e.Id;
             modelBuilder.Entity(typeof(Blog), ConfigurationSource.Explicit)
                 .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
                 .HasOwnership(typeof(Blog), "Blog", ConfigurationSource.Explicit);
 
-            Expression<Func<Owner, bool>> lambda = (Owner e) => new MyContext().Set<Blog>().Single().Id == e.Id;
+            Expression<Func<Owner, bool>> lambda = e => new MyContext().Set<Blog>().Single().Id == e.Id;
             modelBuilder.Entity(typeof(Owner), ConfigurationSource.Explicit)
                 .HasQueryFilter(lambda, ConfigurationSource.Explicit);
 
@@ -108,9 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         protected class MyContext : DbContext
         {
-            public MyContext()
-            {
-            }
         }
     }
 }

@@ -1097,9 +1097,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)
-        {
-            return base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(async);
-        }
+            => base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(async);
 
         public override async Task IsNullOrEmpty_in_projection(bool async)
         {
@@ -1317,31 +1315,21 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
-        {
-            return base.DateTime_Compare_to_simple_zero(async, compareTo);
-        }
+            => base.DateTime_Compare_to_simple_zero(async, compareTo);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
-        {
-            return base.TimeSpan_Compare_to_simple_zero(async, compareTo);
-        }
+            => base.TimeSpan_Compare_to_simple_zero(async, compareTo);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Int_Compare_to_simple_zero(bool async)
-        {
-            return base.Int_Compare_to_simple_zero(async);
-        }
+            => base.Int_Compare_to_simple_zero(async);
 
         public override Task Regex_IsMatch_MethodCall(bool async)
-        {
-            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
-        }
+            => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
 
         public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
-        {
-            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
-        }
+            => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1365,7 +1353,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""],
             await AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "alFkI", StringComparison.OrdinalIgnoreCase)),
-            entryCount: 1);
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c
@@ -1395,7 +1383,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""],
             await AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.Ordinal)),
-            entryCount: 1);
+                entryCount: 1);
 
             AssertSql(
                 @"SELECT c
@@ -1405,9 +1393,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""],
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Datetime_subtraction_TotalDays(bool async)
-        {
-            return base.Datetime_subtraction_TotalDays(async);
-        }
+            => base.Datetime_subtraction_TotalDays(async);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

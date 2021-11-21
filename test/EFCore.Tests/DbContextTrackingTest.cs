@@ -16,33 +16,23 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_deleted()
-        {
-            return TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
-        }
+            => TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_with_graph_method()
-        {
-            return TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
+            => TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_with_graph_method_async()
-        {
-            return TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
-        }
+            => TrackEntitiesTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_attached_with_graph_method()
-        {
-            return TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
-        }
+            => TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_updated_with_graph_method()
-        {
-            return TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
-        }
+            => TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
 
         private static Task TrackEntitiesTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
@@ -110,33 +100,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_context()
-        {
-            return TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
-        }
+            => TrackMultipleEntitiesTest((c, e) => c.AddRange(e[0], e[1]), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_context_async()
-        {
-            return TrackMultipleEntitiesTest((c, e) => c.AddRangeAsync(e[0], e[1]), EntityState.Added);
-        }
+            => TrackMultipleEntitiesTest((c, e) => c.AddRangeAsync(e[0], e[1]), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_attached()
-        {
-            return TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
-        }
+            => TrackMultipleEntitiesTest((c, e) => c.AttachRange(e[0], e[1]), EntityState.Unchanged);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_updated()
-        {
-            return TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
-        }
+            => TrackMultipleEntitiesTest((c, e) => c.UpdateRange(e[0], e[1]), EntityState.Modified);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_deleted()
-        {
-            return TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
-        }
+            => TrackMultipleEntitiesTest((c, e) => c.RemoveRange(e[0], e[1]), EntityState.Deleted);
 
         private static Task TrackMultipleEntitiesTest(
             Action<DbContext, object[]> adder,
@@ -197,33 +177,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_deleted()
-        {
-            return TrackEntitiesDefaultValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
-        }
+            => TrackEntitiesDefaultValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_new_entities_with_default_value_to_context_with_graph_method()
-        {
-            return TrackEntitiesDefaultValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_new_entities_with_default_value_to_context_with_graph_method_async()
-        {
-            return TrackEntitiesDefaultValueTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValueTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_with_graph_method()
-        {
-            return TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_with_graph_method()
-        {
-            return TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
 
         private static Task TrackEntitiesDefaultValueTest(
             Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
@@ -267,35 +237,25 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context()
-        {
-            return TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
-        }
+            => TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context_async()
-        {
-            return TrackMultipleEntitiesDefaultValuesTest(
+            => TrackMultipleEntitiesDefaultValuesTest(
                 (c, e) => c.AddRangeAsync(e[0]), (c, e) => c.AddRangeAsync(e[0]), EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached()
-        {
-            return TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Added);
-        }
+            => TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AttachRange(e[0]), (c, e) => c.AttachRange(e[0]), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated()
-        {
-            return TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Added);
-        }
+            => TrackMultipleEntitiesDefaultValuesTest((c, e) => c.UpdateRange(e[0]), (c, e) => c.UpdateRange(e[0]), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted()
-        {
-            return TrackMultipleEntitiesDefaultValuesTest(
+            => TrackMultipleEntitiesDefaultValuesTest(
                 (c, e) => c.RemoveRange(e[0]), (c, e) => c.RemoveRange(e[0]), EntityState.Deleted);
-        }
 
         private static Task TrackMultipleEntitiesDefaultValuesTest(
             Action<DbContext, object[]> categoryAdder,
@@ -344,9 +304,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_new_entities_to_context()
-        {
-            TrackNoEntitiesTest(c => c.AddRange(), c => c.AddRange());
-        }
+            => TrackNoEntitiesTest(c => c.AddRange(), c => c.AddRange());
 
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_context_async()
@@ -359,21 +317,15 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_attached()
-        {
-            TrackNoEntitiesTest(c => c.AttachRange(), c => c.AttachRange());
-        }
+            => TrackNoEntitiesTest(c => c.AttachRange(), c => c.AttachRange());
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_updated()
-        {
-            TrackNoEntitiesTest(c => c.UpdateRange(), c => c.UpdateRange());
-        }
+            => TrackNoEntitiesTest(c => c.UpdateRange(), c => c.UpdateRange());
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_deleted()
-        {
-            TrackNoEntitiesTest(c => c.RemoveRange(), c => c.RemoveRange());
-        }
+            => TrackNoEntitiesTest(c => c.RemoveRange(), c => c.RemoveRange());
 
         private static void TrackNoEntitiesTest(Action<DbContext> categoryAdder, Action<DbContext> productAdder)
         {
@@ -385,33 +337,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_deleted_non_generic()
-        {
-            return TrackEntitiesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
-        }
+            => TrackEntitiesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_non_generic_graph()
-        {
-            return TrackEntitiesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
-        }
+            => TrackEntitiesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_new_entities_to_context_non_generic_graph_async()
-        {
-            return TrackEntitiesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
+            => TrackEntitiesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_attached_non_generic_graph()
-        {
-            return TrackEntitiesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
-        }
+            => TrackEntitiesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_to_context_to_be_updated_non_generic_graph()
-        {
-            return TrackEntitiesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
-        }
+            => TrackEntitiesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
 
         private static Task TrackEntitiesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
@@ -479,33 +421,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_deleted_Enumerable()
-        {
-            return TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), EntityState.Deleted);
-        }
+            => TrackMultipleEntitiesTestEnumerable((c, e) => c.RemoveRange(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_context_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), EntityState.Added);
-        }
+            => TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_to_context_Enumerable_graph_async()
-        {
-            return TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRangeAsync(e), EntityState.Added);
-        }
+            => TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRangeAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), EntityState.Unchanged);
-        }
+            => TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e), EntityState.Unchanged);
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), EntityState.Modified);
-        }
+            => TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e), EntityState.Modified);
 
         private static Task TrackMultipleEntitiesTestEnumerable(
             Action<DbContext, IEnumerable<object>> adder,
@@ -566,33 +498,23 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_deleted_non_generic()
-        {
-            return TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
-        }
+            => TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
 
         [ConditionalFact]
         public Task Can_add_new_entities_with_default_value_to_context_non_generic_graph()
-        {
-            return TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_new_entities_with_default_value_to_context_non_generic_graph_async()
-        {
-            return TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_attached_non_generic_graph()
-        {
-            return TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_existing_entities_with_default_value_to_context_to_be_updated_non_generic_graph()
-        {
-            return TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
-        }
+            => TrackEntitiesDefaultValuesTestNonGeneric((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
 
         private static Task TrackEntitiesDefaultValuesTestNonGeneric(
             Func<DbContext, object, EntityEntry> categoryAdder,
@@ -636,37 +558,27 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_deleted_Enumerable()
-        {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+            => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e), EntityState.Deleted);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
-        }
+            => TrackMultipleEntitiesDefaultValueTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e), EntityState.Added);
 
         [ConditionalFact]
         public Task Can_add_multiple_new_entities_with_default_values_to_context_Enumerable_graph_async()
-        {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+            => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) => c.AddRangeAsync(e), (c, e) => c.AddRangeAsync(e), EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_attached_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+            => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e), EntityState.Added);
-        }
 
         [ConditionalFact]
         public Task Can_add_multiple_existing_entities_with_default_values_to_context_to_be_updated_Enumerable_graph()
-        {
-            return TrackMultipleEntitiesDefaultValueTestEnumerable(
+            => TrackMultipleEntitiesDefaultValueTestEnumerable(
                 (c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e), EntityState.Added);
-        }
 
         private static Task TrackMultipleEntitiesDefaultValueTestEnumerable(
             Action<DbContext, IEnumerable<object>> categoryAdder,
@@ -717,15 +629,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_deleted_Enumerable()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.RemoveRange(e), (c, e) => c.RemoveRange(e));
 
         [ConditionalFact]
         public void Can_add_no_new_entities_to_context_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e), (c, e) => c.AddRange(e));
 
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_context_Enumerable_graph_async()
@@ -738,15 +646,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_attached_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e), (c, e) => c.AttachRange(e));
 
         [ConditionalFact]
         public void Can_add_no_existing_entities_to_context_to_be_updated_Enumerable_graph()
-        {
-            TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e));
-        }
+            => TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e), (c, e) => c.UpdateRange(e));
 
         private static void TrackNoEntitiesTestEnumerable(
             Action<DbContext, IEnumerable<object>> categoryAdder,
@@ -1797,14 +1701,12 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder.UseInMemoryDatabase(nameof(Parent77Context));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Parent77>(
+                => modelBuilder.Entity<Parent77>(
                     b =>
                     {
                         b.HasMany<Optional77>().WithOne(e => e.Parent77);
                         b.HasMany<Required77>().WithOne(e => e.Parent77);
                     });
-            }
         }
 
         private class Parent77

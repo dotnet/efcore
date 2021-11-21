@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -141,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => exception switch
             {
                 HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
-                    || (re.InnerException is IOException ioException && ioException.InnerException is SocketException), // Exception in Windows
+                    || (re.InnerException is IOException ioException
+                        && ioException.InnerException is SocketException), // Exception in Windows
                 _ => exception.Message.Contains(
                     "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                     StringComparison.Ordinal),
@@ -239,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     var cosmosClient = context.Database.GetCosmosClient();
                     var database = cosmosClient.GetDatabase(Name);
-                    var containerIterator = database.GetContainerQueryIterator<Azure.Cosmos.ContainerProperties>();
+                    var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
                     while (containerIterator.HasMoreResults)
                     {
                         foreach (var containerProperties in await containerIterator.ReadNextAsync())
@@ -327,9 +329,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
-            }
+                => optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
         }
 
         private class FakeUpdateEntry : IUpdateEntry
@@ -433,7 +433,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
 
             public IForeignKey FindForeignKey(
-                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                IReadOnlyList<IReadOnlyProperty> properties,
+                IReadOnlyKey principalKey,
+                IReadOnlyEntityType principalEntityType)
                 => throw new NotImplementedException();
 
             public IEnumerable<IForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
@@ -578,7 +580,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
 
             IReadOnlyForeignKey IReadOnlyEntityType.FindForeignKey(
-                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                IReadOnlyList<IReadOnlyProperty> properties,
+                IReadOnlyKey principalKey,
+                IReadOnlyEntityType principalEntityType)
                 => throw new NotImplementedException();
 
             IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)

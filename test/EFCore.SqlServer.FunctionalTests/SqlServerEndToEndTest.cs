@@ -8,7 +8,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -310,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                evaluationAction = new EvaluationAction()
+                evaluationAction = new EvaluationAction
                 {
                     Id = Guid.NewGuid().ToString(),
                     CreateId = "1",
@@ -324,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                var projectAction = new ProjectAction()
+                var projectAction = new ProjectAction
                 {
                     Id = evaluationAction.Id,
                     CreateId = "1",
@@ -352,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                var projectAction = new ProjectAction()
+                var projectAction = new ProjectAction
                 {
                     Id = Guid.NewGuid().ToString(),
                     CreateId = "1",
@@ -378,14 +377,14 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<ProjectAction>()
-                   .ToTable("projectaction")
-                   .HasOne(o => o.EvaluationAction).WithOne(o => o.ProjectAction)
-                   .HasForeignKey<ProjectAction>(o => o.Id);
+                    .ToTable("projectaction")
+                    .HasOne(o => o.EvaluationAction).WithOne(o => o.ProjectAction)
+                    .HasForeignKey<ProjectAction>(o => o.Id);
 
                 modelBuilder.Entity<ProjectAction>().Property(p => p.Name).IsRequired();
 
                 modelBuilder.Entity<EvaluationAction>()
-                   .ToTable("projectaction");
+                    .ToTable("projectaction");
             }
         }
 
@@ -448,18 +447,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new CompositeKeysDbContext(options))
             {
                 context.Database.EnsureCreatedResiliently();
-                var first = new Int32CompositeKeys
-                {
-                    Id1 = 1, Id2 = 2
-                };
+                var first = new Int32CompositeKeys { Id1 = 1, Id2 = 2 };
 
                 context.Add(first);
 
-                var second = new Int64CompositeKeys
-                {
-                    Id1 = 1,
-                    Id2 = 2
-                };
+                var second = new Int64CompositeKeys { Id1 = 1, Id2 = 2 };
 
                 context.Add(second);
                 await context.SaveChangesAsync();
@@ -513,12 +505,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                var category = new Category { };
+                var category = new Category();
                 context.Categories.Add(category);
 
                 context.SaveChanges();
 
-                var fileMetadata = new FileMetadata { };
+                var fileMetadata = new FileMetadata();
                 context.FileMetadata.Add(fileMetadata);
                 category.Picture = new FileSource { FileId = fileMetadata.Id };
 
@@ -540,13 +532,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<Category>(builder =>
-                {
-                    builder.OwnsOne(x => x.Picture, fileSource =>
+                modelBuilder.Entity<Category>(
+                    builder =>
                     {
-                        fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                        builder.OwnsOne(
+                            x => x.Picture, fileSource =>
+                            {
+                                fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                            });
                     });
-                });
             }
         }
 
@@ -840,13 +834,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                context.Add(new EntityA()
-                {
-                    EntityB = new EntityB()
-                    {
-                        EntitiesC = { new EntityC() },
-                    }
-                });
+                context.Add(new EntityA { EntityB = new EntityB { EntitiesC = { new EntityC() }, } });
 
                 context.SaveChanges();
             }
@@ -856,10 +844,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var entityA = context.EntitiesA.Include(x => x.EntityB).ThenInclude(x => x.EntitiesC).OrderBy(x => x.Id).First();
 
-                entityA.EntityB = new EntityB()
-                {
-                    EntitiesC = { new EntityC() }
-                };
+                entityA.EntityB = new EntityB { EntitiesC = { new EntityC() } };
 
                 context.SaveChanges();
 
@@ -882,27 +867,67 @@ namespace Microsoft.EntityFrameworkCore
             MemberType = typeof(DataGenerator))]
         public void Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
         {
-            var students = new Student[]
+            var students = new[]
             {
-                new Student{FirstMidName="Carson",LastName="Alexander",EnrollmentDate=DateTime.Parse("2019-09-01")},
-                new Student{FirstMidName="Meredith",LastName="Alonso",EnrollmentDate=DateTime.Parse("2017-09-01")},
-                new Student{FirstMidName="Arturo",LastName="Anand",EnrollmentDate=DateTime.Parse("2018-09-01")},
-                new Student{FirstMidName="Gytis",LastName="Barzdukas",EnrollmentDate=DateTime.Parse("2017-09-01")},
-                new Student{FirstMidName="Yan",LastName="Li",EnrollmentDate=DateTime.Parse("2017-09-01")},
-                new Student{FirstMidName="Peggy",LastName="Justice",EnrollmentDate=DateTime.Parse("2016-09-01")},
-                new Student{FirstMidName="Laura",LastName="Norman",EnrollmentDate=DateTime.Parse("2018-09-01")},
-                new Student{FirstMidName="Nino",LastName="Olivetto",EnrollmentDate=DateTime.Parse("2019-09-01")}
+                new()
+                {
+                    FirstMidName = "Carson",
+                    LastName = "Alexander",
+                    EnrollmentDate = DateTime.Parse("2019-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Meredith",
+                    LastName = "Alonso",
+                    EnrollmentDate = DateTime.Parse("2017-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Arturo",
+                    LastName = "Anand",
+                    EnrollmentDate = DateTime.Parse("2018-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Gytis",
+                    LastName = "Barzdukas",
+                    EnrollmentDate = DateTime.Parse("2017-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Yan",
+                    LastName = "Li",
+                    EnrollmentDate = DateTime.Parse("2017-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Peggy",
+                    LastName = "Justice",
+                    EnrollmentDate = DateTime.Parse("2016-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Laura",
+                    LastName = "Norman",
+                    EnrollmentDate = DateTime.Parse("2018-09-01")
+                },
+                new Student
+                {
+                    FirstMidName = "Nino",
+                    LastName = "Olivetto",
+                    EnrollmentDate = DateTime.Parse("2019-09-01")
+                }
             };
 
-            var courses = new Course[]
+            var courses = new[]
             {
-                new Course{Title="Chemistry",Credits=3},
-                new Course{Title="Microeconomics",Credits=3},
-                new Course{Title="Macroeconomics",Credits=3},
-                new Course{Title="Calculus",Credits=4},
-                new Course{Title="Trigonometry",Credits=4},
-                new Course{Title="Composition",Credits=3},
-                new Course{Title="Literature",Credits=4}
+                new() { Title = "Chemistry", Credits = 3 },
+                new Course { Title = "Microeconomics", Credits = 3 },
+                new Course { Title = "Macroeconomics", Credits = 3 },
+                new Course { Title = "Calculus", Credits = 4 },
+                new Course { Title = "Trigonometry", Credits = 4 },
+                new Course { Title = "Composition", Credits = 3 },
+                new Course { Title = "Literature", Credits = 4 }
             };
 
             using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
@@ -915,6 +940,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Students.Add(students[i]);
                 }
+
                 for (var i = 0; i < courseCount; i++)
                 {
                     context.Courses.Add(courses[i]);
@@ -993,71 +1019,74 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Course>(builder =>
-                {
-                    builder.ToTable("Courses");
+                modelBuilder.Entity<Course>(
+                    builder =>
+                    {
+                        builder.ToTable("Courses");
 
-                    builder.HasKey(x => x.Id);
+                        builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                        builder.Property(x => x.Id)
+                            .ValueGeneratedOnAdd()
+                            .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.Title)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                        builder.Property(x => x.Title)
+                            .IsRequired()
+                            .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
-                });
+                        builder.Property(x => x.RowVersion)
+                            .IsRowVersion();
+                    });
 
-                modelBuilder.Entity<Student>(builder =>
-                {
-                    builder.ToTable("Students");
+                modelBuilder.Entity<Student>(
+                    builder =>
+                    {
+                        builder.ToTable("Students");
 
-                    builder.HasKey(x => x.Id);
+                        builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                        builder.Property(x => x.Id)
+                            .ValueGeneratedOnAdd()
+                            .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.LastName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                        builder.Property(x => x.LastName)
+                            .IsRequired()
+                            .HasMaxLength(50);
 
-                    builder.Property(x => x.FirstMidName)
-                        .IsRequired()
-                        .HasMaxLength(50);
+                        builder.Property(x => x.FirstMidName)
+                            .IsRequired()
+                            .HasMaxLength(50);
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
-                });
+                        builder.Property(x => x.RowVersion)
+                            .IsRowVersion();
+                    });
 
-                modelBuilder.Entity<Enrollment>(builder =>
-                {
-                    builder.ToTable("Enrollments");
+                modelBuilder.Entity<Enrollment>(
+                    builder =>
+                    {
+                        builder.ToTable("Enrollments");
 
-                    builder.HasKey(x => x.Id);
+                        builder.HasKey(x => x.Id);
 
-                    builder.Property(x => x.Id)
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NEWSEQUENTIALID()");
+                        builder.Property(x => x.Id)
+                            .ValueGeneratedOnAdd()
+                            .HasDefaultValueSql("NEWSEQUENTIALID()");
 
-                    builder.Property(x => x.RowVersion)
-                        .IsRowVersion();
+                        builder.Property(x => x.RowVersion)
+                            .IsRowVersion();
 
-                    builder.HasOne(t => t.Course)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.CourseId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                        builder.HasOne(t => t.Course)
+                            .WithMany(t => t.Enrollments)
+                            .HasPrincipalKey(d => d.Id)
+                            .HasForeignKey(d => d.CourseId)
+                            .OnDelete(DeleteBehavior.Cascade);
 
-                    builder.HasOne(t => t.Student)
-                        .WithMany(t => t.Enrollments)
-                        .HasPrincipalKey(d => d.Id)
-                        .HasForeignKey(d => d.StudentId)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+                        builder.HasOne(t => t.Student)
+                            .WithMany(t => t.Enrollments)
+                            .HasPrincipalKey(d => d.Id)
+                            .HasForeignKey(d => d.StudentId)
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
             }
         }
 
@@ -1092,13 +1121,11 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<EntityC> EntitiesC { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .Entity<EntityA>()
                     .HasOne(e => e.EntityB)
                     .WithOne(e => e.EntityA)
                     .HasForeignKey<EntityB>(e => e.Id);
-            }
         }
 
         [ConditionalFact]
@@ -1469,21 +1496,15 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public Task Can_round_trip_changes_with_snapshot_change_tracking()
-        {
-            return RoundTripChanges<Blog>();
-        }
+            => RoundTripChanges<Blog>();
 
         [ConditionalFact]
         public Task Can_round_trip_changes_with_full_notification_entities()
-        {
-            return RoundTripChanges<ChangedChangingBlog>();
-        }
+            => RoundTripChanges<ChangedChangingBlog>();
 
         [ConditionalFact]
         public Task Can_round_trip_changes_with_changed_only_notification_entities()
-        {
-            return RoundTripChanges<ChangedOnlyBlog>();
-        }
+            => RoundTripChanges<ChangedOnlyBlog>();
 
         private async Task RoundTripChanges<TBlog>()
             where TBlog : class, IBlog, new()
@@ -1619,14 +1640,12 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     b =>
                     {
                         b.HasKey(c => c.CustomerID);
                         b.ToTable("Customers");
                     });
-            }
         }
 
         private class Customer

@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -16,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
         protected FindTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -313,8 +314,9 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
 
             Assert.Equal(
-                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => Find<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77)).Message);
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => Find<DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
         [ConditionalFact]
@@ -598,10 +600,11 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
 
             Assert.Equal(
-                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
-                (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77).AsTask())).Message);
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<DifferentNamespace.ShadowKey>(context, 77).AsTask()))
+                .Message);
         }
-
 
         protected class BaseType
         {
@@ -700,7 +703,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
-
 
 namespace Microsoft.EntityFrameworkCore.DifferentNamespace
 {

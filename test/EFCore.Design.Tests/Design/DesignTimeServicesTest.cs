@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -32,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         [InlineData(false)]
         public void Services_are_registered_using_correct_priority(bool useContext)
         {
-            using var context = new MyContext(new DbContextOptionsBuilder<MyContext>().UseSqlServer()
-                .ReplaceService<IMigrationsIdGenerator, ContextMigrationsIdGenerator>()
-                .ReplaceService<IHistoryRepository, ContextHistoryRepository>()
-                .Options);
+            using var context = new MyContext(
+                new DbContextOptionsBuilder<MyContext>().UseSqlServer()
+                    .ReplaceService<IMigrationsIdGenerator, ContextMigrationsIdGenerator>()
+                    .ReplaceService<IHistoryRepository, ContextHistoryRepository>()
+                    .Options);
 
             var serviceProvider = CreateDesignServiceProvider(
                 @"
@@ -85,29 +85,47 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
                 useContext ? context : null).CreateScope().ServiceProvider;
 
             // Base design-time services are resolved
-            Assert.Equal(typeof(CSharpMigrationOperationGeneratorDependencies), serviceProvider.GetRequiredService<CSharpMigrationOperationGeneratorDependencies>().GetType());
-            Assert.Equal(typeof(CSharpMigrationsGeneratorDependencies), serviceProvider.GetRequiredService<CSharpMigrationsGeneratorDependencies>().GetType());
-            Assert.Equal(typeof(CSharpSnapshotGeneratorDependencies), serviceProvider.GetRequiredService<CSharpSnapshotGeneratorDependencies>().GetType());
+            Assert.Equal(
+                typeof(CSharpMigrationOperationGeneratorDependencies),
+                serviceProvider.GetRequiredService<CSharpMigrationOperationGeneratorDependencies>().GetType());
+            Assert.Equal(
+                typeof(CSharpMigrationsGeneratorDependencies),
+                serviceProvider.GetRequiredService<CSharpMigrationsGeneratorDependencies>().GetType());
+            Assert.Equal(
+                typeof(CSharpSnapshotGeneratorDependencies),
+                serviceProvider.GetRequiredService<CSharpSnapshotGeneratorDependencies>().GetType());
             Assert.Equal(typeof(CandidateNamingService), serviceProvider.GetRequiredService<ICandidateNamingService>().GetType());
             Assert.Equal(typeof(CSharpDbContextGenerator), serviceProvider.GetRequiredService<ICSharpDbContextGenerator>().GetType());
             Assert.Equal(typeof(CSharpEntityTypeGenerator), serviceProvider.GetRequiredService<ICSharpEntityTypeGenerator>().GetType());
             Assert.Equal(typeof(CSharpHelper), serviceProvider.GetRequiredService<ICSharpHelper>().GetType());
-            Assert.Equal(typeof(CSharpMigrationOperationGenerator), serviceProvider.GetRequiredService<ICSharpMigrationOperationGenerator>().GetType());
+            Assert.Equal(
+                typeof(CSharpMigrationOperationGenerator),
+                serviceProvider.GetRequiredService<ICSharpMigrationOperationGenerator>().GetType());
             Assert.Equal(typeof(CSharpSnapshotGenerator), serviceProvider.GetRequiredService<ICSharpSnapshotGenerator>().GetType());
             Assert.Equal(typeof(CSharpUtilities), serviceProvider.GetRequiredService<ICSharpUtilities>().GetType());
             Assert.Equal(typeof(CSharpMigrationsGenerator), serviceProvider.GetRequiredService<IMigrationsCodeGenerator>().GetType());
-            Assert.Equal(typeof(MigrationsCodeGeneratorSelector), serviceProvider.GetRequiredService<IMigrationsCodeGeneratorSelector>().GetType());
+            Assert.Equal(
+                typeof(MigrationsCodeGeneratorSelector), serviceProvider.GetRequiredService<IMigrationsCodeGeneratorSelector>().GetType());
             Assert.Equal(typeof(CSharpModelGenerator), serviceProvider.GetRequiredService<IModelCodeGenerator>().GetType());
             Assert.Equal(typeof(ModelCodeGeneratorSelector), serviceProvider.GetRequiredService<IModelCodeGeneratorSelector>().GetType());
-            Assert.Equal(typeof(CSharpRuntimeModelCodeGenerator), serviceProvider.GetRequiredService<ICompiledModelCodeGenerator>().GetType());
-            Assert.Equal(typeof(CompiledModelCodeGeneratorSelector), serviceProvider.GetRequiredService<ICompiledModelCodeGeneratorSelector>().GetType());
+            Assert.Equal(
+                typeof(CSharpRuntimeModelCodeGenerator), serviceProvider.GetRequiredService<ICompiledModelCodeGenerator>().GetType());
+            Assert.Equal(
+                typeof(CompiledModelCodeGeneratorSelector),
+                serviceProvider.GetRequiredService<ICompiledModelCodeGeneratorSelector>().GetType());
             Assert.Equal(typeof(CompiledModelScaffolder), serviceProvider.GetRequiredService<ICompiledModelScaffolder>().GetType());
-            Assert.Equal(typeof(DesignTimeConnectionStringResolver), serviceProvider.GetRequiredService<IDesignTimeConnectionStringResolver>().GetType());
+            Assert.Equal(
+                typeof(DesignTimeConnectionStringResolver),
+                serviceProvider.GetRequiredService<IDesignTimeConnectionStringResolver>().GetType());
             Assert.Equal(typeof(HumanizerPluralizer), serviceProvider.GetRequiredService<IPluralizer>().GetType());
-            Assert.Equal(typeof(RelationalScaffoldingModelFactory), serviceProvider.GetRequiredService<IScaffoldingModelFactory>().GetType());
+            Assert.Equal(
+                typeof(RelationalScaffoldingModelFactory), serviceProvider.GetRequiredService<IScaffoldingModelFactory>().GetType());
             Assert.Equal(typeof(ScaffoldingTypeMapper), serviceProvider.GetRequiredService<IScaffoldingTypeMapper>().GetType());
-            Assert.Equal(typeof(MigrationsCodeGeneratorDependencies), serviceProvider.GetRequiredService<MigrationsCodeGeneratorDependencies>().GetType());
-            Assert.Equal(typeof(ModelCodeGeneratorDependencies), serviceProvider.GetRequiredService<ModelCodeGeneratorDependencies>().GetType());
+            Assert.Equal(
+                typeof(MigrationsCodeGeneratorDependencies),
+                serviceProvider.GetRequiredService<MigrationsCodeGeneratorDependencies>().GetType());
+            Assert.Equal(
+                typeof(ModelCodeGeneratorDependencies), serviceProvider.GetRequiredService<ModelCodeGeneratorDependencies>().GetType());
             Assert.Equal(typeof(ReverseEngineerScaffolder), serviceProvider.GetRequiredService<IReverseEngineerScaffolder>().GetType());
 
             if (useContext)
@@ -122,12 +140,14 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
             Assert.Equal(typeof(TestOperationReporter), serviceProvider.GetRequiredService<IOperationReporter>().GetType());
 
             // Provider design-time services are resolved
-            Assert.Equal(typeof(SqlServerAnnotationCodeGenerator),
+            Assert.Equal(
+                typeof(SqlServerAnnotationCodeGenerator),
                 serviceProvider.GetRequiredService<IAnnotationCodeGenerator>().GetType());
 
             // Extension design-time services are resolved
             Assert.Equal(typeof(ExtensionDatabaseModelFactory), serviceProvider.GetRequiredService<IDatabaseModelFactory>().GetType());
-            Assert.Equal(typeof(SqlServerNetTopologySuiteCodeGeneratorPlugin),
+            Assert.Equal(
+                typeof(SqlServerNetTopologySuiteCodeGeneratorPlugin),
                 serviceProvider.GetRequiredService<IEnumerable<IProviderCodeGeneratorPlugin>>().Single().GetType());
 
             if (!useContext)
@@ -141,9 +161,11 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
             }
 
             // User-specified design-time services are resolved
-            Assert.Equal("UserMigrationsIdGenerator",
+            Assert.Equal(
+                "UserMigrationsIdGenerator",
                 serviceProvider.GetRequiredService<IMigrationsIdGenerator>().GetType().Name);
-            Assert.Equal("UserProviderConfigurationCodeGenerator",
+            Assert.Equal(
+                "UserProviderConfigurationCodeGenerator",
                 serviceProvider.GetRequiredService<IProviderConfigurationCodeGenerator>().GetType().Name);
         }
 
@@ -169,38 +191,50 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
         public class ExtensionMigrationsIdGenerator : IMigrationsIdGenerator
         {
-            public string GenerateId(string name) => throw new NotImplementedException();
+            public string GenerateId(string name)
+                => throw new NotImplementedException();
 
-            public string GetName(string id) => throw new NotImplementedException();
+            public string GetName(string id)
+                => throw new NotImplementedException();
 
-            public bool IsValidId(string value) => throw new NotImplementedException();
+            public bool IsValidId(string value)
+                => throw new NotImplementedException();
         }
 
         public class ExtensionHistoryRepository : IHistoryRepository
         {
-            public bool Exists() => throw new NotImplementedException();
+            public bool Exists()
+                => throw new NotImplementedException();
 
             public Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public IReadOnlyList<HistoryRow> GetAppliedMigrations() => throw new NotImplementedException();
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations()
+                => throw new NotImplementedException();
 
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public string GetBeginIfExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfExistsScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetBeginIfNotExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
+            public string GetCreateIfNotExistsScript()
+                => throw new NotImplementedException();
 
-            public string GetCreateScript() => throw new NotImplementedException();
+            public string GetCreateScript()
+                => throw new NotImplementedException();
 
-            public string GetDeleteScript(string migrationId) => throw new NotImplementedException();
+            public string GetDeleteScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetEndIfScript() => throw new NotImplementedException();
+            public string GetEndIfScript()
+                => throw new NotImplementedException();
 
-            public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();
+            public string GetInsertScript(HistoryRow row)
+                => throw new NotImplementedException();
         }
 
         public class ExtensionProviderConfigurationCodeGenerator : IProviderConfigurationCodeGenerator
@@ -217,38 +251,50 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
 
         public class ContextMigrationsIdGenerator : IMigrationsIdGenerator
         {
-            public string GenerateId(string name) => throw new NotImplementedException();
+            public string GenerateId(string name)
+                => throw new NotImplementedException();
 
-            public string GetName(string id) => throw new NotImplementedException();
+            public string GetName(string id)
+                => throw new NotImplementedException();
 
-            public bool IsValidId(string value) => throw new NotImplementedException();
+            public bool IsValidId(string value)
+                => throw new NotImplementedException();
         }
 
         public class ContextHistoryRepository : IHistoryRepository
         {
-            public bool Exists() => throw new NotImplementedException();
+            public bool Exists()
+                => throw new NotImplementedException();
 
             public Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public IReadOnlyList<HistoryRow> GetAppliedMigrations() => throw new NotImplementedException();
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations()
+                => throw new NotImplementedException();
 
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public string GetBeginIfExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfExistsScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetBeginIfNotExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
+            public string GetCreateIfNotExistsScript()
+                => throw new NotImplementedException();
 
-            public string GetCreateScript() => throw new NotImplementedException();
+            public string GetCreateScript()
+                => throw new NotImplementedException();
 
-            public string GetDeleteScript(string migrationId) => throw new NotImplementedException();
+            public string GetDeleteScript(string migrationId)
+                => throw new NotImplementedException();
 
-            public string GetEndIfScript() => throw new NotImplementedException();
+            public string GetEndIfScript()
+                => throw new NotImplementedException();
 
-            public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();
+            public string GetInsertScript(HistoryRow row)
+                => throw new NotImplementedException();
         }
 
         public class MyContext : DbContext
@@ -273,10 +319,10 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
             var servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, new string[0]);
 
             return (context == null
-                ? servicesBuilder
-                    .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                : servicesBuilder
-                    .CreateServiceCollection(context))
+                    ? servicesBuilder
+                        .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
+                    : servicesBuilder
+                        .CreateServiceCollection(context))
                 .BuildServiceProvider(validateScopes: true);
         }
 

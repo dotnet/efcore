@@ -63,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore
             public string TestId { get; }
 
             protected SeedingContext(string testId)
-                => TestId = testId;
+            {
+                TestId = testId;
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Seed>().HasData(
@@ -91,9 +93,9 @@ namespace Microsoft.EntityFrameworkCore
                 => modelBuilder.Entity<KeylessSeed>()
                     .HasNoKey()
                     .HasData(
-                    new KeylessSeed { Species = "Apple" },
-                    new KeylessSeed { Species = "Orange" }
-                );
+                        new KeylessSeed { Species = "Apple" },
+                        new KeylessSeed { Species = "Orange" }
+                    );
         }
 
         public class KeylessSeed

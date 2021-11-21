@@ -14,7 +14,9 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     public class SqlAzureFundamentalsTest : IClassFixture<SqlAzureFixture>
     {
         public SqlAzureFundamentalsTest(SqlAzureFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         public SqlAzureFixture Fixture { get; }
 

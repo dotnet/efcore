@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
     public class ModelSourceTest
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
+            .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
         [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
@@ -84,7 +84,10 @@ namespace Microsoft.EntityFrameworkCore
                 .GetModel(
                     new Context1(),
                     serviceProvider.GetRequiredService<ModelCreationDependencies>()
-                    with { ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider) },
+                        with
+                        {
+                            ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider)
+                        },
                     designTime: false);
 
             Assert.Equal(
@@ -191,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore
                     new TestLogger<TestLoggingDefinitions>()).GenerateMessage("1.0.0", ProductInfo.GetVersion()),
                 "CoreEventId.OldModelVersionWarning");
 
-            Assert.Equal(warning,
+            Assert.Equal(
+                warning,
                 Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
@@ -265,9 +269,9 @@ namespace Microsoft.EntityFrameworkCore
         private static RuntimeConventionSetBuilder CreateRuntimeConventionSetBuilder(
             IDbSetFinder setFinder,
             IServiceProvider serviceProvider)
-            => new RuntimeConventionSetBuilder(
+            => new(
                 new ProviderConventionSetBuilder(
                     serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>() with { SetFinder = setFinder }),
-                    new List<IConventionSetPlugin>());
+                new List<IConventionSetPlugin>());
     }
 }

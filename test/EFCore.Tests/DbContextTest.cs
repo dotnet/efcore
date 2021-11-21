@@ -42,9 +42,11 @@ namespace Microsoft.EntityFrameworkCore
         public void Set_throws_for_type_not_in_model_same_type_with_different_namespace()
         {
             using var context = new EarlyLearningCenter();
-            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Microsoft.EntityFrameworkCore.DifferentNamespace.Category>().Local);
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<DifferentNamespace.Category>().Local);
 
-            Assert.Equal(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.Category).DisplayName(), typeof(Category).DisplayName()), ex.Message);
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(
+                    typeof(DifferentNamespace.Category).DisplayName(), typeof(Category).DisplayName()), ex.Message);
         }
 
         [ConditionalFact]
@@ -171,9 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             public bool DetectChangesCalled { get; set; }
 
             public void DetectChanges(IStateManager stateManager)
-            {
-                DetectChangesCalled = true;
-            }
+                => DetectChangesCalled = true;
 
             public void DetectChanges(InternalEntityEntry entry)
             {
@@ -214,10 +214,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var questions = new List<Question>
                 {
-                    new()
-                    {
-                        Author = context.Users.First(), Answers = new List<Answer> { new() { Author = context.Users.Last() } }
-                    }
+                    new() { Author = context.Users.First(), Answers = new List<Answer> { new() { Author = context.Users.Last() } } }
                 };
 
                 if (async)
@@ -339,9 +336,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Random> NoSetter { get; } = null;
 
             public DbSet<TheGu> GetGus()
-            {
-                return Gus;
-            }
+                => Gus;
         }
 
         [ConditionalFact]
@@ -369,10 +364,8 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
                 // ReSharper disable once AssignmentIsFullyDiscarded
-                _ = Model;
-            }
+                => _ = Model;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -771,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore
             // getters
             Assert.StartsWith(
                 CoreStrings.ContextDisposed,
-            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker).Message);
+                Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker).Message);
 
             Assert.StartsWith(
                 CoreStrings.ContextDisposed,

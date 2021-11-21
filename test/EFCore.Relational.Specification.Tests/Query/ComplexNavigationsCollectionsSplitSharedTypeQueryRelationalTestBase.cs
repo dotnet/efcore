@@ -10,7 +10,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase<TFixture> : ComplexNavigationsCollectionsSharedTypeQueryTestBase<TFixture>
+    public abstract class
+        ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase<TFixture> : ComplexNavigationsCollectionsSharedTypeQueryTestBase
+            <TFixture>
         where TFixture : ComplexNavigationsSharedTypeQueryRelationalFixtureBase, new()
     {
         protected ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase(TFixture fixture)
@@ -19,12 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override async Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(async))).Message);
-        }
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
             => new SplitQueryRewritingExpressionVisitor().Visit(serverQueryExpression);

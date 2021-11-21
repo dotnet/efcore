@@ -577,8 +577,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.AmbiguousEndRequiredDependent(
                     "{'CustomerTempId'}",
                     nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        relationshipBuilder.IsRequiredDependent(true, ConfigurationSource.Explicit)).Message);
         }
 
         [ConditionalFact]
@@ -614,10 +615,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     "Customer.Orders",
                     "Order.Customer",
                     nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    customerEntityBuilder.HasRelationship(
-                        orderEntityBuilder.Metadata, nameof(Customer.Orders), nameof(Order.Customer), ConfigurationSource.Convention,
-                        setTargetAsPrincipal: true)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        customerEntityBuilder.HasRelationship(
+                            orderEntityBuilder.Metadata, nameof(Customer.Orders), nameof(Order.Customer), ConfigurationSource.Convention,
+                            setTargetAsPrincipal: true)).Message);
         }
 
         [ConditionalFact]
@@ -721,13 +723,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
 
-            Assert.Equal(CoreStrings.PrincipalKeylessType(
-                nameof(Order), nameof(Customer), nameof(Order)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    relationshipBuilder.HasEntityTypes(
-                        relationshipBuilder.Metadata.DeclaringEntityType,
-                        relationshipBuilder.Metadata.PrincipalEntityType,
-                        ConfigurationSource.DataAnnotation)).Message);
+            Assert.Equal(
+                CoreStrings.PrincipalKeylessType(
+                    nameof(Order), nameof(Customer), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        relationshipBuilder.HasEntityTypes(
+                            relationshipBuilder.Metadata.DeclaringEntityType,
+                            relationshipBuilder.Metadata.PrincipalEntityType,
+                            ConfigurationSource.DataAnnotation)).Message);
         }
 
         [ConditionalFact]

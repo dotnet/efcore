@@ -10,8 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected override void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected override void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

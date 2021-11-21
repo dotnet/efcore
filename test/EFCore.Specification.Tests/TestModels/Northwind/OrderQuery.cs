@@ -19,9 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public Customer Customer { get; set; }
 
         protected bool Equals(OrderQuery other)
-        {
-            return string.Equals(CustomerID, other.CustomerID);
-        }
+            => string.Equals(CustomerID, other.CustomerID);
 
         public override bool Equals(object obj)
         {
@@ -43,13 +41,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             => !Equals(left, right);
 
         public override int GetHashCode()
-        {
-            return CustomerID.GetHashCode();
-        }
+            => CustomerID.GetHashCode();
 
         public override string ToString()
-        {
-            return "OrderView " + CustomerID;
-        }
+            => "OrderView " + CustomerID;
     }
 }

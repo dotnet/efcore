@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Sqlite;
@@ -22,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             private readonly SqliteConnection _connection;
 
             public YouNoTinyContext(SqliteConnection connection)
-                => _connection = connection;
+            {
+                _connection = connection;
+            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseSqlite(_connection);
@@ -81,9 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
         [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
         public override void Create_and_clone_with_converter(Type mappingType, Type type)
-        {
-            base.Create_and_clone_with_converter(mappingType, type);
-        }
+            => base.Create_and_clone_with_converter(mappingType, type);
 
         [ConditionalTheory]
         [InlineData("TEXT", typeof(string))]
@@ -103,9 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("unknown_type", typeof(byte[]))]
         [InlineData("", typeof(byte[]))]
         public void It_maps_strings_to_not_null_types(string typeName, Type type)
-        {
-            Assert.Equal(type, CreateTypeMapper().FindMapping(typeName)?.ClrType);
-        }
+            => Assert.Equal(type, CreateTypeMapper().FindMapping(typeName)?.ClrType);
 
         private static IRelationalTypeMappingSource CreateTypeMapper()
             => TestServiceFactory.Instance.Create<SqliteTypeMappingSource>();
@@ -115,47 +112,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => CreateTypeMapper().FindMapping(type);
 
         public override void DateTimeOffset_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(DateTimeOffset)),
                 new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
                 "'2015-03-12 13:36:37.371-07:00'");
-        }
 
         public override void DateTime_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(DateTime)),
                 new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
                 "'2015-03-12 13:36:37.371'");
-        }
 
         [ConditionalFact]
         public override void DateOnly_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(DateOnly)),
                 new DateOnly(2015, 3, 12),
                 "'2015-03-12'");
-        }
 
         [ConditionalFact]
         public override void TimeOnly_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(TimeOnly)),
                 new TimeOnly(13, 10, 15),
                 "'13:10:15'");
-        }
 
         [ConditionalFact]
         public override void TimeOnly_literal_generated_correctly_with_milliseconds()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(TimeOnly)),
                 new TimeOnly(13, 10, 15, 500),
                 "'13:10:15.5000000'");
-        }
 
         public override void Decimal_literal_generated_correctly()
         {
@@ -166,12 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public override void Guid_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(Guid)),
                 new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292"),
                 "'C6F43A9E-91E1-45EF-A320-832EA23B7292'");
-        }
 
         public override void ULong_literal_generated_correctly()
         {

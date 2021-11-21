@@ -215,8 +215,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => throw new NotImplementedException();
 
         public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
     }
 }

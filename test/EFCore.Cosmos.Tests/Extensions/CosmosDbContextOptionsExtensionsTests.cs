@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore
             var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             using (var serviceScope = services
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
+                       .GetRequiredService<IServiceScopeFactory>()
+                       .CreateScope())
             {
                 var coreOptions = serviceScope.ServiceProvider
                     .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             Test(
                 o => o.IdleTcpConnectionTimeout(TimeSpan.FromMinutes(3)),
                 o => Assert.Equal(TimeSpan.FromMinutes(3), o.IdleTcpConnectionTimeout));
-            Func<HttpClient> httpClientFactory = () => new HttpClient();
+            var httpClientFactory = () => new HttpClient();
             Test(
                 o => o.HttpClientFactory(httpClientFactory),
                 o => Assert.Same(httpClientFactory, o.HttpClientFactory)
@@ -105,9 +105,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Throws_for_invalid_values()
-        {
-            Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
-        }
+            => Throws<ArgumentOutOfRangeException>(o => o.ConnectionMode((ConnectionMode)958410610));
 
         private void Test(
             Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction,
@@ -137,13 +135,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private void Throws<T>(Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction)
             where T : Exception
-        {
-            Assert.Throws<T>(
+            => Assert.Throws<T>(
                 () => new DbContextOptionsBuilder().UseCosmos(
                     "serviceEndPoint",
                     "authKeyOrResourceToken",
                     "databaseName",
                     cosmosOptionsAction));
-        }
     }
 }

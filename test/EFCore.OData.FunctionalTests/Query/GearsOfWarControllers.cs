@@ -23,16 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Gear> Get()
-        {
-            return _context.Gears;
-        }
+            => _context.Gears;
 
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Officer> GetFromOfficer()
-        {
-            return _context.Gears.OfType<Officer>();
-        }
+            => _context.Gears.OfType<Officer>();
 
         [HttpGet]
         [EnableQuery]
@@ -60,9 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Squad> Get()
-        {
-            return _context.Squads;
-        }
+            => _context.Squads;
 
         [HttpGet]
         [EnableQuery]
@@ -90,9 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<CogTag> Get()
-        {
-            return _context.Tags;
-        }
+            => _context.Tags;
 
         [HttpGet]
         [EnableQuery]
@@ -120,9 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Weapon> Get()
-        {
-            return _context.Weapons;
-        }
+            => _context.Weapons;
 
         [HttpGet]
         [EnableQuery]
@@ -150,9 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<City> Get()
-        {
-            return _context.Cities;
-        }
+            => _context.Cities;
 
         [HttpGet]
         [EnableQuery]
@@ -180,9 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Mission> Get()
-        {
-            return _context.Missions;
-        }
+            => _context.Missions;
 
         [HttpGet]
         [EnableQuery]
@@ -210,9 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<SquadMission> Get()
-        {
-            return _context.SquadMissions;
-        }
+            => _context.SquadMissions;
 
         [HttpGet]
         [EnableQuery]
@@ -240,16 +224,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Faction> Get()
-        {
-            return _context.Factions;
-        }
+            => _context.Factions;
 
         [HttpGet]
         [EnableQuery]
         public IEnumerable<LocustHorde> GetFromLocustHorde()
-        {
-            return _context.Factions.OfType<LocustHorde>();
-        }
+            => _context.Factions.OfType<LocustHorde>();
 
         [HttpGet]
         [EnableQuery]
@@ -277,16 +257,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<LocustLeader> Get()
-        {
-            return _context.LocustLeaders;
-        }
+            => _context.LocustLeaders;
 
         [HttpGet]
         [EnableQuery]
         public IEnumerable<LocustCommander> GetFromLocustCommander()
-        {
-            return _context.LocustLeaders.OfType<LocustCommander>();
-        }
+            => _context.LocustLeaders.OfType<LocustCommander>();
 
         [HttpGet]
         [EnableQuery]
@@ -314,9 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<LocustHighCommand> Get()
-        {
-            return _context.LocustHighCommands;
-        }
+            => _context.LocustHighCommands;
 
         [HttpGet]
         [EnableQuery]

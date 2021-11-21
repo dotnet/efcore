@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return modelBuilder.GetEdmModel();
         }
 
-        public string BaseAddress { get; private set; }
+        public string BaseAddress { get; }
 
-        public IHttpClientFactory ClientFactory { get; private set; }
+        public IHttpClientFactory ClientFactory { get; }
 
         public override async Task DisposeAsync()
         {
@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
     public class OrderDetailsControllerActionConvention : IODataControllerActionConvention
     {
-        public int Order => 0;
+        public int Order
+            => 0;
 
         public bool AppliesToController(ODataControllerActionContext context)
             => context.Controller.ControllerName == "OrderDetails";
@@ -77,15 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     return true;
                 }
-                else if (parameters.Length == 2
+
+                if (parameters.Length == 2
                     && parameters[0].Name == "keyOrderId"
                     && parameters[1].Name == "keyProductId")
                 {
-                    var keys = new Dictionary<string, string>
-                    {
-                        { "OrderID", "{keyOrderId}" },
-                        { "ProductID", "{keyProductId}" }
-                    };
+                    var keys = new Dictionary<string, string> { { "OrderID", "{keyOrderId}" }, { "ProductID", "{keyProductId}" } };
 
                     var keyTemplate = new KeySegmentTemplate(keys, entitySet.EntityType(), entitySet);
 

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SeedingSqliteTest : SeedingTestBase
     {
-        protected override TestStore TestStore => SqliteTestStore.Create("SeedingTest");
+        protected override TestStore TestStore
+            => SqliteTestStore.Create("SeedingTest");
 
         protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
             => new SeedingSqliteContext(testId);

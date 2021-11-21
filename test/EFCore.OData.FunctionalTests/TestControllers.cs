@@ -60,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore
             => new(entity);
 
         protected bool Validate(object model)
-        {
-            return TryValidateModel(model);
-        }
+            => TryValidateModel(model);
     }
 
-    public interface ITestActionResult : IActionResult { }
+    public interface ITestActionResult : IActionResult
+    {
+    }
 
     public class TestActionResult : ITestActionResult
     {
@@ -77,9 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public Task ExecuteResultAsync(ActionContext context)
-        {
-            return _innerResult.ExecuteResultAsync(context);
-        }
+            => _innerResult.ExecuteResultAsync(context);
     }
 
     public class TestObjectResult : ObjectResult, ITestActionResult

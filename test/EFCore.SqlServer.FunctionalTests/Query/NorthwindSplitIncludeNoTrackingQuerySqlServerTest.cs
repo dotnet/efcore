@@ -23,14 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#21202")]
         public override async Task Include_collection_skip_take_no_order_by(bool async)
-        {
-            await base.Include_collection_skip_take_no_order_by(async);
-        }
+            => await base.Include_collection_skip_take_no_order_by(async);
 
         [ConditionalTheory(Skip = "Issue#21202")]
         public override async Task Include_collection_skip_no_order_by(bool async)
-        {
-            await base.Include_collection_skip_no_order_by(async);
-        }
+            => await base.Include_collection_skip_no_order_by(async);
     }
 }

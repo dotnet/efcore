@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 public TimeoutContext(int? commandTimeout)
-                    => Database.SetCommandTimeout(commandTimeout);
+                {
+                    Database.SetCommandTimeout(commandTimeout);
+                }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder

@@ -375,9 +375,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         private static void WireUpInheritancePart2(
             IReadOnlyList<InheritanceBase2> ib2s,
             IReadOnlyList<InheritanceLeaf2> il2s)
-        {
-            il2s[0].BaseCollection = new List<InheritanceBase2> { ib2s[0] };
-        }
+            => il2s[0].BaseCollection = new List<InheritanceBase2> { ib2s[0] };
 
         private static void WireUpPart1(
             IReadOnlyList<Level1> l1s,

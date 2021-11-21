@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public string SkipReason
             => "Unable to connect to Cosmos DB. Please install/start the emulator service or configure a valid endpoint.";
 
-        public ValueTask<bool> IsMetAsync() => CosmosTestStore.IsConnectionAvailableAsync();
+        public ValueTask<bool> IsMetAsync()
+            => CosmosTestStore.IsConnectionAvailableAsync();
     }
 }

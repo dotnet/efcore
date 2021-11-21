@@ -22,43 +22,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         [ConditionalFact]
         public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
-        {
-            return ConcurrencyTestAsync<DbUpdateException>(
+            => ConcurrencyTestAsync<DbUpdateException>(
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "1",
-                        Name = "CreatedTwice",
+                        Id = "1", Name = "CreatedTwice",
                     }));
-        }
 
         [ConditionalFact]
         public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException()
-        {
-            return ConcurrencyTestAsync<DbUpdateConcurrencyException>(
+            => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "2",
-                        Name = "Added",
+                        Id = "2", Name = "Added",
                     }),
                 ctx => ctx.Customers.Single(c => c.Id == "2").Name = "Updated",
                 ctx => ctx.Customers.Remove(ctx.Customers.Single(c => c.Id == "2")));
-        }
 
         [ConditionalFact]
         public virtual Task Updating_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
-        {
-            return ConcurrencyTestAsync<DbUpdateConcurrencyException>(
+            => ConcurrencyTestAsync<DbUpdateConcurrencyException>(
                 ctx => ctx.Customers.Add(
                     new Customer
                     {
-                        Id = "3",
-                        Name = "Added",
+                        Id = "3", Name = "Added",
                     }),
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated",
                 ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated");
-        }
 
         [ConditionalFact]
         public async Task Etag_will_return_when_content_response_enabled_false()
@@ -67,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             var customer = new Customer
             {
-                Id = "4",
-                Name = "Theon",
+                Id = "4", Name = "Theon",
             };
 
             await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: false)))
@@ -101,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             var customer = new Customer
             {
-                Id = "3",
-                Name = "Theon",
+                Id = "3", Name = "Theon",
             };
 
             await using (var context = new ConcurrencyContext(CreateOptions(testDatabase, enableContentResponseOnWrite: true)))
@@ -198,21 +187,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder builder)
-            {
-                builder.Entity<Customer>(
+                => builder.Entity<Customer>(
                     b =>
                     {
                         b.HasKey(c => c.Id);
                         b.Property(c => c.ETag).IsETagConcurrency();
                     });
-            }
         }
 
         private DbContextOptions CreateOptions(CosmosTestStore testDatabase, bool enableContentResponseOnWrite)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            new DbContextOptionsBuilder().UseCosmos(testDatabase.ConnectionString, testDatabase.Name,
+            new DbContextOptionsBuilder().UseCosmos(
+                testDatabase.ConnectionString, testDatabase.Name,
                 b => b.ApplyConfiguration().ContentResponseOnWriteEnabled(enabled: enableContentResponseOnWrite));
 
             return testDatabase.AddProviderOptions(optionsBuilder)

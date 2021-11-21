@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
     {
         protected NotificationEntitiesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected virtual TFixture Fixture { get; }
 

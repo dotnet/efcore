@@ -121,8 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int Number { get; set; }
             public string Name { get; set; }
             public ReferencedEntity ReferencedEntity { get; set; }
+
             [NotMapped]
             public ReferencedEntity AnotherReferencedEntity { get; set; }
+
             public ICollection<SampleEntity> OtherSamples { get; set; }
         }
 
@@ -320,11 +322,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected ModelValidatorTestBase()
-            => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
+        {
+            LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
+        }
 
         protected ListLoggerFactory LoggerFactory { get; }
 
-        protected virtual void VerifyWarning(string expectedMessage, TestHelpers.TestModelBuilder modelBuilder, LogLevel level = LogLevel.Warning)
+        protected virtual void VerifyWarning(
+            string expectedMessage,
+            TestHelpers.TestModelBuilder modelBuilder,
+            LogLevel level = LogLevel.Warning)
         {
             Validate(modelBuilder);
 
@@ -332,20 +339,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, logEntry.Message);
         }
 
-        protected virtual void VerifyWarnings(string[] expectedMessages, TestHelpers.TestModelBuilder modelBuilder, LogLevel level = LogLevel.Warning)
+        protected virtual void VerifyWarnings(
+            string[] expectedMessages,
+            TestHelpers.TestModelBuilder modelBuilder,
+            LogLevel level = LogLevel.Warning)
         {
             Validate(modelBuilder);
             var logEntries = LoggerFactory.Log.Where(l => l.Level == level);
             Assert.Equal(expectedMessages.Length, logEntries.Count());
 
-            int count = 0;
+            var count = 0;
             foreach (var logEntry in logEntries)
             {
                 Assert.Equal(expectedMessages[count++], logEntry.Message);
             }
         }
 
-        protected virtual void VerifyError(string expectedMessage, TestHelpers.TestModelBuilder modelBuilder, bool sensitiveDataLoggingEnabled = false)
+        protected virtual void VerifyError(
+            string expectedMessage,
+            TestHelpers.TestModelBuilder modelBuilder,
+            bool sensitiveDataLoggingEnabled = false)
         {
             var message = Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder, sensitiveDataLoggingEnabled)).Message;
             Assert.Equal(expectedMessage, message);
@@ -388,13 +401,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected virtual TestHelpers.TestModelBuilder CreateConventionalModelBuilder(
-            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
+            Action<ModelConfigurationBuilder> configure = null,
+            bool sensitiveDataLoggingEnabled = false)
             => TestHelpers.CreateConventionBuilder(
                 CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
                 configurationBuilder => configure?.Invoke(configurationBuilder));
 
         protected virtual TestHelpers.TestModelBuilder CreateConventionlessModelBuilder(
-            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
+            Action<ModelConfigurationBuilder> configure = null,
+            bool sensitiveDataLoggingEnabled = false)
             => TestHelpers.CreateConventionBuilder(
                 CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
                 configurationBuilder =>

@@ -41,16 +41,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => Logger.SuspendRecordingEvents();
 
         public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
-        {
-            Logger.TestOutputHelper = testOutputHelper;
-        }
+            => Logger.TestOutputHelper = testOutputHelper;
 
         public virtual ILogger CreateLogger(string name)
         {
             CheckDisposed();
 
             return !_shouldLogCategory(name)
-                ? (ILogger)NullLogger.Instance
+                ? NullLogger.Instance
                 : Logger;
         }
 
@@ -63,14 +61,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public void AddProvider(ILoggerProvider provider)
-        {
-            CheckDisposed();
-        }
+            => CheckDisposed();
 
         public void Dispose()
-        {
-            _disposed = true;
-        }
+            => _disposed = true;
 
         public static string NormalizeLineEndings(string expectedString)
             => expectedString.Replace("\r", string.Empty).Replace("\n", Environment.NewLine);
@@ -168,7 +162,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 private readonly ListLogger _logger;
 
                 public RecordingSuspensionHandle(ListLogger logger)
-                    => _logger = logger;
+                {
+                    _logger = logger;
+                }
 
                 public void Dispose()
                     => _logger.IsRecordingSuspended = false;

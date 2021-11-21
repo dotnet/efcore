@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -17,28 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         [ConditionalFact]
         public void Can_filter_for_messages_of_one_category()
-        {
-            FilterTest(c => c == DbLoggerCategory.Database.Command.Name, "SQL1", "SQL2");
-        }
+            => FilterTest(c => c == DbLoggerCategory.Database.Command.Name, "SQL1", "SQL2");
 
         [ConditionalFact]
         public void Can_filter_for_messages_of_one_subcategory()
-        {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name, StringComparison.Ordinal), "DB1", "SQL1", "DB2", "SQL2");
-        }
+            => FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name, StringComparison.Ordinal), "DB1", "SQL1", "DB2", "SQL2");
 
         [ConditionalFact]
         public void Can_filter_for_all_EF_messages()
-        {
-            FilterTest(
+            => FilterTest(
                 c => c.StartsWith(DbLoggerCategory.Name, StringComparison.Ordinal), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
-        }
 
         [ConditionalFact]
         public void Can_get_all_messages()
-        {
-            FilterTest(c => true, "DB1", "SQL1", "Query1", "Random1", "DB2", "SQL2", "Query2", "Random2");
-        }
+            => FilterTest(c => true, "DB1", "SQL1", "Query1", "Random1", "DB2", "SQL2", "Query2", "Random2");
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private void FilterTest(Func<string, bool> filter, params string[] expected)

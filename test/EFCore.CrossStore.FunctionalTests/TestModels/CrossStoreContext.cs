@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public virtual DbSet<SimpleEntity> SimpleEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<SimpleEntity>(
+            => modelBuilder.Entity<SimpleEntity>(
                 eb =>
                 {
                     eb.ToTable("RelationalSimpleEntity");
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                     eb.HasKey(e => e.Id);
                     eb.Property(e => e.Id).UseIdentityColumn();
                 });
-        }
 
         public static void RemoveAllEntities(CrossStoreContext context)
             => context.SimpleEntities.RemoveRange(context.SimpleEntities);

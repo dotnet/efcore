@@ -73,9 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ConditionalFact]
         public void GetDeclaredConstructor_returns_null_when_no_match()
-        {
-            Assert.Null(typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(string) }));
-        }
+            => Assert.Null(typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(string) }));
 
         [ConditionalFact]
         public void GetDeclaredConstructor_finds_ctor_args()
@@ -97,9 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ConditionalFact]
         public void Element_type_should_return_input_type_when_not_sequence_type()
-        {
-            Assert.Equal(typeof(string), typeof(string));
-        }
+            => Assert.Equal(typeof(string), typeof(string));
 
         [ConditionalFact]
         public void Get_any_property_returns_any_property()
@@ -270,9 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ConditionalFact]
         public void TryGetElementType_returns_null_if_type_is_generic_type_definition()
-        {
-            Assert.Null(typeof(ICollection<>).TryGetElementType(typeof(ICollection<>)));
-        }
+            => Assert.Null(typeof(ICollection<>).TryGetElementType(typeof(ICollection<>)));
 
         [ConditionalFact]
         public void TryGetElementType_returns_null_if_type_doesnt_implement_interface()
@@ -291,27 +285,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         // CodePlex 2014
         [ConditionalFact]
         public void TryGetElementType_returns_null_when_ICollection_implemented_more_than_once()
-        {
-            Assert.Null(typeof(RoleCollection2014).TryGetElementType(typeof(ICollection<>)));
-        }
+            => Assert.Null(typeof(RoleCollection2014).TryGetElementType(typeof(ICollection<>)));
 
         private class MultipleImplementor<TRandom, TElement> : IObservable<TRandom>, IEnumerable<TElement>
             where TRandom : Random
         {
             public IEnumerator<TElement> GetEnumerator()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+                => GetEnumerator();
 
             public IDisposable Subscribe(IObserver<TRandom> observer)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
         }
 
         private interface IRole2014
@@ -327,29 +313,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
         {
             public new IEnumerator<IRole2014> GetEnumerator()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public void Add(IRole2014 item)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool Contains(IRole2014 item)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public void CopyTo(IRole2014[] array, int arrayIndex)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool Remove(IRole2014 item)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool IsReadOnly { get; private set; }
         }
@@ -372,9 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ConditionalFact]
         public void GetBaseTypes_return_empty_if_no_base_type_exists()
-        {
-            Assert.False(typeof(object).GetBaseTypes().Any());
-        }
+            => Assert.False(typeof(object).GetBaseTypes().Any());
 
         private class MultipleHierarchy : Some
         {

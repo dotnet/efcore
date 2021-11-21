@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
         protected QueryNoClientEvalTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

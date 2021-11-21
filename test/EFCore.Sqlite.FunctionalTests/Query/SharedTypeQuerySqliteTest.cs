@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class SharedTypeQuerySqliteTest : SharedTypeQueryRelationalTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

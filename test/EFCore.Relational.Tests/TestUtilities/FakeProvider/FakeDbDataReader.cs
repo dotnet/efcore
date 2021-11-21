@@ -126,17 +126,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             => (byte)_currentRow[ordinal];
 
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override char GetChar(int ordinal)
             => (char)_currentRow[ordinal];
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override string GetDataTypeName(int ordinal)
             => GetFieldType(ordinal).Name;
@@ -151,9 +147,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             => (double)_currentRow[ordinal];
 
         public override IEnumerator GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override Type GetFieldType(int ordinal)
             => _results.Count > 0
@@ -173,17 +167,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             => (long)_currentRow[ordinal];
 
         public override int GetOrdinal(string name)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override string GetString(int ordinal)
             => (string)_currentRow[ordinal];
 
         public override int GetValues(object[] values)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override bool NextResult()
         {

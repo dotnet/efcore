@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : F1FixtureBase<byte[]>, new()
     {
         protected DatabindingTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

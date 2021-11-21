@@ -953,14 +953,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
             ManyToManyContext context,
             EntityOne one,
             EntityTwo two)
-        {
-            return CreateInstance(
+            => CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityOneEntityTwo"), (e, p) =>
                 {
                     e["OneSkipSharedId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
                     e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
                 });
-        }
 
         private Dictionary<string, object>[] CreateJoinOneToThreePayloadFullShareds(ManyToManyContext context)
             => new[]
@@ -1214,7 +1212,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
             };
 
         private static ICollection<TEntity> CreateCollection<TEntity>(bool proxy)
-            => proxy ? (ICollection<TEntity>)new ObservableCollection<TEntity>() : new List<TEntity>();
+            => proxy ? new ObservableCollection<TEntity>() : new List<TEntity>();
 
         private static Dictionary<string, object> CreateEntityCompositeKeyEntityRoot(
             ManyToManyContext context,

@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return null;
         }
+
         public override bool IsDefined(Type attributeType, bool inherit)
             => throw new NotImplementedException();
     }

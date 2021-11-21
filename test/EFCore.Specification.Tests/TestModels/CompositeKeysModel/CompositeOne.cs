@@ -41,12 +41,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
         }
 
         private bool Equals(CompositeOne other)
-        {
-            return Id1 == other.Id1 && string.Equals(Id2, other.Id2) && string.Equals(Name, other.Name) && Date.Equals(other.Date);
-        }
+            => Id1 == other.Id1 && Equals(Id2, other.Id2) && string.Equals(Name, other.Name) && Date.Equals(other.Date);
 
         public override int GetHashCode()
             => HashCode.Combine(Id1, Id2, Name, Date);
     }
 }
-

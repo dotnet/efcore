@@ -1027,8 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public class KSnapContext : KContext
         {
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<TSomeEntity>(
+                => modelBuilder.Entity<TSomeEntity>(
                     b =>
                     {
                         b.Property<int>("Id");
@@ -1036,7 +1035,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         b.Property<string>("Name").IsConcurrencyToken();
                         b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
                     });
-            }
         }
     }
 

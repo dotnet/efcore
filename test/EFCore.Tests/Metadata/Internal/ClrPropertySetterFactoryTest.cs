@@ -42,9 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
 
-            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType => throw new NotImplementedException();
+            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
+                => throw new NotImplementedException();
 
-            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType => throw new NotImplementedException();
+            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
+                => throw new NotImplementedException();
 
             public void SetClrValue(object instance, object value)
                 => throw new NotImplementedException();
@@ -381,10 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new()
-            {
-                { "PropertyA", "ValueA" }, { "PropertyB", 123 }
-            };
+            private readonly Dictionary<string, object> _internalValues = new() { { "PropertyA", "ValueA" }, { "PropertyB", 123 } };
 
             internal int Id { get; set; }
             internal object this[string name] { get => _internalValues[name]; set => _internalValues[name] = value; }

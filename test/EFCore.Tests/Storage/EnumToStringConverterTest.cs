@@ -84,15 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Enum_to_string_converter_throws_for_bad_types()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.ConverterBadType(
                     typeof(StringEnumConverter<Guid, string, Guid>).ShortDisplayName(),
                     "Guid",
                     "enum types"),
                 Assert.Throws<InvalidOperationException>(
                     () => new EnumToStringConverter<Guid>()).Message);
-        }
 
         private enum Beatles
         {

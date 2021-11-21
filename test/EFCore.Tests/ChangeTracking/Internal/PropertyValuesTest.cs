@@ -63,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public DbSet<SimpleEntity> SimpleEntities { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseInMemoryDatabase("DB1");
-            }
+                => optionsBuilder.UseInMemoryDatabase("DB1");
         }
 
         private class SimpleEntity

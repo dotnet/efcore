@@ -120,7 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             Assert.False(c.IsNullable);
                             Assert.Equal(intStoreType, c.StoreType);
                             if (AssertComments)
+                            {
                                 Assert.Equal("Employer ID comment", c.Comment);
+                            }
                         },
                         c =>
                         {
@@ -145,7 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Same(employersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
 
                     if (AssertComments)
+                    {
                         Assert.Equal("Table comment", peopleTable.Comment);
+                    }
                 });
         }
 
@@ -214,8 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [InlineData(false)]
         [InlineData(null)]
         public virtual Task Create_table_with_computed_column(bool? stored)
-        {
-            return Test(
+            => Test(
                 builder => { },
                 builder => builder.Entity(
                     "People", e =>
@@ -236,10 +239,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Contains("X", sumColumn.ComputedColumnSql);
                         Assert.Contains("Y", sumColumn.ComputedColumnSql);
                         if (stored != null)
+                        {
                             Assert.Equal(stored, sumColumn.IsStored);
+                        }
                     }
                 });
-        }
 
         [ConditionalFact]
         public virtual Task Alter_table_add_comment()
@@ -251,7 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     if (AssertComments)
+                    {
                         Assert.Equal("Table comment", table.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -268,7 +274,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     if (AssertComments)
+                    {
                         Assert.Equal("Table comment", table.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -281,7 +289,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     if (AssertComments)
+                    {
                         Assert.Equal("Table comment2", table.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -342,7 +352,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     if (AssertSchemaNames)
+                    {
                         Assert.Equal("TestTableSchema", table.Schema);
+                    }
+
                     Assert.Equal("TestTable", table.Name);
                 });
 
@@ -357,7 +370,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     if (AssertSchemaNames)
+                    {
                         Assert.Equal("SomeOtherSchema", table.Schema);
+                    }
                 });
 
         [ConditionalFact]
@@ -456,7 +471,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Contains("X", sumColumn.ComputedColumnSql);
                         Assert.Contains("Y", sumColumn.ComputedColumnSql);
                         if (stored != null)
+                        {
                             Assert.Equal(stored, sumColumn.IsStored);
+                        }
                     }
                 });
 
@@ -577,7 +594,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns, c => c.Name == "FullName");
                     if (AssertComments)
+                    {
                         Assert.Equal("My comment", column.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -593,7 +612,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(2, table.Columns.Count);
                     var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
                     if (AssertCollations)
+                    {
                         Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    }
                 });
 
         [ConditionalFact]
@@ -610,9 +631,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(2, table.Columns.Count);
                     var nameColumn = Assert.Single(table.Columns, c => c.Name == "Name");
                     if (AssertComputedColumns)
+                    {
                         Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    }
+
                     if (AssertCollations)
+                    {
                         Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    }
                 });
 
         [ConditionalFact]
@@ -750,7 +776,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         Assert.Contains("Y", sumColumn.ComputedColumnSql);
                         Assert.Contains("+", sumColumn.ComputedColumnSql);
                         if (stored != null)
+                        {
                             Assert.Equal(stored, sumColumn.IsStored);
+                        }
                     }
                 });
 
@@ -833,7 +861,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables);
                     var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
                     if (AssertComputedColumns)
+                    {
                         Assert.True(sumColumn.IsStored);
+                    }
                 });
 
         [ConditionalFact]
@@ -867,17 +897,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns);
                     if (AssertComments)
+                    {
                         Assert.Equal("Some comment", column.Comment);
+                    }
                 });
 
         [ConditionalFact]
         public virtual Task Alter_computed_column_add_comment()
             => Test(
-                builder => builder.Entity("People", x =>
-                {
-                    x.Property<int>("Id");
-                    x.Property<int>("SomeColumn").HasComputedColumnSql("42");
-                }),
+                builder => builder.Entity(
+                    "People", x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("SomeColumn").HasComputedColumnSql("42");
+                    }),
                 builder => { },
                 builder => builder.Entity("People").Property<int>("SomeColumn").HasComment("Some comment"),
                 model =>
@@ -885,7 +918,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns.Where(c => c.Name == "SomeColumn"));
                     if (AssertComments)
+                    {
                         Assert.Equal("Some comment", column.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -898,7 +933,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns);
                     if (AssertComments)
+                    {
                         Assert.Equal("Some comment2", column.Comment);
+                    }
                 });
 
         [ConditionalFact]
@@ -924,7 +961,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
                     if (AssertCollations)
+                    {
                         Assert.Equal(NonDefaultCollation, nameColumn.Collation);
+                    }
                 });
 
         [Fact]
@@ -973,11 +1012,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual Task Drop_column_computed_and_non_computed_with_dependency()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
-                builder => builder.Entity("People", e =>
-                {
-                    e.Property<int>("X");
-                    e.Property<int>("Y").HasComputedColumnSql($"{DelimitIdentifier("X")} + 1");
-                }),
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("X");
+                        e.Property<int>("Y").HasComputedColumnSql($"{DelimitIdentifier("X")} + 1");
+                    }),
                 builder => { },
                 model =>
                 {
@@ -1057,7 +1097,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var index = Assert.Single(table.Indexes);
                     Assert.Same(table.Columns.Single(c => c.Name == "Name"), Assert.Single(index.Columns));
                     if (AssertIndexFilters)
+                    {
                         Assert.Contains("Name", index.Filter);
+                    }
                 });
 
         [ConditionalFact]
@@ -1077,7 +1119,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var index = model.Tables.Single().Indexes.Single();
                     Assert.True(index.IsUnique);
                     if (AssertIndexFilters)
+                    {
                         Assert.Contains("Name", index.Filter);
+                    }
                 });
 
         [ConditionalFact]
@@ -1125,7 +1169,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Same(table, primaryKey!.Table);
                     Assert.Same(table.Columns.Single(), Assert.Single(primaryKey.Columns));
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("PK_People", primaryKey.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1142,7 +1188,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Same(table, primaryKey!.Table);
                     Assert.Same(table.Columns.Single(), Assert.Single(primaryKey.Columns));
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("PK_Foo", primaryKey.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1167,7 +1215,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         c => Assert.Same(table.Columns[0], c),
                         c => Assert.Same(table.Columns[1], c));
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("PK_Foo", primaryKey.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1205,7 +1255,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var ordersTable = Assert.Single(model.Tables, t => t.Name == "Orders");
                     var foreignKey = ordersTable.ForeignKeys.Single();
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
+                    }
+
                     Assert.Equal(ReferentialAction.NoAction, foreignKey.OnDelete);
                     Assert.Same(customersTable, foreignKey.PrincipalTable);
                     Assert.Same(customersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
@@ -1238,7 +1291,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var table = Assert.Single(model.Tables, t => t.Name == "Orders");
                     var foreignKey = table.ForeignKeys.Single();
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("FK_Foo", foreignKey.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1285,7 +1340,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Same(table, uniqueConstraint.Table);
                     Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn"), Assert.Single(uniqueConstraint.Columns));
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("AK_People_AlternateKeyColumn", uniqueConstraint.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1310,7 +1367,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         c => Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn1"), c),
                         c => Assert.Same(table.Columns.Single(c => c.Name == "AlternateKeyColumn2"), c));
                     if (AssertConstraintNames)
+                    {
                         Assert.Equal("AK_Foo", uniqueConstraint.Name);
+                    }
                 });
 
         [ConditionalFact]
@@ -1388,7 +1447,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("TestSequence", sequence.Name);
                 });
 
-
         [ConditionalFact]
         public virtual Task Create_sequence_long()
             => Test(
@@ -1410,7 +1468,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var sequence = Assert.Single(model.Sequences);
                     Assert.Equal("TestSequence", sequence.Name);
                 });
-
 
         [ConditionalFact]
         public virtual Task Create_sequence_all_settings()
@@ -1720,13 +1777,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            var sourceModel = modelRuntimeInitializer.Initialize((IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize(
+                (IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
 
             var targetModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
-            var targetModel = modelRuntimeInitializer.Initialize((IModel)targetModelBuilder.Model, designTime: true, validationLogger: null);
+            var targetModel = modelRuntimeInitializer.Initialize(
+                (IModel)targetModelBuilder.Model, designTime: true, validationLogger: null);
 
             var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
@@ -1765,7 +1824,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var context = CreateContext();
             var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-            var sourceModel = modelRuntimeInitializer.Initialize((IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize(
+                (IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
 
             return Test(sourceModel, targetModel: null, operations, asserter);
         }
@@ -1838,6 +1898,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         protected virtual ModelBuilder CreateConventionlessModelBuilder()
-            => new ModelBuilder(new ConventionSet());
+            => new(new ConventionSet());
     }
 }

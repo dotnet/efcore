@@ -135,9 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private class CustomValueGenerator : ValueGenerator<int>
         {
             public override int Next(EntityEntry entry)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public override bool GeneratesTemporaryValues
                 => false;

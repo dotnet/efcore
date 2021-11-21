@@ -18,31 +18,41 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class GenericOneToManyString : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class GenericManyToOneString : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class GenericManyToManyString : ManyToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class GenericOneToOneString : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class GenericOwnedTypesString : OwnedTypesTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
@@ -271,7 +281,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 CollectionCollectionBuilder<TLeftEntity, TRightEntity> collectionCollectionBuilder)
                 : base(collectionCollectionBuilder)
             {
-
             }
         }
 

@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             //// so we want to remove the temporary states, so that further manipulation is easier
             context.Database.ExecuteSqlRaw("ALTER TABLE [LocustLeaders] SET (SYSTEM_VERSIONING = OFF)");
             context.Database.ExecuteSqlRaw("DELETE FROM [LocustLeadersHistory]");
-            context.Database.ExecuteSqlRaw("ALTER TABLE [LocustLeaders] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[LocustLeadersHistory]))");
+            context.Database.ExecuteSqlRaw(
+                "ALTER TABLE [LocustLeaders] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[LocustLeadersHistory]))");
 
             context.Database.ExecuteSqlRaw("ALTER TABLE [Missions] SET (SYSTEM_VERSIONING = OFF)");
             context.Database.ExecuteSqlRaw("DELETE FROM [MissionsHistory]");
@@ -75,7 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "Squads",
                 "SquadMissions",
                 "Weapons",
-
                 "LocustLeaders",
                 "Factions",
             };
@@ -89,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
                 context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
+                context.Database.ExecuteSqlRaw(
+                    $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }
     }

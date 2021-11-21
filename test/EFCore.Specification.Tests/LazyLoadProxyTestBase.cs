@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -13,7 +15,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Xunit;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -22,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : LazyLoadProxyTestBase<TFixture>.LoadFixtureBase
     {
         protected LazyLoadProxyTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -246,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
                 foreach (var child in parent.Children.Cast<object>()
-                    .Concat(parent.ChildrenAk)
-                    .Concat(parent.ChildrenShadowFk)
-                    .Concat(parent.ChildrenCompositeKey))
+                             .Concat(parent.ChildrenAk)
+                             .Concat(parent.ChildrenShadowFk)
+                             .Concat(parent.ChildrenCompositeKey))
                 {
                     context.Entry(child).State = state;
                 }
@@ -2074,9 +2080,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsNotType<Blog>(blog);
             }
 
-            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
+            var serialized = JsonConvert.SerializeObject(
                 blogs,
-                new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore, Formatting = Newtonsoft.Json.Formatting.Indented });
+                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
 
             Assert.Equal(
                 @"[
@@ -2133,7 +2139,7 @@ namespace Microsoft.EntityFrameworkCore
   }
 ]", serialized, ignoreLineEndingDifferences: true);
 
-            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
+            var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized);
 
             VerifyBlogs(newBlogs);
             foreach (var blog in newBlogs)
@@ -2141,11 +2147,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
 
-            var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
+            var options = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve, WriteIndented = true };
 
-            serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);
+            serialized = JsonSerializer.Serialize(blogs, options);
 
-            Assert.Equal(@"{
+            Assert.Equal(
+                @"{
   ""$id"": ""1"",
   ""$values"": [
     {
@@ -2214,13 +2221,14 @@ namespace Microsoft.EntityFrameworkCore
   ]
 }", serialized, ignoreLineEndingDifferences: true);
 
-            newBlogs = System.Text.Json.JsonSerializer.Deserialize<List<Blog>>(serialized, options);
+            newBlogs = JsonSerializer.Deserialize<List<Blog>>(serialized, options);
             Assert.IsType<List<Blog>>(newBlogs);
 
             foreach (var blog in newBlogs)
             {
                 Assert.IsType<Blog>(blog);
             }
+
             VerifyBlogs(newBlogs);
         }
 
@@ -2387,14 +2395,12 @@ namespace Microsoft.EntityFrameworkCore
         private static class DtoFactory
         {
             public static object CreateDto(Parent parent)
-            {
-                return new
+                => new
                 {
                     parent.Id,
                     parent.Single,
                     parent.Single.ParentId
                 };
-            }
         }
 
         public class Address
@@ -2434,9 +2440,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public static FirstName Create(string firstName)
-            {
-                return new(firstName);
-            }
+                => new(firstName);
         }
 
         public class LastName
@@ -2453,9 +2457,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public static LastName Create(string lastName)
-            {
-                return new(lastName);
-            }
+                => new(lastName);
         }
 
         public class Pyrson
@@ -3080,8 +3082,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new NonVirtualOneToManyOwner
                     {
-                        Id = 300,
-                        Addresses = new List<OwnedAddress> { new() { Street = "4 Privet Drive", PostalCode = "SURREY" } }
+                        Id = 300, Addresses = new List<OwnedAddress> { new() { Street = "4 Privet Drive", PostalCode = "SURREY" } }
                     });
 
                 context.Add(
@@ -3099,18 +3100,13 @@ namespace Microsoft.EntityFrameworkCore
                 context.Add(
                     new ExplicitLazyLoadNonVirtualOneToManyOwner
                     {
-                        Id = 500,
-                        Addresses = new List<OwnedAddress> { new() { Street = "Spinner's End", PostalCode = "BE WA1R" } }
+                        Id = 500, Addresses = new List<OwnedAddress> { new() { Street = "Spinner's End", PostalCode = "BE WA1R" } }
                     });
 
                 context.Add(
                     new ExplicitLazyLoadVirtualOneToManyOwner
                     {
-                        Id = 600,
-                        Addresses = new List<OwnedAddress>
-                        {
-                            new() { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
-                        }
+                        Id = 600, Addresses = new List<OwnedAddress> { new() { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" } }
                     });
 
                 context.SaveChanges();

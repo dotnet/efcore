@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public string Id { get; set; }
             public ICollection<EntityWithStringProperty> Properties { get; set; }
         }
-        
+
         private class EntityWithStringAlternateKey
         {
             public int Id { get; set; }
@@ -321,8 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void Model_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.HasAnnotation("AnnotationName", "AnnotationValue")
                     .HasDatabaseMaxSize("100 MB")
                     .HasServiceTier("basic")
@@ -342,12 +341,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(8, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Model_Fluent_APIs_are_properly_generated()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.UseHiLo();
@@ -382,12 +379,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         SqlServerValueGenerationStrategy.SequenceHiLo,
                         o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.HasDefaultSchema("DefaultSchema");
@@ -407,12 +402,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Entities_are_stored_in_model_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties);
@@ -459,12 +452,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal(
                             "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", t.Name));
                 });
-        }
 
         [ConditionalFact]
         public virtual void Entities_are_stored_in_model_snapshot_for_TPT()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
@@ -517,12 +508,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
                             .GetTableName());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Entities_are_stored_in_model_snapshot_for_TPT_with_one_excluded()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
@@ -575,12 +564,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity")
                             .GetTableName());
                 });
-        }
 
         [ConditionalFact]
         public void Views_are_stored_in_the_model_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToView("EntityWithOneProperty"),
                 AddBoilerPlate(
                     GetHeading()
@@ -597,12 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToView(""EntityWithOneProperty"");
                 });"),
                 o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
-        }
 
         [ConditionalFact]
         public void Views_with_schemas_are_stored_in_the_model_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithOneProperty>()
                     .Ignore(e => e.EntityWithTwoProperties)
                     .ToView("EntityWithOneProperty", "ViewSchema"),
@@ -621,21 +606,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToView(""EntityWithOneProperty"", ""ViewSchema"");
                 });"),
                 o =>
-                    {
-                        Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName());
-                        Assert.Equal("ViewSchema", o.GetEntityTypes().Single().GetViewSchema());
-                    });
-        }
+                {
+                    Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName());
+                    Assert.Equal("ViewSchema", o.GetEntityTypes().Single().GetViewSchema());
+                });
 
         [ConditionalFact]
         public void Unmapped_entity_types_are_stored_in_the_model_snapshot()
-        {
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.HasDefaultSchema("default");
                     builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToTable((string)null);
                 },
-                AddBoilerPlate(@"
+                AddBoilerPlate(
+                    @"
             modelBuilder
                 .HasDefaultSchema(""default"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
@@ -652,11 +637,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable((string)null);
                 });"),
-                o => {
+                o =>
+                {
                     Assert.Null(o.GetEntityTypes().Single().GetTableName());
                     Assert.Null(o.GetEntityTypes().Single().GetSchema());
                 });
-        }
 
         private class TestKeylessType
         {
@@ -667,7 +652,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void TVF_types_are_stored_in_the_model_snapshot() => Test(
+        public void TVF_types_are_stored_in_the_model_snapshot()
+            => Test(
                 builder =>
                 {
                     builder.HasDbFunction(
@@ -696,8 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                     builder.Entity<TestKeylessType>(
                         kb =>
@@ -716,12 +701,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToFunction(""GetCount"");
                 });"),
                 o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
-        }
 
         [ConditionalFact]
         public void Entity_types_mapped_to_queries_are_stored_in_the_model_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToSqlQuery("query"),
                 AddBoilerPlate(
                     GetHeading()
@@ -737,12 +720,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToSqlQuery(""query"");
                 });"),
                 o => Assert.Equal("query", o.GetEntityTypes().Single().GetSqlQuery()));
-        }
 
         [ConditionalFact]
         public virtual void Sequence_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.HasSequence<int>("Foo", "Bar")
@@ -765,12 +746,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     Assert.Equal(5, o.GetAnnotations().Count());
                 });
-        }
 
         [ConditionalFact]
         public virtual void CheckConstraint_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -802,12 +781,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var constraint = o.GetEntityTypes().Single().GetCheckConstraints().Single();
                     Assert.Equal("CK_Customer_AlternateId", constraint.Name);
                 });
-        }
 
         [ConditionalFact]
         public virtual void CheckConstraint_is_only_stored_in_snapshot_once_for_TPH()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
@@ -852,7 +829,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var constraint = o.FindEntityType(typeof(DerivedEntity)).GetDeclaredCheckConstraints().Single();
                     Assert.Equal("CK_BaseEntity_AlternateId", constraint.Name);
                 });
-        }
 
         [ConditionalFact]
         public virtual void ProductVersion_is_stored_in_snapshot()
@@ -868,8 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void Model_use_identity_columns()
-        {
-            Test(
+            => Test(
                 builder => builder.UseIdentityColumns(),
                 AddBoilerPlate(
                     @"
@@ -883,12 +858,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(1, o.GetIdentitySeed());
                     Assert.Equal(1, o.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Model_use_identity_columns_custom_seed()
-        {
-            Test(
+            => Test(
                 builder => builder.UseIdentityColumns(5),
                 AddBoilerPlate(
                     @"
@@ -902,32 +875,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(5, o.GetIdentitySeed());
                     Assert.Equal(1, o.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Model_use_identity_columns_custom_increment()
-        {
-            Test(
+            => Test(
                 builder => builder.UseIdentityColumns(increment: 5),
                 AddBoilerPlate(
                     @"
             modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 5);"),
-            o =>
+                o =>
                 {
                     Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                     Assert.Equal(1, o.GetIdentitySeed());
                     Assert.Equal(5, o.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Model_use_identity_columns_custom_seed_increment()
-        {
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.UseIdentityColumns(long.MaxValue, 5);
                     builder.Entity(
                         "Building", b =>
@@ -969,7 +939,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(long.MaxValue, property.GetIdentitySeed());
                     Assert.Equal(5, property.GetIdentityIncrement());
                 });
-        }
 
         #endregion
 
@@ -977,8 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void EntityType_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>().HasAnnotation("AnnotationName", "AnnotationValue");
@@ -1006,12 +974,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(3, o.GetEntityTypes().First().GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void EntityType_Fluent_APIs_are_properly_generated()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>().IsMemoryOptimized();
@@ -1037,12 +1003,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized(b);
                 });"),
                 o => Assert.True(o.GetEntityTypes().Single().IsMemoryOptimized()));
-        }
 
         [ConditionalFact]
         public virtual void BaseType_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntity>().HasBaseType<BaseEntity>();
@@ -1100,12 +1064,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity", t.Name)
                     );
                 });
-        }
 
         [ConditionalFact]
         public virtual void Discriminator_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntity>().HasBaseType<BaseEntity>();
@@ -1167,29 +1129,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         o.FindEntityType(typeof(AnotherDerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
                     Assert.Equal("DerivedEntity", o.FindEntityType(typeof(DerivedEntity))[CoreAnnotationNames.DiscriminatorValue]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Converted_discriminator_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<DerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
                     builder.Entity<AnotherDerivedEntityWithStructDiscriminator>().HasBaseType<BaseEntityWithStructDiscriminator>();
                     builder.Entity<BaseEntityWithStructDiscriminator>(
                         b =>
-                            {
-                                b.Property(e => e.Discriminator)
-                                    .HasConversion(
-                                        v => v.Value,
-                                        v => new() { Value = v });
-                                b.HasDiscriminator(e => e.Discriminator)
-                                    .IsComplete()
-                                    .HasValue(typeof(BaseEntityWithStructDiscriminator), new StructDiscriminator { Value = "Base" })
-                                    .HasValue(typeof(DerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Derived" })
-                                    .HasValue(typeof(AnotherDerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Another" });
-                            });
+                        {
+                            b.Property(e => e.Discriminator)
+                                .HasConversion(
+                                    v => v.Value,
+                                    v => new StructDiscriminator { Value = v });
+                            b.HasDiscriminator(e => e.Discriminator)
+                                .IsComplete()
+                                .HasValue(typeof(BaseEntityWithStructDiscriminator), new StructDiscriminator { Value = "Base" })
+                                .HasValue(typeof(DerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Derived" })
+                                .HasValue(
+                                    typeof(AnotherDerivedEntityWithStructDiscriminator), new StructDiscriminator { Value = "Another" });
+                        });
                 },
                 AddBoilerPlate(
                     GetHeading()
@@ -1235,27 +1196,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 o =>
                 {
                     Assert.Equal(
-                        "Discriminator", 
+                        "Discriminator",
                         o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorProperty]);
-                    
+
                     Assert.Equal(
-                        "Base", 
+                        "Base",
                         o.FindEntityType(typeof(BaseEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
-                    
+
                     Assert.Equal(
-                        "Another", 
+                        "Another",
                         o.FindEntityType(typeof(AnotherDerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
-                    
+
                     Assert.Equal(
-                        "Derived", 
+                        "Derived",
                         o.FindEntityType(typeof(DerivedEntityWithStructDiscriminator))[CoreAnnotationNames.DiscriminatorValue]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Properties_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>();
@@ -1288,12 +1247,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("AlternateId", t.Name)
                     );
                 });
-        }
 
         [ConditionalFact]
         public virtual void Primary_key_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasKey(
@@ -1324,12 +1281,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("AlternateId", t.Name)
                     );
                 });
-        }
 
         [Fact]
         public void HasNoKey_is_handled()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),
                 AddBoilerPlate(
                     GetHeading()
@@ -1348,12 +1303,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", entityType.Name);
                     Assert.Null(entityType.FindPrimaryKey());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Alternate_keys_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasAlternateKey(
@@ -1388,12 +1341,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("AlternateId", t.Name)
                     );
                 });
-        }
 
         [ConditionalFact]
         public virtual void Indexes_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId);
@@ -1424,12 +1375,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Single(o.GetEntityTypes().First().GetIndexes());
                     Assert.Equal("AlternateId", o.GetEntityTypes().First().GetIndexes().First().Properties[0].Name);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Indexes_are_stored_in_snapshot_including_composite_index()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(
@@ -1464,12 +1413,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         t => Assert.Equal("Id", t.Name),
                         t => Assert.Equal("AlternateId", t.Name));
                 });
-        }
 
         [ConditionalFact]
         public virtual void Foreign_keys_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder
@@ -1535,12 +1482,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("EntityWithTwoProperties", foreignKey.PrincipalToDependent.Name);
                     Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal.Name);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Many_to_many_join_table_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder
@@ -1685,12 +1630,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("ManyToManyLeftManyToManyRight", joinEntity.GetTableName());
                     Assert.Equal("schema", joinEntity.GetSchema());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Can_override_table_name_for_many_to_many_join_table_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     var manyToMany = builder
@@ -1831,7 +1774,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 });
                         });
                 });
-        }
 
         [ConditionalFact]
         public virtual void TableName_preserved_when_generic()
@@ -1870,22 +1812,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void Shared_columns_are_stored_in_the_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
-                    builder.Entity<EntityWithOneProperty>(b =>
-                    {
-                        b.ToTable("EntityWithProperties");
-                        b.Property<int>("AlternateId").HasColumnName("AlternateId");
-                    });
-                    builder.Entity<EntityWithTwoProperties>(b =>
-                    {
-                        b.ToTable("EntityWithProperties");
-                        b.Property(e => e.AlternateId).HasColumnName("AlternateId");
-                        b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
-                            .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
-                    });
+                    builder.Entity<EntityWithOneProperty>(
+                        b =>
+                        {
+                            b.ToTable("EntityWithProperties");
+                            b.Property<int>("AlternateId").HasColumnName("AlternateId");
+                        });
+                    builder.Entity<EntityWithTwoProperties>(
+                        b =>
+                        {
+                            b.ToTable("EntityWithProperties");
+                            b.Property(e => e.AlternateId).HasColumnName("AlternateId");
+                            b.HasOne(e => e.EntityWithOneProperty).WithOne(e => e.EntityWithTwoProperties)
+                                .HasForeignKey<EntityWithTwoProperties>(e => e.Id);
+                        });
                 },
                 AddBoilerPlate(
                     GetHeading()
@@ -1944,7 +1887,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Equal(ValueGenerated.OnUpdateSometimes, entityType.FindProperty("AlternateId").ValueGenerated);
                 });
-        }
 
         [ConditionalFact]
         public virtual void PrimaryKey_name_preserved_when_generic()
@@ -2031,8 +1973,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void Discriminator_of_enum()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithEnumType>().HasDiscriminator(e => e.Day),
                 AddBoilerPlate(
                     GetHeading()
@@ -2055,12 +1996,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasDiscriminator<long>(""Day"");
                 });"),
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().FindDiscriminatorProperty().ClrType));
-        }
 
         [ConditionalFact]
         public virtual void Discriminator_of_enum_to_string()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithEnumType>(
                     x =>
                     {
@@ -2094,18 +2033,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                     Assert.False(discriminatorProperty.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Temporal_table_information_is_stored_in_snapshot()
-        {
-            Test(
-                builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("HistoryTable");
-                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
-                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
-                })),
+            => Test(
+                builder => builder.Entity<EntityWithStringProperty>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                            ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+                        })),
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -2148,21 +2087,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });", usingSystem: true),
                 o =>
                 {
-                    var temporalEntity = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
+                    var temporalEntity = o.FindEntityType(
+                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
                     var annotations = temporalEntity.GetAnnotations().ToList();
 
                     Assert.Equal(6, annotations.Count);
                     Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
-                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalHistoryTableName && a.Value as string == "HistoryTable");
-                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "Start");
-                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "End");
+                    Assert.Contains(
+                        annotations,
+                        a => a.Name == SqlServerAnnotationNames.TemporalHistoryTableName && a.Value as string == "HistoryTable");
+                    Assert.Contains(
+                        annotations,
+                        a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "Start");
+                    Assert.Contains(
+                        annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "End");
                 });
-        }
 
         [ConditionalFact]
         public virtual void Temporal_table_information_is_stored_in_snapshot_minimal_setup()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal()),
                 AddBoilerPlate(
                     GetHeading()
@@ -2205,15 +2148,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });", usingSystem: true),
                 o =>
                 {
-                    var temporalEntity = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
+                    var temporalEntity = o.FindEntityType(
+                        "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
                     var annotations = temporalEntity.GetAnnotations().ToList();
 
                     Assert.Equal(5, annotations.Count);
                     Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
-                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "PeriodStart");
-                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "PeriodEnd");
+                    Assert.Contains(
+                        annotations,
+                        a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "PeriodStart");
+                    Assert.Contains(
+                        annotations,
+                        a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "PeriodEnd");
                 });
-        }
 
         #endregion
 
@@ -2221,8 +2168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         [ConditionalFact]
         public virtual void Owned_types_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>(
@@ -2439,12 +2385,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Owned_types_are_stored_in_snapshot_when_excluded()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>(
@@ -2474,15 +2418,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         });
 
                     builder.Entity<EntityWithStringKey>(
-                        b => {
+                        b =>
+                        {
                             b.OwnsMany(
-                              es => es.Properties, es =>
-                              {
-                                  es.HasKey(e => e.Id);
-                                  es.HasOne(e => e.EntityWithOneProperty).WithOne();
+                                es => es.Properties, es =>
+                                {
+                                    es.HasKey(e => e.Id);
+                                    es.HasOne(e => e.EntityWithOneProperty).WithOne();
 
-                                  es.ToTable("EntityWithStringProperty", t => t.ExcludeFromMigrations());
-                              });
+                                    es.ToTable("EntityWithStringProperty", t => t.ExcludeFromMigrations());
+                                });
 
                             b.ToTable("EntityWithStringKey", e => e.ExcludeFromMigrations());
                         });
@@ -2665,12 +2610,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     Assert.Same(entityWithOneProperty, ownedType2.GetNavigations().Single().TargetEntityType);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Shared_owned_types_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<Order>().OwnsOne(p => p.OrderBillingDetails, od => od.OwnsOne(c => c.StreetAddress));
@@ -2821,12 +2764,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
                     Assert.Equal(2, orderShippingDetailsAddress.PropertyCount());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Owned_types_can_be_mapped_to_view()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity<TestOwner>()
@@ -2906,12 +2847,10 @@ namespace RootNamespace
                         "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee", "OwnedEntities", testOwner);
                     Assert.Equal("OwnedView", testOwnee.GetViewName());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Snapshot_with_OwnedNavigationBuilder_HasCheckConstraint_compiles()
-        {
-            Test(
+            => Test(
                 modelBuilder =>
                 {
                     modelBuilder.Entity<TestOwner>()
@@ -2994,7 +2933,6 @@ namespace RootNamespace
                         "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwnee", "OwnedEntities", testOwner);
                     Assert.NotNull(testOwnee.FindCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint"));
                 });
-        }
 
         private class Order
         {
@@ -3025,8 +2963,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void Property_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>()
@@ -3053,12 +2990,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"])
             );
-        }
 
         [ConditionalFact]
         public virtual void Custom_value_generator_is_ignored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>().Property<int>("Id").HasValueGenerator<CustomValueGenerator>();
@@ -3081,12 +3016,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactory])
             );
-        }
 
         [ConditionalFact]
         public virtual void Property_isNullable_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsRequired(),
                 AddBoilerPlate(
                     GetHeading()
@@ -3108,12 +3041,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable));
-        }
 
         [ConditionalFact]
         public virtual void Property_ValueGenerated_value_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasDefaultValue();
@@ -3140,12 +3071,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });", usingSystem: true),
                 o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated));
-        }
 
         [ConditionalFact]
         public virtual void Property_ValueGenerated_non_identity()
-        {
-            Test(
+            => Test(
                 modelBuilder => modelBuilder.Entity<EntityWithEnumType>(
                     x =>
                     {
@@ -3181,12 +3110,10 @@ namespace RootNamespace
                     Assert.Equal(ValueGenerated.OnAdd, day.ValueGenerated);
                     Assert.Equal(SqlServerValueGenerationStrategy.None, day.GetValueGenerationStrategy());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_maxLength_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(100),
                 AddBoilerPlate(
                     GetHeading()
@@ -3208,12 +3135,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
-        }
 
         [ConditionalFact]
         public virtual void Property_unicodeness_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false),
                 AddBoilerPlate(
                     GetHeading()
@@ -3235,12 +3160,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()));
-        }
 
         [ConditionalFact]
         public virtual void Property_fixedlengthness_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength().HasMaxLength(100),
                 AddBoilerPlate(
                     GetHeading()
@@ -3263,12 +3186,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Name").IsFixedLength()));
-        }
 
         [ConditionalFact]
         public virtual void Property_precision_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder
                     .Entity<EntityWithDecimalProperty>()
                     .Property<decimal>(nameof(EntityWithDecimalProperty.Price))
@@ -3293,17 +3214,15 @@ namespace RootNamespace
                     b.ToTable(""EntityWithDecimalProperty"");
                 });"),
                 o =>
-                    {
-                        var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
-                        Assert.Equal(7, property.GetPrecision());
-                        Assert.Null(property.GetScale());
-                    });
-        }
+                {
+                    var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                    Assert.Equal(7, property.GetPrecision());
+                    Assert.Null(property.GetScale());
+                });
 
         [ConditionalFact]
         public virtual void Property_precision_and_scale_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder
                     .Entity<EntityWithDecimalProperty>()
                     .Property<decimal>(nameof(EntityWithDecimalProperty.Price))
@@ -3328,17 +3247,15 @@ namespace RootNamespace
                     b.ToTable(""EntityWithDecimalProperty"");
                 });"),
                 o =>
-                    {
-                        var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
-                        Assert.Equal(7, property.GetPrecision());
-                        Assert.Equal(3, property.GetScale());
-                    });
-        }
+                {
+                    var property = o.GetEntityTypes().First().FindProperty(nameof(EntityWithDecimalProperty.Price));
+                    Assert.Equal(7, property.GetPrecision());
+                    Assert.Equal(3, property.GetScale());
+                });
 
         [ConditionalFact]
         public virtual void Many_facets_chained_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithStringProperty>()
@@ -3375,12 +3292,10 @@ namespace RootNamespace
                     Assert.False(property.IsUnicode());
                     Assert.Equal("AnnotationValue", property["AnnotationName"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_concurrencyToken_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").IsConcurrencyToken();
@@ -3406,12 +3321,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken));
-        }
 
         [ConditionalFact]
         public virtual void Property_column_name_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasColumnName("CName");
@@ -3437,12 +3350,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_column_type_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasColumnType("CType");
@@ -3467,12 +3378,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasDefaultValue(1);
@@ -3499,12 +3408,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_default_value_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasDefaultValue();
@@ -3532,12 +3439,10 @@ namespace RootNamespace
                 });",
                     usingSystem: true),
                 o => Assert.Equal(DBNull.Value, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasDefaultValueSql();
@@ -3564,12 +3469,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_default_value_sql_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasDefaultValueSql("SQL");
@@ -3596,12 +3499,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasComputedColumnSql("SQL");
@@ -3628,12 +3529,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_computed_column_sql_stored_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasComputedColumnSql("SQL", true);
@@ -3664,12 +3563,10 @@ namespace RootNamespace
                     Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]);
                     Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:IsStored"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_computed_column_sql_annotation_is_stored_in_snapshot_as_fluent_api_unspecified()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasComputedColumnSql();
@@ -3696,12 +3593,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_default_value_of_enum_type_is_stored_in_snapshot_without_actual_enum()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed),
                 AddBoilerPlate(
                     GetHeading()
@@ -3724,12 +3619,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithEnumType"");
                 });"),
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
-        }
 
         [ConditionalFact]
         public virtual void Property_enum_type_is_stored_in_snapshot_with_custom_conversion_and_seed_data()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithEnumType>(
                     eb =>
                     {
@@ -3773,12 +3666,10 @@ namespace RootNamespace
                     Assert.Equal(nameof(Days.Wed), property["Relational:DefaultValue"]);
                     Assert.False(property.IsNullable);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_of_nullable_enum()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day),
                 AddBoilerPlate(
                     GetHeading()
@@ -3799,12 +3690,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithNullableEnumType"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
-        }
 
         [ConditionalFact]
         public virtual void Property_of_enum_to_nullable()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day)
                     .HasConversion(m => (long?)m, p => p.HasValue ? (Days)p.Value : default),
                 AddBoilerPlate(
@@ -3826,12 +3715,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithEnumType"");
                 });", usingSystem: true),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
-        }
 
         [ConditionalFact]
         public virtual void Property_of_nullable_enum_to_string()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day).HasConversion<string>(),
                 AddBoilerPlate(
                     GetHeading()
@@ -3852,12 +3739,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithNullableEnumType"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
-        }
 
         [ConditionalFact]
         public virtual void Property_multiple_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasColumnName("CName")
@@ -3892,13 +3777,12 @@ namespace RootNamespace
                     Assert.Equal("CName", property["Relational:ColumnName"]);
                     Assert.Equal("int", property["Relational:ColumnType"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_without_column_type()
-        {
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder
                         .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -3907,7 +3791,8 @@ namespace RootNamespace
                         {
                             b.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
+                                .HasAnnotation(
+                                    SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
                             b.HasKey("Id");
 
@@ -3915,7 +3800,8 @@ namespace RootNamespace
                         });
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -3933,13 +3819,12 @@ namespace RootNamespace
                     var property = o.FindEntityType("Building").FindProperty("Id");
                     Assert.Equal("int", property.GetColumnType());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_with_identity_column()
-        {
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.Entity(
                         "Building", b =>
                         {
@@ -3951,7 +3836,8 @@ namespace RootNamespace
                         });
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -3971,14 +3857,12 @@ namespace RootNamespace
                     Assert.Equal(1, property.GetIdentitySeed());
                     Assert.Equal(1, property.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_seed()
-        {
-            Test(
-
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.Entity(
                         "Building", b =>
                         {
@@ -3990,7 +3874,8 @@ namespace RootNamespace
                         });
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -4010,14 +3895,12 @@ namespace RootNamespace
                     Assert.Equal(5, property.GetIdentitySeed());
                     Assert.Equal(1, property.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_increment()
-        {
-
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.Entity(
                         "Building", b =>
                         {
@@ -4029,7 +3912,8 @@ namespace RootNamespace
                         });
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -4049,13 +3933,12 @@ namespace RootNamespace
                     Assert.Equal(1, property.GetIdentitySeed());
                     Assert.Equal(5, property.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_seed_increment()
-        {
-            Test(
-                builder => {
+            => Test(
+                builder =>
+                {
                     builder.Entity(
                         "Building", b =>
                         {
@@ -4067,7 +3950,8 @@ namespace RootNamespace
                         });
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -4087,12 +3971,10 @@ namespace RootNamespace
                     Assert.Equal(5, property.GetIdentitySeed());
                     Assert.Equal(5, property.GetIdentityIncrement());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Property_column_order_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property<int>("AlternateId").HasColumnOrder(1);
@@ -4118,12 +4000,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
-        }
 
         [ConditionalFact]
         public virtual void SQLServer_model_legacy_identity_seed_int_annotation()
-        {
-            Test(
+            => Test(
                 builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
                 AddBoilerPlate(
                     @"
@@ -4131,12 +4011,10 @@ namespace RootNamespace
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L, 1);"),
                 o => Assert.Equal(8L, o.GetIdentitySeed()));
-        }
 
         [ConditionalFact]
         public virtual void SQLServer_property_legacy_identity_seed_int_annotation()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().Property(e => e.Id)
@@ -4162,7 +4040,6 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id").GetIdentitySeed()));
-        }
 
         #endregion
 
@@ -4170,8 +4047,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void Key_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId)
@@ -4201,12 +4077,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     "AnnotationValue", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["AnnotationName"]));
-        }
 
         [ConditionalFact]
         public virtual void Key_Fluent_APIs_are_properly_generated()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>().HasKey(t => t.Id).IsClustered();
@@ -4230,12 +4104,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithOneProperty"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).IsClustered()));
-        }
 
         [ConditionalFact]
         public virtual void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId).HasName("KeyName");
@@ -4264,12 +4136,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     "KeyName", o.GetEntityTypes().First().GetKeys().Where(k => !k.IsPrimaryKey()).First()["Relational:Name"]));
-        }
 
         [ConditionalFact]
         public virtual void Key_multiple_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasAlternateKey(t => t.AlternateId).HasName("IndexName")
@@ -4305,7 +4175,6 @@ namespace RootNamespace
                     Assert.Equal("AnnotationValue", key["AnnotationName"]);
                     Assert.Equal("IndexName", key["Relational:Name"]);
                 });
-        }
 
         #endregion
 
@@ -4313,8 +4182,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void Index_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId)
@@ -4343,12 +4211,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]));
-        }
 
         [ConditionalFact]
         public virtual void Index_Fluent_APIs_are_properly_generated()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).IsClustered();
@@ -4377,12 +4243,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().Single().GetIndexes().Single().IsClustered()));
-        }
 
         [ConditionalFact]
         public virtual void Index_isUnique_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).IsUnique();
@@ -4410,12 +4274,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique));
-        }
 
         [ConditionalFact]
         public virtual void Index_database_name_annotation_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -4450,12 +4312,10 @@ namespace RootNamespace
                     Assert.Null(index.Name);
                     Assert.Equal("IndexName", index.GetDatabaseName());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Index_filter_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId)
@@ -4486,12 +4346,10 @@ namespace RootNamespace
                 o => Assert.Equal(
                     "AlternateId <> 0",
                     o.GetEntityTypes().First().GetIndexes().First().GetFilter()));
-        }
 
         [ConditionalFact]
         public virtual void Index_multiple_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId, "IndexName")
@@ -4527,12 +4385,10 @@ namespace RootNamespace
                     Assert.Equal("AnnotationValue", index["AnnotationName"]);
                     Assert.Null(index["RelationalAnnotationNames.Name"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Index_with_default_constraint_name_exceeding_max()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>(
                     x =>
                     {
@@ -4565,12 +4421,10 @@ namespace RootNamespace
                     b.ToTable(""EntityWithStringProperty"");
                 });"),
                 model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
-        }
 
         [ConditionalFact]
         public virtual void IndexAttribute_causes_column_to_have_key_or_index_column_length()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithIndexAttribute>(),
                 AddBoilerPlate(
                     GetHeading()
@@ -4609,12 +4463,10 @@ namespace RootNamespace
                             Assert.Equal("nvarchar(450)", p1.GetColumnType());
                         }
                     ));
-        }
 
         [ConditionalFact]
         public virtual void IndexAttribute_name_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithNamedIndexAttribute>(),
                 AddBoilerPlate(
                     GetHeading()
@@ -4657,12 +4509,10 @@ namespace RootNamespace
                         }
                     );
                 });
-        }
 
         [ConditionalFact]
         public virtual void IndexAttribute_IsUnique_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithUniqueIndexAttribute>(),
                 AddBoilerPlate(
                     GetHeading()
@@ -4707,12 +4557,10 @@ namespace RootNamespace
                         }
                     );
                 });
-        }
 
         [ConditionalFact]
         public virtual void IndexAttribute_IncludeProperties_generated_without_fluent_api()
-        {
-            Test(
+            => Test(
                 builder => builder.Entity<EntityWithStringProperty>(
                     x =>
                     {
@@ -4740,11 +4588,11 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithStringProperty"");
                 });", usingSystem: true),
-                model => {
+                model =>
+                {
                     var index = model.GetEntityTypes().First().GetIndexes().First();
                     Assert.Equal("Name", Assert.Single(index.GetIncludeProperties()));
                 });
-        }
 
         #endregion
 
@@ -4752,8 +4600,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void ForeignKey_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -4815,12 +4662,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["AnnotationName"]));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_isRequired_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithStringKey>().Ignore(e => e.Properties);
@@ -4872,12 +4717,10 @@ namespace RootNamespace
                         .IsRequired();
                 });"),
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_isUnique_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithStringProperty>()
@@ -4928,12 +4771,10 @@ namespace RootNamespace
                     b.Navigation(""Properties"");
                 });"),
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_with_non_primary_principal_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithStringProperty>()
@@ -4993,12 +4834,10 @@ namespace RootNamespace
                     b.Navigation(""Properties"");
                 });"),
                 o => Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>()
@@ -5048,12 +4887,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_deleteBehavior_is_stored_in_snapshot_for_one_to_one()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>()
@@ -5107,7 +4944,6 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_name_preserved_when_generic()
@@ -5192,8 +5028,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void ForeignKey_constraint_name_is_stored_in_snapshot_as_fluent_api()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -5255,12 +5090,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     "Constraint", o.FindEntityType(typeof(EntityWithTwoProperties)).GetForeignKeys().First()["Relational:Name"]));
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_multiple_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -5329,12 +5162,10 @@ namespace RootNamespace
                     Assert.Equal("AnnotationValue", fk["AnnotationName"]);
                     Assert.Equal("Constraint", fk["Relational:Name"]);
                 });
-        }
 
         [ConditionalFact]
         public virtual void Do_not_generate_entity_type_builder_again_if_no_foreign_key_is_defined_on_it()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<BaseType>();
@@ -5397,12 +5228,10 @@ namespace RootNamespace
                     b.Navigation(""Navigation"");
                 });", usingSystem: true),
                 o => { });
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_principal_key_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>()
@@ -5461,12 +5290,10 @@ namespace RootNamespace
                     Assert.Equal(2, o.FindEntityType(typeof(EntityWithTwoProperties)).GetKeys().Count());
                     Assert.True(o.FindEntityType(typeof(EntityWithTwoProperties)).FindProperty("AlternateId").IsKey());
                 });
-        }
 
         [ConditionalFact]
         public virtual void ForeignKey_principal_key_with_non_default_name_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithOneProperty>()
@@ -5532,7 +5359,6 @@ namespace RootNamespace
                     Assert.Equal(2, entityType.GetKeys().Count());
                     Assert.Equal("Value", entityType.FindKey(entityType.FindProperty("AlternateId"))["Name"]);
                 });
-        }
 
         #endregion
 
@@ -5540,8 +5366,7 @@ namespace RootNamespace
 
         [ConditionalFact]
         public virtual void Navigation_annotations_are_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -5605,12 +5430,10 @@ namespace RootNamespace
                 });"),
                 o => Assert.Equal(
                     "AnnotationValue", o.FindEntityType(typeof(EntityWithTwoProperties)).GetNavigations().First()["AnnotationName"]));
-        }
 
         [ConditionalFact]
         public virtual void Navigation_isRequired_is_stored_in_snapshot()
-        {
-            Test(
+            => Test(
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
@@ -5673,7 +5496,6 @@ namespace RootNamespace
                         .IsRequired();
                 });"),
                 o => Assert.True(o.FindEntityType(typeof(EntityWithOneProperty)).GetNavigations().First().ForeignKey.IsRequiredDependent));
-        }
 
         #endregion
 
@@ -6204,9 +6026,9 @@ namespace RootNamespace
         protected virtual string AddBoilerPlate(string code, bool usingSystem = false)
             => $@"// <auto-generated />
 {(usingSystem
-                ? @"using System;
+    ? @"using System;
 "
-                : "")}using Microsoft.EntityFrameworkCore;
+    : "")}using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -6303,13 +6125,15 @@ namespace RootNamespace
         }
 
         protected TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
-            => TestHelpers.CreateConventionBuilder(customServices: new ServiceCollection()
+            => TestHelpers.CreateConventionBuilder(
+                customServices: new ServiceCollection()
                     .AddEntityFrameworkSqlServerNetTopologySuite());
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
             => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
 
-        protected TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
+        protected TestHelpers TestHelpers
+            => SqlServerTestHelpers.Instance;
 
         protected CSharpMigrationsGenerator CreateMigrationsGenerator()
         {

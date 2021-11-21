@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
             public string StringValue { get; }
 
             public static OrderId Parse(string stringValue)
-                => new OrderId(stringValue);
+                => new(stringValue);
 
             public static explicit operator string(OrderId orderId)
                 => orderId.StringValue;

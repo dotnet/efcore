@@ -23,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Level1> Get()
-        {
-            return _context.LevelOne;
-        }
+            => _context.LevelOne;
 
         [HttpGet]
         [EnableQuery]
@@ -53,9 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Level2> Get()
-        {
-            return _context.LevelTwo;
-        }
+            => _context.LevelTwo;
 
         [HttpGet]
         [EnableQuery]
@@ -83,9 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Level3> Get()
-        {
-            return _context.LevelThree;
-        }
+            => _context.LevelThree;
 
         [HttpGet]
         [EnableQuery]
@@ -113,9 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Level4> Get()
-        {
-            return _context.LevelFour;
-        }
+            => _context.LevelFour;
 
         [HttpGet]
         [EnableQuery]

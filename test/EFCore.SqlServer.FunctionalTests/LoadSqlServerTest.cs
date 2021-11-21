@@ -1482,7 +1482,8 @@ WHERE 0 = 1");
                         0,
                         currentDirectory.LastIndexOf(
                             $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                            StringComparison.Ordinal) + 1)
+                            StringComparison.Ordinal)
+                        + 1)
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;

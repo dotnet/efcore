@@ -29,24 +29,25 @@ namespace Microsoft.EntityFrameworkCore
             var entities = new List<Darwin>();
             for (var i = 0; i < 100; i++)
             {
-                entities.Add(new()
-                {
-                    Species = new() { Name = "Goldfish (with legs)" },
-                    MixedMetaphors = new List<Species>
+                entities.Add(
+                    new Darwin
                     {
-                        new() { Name = "Large ground finch" },
-                        new() { Name = "Medium ground finch" },
-                        new() { Name = "Small tree finch" },
-                        new() { Name = "Green warbler-finch" }
-                    }
-                });
+                        Species = new Species { Name = "Goldfish (with legs)" },
+                        MixedMetaphors = new List<Species>
+                        {
+                            new() { Name = "Large ground finch" },
+                            new() { Name = "Medium ground finch" },
+                            new() { Name = "Small tree finch" },
+                            new() { Name = "Green warbler-finch" }
+                        }
+                    });
             }
 
             entities.Add(
-                new()
+                new Darwin
                 {
                     Id = 1777,
-                    Species = new() { Name = "Goldfish (with legs)" },
+                    Species = new Species { Name = "Goldfish (with legs)" },
                     MixedMetaphors = new List<Species>
                     {
                         new() { Name = "Large ground finch" },

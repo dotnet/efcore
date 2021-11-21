@@ -521,8 +521,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Album[] CreateTestAlbums(decimal itemPrice, Artist artist, Genre genre)
-        {
-            return Enumerable.Range(1, 10).Select(
+            => Enumerable.Range(1, 10).Select(
                 n =>
                     new Album
                     {
@@ -531,7 +530,6 @@ namespace Microsoft.EntityFrameworkCore
                         Artist = artist,
                         Genre = genre
                     }).ToArray();
-        }
 
         protected class CartSummaryComponent
         {
@@ -649,9 +647,9 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     if (!string.Equals(
-                        _formCollection["PromoCode"].FirstOrDefault(),
-                        PromoCode,
-                        StringComparison.OrdinalIgnoreCase))
+                            _formCollection["PromoCode"].FirstOrDefault(),
+                            PromoCode,
+                            StringComparison.OrdinalIgnoreCase))
                     {
                         return null;
                     }
@@ -715,12 +713,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             private Task<List<Album>> GetTopSellingAlbumsAsync(MusicStoreContext dbContext, int count)
-            {
-                return dbContext.Albums
+                => dbContext.Albums
                     .OrderByDescending(a => a.OrderDetails.Count)
                     .Take(count)
                     .ToListAsync();
-            }
         }
 
         public class StoreController

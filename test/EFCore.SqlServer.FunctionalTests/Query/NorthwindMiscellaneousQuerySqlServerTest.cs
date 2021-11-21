@@ -99,9 +99,7 @@ ORDER BY [t0].[CustomerID]");
         }
 
         private static T Scoper<T>(Func<T> getter)
-        {
-            return getter();
-        }
+            => getter();
 
         public override async Task Local_dictionary(bool async)
         {
@@ -906,19 +904,16 @@ END, [p].[ProductID]");
         }
 
         public override async Task OrderBy_ternary_conditions(bool async)
-        {
-            await base.OrderBy_ternary_conditions(async);
+            => await base.OrderBy_ternary_conditions(async);
 
-            // issue #18774
-            //            AssertSql(
-            //                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-            //FROM [Products] AS [p]
-            //ORDER BY CASE
-            //    WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
-            //    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-            //END, [p].[ProductID]");
-        }
-
+        // issue #18774
+        //            AssertSql(
+        //                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+        //FROM [Products] AS [p]
+        //ORDER BY CASE
+        //    WHEN (([p].[UnitsInStock] > CAST(10 AS smallint)) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= CAST(10 AS smallint)) AND ([p].[ProductID] <= 40))
+        //    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
+        //END, [p].[ProductID]");
         public override void OrderBy_any()
         {
             base.OrderBy_any();
@@ -2456,16 +2451,13 @@ ORDER BY COALESCE([c].[Region], N'ZZ'), [c].[CustomerID]");
         }
 
         public override async Task Select_null_coalesce_operator(bool async)
-        {
-            await base.Select_null_coalesce_operator(async);
+            => await base.Select_null_coalesce_operator(async);
 
-            // issue #16038
-            //            AssertSql(
-            //                @"SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
-            //FROM [Customers] AS [c]
-            //ORDER BY [Region], [c].[CustomerID]");
-        }
-
+        // issue #16038
+        //            AssertSql(
+        //                @"SELECT [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
+        //FROM [Customers] AS [c]
+        //ORDER BY [Region], [c].[CustomerID]");
         public override async Task OrderBy_conditional_operator(bool async)
         {
             await base.OrderBy_conditional_operator(async);
@@ -2566,18 +2558,14 @@ FROM (
         }
 
         public override async Task Select_take_null_coalesce_operator(bool async)
-        {
-            await base.Select_take_null_coalesce_operator(async);
+            => await base.Select_take_null_coalesce_operator(async);
 
-            // issue #16038
-            //            AssertSql(
-            //                @"@__p_0='5'
-
-            //SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
-            //FROM [Customers] AS [c]
-            //ORDER BY [Region]");
-        }
-
+        // issue #16038
+        //            AssertSql(
+        //                @"@__p_0='5'
+        //SELECT TOP(@__p_0) [c].[CustomerID], [c].[CompanyName], COALESCE([c].[Region], N'ZZ') AS [Region]
+        //FROM [Customers] AS [c]
+        //ORDER BY [Region]");
         public override async Task Select_take_skip_null_coalesce_operator(bool async)
         {
             await base.Select_take_skip_null_coalesce_operator(async);
@@ -3820,16 +3808,13 @@ WHERE [t].[Property] IS NOT NULL AND ([t].[Property] LIKE N'A%')");
         }
 
         public override async Task DTO_complex_orderby(bool async)
-        {
-            await base.DTO_complex_orderby(async);
+            => await base.DTO_complex_orderby(async);
 
-            // issue #18775
-            //            AssertSql(
-            //                @"SELECT [c].[CustomerID] + [c].[City] AS [Property]
-            //FROM [Customers] AS [c]
-            //ORDER BY [Property]");
-        }
-
+        // issue #18775
+        //            AssertSql(
+        //                @"SELECT [c].[CustomerID] + [c].[City] AS [Property]
+        //FROM [Customers] AS [c]
+        //ORDER BY [Property]");
         public override async Task DTO_subquery_orderby(bool async)
         {
             await base.DTO_subquery_orderby(async);
@@ -5323,11 +5308,9 @@ ORDER BY [c].[CustomerID]");
 
         [ConditionalFact]
         public async Task Single_Predicate_Cancellation()
-        {
-            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            => await Assert.ThrowsAnyAsync<OperationCanceledException>(
                 async () =>
                     await Single_Predicate_Cancellation_test(Fixture.TestSqlLoggerFactory.CancelQuery()));
-        }
 
         [ConditionalFact]
         public Task Query_compiler_concurrency()
@@ -5353,7 +5336,7 @@ ORDER BY [c].[CustomerID]");
                                                 where o1.CustomerID == c.CustomerID
                                                 orderby o2.OrderID
                                                 select o1.OrderID).ToList()).ToList())
-                            .GetEnumerator())
+                               .GetEnumerator())
                         {
                         }
                     });
@@ -5418,7 +5401,8 @@ OUTER APPLY (
 ORDER BY [c].[CustomerID]");
         }
 
-        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(
+            bool async)
         {
             await base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
 

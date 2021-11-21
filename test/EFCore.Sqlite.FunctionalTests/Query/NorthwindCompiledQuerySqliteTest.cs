@@ -19,12 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override void MakeBinary_does_not_throw_for_unsupported_operator()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.TranslationFailed("DbSet<Customer>()    .Where(c => c.CustomerID == (string)(__parameters[0]))"),
                 Assert.Throws<InvalidOperationException>(
                     () => base.MakeBinary_does_not_throw_for_unsupported_operator()).Message.Replace("\r", "").Replace("\n", ""));
-        }
 
         public override void Query_with_array_parameter()
         {
@@ -52,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override async Task Query_with_array_parameter_async()
         {
             var query = EF.CompileAsyncQuery(
-                            (NorthwindContext context, string[] args)
-                                => context.Customers.Where(c => c.CustomerID == args[0]));
+                (NorthwindContext context, string[] args)
+                    => context.Customers.Where(c => c.CustomerID == args[0]));
 
             using (var context = CreateContext())
             {

@@ -950,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Same(transaction, currentTransaction!.GetDbTransaction());
 
-                var newTransaction =  async
+                var newTransaction = async
                     ? await context.Database.UseTransactionAsync(transaction)
                     : context.Database.UseTransaction(transaction);
 
@@ -1525,12 +1525,10 @@ namespace Microsoft.EntityFrameworkCore
             public string Name { get; set; }
 
             public override bool Equals(object obj)
-            {
-                return !(obj is TransactionCustomer otherCustomer)
+                => !(obj is TransactionCustomer otherCustomer)
                     ? false
                     : Id == otherCustomer.Id
                     && Name == otherCustomer.Name;
-            }
 
             public override string ToString()
                 => "Id = " + Id + ", Name = " + Name;

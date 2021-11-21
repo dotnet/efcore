@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<Level1>(eb => eb.ToTable(nameof(Level1)));
         }
+
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                     c => c

@@ -8,7 +8,8 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryLoggingCosmosTest : QueryLoggingCosmosTestBase, IClassFixture<QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer>>
+    public class QueryLoggingCosmosTest : QueryLoggingCosmosTestBase,
+        IClassFixture<QueryLoggingCosmosTest.NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer>>
     {
         public QueryLoggingCosmosTest(NorthwindQueryCosmosFixtureInsensitive<NoopModelCustomizer> fixture)
             : base(fixture)

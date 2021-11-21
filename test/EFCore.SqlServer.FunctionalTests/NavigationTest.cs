@@ -62,7 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         private readonly NavigationTestFixture _fixture;
 
         public NavigationTest(NavigationTestFixture fixture)
-            => _fixture = fixture;
+        {
+            _fixture = fixture;
+        }
     }
 
     public class GoTPerson

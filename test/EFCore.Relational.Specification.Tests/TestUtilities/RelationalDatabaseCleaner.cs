@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -64,13 +63,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var operations = new List<MigrationOperation>();
 
                 foreach (var index in databaseModel.Tables
-                    .SelectMany(t => t.Indexes.Where(AcceptIndex)))
+                             .SelectMany(t => t.Indexes.Where(AcceptIndex)))
                 {
                     operations.Add(Drop(index));
                 }
 
                 foreach (var foreignKey in databaseModel.Tables
-                    .SelectMany(t => t.ForeignKeys.Where(AcceptForeignKey)))
+                             .SelectMany(t => t.ForeignKeys.Where(AcceptForeignKey)))
                 {
                     operations.Add(Drop(foreignKey));
                 }
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                     if (operations.Count > 0)
                     {
-                        var commands = sqlGenerator.Generate(operations, null);
+                        var commands = sqlGenerator.Generate(operations);
                         executor.ExecuteNonQuery(commands, connection);
                     }
 

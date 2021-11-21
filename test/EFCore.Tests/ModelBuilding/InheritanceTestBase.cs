@@ -268,15 +268,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.Customer), newFk.DependentToPrincipal.Name);
                 Assert.Equal(nameof(SpecialCustomer.SpecialOrders), newFk.PrincipalToDependent.Name);
                 Assert.Same(derivedPrincipalEntityType, newFk.PrincipalEntityType);
-                Assert.Same(newFk.DependentToPrincipal,
+                Assert.Same(
+                    newFk.DependentToPrincipal,
                     dependentEntityType.GetDerivedNavigations().Single(fk => fk.DeclaringEntityType == derivedDependentEntityType));
-                Assert.Same(newFk, dependentEntityType.GetDerivedForeignKeys().Single(fk => fk.DeclaringEntityType == derivedDependentEntityType));
+                Assert.Same(
+                    newFk, dependentEntityType.GetDerivedForeignKeys().Single(fk => fk.DeclaringEntityType == derivedDependentEntityType));
                 Assert.Same(newFk, derivedDependentEntityType.GetDeclaredForeignKeys().Single());
-                Assert.Same(newFk, derivedDependentEntityType.FindForeignKey(newFk.Properties, newFk.PrincipalKey, newFk.PrincipalEntityType));
-                Assert.Same(newFk,
-                    derivedPrincipalEntityType.GetReferencingForeignKeys().Single(fk => fk.DeclaringEntityType == derivedDependentEntityType));
-                Assert.Equal(derivedPrincipalEntityType.GetDeclaredReferencingForeignKeys(),
-                    derivedPrincipalEntityType.GetReferencingForeignKeys().Where(fk => fk.DeclaringEntityType == derivedDependentEntityType));
+                Assert.Same(
+                    newFk, derivedDependentEntityType.FindForeignKey(newFk.Properties, newFk.PrincipalKey, newFk.PrincipalEntityType));
+                Assert.Same(
+                    newFk,
+                    derivedPrincipalEntityType.GetReferencingForeignKeys()
+                        .Single(fk => fk.DeclaringEntityType == derivedDependentEntityType));
+                Assert.Equal(
+                    derivedPrincipalEntityType.GetDeclaredReferencingForeignKeys(),
+                    derivedPrincipalEntityType.GetReferencingForeignKeys()
+                        .Where(fk => fk.DeclaringEntityType == derivedDependentEntityType));
                 var otherDerivedFk = otherDerivedDependentEntityType.GetDeclaredNavigations().Single().ForeignKey;
                 Assert.Equal(nameof(Order.Customer), otherDerivedFk.DependentToPrincipal.Name);
                 Assert.Null(otherDerivedFk.PrincipalToDependent);

@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -20,29 +18,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override Task Like_all_literals(bool async)
-        {
-            return AssertTranslationFailed(() => base.Like_all_literals(async));
-        }
+            => AssertTranslationFailed(() => base.Like_all_literals(async));
 
         public override Task Like_all_literals_with_escape(bool async)
-        {
-            return AssertTranslationFailed(() => base.Like_all_literals_with_escape(async));
-        }
+            => AssertTranslationFailed(() => base.Like_all_literals_with_escape(async));
 
         public override Task Like_literal(bool async)
-        {
-            return AssertTranslationFailed(() => base.Like_literal(async));
-        }
+            => AssertTranslationFailed(() => base.Like_literal(async));
 
         public override Task Like_literal_with_escape(bool async)
-        {
-            return AssertTranslationFailed(() => base.Like_literal_with_escape(async));
-        }
+            => AssertTranslationFailed(() => base.Like_literal_with_escape(async));
 
         public override Task Like_identity(bool async)
-        {
-            return AssertTranslationFailed(() => base.Like_identity(async));
-        }
+            => AssertTranslationFailed(() => base.Like_identity(async));
 
         public override async Task Random_return_less_than_1(bool async)
         {

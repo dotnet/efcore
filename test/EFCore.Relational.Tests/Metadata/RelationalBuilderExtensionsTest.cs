@@ -509,7 +509,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("1", typeBuilder.Metadata.GetSchema());
         }
 
-
         [ConditionalFact]
         public void Can_create_check_constraint()
         {
@@ -577,8 +576,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
             IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
 
-            Assert.NotNull(derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splow", fromDataAnnotation: true));
+            Assert.NotNull(
+                derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splow", fromDataAnnotation: true));
             Assert.Equal("Splew", derivedEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splow", derivedEntityType.GetCheckConstraints().Single().Name);
@@ -600,16 +600,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(baseEntityType.GetCheckConstraints());
             Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
 
-            Assert.NotNull(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splot", fromDataAnnotation: true));
+            Assert.NotNull(
+                baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splot", fromDataAnnotation: true));
             Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
 
             derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.Convention);
 
-            Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splew"));
+            Assert.Null(
+                baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splew"));
             Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
@@ -626,8 +628,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(derivedBuilder.HasBaseType((string)null, ConfigurationSource.DataAnnotation));
             IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
 
-            Assert.NotNull(derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splow", fromDataAnnotation: true));
+            Assert.NotNull(
+                derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splow", fromDataAnnotation: true));
             Assert.Equal("Splew", derivedEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splow", derivedEntityType.GetCheckConstraints().Single().Name);
@@ -636,16 +639,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
             Assert.Null(derivedEntityType.BaseType);
 
-            Assert.NotNull(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splot", fromDataAnnotation: true));
+            Assert.NotNull(
+                baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splot", fromDataAnnotation: true));
             Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
 
             Assert.NotNull(derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.DataAnnotation));
 
-            Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
-                .HasName("CK_Splew"));
+            Assert.Null(
+                baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                    .HasName("CK_Splew"));
             Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
             Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
             Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);

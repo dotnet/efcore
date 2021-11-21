@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public async Task FromSqlRaw_queryable_simple(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""ContactName""] LIKE '%z%'");
 
             var actual = async
@@ -56,7 +57,8 @@ FROM (
         public async Task FromSqlRaw_queryable_incorrect_discriminator_throws(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Order""");
 
             var exception = async
@@ -73,7 +75,8 @@ FROM (
         public async Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""");
 
             var actual = async
@@ -95,7 +98,8 @@ FROM (
         public async Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""PostalCode""] AS Foo, c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""");
 
             var actual = async
@@ -117,7 +121,8 @@ FROM (
         public async Task FromSqlRaw_queryable_composed(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""").Where(c => c.ContactName.Contains("z"));
 
             var sql = query.ToQueryString();
@@ -142,7 +147,8 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         public virtual async Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
                     _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + @"* FROM root c WHERE c[""Discriminator""] = ""Customer""")
                 .Where(c => c.ContactName.Contains("z"));
 
@@ -156,7 +162,8 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
                 @"SELECT c
 FROM (
 
-        " + @"
+        "
+                + @"
 
 
     SELECT
@@ -172,8 +179,9 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
             if (async)
             {
                 var query = EF.CompileAsyncQuery(
-                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
+                            context.Set<Customer>(),
+                            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                         .Where(c => c.ContactName.Contains("z")));
 
                 using (var context = CreateContext())
@@ -186,8 +194,9 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
             else
             {
                 var query = EF.CompileQuery(
-                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
+                            context.Set<Customer>(),
+                            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                         .Where(c => c.ContactName.Contains("z")));
 
                 using (var context = CreateContext())
@@ -213,8 +222,9 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
             if (async)
             {
                 var query = EF.CompileAsyncQuery(
-                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
+                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
+                            context.Set<Customer>(),
+                            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
                         .Where(c => c.ContactName.Contains("z")));
 
                 using (var context = CreateContext())
@@ -227,8 +237,9 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
             else
             {
                 var query = EF.CompileQuery(
-                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
+                    (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
+                            context.Set<Customer>(),
+                            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
                         .Where(c => c.ContactName.Contains("z")));
 
                 using (var context = CreateContext())
@@ -252,7 +263,8 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         public virtual async Task FromSqlRaw_queryable_multiple_line_query(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT *
 FROM root c
 WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
@@ -278,7 +290,8 @@ FROM (
         public virtual async Task FromSqlRaw_queryable_composed_multiple_line_query(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
                     @"SELECT *
 FROM root c
 WHERE c[""Discriminator""] = ""Customer""")
@@ -309,9 +322,10 @@ WHERE (c[""City""] = ""London"")");
             var contactTitle = "Sales Representative";
 
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}", city,
-                    contactTitle);
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
+                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}", city,
+                contactTitle);
 
             var actual = async
                 ? await query.ToArrayAsync()
@@ -336,9 +350,11 @@ FROM (
         public async Task FromSqlRaw_queryable_with_parameters_inline(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}", "London",
-                    "Sales Representative");
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
+                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}",
+                "London",
+                "Sales Representative");
 
             var actual = async
                 ? await query.ToArrayAsync()
@@ -365,8 +381,10 @@ FROM (
             uint? reportsTo = null;
 
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Employee>(),
-                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Employee"" AND c[""ReportsTo""] = {0} OR (IS_NULL(c[""ReportsTo""]) AND IS_NULL({0}))", reportsTo);
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Employee>(),
+                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Employee"" AND c[""ReportsTo""] = {0} OR (IS_NULL(c[""ReportsTo""]) AND IS_NULL({0}))",
+                reportsTo);
 
             var actual = async
                 ? await query.ToArrayAsync()
@@ -391,7 +409,8 @@ FROM (
             var contactTitle = "Sales Representative";
 
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
                     @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0}", city)
                 .Where(c => c.ContactTitle == contactTitle);
             var queryString = query.ToQueryString();
@@ -420,7 +439,8 @@ WHERE (c[""ContactTitle""] = @__contactTitle_1)");
         public virtual async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
 
             var actual = async
@@ -430,7 +450,8 @@ WHERE (c[""ContactTitle""] = @__contactTitle_1)");
             Assert.Equal(6, actual.Length);
             Assert.True(actual.All(c => c.City == "London"));
 
-            query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
+            query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Set<Customer>(),
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'Seattle'");
 
             actual = async
@@ -507,8 +528,9 @@ FROM (
         public virtual async Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
+                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                 .AsNoTracking();
 
             var actual = async
@@ -530,7 +552,8 @@ FROM (
         public virtual async Task FromSqlRaw_queryable_simple_projection_composed(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Product>(),
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Product>(),
                     @"SELECT *
 FROM root c
 WHERE c[""Discriminator""] = ""Product"" AND NOT c[""Discontinued""] AND ((c[""UnitsInStock""] + c[""UnitsOnOrder""]) < c[""ReorderLevel""])")
@@ -556,8 +579,9 @@ FROM (
         public virtual async Task FromSqlRaw_composed_with_nullable_predicate(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
+                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                 .Where(c => c.ContactName == c.CompanyName);
 
             var actual = async
@@ -581,7 +605,8 @@ WHERE (c[""ContactName""] = c[""CompanyName""])");
             using var context = CreateContext();
             var propertyName = "OrderID";
             var max = 10250;
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Orders,
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                context.Orders,
                 $@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Order"" AND c[""{propertyName}""] < {{0}}", max);
 
             var actual = async
@@ -596,8 +621,9 @@ WHERE (c[""ContactName""] = c[""CompanyName""])");
         public virtual async Task FromSqlRaw_queryable_simple_projection_not_composed(bool async)
         {
             using var context = CreateContext();
-            var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+            var query = CosmosQueryableExtensions.FromSqlRaw(
+                    context.Set<Customer>(),
+                    @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                 .Select(
                     c => new { c.CustomerID, c.City })
                 .AsNoTracking();
@@ -630,9 +656,10 @@ FROM (
                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
                 : Assert.Throws<InvalidOperationException>(() => query.ToArray());
 
-            Assert.Equal(CoreStrings.InvalidKeyValue(
-                context.Model.FindEntityType(typeof(Customer))!.DisplayName(),
-                "CustomerID"),
+            Assert.Equal(
+                CoreStrings.InvalidKeyValue(
+                    context.Model.FindEntityType(typeof(Customer))!.DisplayName(),
+                    "CustomerID"),
                 exception.Message);
         }
 

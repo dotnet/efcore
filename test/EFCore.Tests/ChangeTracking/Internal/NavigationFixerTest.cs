@@ -1271,9 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public Product Product { get; set; }
 
             public IEnumerator<Product> GetEnumerator()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerator IEnumerable.GetEnumerator()
                 => GetEnumerator();

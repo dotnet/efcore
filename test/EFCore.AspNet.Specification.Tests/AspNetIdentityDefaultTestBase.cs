@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityRole",
                     TableName = "AspNetRoles",
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Indexes = { "{'NormalizedName'} Unique", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>",
                     TableName = "AspNetRoleClaims",
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'RoleId'} ", },
                     FKs = { "ForeignKey: IdentityRoleClaim<string> {'RoleId'} -> IdentityRole {'Id'} Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityUser",
                     TableName = "AspNetUsers",
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                         "{'NormalizedEmail'} ", "{'NormalizedUserName'} Unique",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>",
                     TableName = "AspNetUserClaims",
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'UserId'} ", },
                     FKs = { "ForeignKey: IdentityUserClaim<string> {'UserId'} -> IdentityUser {'Id'} Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>",
                     TableName = "AspNetUserLogins",
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'UserId'} ", },
                     FKs = { "ForeignKey: IdentityUserLogin<string> {'UserId'} -> IdentityUser {'Id'} Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityUserRole<string>",
                     TableName = "AspNetUserRoles",
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
                         "ForeignKey: IdentityUserRole<string> {'UserId'} -> IdentityUser {'Id'} Cascade",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.AspNetCore.Identity.IdentityUserToken<string>",
                     TableName = "AspNetUserTokens",

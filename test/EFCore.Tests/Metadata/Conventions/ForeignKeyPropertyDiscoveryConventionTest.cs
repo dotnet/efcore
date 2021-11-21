@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -585,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             PrincipalType.Builder.Property(typeof(int), nameof(PrincipalEntity.PrincipalEntityId), ConfigurationSource.Convention);
             var relationshipBuilder = derivedType.HasRelationship(
-                PrincipalType, PrincipalType.FindPrimaryKey().Properties, ConfigurationSource.Convention)
+                    PrincipalType, PrincipalType.FindPrimaryKey().Properties, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation);
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
@@ -1143,7 +1142,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                with { Logger = CreateLogger() };
+                with
+                {
+                    Logger = CreateLogger()
+                };
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

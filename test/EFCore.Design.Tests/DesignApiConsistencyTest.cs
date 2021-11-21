@@ -29,8 +29,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<Type> NonSealedPrivateNestedTypes { get; } = new()
             {
-                Type.GetType("Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener, Microsoft.EntityFrameworkCore.Design", throwOnError: true),
-                Type.GetType("Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener+StopTheHostException, Microsoft.EntityFrameworkCore.Design", throwOnError: true)
+                Type.GetType(
+                    "Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener, Microsoft.EntityFrameworkCore.Design",
+                    throwOnError: true),
+                Type.GetType(
+                    "Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener+StopTheHostException, Microsoft.EntityFrameworkCore.Design",
+                    throwOnError: true)
             };
         }
     }

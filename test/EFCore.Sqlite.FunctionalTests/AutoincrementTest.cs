@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     public class AutoincrementTest : IClassFixture<AutoincrementTest.AutoincrementFixture>
     {
         public AutoincrementTest(AutoincrementFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected AutoincrementFixture Fixture { get; }
 

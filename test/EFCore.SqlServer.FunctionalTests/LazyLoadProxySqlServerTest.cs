@@ -454,7 +454,8 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id");
                         0,
                         currentDirectory.LastIndexOf(
                             $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
-                            StringComparison.Ordinal) + 1)
+                            StringComparison.Ordinal)
+                        + 1)
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
@@ -470,7 +471,6 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id");
                 throw;
             }
         }
-
 
         private string Sql { get; set; }
 

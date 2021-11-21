@@ -51,39 +51,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_ascending_using_IComparable_on_value_type()
-        {
-            SortTest("Int", ListSortDirection.Ascending);
-        }
+            => SortTest("Int", ListSortDirection.Ascending);
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_ascending_using_IComparable_on_nullable_value_type()
-        {
-            SortTest("NullableInt", ListSortDirection.Ascending);
-        }
+            => SortTest("NullableInt", ListSortDirection.Ascending);
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_ascending_using_IComparable_on_reference_type()
-        {
-            SortTest("String", ListSortDirection.Ascending);
-        }
+            => SortTest("String", ListSortDirection.Ascending);
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_descending_using_IComparable_on_value_type()
-        {
-            SortTest("Int", ListSortDirection.Descending);
-        }
+            => SortTest("Int", ListSortDirection.Descending);
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_descending_using_IComparable_on_nullable_value_type()
-        {
-            SortTest("NullableInt", ListSortDirection.Descending);
-        }
+            => SortTest("NullableInt", ListSortDirection.Descending);
 
         [ConditionalFact]
         public void SortableBindingList_can_sort_descending_using_IComparable_on_reference_type()
-        {
-            SortTest("String", ListSortDirection.Descending);
-        }
+            => SortTest("String", ListSortDirection.Descending);
 
         [ConditionalFact]
         public void SortableBindingList_does_not_sort_for_non_XNode_that_does_not_implement_IComparable()

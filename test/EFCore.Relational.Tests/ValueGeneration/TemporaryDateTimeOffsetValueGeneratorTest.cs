@@ -19,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Generates_temporary_values()
-        {
-            Assert.True(new TemporaryDateTimeOffsetValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.True(new TemporaryDateTimeOffsetValueGenerator().GeneratesTemporaryValues);
     }
 }

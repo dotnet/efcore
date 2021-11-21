@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public TestLogger()
             : base(new TDefinitions())
-        { }
+        {
+        }
 
         public TestLogger(LoggingDefinitions definitions)
             : base(definitions)

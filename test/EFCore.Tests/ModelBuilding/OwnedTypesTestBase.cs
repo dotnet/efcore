@@ -292,12 +292,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => customerBuilder.OwnsOne(
-                                c => c.Details,
-                                r =>
-                                {
-                                    r.HasOne(d => d.Customer)
-                                        .WithMany();
-                                })).Message);
+                            c => c.Details,
+                            r =>
+                            {
+                                r.HasOne(d => d.Customer)
+                                    .WithMany();
+                            })).Message);
             }
 
             [ConditionalFact]
@@ -787,7 +787,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(ownership.IsOwnership);
                 Assert.False(ownership.IsUnique);
                 Assert.Equal(nameof(Order.OrderId), ownership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
-                Assert.Same(ownership.DeclaringEntityType,
+                Assert.Same(
+                    ownership.DeclaringEntityType,
                     model.FindEntityType(typeof(Order), nameof(Customer.Orders), customer));
                 Assert.True(model.IsShared(typeof(Order)));
 
@@ -796,7 +797,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(specialOwnership.IsUnique);
                 Assert.Equal(
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
-                Assert.Same(specialOwnership.DeclaringEntityType,
+                Assert.Same(
+                    specialOwnership.DeclaringEntityType,
                     model.FindEntityType(typeof(SpecialOrder)));
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
@@ -1433,8 +1435,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     modelBuilder.Model.IsShared(typeof(BookLabel))
-                    ? CoreStrings.ClashingSharedType(nameof(BookLabel))
-                    : CoreStrings.ClashingOwnedEntityType(nameof(BookLabel)),
+                        ? CoreStrings.ClashingSharedType(nameof(BookLabel))
+                        : CoreStrings.ClashingOwnedEntityType(nameof(BookLabel)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<AnotherBookLabel>().HasBaseType<BookLabel>()).Message);
             }

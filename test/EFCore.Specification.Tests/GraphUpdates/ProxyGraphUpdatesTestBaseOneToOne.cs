@@ -17,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public virtual void Optional_one_to_one_relationships_are_one_to_one()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
@@ -27,12 +26,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Required_one_to_one_relationships_are_one_to_one()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
@@ -41,12 +38,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Optional_one_to_one_with_AK_relationships_are_one_to_one()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
@@ -55,12 +50,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalFact]
         public virtual void Required_one_to_one_with_AK_relationships_are_one_to_one()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
@@ -69,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]

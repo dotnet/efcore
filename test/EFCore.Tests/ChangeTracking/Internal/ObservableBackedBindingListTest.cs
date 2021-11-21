@@ -556,9 +556,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public byte[] ByteArray { get; }
 
             public static PropertyDescriptor Property(string name)
-            {
-                return TypeDescriptor.GetProperties(typeof(ListElement))[name];
-            }
+                => TypeDescriptor.GetProperties(typeof(ListElement))[name];
         }
 
         private abstract class NotXNode

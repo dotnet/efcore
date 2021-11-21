@@ -273,15 +273,11 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
 
         [ConditionalTheory(Skip = "Issue #17783")]
         public override Task Default_if_empty_top_level_arg(bool async)
-        {
-            return base.Default_if_empty_top_level_arg(async);
-        }
+            => base.Default_if_empty_top_level_arg(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
-        {
-            return base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
-        }
+            => base.Default_if_empty_top_level_arg_followed_by_projecting_constant(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Default_if_empty_top_level_projection(bool async)
@@ -340,9 +336,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_one_element_Single(bool async)
-        {
-            return base.Where_query_composition_entity_equality_one_element_Single(async);
-        }
+            => base.Where_query_composition_entity_equality_one_element_Single(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_one_element_FirstOrDefault(bool async)
@@ -357,9 +351,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_one_element_First(bool async)
-        {
-            return base.Where_query_composition_entity_equality_one_element_First(async);
-        }
+            => base.Where_query_composition_entity_equality_one_element_First(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_query_composition_entity_equality_no_elements_SingleOrDefault(bool async)
@@ -374,9 +366,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_no_elements_Single(bool async)
-        {
-            return base.Where_query_composition_entity_equality_no_elements_Single(async);
-        }
+            => base.Where_query_composition_entity_equality_no_elements_Single(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_no_elements_FirstOrDefault(bool async)
@@ -391,21 +381,15 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_no_elements_First(bool async)
-        {
-            return base.Where_query_composition_entity_equality_no_elements_First(async);
-        }
+            => base.Where_query_composition_entity_equality_no_elements_First(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool async)
-        {
-            return base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(async);
-        }
+            => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool async)
-        {
-            return base.Where_query_composition_entity_equality_multiple_elements_Single(async);
-        }
+            => base.Where_query_composition_entity_equality_multiple_elements_Single(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Where_query_composition_entity_equality_multiple_elements_FirstOrDefault(bool async)
@@ -420,9 +404,7 @@ WHERE (c[""Discriminator""] = ""Employee"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition_entity_equality_multiple_elements_First(bool async)
-        {
-            return base.Where_query_composition_entity_equality_multiple_elements_First(async);
-        }
+            => base.Where_query_composition_entity_equality_multiple_elements_First(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_query_composition2(bool async)
@@ -1462,9 +1444,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_Joined_DefaultIfEmpty3(bool async)
-        {
-            return base.SelectMany_Joined_DefaultIfEmpty3(async);
-        }
+            => base.SelectMany_Joined_DefaultIfEmpty3(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined(bool async)
@@ -1957,15 +1937,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Select_nested_collection_in_anonymous_type(bool async)
-        {
-            return base.Select_nested_collection_in_anonymous_type(async);
-        }
+            => base.Select_nested_collection_in_anonymous_type(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Select_subquery_recursive_trivial(bool async)
-        {
-            return base.Select_subquery_recursive_trivial(async);
-        }
+            => base.Select_subquery_recursive_trivial(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_on_bool(bool async)
@@ -2204,39 +2180,27 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_1(bool async)
-        {
-            return base.Random_next_is_not_funcletized_1(async);
-        }
+            => base.Random_next_is_not_funcletized_1(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_2(bool async)
-        {
-            return base.Random_next_is_not_funcletized_2(async);
-        }
+            => base.Random_next_is_not_funcletized_2(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_3(bool async)
-        {
-            return base.Random_next_is_not_funcletized_3(async);
-        }
+            => base.Random_next_is_not_funcletized_3(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_4(bool async)
-        {
-            return base.Random_next_is_not_funcletized_4(async);
-        }
+            => base.Random_next_is_not_funcletized_4(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_5(bool async)
-        {
-            return base.Random_next_is_not_funcletized_5(async);
-        }
+            => base.Random_next_is_not_funcletized_5(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Random_next_is_not_funcletized_6(bool async)
-        {
-            return base.Random_next_is_not_funcletized_6(async);
-        }
+            => base.Random_next_is_not_funcletized_6(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Environment_newline_is_funcletized(bool async)
@@ -2317,9 +2281,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue#13168")]
         public override Task Where_bitwise_or_with_logical_or(bool async)
-        {
-            return base.Where_bitwise_or_with_logical_or(async);
-        }
+            => base.Where_bitwise_or_with_logical_or(async);
 
         public override async Task Where_bitwise_and_with_logical_and(bool async)
         {
@@ -2333,9 +2295,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"
 
         [ConditionalTheory(Skip = "Issue#13168")]
         public override Task Where_bitwise_or_with_logical_and(bool async)
-        {
-            return base.Where_bitwise_or_with_logical_and(async);
-        }
+            => base.Where_bitwise_or_with_logical_and(async);
 
         public override async Task Where_bitwise_and_with_logical_or(bool async)
         {
@@ -2414,9 +2374,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue#13159")]
         public override Task Parameter_extraction_short_circuits_1(bool async)
-        {
-            return base.Parameter_extraction_short_circuits_1(async);
-        }
+            => base.Parameter_extraction_short_circuits_1(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Parameter_extraction_short_circuits_2(bool async)
@@ -2431,9 +2389,7 @@ WHERE (c[""Discriminator""] = ""Order"")");
 
         [ConditionalTheory(Skip = "Issue#13159")]
         public override Task Parameter_extraction_short_circuits_3(bool async)
-        {
-            return base.Parameter_extraction_short_circuits_3(async);
-        }
+            => base.Parameter_extraction_short_circuits_3(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Subquery_member_pushdown_does_not_change_original_subquery_model(bool async)
@@ -2633,9 +2589,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task DefaultIfEmpty_in_subquery_not_correlated(bool async)
-        {
-            return base.DefaultIfEmpty_in_subquery_not_correlated(async);
-        }
+            => base.DefaultIfEmpty_in_subquery_not_correlated(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task DefaultIfEmpty_in_subquery_nested(bool async)
@@ -2663,9 +2617,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""Seattle""))");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
-        {
-            return base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
-        }
+            => base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task OrderBy_skip_take(bool async)
@@ -3823,153 +3775,103 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Entity_equality_through_nested_anonymous_type_projection(bool async)
-        {
-            return base.Entity_equality_through_nested_anonymous_type_projection(async);
-        }
+            => base.Entity_equality_through_nested_anonymous_type_projection(async);
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Entity_equality_through_DTO_projection(bool async)
-        {
-            await base.Entity_equality_through_DTO_projection(async);
-        }
+            => await base.Entity_equality_through_DTO_projection(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Entity_equality_through_subquery(bool async)
-        {
-            return base.Entity_equality_through_subquery(async);
-        }
+            => base.Entity_equality_through_subquery(async);
 
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Can_convert_manually_build_expression_with_default()
-        {
-            base.Can_convert_manually_build_expression_with_default();
-        }
+            => base.Can_convert_manually_build_expression_with_default();
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Entity_equality_orderby_descending_composite_key(bool async)
-        {
-            return base.Entity_equality_orderby_descending_composite_key(async);
-        }
+            => base.Entity_equality_orderby_descending_composite_key(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Entity_equality_orderby_subquery(bool async)
-        {
-            return base.Entity_equality_orderby_subquery(async);
-        }
+            => base.Entity_equality_orderby_subquery(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Entity_equality_orderby_descending_subquery_composite_key(bool async)
-        {
-            return base.Entity_equality_orderby_descending_subquery_composite_key(async);
-        }
+            => base.Entity_equality_orderby_descending_subquery_composite_key(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Null_Coalesce_Short_Circuit(bool async)
-        {
-            return base.Null_Coalesce_Short_Circuit(async);
-        }
+            => base.Null_Coalesce_Short_Circuit(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderByDescending_ThenBy(bool async)
-        {
-            return base.OrderByDescending_ThenBy(async);
-        }
+            => base.OrderByDescending_ThenBy(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderByDescending_ThenByDescending(bool async)
-        {
-            return base.OrderByDescending_ThenByDescending(async);
-        }
+            => base.OrderByDescending_ThenByDescending(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderBy_Join(bool async)
-        {
-            return base.OrderBy_Join(async);
-        }
+            => base.OrderBy_Join(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderBy_ThenBy(bool async)
-        {
-            return base.OrderBy_ThenBy(async);
-        }
+            => base.OrderBy_ThenBy(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderBy_ThenBy_predicate(bool async)
-        {
-            return base.OrderBy_ThenBy_predicate(async);
-        }
+            => base.OrderBy_ThenBy_predicate(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_correlated_simple(bool async)
-        {
-            return base.SelectMany_correlated_simple(async);
-        }
+            => base.SelectMany_correlated_simple(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_nested_simple(bool async)
-        {
-            return base.SelectMany_nested_simple(async);
-        }
+            => base.SelectMany_nested_simple(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_primitive(bool async)
-        {
-            return base.SelectMany_primitive(async);
-        }
+            => base.SelectMany_primitive(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_primitive_select_subquery(bool async)
-        {
-            return base.SelectMany_primitive_select_subquery(async);
-        }
+            => base.SelectMany_primitive_select_subquery(async);
 
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
-        {
-            base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
-        }
+            => base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
 
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
-        {
-            base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
-        }
+            => base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
-        {
-            return base.Select_Property_when_shadow_unconstrained_generic_method(async);
-        }
+            => base.Select_Property_when_shadow_unconstrained_generic_method(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Skip_orderby_const(bool async)
-        {
-            return base.Skip_orderby_const(async);
-        }
+            => base.Skip_orderby_const(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Property_when_shadow_unconstrained_generic_method(bool async)
-        {
-            return base.Where_Property_when_shadow_unconstrained_generic_method(async);
-        }
+            => base.Where_Property_when_shadow_unconstrained_generic_method(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Inner_parameter_in_nested_lambdas_gets_preserved(bool async)
-        {
-            return base.Inner_parameter_in_nested_lambdas_gets_preserved(async);
-        }
+            => base.Inner_parameter_in_nested_lambdas_gets_preserved(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Navigation_inside_interpolated_string_is_expanded(bool async)
-        {
-            return base.Navigation_inside_interpolated_string_is_expanded(async);
-        }
+            => base.Navigation_inside_interpolated_string_is_expanded(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(bool async)
-        {
-            return base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(async);
-        }
+            => base.Select_DTO_with_member_init_distinct_in_subquery_translated_to_server_2(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task All_client(bool async)
@@ -3989,102 +3891,68 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task OrderBy_object_type_server_evals(bool async)
-        {
-            return base.OrderBy_object_type_server_evals(async);
-        }
+            => base.OrderBy_object_type_server_evals(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task AsQueryable_in_query_server_evals(bool async)
-        {
-            return base.AsQueryable_in_query_server_evals(async);
-        }
+            => base.AsQueryable_in_query_server_evals(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_correlated_subquery_simple(bool async)
-        {
-            return base.SelectMany_correlated_subquery_simple(async);
-        }
+            => base.SelectMany_correlated_subquery_simple(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_correlated_subquery_hard(bool async)
-        {
-            return base.SelectMany_correlated_subquery_hard(async);
-        }
+            => base.SelectMany_correlated_subquery_hard(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Subquery_DefaultIfEmpty_Any(bool async)
-        {
-            return base.Subquery_DefaultIfEmpty_Any(async);
-        }
+            => base.Subquery_DefaultIfEmpty_Any(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Projection_skip_collection_projection(bool async)
-        {
-            return base.Projection_skip_collection_projection(async);
-        }
+            => base.Projection_skip_collection_projection(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Projection_take_collection_projection(bool async)
-        {
-            return base.Projection_take_collection_projection(async);
-        }
+            => base.Projection_take_collection_projection(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Projection_skip_take_collection_projection(bool async)
-        {
-            return base.Projection_skip_take_collection_projection(async);
-        }
+            => base.Projection_skip_take_collection_projection(async);
 
         public override Task Projection_skip_projection(bool async)
-        {
-            return AssertTranslationFailed(() => base.Projection_skip_projection(async));
-        }
+            => AssertTranslationFailed(() => base.Projection_skip_projection(async));
 
         public override Task Projection_take_projection(bool async)
-        {
-            return AssertTranslationFailed(() => base.Projection_take_projection(async));
-        }
+            => AssertTranslationFailed(() => base.Projection_take_projection(async));
 
         public override Task Projection_skip_take_projection(bool async)
-        {
-            return AssertTranslationFailed(() => base.Projection_skip_take_projection(async));
-        }
+            => AssertTranslationFailed(() => base.Projection_skip_take_projection(async));
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Collection_projection_skip(bool async)
-        {
-            return base.Collection_projection_skip(async);
-        }
+            => base.Collection_projection_skip(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Collection_projection_take(bool async)
-        {
-            return base.Collection_projection_take(async);
-        }
+            => base.Collection_projection_take(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Collection_projection_skip_take(bool async)
-        {
-            return base.Collection_projection_skip_take(async);
-        }
+            => base.Collection_projection_skip_take(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Anonymous_projection_skip_empty_collection_FirstOrDefault(bool async)
-        {
-            return base.Anonymous_projection_skip_empty_collection_FirstOrDefault(async);
-        }
+            => base.Anonymous_projection_skip_empty_collection_FirstOrDefault(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Anonymous_projection_take_empty_collection_FirstOrDefault(bool async)
-        {
-            return base.Anonymous_projection_take_empty_collection_FirstOrDefault(async);
-        }
+            => base.Anonymous_projection_take_empty_collection_FirstOrDefault(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Anonymous_projection_skip_take_empty_collection_FirstOrDefault(bool async)
-        {
-            return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
-        }
+            => base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
 
         public override async Task Checked_context_with_arithmetic_does_not_fail(bool isAsync)
         {
@@ -4131,15 +3999,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Perform_identity_resolution_reuses_same_instances(bool async, bool useAsTracking)
-        {
-            return base.Perform_identity_resolution_reuses_same_instances(async, useAsTracking);
-        }
+            => base.Perform_identity_resolution_reuses_same_instances(async, useAsTracking);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Perform_identity_resolution_reuses_same_instances_across_joins(bool async, bool useAsTracking)
-        {
-            return base.Perform_identity_resolution_reuses_same_instances_across_joins(async, useAsTracking);
-        }
+            => base.Perform_identity_resolution_reuses_same_instances_across_joins(async, useAsTracking);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task All_client_and_server_top_level(bool async)
@@ -4151,106 +4015,74 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Single_non_scalar_projection_after_skip_uses_join(bool async)
-        {
-            return base.Single_non_scalar_projection_after_skip_uses_join(async);
-        }
+            => base.Single_non_scalar_projection_after_skip_uses_join(async);
 
         [ConditionalTheory(Skip = "No Select after Distinct issue#17246")]
         public override Task Select_distinct_Select_with_client_bindings(bool async)
-        {
-            return base.Select_distinct_Select_with_client_bindings(async);
-        }
+            => base.Select_distinct_Select_with_client_bindings(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(
             bool async)
-        {
-            return base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
-        }
+            => base.Pending_selector_in_cardinality_reducing_method_is_applied_before_expanding_collection_navigation_member(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task Max_on_empty_sequence_throws(bool async)
-        {
-            return base.Max_on_empty_sequence_throws(async);
-        }
+            => base.Max_on_empty_sequence_throws(async);
 
         [ConditionalTheory(Skip = "string.IndexOf Issue#17246")]
         public override Task Distinct_followed_by_ordering_on_condition(bool async)
-        {
-            return base.Distinct_followed_by_ordering_on_condition(async);
-        }
+            => base.Distinct_followed_by_ordering_on_condition(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task DefaultIfEmpty_Sum_over_collection_navigation(bool async)
-        {
-            return base.DefaultIfEmpty_Sum_over_collection_navigation(async);
-        }
+            => base.DefaultIfEmpty_Sum_over_collection_navigation(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task Entity_equality_on_subquery_with_null_check(bool async)
-        {
-            return base.Entity_equality_on_subquery_with_null_check(async);
-        }
+            => base.Entity_equality_on_subquery_with_null_check(async);
 
         [ConditionalTheory(Skip = "DefaultIfEmpty Issue#17246")]
         public override Task DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(bool async)
-        {
-            return base.DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(async);
-        }
+            => base.DefaultIfEmpty_over_empty_collection_followed_by_projecting_constant(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task FirstOrDefault_with_predicate_nested(bool async)
-        {
-            return base.FirstOrDefault_with_predicate_nested(async);
-        }
+            => base.FirstOrDefault_with_predicate_nested(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task First_on_collection_in_projection(bool async)
-        {
-            return base.First_on_collection_in_projection(async);
-        }
+            => base.First_on_collection_in_projection(async);
 
         [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
         public override Task Skip_0_Take_0_works_when_constant(bool async)
-        {
-            return base.Skip_0_Take_0_works_when_constant(async);
-        }
+            => base.Skip_0_Take_0_works_when_constant(async);
 
         public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
-        {
-            return AssertTranslationFailedWithDetails(() => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
+            => AssertTranslationFailedWithDetails(
+                () => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-        }
 
         public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
-        {
-            return AssertTranslationFailedWithDetails(() => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
+            => AssertTranslationFailedWithDetails(
+                () => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
-        }
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Select_nested_collection_with_distinct(bool async)
-        {
-            return base.Select_nested_collection_with_distinct(async);
-        }
+            => base.Select_nested_collection_with_distinct(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
-        {
-            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async);
-        }
+            => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
-        {
-            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
-        }
+            => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
 
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Collection_projection_after_DefaultIfEmpty(bool async)
-        {
-            return base.Collection_projection_after_DefaultIfEmpty(async);
-        }
+            => base.Collection_projection_after_DefaultIfEmpty(async);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

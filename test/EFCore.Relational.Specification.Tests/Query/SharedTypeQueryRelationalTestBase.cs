@@ -14,9 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -45,8 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 base.OnModelCreating(modelBuilder);
                 modelBuilder.Entity<ViewQuery24601>()
-                    .HasQueryFilter(e => Set<Dictionary<string, object>>("STET")
-                        .FromSqlRaw("Select * from STET").Select(i => (string)i["Value"]).Contains(e.Value));
+                    .HasQueryFilter(
+                        e => Set<Dictionary<string, object>>("STET")
+                            .FromSqlRaw("Select * from STET").Select(i => (string)i["Value"]).Contains(e.Value));
             }
         }
     }

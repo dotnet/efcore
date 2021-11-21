@@ -172,7 +172,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                Assert.Empty(context.Set<ConvertingEntity>().Where(e => EF.Functions.DataLength((string)(object)new WrappedString { Value = "" }) == 1).ToList());
+                Assert.Empty(
+                    context.Set<ConvertingEntity>()
+                        .Where(e => EF.Functions.DataLength((string)(object)new WrappedString { Value = "" }) == 1).ToList());
             }
 
             Assert.Equal(

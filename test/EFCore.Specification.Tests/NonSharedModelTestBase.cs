@@ -19,20 +19,26 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract ITestStoreFactory TestStoreFactory { get; }
 
         private ServiceProvider _serviceProvider;
+
         protected IServiceProvider ServiceProvider
-            => _serviceProvider ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+            => _serviceProvider
+                ?? throw new InvalidOperationException(
+                    $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
 
         private TestStore _testStore;
+
         protected TestStore TestStore
-            => _testStore ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+            => _testStore
+                ?? throw new InvalidOperationException(
+                    $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
 
         private ListLoggerFactory _listLoggerFactory;
+
         protected ListLoggerFactory ListLoggerFactory
             => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-        public virtual Task InitializeAsync() => Task.CompletedTask;
+        public virtual Task InitializeAsync()
+            => Task.CompletedTask;
 
         protected virtual ContextFactory<TContext> Initialize<TContext>(
             Action<ModelBuilder> onModelCreating = null,
@@ -119,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContextOptionsBuilder> onConfiguring)
         {
             optionsBuilder = AddOptions(TestStore.AddProviderOptions(optionsBuilder))
-                           .UseInternalServiceProvider(serviceProvider);
+                .UseInternalServiceProvider(serviceProvider);
             onConfiguring?.Invoke(optionsBuilder);
             return optionsBuilder;
         }
@@ -164,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore
                 if (usePooling)
                 {
                     ContextPool ??= (IDbContextPool)ServiceProvider
-                       .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(typeof(TContext)));
+                        .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(typeof(TContext)));
                 }
 
                 TestStore = testStore;

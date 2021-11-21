@@ -475,7 +475,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
                 short? param2 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.ShortAsSmallint == param2));
                 Assert.Same(
-                    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && (long?)(int?)e.ShortAsSmallint == param2));
+                    entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && (long?)e.ShortAsSmallint == param2));
 
                 byte? param3 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.ByteAsTinyint == param3));
@@ -3448,11 +3448,11 @@ WHERE [b].[Id] = 13");
                         TableName = reader.GetString(0),
                         ColumnName = reader.GetString(1),
                         DataType = reader.GetString(2),
-                        IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                        MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                        NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                        NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                        DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
+                        IsNullable = reader.IsDBNull(3) ? null : reader.GetString(3) == "YES",
+                        MaxLength = reader.IsDBNull(4) ? null : reader.GetInt32(4),
+                        NumericPrecision = reader.IsDBNull(5) ? null : reader.GetByte(5),
+                        NumericScale = reader.IsDBNull(6) ? null : reader.GetInt32(6),
+                        DateTimePrecision = reader.IsDBNull(7) ? null : reader.GetInt16(7)
                     };
 
                     if (!tablesToIgnore.Contains(columnInfo.TableName))

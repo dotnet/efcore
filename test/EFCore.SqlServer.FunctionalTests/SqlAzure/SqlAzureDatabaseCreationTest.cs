@@ -41,14 +41,10 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
-            }
+                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.HasPerformanceLevelSql("ELASTIC_POOL ( name = unicornhack )");
-            }
+                => modelBuilder.HasPerformanceLevelSql("ELASTIC_POOL ( name = unicornhack )");
         }
 
         [ConditionalFact]
@@ -75,9 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
-            }
+                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -110,9 +104,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
-            }
+                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -141,7 +133,7 @@ SELECT DATABASEPROPERTYEX('{storeName}', 'EDITION'),
 
             Assert.Equal(serviceTier, await reader.IsDBNullAsync(0) ? null : await reader.GetFieldValueAsync<string>(0));
             Assert.Equal(performanceLevel, await reader.IsDBNullAsync(1) ? null : await reader.GetFieldValueAsync<string>(1));
-            Assert.Equal(maxSize, await reader.IsDBNullAsync(2) ? (long?)null : await reader.GetFieldValueAsync<long>(2));
+            Assert.Equal(maxSize, await reader.IsDBNullAsync(2) ? null : await reader.GetFieldValueAsync<long>(2));
         }
 
         private class BigUn

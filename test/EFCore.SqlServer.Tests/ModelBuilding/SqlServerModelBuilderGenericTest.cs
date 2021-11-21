@@ -80,12 +80,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_store_type_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().HaveColumnType("smallint");
-                    c.Properties<string>().HaveColumnType("nchar(max)");
-                    c.Properties(typeof(Nullable<>)).HavePrecision(2);
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().HaveColumnType("smallint");
+                        c.Properties<string>().HaveColumnType("nchar(max)");
+                        c.Properties(typeof(Nullable<>)).HavePrecision(2);
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -115,11 +116,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_fixed_length_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().AreFixedLength(false);
-                    c.Properties<string>().AreFixedLength();
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().AreFixedLength(false);
+                        c.Properties<string>().AreFixedLength();
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -145,11 +147,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Can_set_collation_for_property_type()
             {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<int>().UseCollation("Latin1_General_CS_AS_KS_WS");
-                    c.Properties<string>().UseCollation("Latin1_General_BIN");
-                });
+                var modelBuilder = CreateModelBuilder(
+                    c =>
+                    {
+                        c.Properties<int>().UseCollation("Latin1_General_CS_AS_KS_WS");
+                        c.Properties<string>().UseCollation("Latin1_General_BIN");
+                    });
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -255,20 +258,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<BigMak>()
                     .Ignore(b => b.Bun)
                     .Ignore(b => b.Pickles);
-                modelBuilder.Entity<Ingredient>(b =>
-                {
-                    b.ToTable("Ingredients");
-                    b.Ignore(i => i.BigMak);
-                });
-                modelBuilder.Entity<Bun>(b =>
-                {
-                    b.ToTable("Buns");
-                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
-                });
-                modelBuilder.Entity<SesameBun>(b =>
-                {
-                    b.ToTable("SesameBuns");
-                });
+                modelBuilder.Entity<Ingredient>(
+                    b =>
+                    {
+                        b.ToTable("Ingredients");
+                        b.Ignore(i => i.BigMak);
+                    });
+                modelBuilder.Entity<Bun>(
+                    b =>
+                    {
+                        b.ToTable("Buns");
+                        b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                    });
+                modelBuilder.Entity<SesameBun>(
+                    b =>
+                    {
+                        b.ToTable("SesameBuns");
+                    });
 
                 var model = modelBuilder.FinalizeModel();
 
@@ -282,16 +288,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(bunType.GetIndexes());
                 var bunFk = bunType.GetDeclaredForeignKeys().Single(fk => !fk.IsBaseLinking());
                 Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
-                Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName(
-                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
-                    StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
+                Assert.Equal(
+                    "FK_Buns_BigMak_Id", bunFk.GetConstraintName(
+                        StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                        StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
                 Assert.Single(bunFk.GetMappedConstraints());
 
                 var bunLinkingFk = bunType.GetDeclaredForeignKeys().Single(fk => fk.IsBaseLinking());
                 Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName());
-                Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName(
-                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
-                    StoreObjectIdentifier.Create(ingredientType, StoreObjectType.Table).Value));
+                Assert.Equal(
+                    "FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName(
+                        StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                        StoreObjectIdentifier.Create(ingredientType, StoreObjectType.Table).Value));
                 Assert.Single(bunLinkingFk.GetMappedConstraints());
 
                 var sesameBunType = model.FindEntityType(typeof(SesameBun));
@@ -299,9 +307,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var sesameBunFk = sesameBunType.GetDeclaredForeignKeys().Single();
                 Assert.True(sesameBunFk.IsBaseLinking());
                 Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName());
-                Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName(
-                    StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
-                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value));
+                Assert.Equal(
+                    "FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName(
+                        StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
+                        StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value));
                 Assert.Single(sesameBunFk.GetMappedConstraints());
             }
 
@@ -312,19 +321,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<BigMak>()
                     .Ignore(b => b.Bun)
                     .Ignore(b => b.Pickles);
-                modelBuilder.Entity<Ingredient>(b =>
-                {
-                    b.ToTable("Ingredients");
-                    b.Property<int?>("NullableProp");
-                    b.Ignore(i => i.BigMak);
-                });
-                modelBuilder.Entity<Bun>(b =>
-                {
-                    b.ToTable("Buns");
-                    b.HasIndex(bun => bun.BurgerId);
-                    b.HasIndex("NullableProp");
-                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
-                });
+                modelBuilder.Entity<Ingredient>(
+                    b =>
+                    {
+                        b.ToTable("Ingredients");
+                        b.Property<int?>("NullableProp");
+                        b.Ignore(i => i.BigMak);
+                    });
+                modelBuilder.Entity<Bun>(
+                    b =>
+                    {
+                        b.ToTable("Buns");
+                        b.HasIndex(bun => bun.BurgerId);
+                        b.HasIndex("NullableProp");
+                        b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                    });
 
                 var model = modelBuilder.FinalizeModel();
 
@@ -511,16 +522,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel,
+                modelBuilder.Entity<Book>().OwnsOne(
+                    b => b.AlternateLabel,
                     b =>
                     {
                         b.Ignore(l => l.Book);
-                        b.OwnsOne(l => l.AnotherBookLabel,
+                        b.OwnsOne(
+                            l => l.AnotherBookLabel,
                             ab =>
                             {
                                 ab.Property(l => l.BookId).HasColumnName("BookId2");
                                 ab.Ignore(l => l.Book);
-                                ab.OwnsOne(s => s.SpecialBookLabel,
+                                ab.OwnsOne(
+                                    s => s.SpecialBookLabel,
                                     s =>
                                     {
                                         s.Property(l => l.BookId).HasColumnName("BookId2");
@@ -544,16 +558,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(l => l.Book)
                     .Ignore(l => l.BookLabel);
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel,
+                modelBuilder.Entity<Book>().OwnsOne(
+                    b => b.AlternateLabel,
                     b =>
                     {
                         b.Ignore(l => l.Book);
-                        b.OwnsOne(l => l.SpecialBookLabel,
+                        b.OwnsOne(
+                            l => l.SpecialBookLabel,
                             ab =>
                             {
                                 ab.Property(l => l.BookId).HasColumnName("BookId2");
                                 ab.Ignore(l => l.Book);
-                                ab.OwnsOne(s => s.AnotherBookLabel,
+                                ab.OwnsOne(
+                                    s => s.AnotherBookLabel,
                                     s =>
                                     {
                                         s.Property(l => l.BookId).HasColumnName("BookId2");
@@ -562,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             });
                     });
 
-                IModel model = (IModel)modelBuilder.Model;
+                var model = (IModel)modelBuilder.Model;
                 var book = model.FindEntityType(typeof(Book));
                 var bookOwnership1 = book.FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = book.FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -595,10 +612,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Null(
                     bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
-                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
+                        .GetColumnName(StoreObjectIdentifier.Table("Label")));
                 Assert.Null(
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
-                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel")));
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
@@ -608,11 +625,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     nameof(BookLabel.Id),
                     bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
-                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
+                        .GetColumnName(StoreObjectIdentifier.Table("Label")));
                 Assert.Equal(
                     nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
-                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel")));
 
                 var alternateTable = model.GetRelationalModel().FindTable("AlternateLabel", null);
                 var bookId = alternateTable.FindColumn("BookId2");
@@ -852,15 +869,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 ownedBuilder.WithOwner(d => (OtherCustomer)d.Customer)
                     .HasPrincipalKey(c => c.AlternateKey);
 
-                modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details, b =>
-                {
-                    b.ToTable("SpecialCustomerDetails");
-                    b.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0", c => c.HasName("CK_Guid"));
-                    b.Property(d => d.CustomerId);
-                    b.HasIndex(d => d.CustomerId);
-                    b.WithOwner(d => (SpecialCustomer)d.Customer)
-                        .HasPrincipalKey(c => c.AlternateKey);
-                });
+                modelBuilder.Entity<SpecialCustomer>().OwnsOne(
+                    c => c.Details, b =>
+                    {
+                        b.ToTable("SpecialCustomerDetails");
+                        b.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0", c => c.HasName("CK_Guid"));
+                        b.Property(d => d.CustomerId);
+                        b.HasIndex(d => d.CustomerId);
+                        b.WithOwner(d => (SpecialCustomer)d.Customer)
+                            .HasPrincipalKey(c => c.AlternateKey);
+                    });
 
                 var model = modelBuilder.FinalizeModel();
 
@@ -918,7 +936,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
             }
 
-
             [ConditionalFact]
             public virtual void Temporal_table_default_settings()
             {
@@ -953,12 +970,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("HistoryTable", "historySchema");
-                    ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
-                    ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
-                }));
+                modelBuilder.Entity<Customer>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
+                            ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
+                            ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
+                        }));
 
                 modelBuilder.FinalizeModel();
 
@@ -991,19 +1010,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("HistoryTable", "historySchema");
-                    ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
-                    ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
-                }));
+                modelBuilder.Entity<Customer>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
+                            ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
+                            ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
+                        }));
 
-                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("ChangedHistoryTable", "changedHistorySchema");
-                    ttb.HasPeriodStart("ChangedMyPeriodStart").HasColumnName("ChangedPeriodStartColumn");
-                    ttb.HasPeriodEnd("ChangedMyPeriodEnd").HasColumnName("ChangedPeriodEndColumn");
-                }));
+                modelBuilder.Entity<Customer>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("ChangedHistoryTable", "changedHistorySchema");
+                            ttb.HasPeriodStart("ChangedMyPeriodStart").HasColumnName("ChangedPeriodStartColumn");
+                            ttb.HasPeriodEnd("ChangedMyPeriodEnd").HasColumnName("ChangedPeriodEndColumn");
+                        }));
 
                 modelBuilder.FinalizeModel();
 
@@ -1036,12 +1059,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("HistoryTable", schema: null);
-                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStartColumn");
-                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEndColumn");
-                }));
+                modelBuilder.Entity<Customer>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", schema: null);
+                            ttb.HasPeriodStart("Start").HasColumnName("PeriodStartColumn");
+                            ttb.HasPeriodEnd("End").HasColumnName("PeriodEndColumn");
+                        }));
 
                 modelBuilder.Entity<Customer>()
                     .Property<DateTime>("MappedStart")
@@ -1084,7 +1109,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Temporal_table_with_explicit_properties_with_same_name_as_default_periods_but_different_periods_defined_explicity_as_well()
+            public virtual void
+                Temporal_table_with_explicit_properties_with_same_name_as_default_periods_but_different_periods_defined_explicity_as_well()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
@@ -1097,12 +1123,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Property<DateTime>("PeriodEnd")
                     .HasColumnName("PeriodEndColumn");
 
-                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.UseHistoryTable("HistoryTable", schema: null);
-                    ttb.HasPeriodStart("Start");
-                    ttb.HasPeriodEnd("End");
-                }));
+                modelBuilder.Entity<Customer>().ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable", schema: null);
+                            ttb.HasPeriodStart("Start");
+                            ttb.HasPeriodEnd("End");
+                        }));
 
                 modelBuilder.FinalizeModel();
 
@@ -1187,7 +1215,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
         }
 
-        public class GenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder<TEntity>>
+        public class GenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>,
+            IInfrastructure<TemporalTableBuilder<TEntity>>
             where TEntity : class
         {
             public GenericTestTemporalTableBuilder(TemporalTableBuilder<TEntity> temporalTableBuilder)
@@ -1197,7 +1226,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected TemporalTableBuilder<TEntity> TemporalTableBuilder { get; }
 
-            public TemporalTableBuilder<TEntity> Instance => TemporalTableBuilder;
+            public TemporalTableBuilder<TEntity> Instance
+                => TemporalTableBuilder;
 
             protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder<TEntity> tableBuilder)
                 => new GenericTestTemporalTableBuilder<TEntity>(tableBuilder);
@@ -1206,10 +1236,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
-                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));
+                => new(TemporalTableBuilder.HasPeriodStart(propertyName));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
-                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodEnd(propertyName));
+                => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
         }
 
         public class NonGenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
@@ -1222,7 +1252,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected TemporalTableBuilder TemporalTableBuilder { get; }
 
-            public TemporalTableBuilder Instance => TemporalTableBuilder;
+            public TemporalTableBuilder Instance
+                => TemporalTableBuilder;
 
             protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder temporalTableBuilder)
                 => new NonGenericTestTemporalTableBuilder<TEntity>(temporalTableBuilder);
@@ -1231,10 +1262,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
-                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));
+                => new(TemporalTableBuilder.HasPeriodStart(propertyName));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
-                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodEnd(propertyName));
+                => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
         }
 
         public class TestTemporalPeriodPropertyBuilder
@@ -1247,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected TemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
 
             public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
-                => new TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder.HasColumnName(name));
+                => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
         }
     }
 }

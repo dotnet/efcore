@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Property(e => e.AccessStateId).ValueGeneratedNever();
-                        b.HasData(new AccessState {AccessStateId = 1});
+                        b.HasData(new AccessState { AccessStateId = 1 });
                     });
 
                 modelBuilder.Entity<Cruiser>(

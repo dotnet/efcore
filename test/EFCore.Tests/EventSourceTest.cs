@@ -267,7 +267,8 @@ namespace Microsoft.EntityFrameworkCore
             = _compiledQueryCacheInfo.FieldType.GetMethod("CalculateAndReset", _bindingFlags);
 
         private static double CompiledQueryCacheInfoCalculateAndReset()
-            => (double)_compiledQueryCacheInfoCalculateAndReset.Invoke(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log), Array.Empty<object>());
+            => (double)_compiledQueryCacheInfoCalculateAndReset.Invoke(
+                _compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log), Array.Empty<object>());
 
         private static void ResetCacheInfo()
             => _resetCacheInfo.Invoke(EntityFrameworkEventSource.Log, null);

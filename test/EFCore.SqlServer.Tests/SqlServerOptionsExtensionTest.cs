@@ -20,13 +20,12 @@ namespace Microsoft.EntityFrameworkCore
             var tasks = new Task[Environment.ProcessorCount];
             for (var i = 0; i < tasks.Length; i++)
             {
-                tasks[i] = Task.Factory.StartNew(() =>
-                {
-                    using (var ctx = new EmptyContext())
+                tasks[i] = Task.Factory.StartNew(
+                    () =>
                     {
+                        using var ctx = new EmptyContext();
                         Assert.NotNull(ctx.Model.GetRelationalDependencies());
-                    }
-                });
+                    });
             }
 
             Task.WaitAll(tasks);
@@ -44,22 +43,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [DbContext(typeof(EmptyContext))]
-        partial class EmptyContextModel : RuntimeModel
+        private class EmptyContextModel : RuntimeModel
         {
             static EmptyContextModel()
             {
                 var model = new EmptyContextModel();
-                model.Initialize();
-                model.Customize();
                 _instance = model;
             }
 
             private static readonly EmptyContextModel _instance;
-            public static IModel Instance => _instance;
 
-            partial void Initialize();
-
-            partial void Customize();
+            public static IModel Instance
+                => _instance;
         }
 
         [ConditionalFact]

@@ -412,9 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         protected virtual ModelBuilder CreateModelBuilder()
-        {
-            return InMemoryTestHelpers.Instance.CreateConventionBuilder();
-        }
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class Gunter
         {

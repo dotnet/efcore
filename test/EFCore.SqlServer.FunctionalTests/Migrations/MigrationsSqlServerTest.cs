@@ -1062,7 +1062,6 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;");
         }
 
-
         public override async Task Drop_column()
         {
             await base.Drop_column();
@@ -1987,11 +1986,13 @@ SELECT @@ROWCOUNT;");
                         e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("SystemTimeStart");
-                            ttb.HasPeriodEnd("SystemTimeEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -2037,11 +2038,13 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("SystemTimeStart").HasColumnName("Start");
-                            ttb.HasPeriodEnd("SystemTimeEnd").HasColumnName("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart").HasColumnName("Start");
+                                    ttb.HasPeriodEnd("SystemTimeEnd").HasColumnName("End");
+                                }));
                     }),
                 model =>
                 {
@@ -2087,12 +2090,14 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("SystemTimeStart");
-                            ttb.HasPeriodEnd("SystemTimeEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -2138,11 +2143,13 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("SystemTimeStart");
-                            ttb.HasPeriodEnd("SystemTimeEnd");
-                        }));
+                        e.ToTable(
+                            "Customers", "mySchema", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -2193,11 +2200,13 @@ EXEC(N'CREATE TABLE [Customer] (
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -2249,11 +2258,13 @@ EXEC(N'CREATE TABLE [Customer] (
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -2289,7 +2300,8 @@ EXEC(N'CREATE TABLE [Customer] (
         }
 
         [ConditionalFact]
-        public virtual async Task Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_not_provided()
+        public virtual async Task
+            Create_temporal_table_with_default_schema_for_model_changed_and_explicit_history_table_schema_not_provided()
         {
             await Test(
                 builder => { },
@@ -2305,12 +2317,14 @@ EXEC(N'CREATE TABLE [Customer] (
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable");
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.UseHistoryTable("HistoryTable");
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -2362,12 +2376,14 @@ EXEC(N'CREATE TABLE [Customer] (
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable", "historySchema");
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -2390,11 +2406,11 @@ EXEC(N'CREATE TABLE [Customer] (
                 });
 
             AssertSql(
-                 @"IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');",
-                 //
-                 @"IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');",
-                 //
-                 @"CREATE TABLE [myDefaultSchema].[Customers] (
+                @"IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');",
+                //
+                @"IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');",
+                //
+                @"CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
@@ -2420,12 +2436,14 @@ EXEC(N'CREATE TABLE [Customer] (
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.UseHistoryTable("HistoryTable", "historySchema");
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -2473,11 +2491,13 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
-                            ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+                                }));
                     }),
                 builder => { },
                 model =>
@@ -2506,12 +2526,14 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
-                            ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+                                }));
                     }),
                 builder => { },
                 model =>
@@ -2540,12 +2562,14 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
-                            ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+                                }));
                     }),
                 builder => { },
                 model =>
@@ -2574,12 +2598,14 @@ EXEC(N'CREATE TABLE [Customer] (
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -2635,14 +2661,15 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
-
                 builder => builder.Entity(
                     "Customer", e =>
                     {
@@ -2699,22 +2726,26 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("RenamedHistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -2754,22 +2785,26 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -2809,29 +2844,31 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
                     }),
-
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("Customers", "schema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable", "historySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
-
+                        e.ToTable(
+                            "Customers", "schema", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable", "historySchema");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
 
                         e.ToTable("Customers");
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable("RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "RenamedCustomers", "newSchema", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -2885,12 +2922,14 @@ ALTER SCHEMA [newHistorySchema] TRANSFER [historySchema].[RenamedHistoryTable];"
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -2969,12 +3008,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => { },
                 builder => builder.Entity(
@@ -3009,7 +3050,8 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
         }
 
         [ConditionalFact]
-        public virtual async Task Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_keep_period_columns()
+        public virtual async Task
+            Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_keep_period_columns()
         {
             await Test(
                 builder => builder.Entity(
@@ -3021,12 +3063,14 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("PeriodStart");
-                            ttb.HasPeriodEnd("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3076,11 +3120,13 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("PeriodStart");
-                            ttb.HasPeriodEnd("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3130,7 +3176,8 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
         }
 
         [ConditionalFact]
-        public virtual async Task Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_remove_period_columns()
+        public virtual async Task
+            Convert_temporal_table_with_default_column_mappings_and_custom_history_table_to_normal_table_remove_period_columns()
         {
             await Test(
                 builder => builder.Entity(
@@ -3142,12 +3189,14 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
                         e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("PeriodStart");
-                            ttb.HasPeriodEnd("PeriodEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("PeriodStart");
+                                    ttb.HasPeriodEnd("PeriodEnd");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3251,7 +3300,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         }
 
         [ConditionalFact]
-        public virtual async Task Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_default_history_table()
+        public virtual async Task
+            Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_default_history_table()
         {
             await Test(
                 builder => builder.Entity(
@@ -3272,11 +3322,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -3306,7 +3358,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         }
 
         [ConditionalFact]
-        public virtual async Task Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
+        public virtual async Task
+            Convert_normal_table_with_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
         {
             await Test(
                 builder => builder.Entity(
@@ -3327,12 +3380,14 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -3383,11 +3438,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -3423,7 +3480,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         }
 
         [ConditionalFact]
-        public virtual async Task Convert_normal_table_without_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
+        public virtual async Task
+            Convert_normal_table_without_period_columns_to_temporal_table_default_column_mappings_and_specified_history_table()
         {
             await Test(
                 builder => builder.Entity(
@@ -3442,12 +3500,14 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -3495,12 +3555,14 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3511,12 +3573,14 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("ModifiedEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("ModifiedStart");
-                            ttb.HasPeriodEnd("ModifiedEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("ModifiedStart");
+                                    ttb.HasPeriodEnd("ModifiedEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -3558,22 +3622,26 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
                     {
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
-                            ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
+                                    ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -3614,11 +3682,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.HasKey("Id");
                         e.HasComment("Table comment");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("SystemTimeStart");
-                            ttb.HasPeriodEnd("SystemTimeEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                }));
                     }),
                 model =>
                 {
@@ -3678,12 +3748,14 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                         e.HasKey("Id");
                         e.HasIndex("Name");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
                 model =>
                 {
@@ -3746,11 +3818,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                         e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("SystemTimeStart");
-                            ttb.HasPeriodEnd("SystemTimeEnd");
-                        }));
+                        e.ToTable(
+                            tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.HasPeriodStart("SystemTimeStart");
+                                    ttb.HasPeriodEnd("SystemTimeEnd");
+                                }));
                     }),
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3812,14 +3886,15 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
-
                 builder => { },
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3861,7 +3936,6 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);");
         }
 
-
         [ConditionalFact]
         public virtual async Task Add_index_on_period_column_to_temporal_table()
         {
@@ -3876,14 +3950,15 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                         e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
 
-                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.UseHistoryTable("HistoryTable");
-                            ttb.HasPeriodStart("Start");
-                            ttb.HasPeriodEnd("End");
-                        }));
+                        e.ToTable(
+                            "Customers", tb => tb.IsTemporal(
+                                ttb =>
+                                {
+                                    ttb.UseHistoryTable("HistoryTable");
+                                    ttb.HasPeriodStart("Start");
+                                    ttb.HasPeriodEnd("End");
+                                }));
                     }),
-
                 builder => { },
                 builder => builder.Entity(
                     "Customer", e =>
@@ -3943,12 +4018,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("MyHistoryTable", "mySchema2");
+                                    }));
                         });
                 },
                 model =>
@@ -3989,11 +4066,13 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
 
                     builder.Entity(
@@ -4005,11 +4084,13 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Orders", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                            }));
+                            e.ToTable(
+                                "Orders", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                    }));
                         });
                 },
                 model =>
@@ -4057,12 +4138,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
+                                    }));
                         });
 
                     builder.Entity(
@@ -4074,12 +4157,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Orders", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("OrdersHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Orders", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("OrdersHistoryTable", "mySchema2");
+                                    }));
                         });
                 },
                 model =>
@@ -4128,12 +4213,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
+                                    }));
                         });
 
                     builder.Entity(
@@ -4145,12 +4232,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Orders", "mySchema2", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("OrdersHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Orders", "mySchema2", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("OrdersHistoryTable", "mySchema2");
+                                    }));
                         });
                 },
                 builder =>
@@ -4164,12 +4253,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Customers", "mySchema", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
-                            }));
+                            e.ToTable(
+                                "Customers", "mySchema", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("CustomersHistoryTable", "mySchema2");
+                                    }));
                         });
 
                     builder.Entity(
@@ -4181,12 +4272,14 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                             e.Property<DateTime>("SystemTimeEnd").ValueGeneratedOnAddOrUpdate();
                             e.HasKey("Id");
 
-                            e.ToTable("Orders", "mySchema2", tb => tb.IsTemporal(ttb =>
-                            {
-                                ttb.HasPeriodStart("SystemTimeStart");
-                                ttb.HasPeriodEnd("SystemTimeEnd");
-                                ttb.UseHistoryTable("OrdersHistoryTable", "mySchema");
-                            }));
+                            e.ToTable(
+                                "Orders", "mySchema2", tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("SystemTimeStart");
+                                        ttb.HasPeriodEnd("SystemTimeEnd");
+                                        ttb.UseHistoryTable("OrdersHistoryTable", "mySchema");
+                                    }));
                         });
                 },
                 model =>

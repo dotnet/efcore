@@ -2683,13 +2683,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 new[]
                 {
-                        "Application",
-                        "Attitude",
-                        "Attitude.FirstTest#FirstTest", // FirstTest is shared
-                        "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // SpecialistStaff is shared
-                        "Rejection",
-                        "Rejection.FirstTest#FirstTest", // FirstTest is shared
-                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff" // SpecialistStaff is shared
+                    "Application",
+                    "Attitude",
+                    "Attitude.FirstTest#FirstTest", // FirstTest is shared
+                    "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // SpecialistStaff is shared
+                    "Rejection",
+                    "Rejection.FirstTest#FirstTest", // FirstTest is shared
+                    "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff" // SpecialistStaff is shared
                 }, GetTypeNames());
 
             modelBuilder.Entity<ApplicationVersion>(
@@ -2698,14 +2698,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Assert.Equal(
                         new[]
                         {
-                                "Application",
-                                "ApplicationVersion",
-                                "Attitude",
-                                "Attitude.FirstTest#FirstTest",
-                                "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
-                                "Rejection",
-                                "Rejection.FirstTest#FirstTest",
-                                "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
+                            "Application",
+                            "ApplicationVersion",
+                            "Attitude",
+                            "Attitude.FirstTest#FirstTest",
+                            "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
+                            "Rejection",
+                            "Rejection.FirstTest#FirstTest",
+                            "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
                         }, GetTypeNames());
 
                     entity.OwnsOne(
@@ -2722,17 +2722,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Assert.Equal(
                                 new[]
                                 {
-                                        "Application",
-                                        "Application.Attitude#Attitude", // Attitude becomes shared
-                                        "Application.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
-                                        "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
-                                        "ApplicationVersion",
-                                        "ApplicationVersion.Attitude#Attitude", // Attitude becomes shared
-                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
-                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
-                                        "Rejection",
-                                        "Rejection.FirstTest#FirstTest",
-                                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
+                                    "Application",
+                                    "Application.Attitude#Attitude", // Attitude becomes shared
+                                    "Application.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
+                                    "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
+                                    "ApplicationVersion",
+                                    "ApplicationVersion.Attitude#Attitude", // Attitude becomes shared
+                                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
+                                    "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
+                                    "Rejection",
+                                    "Rejection.FirstTest#FirstTest",
+                                    "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
                                 }, typeNames);
                         });
                 });

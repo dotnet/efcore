@@ -79,9 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .UseSqlServer("Data Source=Branston");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<WithRowVersion>().Property(e => e.Version).IsRowVersion();
-            }
+                => modelBuilder.Entity<WithRowVersion>().Property(e => e.Version).IsRowVersion();
         }
 
         protected override DbCommand CreateTestCommand()
@@ -94,27 +92,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
         [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
         public override void Create_and_clone_with_converter(Type mappingType, Type type)
-        {
-            base.Create_and_clone_with_converter(mappingType, type);
-        }
+            => base.Create_and_clone_with_converter(mappingType, type);
 
         [ConditionalFact]
         public virtual void Create_and_clone_SQL_Server_sized_mappings_with_converter()
-        {
-            ConversionCloneTest(
+            => ConversionCloneTest(
                 typeof(SqlServerByteArrayTypeMapping),
                 typeof(byte[]),
                 SqlDbType.Image);
-        }
 
         [ConditionalFact]
         public virtual void Create_and_clone_SQL_Server_unicode_sized_mappings_with_converter()
-        {
-            UnicodeConversionCloneTest(
+            => UnicodeConversionCloneTest(
                 typeof(SqlServerStringTypeMapping),
                 typeof(string),
                 SqlDbType.Text);
-        }
 
         [ConditionalFact]
         public virtual void Create_and_clone_UDT_mapping_with_converter()
@@ -181,15 +173,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static RelationalTypeMapping GetMapping(Type type)
-            => (RelationalTypeMapping)new SqlServerTypeMappingSource(
+            => new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
         public override void ByteArray_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
-        }
+            => Test_GenerateSqlLiteral_helper(GetMapping(typeof(byte[])), new byte[] { 0xDA, 0x7A }, "0xDA7A");
 
         public override void Byte_literal_generated_correctly()
         {
@@ -200,12 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public override void DateTimeOffset_literal_generated_correctly()
-        {
-            Test_GenerateSqlLiteral_helper(
+            => Test_GenerateSqlLiteral_helper(
                 GetMapping(typeof(DateTimeOffset)),
                 new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
                 "'2015-03-12T13:36:37.3710000-07:00'");
-        }
 
         public override void DateTime_literal_generated_correctly()
         {

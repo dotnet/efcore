@@ -15,10 +15,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override Task Can_use_generated_values_in_composite_key_end_to_end()
-        {
             // Not supported on Sqlite
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public class CompositeKeyEndToEndSqliteFixture : CompositeKeyEndToEndFixtureBase
         {

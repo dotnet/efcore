@@ -8,11 +8,9 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -31,22 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected class MyNonDbContext
         {
             public int NonStatic()
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
 
             public static int DuplicateNameTest()
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
         }
 
         protected class MyBaseContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseFakeRelational();
-            }
+                => optionsBuilder.UseFakeRelational();
 
             public static readonly string[] FunctionNames =
             {
@@ -122,9 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected class MyDerivedContext : MyBaseContext
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Foo>().HasNoKey();
-            }
+                => modelBuilder.Entity<Foo>().HasNoKey();
 
             public static new readonly string[] FunctionNames =
             {
@@ -153,9 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             public static int DuplicateNameTest()
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
 
             [DbFunction]
             public static int StaticPublicDerived()
@@ -242,49 +230,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 => 1;
 
             public static int MethodA(string a, int b)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             [DbFunction("MethodFoo", "bar")]
             public static int MethodB(string c, int d)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public static void MethodC()
             {
             }
 
             public static TestMethods MethodD()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public static int MethodF(MyBaseContext context)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public static int MethodH<T>(T a, string b)
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
 
             public static int MethodI()
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
 
             public static IQueryable<TestMethods> MethodJ()
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
 
             public static IQueryable<TestMethods> MethodK(int id)
-            {
-                throw new Exception();
-            }
+                => throw new Exception();
         }
 
         private static class OuterA
@@ -292,9 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public static class Inner
             {
                 public static decimal? Min(decimal? a, decimal? b)
-                {
-                    throw new Exception();
-                }
+                    => throw new Exception();
             }
         }
 
@@ -303,9 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public static class Inner
             {
                 public static decimal? Min(decimal? a, decimal? b)
-                {
-                    throw new Exception();
-                }
+                    => throw new Exception();
             }
         }
 
@@ -732,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = GetModelBuilder();
 
             var queryableSingleParam = typeof(MyDerivedContext)
-                    .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), new[] { typeof(int) });
+                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), new[] { typeof(int) });
 
             var function = modelBuilder.HasDbFunction(queryableSingleParam);
             var parameter = function.HasParameter("i");

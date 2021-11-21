@@ -3434,16 +3434,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Add_principal_then_dependent_circular_one_to_many(EntityState entityState)
         {
             using var context = new FixupContext();
-            var principal = new ParentShared
-            {
-                ID = 77,
-                FavoriteChildID = 78
-            };
-            var dependent = new ChildShared
-            {
-                ID = 78,
-                ParentID = 77
-            };
+            var principal = new ParentShared { ID = 77, FavoriteChildID = 78 };
+            var dependent = new ChildShared { ID = 78, ParentID = 77 };
 
             context.Entry(principal).State = entityState;
             context.Entry(dependent).State = entityState;
@@ -3780,21 +3772,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             e => new { e.Id1, e.Id2 });
                     });
 
-                modelBuilder.Entity<ParentShared>(entity =>
-                {
-                    entity.HasOne(d => d.FavoriteChildShared)
-                        .WithOne()
-                        .HasForeignKey<ParentShared>(d => new { d.ID, d.FavoriteChildID });
-                });
+                modelBuilder.Entity<ParentShared>(
+                    entity =>
+                    {
+                        entity.HasOne(d => d.FavoriteChildShared)
+                            .WithOne()
+                            .HasForeignKey<ParentShared>(d => new { d.ID, d.FavoriteChildID });
+                    });
 
-                modelBuilder.Entity<ChildShared>(entity =>
-                {
-                    entity.HasKey(d => new { d.ParentID, d.ID });
+                modelBuilder.Entity<ChildShared>(
+                    entity =>
+                    {
+                        entity.HasKey(d => new { d.ParentID, d.ID });
 
-                    entity.HasOne(d => d.ParentShared)
-                        .WithMany(p => p.Children)
-                        .HasForeignKey(d => d.ParentID);
-                });
+                        entity.HasOne(d => d.ParentShared)
+                            .WithMany(p => p.Children)
+                            .HasForeignKey(d => d.ParentID);
+                    });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

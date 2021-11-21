@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -206,17 +205,20 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Correlated_collection_after_distinct_not_containing_original_identifier(async))).Message);
 
-        public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+        public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(
+            bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async))).Message);
+                    () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
+                .Message);
 
         public override async Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async))).Message);
+                    () => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async)))
+                .Message);
 
         public override async Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
             => Assert.Equal(
@@ -244,20 +246,14 @@ FROM ""Orders"" AS ""o""");
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)
-        {
-            return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async);
-        }
+            => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async);
 
         public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
-        {
-            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
-        }
+            => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
 
         [ConditionalTheory(Skip = "Issue#17230")]
         public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
-        {
-            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
-        }
+            => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
 
         public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
             => Assert.Equal(

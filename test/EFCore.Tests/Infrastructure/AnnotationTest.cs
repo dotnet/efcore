@@ -12,11 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         [ConditionalFact]
         public void Members_check_arguments()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 AbstractionsStrings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
-        }
 
         [ConditionalFact]
         public void Can_create_annotation()

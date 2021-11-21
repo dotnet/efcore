@@ -51,12 +51,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         protected bool Equals(Level3 other)
-        {
-            return Id == other.Id
+            => Id == other.Id
                 && string.Equals(Name, other.Name)
                 && Level2_Required_Id == other.Level2_Required_Id
                 && Level2_Optional_Id == other.Level2_Optional_Id;
-        }
 
         public override int GetHashCode()
             => HashCode.Combine(Id, Name, Level2_Required_Id, Level2_Optional_Id);

@@ -273,12 +273,42 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<CogTag> CreateTags()
             => new List<CogTag>
             {
-                new() { Id = Guid.Parse("DF36F493-463F-4123-83F9-6B135DEEB7BA"), Note = "Dom's Tag", IssueDate = new DateTime(3, 2, 2) },
-                new() { Id = Guid.Parse("A8AD98F9-E023-4E2A-9A70-C2728455BD34"), Note = "Cole's Tag", IssueDate = new DateTime(2, 10, 11) },
-                new() { Id = Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"), Note = "Paduk's Tag", IssueDate = new DateTime(15, 3, 7) },
-                new() { Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"), Note = "Baird's Tag", IssueDate = new DateTime(7, 5, 3) },
-                new() { Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"), Note = "Marcus' Tag", IssueDate = new DateTime(1, 9, 25) },
-                new() { Id = Guid.Parse("B39A6FBA-9026-4D69-828E-FD7068673E57"), Note = "K.I.A.", IssueDate = new DateTime(21, 7, 7) }
+                new()
+                {
+                    Id = Guid.Parse("DF36F493-463F-4123-83F9-6B135DEEB7BA"),
+                    Note = "Dom's Tag",
+                    IssueDate = new DateTime(3, 2, 2)
+                },
+                new()
+                {
+                    Id = Guid.Parse("A8AD98F9-E023-4E2A-9A70-C2728455BD34"),
+                    Note = "Cole's Tag",
+                    IssueDate = new DateTime(2, 10, 11)
+                },
+                new()
+                {
+                    Id = Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"),
+                    Note = "Paduk's Tag",
+                    IssueDate = new DateTime(15, 3, 7)
+                },
+                new()
+                {
+                    Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"),
+                    Note = "Baird's Tag",
+                    IssueDate = new DateTime(7, 5, 3)
+                },
+                new()
+                {
+                    Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"),
+                    Note = "Marcus' Tag",
+                    IssueDate = new DateTime(1, 9, 25)
+                },
+                new()
+                {
+                    Id = Guid.Parse("B39A6FBA-9026-4D69-828E-FD7068673E57"),
+                    Note = "K.I.A.",
+                    IssueDate = new DateTime(21, 7, 7)
+                }
             };
 
         public static IReadOnlyList<Gear> CreateGears()

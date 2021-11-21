@@ -302,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue("type");
             modelBuilder.Entity<Order>().ToContainer("Orders").HasDiscriminator().HasValue("type");
 
-            VerifyError(CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), modelBuilder);
+            VerifyError(
+                CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]

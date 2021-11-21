@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
         public IReadOnlyList<CompositeThree> CompositeThrees { get; }
         public IReadOnlyList<CompositeFour> CompositeFours { get; }
 
-
         public abstract IQueryable<TEntity> Set<TEntity>()
             where TEntity : class;
 
@@ -239,16 +238,66 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
         {
             var result = new List<CompositeThree>
             {
-                new() { Id1 = "L0", Id2 = 1, Name = "L3 01" },
-                new() { Id1 = "L0", Id2 = 2, Name = "L3 02" },
-                new() { Id1 = "L0", Id2 = 3, Name = "L3 03" },
-                new() { Id1 = "L0", Id2 = 4, Name = "L3 04" },
-                new() { Id1 = "L0", Id2 = 5, Name = "L3 05" },
-                new() { Id1 = "L1", Id2 = 1, Name = "L3 06" },
-                new() { Id1 = "L1", Id2 = 2, Name = "L3 07" },
-                new() { Id1 = "L1", Id2 = 3, Name = "L3 08" },
-                new() { Id1 = "L1", Id2 = 4, Name = "L3 09" },
-                new() { Id1 = "L1", Id2 = 5, Name = "L3 10" }
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 1,
+                    Name = "L3 01"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 2,
+                    Name = "L3 02"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 3,
+                    Name = "L3 03"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 4,
+                    Name = "L3 04"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 5,
+                    Name = "L3 05"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 1,
+                    Name = "L3 06"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 2,
+                    Name = "L3 07"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 3,
+                    Name = "L3 08"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 4,
+                    Name = "L3 09"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 5,
+                    Name = "L3 10"
+                }
             };
 
             foreach (var l3 in result)
@@ -266,16 +315,66 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
         {
             var result = new List<CompositeFour>
             {
-                new() { Id1 = "L0", Id2 = 1, Name = "L4 01" },
-                new() { Id1 = "L0", Id2 = 2, Name = "L4 02" },
-                new() { Id1 = "L0", Id2 = 3, Name = "L4 03" },
-                new() { Id1 = "L0", Id2 = 4, Name = "L4 04" },
-                new() { Id1 = "L0", Id2 = 5, Name = "L4 05" },
-                new() { Id1 = "L1", Id2 = 1, Name = "L4 06" },
-                new() { Id1 = "L1", Id2 = 2, Name = "L4 07" },
-                new() { Id1 = "L1", Id2 = 3, Name = "L4 08" },
-                new() { Id1 = "L1", Id2 = 4, Name = "L4 09" },
-                new() { Id1 = "L1", Id2 = 5, Name = "L4 10" }
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 1,
+                    Name = "L4 01"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 2,
+                    Name = "L4 02"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 3,
+                    Name = "L4 03"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 4,
+                    Name = "L4 04"
+                },
+                new()
+                {
+                    Id1 = "L0",
+                    Id2 = 5,
+                    Name = "L4 05"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 1,
+                    Name = "L4 06"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 2,
+                    Name = "L4 07"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 3,
+                    Name = "L4 08"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 4,
+                    Name = "L4 09"
+                },
+                new()
+                {
+                    Id1 = "L1",
+                    Id2 = 5,
+                    Name = "L4 10"
+                }
             };
 
             foreach (var l4 in result)
@@ -332,7 +431,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
             };
 
             l1s[0].OneToMany_Required1.Add(l2s[10]);
-            l1s[0].OneToMany_Required_Self1 = new List<CompositeOne> { l1s[0], l1s[1], l1s[11] };
+            l1s[0].OneToMany_Required_Self1 = new List<CompositeOne>
+            {
+                l1s[0],
+                l1s[1],
+                l1s[11]
+            };
             l1s[1].OneToMany_Required_Self1 = new List<CompositeOne> { l1s[2], l1s[12] };
             l1s[2].OneToMany_Required_Self1 = new List<CompositeOne> { l1s[3] };
             l1s[3].OneToMany_Required_Self1 = new List<CompositeOne> { l1s[4] };
@@ -382,7 +486,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
                 l3s[9]
             };
 
-            l2s[0].OneToMany_Required_Self2 = new List<CompositeTwo> { l2s[0], l2s[1], l2s[10] };
+            l2s[0].OneToMany_Required_Self2 = new List<CompositeTwo>
+            {
+                l2s[0],
+                l2s[1],
+                l2s[10]
+            };
             l2s[1].OneToMany_Required_Self2 = new List<CompositeTwo> { l2s[2] };
             l2s[2].OneToMany_Required_Self2 = new List<CompositeTwo> { l2s[3] };
             l2s[3].OneToMany_Required_Self2 = new List<CompositeTwo> { l2s[4] };
@@ -470,7 +579,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.CompositeKeysModel
             l2s[8].OneToOne_Required_PK_Inverse2 = l1s[8];
             l2s[9].OneToOne_Required_PK_Inverse2 = l1s[9];
             l2s[10].OneToOne_Required_PK_Inverse2 = l1s[10];
-
 
             l2s[9].OneToOne_Required_FK_Inverse2 = l1s[0];
             l2s[8].OneToOne_Required_FK_Inverse2 = l1s[1];

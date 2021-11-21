@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
     {
         protected ProxyGraphUpdatesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -375,19 +377,21 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<SharedFkDependant>();
 
-                modelBuilder.Entity<Person>(p =>
-                {
-                    p.HasKey(tp => tp.Id);
-                });
+                modelBuilder.Entity<Person>(
+                    p =>
+                    {
+                        p.HasKey(tp => tp.Id);
+                    });
 
-                modelBuilder.Entity<Car>(c =>
-                {
-                    c.HasKey(tc => tc.Id);
-                    c.HasOne(tc => tc.Owner)
-                        .WithOne(tp => tp.Vehicle)
-                        .HasForeignKey<Car>("fk_PersonId")
-                        .IsRequired();
-                });
+                modelBuilder.Entity<Car>(
+                    c =>
+                    {
+                        c.HasKey(tc => tc.Id);
+                        c.HasOne(tc => tc.Owner)
+                            .WithOne(tp => tp.Vehicle)
+                            .HasForeignKey<Car>("fk_PersonId")
+                            .IsRequired();
+                    });
             }
 
             protected virtual object CreateFullGraph(DbContext context)

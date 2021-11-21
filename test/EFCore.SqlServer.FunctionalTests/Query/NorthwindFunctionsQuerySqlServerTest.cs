@@ -723,7 +723,6 @@ FROM [Order Details] AS [o]
 WHERE POWER(CAST([o].[Discount] AS float), 2.0E0) > 0.05000000074505806E0");
         }
 
-
         public override async Task Where_math_round(bool async)
         {
             await base.Where_math_round(async);
@@ -921,7 +920,7 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0");
 FROM [Products] AS [p]
 WHERE ABS(CAST([p].[ProductID] AS real)) > CAST(10 AS real)");
         }
-        
+
         public override async Task Where_mathf_ceiling1(bool async)
         {
             await base.Where_mathf_ceiling1(async);
@@ -931,7 +930,7 @@ WHERE ABS(CAST([p].[ProductID] AS real)) > CAST(10 AS real)");
 FROM [Order Details] AS [o]
 WHERE [o].[UnitPrice] < 7.0 AND CEILING([o].[Discount]) > CAST(0 AS real)");
         }
-        
+
         public override async Task Where_mathf_floor(bool async)
         {
             await base.Where_mathf_floor(async);
@@ -1833,55 +1832,40 @@ WHERE 0 = 1");
         }
 
         public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
-        {
-            await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
+            => await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
 
-            // issue #16038
-            //            AssertSql(
-            //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
-            //FROM [Orders] AS [o]
-            //WHERE [o].[OrderID] < 10250
-            //ORDER BY [A]");
-        }
-
+        // issue #16038
+        //            AssertSql(
+        //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+        //FROM [Orders] AS [o]
+        //WHERE [o].[OrderID] < 10250
+        //ORDER BY [A]");
         public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
-        {
-            await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async);
+            => await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async);
 
-            // issue #16038
-            //            AssertSql(
-            //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
-            //FROM [Orders] AS [o]
-            //WHERE [o].[OrderID] < 10250
-            //ORDER BY [A] DESC");
-        }
-
+        // issue #16038
+        //            AssertSql(
+        //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+        //FROM [Orders] AS [o]
+        //WHERE [o].[OrderID] < 10250
+        //ORDER BY [A] DESC");
         public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
-        {
-            await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async);
+            => await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async);
 
-            // issue #16038
-            //            AssertSql(
-            //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
-            //FROM [Orders] AS [o]
-            //WHERE [o].[OrderID] < 10250
-            //ORDER BY [A] DESC");
-        }
-
+        // issue #16038
+        //            AssertSql(
+        //                @"SELECT ROUND(CAST([o].[OrderID] AS float), 0, 1) AS [A]
+        //FROM [Orders] AS [o]
+        //WHERE [o].[OrderID] < 10250
+        //ORDER BY [A] DESC");
         public override Task Regex_IsMatch_MethodCall(bool async)
-        {
-            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
-        }
+            => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
 
         public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
-        {
-            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
-        }
+            => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
 
         public override Task Datetime_subtraction_TotalDays(bool async)
-        {
-            return AssertTranslationFailed(() =>  base.Datetime_subtraction_TotalDays(async));
-        }
+            => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

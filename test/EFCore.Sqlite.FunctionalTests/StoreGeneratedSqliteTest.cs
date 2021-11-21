@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Identity_key_works_when_not_aliasing_rowid()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entry = context.Add(new Zach());
@@ -34,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(16, id?.Length ?? 0);
                 });
-        }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

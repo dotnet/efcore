@@ -22,7 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ValueConvertersEndToEndTestBase<TFixture>.ValueConvertersEndToEndFixtureBase, new()
     {
         protected ValueConvertersEndToEndTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -57,20 +59,72 @@ namespace Microsoft.EntityFrameworkCore
             { typeof(PhysicalAddress), new object?[] { _physicalAddress1, _physicalAddress2, _physicalAddress1, _physicalAddress2 } },
             { typeof(TimeSpan), new object?[] { _timeSpan1, _timeSpan2, _timeSpan1, _timeSpan2 } },
             { typeof(Uri), new object?[] { _uri1, _uri2, _uri1, _uri2 } },
-            { typeof(List<int>), new object?[]
             {
-                new List<int> { 47, 48, 47, 46 },
-                new List<int> { 57, 58, 57, 56 },
-                new List<int> { 67, 68, 67, 66 },
-                new List<int> { 77, 78, 77, 76 },
-            } },
-            { typeof(IEnumerable<int>), new object?[]
+                typeof(List<int>), new object?[]
+                {
+                    new List<int>
+                    {
+                        47,
+                        48,
+                        47,
+                        46
+                    },
+                    new List<int>
+                    {
+                        57,
+                        58,
+                        57,
+                        56
+                    },
+                    new List<int>
+                    {
+                        67,
+                        68,
+                        67,
+                        66
+                    },
+                    new List<int>
+                    {
+                        77,
+                        78,
+                        77,
+                        76
+                    },
+                }
+            },
             {
-                new List<int> { 47, 48, 47, 46 },
-                new List<int> { 57, 58, 57, 56 },
-                new List<int> { 67, 68, 67, 66 },
-                new List<int> { 77, 78, 77, 76 },
-            } },
+                typeof(IEnumerable<int>), new object?[]
+                {
+                    new List<int>
+                    {
+                        47,
+                        48,
+                        47,
+                        46
+                    },
+                    new List<int>
+                    {
+                        57,
+                        58,
+                        57,
+                        56
+                    },
+                    new List<int>
+                    {
+                        67,
+                        68,
+                        67,
+                        66
+                    },
+                    new List<int>
+                    {
+                        77,
+                        78,
+                        77,
+                        76
+                    },
+                }
+            },
         };
 
         protected static Dictionary<Type, object?[]> StringTestValues = new()
@@ -162,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var entry = context.Entry(entity);
             foreach (var property in context.Model.FindEntityType(
-                entity.GetType())!.GetProperties().Where(p => !p.IsPrimaryKey() && !p.IsShadowProperty()))
+                         entity.GetType())!.GetProperties().Where(p => !p.IsPrimaryKey() && !p.IsShadowProperty()))
             {
                 var testValues = (property.ClrType == typeof(string)
                     ? StringTestValues[property.GetValueConverter()!.ProviderClrType.UnwrapNullableType()]
@@ -626,8 +680,7 @@ namespace Microsoft.EntityFrameworkCore
                 => "ValueConvertersEndToEnd";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                modelBuilder.Entity<ConvertingEntity>(
+                => modelBuilder.Entity<ConvertingEntity>(
                     b =>
                     {
                         b.Property(e => e.BoolAsChar).HasConversion(new BoolToTwoValuesConverter<char>('O', 'N'));
@@ -823,7 +876,6 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.EnumerableOfInt).HasConversion(
                             new EnumerableOfIntToJsonConverter(), new EnumerableOfIntComparer());
                     });
-            }
         }
 
         protected class NullStringToNonNullStringConverter : ValueConverter<string?, string>

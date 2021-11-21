@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+
 // ReSharper disable MethodHasAsyncOverload
 
 // ReSharper disable InconsistentNaming
@@ -405,7 +406,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
         {
             var serviceProvider
-                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { }).BuildServiceProvider(validateScopes: true);
+                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { })
+                    .BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
 
@@ -426,13 +428,15 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_pooled_context_constructor_wrong_parameter()
         {
             var serviceProvider
-                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { }).BuildServiceProvider(validateScopes: true);
+                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { })
+                    .BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
 
             Assert.Equal(
                 CoreStrings.PoolingContextCtorError(nameof(WrongParameterConstructorContext)),
-                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>()).Message);
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>())
+                    .Message);
         }
 
         private class WrongParameterConstructorContext : DbContext
@@ -1409,22 +1413,24 @@ namespace Microsoft.EntityFrameworkCore
             var factory = BuildFactory<PooledContext>(withDependencyInjection: false);
 
             await Task.WhenAll(
-                Enumerable.Range(0, 10).Select(_ => Task.Run(async () =>
-                {
-                    for (var j = 0; j < 1_000_000; j++)
-                    {
-                        var ctx = factory.CreateDbContext();
+                Enumerable.Range(0, 10).Select(
+                    _ => Task.Run(
+                        async () =>
+                        {
+                            for (var j = 0; j < 1_000_000; j++)
+                            {
+                                var ctx = factory.CreateDbContext();
 
-                        if (async)
-                        {
-                            await ctx.DisposeAsync();
-                        }
-                        else
-                        {
-                            ctx.Dispose();
-                        }
-                    }
-                })));
+                                if (async)
+                                {
+                                    await ctx.DisposeAsync();
+                                }
+                                else
+                                {
+                                    ctx.Dispose();
+                                }
+                            }
+                        })));
         }
 
         private async Task Dispose(IDisposable disposable, bool async)

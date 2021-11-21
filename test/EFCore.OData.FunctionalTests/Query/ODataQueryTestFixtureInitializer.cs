@@ -11,13 +11,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Routing.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OData.Edm;
-using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.Routing.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,48 +31,55 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var selfHostServer = Host.CreateDefaultBuilder()
                 .ConfigureServices(services => services.AddSingleton<IHostLifetime, NoopHostLifetime>())
-                .ConfigureWebHostDefaults(webBuilder => webBuilder
-                    .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
-                    .ConfigureServices(services =>
-                    {
-                        services.AddDbContext<TContext>(o => o.UseSqlServer(
-                            SqlServerTestStore.CreateConnectionString(storeName)));
-
-                        services.AddControllers().AddOData(o =>
-                        {
-                            o.AddRouteComponents("odata", edmModel)
-                                .SetMaxTop(null)
-                                .Expand()
-                                .Select()
-                                .OrderBy()
-                                .Filter()
-                                .Count();
-
-                            if (customRoutingConventions != null)
+                .ConfigureWebHostDefaults(
+                    webBuilder => webBuilder
+                        .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
+                        .ConfigureServices(
+                            services =>
                             {
-                                foreach (var customRoutingConvention in customRoutingConventions)
-                                {
-                                    o.Conventions.Add(customRoutingConvention);
-                                }
-                            }
-                        });
+                                services.AddDbContext<TContext>(
+                                    o => o.UseSqlServer(
+                                        SqlServerTestStore.CreateConnectionString(storeName)));
 
-                        services.AddHttpClient();
-                    })
-                    .Configure(app =>
-                    {
-                        app.UseRouting();
-                        app.UseEndpoints(endpoints =>
-                        {
-                            endpoints.MapControllers();
-                        });
-                    })
-                    .ConfigureLogging((hostingContext, logging) =>
-                    {
-                        logging.AddDebug();
-                        logging.SetMinimumLevel(LogLevel.Warning);
-                    }
-                )).Build();
+                                services.AddControllers().AddOData(
+                                    o =>
+                                    {
+                                        o.AddRouteComponents("odata", edmModel)
+                                            .SetMaxTop(null)
+                                            .Expand()
+                                            .Select()
+                                            .OrderBy()
+                                            .Filter()
+                                            .Count();
+
+                                        if (customRoutingConventions != null)
+                                        {
+                                            foreach (var customRoutingConvention in customRoutingConventions)
+                                            {
+                                                o.Conventions.Add(customRoutingConvention);
+                                            }
+                                        }
+                                    });
+
+                                services.AddHttpClient();
+                            })
+                        .Configure(
+                            app =>
+                            {
+                                app.UseRouting();
+                                app.UseEndpoints(
+                                    endpoints =>
+                                    {
+                                        endpoints.MapControllers();
+                                    });
+                            })
+                        .ConfigureLogging(
+                            (hostingContext, logging) =>
+                            {
+                                logging.AddDebug();
+                                logging.SetMinimumLevel(LogLevel.Warning);
+                            }
+                        )).Build();
 
             selfHostServer.Start();
 
@@ -85,15 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class NoopHostLifetime : IHostLifetime
         {
             public Task StopAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
+                => Task.CompletedTask;
 
             public Task WaitForStartAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
+                => Task.CompletedTask;
         }
     }
 }
-

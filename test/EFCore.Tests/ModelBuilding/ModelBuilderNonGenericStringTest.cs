@@ -24,45 +24,49 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericStringOwnedTypes : OwnedTypesTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
 
             public override void OwnedType_can_derive_from_Collection()
-            {
                 // Shadow navigations. Issue #3864.
-                Assert.Equal(
+                => Assert.Equal(
                     CoreStrings.AmbiguousSharedTypeEntityTypeName(
                         "Microsoft.EntityFrameworkCore.ModelBuilding.ModelBuilderTest+DependentEntity"),
                     Assert.Throws<InvalidOperationException>(
                         () => base.OwnedType_can_derive_from_Collection()).Message);
-            }
         }
 
         public class NonGenericStringOneToManyType : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
 
             public override void WithMany_pointing_to_keyless_entity_throws()
-            {
                 // Test throws exception before reaching the first exception due to entity type being property bag entity
-                Assert.Equal(
+                => Assert.Equal(
                     CoreStrings.NavigationSingleWrongClrType(
                         "Reference", "KeylessCollectionNavigation", "KeylessReferenceNavigation", "Dictionary<string, object>"),
                     Assert.Throws<EqualException>(
                         () => base.WithMany_pointing_to_keyless_entity_throws()).Actual);
-            }
         }
 
         public class NonGenericStringManyToOneType : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericStringOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 

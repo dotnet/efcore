@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => Initialize(
                 serviceProvider,
                 createContext,
+                // ReSharper disable twice RedundantCast
                 seed == null ? (Action<DbContext>)null : c => seed((TContext)c),
                 clean == null ? (Action<DbContext>)null : c => clean((TContext)c));
 
@@ -130,14 +131,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             private void DistributedTransactionStarted(object sender, TransactionEventArgs e)
-            {
-                Assert.False(true, "Distributed transaction started");
-            }
+                => Assert.False(true, "Distributed transaction started");
 
             public void Dispose()
-            {
-                TransactionManager.DistributedTransactionStarted -= DistributedTransactionStarted;
-            }
+                => TransactionManager.DistributedTransactionStarted -= DistributedTransactionStarted;
         }
 
         private class CompositeDisposable : IDisposable

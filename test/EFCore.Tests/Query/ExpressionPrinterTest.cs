@@ -92,54 +92,45 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalFact]
         public void ConditionalExpression_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "True ? \"Foo\" : \"Bar\"",
                 _expressionPrinter.Print(
                     Expression.Condition(
                         Expression.Constant(true),
                         Expression.Constant("Foo"),
                         Expression.Constant("Bar"))));
-        }
 
         [ConditionalFact]
         public void Simple_lambda_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "prm => 42",
                 _expressionPrinter.Print(
                     Expression.Lambda(
                         Expression.Constant(42),
                         Expression.Parameter(typeof(int), "prm"))));
-        }
 
         [ConditionalFact]
         public void Multi_parameter_lambda_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "(prm1, prm2) => 42",
                 _expressionPrinter.Print(
                     Expression.Lambda(
                         Expression.Constant(42),
                         Expression.Parameter(typeof(int), "prm1"),
                         Expression.Parameter(typeof(int), "prm2"))));
-        }
 
         [ConditionalFact]
         public void Unhandled_parameter_in_lambda_detected()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "prm1{0} => (Unhandled parameter: prm2){1}",
                 _expressionPrinter.PrintDebug(
                     Expression.Lambda(
                         Expression.Parameter(typeof(int), "prm2"),
                         Expression.Parameter(typeof(int), "prm1"))));
-        }
 
         [ConditionalFact]
         public void MemberAccess_after_BinaryExpression_adds_parentheses()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 @"(7 + 42).Value",
                 _expressionPrinter.Print(
                     Expression.Property(
@@ -147,23 +138,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Constant(7, typeof(int?)),
                             Expression.Constant(42, typeof(int?))),
                         "Value")));
-        }
 
         [ConditionalFact]
         public void Simple_MethodCall_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 @"""Foo"".ToUpper()",
                 _expressionPrinter.Print(
                     Expression.Call(
                         Expression.Constant("Foo"),
                         typeof(string).GetMethods().Single(m => m.Name == nameof(string.ToUpper) && m.GetParameters().Count() == 0))));
-        }
 
         [ConditionalFact]
         public void Complex_MethodCall_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "\"Foobar\""
                 + @".Substring(
     startIndex: 0, 
@@ -175,7 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant(0),
                         Expression.Constant(4))),
                 ignoreLineEndingDifferences: true);
-        }
 
         [ConditionalFact]
         public void Linq_methods_printed_as_extensions()
@@ -200,12 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalFact]
         public void Enumerable_Constant_printed_correctly()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 @"int[] { 1, 2, 3 }",
                 _expressionPrinter.Print(
                     Expression.Constant(
                         new[] { 1, 2, 3 })));
-        }
     }
 }

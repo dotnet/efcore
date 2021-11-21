@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_count_expand_with_filter_contains()
         {
-            var requestUri = $"{BaseAddress}/odata/LevelOne?$count=true&$expand=OneToOne_Required_FK1&$filter=OneToOne_Required_FK1/Id in (1)";
+            var requestUri =
+                $"{BaseAddress}/odata/LevelOne?$count=true&$expand=OneToOne_Required_FK1&$filter=OneToOne_Required_FK1/Id in (1)";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 

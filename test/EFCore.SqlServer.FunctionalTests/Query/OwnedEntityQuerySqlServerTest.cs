@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
         {

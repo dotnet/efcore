@@ -1881,7 +1881,8 @@ FROM [Entities1] AS [e]
 WHERE [e].[NullableIntA] NOT IN (1, 2) AND [e].[NullableIntA] IS NOT NULL");
         }
 
-        public override async Task Multiple_non_equality_comparisons_including_null_comparison_work_for_relational_null_semantics(bool async)
+        public override async Task Multiple_non_equality_comparisons_including_null_comparison_work_for_relational_null_semantics(
+            bool async)
         {
             await base.Multiple_non_equality_comparisons_including_null_comparison_work_for_relational_null_semantics(async);
 

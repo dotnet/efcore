@@ -67,7 +67,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Identity_conflict_throws_for_owned_primary_key()
         {
             using var context = new IdentityConflictContext();
-            context.Attach(new SingleKey { Id = 77, AlternateId = 66, Owned = new SingleKeyOwned()});
+            context.Attach(
+                new SingleKey
+                {
+                    Id = 77,
+                    AlternateId = 66,
+                    Owned = new SingleKeyOwned()
+                });
 
             var duplicateOwned = new SingleKeyOwned();
             context.Entry(duplicateOwned).Property("SingleKeyId").CurrentValue = 77;
@@ -76,7 +82,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CoreStrings.IdentityConflictOwned("SingleKeyOwned", "{'SingleKeyId'}"),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Attach(
-                        new SingleKey { Id = 78, AlternateId = 67, Owned = duplicateOwned })).Message);
+                        new SingleKey
+                        {
+                            Id = 78,
+                            AlternateId = 67,
+                            Owned = duplicateOwned
+                        })).Message);
         }
 
         [ConditionalFact]
@@ -195,7 +206,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Identity_conflict_throws_for_owned_primary_keylogged()
         {
             using var context = new SensitiveIdentityConflictContext();
-            context.Attach(new SingleKey { Id = 77, AlternateId = 66, Owned = new SingleKeyOwned()});
+            context.Attach(
+                new SingleKey
+                {
+                    Id = 77,
+                    AlternateId = 66,
+                    Owned = new SingleKeyOwned()
+                });
 
             var duplicateOwned = new SingleKeyOwned();
             context.Entry(duplicateOwned).Property("SingleKeyId").CurrentValue = 77;
@@ -204,7 +221,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CoreStrings.IdentityConflictOwnedSensitive("SingleKeyOwned", "{SingleKeyId: 77}"),
                 Assert.Throws<InvalidOperationException>(
                     () => context.Attach(
-                        new SingleKey { Id = 78, AlternateId = 67, Owned = duplicateOwned })).Message);
+                        new SingleKey
+                        {
+                            Id = 78,
+                            AlternateId = 67,
+                            Owned = duplicateOwned
+                        })).Message);
         }
 
         [ConditionalFact]

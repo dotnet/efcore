@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             modelBuilder.Model.FinalizeModel();
 
-            var index0 = (Internal.Index)entityBuilder.Metadata.GetIndexes().First();
+            var index0 = (Index)entityBuilder.Metadata.GetIndexes().First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index0.GetConfigurationSource());
             Assert.Equal("IndexOnAAndB", index0.Name);
             Assert.Equal("MyIndexOnAAndB", index0.GetDatabaseName());
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 prop0 => Assert.Equal("A", prop0.Name),
                 prop1 => Assert.Equal("B", prop1.Name));
 
-            var index1 = (Internal.Index)entityBuilder.Metadata.GetIndexes().Skip(1).First();
+            var index1 = (Index)entityBuilder.Metadata.GetIndexes().Skip(1).First();
             Assert.Equal(ConfigurationSource.DataAnnotation, index1.GetConfigurationSource());
             Assert.Equal("IndexOnBAndC", index1.Name);
             Assert.Equal("MyIndexOnBAndC", index1.GetDatabaseName());

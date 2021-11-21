@@ -273,9 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData("name.space", "@namespace")]
         [InlineData("$", "_")]
         public void Identifier_works(string input, string expected)
-        {
-            Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Identifier(input));
-        }
+            => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Identifier(input));
 
         [ConditionalTheory]
         [InlineData(new[] { "WebApplication1", "Migration" }, "WebApplication1.Migration")]
@@ -286,9 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData(new string[] { }, "_")]
         [InlineData(new string[] { null }, "_")]
         public void Namespace_works(string[] input, string excepted)
-        {
-            Assert.Equal(excepted, new CSharpHelper(TypeMappingSource).Namespace(input));
-        }
+            => Assert.Equal(excepted, new CSharpHelper(TypeMappingSource).Namespace(input));
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works()
@@ -346,8 +342,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain_with_call()
         {
-            var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One").Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
-                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three").Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Four")));
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
+                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
+                .Chain(
+                    new MethodCallCodeFragment(_testFuncMethodInfo, "Three").Chain(
+                        new MethodCallCodeFragment(_testFuncMethodInfo, "Four")));
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
@@ -655,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
                 => _literalExpressionFunc == null
-                    ? (RelationalTypeMapping)new SimpleTestNonImplementedTypeMapping()
+                    ? new SimpleTestNonImplementedTypeMapping()
                     : new SimpleTestTypeMapping<T>(_literalExpressionFunc);
         }
 

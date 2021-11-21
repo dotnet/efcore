@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : MappingQueryTestBase<TFixture>.MappingQueryFixtureBase, new()
     {
         protected MappingQueryTestBase(MappingQueryFixtureBase fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected MappingQueryFixtureBase Fixture { get; }
 

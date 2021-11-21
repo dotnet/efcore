@@ -52,32 +52,28 @@ namespace Microsoft.EntityFrameworkCore
                 => new()
                 {
                     {
-                        typeof(IReadOnlyDbFunction),
-                        (typeof(IMutableDbFunction),
-                        typeof(IConventionDbFunction),
-                        typeof(IConventionDbFunctionBuilder),
-                        typeof(IDbFunction))
+                        typeof(IReadOnlyDbFunction), (typeof(IMutableDbFunction),
+                            typeof(IConventionDbFunction),
+                            typeof(IConventionDbFunctionBuilder),
+                            typeof(IDbFunction))
                     },
                     {
-                        typeof(IReadOnlyDbFunctionParameter),
-                        (typeof(IMutableDbFunctionParameter),
-                        typeof(IConventionDbFunctionParameter),
-                        typeof(IConventionDbFunctionParameterBuilder),
-                        typeof(IDbFunctionParameter))
+                        typeof(IReadOnlyDbFunctionParameter), (typeof(IMutableDbFunctionParameter),
+                            typeof(IConventionDbFunctionParameter),
+                            typeof(IConventionDbFunctionParameterBuilder),
+                            typeof(IDbFunctionParameter))
                     },
                     {
-                        typeof(IReadOnlySequence),
-                        (typeof(IMutableSequence),
-                        typeof(IConventionSequence),
-                        typeof(IConventionSequenceBuilder),
-                        typeof(ISequence))
+                        typeof(IReadOnlySequence), (typeof(IMutableSequence),
+                            typeof(IConventionSequence),
+                            typeof(IConventionSequenceBuilder),
+                            typeof(ISequence))
                     },
                     {
-                        typeof(IReadOnlyCheckConstraint),
-                        (typeof(IMutableCheckConstraint),
-                        typeof(IConventionCheckConstraint),
-                        null,
-                        typeof(ICheckConstraint))
+                        typeof(IReadOnlyCheckConstraint), (typeof(IMutableCheckConstraint),
+                            typeof(IConventionCheckConstraint),
+                            null,
+                            typeof(ICheckConstraint))
                     }
                 };
 
@@ -196,31 +192,31 @@ namespace Microsoft.EntityFrameworkCore
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.CanSetFunction),
-                    new Type[] { typeof(IConventionEntityTypeBuilder), typeof(MethodInfo), typeof(bool) }),
+                    new[] { typeof(IConventionEntityTypeBuilder), typeof(MethodInfo), typeof(bool) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToFunction),
-                    new Type[] { typeof(IConventionEntityTypeBuilder), typeof(string), typeof(bool) }),
+                    new[] { typeof(IConventionEntityTypeBuilder), typeof(string), typeof(bool) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(EntityTypeBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(EntityTypeBuilder), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(EntityTypeBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(EntityTypeBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(OwnedNavigationBuilder), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
+                    new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalIndexBuilderExtensions).GetMethod(
                     nameof(RelationalIndexBuilderExtensions.HasName),
-                    new Type[] { typeof(IndexBuilder), typeof(string) })
+                    new[] { typeof(IndexBuilder), typeof(string) })
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
@@ -233,10 +229,14 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosedAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosingAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosedAsync)),
-                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
-                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
-                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
-                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync))
+                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
+                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
+                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(
+                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
+                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
+                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
+                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
+                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync))
             };
 
             public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();

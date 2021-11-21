@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         [ConditionalFact]
         public void AddColumnOperation_required_args()
-        {
-            Test(
+            => Test(
                 new AddColumnOperation
                 {
                     Name = "Id",
@@ -60,12 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(typeof(int), o.ClrType);
                 });
-        }
 
         [ConditionalFact]
         public void AddColumnOperation_all_args()
-        {
-            Test(
+            => Test(
                 new AddColumnOperation
                 {
                     Name = "Id",
@@ -127,12 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("My Comment", o.Comment);
                     Assert.Equal("Some Collation", o.Collation);
                 });
-        }
 
         [ConditionalFact]
         public void AddColumnOperation_DefaultValueSql()
-        {
-            Test(
+            => Test(
                 new AddColumnOperation
                 {
                     Name = "Id",
@@ -156,12 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Equal("1", o.DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void AddColumnOperation_ComputedExpression()
-        {
-            Test(
+            => Test(
                 new AddColumnOperation
                 {
                     Name = "Id",
@@ -189,12 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("1", o.ComputedColumnSql);
                     Assert.True(o.IsStored);
                 });
-        }
 
         [ConditionalFact]
         public void AddForeignKeyOperation_required_args()
-        {
-            Test(
+            => Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId",
@@ -219,12 +210,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Null(o.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void AddForeignKeyOperation_required_args_composite()
-        {
-            Test(
+            => Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId1_BlogId2",
@@ -249,12 +238,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Null(o.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void AddForeignKeyOperation_all_args()
-        {
-            Test(
+            => Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId",
@@ -298,12 +285,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                     Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
-        }
 
         [ConditionalFact]
         public void AddForeignKeyOperation_all_args_composite()
-        {
-            Test(
+            => Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId1_BlogId2",
@@ -347,12 +332,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                     Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
-        }
 
         [ConditionalFact]
         public void AddPrimaryKey_required_args()
-        {
-            Test(
+            => Test(
                 new AddPrimaryKeyOperation
                 {
                     Name = "PK_Post",
@@ -366,12 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "Id" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddPrimaryKey_all_args()
-        {
-            Test(
+            => Test(
                 new AddPrimaryKeyOperation
                 {
                     Name = "PK_Post",
@@ -395,12 +376,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "Id" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddPrimaryKey_composite()
-        {
-            Test(
+            => Test(
                 new AddPrimaryKeyOperation
                 {
                     Name = "PK_Post",
@@ -420,12 +399,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "Id1", "Id2" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddUniqueConstraint_required_args()
-        {
-            Test(
+            => Test(
                 new AddUniqueConstraintOperation
                 {
                     Name = "AK_Post_AltId",
@@ -445,12 +422,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "AltId" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddUniqueConstraint_all_args()
-        {
-            Test(
+            => Test(
                 new AddUniqueConstraintOperation
                 {
                     Name = "AK_Post_AltId",
@@ -474,12 +449,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "AltId" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddUniqueConstraint_composite()
-        {
-            Test(
+            => Test(
                 new AddUniqueConstraintOperation
                 {
                     Name = "AK_Post_AltId1_AltId2",
@@ -499,12 +472,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "AltId1", "AltId2" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void AddCheckConstraint_required_args()
-        {
-            Test(
+            => Test(
                 new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
@@ -524,12 +495,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("AltId1 > AltId2", o.Sql);
                 });
-        }
 
         [ConditionalFact]
         public void AddCheckConstraint_all_args()
-        {
-            Test(
+            => Test(
                 new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
@@ -553,12 +522,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("AltId1 > AltId2", o.Sql);
                 });
-        }
 
         [ConditionalFact]
         public void AlterColumnOperation_required_args()
-        {
-            Test(
+            => Test(
                 new AlterColumnOperation
                 {
                     Name = "Id",
@@ -599,12 +566,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.Comment);
                     Assert.Null(o.OldColumn.Collation);
                 });
-        }
 
         [ConditionalFact]
         public void AlterColumnOperation_all_args()
-        {
-            Test(
+            => Test(
                 new AlterColumnOperation
                 {
                     Name = "Id",
@@ -725,12 +690,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("My Comment", o.OldColumn.Comment);
                     Assert.Equal("Some Collation", o.OldColumn.Collation);
                 });
-        }
 
         [ConditionalFact]
         public void AlterColumnOperation_DefaultValueSql()
-        {
-            Test(
+            => Test(
                 new AlterColumnOperation
                 {
                     Name = "Id",
@@ -772,12 +735,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
                 });
-        }
 
         [ConditionalFact]
         public void AlterColumnOperation_computedColumnSql()
-        {
-            Test(
+            => Test(
                 new AlterColumnOperation
                 {
                     Name = "Id",
@@ -826,12 +787,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.ComputedColumnSql);
                     Assert.Null(o.OldColumn.IsStored);
                 });
-        }
 
         [ConditionalFact]
         public void AlterDatabaseOperation()
-        {
-            Test(
+            => Test(
                 new AlterDatabaseOperation
                 {
                     Collation = "Some collation",
@@ -854,12 +813,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("bar", o["foo"]);
                     Assert.Equal("foo", o.OldDatabase["bar"]);
                 });
-        }
 
         [ConditionalFact]
         public void AlterDatabaseOperation_with_default_old_collation()
-        {
-            Test(
+            => Test(
                 new AlterDatabaseOperation { Collation = "Some collation" },
                 "mb.AlterDatabase("
                 + _eol
@@ -869,16 +826,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Some collation", o.Collation);
                     Assert.Null(o.OldDatabase.Collation);
                 });
-        }
 
         [ConditionalFact]
         public void AlterDatabaseOperation_with_default_new_collation()
-        {
-            Test(
-                new AlterDatabaseOperation
-                {
-                    OldDatabase = { Collation = "Some collation" }
-                },
+            => Test(
+                new AlterDatabaseOperation { OldDatabase = { Collation = "Some collation" } },
                 "mb.AlterDatabase("
                 + _eol
                 + "    oldCollation: \"Some collation\");",
@@ -887,12 +839,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.Collation);
                     Assert.Equal("Some collation", o.OldDatabase.Collation);
                 });
-        }
 
         [ConditionalFact]
         public void AlterSequenceOperation_required_args()
-        {
-            Test(
+            => Test(
                 new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.AlterSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
@@ -908,12 +858,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldSequence.MaxValue);
                     Assert.False(o.OldSequence.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void AlterSequenceOperation_all_args()
-        {
-            Test(
+            => Test(
                 new AlterSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -964,24 +912,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(5, o.OldSequence.MaxValue);
                     Assert.True(o.OldSequence.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void AlterTableOperation_required_args()
-        {
-            Test(
+            => Test(
                 new AlterTableOperation { Name = "Customer" },
                 "mb.AlterTable(" + _eol + "    name: \"Customer\");",
                 o =>
                 {
                     Assert.Equal("Customer", o.Name);
                 });
-        }
 
         [ConditionalFact]
         public void AlterTableOperation_all_args()
-        {
-            Test(
+            => Test(
                 new AlterTableOperation
                 {
                     Name = "Customer",
@@ -1005,12 +949,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("My Comment 2", o.Comment);
                     Assert.Equal("My Comment", o.OldTable.Comment);
                 });
-        }
 
         [ConditionalFact]
         public void CreateIndexOperation_required_args()
-        {
-            Test(
+            => Test(
                 new CreateIndexOperation
                 {
                     Name = "IX_Post_Title",
@@ -1030,12 +972,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "Title" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateIndexOperation_all_args()
-        {
-            Test(
+            => Test(
                 new CreateIndexOperation
                 {
                     Name = "IX_Post_Title",
@@ -1066,12 +1006,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(new[] { "Title" }, o.Columns);
                     Assert.True(o.IsUnique);
                 });
-        }
 
         [ConditionalFact]
         public void CreateIndexOperation_composite()
-        {
-            Test(
+            => Test(
                 new CreateIndexOperation
                 {
                     Name = "IX_Post_Title_Subtitle",
@@ -1091,21 +1029,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "Title", "Subtitle" }, o.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateSchemaOperation_required_args()
-        {
-            Test(
+            => Test(
                 new EnsureSchemaOperation { Name = "my" },
                 "mb.EnsureSchema(" + _eol + "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
-        }
 
         [ConditionalFact]
         public void CreateSequenceOperation_required_args()
-        {
-            Test(
+            => Test(
                 new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(long) },
                 "mb.CreateSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
@@ -1113,12 +1047,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(typeof(long), o.ClrType);
                 });
-        }
 
         [ConditionalFact]
         public void CreateSequenceOperation_required_args_not_long()
-        {
-            Test(
+            => Test(
                 new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(int) },
                 "mb.CreateSequence<int>(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
@@ -1126,12 +1058,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(typeof(int), o.ClrType);
                 });
-        }
 
         [ConditionalFact]
         public void CreateSequenceOperation_all_args()
-        {
-            Test(
+            => Test(
                 new CreateSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -1169,12 +1099,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(4, o.MaxValue);
                     Assert.True(o.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void CreateSequenceOperation_all_args_not_long()
-        {
-            Test(
+            => Test(
                 new CreateSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -1212,12 +1140,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(4, o.MaxValue);
                     Assert.True(o.IsCyclic);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_Columns_required_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1257,12 +1183,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal(typeof(int), o.Columns[0].ClrType);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_Columns_all_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1326,12 +1250,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("My Comment", o.Columns[0].Comment);
                     Assert.Equal("Some Collation", o.Columns[0].Collation);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_Columns_DefaultValueSql()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1372,12 +1294,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(typeof(int), o.Columns[0].ClrType);
                     Assert.Equal("1", o.Columns[0].DefaultValueSql);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_Columns_computedColumnSql()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1420,12 +1340,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("1", o.Columns[0].ComputedColumnSql);
                     Assert.True(o.Columns[0].IsStored);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_ForeignKeys_required_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1476,12 +1394,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(new[] { "BlogId" }, fk.Columns.ToArray());
                     Assert.Equal("Blog", fk.PrincipalTable);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_ForeignKeys_all_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Schema = "dbo",
@@ -1553,12 +1469,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(ReferentialAction.SetNull, fk.OnUpdate);
                     Assert.Equal(ReferentialAction.SetDefault, fk.OnDelete);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_ForeignKeys_composite()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1618,12 +1532,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Blog", fk.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_ForeignKeys_composite_no_principal_columns()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1679,12 +1591,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
                     Assert.Equal("Blog", fk.PrincipalTable);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_PrimaryKey_required_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1723,12 +1633,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.PrimaryKey.Table);
                     Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_PrimaryKey_all_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1772,12 +1680,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.PrimaryKey.Table);
                     Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_PrimaryKey_composite()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1822,12 +1728,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.PrimaryKey.Table);
                     Assert.Equal(new[] { "Id1", "Id2" }, o.PrimaryKey.Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_UniqueConstraints_required_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1869,12 +1773,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.UniqueConstraints[0].Table);
                     Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_UniqueConstraints_all_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1921,12 +1823,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.UniqueConstraints[0].Table);
                     Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_UniqueConstraints_composite()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -1974,12 +1874,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.UniqueConstraints[0].Table);
                     Assert.Equal(new[] { "AltId1", "AltId2" }, o.UniqueConstraints[0].Columns);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_CheckConstraints_required_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -2027,12 +1925,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.CheckConstraints[0].Table);
                     Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_ChecksConstraints_all_args()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -2085,12 +1981,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.CheckConstraints[0].Table);
                     Assert.Equal("AltId1 > AltId2", o.CheckConstraints[0].Sql);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_Comment()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -2123,12 +2017,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Assert.Equal("My Comment", o.Comment);
                 });
-        }
 
         [ConditionalFact]
         public void CreateTableOperation_TableComment_ColumnComment()
-        {
-            Test(
+            => Test(
                 new CreateTableOperation
                 {
                     Name = "Post",
@@ -2170,12 +2062,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("My Operation Comment", o.Comment);
                     Assert.Equal("My Column comment", o.Columns[0].Comment);
                 });
-        }
 
         [ConditionalFact]
         public void DropColumnOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropColumnOperation { Name = "Id", Table = "Post" },
                 "mb.DropColumn(" + _eol + "    name: \"Id\"," + _eol + "    table: \"Post\");",
                 o =>
@@ -2183,12 +2073,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropColumnOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropColumnOperation
                 {
                     Name = "Id",
@@ -2202,12 +2090,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropForeignKeyOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropForeignKeyOperation { Name = "FK_Post_BlogId", Table = "Post" },
                 "mb.DropForeignKey(" + _eol + "    name: \"FK_Post_BlogId\"," + _eol + "    table: \"Post\");",
                 o =>
@@ -2215,12 +2101,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("FK_Post_BlogId", o.Name);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropForeignKeyOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropForeignKeyOperation
                 {
                     Name = "FK_Post_BlogId",
@@ -2240,24 +2124,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropIndexOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropIndexOperation { Name = "IX_Post_Title" },
                 "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
                 });
-        }
 
         [ConditionalFact]
         public void DropIndexOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropIndexOperation
                 {
                     Name = "IX_Post_Title",
@@ -2271,12 +2151,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropPrimaryKeyOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropPrimaryKeyOperation { Name = "PK_Post", Table = "Post" },
                 "mb.DropPrimaryKey(" + _eol + "    name: \"PK_Post\"," + _eol + "    table: \"Post\");",
                 o =>
@@ -2284,12 +2162,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("PK_Post", o.Name);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropPrimaryKeyOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropPrimaryKeyOperation
                 {
                     Name = "PK_Post",
@@ -2303,30 +2179,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropSchemaOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropSchemaOperation { Name = "my" },
                 "mb.DropSchema(" + _eol + "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
-        }
 
         [ConditionalFact]
         public void DropSequenceOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.DropSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
-        }
 
         [ConditionalFact]
         public void DropSequenceOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" },
                 "mb.DropSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\"," + _eol + "    schema: \"dbo\");",
                 o =>
@@ -2334,21 +2204,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                 });
-        }
 
         [ConditionalFact]
         public void DropTableOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropTableOperation { Name = "Post" },
                 "mb.DropTable(" + _eol + "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
-        }
 
         [ConditionalFact]
         public void DropTableOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropTableOperation { Name = "Post", Schema = "dbo" },
                 "mb.DropTable(" + _eol + "    name: \"Post\"," + _eol + "    schema: \"dbo\");",
                 o =>
@@ -2356,12 +2222,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Name);
                     Assert.Equal("dbo", o.Schema);
                 });
-        }
 
         [ConditionalFact]
         public void DropUniqueConstraintOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post" },
                 "mb.DropUniqueConstraint(" + _eol + "    name: \"AK_Post_AltId\"," + _eol + "    table: \"Post\");",
                 o =>
@@ -2369,12 +2233,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("AK_Post_AltId", o.Name);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropUniqueConstraintOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropUniqueConstraintOperation
                 {
                     Name = "AK_Post_AltId",
@@ -2394,12 +2256,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropCheckConstraintOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DropCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Table = "Post" },
                 "mb.DropCheckConstraint(" + _eol + "    name: \"CK_Post_AltId1_AltId2\"," + _eol + "    table: \"Post\");",
                 o =>
@@ -2407,12 +2267,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void DropCheckConstraintOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DropCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
@@ -2432,12 +2290,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                 });
-        }
 
         [ConditionalFact]
         public void RenameColumnOperation_required_args()
-        {
-            Test(
+            => Test(
                 new RenameColumnOperation
                 {
                     Name = "Id",
@@ -2451,12 +2307,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("PostId", o.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void RenameColumnOperation_all_args()
-        {
-            Test(
+            => Test(
                 new RenameColumnOperation
                 {
                     Name = "Id",
@@ -2480,17 +2334,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("PostId", o.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void RenameIndexOperation_required_args()
-        {
-            Test(
-                new RenameIndexOperation
-                {
-                    Name = "IX_Post_Title",
-                    NewName = "IX_Post_PostTitle"
-                },
+            => Test(
+                new RenameIndexOperation { Name = "IX_Post_Title", NewName = "IX_Post_PostTitle" },
                 "mb.RenameIndex("
                 + _eol
                 + "    name: \"IX_Post_Title\","
@@ -2501,12 +2349,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("IX_Post_Title", o.Name);
                     Assert.Equal("IX_Post_PostTitle", o.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void RenameIndexOperation_all_args()
-        {
-            Test(
+            => Test(
                 new RenameIndexOperation
                 {
                     Name = "IX_dbo.Post_Title",
@@ -2530,21 +2376,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("IX_dbo.Post_PostTitle", o.NewName);
                 });
-        }
 
         [ConditionalFact]
         public void RenameSequenceOperation_required_args()
-        {
-            Test(
+            => Test(
                 new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.RenameSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
-        }
 
         [ConditionalFact]
         public void RenameSequenceOperation_all_args()
-        {
-            Test(
+            => Test(
                 new RenameSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -2568,21 +2410,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("MySequence", o.NewName);
                     Assert.Equal("my", o.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void RenameTableOperation_required_args()
-        {
-            Test(
+            => Test(
                 new RenameTableOperation { Name = "Post" },
                 "mb.RenameTable(" + _eol + "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
-        }
 
         [ConditionalFact]
         public void RenameTableOperation_all_args()
-        {
-            Test(
+            => Test(
                 new RenameTableOperation
                 {
                     Name = "Post",
@@ -2606,12 +2444,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Posts", o.NewName);
                     Assert.Equal("my", o.NewSchema);
                 });
-        }
 
         [ConditionalFact]
         public void RestartSequenceOperation_required_args()
-        {
-            Test(
+            => Test(
                 new RestartSequenceOperation { Name = "EntityFrameworkHiLoSequence", StartValue = 1 },
                 "mb.RestartSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\"," + _eol + "    startValue: 1L);",
                 o =>
@@ -2619,12 +2455,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(1, o.StartValue);
                 });
-        }
 
         [ConditionalFact]
         public void RestartSequenceOperation_all_args()
-        {
-            Test(
+            => Test(
                 new RestartSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
@@ -2644,16 +2478,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal(1, o.StartValue);
                 });
-        }
 
         [ConditionalFact]
         public void SqlOperation_required_args()
-        {
-            Test(
+            => Test(
                 new SqlOperation { Sql = "-- I <3 DDL" },
                 "mb.Sql(\"-- I <3 DDL\");",
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
-        }
 
         private static readonly LineString _lineString1 = new(
             new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
@@ -2700,8 +2531,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         [ConditionalFact]
         public void InsertDataOperation_all_args()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Schema = "dbo",
@@ -2764,12 +2594,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(_multiLineString, o.Values[6, 2]);
                     Assert.Equal(_geometryCollection, o.Values[7, 2]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_required_args()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Table = "People",
@@ -2791,12 +2619,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal(_point1, o.Values[0, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_required_empty_array()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Table = "People",
@@ -2818,12 +2644,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal(new string[0], (string[])o.Values[0, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_required_empty_array_composite()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Table = "People",
@@ -2846,12 +2670,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.Values[0, 1]);
                     Assert.Equal(new string[0], (string[])o.Values[0, 2]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_required_args_composite()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Table = "People",
@@ -2874,12 +2696,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Snow", o.Values[0, 1]);
                     Assert.Equal(_polygon1, o.Values[0, 2]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_required_args_multiple_rows()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Table = "People",
@@ -2910,12 +2730,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(_lineString1, o.Values[0, 0]);
                     Assert.Equal(_multiPoint, o.Values[1, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void InsertDataOperation_args_with_linebreaks()
-        {
-            Test(
+            => Test(
                 new InsertDataOperation
                 {
                     Schema = "dbo",
@@ -2958,12 +2776,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 1]);
                     Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void DeleteDataOperation_all_args()
-        {
-            Test(
+            => Test(
                 new DeleteDataOperation
                 {
                     Schema = "dbo",
@@ -3006,12 +2822,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.KeyValues.GetLength(1));
                     Assert.Equal("John", o.KeyValues[2, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void DeleteDataOperation_all_args_composite()
-        {
-            Test(
+            => Test(
                 new DeleteDataOperation
                 {
                     Table = "People",
@@ -3053,12 +2867,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[2, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void DeleteDataOperation_required_args()
-        {
-            Test(
+            => Test(
                 new DeleteDataOperation
                 {
                     Table = "People",
@@ -3080,12 +2892,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[0, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void DeleteDataOperation_required_args_composite()
-        {
-            Test(
+            => Test(
                 new DeleteDataOperation
                 {
                     Table = "People",
@@ -3107,12 +2917,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[0, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void DeleteDataOperation_args_with_linebreaks()
-        {
-            Test(
+            => Test(
                 new DeleteDataOperation
                 {
                     Table = "TestLineBreaks",
@@ -3151,12 +2959,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Contains a\nLinux linebreak", operation.KeyValues[1, 1]);
                     Assert.Equal("Contains a single Backslash r,\rjust in case", operation.KeyValues[2, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_all_args()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Schema = "dbo",
@@ -3208,12 +3014,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[1, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_all_args_composite()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3261,12 +3065,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[1, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_all_args_composite_multi()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3314,12 +3116,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[1, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_all_args_multi()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Schema = "dbo",
@@ -3355,12 +3155,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_required_args()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3392,12 +3190,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_required_args_multiple_rows()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3445,12 +3241,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[1, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_required_args_composite()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3482,12 +3276,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_required_args_composite_multi()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3519,12 +3311,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_required_args_multi()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Table = "People",
@@ -3556,12 +3346,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 1]);
                 });
-        }
 
         [ConditionalFact]
         public void UpdateDataOperation_with_linebreaks()
-        {
-            Test(
+            => Test(
                 new UpdateDataOperation
                 {
                     Schema = "dbo",
@@ -3623,23 +3411,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 0]);
                     Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 0]);
                 });
-        }
 
         [ConditionalFact]
         public void AlterTableOperation_annotation_set_to_null()
         {
-            var oldTable = new CreateTableOperation
-            {
-                Name = "Customer",
-            };
+            var oldTable = new CreateTableOperation { Name = "Customer", };
             oldTable.AddAnnotation("MyAnnotation1", "Bar");
             oldTable.AddAnnotation("MyAnnotation2", null);
 
-            var alterTable = new AlterTableOperation
-            {
-                Name = "NewCustomer",
-                OldTable = oldTable
-            };
+            var alterTable = new AlterTableOperation { Name = "NewCustomer", OldTable = oldTable };
 
             alterTable.AddAnnotation("MyAnnotation1", null);
             alterTable.AddAnnotation("MyAnnotation2", "Foo");
@@ -3694,8 +3474,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 Sources =
                 {
                     {
-                        "Migration.cs",
-                        @"
+                        "Migration.cs", @"
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
 
@@ -3706,8 +3485,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         public static void Create(MigrationBuilder mb)
                         {
                             "
-                    + code
-                    + @"
+                        + code
+                        + @"
                         }
                     }
                 "

@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override Task Can_insert_many_to_many_shared_with_payload(bool async)
-        {
             // Mutable properties aren't proxyable on Dictionary
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override void Can_update_many_to_many_shared_with_payload()
         {

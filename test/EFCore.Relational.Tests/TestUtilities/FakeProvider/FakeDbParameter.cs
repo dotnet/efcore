@@ -38,8 +38,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         }
 
         public override void ResetDbType()
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
     }
 }

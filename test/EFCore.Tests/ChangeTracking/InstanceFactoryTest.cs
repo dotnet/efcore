@@ -173,8 +173,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class WithProperties
         {
             public WithProperties(int id)
-                => Id = id;
+            {
+                Id = id;
+            }
 
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; set; }
         }
 
@@ -185,15 +188,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             public ParameterlessAndWithProperties(int id)
-                => Id = id;
+            {
+                Id = id;
+            }
 
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; set; }
         }
 
         private class WithLazyLoader
         {
             public WithLazyLoader(ILazyLoader lazyLoader)
-                => LazyLoader = lazyLoader;
+            {
+                LazyLoader = lazyLoader;
+            }
 
             public int Id { get; set; }
             public ILazyLoader LazyLoader { get; }
@@ -202,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class WithLazyLoaderDelegate
         {
             public WithLazyLoaderDelegate(Action<object, string> lazyLoader)
-                => LazyLoader = lazyLoader;
+            {
+                LazyLoader = lazyLoader;
+            }
 
             public int Id { get; set; }
             public Action<object, string> LazyLoader { get; }
@@ -211,7 +221,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class WithEntityType
         {
             public WithEntityType(IEntityType entityType)
-                => EntityType = entityType;
+            {
+                EntityType = entityType;
+            }
 
             public int Id { get; set; }
             public IEntityType EntityType { get; }
@@ -220,7 +232,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class WithContext
         {
             public WithContext(DbContext context)
-                => Context = context;
+            {
+                Context = context;
+            }
 
             public int Id { get; set; }
             public DbContext Context { get; }
@@ -229,13 +243,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class WithServiceAndWithProperties
         {
             public WithServiceAndWithProperties(ILazyLoader lazyLoader)
-                => LazyLoader = lazyLoader;
+            {
+                LazyLoader = lazyLoader;
+            }
 
             public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id)
                 : this(lazyLoader)
-                => Id = id;
+            {
+                Id = id;
+            }
 
             public ILazyLoader LazyLoader { get; }
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public int Id { get; set; }
         }
     }

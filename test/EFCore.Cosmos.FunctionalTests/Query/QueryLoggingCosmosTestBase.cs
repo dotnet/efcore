@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                         "NorthwindContext", "(null)", "", Environment.NewLine,
-                    @"SELECT c
+                        @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")"),
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
@@ -104,9 +104,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
             else
             {
                 Assert.Equal(
-                CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
-                    "NorthwindContext", "?", "@__city_0=?", Environment.NewLine,
-                    @"SELECT c
+                    CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
+                        "NorthwindContext", "?", "@__city_0=?", Environment.NewLine,
+                        @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
                     Fixture.TestSqlLoggerFactory.Log[2].Message);

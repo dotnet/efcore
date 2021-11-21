@@ -47,7 +47,12 @@ namespace Microsoft.EntityFrameworkCore
             var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
             var updateEntry = new InternalEntityEntry(contextServices.GetRequiredService<IStateManager>(), entityType, new object());
-            var columnOperation = new AddColumnOperation { Name = "Column1", Table = "Table1", ClrType = typeof(int) };
+            var columnOperation = new AddColumnOperation
+            {
+                Name = "Column1",
+                Table = "Table1",
+                ClrType = typeof(int)
+            };
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -84,18 +89,14 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
                 { typeof(DbContext), () => new FakeDbContext() },
                 { typeof(SqlExpression), () => new FakeSqlExpression() },
-                { typeof(IUpdateEntry), () =>  updateEntry },
+                { typeof(IUpdateEntry), () => updateEntry },
                 { typeof(ColumnOperation), () => columnOperation }
             };
 
             TestEventLogging(
                 typeof(RelationalEventId),
                 typeof(RelationalLoggerExtensions),
-                new[]
-                {
-                    typeof(IRelationalConnectionDiagnosticsLogger),
-                    typeof(IRelationalCommandDiagnosticsLogger)
-                },
+                new[] { typeof(IRelationalConnectionDiagnosticsLogger), typeof(IRelationalCommandDiagnosticsLogger) },
                 new TestRelationalLoggingDefinitions(),
                 fakeFactories,
                 services => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services),
