@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ReflexiveConstraintIgnored,
             DuplicateForeignKeyConstraintIgnored,
             ColumnWithoutTypeWarning,
-            ForeignKeyReferencesUnknownPrincipalTableWarning
+            ForeignKeyReferencesUnknownPrincipalTableWarning,
+            MissingViewDefinitionRightsWarning,
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -289,5 +290,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </remarks>
         public static readonly EventId ColumnWithoutTypeWarning = MakeScaffoldingId(Id.ColumnWithoutTypeWarning);
+
+        /// <summary>
+        ///     Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.
+        /// </summary>
+        /// <remarks>
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </remarks>
+        public static readonly EventId MissingViewDefinitionRightsWarning = MakeScaffoldingId(Id.MissingViewDefinitionRightsWarning);
+
     }
 }
