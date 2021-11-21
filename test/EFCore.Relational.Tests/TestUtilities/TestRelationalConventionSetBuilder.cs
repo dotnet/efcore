@@ -4,18 +4,17 @@
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
-{
-    public class TestRelationalConventionSetBuilder : RelationalConventionSetBuilder
-    {
-        public TestRelationalConventionSetBuilder(
-            ProviderConventionSetBuilderDependencies dependencies,
-            RelationalConventionSetBuilderDependencies relationalDependencies)
-            : base(dependencies, relationalDependencies)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-        public static ConventionSet Build()
-            => ConventionSet.CreateConventionSet(RelationalTestHelpers.Instance.CreateContext());
+public class TestRelationalConventionSetBuilder : RelationalConventionSetBuilder
+{
+    public TestRelationalConventionSetBuilder(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
+        : base(dependencies, relationalDependencies)
+    {
     }
+
+    public static ConventionSet Build()
+        => ConventionSet.CreateConventionSet(RelationalTestHelpers.Instance.CreateContext());
 }

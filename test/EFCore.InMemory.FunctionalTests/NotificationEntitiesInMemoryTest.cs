@@ -3,20 +3,19 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class NotificationEntitiesInMemoryTest : NotificationEntitiesTestBase<
-        NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
-    {
-        public NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class NotificationEntitiesInMemoryFixture : NotificationEntitiesFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class NotificationEntitiesInMemoryTest : NotificationEntitiesTestBase<
+    NotificationEntitiesInMemoryTest.NotificationEntitiesInMemoryFixture>
+{
+    public NotificationEntitiesInMemoryTest(NotificationEntitiesInMemoryFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class NotificationEntitiesInMemoryFixture : NotificationEntitiesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

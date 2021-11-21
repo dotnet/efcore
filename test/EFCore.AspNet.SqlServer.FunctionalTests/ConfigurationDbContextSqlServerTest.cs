@@ -3,23 +3,22 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class ConfigurationDbContextSqlServerTest
+    : ConfigurationDbContextTestBase<ConfigurationDbContextSqlServerTest.ConfigurationDbContextSqlServerFixture>
 {
-    public class ConfigurationDbContextSqlServerTest
-        : ConfigurationDbContextTestBase<ConfigurationDbContextSqlServerTest.ConfigurationDbContextSqlServerFixture>
+    public ConfigurationDbContextSqlServerTest(ConfigurationDbContextSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ConfigurationDbContextSqlServerTest(ConfigurationDbContextSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class ConfigurationDbContextSqlServerFixture : ConfigurationDbContextFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
+    public class ConfigurationDbContextSqlServerFixture : ConfigurationDbContextFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
-            protected override string StoreName
-                => "ConfigurationDbContext";
-        }
+        protected override string StoreName
+            => "ConfigurationDbContext";
     }
 }

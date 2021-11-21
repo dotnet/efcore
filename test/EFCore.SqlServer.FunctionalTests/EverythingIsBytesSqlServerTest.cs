@@ -1,39 +1,34 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class EverythingIsBytesSqlServerTest : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class EverythingIsBytesSqlServerTest : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>
+    public EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerFixture fixture)
+        : base(fixture)
     {
-        public EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        [ConditionalFact]
-        public virtual void Columns_have_expected_data_types()
-        {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
-                CreateContext(),
-                nameof(ObjectBackedDataTypes),
-                nameof(NullableBackedDataTypes),
-                nameof(NonNullableBackedDataTypes),
-                nameof(Animal),
-                nameof(AnimalDetails),
-                nameof(AnimalIdentification));
+    [ConditionalFact]
+    public virtual void Columns_have_expected_data_types()
+    {
+        var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+            CreateContext(),
+            nameof(ObjectBackedDataTypes),
+            nameof(NullableBackedDataTypes),
+            nameof(NonNullableBackedDataTypes),
+            nameof(Animal),
+            nameof(AnimalDetails),
+            nameof(AnimalIdentification));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+        const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
 BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -167,158 +162,157 @@ UnicodeDataTypes.StringDefault ---> [nullable varbinary] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 ";
 
-            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
-        }
+        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+    }
 
-        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+    public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+    {
+        // The query needs to generate TOP(1)
+    }
+
+    public override void Can_read_back_bool_mapped_as_int_through_navigation()
+    {
+        // Column is mapped as int rather than byte[]
+    }
+
+    public override void Object_to_string_conversion()
+    {
+        // Return values are string which byte[] cannot read
+    }
+
+    public override void Can_compare_enum_to_constant()
+    {
+        // Column is mapped as int rather than byte[]
+    }
+
+    public override void Can_compare_enum_to_parameter()
+    {
+        // Column is mapped as int rather than byte[]
+    }
+
+    public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
+
+        public override bool SupportsAnsi
+            => true;
+
+        public override bool SupportsUnicodeToAnsiConversion
+            => false;
+
+        public override bool SupportsLargeStringComparisons
+            => true;
+
+        protected override string StoreName { get; } = "EverythingIsBytes";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerBytesTestStoreFactory.Instance;
+
+        public override bool SupportsBinaryKeys
+            => true;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => false;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base
+                .AddOptions(builder)
+                .ConfigureWarnings(
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            // The query needs to generate TOP(1)
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Ignore<Animal>();
+            modelBuilder.Ignore<AnimalIdentification>();
+            modelBuilder.Ignore<AnimalDetails>();
         }
+    }
 
-        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+    public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
+    {
+        public static new SqlServerBytesTestStoreFactory Instance { get; } = new();
+
+        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => base.AddProviderServices(
+                serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerBytesTypeMappingSource>());
+    }
+
+    public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
+    {
+        private readonly SqlServerByteArrayTypeMapping _rowversion = new("rowversion", size: 8);
+        private readonly SqlServerByteArrayTypeMapping _variableLengthBinary = new();
+        private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary = new(fixedLength: true);
+        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+
+        public SqlServerBytesTypeMappingSource(
+            TypeMappingSourceDependencies dependencies,
+            RelationalTypeMappingSourceDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
-            // Column is mapped as int rather than byte[]
-        }
-
-        public override void Object_to_string_conversion()
-        {
-            // Return values are string which byte[] cannot read
-        }
-
-        public override void Can_compare_enum_to_constant()
-        {
-            // Column is mapped as int rather than byte[]
-        }
-
-        public override void Can_compare_enum_to_parameter()
-        {
-            // Column is mapped as int rather than byte[]
-        }
-
-        public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
-        {
-            public override bool StrictEquality
-                => true;
-
-            public override bool SupportsAnsi
-                => true;
-
-            public override bool SupportsUnicodeToAnsiConversion
-                => false;
-
-            public override bool SupportsLargeStringComparisons
-                => true;
-
-            protected override string StoreName { get; } = "EverythingIsBytes";
-
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerBytesTestStoreFactory.Instance;
-
-            public override bool SupportsBinaryKeys
-                => true;
-
-            public override bool SupportsDecimalComparisons
-                => true;
-
-            public override DateTime DefaultDateTime
-                => new();
-
-            public override bool PreservesDateTimeKind
-                => false;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Ignore<Animal>();
-                modelBuilder.Ignore<AnimalIdentification>();
-                modelBuilder.Ignore<AnimalDetails>();
-            }
-        }
-
-        public class SqlServerBytesTestStoreFactory : SqlServerTestStoreFactory
-        {
-            public static new SqlServerBytesTestStoreFactory Instance { get; } = new();
-
-            public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-                => base.AddProviderServices(
-                    serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerBytesTypeMappingSource>());
-        }
-
-        public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
-        {
-            private readonly SqlServerByteArrayTypeMapping _rowversion = new("rowversion", size: 8);
-            private readonly SqlServerByteArrayTypeMapping _variableLengthBinary = new();
-            private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary = new(fixedLength: true);
-            private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-
-            public SqlServerBytesTypeMappingSource(
-                TypeMappingSourceDependencies dependencies,
-                RelationalTypeMappingSourceDependencies relationalDependencies)
-                : base(dependencies, relationalDependencies)
-            {
-                _storeTypeMappings
-                    = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "binary varying", _variableLengthBinary },
-                        { "binary", _fixedLengthBinary },
-                        { "image", _variableLengthBinary },
-                        { "rowversion", _rowversion },
-                        { "varbinary", _variableLengthBinary }
-                    };
-            }
-
-            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
-                => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
-
-            private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
-            {
-                var clrType = mappingInfo.ClrType;
-                var storeTypeName = mappingInfo.StoreTypeName;
-                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
-
-                if (storeTypeName != null)
+            _storeTypeMappings
+                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
-                    if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
-                        || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
-                    {
-                        return clrType == null
-                            || mapping.ClrType == clrType
-                                ? mapping
-                                : null;
-                    }
+                    { "binary varying", _variableLengthBinary },
+                    { "binary", _fixedLengthBinary },
+                    { "image", _variableLengthBinary },
+                    { "rowversion", _rowversion },
+                    { "varbinary", _variableLengthBinary }
+                };
+        }
+
+        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+            => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+
+        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        {
+            var clrType = mappingInfo.ClrType;
+            var storeTypeName = mappingInfo.StoreTypeName;
+            var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+
+            if (storeTypeName != null)
+            {
+                if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
+                    || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+                {
+                    return clrType == null
+                        || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
+                }
+            }
+
+            if (clrType == typeof(byte[]))
+            {
+                if (mappingInfo.IsRowVersion == true)
+                {
+                    return _rowversion;
                 }
 
-                if (clrType == typeof(byte[]))
+                var isFixedLength = mappingInfo.IsFixedLength == true;
+
+                var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
+                if (size > 8000)
                 {
-                    if (mappingInfo.IsRowVersion == true)
-                    {
-                        return _rowversion;
-                    }
-
-                    var isFixedLength = mappingInfo.IsFixedLength == true;
-
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
-                    if (size > 8000)
-                    {
-                        size = isFixedLength ? 8000 : null;
-                    }
-
-                    return new SqlServerByteArrayTypeMapping(
-                        "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
-                        size,
-                        isFixedLength,
-                        storeTypePostfix: size == null ? StoreTypePostfix.None : null);
+                    size = isFixedLength ? 8000 : null;
                 }
 
-                return null;
+                return new SqlServerByteArrayTypeMapping(
+                    "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                    size,
+                    isFixedLength,
+                    storeTypePostfix: size == null ? StoreTypePostfix.None : null);
             }
+
+            return null;
         }
     }
 }

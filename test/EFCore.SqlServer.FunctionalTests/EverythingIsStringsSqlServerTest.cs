@@ -1,40 +1,35 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
+    EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
-        EverythingIsStringsSqlServerTest.EverythingIsStringsSqlServerFixture>
+    public EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerFixture fixture)
+        : base(fixture)
     {
-        public EverythingIsStringsSqlServerTest(EverythingIsStringsSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        [ConditionalFact]
-        public virtual void Columns_have_expected_data_types()
-        {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
-                CreateContext(),
-                nameof(ObjectBackedDataTypes),
-                nameof(NullableBackedDataTypes),
-                nameof(NonNullableBackedDataTypes),
-                nameof(Animal),
-                nameof(AnimalDetails),
-                nameof(AnimalIdentification));
+    [ConditionalFact]
+    public virtual void Columns_have_expected_data_types()
+    {
+        var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+            CreateContext(),
+            nameof(ObjectBackedDataTypes),
+            nameof(NullableBackedDataTypes),
+            nameof(NonNullableBackedDataTypes),
+            nameof(Animal),
+            nameof(AnimalDetails),
+            nameof(AnimalIdentification));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
+        const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -168,162 +163,161 @@ UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
-            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
-        }
+        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+    }
 
-        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+    public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+    {
+        // The query needs to generate TOP(1)
+    }
+
+    public override void Can_read_back_bool_mapped_as_int_through_navigation()
+    {
+        // Column is mapped as int rather than string
+    }
+
+    public override void Can_compare_enum_to_constant()
+    {
+        // Column is mapped as int rather than string
+    }
+
+    public override void Can_compare_enum_to_parameter()
+    {
+        // Column is mapped as int rather than string
+    }
+
+    public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
+
+        public override bool SupportsAnsi
+            => true;
+
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
+
+        public override bool SupportsLargeStringComparisons
+            => true;
+
+        public override bool PreservesDateTimeKind
+            => false;
+
+        protected override string StoreName { get; } = "EverythingIsStrings";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerStringsTestStoreFactory.Instance;
+
+        public override bool SupportsBinaryKeys
+            => true;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base
+                .AddOptions(builder)
+                .ConfigureWarnings(
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            // The query needs to generate TOP(1)
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<MaxLengthDataTypes>().Property(e => e.ByteArray5).HasMaxLength(8);
+
+            modelBuilder.Ignore<Animal>();
+            modelBuilder.Ignore<AnimalIdentification>();
+            modelBuilder.Ignore<AnimalDetails>();
         }
+    }
 
-        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+    public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
+    {
+        public static new SqlServerStringsTestStoreFactory Instance { get; } = new();
+
+        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => base.AddProviderServices(
+                serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerStringsTypeMappingSource>());
+    }
+
+    public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
+    {
+        private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString = new(unicode: true, fixedLength: true);
+        private readonly SqlServerStringTypeMapping _variableLengthUnicodeString = new(unicode: true);
+        private readonly SqlServerStringTypeMapping _fixedLengthAnsiString = new(fixedLength: true);
+        private readonly SqlServerStringTypeMapping _variableLengthAnsiString = new();
+        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+
+        public SqlServerStringsTypeMappingSource(
+            TypeMappingSourceDependencies dependencies,
+            RelationalTypeMappingSourceDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
-            // Column is mapped as int rather than string
-        }
-
-        public override void Can_compare_enum_to_constant()
-        {
-            // Column is mapped as int rather than string
-        }
-
-        public override void Can_compare_enum_to_parameter()
-        {
-            // Column is mapped as int rather than string
-        }
-
-        public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
-        {
-            public override bool StrictEquality
-                => true;
-
-            public override bool SupportsAnsi
-                => true;
-
-            public override bool SupportsUnicodeToAnsiConversion
-                => true;
-
-            public override bool SupportsLargeStringComparisons
-                => true;
-
-            public override bool PreservesDateTimeKind
-                => false;
-
-            protected override string StoreName { get; } = "EverythingIsStrings";
-
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerStringsTestStoreFactory.Instance;
-
-            public override bool SupportsBinaryKeys
-                => true;
-
-            public override bool SupportsDecimalComparisons
-                => true;
-
-            public override DateTime DefaultDateTime
-                => new();
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Entity<MaxLengthDataTypes>().Property(e => e.ByteArray5).HasMaxLength(8);
-
-                modelBuilder.Ignore<Animal>();
-                modelBuilder.Ignore<AnimalIdentification>();
-                modelBuilder.Ignore<AnimalDetails>();
-            }
-        }
-
-        public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
-        {
-            public static new SqlServerStringsTestStoreFactory Instance { get; } = new();
-
-            public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-                => base.AddProviderServices(
-                    serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerStringsTypeMappingSource>());
-        }
-
-        public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
-        {
-            private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString = new(unicode: true, fixedLength: true);
-            private readonly SqlServerStringTypeMapping _variableLengthUnicodeString = new(unicode: true);
-            private readonly SqlServerStringTypeMapping _fixedLengthAnsiString = new(fixedLength: true);
-            private readonly SqlServerStringTypeMapping _variableLengthAnsiString = new();
-            private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-
-            public SqlServerStringsTypeMappingSource(
-                TypeMappingSourceDependencies dependencies,
-                RelationalTypeMappingSourceDependencies relationalDependencies)
-                : base(dependencies, relationalDependencies)
-            {
-                _storeTypeMappings
-                    = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                    {
-                        { "char varying", _variableLengthAnsiString },
-                        { "char", _fixedLengthAnsiString },
-                        { "character varying", _variableLengthAnsiString },
-                        { "character", _fixedLengthAnsiString },
-                        { "national char varying", _variableLengthUnicodeString },
-                        { "national character varying", _variableLengthUnicodeString },
-                        { "national character", _fixedLengthUnicodeString },
-                        { "nchar", _fixedLengthUnicodeString },
-                        { "ntext", _variableLengthUnicodeString },
-                        { "nvarchar", _variableLengthUnicodeString },
-                        { "text", _variableLengthAnsiString },
-                        { "varchar", _variableLengthAnsiString }
-                    };
-            }
-
-            protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
-                => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
-
-            private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
-            {
-                var clrType = mappingInfo.ClrType;
-                var storeTypeName = mappingInfo.StoreTypeName;
-                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
-
-                if (storeTypeName != null)
+            _storeTypeMappings
+                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
-                    if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
-                        || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
-                    {
-                        return clrType == null
-                            || mapping.ClrType == clrType
-                                ? mapping
-                                : null;
-                    }
+                    { "char varying", _variableLengthAnsiString },
+                    { "char", _fixedLengthAnsiString },
+                    { "character varying", _variableLengthAnsiString },
+                    { "character", _fixedLengthAnsiString },
+                    { "national char varying", _variableLengthUnicodeString },
+                    { "national character varying", _variableLengthUnicodeString },
+                    { "national character", _fixedLengthUnicodeString },
+                    { "nchar", _fixedLengthUnicodeString },
+                    { "ntext", _variableLengthUnicodeString },
+                    { "nvarchar", _variableLengthUnicodeString },
+                    { "text", _variableLengthAnsiString },
+                    { "varchar", _variableLengthAnsiString }
+                };
+        }
+
+        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+            => FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+
+        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        {
+            var clrType = mappingInfo.ClrType;
+            var storeTypeName = mappingInfo.StoreTypeName;
+            var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+
+            if (storeTypeName != null)
+            {
+                if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
+                    || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+                {
+                    return clrType == null
+                        || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
+                }
+            }
+
+            if (clrType == typeof(string))
+            {
+                var isAnsi = mappingInfo.IsUnicode == false;
+                var isFixedLength = mappingInfo.IsFixedLength == true;
+                var baseName = isAnsi ? "varchar" : "nvarchar";
+                var maxSize = isAnsi ? 8000 : 4000;
+
+                var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
+                if (size > maxSize)
+                {
+                    size = isFixedLength ? maxSize : null;
                 }
 
-                if (clrType == typeof(string))
-                {
-                    var isAnsi = mappingInfo.IsUnicode == false;
-                    var isFixedLength = mappingInfo.IsFixedLength == true;
-                    var baseName = isAnsi ? "varchar" : "nvarchar";
-                    var maxSize = isAnsi ? 8000 : 4000;
-
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
-                    if (size > maxSize)
-                    {
-                        size = isFixedLength ? maxSize : null;
-                    }
-
-                    return new SqlServerStringTypeMapping(
-                        baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                        !isAnsi,
-                        size,
-                        isFixedLength,
-                        storeTypePostfix: size == null ? StoreTypePostfix.None : null);
-                }
-
-                return null;
+                return new SqlServerStringTypeMapping(
+                    baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                    !isAnsi,
+                    size,
+                    isFixedLength,
+                    storeTypePostfix: size == null ? StoreTypePostfix.None : null);
             }
+
+            return null;
         }
     }
 }

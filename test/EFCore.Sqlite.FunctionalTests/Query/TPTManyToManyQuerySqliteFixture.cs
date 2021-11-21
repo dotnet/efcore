@@ -3,11 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class TPTManyToManyQuerySqliteFixture : TPTManyToManyQueryRelationalFixture
 {
-    public class TPTManyToManyQuerySqliteFixture : TPTManyToManyQueryRelationalFixture
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
-    }
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 }

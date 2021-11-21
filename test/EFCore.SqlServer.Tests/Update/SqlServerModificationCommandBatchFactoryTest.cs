@@ -4,106 +4,104 @@
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Update
+namespace Microsoft.EntityFrameworkCore.Update;
+
+public class SqlServerModificationCommandBatchFactoryTest
 {
-    public class SqlServerModificationCommandBatchFactoryTest
+    [ConditionalFact]
+    public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
     {
-        [ConditionalFact]
-        public void Uses_MaxBatchSize_specified_in_SqlServerOptionsExtension()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
 
-            var typeMapper = new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+        var typeMapper = new SqlServerTypeMappingSource(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeRelationalCommandDiagnosticsLogger();
+        var logger = new FakeRelationalCommandDiagnosticsLogger();
 
-            var factory = new SqlServerModificationCommandBatchFactory(
-                new ModificationCommandBatchFactoryDependencies(
-                    new RelationalCommandBuilderFactory(
-                        new RelationalCommandBuilderDependencies(
-                            typeMapper)),
-                    new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies()),
-                    new SqlServerUpdateSqlGenerator(
-                        new UpdateSqlGeneratorDependencies(
-                            new SqlServerSqlGenerationHelper(
-                                new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper)),
-                    new TypedRelationalValueBufferFactoryFactory(
-                        new RelationalValueBufferFactoryDependencies(
-                            typeMapper, new CoreSingletonOptions())),
-                    new CurrentDbContext(new FakeDbContext()),
-                    logger),
-                optionsBuilder.Options);
+        var factory = new SqlServerModificationCommandBatchFactory(
+            new ModificationCommandBatchFactoryDependencies(
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        typeMapper)),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()),
+                        typeMapper)),
+                new TypedRelationalValueBufferFactoryFactory(
+                    new RelationalValueBufferFactoryDependencies(
+                        typeMapper, new CoreSingletonOptions())),
+                new CurrentDbContext(new FakeDbContext()),
+                logger),
+            optionsBuilder.Options);
 
-            var batch = factory.Create();
+        var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
-            Assert.False(batch.AddCommand(CreateModificationCommand("T1", null, false)));
-        }
+        Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+        Assert.False(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+    }
 
-        [ConditionalFact]
-        public void MaxBatchSize_is_optional()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer("Database=Crunchie");
+    [ConditionalFact]
+    public void MaxBatchSize_is_optional()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            var typeMapper = new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+        var typeMapper = new SqlServerTypeMappingSource(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeRelationalCommandDiagnosticsLogger();
+        var logger = new FakeRelationalCommandDiagnosticsLogger();
 
-            var factory = new SqlServerModificationCommandBatchFactory(
-                new ModificationCommandBatchFactoryDependencies(
-                    new RelationalCommandBuilderFactory(
-                        new RelationalCommandBuilderDependencies(
-                            typeMapper)),
-                    new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies()),
-                    new SqlServerUpdateSqlGenerator(
-                        new UpdateSqlGeneratorDependencies(
-                            new SqlServerSqlGenerationHelper(
-                                new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper)),
-                    new TypedRelationalValueBufferFactoryFactory(
-                        new RelationalValueBufferFactoryDependencies(
-                            typeMapper, new CoreSingletonOptions())),
-                    new CurrentDbContext(new FakeDbContext()),
-                    logger),
-                optionsBuilder.Options);
+        var factory = new SqlServerModificationCommandBatchFactory(
+            new ModificationCommandBatchFactoryDependencies(
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        typeMapper)),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()),
+                        typeMapper)),
+                new TypedRelationalValueBufferFactoryFactory(
+                    new RelationalValueBufferFactoryDependencies(
+                        typeMapper, new CoreSingletonOptions())),
+                new CurrentDbContext(new FakeDbContext()),
+                logger),
+            optionsBuilder.Options);
 
-            var batch = factory.Create();
+        var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
-            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
-        }
+        Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+        Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+    }
 
-        private class FakeDbContext : DbContext
-        {
-        }
+    private class FakeDbContext : DbContext
+    {
+    }
 
-        private static IModificationCommand CreateModificationCommand(
-            string name,
-            string schema,
-            bool sensitiveLoggingEnabled)
-        {
-            var modificationCommandParameters = new ModificationCommandParameters(
-                name, schema, sensitiveLoggingEnabled);
+    private static IModificationCommand CreateModificationCommand(
+        string name,
+        string schema,
+        bool sensitiveLoggingEnabled)
+    {
+        var modificationCommandParameters = new ModificationCommandParameters(
+            name, schema, sensitiveLoggingEnabled);
 
-            var modificationCommand = new ModificationCommandFactory().CreateModificationCommand(
-                modificationCommandParameters);
+        var modificationCommand = new ModificationCommandFactory().CreateModificationCommand(
+            modificationCommandParameters);
 
-            return modificationCommand;
-        }
+        return modificationCommand;
     }
 }

@@ -3,9 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class QueryNoClientEvalSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>
 {
-    public class QueryNoClientEvalSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>
-    {
-    }
 }

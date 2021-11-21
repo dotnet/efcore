@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class LoadSqliteTest : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>
-    {
-        public LoadSqliteTest(LoadSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class LoadSqliteFixture : LoadFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+public class LoadSqliteTest : LoadTestBase<LoadSqliteTest.LoadSqliteFixture>
+{
+    public LoadSqliteTest(LoadSqliteFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class LoadSqliteFixture : LoadFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

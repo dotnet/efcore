@@ -3,11 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class SpatialQueryInMemoryFixture : SpatialQueryFixtureBase
 {
-    public class SpatialQueryInMemoryFixture : SpatialQueryFixtureBase
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => InMemoryTestStoreFactory.Instance;
-    }
+    protected override ITestStoreFactory TestStoreFactory
+        => InMemoryTestStoreFactory.Instance;
 }

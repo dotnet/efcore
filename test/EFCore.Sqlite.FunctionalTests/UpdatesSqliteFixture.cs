@@ -3,11 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class UpdatesSqliteFixture : UpdatesRelationalFixture
 {
-    public class UpdatesSqliteFixture : UpdatesRelationalFixture
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
-    }
+    protected override ITestStoreFactory TestStoreFactory
+        => SqliteTestStoreFactory.Instance;
 }

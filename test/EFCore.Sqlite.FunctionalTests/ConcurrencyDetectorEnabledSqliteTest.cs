@@ -3,23 +3,22 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class ConcurrencyDetectorEnabledSqliteTest : ConcurrencyDetectorEnabledRelationalTestBase<
+    ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture>
 {
-    public class ConcurrencyDetectorEnabledSqliteTest : ConcurrencyDetectorEnabledRelationalTestBase<
-        ConcurrencyDetectorEnabledSqliteTest.ConcurrencyDetectorSqlServerFixture>
+    public ConcurrencyDetectorEnabledSqliteTest(ConcurrencyDetectorSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ConcurrencyDetectorEnabledSqliteTest(ConcurrencyDetectorSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
+    public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
-        }
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }

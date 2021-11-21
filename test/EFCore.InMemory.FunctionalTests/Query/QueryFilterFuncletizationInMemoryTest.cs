@@ -4,22 +4,21 @@
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class QueryFilterFuncletizationInMemoryTest
-        : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture>
-    {
-        public QueryFilterFuncletizationInMemoryTest(
-            QueryFilterFuncletizationInMemoryFixture fixture,
-            ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        public class QueryFilterFuncletizationInMemoryFixture : QueryFilterFuncletizationFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class QueryFilterFuncletizationInMemoryTest
+    : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture>
+{
+    public QueryFilterFuncletizationInMemoryTest(
+        QueryFilterFuncletizationInMemoryFixture fixture,
+        ITestOutputHelper testOutputHelper)
+        : base(fixture)
+    {
+    }
+
+    public class QueryFilterFuncletizationInMemoryFixture : QueryFilterFuncletizationFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

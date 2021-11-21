@@ -3,16 +3,15 @@
 
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Tools
-{
-    public class CommandExceptionTest
-    {
-        [Fact]
-        public void Ctor_works()
-        {
-            var ex = new CommandException("Message1");
+namespace Microsoft.EntityFrameworkCore.Tools;
 
-            Assert.Equal("Message1", ex.Message);
-        }
+public class CommandExceptionTest
+{
+    [Fact]
+    public void Ctor_works()
+    {
+        var ex = new CommandException("Message1");
+
+        Assert.Equal("Message1", ex.Message);
     }
 }

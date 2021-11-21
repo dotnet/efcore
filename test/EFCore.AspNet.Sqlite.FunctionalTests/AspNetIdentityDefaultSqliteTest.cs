@@ -3,26 +3,25 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class AspNetIdentityDefaultSqliteTest
+    : AspNetIdentityDefaultTestBase<AspNetIdentityDefaultSqliteTest.AspNetDefaultIdentitySqliteFixture>
 {
-    public class AspNetIdentityDefaultSqliteTest
-        : AspNetIdentityDefaultTestBase<AspNetIdentityDefaultSqliteTest.AspNetDefaultIdentitySqliteFixture>
+    public AspNetIdentityDefaultSqliteTest(AspNetDefaultIdentitySqliteFixture fixture)
+        : base(fixture)
     {
-        public AspNetIdentityDefaultSqliteTest(AspNetDefaultIdentitySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class AspNetDefaultIdentitySqliteFixture : AspNetIdentityFixtureBase
-        {
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
+    public class AspNetDefaultIdentitySqliteFixture : AspNetIdentityFixtureBase
+    {
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
 
-            protected override string StoreName
-                => "AspNetDefaultIdentity";
-        }
+        protected override string StoreName
+            => "AspNetDefaultIdentity";
     }
 }

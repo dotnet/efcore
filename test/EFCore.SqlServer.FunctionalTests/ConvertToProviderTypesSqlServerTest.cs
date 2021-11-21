@@ -1,30 +1,28 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
+    ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
-        ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
+    public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        [ConditionalFact]
-        public virtual void Columns_have_expected_data_types()
-        {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
-                CreateContext(),
-                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
+    [ConditionalFact]
+    public virtual void Columns_have_expected_data_types()
+    {
+        var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+            CreateContext(),
+            nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+        const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
 AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
@@ -165,55 +163,54 @@ UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
-            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
-        }
+        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+    }
 
-        public override void Object_to_string_conversion()
+    public override void Object_to_string_conversion()
+    {
+        // Return values are not string
+    }
+
+    public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
+
+        public override bool SupportsAnsi
+            => true;
+
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
+
+        public override bool SupportsLargeStringComparisons
+            => true;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        public override bool SupportsBinaryKeys
+            => true;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => false;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base
+                .AddOptions(builder)
+                .ConfigureWarnings(
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            // Return values are not string
-        }
+            base.OnModelCreating(modelBuilder, context);
 
-        public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
-        {
-            public override bool StrictEquality
-                => true;
-
-            public override bool SupportsAnsi
-                => true;
-
-            public override bool SupportsUnicodeToAnsiConversion
-                => true;
-
-            public override bool SupportsLargeStringComparisons
-                => true;
-
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-
-            public override bool SupportsBinaryKeys
-                => true;
-
-            public override bool SupportsDecimalComparisons
-                => true;
-
-            public override DateTime DefaultDateTime
-                => new();
-
-            public override bool PreservesDateTimeKind
-                => false;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Enum8).IsFixedLength();
-            }
+            modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Enum8).IsFixedLength();
         }
     }
 }

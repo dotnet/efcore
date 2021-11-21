@@ -3,23 +3,22 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class F1ULongSqliteFixture : F1SqliteFixtureBase<ulong?>
 {
-    public class F1ULongSqliteFixture : F1SqliteFixtureBase<ulong?>
-    {
-        protected override string StoreName { get; } = "F1ULongTest";
-    }
+    protected override string StoreName { get; } = "F1ULongTest";
+}
 
-    public class F1SqliteFixture : F1SqliteFixtureBase<byte[]>
-    {
-    }
+public class F1SqliteFixture : F1SqliteFixtureBase<byte[]>
+{
+}
 
-    public abstract class F1SqliteFixtureBase<TRowVersion> : F1RelationalFixture<TRowVersion>
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => PrivateCacheSqliteTestStoreFactory.Instance;
+public abstract class F1SqliteFixtureBase<TRowVersion> : F1RelationalFixture<TRowVersion>
+{
+    protected override ITestStoreFactory TestStoreFactory
+        => PrivateCacheSqliteTestStoreFactory.Instance;
 
-        public override TestHelpers TestHelpers
-            => SqliteTestHelpers.Instance;
-    }
+    public override TestHelpers TestHelpers
+        => SqliteTestHelpers.Instance;
 }

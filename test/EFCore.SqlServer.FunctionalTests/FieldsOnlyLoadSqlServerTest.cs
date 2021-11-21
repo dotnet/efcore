@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class FieldsOnlyLoadSqlServerTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture>
-    {
-        public FieldsOnlyLoadSqlServerTest(FieldsOnlyLoadSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class FieldsOnlyLoadSqlServerFixture : FieldsOnlyLoadFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-        }
+public class FieldsOnlyLoadSqlServerTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture>
+{
+    public FieldsOnlyLoadSqlServerTest(FieldsOnlyLoadSqlServerFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class FieldsOnlyLoadSqlServerFixture : FieldsOnlyLoadFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 }

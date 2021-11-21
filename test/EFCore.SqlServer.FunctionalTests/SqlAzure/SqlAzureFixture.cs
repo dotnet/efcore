@@ -4,16 +4,15 @@
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlAzure;
+
+public class SqlAzureFixture : SharedStoreFixtureBase<AdventureWorksContext>
 {
-    public class SqlAzureFixture : SharedStoreFixtureBase<AdventureWorksContext>
-    {
-        protected override string StoreName { get; } = "adventureworks";
+    protected override string StoreName { get; } = "adventureworks";
 
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerAdventureWorksTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerAdventureWorksTestStoreFactory.Instance;
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ListLoggerFactory;
-    }
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 }

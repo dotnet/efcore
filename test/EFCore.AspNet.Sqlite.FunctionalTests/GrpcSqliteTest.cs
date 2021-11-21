@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class GrpcSqliteTest : GrpcTestBase<GrpcSqliteTest.GrpcSqliteFixture>
-    {
-        public GrpcSqliteTest(GrpcSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class GrpcSqliteFixture : GrpcFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+public class GrpcSqliteTest : GrpcTestBase<GrpcSqliteTest.GrpcSqliteFixture>
+{
+    public GrpcSqliteTest(GrpcSqliteFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class GrpcSqliteFixture : GrpcFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

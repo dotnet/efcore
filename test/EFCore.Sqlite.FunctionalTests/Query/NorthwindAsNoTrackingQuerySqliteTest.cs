@@ -3,13 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindAsNoTrackingQuerySqliteTest : NorthwindAsNoTrackingQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
 {
-    public class NorthwindAsNoTrackingQuerySqliteTest : NorthwindAsNoTrackingQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public NorthwindAsNoTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+        : base(fixture)
     {
-        public NorthwindAsNoTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
-            : base(fixture)
-        {
-        }
     }
 }

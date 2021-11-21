@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class NullKeysSqliteTest : NullKeysTestBase<NullKeysSqliteTest.NullKeysSqliteFixture>
-    {
-        public NullKeysSqliteTest(NullKeysSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        public class NullKeysSqliteFixture : NullKeysFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+public class NullKeysSqliteTest : NullKeysTestBase<NullKeysSqliteTest.NullKeysSqliteFixture>
+{
+    public NullKeysSqliteTest(NullKeysSqliteFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class NullKeysSqliteFixture : NullKeysFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

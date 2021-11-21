@@ -3,13 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindCompiledQueryInMemoryTest : NorthwindCompiledQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
 {
-    public class NorthwindCompiledQueryInMemoryTest : NorthwindCompiledQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public NorthwindCompiledQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+        : base(fixture)
     {
-        public NorthwindCompiledQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
-            : base(fixture)
-        {
-        }
     }
 }

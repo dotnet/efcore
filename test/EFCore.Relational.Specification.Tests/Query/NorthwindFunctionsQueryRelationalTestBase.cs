@@ -3,21 +3,20 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture> : NorthwindFunctionsQueryTestBase<TFixture>
+    where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
-    public abstract class NorthwindFunctionsQueryRelationalTestBase<TFixture> : NorthwindFunctionsQueryTestBase<TFixture>
-        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
+    protected NorthwindFunctionsQueryRelationalTestBase(TFixture fixture)
+        : base(fixture)
     {
-        protected NorthwindFunctionsQueryRelationalTestBase(TFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        protected virtual bool CanExecuteQueryString
-            => false;
-
-        protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
-            => new RelationalQueryAsserter(
-                fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
     }
+
+    protected virtual bool CanExecuteQueryString
+        => false;
+
+    protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
+        => new RelationalQueryAsserter(
+            fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);
 }

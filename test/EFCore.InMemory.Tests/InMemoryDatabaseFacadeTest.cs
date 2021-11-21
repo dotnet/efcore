@@ -3,23 +3,22 @@
 
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class InMemoryDatabaseFacadeTest
-    {
-        [ConditionalFact]
-        public void IsInMemory_when_using_in_memory()
-        {
-            using var context = new ProviderContext();
-            Assert.True(context.Database.IsInMemory());
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        private class ProviderContext : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase("Maltesers");
-        }
+public class InMemoryDatabaseFacadeTest
+{
+    [ConditionalFact]
+    public void IsInMemory_when_using_in_memory()
+    {
+        using var context = new ProviderContext();
+        Assert.True(context.Database.IsInMemory());
+    }
+
+    private class ProviderContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase("Maltesers");
     }
 }

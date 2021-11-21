@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class GrpcSqlServerTest : GrpcTestBase<GrpcSqlServerTest.GrpcSqlServerFixture>
-    {
-        public GrpcSqlServerTest(GrpcSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class GrpcSqlServerFixture : GrpcFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-        }
+public class GrpcSqlServerTest : GrpcTestBase<GrpcSqlServerTest.GrpcSqlServerFixture>
+{
+    public GrpcSqlServerTest(GrpcSqlServerFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class GrpcSqlServerFixture : GrpcFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 }

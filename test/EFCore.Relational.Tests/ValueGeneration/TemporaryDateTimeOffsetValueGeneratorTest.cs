@@ -1,24 +1,22 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration
-{
-    public class TemporaryDateTimeOffsetValueGeneratorTest
-    {
-        [ConditionalFact]
-        public void Can_create_values_for_DateTime_types()
-        {
-            var generator = new TemporaryDateTimeOffsetValueGenerator();
-            Assert.Equal(new DateTimeOffset(1, TimeSpan.Zero), generator.Next(null));
-            Assert.Equal(new DateTimeOffset(2, TimeSpan.Zero), generator.Next(null));
-        }
+namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
-        [ConditionalFact]
-        public void Generates_temporary_values()
-            => Assert.True(new TemporaryDateTimeOffsetValueGenerator().GeneratesTemporaryValues);
+public class TemporaryDateTimeOffsetValueGeneratorTest
+{
+    [ConditionalFact]
+    public void Can_create_values_for_DateTime_types()
+    {
+        var generator = new TemporaryDateTimeOffsetValueGenerator();
+        Assert.Equal(new DateTimeOffset(1, TimeSpan.Zero), generator.Next(null));
+        Assert.Equal(new DateTimeOffset(2, TimeSpan.Zero), generator.Next(null));
     }
+
+    [ConditionalFact]
+    public void Generates_temporary_values()
+        => Assert.True(new TemporaryDateTimeOffsetValueGenerator().GeneratesTemporaryValues);
 }

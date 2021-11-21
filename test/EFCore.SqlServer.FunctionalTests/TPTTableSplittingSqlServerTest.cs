@@ -1,28 +1,27 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class TPTTableSplittingSqlServerTest : TPTTableSplittingTestBase
 {
-    public class TPTTableSplittingSqlServerTest : TPTTableSplittingTestBase
+    public TPTTableSplittingSqlServerTest(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
-        public TPTTableSplittingSqlServerTest(ITestOutputHelper testOutputHelper)
-            : base(testOutputHelper)
-        {
-        }
+    }
 
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
 
-        public override async Task Can_use_with_redundant_relationships()
-        {
-            await base.Can_use_with_redundant_relationships();
+    public override async Task Can_use_with_redundant_relationships()
+    {
+        await base.Can_use_with_redundant_relationships();
 
-            AssertSql(
-                @"SELECT [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+        AssertSql(
+            @"SELECT [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t1].[Name], [t1].[Active], [t1].[Type], [t4].[Name], [t4].[Computed], [t4].[Description], [t4].[Discriminator], [t6].[VehicleName], [t6].[Capacity], [t6].[FuelType], [t6].[GrainGeometry], [t6].[Discriminator]
@@ -92,14 +91,14 @@ END = CASE
     WHEN [t6].[Capacity] IS NOT NULL THEN [t6].[VehicleName]
 END
 ORDER BY [v].[Name]");
-        }
+    }
 
-        public override async Task Can_query_shared()
-        {
-            await base.Can_query_shared();
+    public override async Task Can_query_shared()
+    {
+        await base.Can_query_shared();
 
-            AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name], [l].[LicenseType], CASE
+        AssertSql(
+            @"SELECT [v].[Name], [v].[Operator_Name], [l].[LicenseType], CASE
     WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
 END AS [Discriminator]
 FROM [Vehicles] AS [v]
@@ -108,40 +107,40 @@ INNER JOIN (
     SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
 ) AS [t] ON [v].[Name] = [t].[Name]");
-        }
+    }
 
-        public override async Task Can_query_shared_nonhierarchy()
-        {
-            await base.Can_query_shared_nonhierarchy();
+    public override async Task Can_query_shared_nonhierarchy()
+    {
+        await base.Can_query_shared_nonhierarchy();
 
-            AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name]
+        AssertSql(
+            @"SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
 ) AS [t] ON [v].[Name] = [t].[Name]");
-        }
+    }
 
-        public override async Task Can_query_shared_nonhierarchy_with_nonshared_dependent()
-        {
-            await base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
+    public override async Task Can_query_shared_nonhierarchy_with_nonshared_dependent()
+    {
+        await base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
 
-            AssertSql(
-                @"SELECT [v].[Name], [v].[Operator_Name]
+        AssertSql(
+            @"SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 INNER JOIN (
     SELECT [v0].[Name]
     FROM [Vehicles] AS [v0]
 ) AS [t] ON [v].[Name] = [t].[Name]");
-        }
+    }
 
-        public override async Task Can_query_shared_derived_hierarchy()
-        {
-            await base.Can_query_shared_derived_hierarchy();
+    public override async Task Can_query_shared_derived_hierarchy()
+    {
+        await base.Can_query_shared_derived_hierarchy();
 
-            AssertSql(
-                @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType], [s].[GrainGeometry], CASE
+        AssertSql(
+            @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType], [s].[GrainGeometry], CASE
     WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
 END AS [Discriminator]
 FROM [CombustionEngines] AS [c]
@@ -152,14 +151,14 @@ INNER JOIN (
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[Capacity] IS NOT NULL");
-        }
+    }
 
-        public override async Task Can_query_shared_derived_nonhierarchy()
-        {
-            await base.Can_query_shared_derived_nonhierarchy();
+    public override async Task Can_query_shared_derived_nonhierarchy()
+    {
+        await base.Can_query_shared_derived_nonhierarchy();
 
-            AssertSql(
-                @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
+        AssertSql(
+            @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
     SELECT [p].[Name]
@@ -167,14 +166,14 @@ INNER JOIN (
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[Capacity] IS NOT NULL");
-        }
+    }
 
-        public override async Task Can_query_shared_derived_nonhierarchy_all_required()
-        {
-            await base.Can_query_shared_derived_nonhierarchy_all_required();
+    public override async Task Can_query_shared_derived_nonhierarchy_all_required()
+    {
+        await base.Can_query_shared_derived_nonhierarchy_all_required();
 
-            AssertSql(
-                @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
+        AssertSql(
+            @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 INNER JOIN (
     SELECT [p].[Name]
@@ -182,28 +181,28 @@ INNER JOIN (
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
 WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
-        }
+    }
 
-        public override async Task Can_change_dependent_instance_non_derived()
-        {
-            await base.Can_change_dependent_instance_non_derived();
-            AssertSql(
-                @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+    public override async Task Can_change_dependent_instance_non_derived()
+    {
+        await base.Can_change_dependent_instance_non_derived();
+        AssertSql(
+            @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='repairman' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
-                //
-                @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+            //
+            @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p3='Repair' (Size = 4000)
 
 SET NOCOUNT ON;
 INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
 VALUES (@p2, @p3);",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+            //
+            @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
@@ -222,22 +221,22 @@ LEFT JOIN (
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
-        }
+    }
 
-        public override async Task Can_change_principal_instance_non_derived()
-        {
-            await base.Can_change_principal_instance_non_derived();
+    public override async Task Can_change_principal_instance_non_derived()
+    {
+        await base.Can_change_principal_instance_non_derived();
 
-            AssertSql(
-                @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
+        AssertSql(
+            @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
 SELECT @@ROWCOUNT;",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+            //
+            @"SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator]
@@ -256,14 +255,14 @@ LEFT JOIN (
     ) AS [t] ON [v0].[Name] = [t].[Name]
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
-        }
+    }
 
-        public override async Task Optional_dependent_materialized_when_no_properties()
-        {
-            await base.Optional_dependent_materialized_when_no_properties();
+    public override async Task Optional_dependent_materialized_when_no_properties()
+    {
+        await base.Optional_dependent_materialized_when_no_properties();
 
-            AssertSql(
-                @"SELECT TOP(1) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
+        AssertSql(
+            @"SELECT TOP(1) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
 END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t1].[Name], [t1].[Active], [t1].[Type]
@@ -298,6 +297,5 @@ LEFT JOIN (
 END
 WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]");
-        }
     }
 }

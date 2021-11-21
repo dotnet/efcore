@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class OwnedQuerySqliteTest : OwnedQueryRelationalTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>
-    {
-        public OwnedQuerySqliteTest(OwnedQuerySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        public class OwnedQuerySqliteFixture : RelationalOwnedQueryFixture
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+public class OwnedQuerySqliteTest : OwnedQueryRelationalTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>
+{
+    public OwnedQuerySqliteTest(OwnedQuerySqliteFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class OwnedQuerySqliteFixture : RelationalOwnedQueryFixture
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

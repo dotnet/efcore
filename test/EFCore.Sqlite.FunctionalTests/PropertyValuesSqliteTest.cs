@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class PropertyValuesSqliteTest : PropertyValuesTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>
-    {
-        public PropertyValuesSqliteTest(PropertyValuesSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+public class PropertyValuesSqliteTest : PropertyValuesTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>
+{
+    public PropertyValuesSqliteTest(PropertyValuesSqliteFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

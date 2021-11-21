@@ -5,22 +5,21 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
-        NorthwindQuerySqliteFixture<NoopModelCustomizer>>
-    {
-        public NorthwindKeylessEntitiesQuerySqliteTest(
-            NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
-            ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        [ConditionalFact(Skip = "Issue#21627")]
-        public override void KeylessEntity_with_nav_defining_query()
-            => base.KeylessEntity_with_nav_defining_query();
+public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
+    NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+{
+    public NorthwindKeylessEntitiesQuerySqliteTest(
+        NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture,
+        ITestOutputHelper testOutputHelper)
+        : base(fixture)
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    [ConditionalFact(Skip = "Issue#21627")]
+    public override void KeylessEntity_with_nav_defining_query()
+        => base.KeylessEntity_with_nav_defining_query();
 }

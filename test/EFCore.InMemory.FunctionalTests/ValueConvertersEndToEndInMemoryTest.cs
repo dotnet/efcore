@@ -5,21 +5,20 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class ValueConvertersEndToEndInMemoryTest
-        : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture>
-    {
-        public ValueConvertersEndToEndInMemoryTest(ValueConvertersEndToEndInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class ValueConvertersEndToEndInMemoryFixture : ValueConvertersEndToEndFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class ValueConvertersEndToEndInMemoryTest
+    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndInMemoryTest.ValueConvertersEndToEndInMemoryFixture>
+{
+    public ValueConvertersEndToEndInMemoryTest(ValueConvertersEndToEndInMemoryFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class ValueConvertersEndToEndInMemoryFixture : ValueConvertersEndToEndFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }
 

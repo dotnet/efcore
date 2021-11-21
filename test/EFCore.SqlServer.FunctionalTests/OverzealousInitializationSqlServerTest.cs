@@ -3,20 +3,19 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class OverzealousInitializationSqlServerTest
-        : OverzealousInitializationTestBase<OverzealousInitializationSqlServerTest.OverzealousInitializationSqlServerFixture>
-    {
-        public OverzealousInitializationSqlServerTest(OverzealousInitializationSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class OverzealousInitializationSqlServerFixture : OverzealousInitializationFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-        }
+public class OverzealousInitializationSqlServerTest
+    : OverzealousInitializationTestBase<OverzealousInitializationSqlServerTest.OverzealousInitializationSqlServerFixture>
+{
+    public OverzealousInitializationSqlServerTest(OverzealousInitializationSqlServerFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class OverzealousInitializationSqlServerFixture : OverzealousInitializationFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 }

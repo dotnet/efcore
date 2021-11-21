@@ -3,30 +3,29 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class PropertyValuesSqlServerTest : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>
 {
-    public class PropertyValuesSqlServerTest : PropertyValuesTestBase<PropertyValuesSqlServerTest.PropertyValuesSqlServerFixture>
+    public PropertyValuesSqlServerTest(PropertyValuesSqlServerFixture fixture)
+        : base(fixture)
     {
-        public PropertyValuesSqlServerTest(PropertyValuesSqlServerFixture fixture)
-            : base(fixture)
+    }
+
+    public class PropertyValuesSqlServerFixture : PropertyValuesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-        }
+            base.OnModelCreating(modelBuilder, context);
 
-        public class PropertyValuesSqlServerFixture : PropertyValuesFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
+            modelBuilder.Entity<Building>()
+                .Property(b => b.Value).HasColumnType("decimal(18,2)");
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Entity<Building>()
-                    .Property(b => b.Value).HasColumnType("decimal(18,2)");
-
-                modelBuilder.Entity<CurrentEmployee>()
-                    .Property(ce => ce.LeaveBalance).HasColumnType("decimal(18,2)");
-            }
+            modelBuilder.Entity<CurrentEmployee>()
+                .Property(ce => ce.LeaveBalance).HasColumnType("decimal(18,2)");
         }
     }
 }

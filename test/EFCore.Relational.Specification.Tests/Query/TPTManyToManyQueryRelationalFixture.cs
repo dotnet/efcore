@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public abstract class TPTManyToManyQueryRelationalFixture : ManyToManyQueryRelationalFixture
 {
-    public abstract class TPTManyToManyQueryRelationalFixture : ManyToManyQueryRelationalFixture
+    protected override string StoreName { get; } = "TPTManyToManyQueryTest";
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        protected override string StoreName { get; } = "TPTManyToManyQueryTest";
+        base.OnModelCreating(modelBuilder, context);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<EntityRoot>().ToTable("Roots");
-            modelBuilder.Entity<EntityBranch>().ToTable("Branches");
-            modelBuilder.Entity<EntityLeaf>().ToTable("Leaves");
-        }
+        modelBuilder.Entity<EntityRoot>().ToTable("Roots");
+        modelBuilder.Entity<EntityBranch>().ToTable("Branches");
+        modelBuilder.Entity<EntityLeaf>().ToTable("Leaves");
     }
 }

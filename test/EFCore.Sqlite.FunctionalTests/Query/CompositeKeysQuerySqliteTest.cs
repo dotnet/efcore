@@ -3,13 +3,12 @@
 
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class CompositeKeysQuerySqliteTest : CompositeKeysQueryRelationalTestBase<CompositeKeysQuerySqliteFixture>
 {
-    public class CompositeKeysQuerySqliteTest : CompositeKeysQueryRelationalTestBase<CompositeKeysQuerySqliteFixture>
+    public CompositeKeysQuerySqliteTest(CompositeKeysQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        public CompositeKeysQuerySqliteTest(CompositeKeysQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-        }
     }
 }

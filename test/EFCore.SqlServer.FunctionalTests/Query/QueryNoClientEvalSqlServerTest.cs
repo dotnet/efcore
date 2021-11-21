@@ -3,13 +3,12 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class QueryNoClientEvalSqlServerTest : QueryNoClientEvalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
-    public class QueryNoClientEvalSqlServerTest : QueryNoClientEvalTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public QueryNoClientEvalSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
+        : base(fixture)
     {
-        public QueryNoClientEvalSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
-            : base(fixture)
-        {
-        }
     }
 }

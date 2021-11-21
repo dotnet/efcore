@@ -3,26 +3,25 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class AspNetIdentityIntKeySqlServerTest
+    : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeySqlServerTest.AspNetIdentityIntKeySqlServerFixture>
 {
-    public class AspNetIdentityIntKeySqlServerTest
-        : AspNetIdentityIntKeyTestBase<AspNetIdentityIntKeySqlServerTest.AspNetIdentityIntKeySqlServerFixture>
+    public AspNetIdentityIntKeySqlServerTest(AspNetIdentityIntKeySqlServerFixture fixture)
+        : base(fixture)
     {
-        public AspNetIdentityIntKeySqlServerTest(AspNetIdentityIntKeySqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class AspNetIdentityIntKeySqlServerFixture : AspNetIdentityFixtureBase
-        {
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
+    public class AspNetIdentityIntKeySqlServerFixture : AspNetIdentityFixtureBase
+    {
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
-            protected override string StoreName
-                => "AspNetIntKeyIdentity";
-        }
+        protected override string StoreName
+            => "AspNetIntKeyIdentity";
     }
 }

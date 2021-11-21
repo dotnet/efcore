@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class FieldsOnlyLoadInMemoryTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadInMemoryTest.FieldsOnlyLoadInMemoryFixture>
-    {
-        public FieldsOnlyLoadInMemoryTest(FieldsOnlyLoadInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class FieldsOnlyLoadInMemoryFixture : FieldsOnlyLoadFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class FieldsOnlyLoadInMemoryTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadInMemoryTest.FieldsOnlyLoadInMemoryFixture>
+{
+    public FieldsOnlyLoadInMemoryTest(FieldsOnlyLoadInMemoryFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class FieldsOnlyLoadInMemoryFixture : FieldsOnlyLoadFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

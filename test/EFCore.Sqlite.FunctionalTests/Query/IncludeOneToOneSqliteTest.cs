@@ -3,22 +3,21 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class IncludeOneToOneSqliteTest : IncludeOneToOneTestBase<IncludeOneToOneSqliteTest.OneToOneQuerySqliteFixture>
 {
-    public class IncludeOneToOneSqliteTest : IncludeOneToOneTestBase<IncludeOneToOneSqliteTest.OneToOneQuerySqliteFixture>
+    public IncludeOneToOneSqliteTest(OneToOneQuerySqliteFixture fixture)
+        : base(fixture)
     {
-        public IncludeOneToOneSqliteTest(OneToOneQuerySqliteFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class OneToOneQuerySqliteFixture : OneToOneQueryFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
+    public class OneToOneQuerySqliteFixture : OneToOneQueryFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
-        }
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }

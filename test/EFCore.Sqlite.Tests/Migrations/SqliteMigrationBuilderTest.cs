@@ -3,22 +3,21 @@
 
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Migrations
-{
-    public class SqliteMigrationBuilderTest
-    {
-        [Fact]
-        public void IsSqlite_when_using_Sqlite()
-        {
-            var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.Sqlite");
-            Assert.True(migrationBuilder.IsSqlite());
-        }
+namespace Microsoft.EntityFrameworkCore.Migrations;
 
-        [Fact]
-        public void Not_IsSqlite_when_using_different_provider()
-        {
-            var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.InMemory");
-            Assert.False(migrationBuilder.IsSqlite());
-        }
+public class SqliteMigrationBuilderTest
+{
+    [Fact]
+    public void IsSqlite_when_using_Sqlite()
+    {
+        var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.Sqlite");
+        Assert.True(migrationBuilder.IsSqlite());
+    }
+
+    [Fact]
+    public void Not_IsSqlite_when_using_different_provider()
+    {
+        var migrationBuilder = new MigrationBuilder("Microsoft.EntityFrameworkCore.InMemory");
+        Assert.False(migrationBuilder.IsSqlite());
     }
 }

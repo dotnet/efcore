@@ -3,19 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class IncludeOneToOneInMemoryTest : IncludeOneToOneTestBase<IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture>
-    {
-        public IncludeOneToOneInMemoryTest(OneToOneQueryInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        public class OneToOneQueryInMemoryFixture : OneToOneQueryFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class IncludeOneToOneInMemoryTest : IncludeOneToOneTestBase<IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture>
+{
+    public IncludeOneToOneInMemoryTest(OneToOneQueryInMemoryFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class OneToOneQueryInMemoryFixture : OneToOneQueryFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }

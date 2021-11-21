@@ -1,41 +1,37 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public abstract class ServiceProviderFixtureBase : FixtureBase
 {
-    public abstract class ServiceProviderFixtureBase : FixtureBase
+    public IServiceProvider ServiceProvider { get; }
+    protected abstract ITestStoreFactory TestStoreFactory { get; }
+
+    private ListLoggerFactory _listLoggerFactory;
+
+    public ListLoggerFactory ListLoggerFactory
+        => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+    protected ServiceProviderFixtureBase()
     {
-        public IServiceProvider ServiceProvider { get; }
-        protected abstract ITestStoreFactory TestStoreFactory { get; }
-
-        private ListLoggerFactory _listLoggerFactory;
-
-        public ListLoggerFactory ListLoggerFactory
-            => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-
-        protected ServiceProviderFixtureBase()
-        {
-            ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
-                .BuildServiceProvider(validateScopes: true);
-        }
-
-        public DbContextOptions CreateOptions(TestStore testStore)
-            => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
-                .EnableDetailedErrors()
-                .UseInternalServiceProvider(ServiceProvider)
-                .EnableServiceProviderCaching(false)
-                .Options;
-
-        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
-
-        protected virtual bool ShouldLogCategory(string logCategory)
-            => false;
+        ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
+            .BuildServiceProvider(validateScopes: true);
     }
+
+    public DbContextOptions CreateOptions(TestStore testStore)
+        => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+            .EnableDetailedErrors()
+            .UseInternalServiceProvider(ServiceProvider)
+            .EnableServiceProviderCaching(false)
+            .Options;
+
+    protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => base.AddServices(serviceCollection)
+            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
+
+    protected virtual bool ShouldLogCategory(string logCategory)
+        => false;
 }

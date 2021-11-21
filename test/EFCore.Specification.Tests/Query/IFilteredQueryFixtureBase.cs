@@ -3,10 +3,9 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public interface IFilteredQueryFixtureBase : IQueryFixtureBase
 {
-    public interface IFilteredQueryFixtureBase : IQueryFixtureBase
-    {
-        ISetSource GetFilteredExpectedData(DbContext context);
-    }
+    ISetSource GetFilteredExpectedData(DbContext context);
 }

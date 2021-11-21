@@ -3,26 +3,25 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class ConcurrencyDetectorDisabledSqliteTest : ConcurrencyDetectorDisabledRelationalTestBase<
+    ConcurrencyDetectorDisabledSqliteTest.ConcurrencyDetectorSqlServerFixture>
 {
-    public class ConcurrencyDetectorDisabledSqliteTest : ConcurrencyDetectorDisabledRelationalTestBase<
-        ConcurrencyDetectorDisabledSqliteTest.ConcurrencyDetectorSqlServerFixture>
+    public ConcurrencyDetectorDisabledSqliteTest(ConcurrencyDetectorSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ConcurrencyDetectorDisabledSqliteTest(ConcurrencyDetectorSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
+    public class ConcurrencyDetectorSqlServerFixture : ConcurrencyDetectorFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
 
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => builder.EnableThreadSafetyChecks(enableChecks: false);
-        }
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => builder.EnableThreadSafetyChecks(enableChecks: false);
     }
 }

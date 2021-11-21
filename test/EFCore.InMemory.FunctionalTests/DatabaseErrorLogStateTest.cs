@@ -1,221 +1,212 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringStartsWithIsCultureSpecific
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class DatabaseErrorLogStateTest
 {
-    public class DatabaseErrorLogStateTest
+    [ConditionalFact]
+    public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
+        => SaveChanges_logs_DatabaseErrorLogState_test(async: false);
+
+    [ConditionalFact]
+    public Task SaveChanges_logs_DatabaseErrorLogState_async()
+        => SaveChanges_logs_DatabaseErrorLogState_test(async: true);
+
+    private async Task SaveChanges_logs_DatabaseErrorLogState_test(bool async)
     {
-        [ConditionalFact]
-        public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
-            => SaveChanges_logs_DatabaseErrorLogState_test(async: false);
+        var loggerFactory = new TestLoggerFactory();
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddSingleton<ILoggerFactory>(loggerFactory)
+            .BuildServiceProvider(validateScopes: true);
 
-        [ConditionalFact]
-        public Task SaveChanges_logs_DatabaseErrorLogState_async()
-            => SaveChanges_logs_DatabaseErrorLogState_test(async: true);
+        using var context = new BloggingContext(serviceProvider);
+        context.Blogs.Add(
+            new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
+        context.SaveChanges();
+        context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
-        private async Task SaveChanges_logs_DatabaseErrorLogState_test(bool async)
+        Exception ex;
+        if (async)
         {
-            var loggerFactory = new TestLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider(validateScopes: true);
-
-            using var context = new BloggingContext(serviceProvider);
-            context.Blogs.Add(
-                new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
-            context.SaveChanges();
-            context.ChangeTracker.Entries().Single().State = EntityState.Added;
-
-            Exception ex;
-            if (async)
-            {
-                ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
-            }
-            else
-            {
-                ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
-            }
-
-            Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-            Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-            Assert.EndsWith(
-                ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+            ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
+        }
+        else
+        {
+            ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
         }
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
-            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
+        Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
+        Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
+        Assert.EndsWith(
+            ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+    }
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
-            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync());
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
+        => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
-            => Query_logs_DatabaseErrorLogState_test(
-                c => c.Blogs
-                    .OrderBy(b => b.Name)
-                    .Where(b => b.Url.StartsWith("http://"))
-                    .ToList());
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
+        => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync());
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
-            => Query_logs_DatabaseErrorLogState_test(
-                c => c.Blogs
-                    .OrderBy(b => b.Name)
-                    .Where(b => b.Url.StartsWith("http://"))
-                    .ToListAsync());
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
+        => Query_logs_DatabaseErrorLogState_test(
+            c => c.Blogs
+                .OrderBy(b => b.Name)
+                .Where(b => b.Url.StartsWith("http://"))
+                .ToList());
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_single()
-            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
+        => Query_logs_DatabaseErrorLogState_test(
+            c => c.Blogs
+                .OrderBy(b => b.Name)
+                .Where(b => b.Url.StartsWith("http://"))
+                .ToListAsync());
 
-        [ConditionalFact]
-        public Task Query_logs_DatabaseErrorLogState_during_single_async()
-            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_single()
+        => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
 
-        private Task Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
-            => Query_logs_DatabaseErrorLogState_test(
-                c =>
-                {
-                    test(c);
-                    return Task.CompletedTask;
-                });
+    [ConditionalFact]
+    public Task Query_logs_DatabaseErrorLogState_during_single_async()
+        => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
 
-        private async Task Query_logs_DatabaseErrorLogState_test(Func<BloggingContext, Task> test)
-        {
-            var loggerFactory = new TestLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider(validateScopes: true);
-
-            using var context = new BloggingContext(serviceProvider);
-            context.Blogs.Add(
-                new BloggingContext.Blog(false) { Url = "http://sample.com" });
-            context.SaveChanges();
-            var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
-            context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);
-
-            var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
-            while (ex.InnerException != null)
+    private Task Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
+        => Query_logs_DatabaseErrorLogState_test(
+            c =>
             {
-                ex = ex.InnerException;
-            }
+                test(c);
+                return Task.CompletedTask;
+            });
 
-            Assert.Equal("Jim said to throw from ctor!", ex.Message);
-            Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-            Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-            Assert.EndsWith(
-                ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+    private async Task Query_logs_DatabaseErrorLogState_test(Func<BloggingContext, Task> test)
+    {
+        var loggerFactory = new TestLoggerFactory();
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkInMemoryDatabase()
+            .AddSingleton<ILoggerFactory>(loggerFactory)
+            .BuildServiceProvider(validateScopes: true);
+
+        using var context = new BloggingContext(serviceProvider);
+        context.Blogs.Add(
+            new BloggingContext.Blog(false) { Url = "http://sample.com" });
+        context.SaveChanges();
+        var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
+        context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);
+
+        var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
+        while (ex.InnerException != null)
+        {
+            ex = ex.InnerException;
         }
 
-        public class BloggingContext : DbContext
+        Assert.Equal("Jim said to throw from ctor!", ex.Message);
+        Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
+        Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
+        Assert.EndsWith(
+            ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+    }
+
+    public class BloggingContext : DbContext
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public BloggingContext(IServiceProvider serviceProvider)
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public BloggingContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
-
-            public DbSet<Blog> Blogs { get; set; }
-
-            public class Blog
-            {
-                public Blog()
-                    : this(true)
-                {
-                }
-
-                public Blog(bool jimSaysThrow)
-                {
-                    if (jimSaysThrow)
-                    {
-                        throw new ArgumentException("Jim said to throw from ctor!");
-                    }
-                }
-
-                public string Url { get; set; }
-                public string Name { get; set; }
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Blog>().HasKey(b => b.Url);
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .UseInternalServiceProvider(_serviceProvider);
+            _serviceProvider = serviceProvider;
         }
 
-        private class TestLoggerFactory : ILoggerFactory
+        public DbSet<Blog> Blogs { get; set; }
+
+        public class Blog
         {
-            public readonly TestLogger Logger = new();
-
-            public void AddProvider(ILoggerProvider provider)
+            public Blog()
+                : this(true)
             {
             }
 
-            public ILogger CreateLogger(string name)
-                => Logger;
-
-            public void Dispose()
+            public Blog(bool jimSaysThrow)
             {
-            }
-
-            public class TestLogger : ILogger
-            {
-                public IDisposable BeginScope<TState>(TState state)
-                    => NullScope.Instance;
-
-                public void Log<TState>(
-                    LogLevel logLevel,
-                    EventId eventId,
-                    TState state,
-                    Exception exception,
-                    Func<TState, Exception, string> formatter)
+                if (jimSaysThrow)
                 {
-                    if (eventId.Id == CoreEventId.SaveChangesFailed.Id
-                        || eventId.Id == CoreEventId.QueryIterationFailed.Id)
-                    {
-                        LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)state;
-                        LastDatabaseErrorException = exception;
-                        LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
-                    }
+                    throw new ArgumentException("Jim said to throw from ctor!");
                 }
+            }
 
-                public bool IsEnabled(LogLevel logLevel)
-                    => true;
+            public string Url { get; set; }
+            public string Name { get; set; }
+        }
 
-                public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
-                public Exception LastDatabaseErrorException { get; private set; }
-                public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Blog>().HasKey(b => b.Url);
 
-                private class NullScope : IDisposable
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInternalServiceProvider(_serviceProvider);
+    }
+
+    private class TestLoggerFactory : ILoggerFactory
+    {
+        public readonly TestLogger Logger = new();
+
+        public void AddProvider(ILoggerProvider provider)
+        {
+        }
+
+        public ILogger CreateLogger(string name)
+            => Logger;
+
+        public void Dispose()
+        {
+        }
+
+        public class TestLogger : ILogger
+        {
+            public IDisposable BeginScope<TState>(TState state)
+                => NullScope.Instance;
+
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception exception,
+                Func<TState, Exception, string> formatter)
+            {
+                if (eventId.Id == CoreEventId.SaveChangesFailed.Id
+                    || eventId.Id == CoreEventId.QueryIterationFailed.Id)
                 {
-                    public static readonly NullScope Instance = new();
+                    LastDatabaseErrorState = (IReadOnlyList<KeyValuePair<string, object>>)state;
+                    LastDatabaseErrorException = exception;
+                    LastDatabaseErrorFormatter = (s, e) => formatter((TState)s, e);
+                }
+            }
 
-                    public void Dispose()
-                    {
-                        // intentionally does nothing
-                    }
+            public bool IsEnabled(LogLevel logLevel)
+                => true;
+
+            public IReadOnlyList<KeyValuePair<string, object>> LastDatabaseErrorState { get; private set; }
+            public Exception LastDatabaseErrorException { get; private set; }
+            public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
+
+            private class NullScope : IDisposable
+            {
+                public static readonly NullScope Instance = new();
+
+                public void Dispose()
+                {
+                    // intentionally does nothing
                 }
             }
         }

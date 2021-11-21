@@ -4,19 +4,18 @@
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
-{
-    public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTrackingQueryTestBase<
-        NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
-    {
-        public NorthwindChangeTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Query;
 
-        protected override NorthwindContext CreateNoTrackingContext()
-            => new NorthwindRelationalContext(
-                new DbContextOptionsBuilder(Fixture.CreateOptions())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
+public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTrackingQueryTestBase<
+    NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+{
+    public NorthwindChangeTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
+        : base(fixture)
+    {
     }
+
+    protected override NorthwindContext CreateNoTrackingContext()
+        => new NorthwindRelationalContext(
+            new DbContextOptionsBuilder(Fixture.CreateOptions())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
 }

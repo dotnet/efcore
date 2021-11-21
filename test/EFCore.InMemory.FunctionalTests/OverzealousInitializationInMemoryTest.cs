@@ -3,20 +3,19 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class OverzealousInitializationInMemoryTest
-        : OverzealousInitializationTestBase<OverzealousInitializationInMemoryTest.OverzealousInitializationInMemoryFixture>
-    {
-        public OverzealousInitializationInMemoryTest(OverzealousInitializationInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        public class OverzealousInitializationInMemoryFixture : OverzealousInitializationFixtureBase
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
-        }
+public class OverzealousInitializationInMemoryTest
+    : OverzealousInitializationTestBase<OverzealousInitializationInMemoryTest.OverzealousInitializationInMemoryFixture>
+{
+    public OverzealousInitializationInMemoryTest(OverzealousInitializationInMemoryFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class OverzealousInitializationInMemoryFixture : OverzealousInitializationFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 }
