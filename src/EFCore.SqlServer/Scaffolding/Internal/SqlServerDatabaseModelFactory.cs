@@ -230,9 +230,9 @@ WHERE name = '{connection.Database}';";
             using var command = connection.CreateCommand();
             command.CommandText = @"
 SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
-            var hasAccess = (bool)command.ExecuteScalar()!;
+            var hasAccess = (int)command.ExecuteScalar()!;
 
-            if (!hasAccess)
+            if (hasAccess == 0)
             {
                 _logger.MissingViewDefinitionRightsWarning();
             }
