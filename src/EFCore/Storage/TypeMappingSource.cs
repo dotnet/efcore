@@ -1,233 +1,226 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage;
+
+/// <summary>
+///     <para>
+///         The base class for non-relational type mapping. Non-relational providers
+///         should derive from this class and override <see cref="O:TypeMappingSourceBase.FindMapping" />
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+/// <remarks>
+///     <para>
+///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///         for more information and examples.
+///     </para>
+/// </remarks>
+public abstract class TypeMappingSource : TypeMappingSourceBase
 {
+    private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings = new();
+
     /// <summary>
-    ///     <para>
-    ///         The base class for non-relational type mapping. Non-relational providers
-    ///         should derive from this class and override <see cref="O:TypeMappingSourceBase.FindMapping" />
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
+    ///     Initializes a new instance of the this class.
     /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///         for more information and examples.
-    ///     </para>
-    /// </remarks>
-    public abstract class TypeMappingSource : TypeMappingSourceBase
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+    protected TypeMappingSource(TypeMappingSourceDependencies dependencies)
+        : base(dependencies)
     {
-        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings = new();
+    }
 
-        /// <summary>
-        ///     Initializes a new instance of the this class.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-        protected TypeMappingSource(TypeMappingSourceDependencies dependencies)
-            : base(dependencies)
+    private CoreTypeMapping? FindMappingWithConversion(
+        in TypeMappingInfo mappingInfo,
+        IReadOnlyList<IProperty>? principals)
+    {
+        Type? providerClrType = null;
+        ValueConverter? customConverter = null;
+        if (principals != null)
         {
-        }
-
-        private CoreTypeMapping? FindMappingWithConversion(
-            in TypeMappingInfo mappingInfo,
-            IReadOnlyList<IProperty>? principals)
-        {
-            Type? providerClrType = null;
-            ValueConverter? customConverter = null;
-            if (principals != null)
+            for (var i = 0; i < principals.Count; i++)
             {
-                for (var i = 0; i < principals.Count; i++)
+                var principal = principals[i];
+                if (providerClrType == null)
                 {
-                    var principal = principals[i];
-                    if (providerClrType == null)
+                    var providerType = principal.GetProviderClrType();
+                    if (providerType != null)
                     {
-                        var providerType = principal.GetProviderClrType();
-                        if (providerType != null)
-                        {
-                            providerClrType = providerType.UnwrapNullableType();
-                        }
+                        providerClrType = providerType.UnwrapNullableType();
                     }
+                }
 
-                    if (customConverter == null)
+                if (customConverter == null)
+                {
+                    var converter = principal.GetValueConverter();
+                    if (converter != null)
                     {
-                        var converter = principal.GetValueConverter();
-                        if (converter != null)
-                        {
-                            customConverter = converter;
-                        }
+                        customConverter = converter;
                     }
                 }
             }
-
-            var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
-
-            ValidateMapping(resolvedMapping, principals?[0]);
-
-            return resolvedMapping;
         }
 
-        private CoreTypeMapping? FindMappingWithConversion(
-            TypeMappingInfo mappingInfo,
-            Type? providerClrType,
-            ValueConverter? customConverter)
-            => _explicitMappings.GetOrAdd(
-                (mappingInfo, providerClrType, customConverter),
-                k =>
+        var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+
+        ValidateMapping(resolvedMapping, principals?[0]);
+
+        return resolvedMapping;
+    }
+
+    private CoreTypeMapping? FindMappingWithConversion(
+        TypeMappingInfo mappingInfo,
+        Type? providerClrType,
+        ValueConverter? customConverter)
+        => _explicitMappings.GetOrAdd(
+            (mappingInfo, providerClrType, customConverter),
+            k =>
+            {
+                var (info, providerType, converter) = k;
+                var mapping = providerType == null
+                    || providerType == info.ClrType
+                        ? FindMapping(info)
+                        : null;
+
+                if (mapping == null)
                 {
-                    var (info, providerType, converter) = k;
-                    var mapping = providerType == null
-                        || providerType == info.ClrType
-                            ? FindMapping(info)
-                            : null;
-
-                    if (mapping == null)
+                    var sourceType = info.ClrType;
+                    if (sourceType != null)
                     {
-                        var sourceType = info.ClrType;
-                        if (sourceType != null)
+                        foreach (var converterInfo in Dependencies
+                                     .ValueConverterSelector
+                                     .Select(sourceType, providerType))
                         {
-                            foreach (var converterInfo in Dependencies
-                                         .ValueConverterSelector
-                                         .Select(sourceType, providerType))
+                            var mappingInfoUsed = info.WithConverter(converterInfo);
+                            mapping = FindMapping(mappingInfoUsed);
+
+                            if (mapping == null
+                                && providerType != null)
                             {
-                                var mappingInfoUsed = info.WithConverter(converterInfo);
-                                mapping = FindMapping(mappingInfoUsed);
-
-                                if (mapping == null
-                                    && providerType != null)
+                                foreach (var secondConverterInfo in Dependencies
+                                             .ValueConverterSelector
+                                             .Select(providerType))
                                 {
-                                    foreach (var secondConverterInfo in Dependencies
-                                                 .ValueConverterSelector
-                                                 .Select(providerType))
-                                    {
-                                        mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+                                    mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
-                                        if (mapping != null)
-                                        {
-                                            mapping = mapping.Clone(secondConverterInfo.Create());
-                                            break;
-                                        }
+                                    if (mapping != null)
+                                    {
+                                        mapping = mapping.Clone(secondConverterInfo.Create());
+                                        break;
                                     }
                                 }
+                            }
 
-                                if (mapping != null)
-                                {
-                                    mapping = mapping.Clone(converterInfo.Create());
-                                    break;
-                                }
+                            if (mapping != null)
+                            {
+                                mapping = mapping.Clone(converterInfo.Create());
+                                break;
                             }
                         }
                     }
+                }
 
-                    if (mapping != null
-                        && converter != null)
-                    {
-                        mapping = mapping.Clone(converter);
-                    }
+                if (mapping != null
+                    && converter != null)
+                {
+                    mapping = mapping.Clone(converter);
+                }
 
-                    return mapping;
-                });
+                return mapping;
+            });
 
-        /// <summary>
-        ///     Finds the type mapping for a given <see cref="IProperty" />.
-        /// </summary>
-        /// <remarks>
-        ///     Note: providers should typically not need to override this method.
-        /// </remarks>
-        /// <param name="property">The property.</param>
-        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(IProperty property)
-        {
-            var principals = property.GetPrincipals();
-            return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
-        }
-
-        /// <summary>
-        ///     Finds the type mapping for a given <see cref="Type" />.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(Type, IModel)" />
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
-        /// </remarks>
-        /// <param name="type">The CLR type.</param>
-        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(Type type)
-            => FindMappingWithConversion(new TypeMappingInfo(type), null);
-
-        /// <summary>
-        ///     Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
-        /// </summary>
-        /// <remarks>
-        ///     Note: Only call this method if there is no <see cref="IProperty" />,
-        ///     otherwise call <see cref="FindMapping(IProperty)" />.
-        /// </remarks>
-        /// <param name="type">The CLR type.</param>
-        /// <param name="model">The model.</param>
-        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(Type type, IModel model)
-        {
-            type = type.UnwrapNullableType();
-            var typeConfiguration = model.FindTypeMappingConfiguration(type);
-            TypeMappingInfo mappingInfo;
-            Type? providerClrType = null;
-            ValueConverter? customConverter = null;
-            if (typeConfiguration == null)
-            {
-                mappingInfo = new TypeMappingInfo(type);
-            }
-            else
-            {
-                providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
-                customConverter = typeConfiguration.GetValueConverter();
-                mappingInfo = new TypeMappingInfo(
-                    customConverter?.ProviderClrType ?? type,
-                    unicode: typeConfiguration.IsUnicode(),
-                    size: typeConfiguration.GetMaxLength(),
-                    precision: typeConfiguration.GetPrecision(),
-                    scale: typeConfiguration.GetScale());
-            }
-
-            return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
-        }
-
-        /// <summary>
-        ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-        ///     a field or a property of a CLR type.
-        /// </summary>
-        /// <remarks>
-        ///     <para>
-        ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-        ///         call <see cref="FindMapping(IProperty)" />
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
-        ///     </para>
-        /// </remarks>
-        /// <param name="member">The field or property.</param>
-        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-        public override CoreTypeMapping? FindMapping(MemberInfo member)
-            => FindMappingWithConversion(new TypeMappingInfo(member), null);
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="IProperty" />.
+    /// </summary>
+    /// <remarks>
+    ///     Note: providers should typically not need to override this method.
+    /// </remarks>
+    /// <param name="property">The property.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override CoreTypeMapping? FindMapping(IProperty property)
+    {
+        var principals = property.GetPrincipals();
+        return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
     }
+
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="Type" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note: Only call this method if there is no <see cref="IProperty" />
+    ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
+    ///         or <see cref="FindMapping(Type, IModel)" />
+    ///     </para>
+    ///     <para>
+    ///         Note: providers should typically not need to override this method.
+    ///     </para>
+    /// </remarks>
+    /// <param name="type">The CLR type.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override CoreTypeMapping? FindMapping(Type type)
+        => FindMappingWithConversion(new TypeMappingInfo(type), null);
+
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
+    /// </summary>
+    /// <remarks>
+    ///     Note: Only call this method if there is no <see cref="IProperty" />,
+    ///     otherwise call <see cref="FindMapping(IProperty)" />.
+    /// </remarks>
+    /// <param name="type">The CLR type.</param>
+    /// <param name="model">The model.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override CoreTypeMapping? FindMapping(Type type, IModel model)
+    {
+        type = type.UnwrapNullableType();
+        var typeConfiguration = model.FindTypeMappingConfiguration(type);
+        TypeMappingInfo mappingInfo;
+        Type? providerClrType = null;
+        ValueConverter? customConverter = null;
+        if (typeConfiguration == null)
+        {
+            mappingInfo = new TypeMappingInfo(type);
+        }
+        else
+        {
+            providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+            customConverter = typeConfiguration.GetValueConverter();
+            mappingInfo = new TypeMappingInfo(
+                customConverter?.ProviderClrType ?? type,
+                unicode: typeConfiguration.IsUnicode(),
+                size: typeConfiguration.GetMaxLength(),
+                precision: typeConfiguration.GetPrecision(),
+                scale: typeConfiguration.GetScale());
+        }
+
+        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+    }
+
+    /// <summary>
+    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
+    ///     a field or a property of a CLR type.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
+    ///         call <see cref="FindMapping(IProperty)" />
+    ///     </para>
+    ///     <para>
+    ///         Note: providers should typically not need to override this method.
+    ///     </para>
+    /// </remarks>
+    /// <param name="member">The field or property.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public override CoreTypeMapping? FindMapping(MemberInfo member)
+        => FindMappingWithConversion(new TypeMappingInfo(member), null);
 }

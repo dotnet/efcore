@@ -3,49 +3,48 @@
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
+namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+/// <summary>
+///     Converts strings to and from numeric values.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+/// </remarks>
+public class StringToNumberConverter<TNumber> : StringNumberConverter<string, TNumber, TNumber>
 {
     /// <summary>
-    ///     Converts strings to and from numeric values.
+    ///     Creates a new instance of this converter.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    public class StringToNumberConverter<TNumber> : StringNumberConverter<string, TNumber, TNumber>
+    public StringToNumberConverter()
+        : this(null)
     {
-        /// <summary>
-        ///     Creates a new instance of this converter.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
-        /// </remarks>
-        public StringToNumberConverter()
-            : this(null)
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new instance of this converter.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
-        /// </remarks>
-        /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
-        ///     facets for the converted data.
-        /// </param>
-        public StringToNumberConverter(ConverterMappingHints? mappingHints)
-            : base(
-                ToNumber(),
-                ToString(),
-                _defaultHints.With(mappingHints))
-        {
-        }
-
-        /// <summary>
-        ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
-        /// </summary>
-        public static ValueConverterInfo DefaultInfo { get; }
-            = new(typeof(string), typeof(TNumber), i => new StringToNumberConverter<TNumber>(i.MappingHints), _defaultHints);
     }
+
+    /// <summary>
+    ///     Creates a new instance of this converter.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    /// <param name="mappingHints">
+    ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
+    ///     facets for the converted data.
+    /// </param>
+    public StringToNumberConverter(ConverterMappingHints? mappingHints)
+        : base(
+            ToNumber(),
+            ToString(),
+            _defaultHints.With(mappingHints))
+    {
+    }
+
+    /// <summary>
+    ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
+    /// </summary>
+    public static ValueConverterInfo DefaultInfo { get; }
+        = new(typeof(string), typeof(TNumber), i => new StringToNumberConverter<TNumber>(i.MappingHints), _defaultHints);
 }
