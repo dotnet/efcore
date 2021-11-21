@@ -248,6 +248,10 @@
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
     <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
+  <data name="LogMissingViewDefinitionRights" xml:space="preserve">
+    <value>Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.</value>
+    <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning string?</comment>
+  </data>  
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
     <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
