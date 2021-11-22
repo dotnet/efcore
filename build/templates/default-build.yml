@@ -116,6 +116,8 @@ jobs:
     - ${{ if eq(parameters.agentOs, 'Windows') }}:
       - script: .\build.cmd -ci /p:SignType=$(_SignType) /p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
         displayName: Run build.cmd
+        env:
+          KOREBUILD_ENABLE_BINARY_LOG: true
     - ${{ if ne(parameters.agentOs, 'Windows') }}:
       - script: ./build.sh -ci -p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
         displayName: Run build.sh

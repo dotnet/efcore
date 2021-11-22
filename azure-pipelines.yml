@@ -31,6 +31,9 @@ jobs:
   parameters:
     agentOs: macOS
     configuration: Release
+    artifacts:
+      publish: true
+      path: 'artifacts/'
 
 - template: build/templates/default-build.yml
   parameters:
