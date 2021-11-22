@@ -886,7 +886,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                     }
                     else
                     {
-                        CloseDbConnectionAsync();
+                        CloseDbConnection();
                     }
 
                     wasClosed = true;
