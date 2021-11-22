@@ -1,17 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public class QueryLoggingCosmosTestSensitive : QueryLoggingCosmosTestBase,
+    IClassFixture<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
 {
-    public class QueryLoggingCosmosTestSensitive : QueryLoggingCosmosTestBase,
-        IClassFixture<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
+    public QueryLoggingCosmosTestSensitive(NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture)
+        : base(fixture)
     {
-        public QueryLoggingCosmosTestSensitive(NorthwindQueryCosmosFixture<NoopModelCustomizer> fixture)
-            : base(fixture)
-        {
-        }
     }
 }

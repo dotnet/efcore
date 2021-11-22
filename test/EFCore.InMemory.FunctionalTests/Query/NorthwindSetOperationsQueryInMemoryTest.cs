@@ -1,34 +1,29 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindSetOperationsQueryInMemoryTest : NorthwindSetOperationsQueryTestBase<
+    NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
 {
-    public class NorthwindSetOperationsQueryInMemoryTest : NorthwindSetOperationsQueryTestBase<
-        NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
-    {
-        public NorthwindSetOperationsQueryInMemoryTest(
-            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+    public NorthwindSetOperationsQueryInMemoryTest(
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
 #pragma warning disable IDE0060 // Remove unused parameter
-            ITestOutputHelper testOutputHelper)
+        ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
-            : base(fixture)
-        {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
+        : base(fixture)
+    {
+        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+    }
 
-        public override async Task Collection_projection_before_set_operation_fails(bool async)
-        {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Collection_projection_before_set_operation_fails(async))).Message;
+    public override async Task Collection_projection_before_set_operation_fails(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Collection_projection_before_set_operation_fails(async))).Message;
 
-            Assert.Equal(InMemoryStrings.SetOperationsNotAllowedAfterClientEvaluation, message);
-        }
+        Assert.Equal(InMemoryStrings.SetOperationsNotAllowedAfterClientEvaluation, message);
     }
 }

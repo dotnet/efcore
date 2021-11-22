@@ -5,7 +5,6 @@ using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Newtonsoft.Json.Linq;
 
 #nullable disable

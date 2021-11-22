@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace

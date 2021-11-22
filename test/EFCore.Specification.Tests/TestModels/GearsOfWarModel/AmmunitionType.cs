@@ -1,11 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+
+public enum AmmunitionType
 {
-    public enum AmmunitionType
-    {
-        Cartridge = 1,
-        Shell = 2
-    }
+    Cartridge = 1,
+    Shell = 2
 }

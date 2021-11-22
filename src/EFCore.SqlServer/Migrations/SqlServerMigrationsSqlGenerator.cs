@@ -5,7 +5,6 @@ using System.Collections;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
