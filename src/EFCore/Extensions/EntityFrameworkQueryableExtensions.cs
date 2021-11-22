@@ -3127,11 +3127,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            await using (var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken))
+            var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+            await using var _ = enumerator.ConfigureAwait(false);
+
+            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
-                while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-                {
-                }
             }
         }
 

@@ -10213,8 +10213,8 @@ ORDER BY [t].[Id]");
         public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
         {
             var contextFactory = await CreateContext25225Async();
-            var task1 = Task.Factory.StartNew(() => Query(MyContext25225.Parent1Id, MyContext25225.Collection1Id));
-            var task2 = Task.Factory.StartNew(() => Query(MyContext25225.Parent2Id, MyContext25225.Collection2Id));
+            var task1 = Task.Run(() => Query(MyContext25225.Parent1Id, MyContext25225.Collection1Id));
+            var task2 = Task.Run(() => Query(MyContext25225.Parent2Id, MyContext25225.Collection2Id));
             await Task.WhenAll(task1, task2);
 
             void Query(Guid parentId, Guid collectionId)

@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                await using var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
@@ -291,6 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger, CommandSource.SaveChanges),
                     cancellationToken).ConfigureAwait(false);
+
+                await using var _ = dataReader.ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)

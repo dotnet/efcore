@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         }
                         else
                         {
-                            CloseDbConnectionAsync();
+                            CloseDbConnection();
                         }
 
                         wasClosed = true;
