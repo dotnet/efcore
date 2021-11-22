@@ -1,82 +1,78 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq.Expressions;
+namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
+/// <summary>
+///     Converts <typeparamref name="TModel" /> to and from <typeparamref name="TProvider" /> using simple casts from one type
+///     to the other.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+/// </remarks>
+public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
 {
-    /// <summary>
-    ///     Converts <typeparamref name="TModel" /> to and from <typeparamref name="TProvider" /> using simple casts from one type
-    ///     to the other.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
-    /// </remarks>
-    public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
+
+    private static ConverterMappingHints? CreateDefaultHints()
     {
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
-
-        private static ConverterMappingHints? CreateDefaultHints()
+        if (typeof(TProvider).UnwrapNullableType() == typeof(decimal))
         {
-            if (typeof(TProvider).UnwrapNullableType() == typeof(decimal))
+            var underlyingModelType = typeof(TModel).UnwrapNullableType().UnwrapEnumType();
+
+            if (underlyingModelType == typeof(long)
+                || underlyingModelType == typeof(ulong))
             {
-                var underlyingModelType = typeof(TModel).UnwrapNullableType().UnwrapEnumType();
-
-                if (underlyingModelType == typeof(long)
-                    || underlyingModelType == typeof(ulong))
-                {
-                    return new ConverterMappingHints(precision: 20, scale: 0);
-                }
-
-                if (underlyingModelType == typeof(float)
-                    || underlyingModelType == typeof(double))
-                {
-                    return new ConverterMappingHints(precision: 38, scale: 17);
-                }
+                return new ConverterMappingHints(precision: 20, scale: 0);
             }
 
-            return default;
+            if (underlyingModelType == typeof(float)
+                || underlyingModelType == typeof(double))
+            {
+                return new ConverterMappingHints(precision: 38, scale: 17);
+            }
         }
 
-        /// <summary>
-        ///     Creates a new instance of this converter.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
-        /// </remarks>
-        public CastingConverter()
-            : this(null)
-        {
-        }
+        return default;
+    }
 
-        /// <summary>
-        ///     Creates a new instance of this converter.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
-        /// </remarks>
-        public CastingConverter(ConverterMappingHints? mappingHints)
-            : base(
-                Convert<TModel, TProvider>(),
-                Convert<TProvider, TModel>(),
-                _defaultHints?.With(mappingHints) ?? mappingHints)
-        {
-        }
+    /// <summary>
+    ///     Creates a new instance of this converter.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public CastingConverter()
+        : this(null)
+    {
+    }
 
-        /// <summary>
-        ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
-        /// </summary>
-        public static ValueConverterInfo DefaultInfo { get; }
-            = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
+    /// <summary>
+    ///     Creates a new instance of this converter.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public CastingConverter(ConverterMappingHints? mappingHints)
+        : base(
+            Convert<TModel, TProvider>(),
+            Convert<TProvider, TModel>(),
+            _defaultHints?.With(mappingHints) ?? mappingHints)
+    {
+    }
 
-        private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
-        {
-            var param = Expression.Parameter(typeof(TIn), "v");
-            return Expression.Lambda<Func<TIn, TOut>>(
-                Expression.Convert(param, typeof(TOut)),
-                param);
-        }
+    /// <summary>
+    ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
+    /// </summary>
+    public static ValueConverterInfo DefaultInfo { get; }
+        = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
+
+    private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
+    {
+        var param = Expression.Parameter(typeof(TIn), "v");
+        return Expression.Lambda<Func<TIn, TOut>>(
+            Expression.Convert(param, typeof(TOut)),
+            param);
     }
 }

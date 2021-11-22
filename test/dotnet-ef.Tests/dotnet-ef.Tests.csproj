@@ -3,7 +3,16 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq.Expressions" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
+    <Using Include="Xunit" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\dotnet-ef\dotnet-ef.csproj" />

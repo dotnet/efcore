@@ -1,16 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+using NameSpace1;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -406,9 +398,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(orderPkConstraint, orderDetailsPk.GetMappedConstraints().Single());
 
             var orderDetailsPkProperty = orderDetailsPk.Properties.Single();
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("Id", orderDetailsPkProperty.GetColumnName());
-#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Equal("OrderId", orderDetailsPkProperty.GetColumnBaseName());
 
             var billingAddressOwnership = orderDetailsType.FindNavigation(nameof(OrderDetails.BillingAddress)).ForeignKey;
@@ -459,21 +448,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("SpecialSchema", specialCustomerTable.Schema);
                 Assert.Equal(5, specialCustomerTable.Columns.Count());
 
-                Assert.True(specialCustomerTable.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
+                Assert.True(
+                    specialCustomerTable.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
 
                 var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
 
-                var addressColumn = specialCustomerTable.Columns.Single(c =>
-                    c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                var addressColumn = specialCustomerTable.Columns.Single(
+                    c =>
+                        c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                 Assert.False(addressColumn.IsNullable);
                 var specialityProperty = specialityColumn.PropertyMappings.First().Property;
 
                 Assert.Equal(
                     RelationalStrings.PropertyNotMappedToTable(
                         nameof(SpecialCustomer.Speciality), nameof(SpecialCustomer), "Customer"),
-                    Assert.Throws<InvalidOperationException>(() =>
-                    specialityProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema))).Message);
+                    Assert.Throws<InvalidOperationException>(
+                            () =>
+                                specialityProperty.IsColumnNullable(StoreObjectIdentifier.Table(customerTable.Name, customerTable.Schema)))
+                        .Message);
 
                 Assert.Equal(3, customerPk.GetMappedConstraints().Count());
                 var specialCustomerPkConstraint = specialCustomerTable.PrimaryKey;
@@ -537,8 +530,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.True(specialityColumn.IsNullable);
 
-                var addressColumn = specialCustomerTable.Columns.Single(c =>
-                    c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
+                var addressColumn = specialCustomerTable.Columns.Single(
+                    c =>
+                        c.Name == nameof(SpecialCustomer.Details) + "_" + nameof(CustomerDetails.Address));
                 Assert.True(addressColumn.IsNullable);
 
                 var specialCustomerPkConstraint = specialCustomerTable.PrimaryKey;
@@ -911,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<NameSpace1.SameEntityType>().HasNoKey().ToTable((string)null);
+            modelBuilder.Entity<SameEntityType>().HasNoKey().ToTable((string)null);
             modelBuilder.Entity<NameSpace2.SameEntityType>().HasNoKey().ToTable((string)null);
 
             var model = Finalize(modelBuilder);
@@ -922,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(model.Functions);
             Assert.Empty(model.Queries);
 
-            var entityType1 = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var entityType1 = model.Model.FindEntityType(typeof(SameEntityType));
             var entityType2 = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
 
             var defaultMapping1 = Assert.Single(entityType1.GetDefaultMappings());

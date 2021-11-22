@@ -2,131 +2,128 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
+    where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
 {
-    public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
+    protected NotificationEntitiesTestBase(TFixture fixture)
     {
-        protected NotificationEntitiesTestBase(TFixture fixture)
-            => Fixture = fixture;
+        Fixture = fixture;
+    }
 
-        protected virtual TFixture Fixture { get; }
+    protected virtual TFixture Fixture { get; }
 
-        [ConditionalFact] // Issue #4020
-        public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
+    [ConditionalFact] // Issue #4020
+    public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
+    {
+        using var context = CreateContext();
+        var postA = context.Set<Post>().Single(e => e.Id == 1);
+        var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
+
+        Assert.Same(postA, postB);
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
+    }
+
+    [ConditionalFact] // Issue #4020
+    public virtual void Include_brings_collections_referenced_from_already_tracked_notification_entities_as_Unchanged()
+    {
+        using var context = CreateContext();
+        var blogA = context.Set<Blog>().Single(e => e.Id == 1);
+        var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
+
+        Assert.Same(blogA, blogB);
+
+        Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
+        Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
+    }
+
+    protected class Blog : NotificationEntity
+    {
+        private int _id;
+        private ICollection<Post> _posts;
+
+        public int Id
         {
-            using var context = CreateContext();
-            var postA = context.Set<Post>().Single(e => e.Id == 1);
-            var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
-
-            Assert.Same(postA, postB);
-
-            Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
+            get => _id;
+            set => SetWithNotify(value, ref _id);
         }
 
-        [ConditionalFact] // Issue #4020
-        public virtual void Include_brings_collections_referenced_from_already_tracked_notification_entities_as_Unchanged()
+        public ICollection<Post> Posts
         {
-            using var context = CreateContext();
-            var blogA = context.Set<Blog>().Single(e => e.Id == 1);
-            var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
+            get => _posts;
+            set => SetWithNotify(value, ref _posts);
+        }
+    }
 
-            Assert.Same(blogA, blogB);
+    protected class Post : NotificationEntity
+    {
+        private int _id;
+        private int _postId;
+        private Blog _blog;
 
-            Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
-            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
         }
 
-        protected class Blog : NotificationEntity
+        public int PostId
         {
-            private int _id;
-            private ICollection<Post> _posts;
-
-            public int Id
-            {
-                get => _id;
-                set => SetWithNotify(value, ref _id);
-            }
-
-            public ICollection<Post> Posts
-            {
-                get => _posts;
-                set => SetWithNotify(value, ref _posts);
-            }
+            get => _postId;
+            set => SetWithNotify(value, ref _postId);
         }
 
-        protected class Post : NotificationEntity
+        public Blog Blog
         {
-            private int _id;
-            private int _postId;
-            private Blog _blog;
+            get => _blog;
+            set => SetWithNotify(value, ref _blog);
+        }
+    }
 
-            public int Id
-            {
-                get => _id;
-                set => SetWithNotify(value, ref _id);
-            }
+    protected class NotificationEntity : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
 
-            public int PostId
-            {
-                get => _postId;
-                set => SetWithNotify(value, ref _postId);
-            }
+        private void NotifyChanged(string propertyName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            public Blog Blog
+        protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
+        {
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(field, value))
             {
-                get => _blog;
-                set => SetWithNotify(value, ref _blog);
+                field = value;
+                NotifyChanged(propertyName);
             }
         }
+    }
 
-        protected class NotificationEntity : INotifyPropertyChanged
+    protected DbContext CreateContext()
+        => Fixture.CreateContext();
+
+    public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
+    {
+        protected override string StoreName { get; } = "NotificationEntities";
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            public event PropertyChangedEventHandler PropertyChanged;
-
-            private void NotifyChanged(string propertyName)
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
-            {
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(field, value))
-                {
-                    field = value;
-                    NotifyChanged(propertyName);
-                }
-            }
+            modelBuilder.Entity<Blog>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
         }
 
-        protected DbContext CreateContext()
-            => Fixture.CreateContext();
-
-        public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
+        protected override void Seed(PoolableDbContext context)
         {
-            protected override string StoreName { get; } = "NotificationEntities";
+            context.Add(
+                new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                modelBuilder.Entity<Blog>().Property(e => e.Id).ValueGeneratedNever();
-                modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
-            }
-
-            protected override void Seed(PoolableDbContext context)
-            {
-                context.Add(
-                    new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
-
-                context.SaveChanges();
-            }
+            context.SaveChanges();
         }
     }
 }

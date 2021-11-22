@@ -1288,7 +1288,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     else
     {
         throw "Startup project '$($startupProject.ProjectName)' targets framework '$targetFramework'. The Entity Framework Core Package " +
-            'Manager Console Tools don''t support this framework. See https://aka.ms/efcore-docs-pmc-tfms for more information.'
+            'Manager Console Tools don''t support this framework. See https://aka.ms/efcore-docs-pmc-tfms for more information and examples.'
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'

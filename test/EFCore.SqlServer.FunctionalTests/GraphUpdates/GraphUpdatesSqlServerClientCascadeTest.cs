@@ -1,40 +1,36 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestBase<
+    GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>
 {
-    public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>
+    public GraphUpdatesSqlServerClientCascadeTest(SqlServerFixture fixture)
+        : base(fixture)
     {
-        public GraphUpdatesSqlServerClientCascadeTest(SqlServerFixture fixture)
-            : base(fixture)
+    }
+
+    protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
+    public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
+    {
+        public override bool NoStoreCascades
+            => true;
+
+        protected override string StoreName { get; } = "GraphClientCascadeUpdatesTest";
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-        }
+            base.OnModelCreating(modelBuilder, context);
 
-        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-            => facade.UseTransaction(transaction.GetDbTransaction());
-
-        public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
-        {
-            public override bool NoStoreCascades
-                => true;
-
-            protected override string StoreName { get; } = "GraphClientCascadeUpdatesTest";
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            foreach (var foreignKey in modelBuilder.Model
+                         .GetEntityTypes()
+                         .SelectMany(e => e.GetDeclaredForeignKeys())
+                         .Where(e => e.DeleteBehavior == DeleteBehavior.Cascade))
             {
-                base.OnModelCreating(modelBuilder, context);
-
-                foreach (var foreignKey in modelBuilder.Model
-                    .GetEntityTypes()
-                    .SelectMany(e => e.GetDeclaredForeignKeys())
-                    .Where(e => e.DeleteBehavior == DeleteBehavior.Cascade))
-                {
-                    foreignKey.DeleteBehavior = DeleteBehavior.ClientCascade;
-                }
+                foreignKey.DeleteBehavior = DeleteBehavior.ClientCascade;
             }
         }
     }

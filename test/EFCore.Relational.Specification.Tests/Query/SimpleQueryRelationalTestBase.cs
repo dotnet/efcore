@@ -1,11 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -14,9 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -26,19 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateContext();
             //var good1 = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             //var good2 = context.Set<NameSpace2.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
-            var bad = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
+            var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
         }
 
         protected class Context23981 : DbContext
         {
             public Context23981(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var mb = modelBuilder.Entity(typeof(NameSpace1.TestQuery));
+                var mb = modelBuilder.Entity(typeof(TestQuery));
 
                 mb.HasBaseType((Type)null);
                 mb.HasNoKey();
