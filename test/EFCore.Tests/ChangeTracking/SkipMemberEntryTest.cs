@@ -2,85 +2,81 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking
+namespace Microsoft.EntityFrameworkCore.ChangeTracking;
+
+public class SkipMemberEntryTest
 {
-    public class SkipMemberEntryTest
+    [ConditionalFact]
+    public void Can_get_back_reference_collection()
     {
-        [ConditionalFact]
-        public void Can_get_back_reference_collection()
-        {
-            using var context = new FreezerContext();
-            var entity = new Cherry();
-            context.Add(entity);
+        using var context = new FreezerContext();
+        var entity = new Cherry();
+        context.Add(entity);
 
-            var entityEntry = context.Entry(entity);
-            Assert.Same(entityEntry.Entity, entityEntry.Member("Chunkies").EntityEntry.Entity);
-        }
+        var entityEntry = context.Entry(entity);
+        Assert.Same(entityEntry.Entity, entityEntry.Member("Chunkies").EntityEntry.Entity);
+    }
 
-        [ConditionalFact]
-        public void Can_get_metadata_collection()
-        {
-            using var context = new FreezerContext();
-            var entity = new Cherry();
-            context.Add(entity);
+    [ConditionalFact]
+    public void Can_get_metadata_collection()
+    {
+        using var context = new FreezerContext();
+        var entity = new Cherry();
+        context.Add(entity);
 
-            Assert.Equal("Chunkies", context.Entry(entity).Member("Chunkies").Metadata.Name);
-        }
+        Assert.Equal("Chunkies", context.Entry(entity).Member("Chunkies").Metadata.Name);
+    }
 
-        [ConditionalFact]
-        public void Can_get_and_set_current_value_collection()
-        {
-            using var context = new FreezerContext();
+    [ConditionalFact]
+    public void Can_get_and_set_current_value_collection()
+    {
+        using var context = new FreezerContext();
 
-            var cherry = new Cherry();
-            var chunky = new Chunky();
-            context.AddRange(chunky, cherry);
+        var cherry = new Cherry();
+        var chunky = new Chunky();
+        context.AddRange(chunky, cherry);
 
-            var collection = context.Entry(cherry).Member("Chunkies");
-            var inverseCollection = context.Entry(chunky).Member("Cherries");
+        var collection = context.Entry(cherry).Member("Chunkies");
+        var inverseCollection = context.Entry(chunky).Member("Cherries");
 
-            Assert.Null(collection.CurrentValue);
-            Assert.Null(inverseCollection.CurrentValue);
+        Assert.Null(collection.CurrentValue);
+        Assert.Null(inverseCollection.CurrentValue);
 
-            collection.CurrentValue = new List<Chunky> { chunky };
+        collection.CurrentValue = new List<Chunky> { chunky };
 
-            Assert.Same(cherry, chunky.Cherries.Single());
-            Assert.Same(chunky, cherry.Chunkies.Single());
-            Assert.Equal(cherry, ((ICollection<Cherry>)inverseCollection.CurrentValue).Single());
-            Assert.Same(chunky, ((ICollection<Chunky>)collection.CurrentValue).Single());
+        Assert.Same(cherry, chunky.Cherries.Single());
+        Assert.Same(chunky, cherry.Chunkies.Single());
+        Assert.Equal(cherry, ((ICollection<Cherry>)inverseCollection.CurrentValue).Single());
+        Assert.Same(chunky, ((ICollection<Chunky>)collection.CurrentValue).Single());
 
-            collection.CurrentValue = null;
+        collection.CurrentValue = null;
 
-            Assert.Empty(chunky.Cherries);
-            Assert.Null(cherry.Chunkies);
-            Assert.Empty((IEnumerable)inverseCollection.CurrentValue);
-            Assert.Null(collection.CurrentValue);
-        }
+        Assert.Empty(chunky.Cherries);
+        Assert.Null(cherry.Chunkies);
+        Assert.Empty((IEnumerable)inverseCollection.CurrentValue);
+        Assert.Null(collection.CurrentValue);
+    }
 
-        private class Chunky
-        {
-            public int Id { get; set; }
-            public ICollection<Cherry> Cherries { get; set; }
-        }
+    private class Chunky
+    {
+        public int Id { get; set; }
+        public ICollection<Cherry> Cherries { get; set; }
+    }
 
-        private class Cherry
-        {
-            public int Id { get; set; }
-            public ICollection<Chunky> Chunkies { get; set; }
-        }
+    private class Cherry
+    {
+        public int Id { get; set; }
+        public ICollection<Chunky> Chunkies { get; set; }
+    }
 
-        private class FreezerContext : DbContext
-        {
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase(nameof(FreezerContext));
+    private class FreezerContext : DbContext
+    {
+        protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase(nameof(FreezerContext));
 
-            public DbSet<Chunky> Icecream { get; set; }
-        }
+        public DbSet<Chunky> Icecream { get; set; }
     }
 }

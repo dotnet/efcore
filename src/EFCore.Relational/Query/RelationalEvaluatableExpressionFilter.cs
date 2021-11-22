@@ -1,73 +1,68 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     Represents a filter for evaluatable expressions.
+/// </summary>
+/// <remarks>
+///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+/// </remarks>
+public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
 {
     /// <summary>
-    ///     Represents a filter for evaluatable expressions.
+    ///     <para>
+    ///         Creates a new <see cref="RelationalEvaluatableExpressionFilter" /> instance.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
-    /// <remarks>
-    ///     The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///     is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///     This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    /// </remarks>
-    public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
+    /// <param name="dependencies">The dependencies to use.</param>
+    /// <param name="relationalDependencies">The relational-specific dependencies to use.</param>
+    public RelationalEvaluatableExpressionFilter(
+        EvaluatableExpressionFilterDependencies dependencies,
+        RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     <para>
-        ///         Creates a new <see cref="RelationalEvaluatableExpressionFilter" /> instance.
-        ///     </para>
-        ///     <para>
-        ///         This type is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="dependencies">The dependencies to use.</param>
-        /// <param name="relationalDependencies">The relational-specific dependencies to use.</param>
-        public RelationalEvaluatableExpressionFilter(
-            EvaluatableExpressionFilterDependencies dependencies,
-            RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
-            : base(dependencies)
-        {
-            RelationalDependencies = relationalDependencies;
-        }
+        RelationalDependencies = relationalDependencies;
+    }
 
-        /// <summary>
-        ///     Relational provider-specific dependencies for this service.
-        /// </summary>
-        protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
 
-        /// <summary>
-        ///     Checks whether the given expression can be evaluated.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <param name="model">The model.</param>
-        /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
-        public override bool IsEvaluatableExpression(Expression expression, IModel model)
+    /// <summary>
+    ///     Checks whether the given expression can be evaluated.
+    /// </summary>
+    /// <param name="expression">The expression.</param>
+    /// <param name="model">The model.</param>
+    /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
+    public override bool IsEvaluatableExpression(Expression expression, IModel model)
+    {
+        if (expression is MethodCallExpression methodCallExpression)
         {
-            if (expression is MethodCallExpression methodCallExpression)
+            var method = methodCallExpression.Method;
+
+            if (model.FindDbFunction(method) != null)
             {
-                var method = methodCallExpression.Method;
-
-                if (model.FindDbFunction(method) != null)
-                {
-                    // Never evaluate DbFunction
-                    // If it is inside lambda then we will have whole method call
-                    // If it is outside of lambda then it will be evaluated for table valued function already.
-                    return false;
-                }
-
-                if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions))
-                {
-                    return false;
-                }
+                // Never evaluate DbFunction
+                // If it is inside lambda then we will have whole method call
+                // If it is outside of lambda then it will be evaluated for table valued function already.
+                return false;
             }
 
-            return base.IsEvaluatableExpression(expression, model);
+            if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions))
+            {
+                return false;
+            }
         }
+
+        return base.IsEvaluatableExpression(expression, model);
     }
 }

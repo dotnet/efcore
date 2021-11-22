@@ -3,51 +3,50 @@
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
+namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+/// <summary>
+///     Converts a <see cref="char" /> to and from a single-character <see cref="string" />.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+/// </remarks>
+public class CharToStringConverter : StringCharConverter<char, string>
 {
+    private static readonly ConverterMappingHints _defaultHints = new(size: 1);
+
     /// <summary>
-    ///     Converts a <see cref="char" /> to and from a single-character <see cref="string" />.
+    ///     Creates a new instance of this converter. This converter preserves order.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
     /// </remarks>
-    public class CharToStringConverter : StringCharConverter<char, string>
+    public CharToStringConverter()
+        : this(null)
     {
-        private static readonly ConverterMappingHints _defaultHints = new(size: 1);
-
-        /// <summary>
-        ///     Creates a new instance of this converter. This converter preserves order.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
-        /// </remarks>
-        public CharToStringConverter()
-            : this(null)
-        {
-        }
-
-        /// <summary>
-        ///     Creates a new instance of this converter. This converter preserves order.
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
-        /// </remarks>
-        /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
-        ///     facets for the converted data.
-        /// </param>
-        public CharToStringConverter(ConverterMappingHints? mappingHints)
-            : base(
-                ToString(),
-                ToChar(),
-                _defaultHints.With(mappingHints))
-        {
-        }
-
-        /// <summary>
-        ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
-        /// </summary>
-        public static ValueConverterInfo DefaultInfo { get; }
-            = new(typeof(char), typeof(string), i => new CharToStringConverter(i.MappingHints), _defaultHints);
     }
+
+    /// <summary>
+    ///     Creates a new instance of this converter. This converter preserves order.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    /// <param name="mappingHints">
+    ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
+    ///     facets for the converted data.
+    /// </param>
+    public CharToStringConverter(ConverterMappingHints? mappingHints)
+        : base(
+            ToString(),
+            ToChar(),
+            _defaultHints.With(mappingHints))
+    {
+    }
+
+    /// <summary>
+    ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
+    /// </summary>
+    public static ValueConverterInfo DefaultInfo { get; }
+        = new(typeof(char), typeof(string), i => new CharToStringConverter(i.MappingHints), _defaultHints);
 }

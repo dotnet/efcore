@@ -3,17 +3,16 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : ComplexNavigationsSharedTypeQuerySqlServerFixture
 {
-    public class TemporalComplexNavigationsSharedTypeQuerySqlServerFixture : ComplexNavigationsSharedTypeQuerySqlServerFixture
+    protected override string StoreName { get; } = "TemporalComplexNavigationsOwned";
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        protected override string StoreName { get; } = "TemporalComplexNavigationsOwned";
+        base.OnModelCreating(modelBuilder, context);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<Level1>().ToTable(tb => tb.IsTemporal());
-        }
+        modelBuilder.Entity<Level1>().ToTable(tb => tb.IsTemporal());
     }
 }

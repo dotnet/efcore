@@ -1,99 +1,92 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OData.Edm;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OData.Edm;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class ODataQueryTestFixtureInitializer
 {
-    public class ODataQueryTestFixtureInitializer
+    public static (string BaseAddress, IHttpClientFactory ClientFactory, IHost SelfHostServer) Initialize<TContext>(
+        string storeName,
+        IEdmModel edmModel,
+        List<IODataControllerActionConvention> customRoutingConventions = null)
+        where TContext : DbContext
     {
-        public static (string BaseAddress, IHttpClientFactory ClientFactory, IHost SelfHostServer) Initialize<TContext>(
-            string storeName,
-            IEdmModel edmModel,
-            List<IODataControllerActionConvention> customRoutingConventions = null)
-            where TContext : DbContext
-        {
-            var selfHostServer = Host.CreateDefaultBuilder()
-                .ConfigureServices(services => services.AddSingleton<IHostLifetime, NoopHostLifetime>())
-                .ConfigureWebHostDefaults(webBuilder => webBuilder
+        var selfHostServer = Host.CreateDefaultBuilder()
+            .ConfigureServices(services => services.AddSingleton<IHostLifetime, NoopHostLifetime>())
+            .ConfigureWebHostDefaults(
+                webBuilder => webBuilder
                     .UseKestrel(options => options.Listen(IPAddress.Loopback, 0))
-                    .ConfigureServices(services =>
-                    {
-                        services.AddDbContext<TContext>(o => o.UseSqlServer(
-                            SqlServerTestStore.CreateConnectionString(storeName)));
-
-                        services.AddControllers().AddOData(o =>
+                    .ConfigureServices(
+                        services =>
                         {
-                            o.AddRouteComponents("odata", edmModel)
-                                .SetMaxTop(null)
-                                .Expand()
-                                .Select()
-                                .OrderBy()
-                                .Filter()
-                                .Count();
+                            services.AddDbContext<TContext>(
+                                o => o.UseSqlServer(
+                                    SqlServerTestStore.CreateConnectionString(storeName)));
 
-                            if (customRoutingConventions != null)
-                            {
-                                foreach (var customRoutingConvention in customRoutingConventions)
+                            services.AddControllers().AddOData(
+                                o =>
                                 {
-                                    o.Conventions.Add(customRoutingConvention);
-                                }
-                            }
-                        });
+                                    o.AddRouteComponents("odata", edmModel)
+                                        .SetMaxTop(null)
+                                        .Expand()
+                                        .Select()
+                                        .OrderBy()
+                                        .Filter()
+                                        .Count();
 
-                        services.AddHttpClient();
-                    })
-                    .Configure(app =>
-                    {
-                        app.UseRouting();
-                        app.UseEndpoints(endpoints =>
+                                    if (customRoutingConventions != null)
+                                    {
+                                        foreach (var customRoutingConvention in customRoutingConventions)
+                                        {
+                                            o.Conventions.Add(customRoutingConvention);
+                                        }
+                                    }
+                                });
+
+                            services.AddHttpClient();
+                        })
+                    .Configure(
+                        app =>
                         {
-                            endpoints.MapControllers();
-                        });
-                    })
-                    .ConfigureLogging((hostingContext, logging) =>
-                    {
-                        logging.AddDebug();
-                        logging.SetMinimumLevel(LogLevel.Warning);
-                    }
-                )).Build();
+                            app.UseRouting();
+                            app.UseEndpoints(
+                                endpoints =>
+                                {
+                                    endpoints.MapControllers();
+                                });
+                        })
+                    .ConfigureLogging(
+                        (hostingContext, logging) =>
+                        {
+                            logging.AddDebug();
+                            logging.SetMinimumLevel(LogLevel.Warning);
+                        }
+                    )).Build();
 
-            selfHostServer.Start();
+        selfHostServer.Start();
 
-            var baseAddress = selfHostServer.Services.GetService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.First();
-            var clientFactory = selfHostServer.Services.GetRequiredService<IHttpClientFactory>();
+        var baseAddress = selfHostServer.Services.GetService<IServer>().Features.Get<IServerAddressesFeature>().Addresses.First();
+        var clientFactory = selfHostServer.Services.GetRequiredService<IHttpClientFactory>();
 
-            return (baseAddress, clientFactory, selfHostServer);
-        }
+        return (baseAddress, clientFactory, selfHostServer);
+    }
 
-        private class NoopHostLifetime : IHostLifetime
-        {
-            public Task StopAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
+    private class NoopHostLifetime : IHostLifetime
+    {
+        public Task StopAsync(CancellationToken cancellationToken)
+            => Task.CompletedTask;
 
-            public Task WaitForStartAsync(CancellationToken cancellationToken)
-            {
-                return Task.CompletedTask;
-            }
-        }
+        public Task WaitForStartAsync(CancellationToken cancellationToken)
+            => Task.CompletedTask;
     }
 }
-

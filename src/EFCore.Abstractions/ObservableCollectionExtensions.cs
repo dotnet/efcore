@@ -5,25 +5,25 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+/// <summary>
+///     Extension methods for <see cref="ObservableCollection{T}" />.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
+///     examples.
+/// </remarks>
+public static class ObservableCollectionExtensions
 {
     /// <summary>
-    ///     Extension methods for <see cref="ObservableCollection{T}" />.
+    ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with the given
+    ///     <see cref="ObservableCollection{T}" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
-    /// </remarks>
-    public static class ObservableCollectionExtensions
-    {
-        /// <summary>
-        ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with the given
-        ///     <see cref="ObservableCollection{T}" />.
-        /// </summary>
-        /// <typeparam name="T">The element type.</typeparam>
-        /// <param name="source">The collection that the binding list will stay in sync with.</param>
-        /// <returns>The binding list.</returns>
-        public static BindingList<T> ToBindingList<T>(this ObservableCollection<T> source)
-            where T : class
-            => new ObservableBackedBindingList<T>(source);
-    }
+    /// <typeparam name="T">The element type.</typeparam>
+    /// <param name="source">The collection that the binding list will stay in sync with.</param>
+    /// <returns>The binding list.</returns>
+    public static BindingList<T> ToBindingList<T>(this ObservableCollection<T> source)
+        where T : class
+        => new ObservableBackedBindingList<T>(source);
 }
