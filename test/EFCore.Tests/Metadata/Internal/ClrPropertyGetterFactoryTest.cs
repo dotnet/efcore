@@ -119,9 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
 
-            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType => throw new NotImplementedException();
+            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
+                => throw new NotImplementedException();
 
-            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType => throw new NotImplementedException();
+            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -140,11 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_property_info()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).GetClrValue(
                     new Customer { Id = 7 }));
-        }
 
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_IProperty_struct_property()
@@ -162,12 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_struct_property_info()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 new Fuel(1.0),
                 new ClrPropertyGetterFactory().Create(typeof(Customer).GetAnyProperty("Fuel")).GetClrValue(
                     new Customer { Id = 7, Fuel = new Fuel(1.0) }));
-        }
 
         [ConditionalFact]
         public void Delegate_getter_is_returned_for_index_property()
@@ -178,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
             modelBuilder.FinalizeModel();
 
-            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal(
+                "ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
             Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
 
@@ -194,17 +193,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private struct Fuel
         {
             public Fuel(double volume)
-                => Volume = volume;
+            {
+                Volume = volume;
+            }
 
             public double Volume { get; }
         }
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new()
-            {
-                { "PropertyA", "ValueA" }, { "PropertyB", 123 }
-            };
+            private readonly Dictionary<string, object> _internalValues = new() { { "PropertyA", "ValueA" }, { "PropertyB", 123 } };
 
             internal int Id { get; set; }
 

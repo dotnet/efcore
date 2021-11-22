@@ -170,11 +170,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     var isAnsi = mappingInfo.IsUnicode == false;
                     var isFixedLength = mappingInfo.IsFixedLength == true;
                     var baseName = (isAnsi ? "ansi_" : "just_") + (isFixedLength ? "string_fixed" : "string");
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
 
                     return new TestStringTypeMapping(
                         storeTypeName ?? baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                        isAnsi ? DbType.AnsiString : (DbType?)null,
+                        isAnsi ? DbType.AnsiString : null,
                         !isAnsi,
                         size,
                         isFixedLength);
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         return _rowversion;
                     }
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
                     return new ByteArrayTypeMapping(

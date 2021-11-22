@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#17536")]
         public override Task SelectMany_correlated_with_outer_3(bool async)
-        {
-            return base.SelectMany_correlated_with_outer_3(async);
-        }
+            => base.SelectMany_correlated_with_outer_3(async);
     }
 }

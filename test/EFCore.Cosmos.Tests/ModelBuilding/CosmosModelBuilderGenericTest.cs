@@ -20,20 +20,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class CosmosGenericNonRelationship : GenericNonRelationship
         {
             public override void Properties_can_set_row_version()
-            {
-                Assert.Equal(
+                => Assert.Equal(
                     CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
                     Assert.Throws<InvalidOperationException>(
                         () => base.Properties_can_set_row_version()).Message);
-            }
 
             public override void Properties_can_be_made_concurrency_tokens()
-            {
-                Assert.Equal(
+                => Assert.Equal(
                     CosmosStrings.NonETagConcurrencyToken(nameof(Quarks), "Charm"),
                     Assert.Throws<InvalidOperationException>(
                         () => base.Properties_can_be_made_concurrency_tokens()).Message);
-            }
 
             protected override void Mapping_throws_for_non_ignored_array()
             {
@@ -294,11 +290,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public override void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
-            {
                 // Base discovered as owned
-                Assert.Throws<NullReferenceException>(
+                => Assert.Throws<NullReferenceException>(
                     () => base.Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided());
-            }
 
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
@@ -318,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = principal.FindNavigation(nameof(CollectionNavigationToSharedType.Navigation)).TargetEntityType;
                 Assert.True(owned.IsOwned());
                 Assert.True(owned.HasSharedClrType);
-                Assert.Equal("CollectionNavigationToSharedType.Navigation#Dictionary<string, object>",
+                Assert.Equal(
+                    "CollectionNavigationToSharedType.Navigation#Dictionary<string, object>",
                     owned.DisplayName());
             }
 
@@ -346,7 +341,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owned = principal.FindNavigation(nameof(ReferenceNavigationToSharedType.Navigation)).TargetEntityType;
                 Assert.True(owned.IsOwned());
                 Assert.True(owned.HasSharedClrType);
-                Assert.Equal("ReferenceNavigationToSharedType.Navigation#Dictionary<string, object>",
+                Assert.Equal(
+                    "ReferenceNavigationToSharedType.Navigation#Dictionary<string, object>",
                     owned.DisplayName());
             }
 
@@ -378,17 +374,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<OneToManyNavPrincipal>();
                 modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<ManyToManyNavPrincipal>(
+                    mb =>
+                    {
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
-                modelBuilder.Entity<NavDependent>(mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<NavDependent>(
+                    mb =>
+                    {
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
                 modelBuilder.Entity<ManyToManyNavPrincipal>()
                     .HasMany(e => e.Dependents)
@@ -422,18 +420,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<OneToManyNavPrincipal>();
                 modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
-                {
-                    mb.Ignore(e => e.Dependents);
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<ManyToManyNavPrincipal>(
+                    mb =>
+                    {
+                        mb.Ignore(e => e.Dependents);
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
-                modelBuilder.Entity<NavDependent>(mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<NavDependent>(
+                    mb =>
+                    {
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
                 modelBuilder.Entity<ManyToManyNavPrincipal>()
                     .HasMany(e => e.Dependents)
@@ -459,29 +459,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<OneToManyNavPrincipal>();
                 modelBuilder.Ignore<OneToOneNavPrincipal>();
 
-                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<ManyToManyNavPrincipal>(
+                    mb =>
+                    {
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
-                modelBuilder.Entity<NavDependent>(mb =>
-                {
-                    mb.Property<string>("PartitionId");
-                    mb.HasPartitionKey("PartitionId");
-                });
+                modelBuilder.Entity<NavDependent>(
+                    mb =>
+                    {
+                        mb.Property<string>("PartitionId");
+                        mb.HasPartitionKey("PartitionId");
+                    });
 
-                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
-                {
-                    mb.Property<string>("Partition2Id");
-                    mb.HasPartitionKey("Partition2Id");
-                });
+                modelBuilder.Entity<ManyToManyNavPrincipal>(
+                    mb =>
+                    {
+                        mb.Property<string>("Partition2Id");
+                        mb.HasPartitionKey("Partition2Id");
+                    });
 
-                modelBuilder.Entity<NavDependent>(mb =>
-                {
-                    mb.Property<string>("Partition2Id");
-                    mb.HasPartitionKey("Partition2Id");
-                });
+                modelBuilder.Entity<NavDependent>(
+                    mb =>
+                    {
+                        mb.Property<string>("Partition2Id");
+                        mb.HasPartitionKey("Partition2Id");
+                    });
 
                 var model = modelBuilder.FinalizeModel();
 
@@ -496,24 +500,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public override void Join_type_is_automatically_configured_by_convention()
-            {
                 // Cosmos many-to-many. Issue #23523.
-                Assert.Equal(
+                => Assert.Equal(
                     CoreStrings.NavigationNotAdded(
                         nameof(ImplicitManyToManyA), nameof(ImplicitManyToManyA.Bs), "List<ImplicitManyToManyB>"),
                     Assert.Throws<InvalidOperationException>(
                         () => base.Join_type_is_automatically_configured_by_convention()).Message);
-            }
 
             public override void ForeignKeyAttribute_configures_the_properties()
-            {
                 // Cosmos many-to-many. Issue #23523.
-                Assert.Equal(
+                => Assert.Equal(
                     CoreStrings.NavigationNotAdded(
                         nameof(CategoryWithAttribute), nameof(CategoryWithAttribute.Products), "ICollection<ProductWithAttribute>"),
                     Assert.Throws<InvalidOperationException>(
                         () => base.ForeignKeyAttribute_configures_the_properties()).Message);
-            }
 
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
@@ -522,22 +522,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class CosmosGenericOwnedTypes : GenericOwnedTypes
         {
             public override void Deriving_from_owned_type_throws()
-            {
                 // On Cosmos the base type starts as owned
-                Assert.Contains(
+                => Assert.Contains(
                     "(No exception was thrown)",
                     Assert.Throws<ThrowsException>(
                         () => base.Deriving_from_owned_type_throws()).Message);
-            }
 
             public override void Configuring_base_type_as_owned_throws()
-            {
                 // On Cosmos the base type starts as owned
-                Assert.Contains(
+                => Assert.Contains(
                     "(No exception was thrown)",
                     Assert.Throws<ThrowsException>(
                         () => base.Deriving_from_owned_type_throws()).Message);
-            }
 
             [ConditionalFact]
             public virtual void Reference_type_is_discovered_as_owned()

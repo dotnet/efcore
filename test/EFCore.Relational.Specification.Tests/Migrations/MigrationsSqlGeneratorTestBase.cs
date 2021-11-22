@@ -708,8 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
         private static void CreateGotModel(ModelBuilder b)
-        {
-            b.Entity(
+            => b.Entity(
                 "Person", pb =>
                 {
                     pb.ToTable("People");
@@ -720,7 +719,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     pb.Property<string>("Culture").HasColumnName("Culture");
                     pb.HasKey("FirstName", "LastName");
                 });
-        }
 
         protected TestHelpers TestHelpers { get; }
         protected DbContextOptions ContextOptions { get; }

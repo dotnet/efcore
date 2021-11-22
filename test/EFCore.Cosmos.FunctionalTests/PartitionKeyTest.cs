@@ -202,15 +202,13 @@ OFFSET 0 LIMIT 1";
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     cb =>
                     {
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
                         cb.HasKey(c => new { c.Id, c.PartitionKey });
                     });
-            }
         }
 
         public class Customer

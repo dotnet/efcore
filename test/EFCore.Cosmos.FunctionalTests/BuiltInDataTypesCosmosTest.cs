@@ -19,33 +19,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
         public override Task Can_filter_projection_with_inline_enum_variable(bool async)
-        {
-            return base.Can_filter_projection_with_inline_enum_variable(async);
-        }
+            => base.Can_filter_projection_with_inline_enum_variable(async);
 
         [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
         public override Task Can_filter_projection_with_captured_enum_variable(bool async)
-        {
-            return base.Can_filter_projection_with_captured_enum_variable(async);
-        }
+            => base.Can_filter_projection_with_captured_enum_variable(async);
 
         [ConditionalFact(Skip = "Issue #17246 No Explicit Convert")]
         public override void Can_query_with_null_parameters_using_any_nullable_data_type()
-        {
-            base.Can_query_with_null_parameters_using_any_nullable_data_type();
-        }
+            => base.Can_query_with_null_parameters_using_any_nullable_data_type();
 
         [ConditionalFact(Skip = "Issue #16920")]
         public override void Can_insert_and_read_back_with_string_key()
-        {
-            base.Can_insert_and_read_back_with_string_key();
-        }
+            => base.Can_insert_and_read_back_with_string_key();
 
         [ConditionalFact(Skip = "Issue #16920")]
         public override void Can_insert_and_read_back_with_binary_key()
-        {
-            base.Can_insert_and_read_back_with_binary_key();
-        }
+            => base.Can_insert_and_read_back_with_binary_key();
 
         public override void Can_perform_query_with_max_length()
         {
@@ -54,15 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         [ConditionalFact(Skip = "Issue #17670")]
         public override void Can_read_back_mapped_enum_from_collection_first_or_default()
-        {
-            base.Can_read_back_mapped_enum_from_collection_first_or_default();
-        }
+            => base.Can_read_back_mapped_enum_from_collection_first_or_default();
 
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Can_read_back_bool_mapped_as_int_through_navigation()
-        {
-            base.Can_read_back_bool_mapped_as_int_through_navigation();
-        }
+            => base.Can_read_back_bool_mapped_as_int_through_navigation();
 
         public override void Object_to_string_conversion()
         {

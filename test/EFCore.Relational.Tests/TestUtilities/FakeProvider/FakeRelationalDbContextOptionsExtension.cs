@@ -12,17 +12,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public static DbContextOptionsBuilder UseFakeRelational(
             this DbContextOptionsBuilder optionsBuilder,
             Action<FakeRelationalDbContextOptionsBuilder> fakeRelationalOptionsAction = null)
-        {
-            return optionsBuilder.UseFakeRelational("Database=Fake", fakeRelationalOptionsAction);
-        }
+            => optionsBuilder.UseFakeRelational("Database=Fake", fakeRelationalOptionsAction);
 
         public static DbContextOptionsBuilder UseFakeRelational(
             this DbContextOptionsBuilder optionsBuilder,
             string connectionString,
             Action<FakeRelationalDbContextOptionsBuilder> fakeRelationalOptionsAction = null)
-        {
-            return optionsBuilder.UseFakeRelational(new FakeDbConnection(connectionString), fakeRelationalOptionsAction);
-        }
+            => optionsBuilder.UseFakeRelational(new FakeDbConnection(connectionString), fakeRelationalOptionsAction);
 
         public static DbContextOptionsBuilder UseFakeRelational(
             this DbContextOptionsBuilder optionsBuilder,

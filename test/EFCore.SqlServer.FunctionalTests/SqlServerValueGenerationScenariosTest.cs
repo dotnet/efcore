@@ -1089,7 +1089,8 @@ END");
             // SqlException : Cannot insert explicit value for identity column in table
             // 'Blog' when IDENTITY_INSERT is set to OFF.
             context.Database.CreateExecutionStrategy().Execute(
-                context, c => {
+                context, c =>
+                {
                     var updateException = Assert.Throws<DbUpdateException>(() => c.SaveChanges());
                     Assert.Single(updateException.Entries);
                 });
@@ -1337,7 +1338,9 @@ END");
         public class NeedsConverter
         {
             public NeedsConverter(int value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             public int Value { get; }
 
@@ -1393,8 +1396,7 @@ END");
             public DbSet<ConcurrentBlog> ConcurrentBlogs { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>()
+                => modelBuilder.Entity<Blog>()
                     .Property(e => e.NeedsConverter)
                     .HasConversion(
                         v => v.Value,
@@ -1404,7 +1406,6 @@ END");
                             v => v.Value.GetHashCode(),
                             v => new NeedsConverter(v.Value)))
                     .HasDefaultValue(new NeedsConverter(999));
-            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

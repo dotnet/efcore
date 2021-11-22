@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
                 cart => cart.CartId == _shoppingCartId
                     && cart.CartItemId == id);
 
-            int itemCount = 0;
+            var itemCount = 0;
 
             if (cartItem != null)
             {
@@ -85,48 +85,39 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
         }
 
         public Task<List<CartItem>> GetCartItems()
-        {
-            return _dbContext
+            => _dbContext
                 .CartItems
                 .Where(cart => cart.CartId == _shoppingCartId)
                 .Include(c => c.Album)
                 .ToListAsync();
-        }
 
         public Task<List<string>> GetCartAlbumTitles()
-        {
-            return _dbContext
+            => _dbContext
                 .CartItems
                 .Where(cart => cart.CartId == _shoppingCartId)
                 .Select(c => c.Album.Title)
                 .OrderBy(n => n)
                 .ToListAsync();
-        }
 
         public Task<int> GetCount()
-        {
             // Get the count of each item in the cart and sum them up
-            return _dbContext
+            => _dbContext
                 .CartItems
                 .Where(c => c.CartId == _shoppingCartId)
                 .Select(c => c.Count)
                 .SumAsync();
-        }
 
         public async Task<decimal> GetTotal()
-        {
             // Multiply album price by count of that album to get
             // the current price for each of those albums in the cart
             // sum all album price totals to get the cart total
-
             // No way to do decimal sum on server with SQLite, but client eval is fine here
-            return (await _dbContext
+            => (await _dbContext
                     .CartItems
                     .Where(c => c.CartId == _shoppingCartId)
                     .Select(c => c.Album.Price * c.Count)
                     .ToListAsync())
                 .Sum();
-        }
 
         public async Task CreateOrder(Order order)
         {

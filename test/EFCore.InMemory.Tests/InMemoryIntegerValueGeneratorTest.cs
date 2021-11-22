@@ -55,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Does_not_generate_temp_values()
-        {
-            Assert.False(new InMemoryIntegerValueGenerator<int>(0).GeneratesTemporaryValues);
-        }
+            => Assert.False(new InMemoryIntegerValueGenerator<int>(0).GeneratesTemporaryValues);
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -27,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new(CreateRelationalCommand(), null, logger),
-                new(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -69,8 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new(CreateRelationalCommand(), null, logger),
-                new(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -120,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new(CreateRelationalCommand(), null, logger),
-                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -131,14 +127,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (async)
                 {
-                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                    Assert.Equal(
+                        RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                         (await Assert.ThrowsAsync<NotSupportedException>(
-                        async ()
-                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                            async ()
+                                => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
                 }
                 else
                 {
-                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                    Assert.Equal(
+                        RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
                         Assert.Throws<NotSupportedException>(
                             ()
                                 => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
@@ -207,8 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new(CreateRelationalCommand(), null, logger),
-                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger), new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -248,8 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
-                new(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true), new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();

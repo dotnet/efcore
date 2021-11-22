@@ -24,13 +24,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericNonRelationship : NonRelationshipTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericInheritance : InheritanceTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
@@ -43,18 +47,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.NoClrNavigation("Snoop", nameof(Dre)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        ((NonGenericTestOwnedNavigationBuilder<Dr, Dre>)modelBuilder.Entity<Dr>().OwnsOne(e => e.Dre)).GetInfrastructure()
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            ((NonGenericTestOwnedNavigationBuilder<Dr, Dre>)modelBuilder.Entity<Dr>().OwnsOne(e => e.Dre))
+                            .GetInfrastructure()
                             .HasOne("Snoop")).Message);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericOneToMany : OneToManyTestBase
         {
-
             [ConditionalFact]
             public virtual void HasOne_with_just_string_navigation_for_non_CLR_property_throws()
             {
@@ -62,8 +69,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
                             .HasOne("Snoop")).Message);
             }
 
@@ -74,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.NoClrNavigation("Snoop", nameof(Dr)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
                             .HasMany("Snoop")).Message);
             }
 
@@ -86,8 +95,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.NavigationCollectionWrongClrType("Dre", nameof(Dr), nameof(Dre), "T"),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            ((NonGenericTestEntityTypeBuilder<Dr>)modelBuilder.Entity<Dr>()).GetInfrastructure()
                             .HasMany("Dre")).Message);
             }
 
@@ -129,25 +139,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public ICollection<ComplexCaseChild13108>? Children { get; set; }
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericManyToMany : ManyToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericOneToOne : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
@@ -573,7 +591,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(valueGeneratorType));
 
-            public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
+            public override TestPropertyBuilder<TProperty> HasValueGenerator(
+                Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
 
             public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
@@ -921,7 +940,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(r))).ReferenceCollectionBuilder));
 
             public override TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
-                string joinEntityName, Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
                     TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
                 Func<TestEntityTypeBuilder<Dictionary<string, object>>,
                     TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft)

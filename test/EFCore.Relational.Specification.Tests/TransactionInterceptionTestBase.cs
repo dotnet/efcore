@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext(Enumerable.Empty<IInterceptor>());
             using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
             using (var transaction = async
-                ? await context.Database.BeginTransactionAsync()
-                : context.Database.BeginTransaction())
+                       ? await context.Database.BeginTransactionAsync()
+                       : context.Database.BeginTransaction())
             {
                 Assert.NotNull(transaction.GetDbTransaction());
             }
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 using (var _ = async
-                    ? await context.Database.BeginTransactionAsync()
-                    : context.Database.BeginTransaction())
+                           ? await context.Database.BeginTransactionAsync()
+                           : context.Database.BeginTransaction())
                 {
                     AssertBeginTransaction(context, interceptor, async);
                 }
@@ -87,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 using (var _ = async
-                    ? await context.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted)
-                    : context.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
+                           ? await context.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted)
+                           : context.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
                     AssertBeginTransaction(context, interceptor, async);
                 }

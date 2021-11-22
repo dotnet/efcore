@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -433,13 +432,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new[]
                     {
                         new ColumnModificationParameters(
-                                entry,
-                                property,
-                                property.GetTableColumnMappings().Single().Column,
-                                parameterNameGenerator.GenerateNext,
-                                property.GetTableColumnMappings().Single().TypeMapping,
-                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: false,
-                                sensitiveLoggingEnabled: true)
+                            entry,
+                            property,
+                            property.GetTableColumnMappings().Single().Column,
+                            parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
+                            valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -503,13 +502,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new[]
                     {
                         new ColumnModificationParameters(
-                                entry,
-                                property,
-                                property.GetTableColumnMappings().Single().Column,
-                                parameterNameGenerator.GenerateNext,
-                                property.GetTableColumnMappings().Single().TypeMapping,
-                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
-                                sensitiveLoggingEnabled: true)
+                            entry,
+                            property,
+                            property.GetTableColumnMappings().Single().Column,
+                            parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
+                            valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -540,13 +539,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new[]
                     {
                         new ColumnModificationParameters(
-                                entry,
-                                property,
-                                property.GetTableColumnMappings().Single().Column,
-                                parameterNameGenerator.GenerateNext,
-                                property.GetTableColumnMappings().Single().TypeMapping,
-                                valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
-                                sensitiveLoggingEnabled: true)
+                            entry,
+                            property,
+                            property.GetTableColumnMappings().Single().Column,
+                            parameterNameGenerator.GenerateNext,
+                            property.GetTableColumnMappings().Single().TypeMapping,
+                            valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -733,6 +732,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private static ModificationCommandFactory CreateModificationCommandSource()
-            => new ModificationCommandFactory();
+            => new();
     }
 }

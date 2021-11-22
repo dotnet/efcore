@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericStringOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+            protected override TestModelBuilder CreateTestModelBuilder(
+                TestHelpers testHelpers,
+                Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 

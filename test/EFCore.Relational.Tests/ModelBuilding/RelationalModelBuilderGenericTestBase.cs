@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected TableBuilder<TEntity> TableBuilder { get; }
 
-            public TableBuilder<TEntity> Instance => TableBuilder;
+            public TableBuilder<TEntity> Instance
+                => TableBuilder;
 
             protected virtual TestTableBuilder<TEntity> Wrap(TableBuilder<TEntity> tableBuilder)
                 => new GenericTestTableBuilder<TEntity>(tableBuilder);
@@ -46,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected TableBuilder TableBuilder { get; }
 
-            public TableBuilder Instance => TableBuilder;
+            public TableBuilder Instance
+                => TableBuilder;
 
             protected virtual TestTableBuilder<TEntity> Wrap(TableBuilder tableBuilder)
                 => new NonGenericTestTableBuilder<TEntity>(tableBuilder);
@@ -69,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected CheckConstraintBuilder CheckConstraintBuilder { get; }
 
-            public CheckConstraintBuilder Instance => CheckConstraintBuilder;
+            public CheckConstraintBuilder Instance
+                => CheckConstraintBuilder;
 
             protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)
                 => new NonGenericTestCheckConstraintBuilder(checkConstraintBuilder);

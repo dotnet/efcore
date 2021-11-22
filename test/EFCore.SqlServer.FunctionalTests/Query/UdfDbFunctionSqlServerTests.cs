@@ -813,9 +813,7 @@ ORDER BY [a].[Id], [g].[Year]");
         #endregion
 
         protected override void ClearLog()
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-        }
+            => Fixture.TestSqlLoggerFactory.Clear();
 
         public class SqlServer : UdfFixtureBase
         {

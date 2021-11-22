@@ -143,10 +143,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var owner = new Owner();
-                    var blog = new Blog
-                    {
-                        Owner = owner
-                    };
+                    var blog = new Blog { Owner = owner };
 
                     for (var i = 0; i < 20; i++)
                     {
@@ -181,30 +178,34 @@ namespace Microsoft.EntityFrameworkCore
                 context.Owners.Add(owner1);
                 context.Owners.Add(owner2);
 
-                blogs.Add(new Blog
-                {
-                    Id = Guid.NewGuid(),
-                    Owner = owner1,
-                    Order = 1
-                });
-                blogs.Add(new Blog
-                {
-                    Id = Guid.NewGuid(),
-                    Owner = owner2,
-                    Order = 2
-                });
-                blogs.Add(new Blog
-                {
-                    Id = Guid.NewGuid(),
-                    Owner = owner1,
-                    Order = 3
-                });
-                blogs.Add(new Blog
-                {
-                    Id = Guid.NewGuid(),
-                    Owner = owner2,
-                    Order = 4
-                });
+                blogs.Add(
+                    new Blog
+                    {
+                        Id = Guid.NewGuid(),
+                        Owner = owner1,
+                        Order = 1
+                    });
+                blogs.Add(
+                    new Blog
+                    {
+                        Id = Guid.NewGuid(),
+                        Owner = owner2,
+                        Order = 2
+                    });
+                blogs.Add(
+                    new Blog
+                    {
+                        Id = Guid.NewGuid(),
+                        Owner = owner1,
+                        Order = 3
+                    });
+                blogs.Add(
+                    new Blog
+                    {
+                        Id = Guid.NewGuid(),
+                        Owner = owner2,
+                        Order = 4
+                    });
 
                 context.AddRange(blogs);
 
@@ -213,10 +214,11 @@ namespace Microsoft.EntityFrameworkCore
 
             for (var i = 0; i < 10; i++)
             {
-                Parallel.ForEach(blogs, blog =>
-                {
-                    RemoveAndAddPosts(blog);
-                });
+                Parallel.ForEach(
+                    blogs, blog =>
+                    {
+                        RemoveAndAddPosts(blog);
+                    });
             }
 
             void RemoveAndAddPosts(Blog blog)
@@ -265,14 +267,15 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
             }
 
-            Parallel.ForEach(owners, owner =>
-            {
-                using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+            Parallel.ForEach(
+                owners, owner =>
+                {
+                    using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
 
-                context.RemoveRange(context.Blogs.Where(b => b.OwnerId == owner.Id));
+                    context.RemoveRange(context.Blogs.Where(b => b.OwnerId == owner.Id));
 
-                context.SaveChanges();
-            });
+                    context.SaveChanges();
+                });
 
             using (var context = CreateContext())
             {
@@ -284,8 +287,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void Inserts_when_database_type_is_different()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var owner1 = new Owner { Id = "0", Name = "Zero" };
@@ -296,7 +298,6 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
                 },
                 context => Assert.Equal(2, context.Owners.Count()));
-        }
 
         [ConditionalTheory]
         [InlineData(3)]
@@ -489,6 +490,7 @@ ALTER TABLE dbo.Owners
                 {
                     new SqlServerDbContextOptionsBuilder(optionsBuilder).ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
                 }
+
                 return new BloggingContext(optionsBuilder.Options);
             }
         }

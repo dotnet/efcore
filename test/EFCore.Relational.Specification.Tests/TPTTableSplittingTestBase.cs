@@ -16,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override Task Can_use_optional_dependents_with_shared_concurrency_tokens()
-        {
             // TODO: Issue #22060
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         protected override string StoreName { get; } = "TPTTableSplittingTest";
 

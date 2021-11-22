@@ -33,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore
         where TContext : IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, TUserToken>
     {
         protected AspNetIdentityTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         [ConditionalFact]
         public void Can_build_identity_model()

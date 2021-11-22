@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -261,12 +260,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var generator = CreateGenerator();
             var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
-            modelBuilder.Entity("SomeEntity", x =>
-            {
-                x.Property<string>("Default");
-                x.Property<string>("Sparse").IsSparse();
-                x.Property<string>("NonSparse").IsSparse(false);
-            });
+            modelBuilder.Entity(
+                "SomeEntity", x =>
+                {
+                    x.Property<string>("Default");
+                    x.Property<string>("Sparse").IsSparse();
+                    x.Property<string>("NonSparse").IsSparse(false);
+                });
 
             Assert.Null(GenerateFluentApiCall("SomeEntity", "Default"));
 

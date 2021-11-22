@@ -1751,16 +1751,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(OrderDetails),
                         nameof(OrderDetails.Order),
                         "{'OrderId'}"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder
-                        .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                            .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired()).Message);
 
                 Assert.Equal(
                     CoreStrings.AmbiguousEndRequiredDependentNavigation(
                         nameof(Order),
                         nameof(Order.Details),
                         "{'OrderId'}"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder
-                        .Entity<Order>().Navigation(e => e.Details).IsRequired()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                            .Entity<Order>().Navigation(e => e.Details).IsRequired()).Message);
             }
 
             [ConditionalFact]
@@ -2815,7 +2817,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch(
+                        "{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2855,7 +2858,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch(
+                        "{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder

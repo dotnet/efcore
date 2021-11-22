@@ -92,33 +92,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         private class ScannerCustomerEntityConfiguration : IEntityTypeConfiguration<ScannerCustomer>
         {
             public void Configure(EntityTypeBuilder<ScannerCustomer> builder)
-            {
-                builder.Property(c => c.FirstName).HasMaxLength(200);
-            }
+                => builder.Property(c => c.FirstName).HasMaxLength(200);
         }
 
         private class ScannerCustomerEntityConfiguration2 : IEntityTypeConfiguration<ScannerCustomer>
         {
             public void Configure(EntityTypeBuilder<ScannerCustomer> builder)
-            {
-                builder.Property(c => c.LastName).HasMaxLength(1000);
-            }
+                => builder.Property(c => c.LastName).HasMaxLength(1000);
         }
 
         private abstract class AbstractCustomerEntityConfiguration : IEntityTypeConfiguration<ScannerCustomer>
         {
             public virtual void Configure(EntityTypeBuilder<ScannerCustomer> builder)
-            {
-                builder.Property(c => c.MiddleName).HasMaxLength(500);
-            }
+                => builder.Property(c => c.MiddleName).HasMaxLength(500);
         }
 
         private class AbstractCustomerEntityConfigurationImpl : AbstractCustomerEntityConfiguration
         {
             public override void Configure(EntityTypeBuilder<ScannerCustomer> builder)
-            {
-                builder.HasIndex(c => c.IndexedField);
-            }
+                => builder.HasIndex(c => c.IndexedField);
         }
     }
 }

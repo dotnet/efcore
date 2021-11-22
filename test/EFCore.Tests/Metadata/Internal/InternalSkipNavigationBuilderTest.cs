@@ -23,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var productEntity = skipNavigation.TargetEntityType.Builder;
             Assert.Null(productEntity.HasRelationship(skipNavigation.DeclaringEntityType, null, nameof(Order.Products)));
 
-            Assert.NotNull(productEntity.HasRelationship(
-                skipNavigation.DeclaringEntityType, null, nameof(Order.Products), fromDataAnnotation: true));
+            Assert.NotNull(
+                productEntity.HasRelationship(
+                    skipNavigation.DeclaringEntityType, null, nameof(Order.Products), fromDataAnnotation: true));
 
             Assert.False(skipNavigation.IsInModel);
             Assert.Empty(skipNavigation.DeclaringEntityType.GetSkipNavigations());

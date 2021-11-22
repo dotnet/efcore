@@ -116,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(
-                serviceProvider,
-                defaultThrow: false,
-                CoreEventId.LazyLoadOnDisposedContextWarning))
+                       serviceProvider,
+                       defaultThrow: false,
+                       CoreEventId.LazyLoadOnDisposedContextWarning))
             {
                 context.Add(
                     new WarningAsErrorEntity { Nav = new IncludedEntity() });
@@ -128,9 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             WarningAsErrorEntity entity;
 
             using (var context = new WarningAsErrorContext(
-                serviceProvider,
-                defaultThrow: false,
-                CoreEventId.LazyLoadOnDisposedContextWarning))
+                       serviceProvider,
+                       defaultThrow: false,
+                       CoreEventId.LazyLoadOnDisposedContextWarning))
             {
                 entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
             }
@@ -157,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(
-                serviceProvider,
-                defaultThrow: false,
-                toChangeLevel: (CoreEventId.LazyLoadOnDisposedContextWarning, LogLevel.Debug)))
+                       serviceProvider,
+                       defaultThrow: false,
+                       toChangeLevel: (CoreEventId.LazyLoadOnDisposedContextWarning, LogLevel.Debug)))
             {
                 context.Add(
                     new WarningAsErrorEntity { Nav = new IncludedEntity() });
@@ -169,9 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             WarningAsErrorEntity entity;
 
             using (var context = new WarningAsErrorContext(
-                serviceProvider,
-                defaultThrow: false,
-                toChangeLevel: (CoreEventId.LazyLoadOnDisposedContextWarning, LogLevel.Debug)))
+                       serviceProvider,
+                       defaultThrow: false,
+                       toChangeLevel: (CoreEventId.LazyLoadOnDisposedContextWarning, LogLevel.Debug)))
             {
                 entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
             }
@@ -262,12 +262,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<WarningAsErrorEntity> WarningAsErrorEntities { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .Entity<WarningAsErrorEntity>()
                     .Property(e => e.Id)
                     .ValueGeneratedOnAdd();
-            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

@@ -20,8 +20,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Generates_temporary_values()
-        {
-            Assert.True(new TemporaryDateTimeValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.True(new TemporaryDateTimeValueGenerator().GeneratesTemporaryValues);
     }
 }

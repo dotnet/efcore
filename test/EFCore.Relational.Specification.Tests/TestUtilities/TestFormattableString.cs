@@ -16,17 +16,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override object GetArgument(int index)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override object[] GetArguments()
             => _arguments;
 
         public override string ToString(IFormatProvider formatProvider)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
 
         public override int ArgumentCount { get; }
         public override string Format { get; }

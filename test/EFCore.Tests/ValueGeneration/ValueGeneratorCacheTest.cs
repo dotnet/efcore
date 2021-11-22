@@ -34,16 +34,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         private static IModel CreateModel(bool generateValues = true)
         {
             var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Entity("Led", eb =>
-            {
-                eb.Property<int>("Id");
-                eb.Property<Guid>("Zeppelin");
-                var property = eb.Property<Guid>("Stairway");
-                if (generateValues)
+            modelBuilder.Entity(
+                "Led", eb =>
                 {
-                    property.ValueGeneratedOnAdd();
-                }
-            });
+                    eb.Property<int>("Id");
+                    eb.Property<Guid>("Zeppelin");
+                    var property = eb.Property<Guid>("Stairway");
+                    if (generateValues)
+                    {
+                        property.ValueGeneratedOnAdd();
+                    }
+                });
 
             return modelBuilder.FinalizeModel();
         }

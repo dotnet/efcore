@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : SpatialFixtureBase, new()
     {
         protected SpatialTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected virtual TFixture Fixture { get; }
 

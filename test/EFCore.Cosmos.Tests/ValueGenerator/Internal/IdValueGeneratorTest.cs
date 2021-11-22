@@ -70,11 +70,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
 
         private class IntClass
         {
-            public static ValueConverter<IntClass, int> Converter
+            public static readonly ValueConverter<IntClass, int> Converter
                 = new(v => v.Value, v => new IntClass(v));
 
             public IntClass(int value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             private bool Equals(IntClass other)
                 => other != null && Value == other.Value;
@@ -97,11 +99,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
 
         private struct IntStruct
         {
-            public static ValueConverter<IntStruct, int> Converter
+            public static readonly ValueConverter<IntStruct, int> Converter
                 = new(v => v.Value, v => new IntStruct(v));
 
             public IntStruct(int value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             public int Value { get; }
         }
@@ -113,11 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
 
         private struct BytesStruct
         {
-            public static ValueConverter<BytesStruct, byte[]> Converter
+            public static readonly ValueConverter<BytesStruct, byte[]> Converter
                 = new(v => v.Value, v => new BytesStruct(v));
 
             public BytesStruct(byte[] value)
-                => Value = value;
+            {
+                Value = value;
+            }
 
             public byte[] Value { get; }
 

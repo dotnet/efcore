@@ -52,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => optionsBuilder.UseInMemoryDatabase(nameof(ValueComparerTest));
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Person>(
+                => modelBuilder.Entity<Person>(
                     b =>
                     {
                         b.Property(o => o.ConvertedComingOut)
@@ -62,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         b.Property(o => o.ConvertedGoingIn)
                             .HasConversion(v => DateTime.SpecifyKind(v, DateTimeKind.Utc), v => v);
                     });
-            }
         }
 
         private class Person
@@ -340,12 +338,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Cannot_compose_converters_with_mismatched_types()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.ConvertersCannotBeComposed("Beatles", "int", "uint", "int"),
                 Assert.Throws<ArgumentException>(
                     () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
-        }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel, TProvider>(

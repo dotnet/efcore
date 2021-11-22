@@ -22,15 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
-        {
-            return base.Query_loads_reference_nav_automatically_in_projection(async);
-        }
+            => base.Query_loads_reference_nav_automatically_in_projection(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_operator(bool async)
-        {
-            return base.Query_with_owned_entity_equality_operator(async);
-        }
+            => base.Query_with_owned_entity_equality_operator(async);
 
         [ConditionalTheory(Skip = "Count #16146")]
         public override async Task Navigation_rewrite_on_owned_collection(bool async)
@@ -121,101 +117,69 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
-        {
-            return base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
-        }
+            => base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
-        }
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task
             Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
-        {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+            => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
                 async);
-        }
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Project_multiple_owned_navigations(bool async)
-        {
-            return base.Project_multiple_owned_navigations(async);
-        }
+            => base.Project_multiple_owned_navigations(async);
 
         [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
-        {
-            return base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
-        }
+            => base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_collection(bool async)
-        {
-            return base.SelectMany_on_owned_collection(async);
-        }
+            => base.SelectMany_on_owned_collection(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
-        {
-            return base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
-        }
+            => base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
-        {
-            return base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
-        }
+            => base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_method(bool async)
-        {
-            return base.Query_with_owned_entity_equality_method(async);
-        }
+            => base.Query_with_owned_entity_equality_method(async);
 
         [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_object_method(bool async)
-        {
-            return base.Query_with_owned_entity_equality_object_method(async);
-        }
+            => base.Query_with_owned_entity_equality_object_method(async);
 
         public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
         {
@@ -229,63 +193,43 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
 
         [ConditionalTheory(Skip = "Distinct ordering #16156")]
         public override Task Query_when_subquery(bool async)
-        {
-            return base.Query_when_subquery(async);
-        }
+            => base.Query_when_subquery(async);
 
         [ConditionalTheory(Skip = "Count #16146")]
         public override Task No_ignored_include_warning_when_implicit_load(bool async)
-        {
-            return base.No_ignored_include_warning_when_implicit_load(async);
-        }
+            => base.No_ignored_include_warning_when_implicit_load(async);
 
         [ConditionalTheory(Skip = "Skip withouth Take #18923")]
         public override Task Client_method_skip_loads_owned_navigations(bool async)
-        {
-            return base.Client_method_skip_loads_owned_navigations(async);
-        }
+            => base.Client_method_skip_loads_owned_navigations(async);
 
         [ConditionalTheory(Skip = "Skip withouth Take #18923")]
         public override Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
-        {
-            return base.Client_method_skip_loads_owned_navigations_variation_2(async);
-        }
+            => base.Client_method_skip_loads_owned_navigations_variation_2(async);
 
         [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
         public override Task Where_owned_collection_navigation_ToList_Count(bool async)
-        {
-            return base.Where_owned_collection_navigation_ToList_Count(async);
-        }
+            => base.Where_owned_collection_navigation_ToList_Count(async);
 
         [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
         public override Task Where_collection_navigation_ToArray_Count(bool async)
-        {
-            return base.Where_collection_navigation_ToArray_Count(async);
-        }
+            => base.Where_collection_navigation_ToArray_Count(async);
 
         [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
         public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
-        {
-            return base.Where_collection_navigation_AsEnumerable_Count(async);
-        }
+            => base.Where_collection_navigation_AsEnumerable_Count(async);
 
         [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
         public override Task Where_collection_navigation_ToList_Count_member(bool async)
-        {
-            return base.Where_collection_navigation_ToList_Count_member(async);
-        }
+            => base.Where_collection_navigation_ToList_Count_member(async);
 
         [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
         public override Task Where_collection_navigation_ToArray_Length_member(bool async)
-        {
-            return base.Where_collection_navigation_ToArray_Length_member(async);
-        }
+            => base.Where_collection_navigation_ToArray_Length_member(async);
 
         [ConditionalTheory(Skip = "Issue #16146")]
         public override Task GroupBy_with_multiple_aggregates_on_owned_navigation_properties(bool async)
-        {
-            return base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
-        }
+            => base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
         public override async Task Can_query_on_indexer_properties(bool async)
         {
@@ -348,9 +292,7 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         }
 
         public override async Task Can_project_owned_indexer_properties_converted(bool async)
-        {
-            await base.Can_project_owned_indexer_properties_converted(async);
-        }
+            => await base.Can_project_owned_indexer_properties_converted(async);
 
         [ConditionalTheory(Skip = "OrderBy requires composite index #17246")]
         public override async Task Can_OrderBy_indexer_properties(bool async)
@@ -461,10 +403,10 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         }
 
         [ConditionalTheory(Skip = "No SelectMany, No Ability to Include navigation back to owner #17246")]
-        public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(bool async, bool useAsTracking)
-        {
-            return base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking);
-        }
+        public override Task NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(
+            bool async,
+            bool useAsTracking)
+            => base.NoTracking_Include_with_cycles_does_not_throw_when_performing_identity_resolution(async, useAsTracking);
 
         [ConditionalTheory(Skip = "No Composite index to process custom ordering #17246")]
         public override async Task Ordering_by_identifying_projection(bool async)
@@ -483,7 +425,8 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         }
 
         [ConditionalTheory(Skip = "issue #17246")]
-        public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool isAsync)
+        public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(
+            bool isAsync)
         {
             await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(isAsync);
 
@@ -645,38 +588,39 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
                                     }
                                 );
 
-                                ob.OwnsMany(e => e.Details, odb =>
-                                {
-                                    odb.HasData(
-                                        new
-                                        {
-                                            Id = -100,
-                                            OrderId = -10,
-                                            OrderClientId = 1,
-                                            Detail = "Discounted Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -101,
-                                            OrderId = -10,
-                                            OrderClientId = 1,
-                                            Detail = "Full Price Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -200,
-                                            OrderId = -20,
-                                            OrderClientId = 2,
-                                            Detail = "Internal Order"
-                                        },
-                                        new
-                                        {
-                                            Id = -300,
-                                            OrderId = -30,
-                                            OrderClientId = 3,
-                                            Detail = "Bulk Order"
-                                        });
-                                });
+                                ob.OwnsMany(
+                                    e => e.Details, odb =>
+                                    {
+                                        odb.HasData(
+                                            new
+                                            {
+                                                Id = -100,
+                                                OrderId = -10,
+                                                OrderClientId = 1,
+                                                Detail = "Discounted Order"
+                                            },
+                                            new
+                                            {
+                                                Id = -101,
+                                                OrderId = -10,
+                                                OrderClientId = 1,
+                                                Detail = "Full Price Order"
+                                            },
+                                            new
+                                            {
+                                                Id = -200,
+                                                OrderId = -20,
+                                                OrderClientId = 2,
+                                                Detail = "Internal Order"
+                                            },
+                                            new
+                                            {
+                                                Id = -300,
+                                                OrderId = -30,
+                                                OrderClientId = 3,
+                                                Detail = "Bulk Order"
+                                            });
+                                    });
                             });
                     });
 

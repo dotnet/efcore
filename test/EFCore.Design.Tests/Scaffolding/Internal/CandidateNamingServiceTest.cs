@@ -21,20 +21,16 @@ namespace Microsoft.EntityFrameworkCore
             "numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999", "Numbers0Dont1Affect23Upper45Case678To9LowerCase10Boundary999")]
         [InlineData("We1!*~&%rdCh@r^act()0rs", "We1RdChRAct0rs")]
         public void Generates_candidate_identifiers(string input, string output)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 output, new CandidateNamingService().GenerateCandidateIdentifier(
                     new DatabaseTable { Database = new DatabaseModel(), Name = input }));
-        }
 
         [ConditionalTheory]
         [InlineData("‍🐶", "")]
         [InlineData(" ", "")]
         public void Generates_column_candidate_identifiers(string input, string output)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 output, new CandidateNamingService().GenerateCandidateIdentifier(
                     new DatabaseColumn { Name = input }));
-        }
     }
 }

@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(null)]
         public virtual void Optional_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
@@ -39,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
@@ -961,8 +959,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(null)]
         public virtual void Required_one_to_one_with_AK_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
@@ -977,7 +974,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
@@ -1122,6 +1118,7 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Null(old2.Back);
                             Assert.Null(old2c.Back);
                         }
+
                         Assert.NotEqual(new1.Id, old1.Id);
                         Assert.NotEqual(new2.Id, old2.Id);
                         Assert.NotEqual(new2c.Id, old2c.Id);
@@ -1154,15 +1151,17 @@ namespace Microsoft.EntityFrameworkCore
                             .Count(e => e.Id == old2.Id);
                         Assert.Equal(0, orphanedCount);
 
-                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.Single != null && r.Single.Id == old2.Id));
+                        Assert.False(
+                            context.Set<Root>().Select(r => r.RequiredSingleAk)
+                                .Any(r => r.Single != null && r.Single.Id == old2.Id));
 
                         var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
                             .Count(e => e.Id == old2c.Id);
                         Assert.Equal(0, orphanedCCount);
 
-                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
+                        Assert.False(
+                            context.Set<Root>().Select(r => r.RequiredSingleAk)
+                                .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
                     }
                 });
         }
@@ -1495,6 +1494,7 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Null(old2.Back);
                             Assert.Null(old2c.Back);
                         }
+
                         Assert.Equal(old1.AlternateId, old2.BackId);
                         Assert.Equal(old1.Id, old2c.BackId);
                         Assert.Equal(old1.AlternateId, old2c.BackAlternateId);
@@ -1520,15 +1520,17 @@ namespace Microsoft.EntityFrameworkCore
                             .Count(e => e.Id == old2.Id);
                         Assert.Equal(0, orphanedCount);
 
-                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.Single != null && r.Single.Id == old2.Id));
+                        Assert.False(
+                            context.Set<Root>().Select(r => r.RequiredSingleAk)
+                                .Any(r => r.Single != null && r.Single.Id == old2.Id));
 
                         var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
                             .Count(e => e.Id == old2c.Id);
                         Assert.Equal(0, orphanedCCount);
 
-                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
-                            .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
+                        Assert.False(
+                            context.Set<Root>().Select(r => r.RequiredSingleAk)
+                                .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
                     }
                 });
         }

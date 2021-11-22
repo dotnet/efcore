@@ -23,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Customer> Get()
-        {
-            return _context.Customers;
-        }
+            => _context.Customers;
 
         [HttpGet]
         [EnableQuery]
@@ -53,9 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Order> Get()
-        {
-            return _context.Orders;
-        }
+            => _context.Orders;
 
         [HttpGet]
         [EnableQuery]
@@ -83,9 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<OrderDetail> Get()
-        {
-            return _context.OrderDetails;
-        }
+            => _context.OrderDetails;
 
         [HttpGet]
         [EnableQuery]
@@ -113,9 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Employee> Get()
-        {
-            return _context.Employees;
-        }
+            => _context.Employees;
 
         [HttpGet]
         [EnableQuery]
@@ -143,9 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [HttpGet]
         [EnableQuery]
         public IEnumerable<Product> Get()
-        {
-            return _context.Products;
-        }
+            => _context.Products;
 
         [HttpGet]
         [EnableQuery]

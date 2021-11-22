@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void SaveChanges_works_for_entities_also_mapped_to_view()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var category = context.Categories.Single();
@@ -55,12 +54,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("Pear Cider", tableProduct.Name);
                     Assert.Equal("Pear Cobler", viewProduct.Name);
                 });
-        }
 
         [ConditionalFact]
         public virtual void SaveChanges_throws_for_entities_only_mapped_to_view()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var category = context.Categories.Single();
@@ -77,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore
                         RelationalStrings.ReadonlyEntitySaved(nameof(ProductTableView)),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 });
-        }
 
         [ConditionalFact]
         public abstract void Identifiers_are_generated_correctly();

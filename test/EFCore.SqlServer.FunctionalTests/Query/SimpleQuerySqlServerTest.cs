@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class SimpleQuerySqlServerTest : SimpleQueryRelationalTestBase
     {
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
 
         public override async Task Multiple_nested_reference_navigations(bool async)
         {

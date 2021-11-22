@@ -773,9 +773,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""Title""] = ""Sales Represe
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_simple_shadow_subquery(bool async)
-        {
-            return base.Where_simple_shadow_subquery(async);
-        }
+            => base.Where_simple_shadow_subquery(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_shadow_subquery_FirstOrDefault(bool async)
@@ -1694,9 +1692,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""])
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_concat_string_int_comparison4(bool async)
-        {
-            return base.Where_concat_string_int_comparison4(async);
-        }
+            => base.Where_concat_string_int_comparison4(async);
 
         public override async Task Where_string_concat_method_comparison(bool async)
         {
@@ -2034,9 +2030,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Decimal_cast_to_double_works(bool async)
-        {
-            return base.Decimal_cast_to_double_works(async);
-        }
+            => base.Decimal_cast_to_double_works(async);
 
         public override async Task Where_is_conditional(bool async)
         {
@@ -2050,21 +2044,15 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (true ? false : true))");
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
-        {
-            return base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(async);
-        }
+            => base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Like_with_non_string_column_using_ToString(bool async)
-        {
-            return base.Like_with_non_string_column_using_ToString(async);
-        }
+            => base.Like_with_non_string_column_using_ToString(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Like_with_non_string_column_using_double_cast(bool async)
-        {
-            return base.Like_with_non_string_column_using_double_cast(async);
-        }
+            => base.Like_with_non_string_column_using_double_cast(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
@@ -2076,105 +2064,71 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (true ? false : true))");
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToList_Count(bool async)
-        {
-            return base.Where_Queryable_ToList_Count(async);
-        }
+            => base.Where_Queryable_ToList_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToList_Contains(bool async)
-        {
-            return base.Where_Queryable_ToList_Contains(async);
-        }
+            => base.Where_Queryable_ToList_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToArray_Count(bool async)
-        {
-            return base.Where_Queryable_ToArray_Count(async);
-        }
+            => base.Where_Queryable_ToArray_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToArray_Contains(bool async)
-        {
-            return base.Where_Queryable_ToArray_Contains(async);
-        }
+            => base.Where_Queryable_ToArray_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_AsEnumerable_Count(bool async)
-        {
-            return base.Where_Queryable_AsEnumerable_Count(async);
-        }
+            => base.Where_Queryable_AsEnumerable_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_AsEnumerable_Contains(bool async)
-        {
-            return base.Where_Queryable_AsEnumerable_Contains(async);
-        }
+            => base.Where_Queryable_AsEnumerable_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToList_Count_member(bool async)
-        {
-            return base.Where_Queryable_ToList_Count_member(async);
-        }
+            => base.Where_Queryable_ToList_Count_member(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_Queryable_ToArray_Length_member(bool async)
-        {
-            return base.Where_Queryable_ToArray_Length_member(async);
-        }
+            => base.Where_Queryable_ToArray_Length_member(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToList_Count(bool async)
-        {
-            return base.Where_collection_navigation_ToList_Count(async);
-        }
+            => base.Where_collection_navigation_ToList_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToList_Contains(bool async)
-        {
-            return base.Where_collection_navigation_ToList_Contains(async);
-        }
+            => base.Where_collection_navigation_ToList_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToArray_Count(bool async)
-        {
-            return base.Where_collection_navigation_ToArray_Count(async);
-        }
+            => base.Where_collection_navigation_ToArray_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToArray_Contains(bool async)
-        {
-            return base.Where_collection_navigation_ToArray_Contains(async);
-        }
+            => base.Where_collection_navigation_ToArray_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
-        {
-            return base.Where_collection_navigation_AsEnumerable_Count(async);
-        }
+            => base.Where_collection_navigation_AsEnumerable_Count(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_AsEnumerable_Contains(bool async)
-        {
-            return base.Where_collection_navigation_AsEnumerable_Contains(async);
-        }
+            => base.Where_collection_navigation_AsEnumerable_Contains(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToList_Count_member(bool async)
-        {
-            return base.Where_collection_navigation_ToList_Count_member(async);
-        }
+            => base.Where_collection_navigation_ToList_Count_member(async);
 
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_collection_navigation_ToArray_Length_member(bool async)
-        {
-            return base.Where_collection_navigation_ToArray_Length_member(async);
-        }
+            => base.Where_collection_navigation_ToArray_Length_member(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Contains over subquery is not supported")]
         public override Task Where_Queryable_AsEnumerable_Contains_negated(bool async)
-        {
-            return base.Where_Queryable_AsEnumerable_Contains_negated(async);
-        }
+            => base.Where_Queryable_AsEnumerable_Contains_negated(async);
 
         public override async Task Where_list_object_contains_over_value_type(bool async)
         {
@@ -2218,87 +2172,59 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task FirstOrDefault_over_scalar_projection_compared_to_null(bool async)
-        {
-            return base.FirstOrDefault_over_scalar_projection_compared_to_null(async);
-        }
+            => base.FirstOrDefault_over_scalar_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task FirstOrDefault_over_scalar_projection_compared_to_not_null(bool async)
-        {
-            return base.FirstOrDefault_over_scalar_projection_compared_to_not_null(async);
-        }
+            => base.FirstOrDefault_over_scalar_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task FirstOrDefault_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.FirstOrDefault_over_custom_projection_compared_to_null(async);
-        }
+            => base.FirstOrDefault_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task FirstOrDefault_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.FirstOrDefault_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.FirstOrDefault_over_custom_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task SingleOrDefault_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.SingleOrDefault_over_custom_projection_compared_to_null(async);
-        }
+            => base.SingleOrDefault_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task SingleOrDefault_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.SingleOrDefault_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.SingleOrDefault_over_custom_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task LastOrDefault_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.LastOrDefault_over_custom_projection_compared_to_null(async);
-        }
+            => base.LastOrDefault_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task LastOrDefault_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.LastOrDefault_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.LastOrDefault_over_custom_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task First_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.First_over_custom_projection_compared_to_null(async);
-        }
+            => base.First_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task First_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.First_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.First_over_custom_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task Single_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.Single_over_custom_projection_compared_to_null(async);
-        }
+            => base.Single_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task Single_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.Single_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.Single_over_custom_projection_compared_to_not_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task Last_over_custom_projection_compared_to_null(bool async)
-        {
-            return base.Last_over_custom_projection_compared_to_null(async);
-        }
+            => base.Last_over_custom_projection_compared_to_null(async);
 
         [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
         public override Task Last_over_custom_projection_compared_to_not_null(bool async)
-        {
-            return base.Last_over_custom_projection_compared_to_not_null(async);
-        }
+            => base.Last_over_custom_projection_compared_to_not_null(async);
 
         public override async Task Where_Contains_and_comparison(bool async)
         {
@@ -2321,14 +2247,10 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         }
 
         public override Task Where_Like_and_comparison(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
-        }
+            => AssertTranslationFailed(() => base.Where_Like_and_comparison(async));
 
         public override Task Where_Like_or_comparison(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
-        }
+            => AssertTranslationFailed(() => base.Where_Like_or_comparison(async));
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

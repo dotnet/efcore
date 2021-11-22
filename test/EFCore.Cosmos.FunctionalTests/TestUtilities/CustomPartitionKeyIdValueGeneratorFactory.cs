@@ -9,8 +9,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     internal class CustomPartitionKeyIdValueGeneratorFactory : ValueGeneratorFactory
     {
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
-        {
-            return new CustomPartitionKeyIdGenerator<string>();
-        }
+            => new CustomPartitionKeyIdGenerator<string>();
     }
 }

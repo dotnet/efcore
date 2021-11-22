@@ -27,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Does_not_generate_temp_values()
-        {
-            Assert.False(new GuidValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.False(new GuidValueGenerator().GeneratesTemporaryValues);
     }
 }

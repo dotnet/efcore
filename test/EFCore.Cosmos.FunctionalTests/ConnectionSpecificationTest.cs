@@ -35,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration());
-            }
+                => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -74,14 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
+                => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
                     .UseCosmos(
                         _connectionUri,
                         _authToken,
                         _name,
                         b => b.ApplyConfiguration());
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

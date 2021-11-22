@@ -14,21 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         [ConditionalFact]
         public void CreateContext_gets_service()
-        {
-            CreateOperations(typeof(TestProgram)).CreateContext(typeof(TestContext).FullName);
-        }
+            => CreateOperations(typeof(TestProgram)).CreateContext(typeof(TestContext).FullName);
 
         [ConditionalFact]
         public void CreateContext_gets_service_without_AddDbContext()
-        {
-            CreateOperations(typeof(TestProgramWithoutAddDbContext)).CreateContext(typeof(TestContext).FullName);
-        }
+            => CreateOperations(typeof(TestProgramWithoutAddDbContext)).CreateContext(typeof(TestContext).FullName);
 
         [ConditionalFact]
         public void CreateContext_gets_service_when_context_factory_used()
-        {
-            CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
-        }
+            => CreateOperations(typeof(TestProgramWithContextFactory)).CreateContext(typeof(TestContextFromFactory).FullName);
 
         [ConditionalFact]
         public void Can_pass_null_args()

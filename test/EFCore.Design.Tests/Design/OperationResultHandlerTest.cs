@@ -9,21 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Design
     {
         [ConditionalFact]
         public void Version_is_zero()
-        {
-            Assert.Equal(0, new OperationResultHandler().Version);
-        }
+            => Assert.Equal(0, new OperationResultHandler().Version);
 
         [ConditionalFact]
         public void HasResult_defaults_to_false()
-        {
-            Assert.False(new OperationResultHandler().HasResult);
-        }
+            => Assert.False(new OperationResultHandler().HasResult);
 
         [ConditionalFact]
         public void ErrorType_defaults_to_null()
-        {
-            Assert.Null(new OperationResultHandler().ErrorType);
-        }
+            => Assert.Null(new OperationResultHandler().ErrorType);
 
         [ConditionalFact]
         public void OnResult_works()

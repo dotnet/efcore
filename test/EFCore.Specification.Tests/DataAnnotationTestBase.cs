@@ -822,13 +822,15 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
             var entity = modelBuilder.Entity<KeyFluentApiAndKeylessAttribute>();
 
-            Assert.Equal(CoreStrings.PrincipalKeylessType(
-                nameof(KeyFluentApiAndKeylessAttribute), nameof(KeyFluentApiAndKeylessAttribute), nameof(CompositeKeyAttribute)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    modelBuilder.Entity<CompositeKeyAttribute>()
-                .HasOne<KeyFluentApiAndKeylessAttribute>()
-                .WithOne()
-                .HasForeignKey<CompositeKeyAttribute>("fk")).Message);
+            Assert.Equal(
+                CoreStrings.PrincipalKeylessType(
+                    nameof(KeyFluentApiAndKeylessAttribute), nameof(KeyFluentApiAndKeylessAttribute), nameof(CompositeKeyAttribute)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        modelBuilder.Entity<CompositeKeyAttribute>()
+                            .HasOne<KeyFluentApiAndKeylessAttribute>()
+                            .WithOne()
+                            .HasForeignKey<CompositeKeyAttribute>("fk")).Message);
         }
 
         private class CompositeKeyAttribute
@@ -1489,7 +1491,6 @@ namespace Microsoft.EntityFrameworkCore
             public virtual MenuGroup FkGroupNavigation { get; set; }
         }
 
-
         [ConditionalFact]
         public virtual void Multiple_self_ref_ForeignKeys_on_navigations()
         {
@@ -1526,8 +1527,10 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder);
 
             var profile = modelBuilder.Model.FindEntityType(typeof(Profile14));
-            Assert.Equal(nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile1)).ForeignKey.Properties.Single().Name);
-            Assert.Equal(nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile2)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile1)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile2)).ForeignKey.Properties.Single().Name);
         }
 
         protected class Profile14
@@ -1552,10 +1555,14 @@ namespace Microsoft.EntityFrameworkCore
             Validate(modelBuilder);
 
             var profile = modelBuilder.Model.FindEntityType(typeof(Profile15));
-            Assert.Equal(nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile1)).ForeignKey.Properties.Single().Name);
-            Assert.Equal(nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile2)).ForeignKey.Properties.Single().Name);
-            Assert.Equal(nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile3)).ForeignKey.Properties.Single().Name);
-            Assert.Equal(nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile4)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile1)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile2)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile3)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(
+                nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile4)).ForeignKey.Properties.Single().Name);
         }
 
         protected class Profile15
@@ -1584,21 +1591,22 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<Login16>(entity =>
-            {
-                entity.HasMany(d => d.Profile16s)
-                    .WithMany(p => p.Login16s)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "Login16Profile16",
-                        l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
-                        r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
-                        j =>
-                        {
-                            j.HasKey("Login16Id", "Profile16Id");
+            modelBuilder.Entity<Login16>(
+                entity =>
+                {
+                    entity.HasMany(d => d.Profile16s)
+                        .WithMany(p => p.Login16s)
+                        .UsingEntity<Dictionary<string, object>>(
+                            "Login16Profile16",
+                            l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
+                            r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
+                            j =>
+                            {
+                                j.HasKey("Login16Id", "Profile16Id");
 
-                            j.ToTable("Login16Profile16");
-                        });
-            });
+                                j.ToTable("Login16Profile16");
+                            });
+                });
 
             var model = Validate(modelBuilder);
 
@@ -1610,16 +1618,18 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(GetProperty<Profile16>(model, "Profile16Id").IsForeignKey());
         }
 
-        public partial class Login16
+        public class Login16
         {
             public int Login16Id { get; set; }
+
             [ForeignKey("Login16Id")]
             public virtual ICollection<Profile16> Profile16s { get; set; }
         }
 
-        public partial class Profile16
+        public class Profile16
         {
             public int Profile16Id { get; set; }
+
             [ForeignKey("Profile16Id")]
             public virtual ICollection<Login16> Login16s { get; set; }
         }
@@ -1757,8 +1767,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var clientRow = context.Set<One>().First(r => r.UniqueNo == 1);
@@ -1775,12 +1784,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalFact]
         public virtual void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.Set<One>().Add(
@@ -1794,7 +1801,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.SaveChanges();
                 });
-        }
 
         [ConditionalFact]
         public virtual void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -2659,8 +2665,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void TimestampAttribute_throws_if_value_in_database_changed()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var clientRow = context.Set<Two>().First(r => r.Id == 1);
@@ -2675,18 +2680,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalFact]
         public virtual void UnicodeAttribute_sets_unicode_for_properties_and_fields()
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<UnicodeAnnotationClass>(b =>
-            {
-                b.Property(e => e.PersonMiddleName);
-                b.Property(e => e.PersonAddress);
-            });
+            modelBuilder.Entity<UnicodeAnnotationClass>(
+                b =>
+                {
+                    b.Property(e => e.PersonMiddleName);
+                    b.Property(e => e.PersonAddress);
+                });
 
             var model = Validate(modelBuilder);
 
@@ -2719,12 +2724,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Entity<PrecisionAnnotationClass>(b =>
-            {
-                b.Property(e => e.DecimalField);
-                b.Property(e => e.DateTimeField);
-                b.Property(e => e.DateTimeOffsetField);
-            });
+            modelBuilder.Entity<PrecisionAnnotationClass>(
+                b =>
+                {
+                    b.Property(e => e.DecimalField);
+                    b.Property(e => e.DateTimeField);
+                    b.Property(e => e.DateTimeOffsetField);
+                });
 
             var model = Validate(modelBuilder);
 

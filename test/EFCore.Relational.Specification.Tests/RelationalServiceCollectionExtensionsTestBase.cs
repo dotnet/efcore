@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public override void Required_services_are_registered_with_expected_lifetimes()
-        {
-            LifetimeTest(EntityFrameworkServicesBuilder.CoreServices, EntityFrameworkRelationalServicesBuilder.RelationalServices);
-        }
+            => LifetimeTest(EntityFrameworkServicesBuilder.CoreServices, EntityFrameworkRelationalServicesBuilder.RelationalServices);
     }
 }

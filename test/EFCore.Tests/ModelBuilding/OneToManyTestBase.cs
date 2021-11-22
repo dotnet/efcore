@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -924,13 +923,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.PrincipalKeylessType(
-                            nameof(Customer),
-                            nameof(Customer) + "." + nameof(Customer.Orders),
-                            nameof(Order)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>().HasNoKey()
-                            .HasMany(c => c.Orders)
-                            .WithOne(o => o.Customer)).Message);
+                        nameof(Customer),
+                        nameof(Customer) + "." + nameof(Customer.Orders),
+                        nameof(Order)),
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            modelBuilder.Entity<Customer>().HasNoKey()
+                                .HasMany(c => c.Orders)
+                                .WithOne(o => o.Customer)).Message);
             }
 
             [ConditionalFact]
@@ -2687,9 +2687,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.PrincipalKeylessType(
-                            nameof(KeylessCollectionNavigation),
-                            nameof(KeylessCollectionNavigation) + "." + nameof(KeylessCollectionNavigation.Stores),
-                            nameof(Store)),
+                        nameof(KeylessCollectionNavigation),
+                        nameof(KeylessCollectionNavigation) + "." + nameof(KeylessCollectionNavigation.Stores),
+                        nameof(Store)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey().HasMany(e => e.Stores)).Message);
             }
@@ -2701,27 +2701,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.NavigationToKeylessType(
-                            nameof(KeylessReferenceNavigation.Collection),
-                            nameof(KeylessCollectionNavigation)),
+                        nameof(KeylessReferenceNavigation.Collection),
+                        nameof(KeylessCollectionNavigation)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()
-                        .HasOne(e => e.Reference).WithMany(e => e.Collection)).Message);
+                            .HasOne(e => e.Reference).WithMany(e => e.Collection)).Message);
             }
 
             public virtual void Reference_navigation_from_keyless_entity_type_works()
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<Discount>(entity =>
-                {
-                    entity.HasNoKey();
+                modelBuilder.Entity<Discount>(
+                    entity =>
+                    {
+                        entity.HasNoKey();
 
-                    entity.HasOne(d => d.Store).WithMany();
-                });
+                        entity.HasOne(d => d.Store).WithMany();
+                    });
 
                 var model = modelBuilder.FinalizeModel();
 
-                Assert.Collection(model.GetEntityTypes(),
+                Assert.Collection(
+                    model.GetEntityTypes(),
                     e =>
                     {
                         Assert.Equal(typeof(Discount).DisplayName(), e.Name);

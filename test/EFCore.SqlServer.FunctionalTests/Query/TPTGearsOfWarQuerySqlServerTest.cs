@@ -9145,7 +9145,6 @@ LEFT JOIN (
 LEFT JOIN [LocustHighCommands] AS [l2] ON [l0].[HighCommandId] = [l2].[Id]");
         }
 
-
         public override async Task Join_entity_with_itself_grouped_by_key_followed_by_include_skip_take(bool async)
         {
             await base.Join_entity_with_itself_grouped_by_key_followed_by_include_skip_take(async);

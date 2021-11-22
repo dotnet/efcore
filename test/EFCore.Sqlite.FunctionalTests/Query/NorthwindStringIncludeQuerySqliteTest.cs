@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.Include_collection_with_outer_apply_with_filter_non_equality(async))).Message);
 
         public override async Task Include_collection_with_last_no_orderby(bool async)
-        => Assert.Equal(
+            => Assert.Equal(
                 RelationalStrings.LastUsedWithoutOrderBy(nameof(Enumerable.Last)),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_collection_with_last_no_orderby(async))).Message);

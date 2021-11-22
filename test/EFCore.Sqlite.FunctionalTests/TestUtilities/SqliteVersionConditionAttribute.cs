@@ -68,10 +68,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public string SkipReason
         {
             set => _skipReason = value;
-            get
-                => _skipReason
-                    ?? $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
-                    + (Skip == null ? "" : "and skipping on " + Skip);
+            get => _skipReason
+                ?? $"Test only runs for SQLite versions >= {Min ?? "Any"} and <= {Max ?? "Any"}"
+                + (Skip == null ? "" : "and skipping on " + Skip);
         }
     }
 }

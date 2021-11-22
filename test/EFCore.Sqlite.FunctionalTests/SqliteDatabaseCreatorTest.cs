@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("wal", journalMode);
         }
 
-        [ConditionalTheory (Skip = "Issues #25797 and #26016")]
+        [ConditionalTheory(Skip = "Issues #25797 and #26016")]
         [InlineData(false)]
         [InlineData(true)]
         public async Task Delete_works_even_when_different_connection_exists_to_same_file(bool async)

@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return modelBuilder.GetEdmModel();
         }
 
-        public string BaseAddress { get; private set; }
+        public string BaseAddress { get; }
 
-        public IHttpClientFactory ClientFactory { get; private set; }
+        public IHttpClientFactory ClientFactory { get; }
 
         public override async Task DisposeAsync()
         {

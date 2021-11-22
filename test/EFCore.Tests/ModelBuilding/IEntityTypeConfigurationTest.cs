@@ -86,9 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         private class CustomerConfiguration2 : IEntityTypeConfiguration<Customer>
         {
             public void Configure(EntityTypeBuilder<Customer> builder)
-            {
-                builder.Property(c => c.Name).HasMaxLength(1000);
-            }
+                => builder.Property(c => c.Name).HasMaxLength(1000);
         }
 
         protected class Order

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SeedingInMemoryTest : SeedingTestBase
     {
-        protected override TestStore TestStore => InMemoryTestStore.Create("SeedingTest");
+        protected override TestStore TestStore
+            => InMemoryTestStore.Create("SeedingTest");
 
         protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
             => new SeedingInMemoryContext(testId);

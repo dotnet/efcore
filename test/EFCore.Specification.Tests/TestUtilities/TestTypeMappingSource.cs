@@ -13,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
-        {
-            return null;
-        }
+            => null;
     }
 }

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -17,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
         protected FromSqlSprocQueryTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

@@ -16,14 +16,16 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : GrpcTestBase<TFixture>.GrpcFixtureBase
     {
         protected GrpcTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
         protected List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new()
+                new EntityTypeMapping
                 {
                     Name = "PostTag",
                     TableName = "PostTag",
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
                         "ForeignKey: PostTag (Dictionary<string, object>) {'TagsInPostDataTagId'} -> Tag {'TagId'} Cascade",
                     },
                 },
-                new()
+                new EntityTypeMapping
                 {
                     Name = "ProtoTest.Author",
                     TableName = "Author",
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Property: Author.Name (name_, string)",
                     },
                 },
-                new()
+                new EntityTypeMapping
                 {
                     Name = "ProtoTest.Post",
                     TableName = "Post",
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                         "SkipNavigation: Post.TagsInPostData (tagsInPostData_, RepeatedField<Tag>) CollectionTag Inverse: PostsInTagData",
                     },
                 },
-                new()
+                new EntityTypeMapping
                 {
                     Name = "ProtoTest.Tag",
                     TableName = "Tag",

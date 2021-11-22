@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ManyToManyLoadTestBase<TFixture>.ManyToManyLoadFixtureBase
     {
         protected ManyToManyLoadTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll, true)]
@@ -179,13 +181,13 @@ namespace Microsoft.EntityFrameworkCore
             if (state != EntityState.Unchanged)
             {
                 foreach (var child in left.TwoSkip.Cast<object>()
-                    .Concat(left.TwoSkipShared)
-                    .Concat(left.SelfSkipPayloadLeft)
-                    .Concat(left.SelfSkipPayloadRight)
-                    .Concat(left.BranchSkip)
-                    .Concat(left.ThreeSkipPayloadFull)
-                    .Concat(left.TwoSkipShared)
-                    .Concat(left.ThreeSkipPayloadFullShared))
+                             .Concat(left.TwoSkipShared)
+                             .Concat(left.SelfSkipPayloadLeft)
+                             .Concat(left.SelfSkipPayloadRight)
+                             .Concat(left.BranchSkip)
+                             .Concat(left.ThreeSkipPayloadFull)
+                             .Concat(left.TwoSkipShared)
+                             .Concat(left.ThreeSkipPayloadFullShared))
                 {
                     context.Entry(child).State = state;
                 }
@@ -966,7 +968,14 @@ namespace Microsoft.EntityFrameworkCore
                 .Query()
                 .Include(e => e.ThreeSkipFull.Where(e => e.Id == 13 || e.Id == 11))
                 .OrderBy(e => e.Id)
-                .Select(e => new { e.Id, e.Name, Count1 = e.OneSkipShared.Count, Count3 = e.ThreeSkipFull.Count });
+                .Select(
+                    e => new
+                    {
+                        e.Id,
+                        e.Name,
+                        Count1 = e.OneSkipShared.Count,
+                        Count3 = e.ThreeSkipFull.Count
+                    });
 
             var projected = async
                 ? await queryable.ToListAsync()

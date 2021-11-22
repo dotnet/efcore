@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
@@ -112,18 +111,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Subquery_projecting_nullable_scalar_contains_nullable_value_needs_null_expansion_negated(async))).Message);
 
-        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(bool async)
+        public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(
+            bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async))).Message);
+                    () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion(async)))
+                .Message);
 
         public override async Task Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(
             bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async))).Message);
+                    () => base
+                        .Subquery_projecting_non_nullable_scalar_contains_non_nullable_value_doesnt_need_null_expansion_negated(async)))
+                .Message);
 
         public override async Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
             => Assert.Equal(
@@ -137,23 +140,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async))).Message);
 
-        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        public override async Task
+            Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
+                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                        async))).Message);
 
-        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(bool async)
+        public override async Task
+            Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(
+                bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(async))).Message);
+                    () => base
+                        .Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(
+                            async))).Message);
 
-        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(bool async)
+        public override async Task
+            Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(async))).Message);
+                    () => base
+                        .Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(
+                            async))).Message);
 
         public override async Task Correlated_collection_with_distinct_projecting_identifier_column(bool async)
             => Assert.Equal(
@@ -171,7 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async))).Message);
+                    () => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async)))
+                .Message);
 
         public override async Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
             => Assert.Equal(
@@ -332,15 +345,11 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
 
         [ConditionalTheory(Skip = "Issue#16428")]
         public override Task First_on_byte_array(bool async)
-        {
-            return base.First_on_byte_array(async);
-        }
+            => base.First_on_byte_array(async);
 
         [ConditionalTheory(Skip = "Issue#16428")]
         public override Task Array_access_on_byte_array(bool async)
-        {
-            return base.Array_access_on_byte_array(async);
-        }
+            => base.Array_access_on_byte_array(async);
 
         [ConditionalTheory(Skip = "Issue#18844")]
         [MemberData(nameof(IsAsyncData))]

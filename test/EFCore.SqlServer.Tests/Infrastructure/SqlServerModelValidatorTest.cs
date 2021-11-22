@@ -717,13 +717,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder1.Entity<Dog>().Property(typeof(DateTime?), "Start");
             modelBuilder1.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
-            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
+            VerifyError(
+                SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
 
             var modelBuilder2 = CreateConventionalModelBuilder();
             modelBuilder2.Entity<Dog>().Property(typeof(int), "Start");
             modelBuilder2.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
 
-            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
+            VerifyError(
+                SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
         }
 
         [ConditionalFact]
@@ -744,8 +746,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn");
             modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
 
-            VerifyError(SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
-                nameof(Dog), "Start3", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
+            VerifyError(
+                SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
+                    nameof(Dog), "Start3", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
         }
 
         [ConditionalFact]
@@ -753,11 +756,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
-            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate().HasDefaultValue(DateTime.MinValue);
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValue(DateTime.MinValue);
             modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
 
-            VerifyError(SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
-                nameof(Dog), "Start3"), modelBuilder);
+            VerifyError(
+                SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
+                    nameof(Dog), "Start3"), modelBuilder);
         }
 
         [ConditionalFact]

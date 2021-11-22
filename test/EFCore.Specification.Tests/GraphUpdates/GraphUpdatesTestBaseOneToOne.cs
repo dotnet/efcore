@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(null)]
         public virtual void Optional_one_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
@@ -39,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
@@ -783,8 +781,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(null)]
         public virtual void Required_one_to_one_relationships_are_one_to_one(
             CascadeTiming? deleteOrphansTiming)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
@@ -799,7 +796,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, CascadeTiming.OnSaveChanges)]
@@ -1229,6 +1225,7 @@ namespace Microsoft.EntityFrameworkCore
                             // Navigations to owners are preserved when these are owned
                             Assert.Null(old2.Back);
                         }
+
                         Assert.Equal(old1.Id, old2.Id);
                     }
                 },

@@ -2852,12 +2852,9 @@ ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
-        {
-            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
+            => await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
 
-            //AssertSql(" ");
-        }
-
+        //AssertSql(" ");
         public override async Task Complex_query_with_group_by_in_subquery5(bool async)
         {
             await base.Complex_query_with_group_by_in_subquery5(async);

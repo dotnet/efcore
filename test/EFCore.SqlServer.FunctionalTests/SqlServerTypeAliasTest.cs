@@ -54,7 +54,8 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
 
                 var facetedAliasEntityType = model.FindEntityType(typeof(TypeAliasEntityWithFacets));
                 Assert.Equal("datetimeAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeAlias)));
-                Assert.Equal("datetimeoffsetAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeOffsetAlias)));
+                Assert.Equal(
+                    "datetimeoffsetAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeOffsetAlias)));
                 Assert.Equal("decimalAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DecimalAlias)));
                 Assert.Equal("doubleAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DoubleAlias)));
                 Assert.Equal("floatAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.FloatAlias)));

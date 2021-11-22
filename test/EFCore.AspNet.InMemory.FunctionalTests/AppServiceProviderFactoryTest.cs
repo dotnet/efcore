@@ -163,7 +163,9 @@ namespace Microsoft.EntityFrameworkCore
     public class TestWebHost
     {
         public TestWebHost(IServiceProvider services)
-            => Services = services;
+        {
+            Services = services;
+        }
 
         public IServiceProvider Services { get; }
     }
@@ -171,12 +173,14 @@ namespace Microsoft.EntityFrameworkCore
     public class TestWebHostBuilder
     {
         public TestWebHostBuilder(IServiceProvider services)
-            => Services = services;
+        {
+            Services = services;
+        }
 
         public IServiceProvider Services { get; }
 
         public TestWebHost Build()
-            => new TestWebHost(Services);
+            => new(Services);
     }
 
     public class TestOperationReporter : IOperationReporter

@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
                                 ? () => context.ChangeTracker.DetectChanges()
                                 : deleteOrphansTiming == null
                                     ? () => context.ChangeTracker.CascadeChanges()
-                                    : (Action)(() => context.SaveChanges());
+                                    : () => context.SaveChanges();
                         }
 
                         var message = Assert.Throws<InvalidOperationException>(testCode).Message;
@@ -1250,8 +1250,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Mark_modified_one_to_many_overlapping(
             ChangeMechanism changeMechanism,
             CascadeTiming? deleteOrphansTiming)
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
@@ -1292,7 +1291,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(childCount, context.Set<OptionalOverlapping2>().Count());
                 });
-        }
 
         [ConditionalTheory]
         [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]

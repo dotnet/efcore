@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : ConcurrencyDetectorTestBase<TFixture>.ConcurrencyDetectorFixtureBase, new()
     {
         protected ConcurrencyDetectorTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static void Seed(ConcurrencyDetectorDbContext context)
             {
-                context.Products.Add(new() { Id = 1, Name = "Unicorn Party Pack"});
+                context.Products.Add(new Product { Id = 1, Name = "Unicorn Party Pack" });
                 context.SaveChanges();
             }
         }
@@ -99,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class ConcurrencyDetectorFixtureBase : SharedStoreFixtureBase<ConcurrencyDetectorDbContext>
         {
-            protected override string StoreName => "ConcurrencyDetector";
+            protected override string StoreName
+                => "ConcurrencyDetector";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 => modelBuilder.Entity<Product>().Property(p => p.Id).ValueGeneratedNever();

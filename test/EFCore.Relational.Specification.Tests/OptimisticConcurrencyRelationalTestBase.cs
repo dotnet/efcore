@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected OptimisticConcurrencyRelationalTestBase(TFixture fixture)
             : base(fixture)
-        { }
+        {
+        }
 
         [ConditionalFact]
         public virtual void Property_entry_original_value_is_set()

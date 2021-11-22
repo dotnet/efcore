@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         private DbContextOptions CreateOptions(CosmosTestStore testDatabase, Action<DbContextOptionsBuilder> configure = null)
         {
             var builder = Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
-                           .EnableDetailedErrors();
+                .EnableDetailedErrors();
             configure?.Invoke(builder);
             return builder.Options;
         }
@@ -150,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>();
-            }
+                => modelBuilder.Entity<Customer>();
         }
 
         public class CosmosFixture : ServiceProviderFixtureBase

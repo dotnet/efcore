@@ -18,15 +18,21 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Type ContextType { get; } = typeof(TContext);
 
         private IServiceProvider _serviceProvider;
+
         public IServiceProvider ServiceProvider
-            => _serviceProvider ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
+            => _serviceProvider
+                ?? throw new InvalidOperationException(
+                    $"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
 
         protected abstract string StoreName { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
 
         private TestStore _testStore;
+
         public TestStore TestStore
-            => _testStore ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(TestStore)} property will be available.");
+            => _testStore
+                ?? throw new InvalidOperationException(
+                    $"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(TestStore)} property will be available.");
 
         protected virtual bool UsePooling
             => true;

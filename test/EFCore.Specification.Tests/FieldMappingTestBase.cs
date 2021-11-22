@@ -23,7 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
     {
         protected FieldMappingTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -502,45 +504,33 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Load_collection_read_only_props_with_named_fields()
-        {
-            Load_collection<BlogReadOnlyExplicit>("Posts");
-        }
+            => Load_collection<BlogReadOnlyExplicit>("Posts");
 
         [ConditionalFact]
         public virtual void Load_reference_read_only_props_with_named_fields()
-        {
-            Load_reference<PostReadOnlyExplicit>("Blog");
-        }
+            => Load_reference<PostReadOnlyExplicit>("Blog");
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_constant_read_only_props_with_named_fields(bool tracking)
-        {
-            Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId", tracking);
-        }
+            => Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId", tracking);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Query_with_conditional_param_read_only_props_with_named_fields(bool tracking)
-        {
-            Query_with_conditional_param<PostReadOnlyExplicit>("Title", tracking);
-        }
+            => Query_with_conditional_param<PostReadOnlyExplicit>("Title", tracking);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Projection_read_only_props_with_named_fields(bool tracking)
-        {
-            Projection<PostReadOnlyExplicit>("Id", "Title", tracking);
-        }
+            => Projection<PostReadOnlyExplicit>("Id", "Title", tracking);
 
         [ConditionalFact]
         public virtual void Update_read_only_props_with_named_fields()
-        {
-            Update<BlogReadOnlyExplicit>("Posts");
-        }
+            => Update<BlogReadOnlyExplicit>("Posts");
 
         [ConditionalTheory]
         [InlineData(false)]
@@ -847,8 +837,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void Update<TBlog>(string navigation)
             where TBlog : class, IBlogAccessor, new()
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
+            => TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 context =>
                 {
@@ -883,7 +872,6 @@ namespace Microsoft.EntityFrameworkCore
 
                     AssertGraph(blogs, "Updated");
                 });
-        }
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {

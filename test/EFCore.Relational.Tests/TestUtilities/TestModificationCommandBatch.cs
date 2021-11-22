@@ -18,8 +18,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
-        {
-            return ModificationCommands.Count < _maxBatchSize;
-        }
+            => ModificationCommands.Count < _maxBatchSize;
     }
 }

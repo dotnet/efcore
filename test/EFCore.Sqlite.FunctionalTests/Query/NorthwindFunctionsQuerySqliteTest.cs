@@ -162,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Where_mathf_square(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_square(async));
+
         public override Task Where_mathf_sign(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_sign(async));
 
@@ -603,7 +604,8 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
         {
             await base.Regex_IsMatch_MethodCall(async);
 
-            AssertSql(@"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE regexp('^T', ""c"".""CustomerID"")");
         }
@@ -612,7 +614,8 @@ WHERE regexp('^T', ""c"".""CustomerID"")");
         {
             await base.Regex_IsMatch_MethodCall_constant_input(async);
 
-            AssertSql(@"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
         }
@@ -647,9 +650,7 @@ WHERE ""c"".""Region"" IS NOT NULL AND ""c"".""Region"" <> ''");
         }
 
         public override Task Datetime_subtraction_TotalDays(bool async)
-        {
-            return AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
-        }
+            => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

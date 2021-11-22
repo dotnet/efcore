@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore
                 private readonly DbContext _context;
 
                 public InMemoryCleaner(DbContext context)
-                    => _context = context;
+                {
+                    _context = context;
+                }
 
                 public void Dispose()
                     => _context.Database.EnsureDeleted();

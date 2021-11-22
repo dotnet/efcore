@@ -11,10 +11,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public void Property_throws_when_invoked_outside_of_query()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.PropertyMethodInvoked,
                 Assert.Throws<InvalidOperationException>(() => EF.Property<object>(new object(), "")).Message);
-        }
     }
 }

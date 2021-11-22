@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public uint EmployeeID
         {
-            get => _employeeId ?? (uint)0;
+            get => _employeeId ?? 0;
             set => _employeeId = value;
         }
 

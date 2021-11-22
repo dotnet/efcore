@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimInt",
                     TableName = "AspNetRoleClaims",
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'RoleId'} ", },
                     FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleInt",
                     TableName = "AspNetRoles",
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     Indexes = { "{'NormalizedName'} Unique", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserClaimInt",
                     TableName = "AspNetUserClaims",
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'UserId'} ", },
                     FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Claims Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserInt",
                     TableName = "AspNetUsers",
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserInt.UserRoles (ICollection<CustomUserRoleInt>) Collection ToDependent CustomUserRoleInt",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserLoginInt",
                     TableName = "AspNetUserLogins",
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
                     Indexes = { "{'UserId'} ", },
                     FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Logins Cascade", },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserRoleInt",
                     TableName = "AspNetUserRoles",
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
                         "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: UserRoles Cascade",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserTokenInt",
                     TableName = "AspNetUserTokens",

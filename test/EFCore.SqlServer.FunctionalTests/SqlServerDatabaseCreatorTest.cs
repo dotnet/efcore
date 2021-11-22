@@ -29,9 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true, true)]
         [InlineData(false, false, true)]
         public Task Returns_false_when_database_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
-        {
-            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: false);
-        }
+            => Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: false);
 
         [ConditionalTheory]
         [InlineData(true, false, false)]
@@ -40,9 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, true, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Returns_false_when_database_with_filename_does_not_exist(bool async, bool ambientTransaction, bool useCanConnect)
-        {
-            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: true);
-        }
+            => Returns_false_when_database_does_not_exist_test(async, ambientTransaction, useCanConnect, file: true);
 
         private static async Task Returns_false_when_database_does_not_exist_test(
             bool async,
@@ -79,9 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false, true)]
         [InlineData(false, true, true)]
         public Task Returns_true_when_database_exists(bool async, bool ambientTransaction, bool useCanConnect)
-        {
-            return Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: false);
-        }
+            => Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: false);
 
         [ConditionalTheory]
         [InlineData(true, true, false)]
@@ -90,9 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, false, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction, bool useCanConnect)
-        {
-            return Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: true);
-        }
+            => Returns_true_when_database_exists_test(async, ambientTransaction, useCanConnect, file: true);
 
         private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool useCanConnect, bool file)
         {
@@ -131,9 +123,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false, false)]
         [InlineData(false, true, false)]
         public Task Deletes_database(bool async, bool open, bool ambientTransaction)
-        {
-            return Delete_database_test(async, open, ambientTransaction, file: false);
-        }
+            => Delete_database_test(async, open, ambientTransaction, file: false);
 
         [ConditionalTheory]
         [InlineData(true, true, false)]
@@ -142,9 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Deletes_database_with_filename(bool async, bool open, bool ambientTransaction)
-        {
-            return Delete_database_test(async, open, ambientTransaction, file: true);
-        }
+            => Delete_database_test(async, open, ambientTransaction, file: true);
 
         private static async Task Delete_database_test(bool async, bool open, bool ambientTransaction, bool file)
         {
@@ -186,18 +174,14 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         [InlineData(false)]
         public Task Noop_when_database_does_not_exist(bool async)
-        {
-            return Noop_when_database_does_not_exist_test(async, file: false);
-        }
+            => Noop_when_database_does_not_exist_test(async, file: false);
 
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Noop_when_database_with_filename_does_not_exist(bool async)
-        {
-            return Noop_when_database_does_not_exist_test(async, file: true);
-        }
+            => Noop_when_database_does_not_exist_test(async, file: true);
 
         private static async Task Noop_when_database_does_not_exist_test(bool async, bool file)
         {
@@ -231,52 +215,40 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         [InlineData(false, false)]
         public Task Creates_schema_in_existing_database(bool async, bool ambientTransaction)
-        {
-            return Creates_schema_in_existing_database_test(async, ambientTransaction, file: false);
-        }
+            => Creates_schema_in_existing_database_test(async, ambientTransaction, file: false);
 
         [ConditionalTheory]
         [InlineData(true, false)]
         [InlineData(false, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Creates_schema_in_existing_database_with_filename(bool async, bool ambientTransaction)
-        {
-            return Creates_schema_in_existing_database_test(async, ambientTransaction, file: true);
-        }
+            => Creates_schema_in_existing_database_test(async, ambientTransaction, file: true);
 
         private static Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction, bool file)
-        {
-            return TestEnvironment.IsSqlAzure
+            => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                     (true, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
                 : Creates_physical_database_and_schema_test((true, async, ambientTransaction, file));
-        }
 
         [ConditionalTheory]
         [InlineData(true, false)]
         [InlineData(false, true)]
         [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public Task Creates_physical_database_and_schema(bool async, bool ambientTransaction)
-        {
-            return Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: false);
-        }
+            => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: false);
 
         [ConditionalTheory]
         [InlineData(true, true)]
         [InlineData(false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Creates_physical_database_with_filename_and_schema(bool async, bool ambientTransaction)
-        {
-            return Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: true);
-        }
+            => Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: true);
 
         private static Task Creates_new_physical_database_and_schema_test(bool async, bool ambientTransaction, bool file)
-        {
-            return TestEnvironment.IsSqlAzure
+            => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                     (false, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
                 : Creates_physical_database_and_schema_test((false, async, ambientTransaction, file));
-        }
 
         private static async Task Creates_physical_database_and_schema_test(
             (bool CreateDatabase, bool Async, bool ambientTransaction, bool File) options)
@@ -351,18 +323,14 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         [InlineData(false)]
         public Task Noop_when_database_exists_and_has_schema(bool async)
-        {
-            return Noop_when_database_exists_and_has_schema_test(async, file: false);
-        }
+            => Noop_when_database_exists_and_has_schema_test(async, file: false);
 
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
         public Task Noop_when_database_with_filename_exists_and_has_schema(bool async)
-        {
-            return Noop_when_database_exists_and_has_schema_test(async, file: true);
-        }
+            => Noop_when_database_exists_and_has_schema_test(async, file: true);
 
         private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
         {
@@ -727,19 +695,15 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
-            {
-                return new NonRetryingExecutionStrategy(dependencies);
-            }
+                => new NonRetryingExecutionStrategy(dependencies);
         }
 
         private static IServiceProvider CreateServiceProvider()
-        {
-            return new ServiceCollection()
+            => new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddScoped<IExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
                 .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
                 .BuildServiceProvider(validateScopes: true);
-        }
 
         protected class BloggingContext : DbContext
         {
@@ -756,22 +720,18 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
+                => optionsBuilder
                     .UseSqlServer(_connectionString, b => b.ApplyConfiguration())
                     .UseInternalServiceProvider(CreateServiceProvider());
-            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog>(
+                => modelBuilder.Entity<Blog>(
                     b =>
                     {
                         b.HasKey(
                             e => new { e.Key1, e.Key2 });
                         b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
                     });
-            }
 
             public DbSet<Blog> Blogs { get; set; }
         }
@@ -805,14 +765,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public bool HasTablesBase()
-            {
-                return HasTables();
-            }
+                => HasTables();
 
             public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default)
-            {
-                return HasTablesAsync(cancellationToken);
-            }
+                => HasTablesAsync(cancellationToken);
 
             public IExecutionStrategy ExecutionStrategy
                 => Dependencies.ExecutionStrategy;

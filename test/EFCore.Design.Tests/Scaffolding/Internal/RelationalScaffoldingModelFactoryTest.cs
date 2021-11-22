@@ -482,12 +482,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
             foreach (var column in keyProps.Select(
-                k => new DatabaseColumn
-                {
-                    Table = Table,
-                    Name = k,
-                    StoreType = "int"
-                }))
+                         k => new DatabaseColumn
+                         {
+                             Table = Table,
+                             Name = k,
+                             StoreType = "int"
+                         }))
             {
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
@@ -560,14 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Name = "MyTable",
                         Columns = { IdColumn, myColumn },
                         PrimaryKey = IdPrimaryKey,
-                        UniqueConstraints =
-                        {
-                            new DatabaseUniqueConstraint
-                            {
-                                Table = Table,
-                                Columns = { myColumn }
-                            }
-                        }
+                        UniqueConstraints = { new DatabaseUniqueConstraint { Table = Table, Columns = { myColumn } } }
                     }
                 }
             };
@@ -1141,8 +1134,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var (level, message) = _reporter.Messages.Single();
             Assert.Equal(LogLevel.Warning, level);
-            Assert.Equal(DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
-                childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent"), message);
+            Assert.Equal(
+                DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                    childrenTable.ForeignKeys.ElementAt(0).DisplayName(), "NotPkId", "Parent"), message);
         }
 
         [ConditionalFact]
@@ -1152,10 +1146,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 Database = Database,
                 Name = "Parent",
-                Columns =
-                {
-                    IdColumn
-                },
+                Columns = { IdColumn },
                 PrimaryKey = IdPrimaryKey
             };
             var childrenTable = new DatabaseTable
@@ -1199,7 +1190,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var (level, message) = _reporter.Messages.Single();
             Assert.Equal(LogLevel.Warning, level);
-            Assert.Equal(DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo"), message);
+            Assert.Equal(
+                DesignStrings.ForeignKeyWithSameFacetsExists(childrenTable.ForeignKeys.ElementAt(1).DisplayName(), "FK_Foo"), message);
         }
 
         [ConditionalFact]
@@ -1309,8 +1301,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var (level, message) = _reporter.Messages.Single();
             Assert.Equal(LogLevel.Warning, level);
-            Assert.Equal(DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
-                table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId"), message);
+            Assert.Equal(
+                DesignStrings.ForeignKeyPrincipalEndContainsNullableColumns(
+                    table.ForeignKeys.ElementAt(0).DisplayName(), "FriendsNameUniqueIndex", "Friends.BuddyId"), message);
         }
 
         [ConditionalFact]
@@ -2014,10 +2007,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         [ConditionalFact]
         public void Database_collation()
         {
-            var database = new DatabaseModel
-            {
-                Collation = "SomeDatabaseCollation"
-            };
+            var database = new DatabaseModel { Collation = "SomeDatabaseCollation" };
 
             var model = _factory.Create(database, new ModelReverseEngineerOptions());
             Assert.Equal("SomeDatabaseCollation", model.GetCollation());
@@ -2170,27 +2160,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new DatabaseTable
                     {
                         Name = "Blogs",
-                        Columns =
-                        {
-                            new DatabaseColumn
-                            {
-                                Name = "Id",
-                                StoreType = "int"
-                            }
-                        },
+                        Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
                         PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
                     },
                     new DatabaseTable
                     {
                         Name = "Posts",
-                        Columns =
-                        {
-                            new DatabaseColumn
-                            {
-                                Name = "Id",
-                                StoreType = "int"
-                            }
-                        },
+                        Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
                         PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
                     },
                     new DatabaseTable
@@ -2198,21 +2174,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Name = "BlogPosts",
                         Columns =
                         {
-                            new DatabaseColumn
-                            {
-                                Name = "BlogId",
-                                StoreType = "int"
-                            },
-                            new DatabaseColumn
-                            {
-                                Name = "PostId",
-                                StoreType = "int"
-                            }
+                            new DatabaseColumn { Name = "BlogId", StoreType = "int" },
+                            new DatabaseColumn { Name = "PostId", StoreType = "int" }
                         },
-                        PrimaryKey = new DatabasePrimaryKey
-                        {
-                            Columns = { new DatabaseColumnRef("BlogId"), new DatabaseColumnRef("PostId") }
-                        },
+                        PrimaryKey =
+                            new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("BlogId"), new DatabaseColumnRef("PostId") } },
                         ForeignKeys =
                         {
                             new DatabaseForeignKey
@@ -2255,7 +2221,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Assert.Equal("Blogs", skipNavigation.Name);
                     Assert.Equal("Posts", skipNavigation.Inverse.Name);
                 });
-
         }
 
         [ConditionalFact]
@@ -2268,14 +2233,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new DatabaseTable
                     {
                         Name = "Products",
-                        Columns =
-                        {
-                            new DatabaseColumn
-                            {
-                                Name = "Id",
-                                StoreType = "int"
-                            }
-                        },
+                        Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
                         PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
                     },
                     new DatabaseTable
@@ -2283,19 +2241,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Name = "RelatedProducts",
                         Columns =
                         {
-                            new DatabaseColumn
-                            {
-                                Name = "Id",
-                                StoreType = "int"
-                            },
-                            new DatabaseColumn
-                            {
-                                Name = "ProductId",
-                                StoreType = "int"
-                            }
+                            new DatabaseColumn { Name = "Id", StoreType = "int" },
+                            new DatabaseColumn { Name = "ProductId", StoreType = "int" }
                         },
-                        PrimaryKey = new DatabasePrimaryKey {
-                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        PrimaryKey =
+                            new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
                         ForeignKeys =
                         {
                             new DatabaseForeignKey
@@ -2317,19 +2267,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         Name = "SubProducts",
                         Columns =
                         {
-                            new DatabaseColumn
-                            {
-                                Name = "Id",
-                                StoreType = "int"
-                            },
-                            new DatabaseColumn
-                            {
-                                Name = "ProductId",
-                                StoreType = "int"
-                            }
+                            new DatabaseColumn { Name = "Id", StoreType = "int" },
+                            new DatabaseColumn { Name = "ProductId", StoreType = "int" }
                         },
-                        PrimaryKey = new DatabasePrimaryKey {
-                            Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
+                        PrimaryKey =
+                            new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id"), new DatabaseColumnRef("ProductId") } },
                         ForeignKeys =
                         {
                             new DatabaseForeignKey
@@ -2356,7 +2298,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 t1 =>
                 {
                     Assert.Empty(t1.GetNavigations());
-                    Assert.Collection(t1.GetSkipNavigations(),
+                    Assert.Collection(
+                        t1.GetSkipNavigations(),
                         s => Assert.Equal("Ids", s.Name),
                         s => Assert.Equal("IdsNavigation", s.Name),
                         s => Assert.Equal("Products", s.Name),
@@ -2372,7 +2315,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     Assert.Empty(t2.GetNavigations());
                     Assert.Equal(2, t2.GetForeignKeys().Count());
                 });
-
         }
     }
 }

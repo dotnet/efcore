@@ -1723,7 +1723,6 @@ namespace Microsoft.EntityFrameworkCore
                 VerifyRelationshipSnapshots(context, joinEntities);
                 VerifyRelationshipSnapshots(context, leftEntities);
                 VerifyRelationshipSnapshots(context, rightEntities);
-
             }
         }
 
@@ -2422,7 +2421,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(new DateTime(1973, 9, 3), joinEntity.Payload);
                     }
                     else if (joinEntity.LeftId == 20
-                        && joinEntity.RightId == 20)
+                             && joinEntity.RightId == 20)
                     {
                         Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Modified, joinEntry.State);
                         Assert.Equal(!postSave, joinEntry.Property(e => e.Payload).IsModified);
@@ -2556,7 +2555,7 @@ namespace Microsoft.EntityFrameworkCore
                     && SupportsDatabaseDefaults)
                 {
                     foreach (var joinEntity in context.ChangeTracker
-                        .Entries<Dictionary<string, object>>().Select(e => e.Entity).ToList())
+                                 .Entries<Dictionary<string, object>>().Select(e => e.Entity).ToList())
                     {
                         Assert.Equal("Generated", joinEntity["Payload"]);
                     }
@@ -2723,7 +2722,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Set!", joinEntity["Payload"]);
                     }
                     else if (context.Entry(joinEntity).Property<int>("OneId").CurrentValue == oneId2
-                        && context.Entry(joinEntity).Property<int>("ThreeId").CurrentValue == threeId2)
+                             && context.Entry(joinEntity).Property<int>("ThreeId").CurrentValue == threeId2)
                     {
                         Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Modified, joinEntry.State);
                         Assert.Equal(!postSave, joinEntry.Property("Payload").IsModified);
@@ -3290,7 +3289,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Set!", joinEntity.Payload);
                     }
                     else if (context.Entry(joinEntity).Property(e => e.OneId).CurrentValue == oneId2
-                        && context.Entry(joinEntity).Property(e => e.ThreeId).CurrentValue == threeId2)
+                             && context.Entry(joinEntity).Property(e => e.ThreeId).CurrentValue == threeId2)
                     {
                         Assert.Equal(postSave ? EntityState.Unchanged : EntityState.Modified, joinEntry.State);
                         Assert.Equal(!postSave, joinEntry.Property(e => e.Payload).IsModified);
@@ -3557,7 +3556,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false, true, true)]
         [InlineData(true, true, true)]
         public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join(
-            bool async, bool useTrackGraph, bool useDetectChanges)
+            bool async,
+            bool useTrackGraph,
+            bool useDetectChanges)
         {
             List<int> keys = null;
 
@@ -3805,7 +3806,6 @@ namespace Microsoft.EntityFrameworkCore
                             context.ChangeTracker.DetectChanges();
                         }
                     }
-
 
                     ValidateFixup(context, leftEntities, rightEntities);
 
@@ -4625,8 +4625,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Can_insert_update_delete_shared_type_entity_type()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var entity = context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared").CreateInstance(
@@ -4668,7 +4667,6 @@ namespace Microsoft.EntityFrameworkCore
                         context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
                             .Any(e => (int)e["OneId"] == 1 && (int)e["ThreeId"] == 1));
                 });
-        }
 
         [ConditionalFact]
         public virtual void Can_insert_update_delete_proxyable_shared_type_entity_type()
@@ -4891,7 +4889,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
 
                         foreach (var navigation in entityType.GetNavigations()
-                            .Concat((IEnumerable<INavigationBase>)entityType.GetSkipNavigations()))
+                                     .Concat((IEnumerable<INavigationBase>)entityType.GetSkipNavigations()))
                         {
                             if (navigation.GetRelationshipIndex() >= 0)
                             {
@@ -4937,10 +4935,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private ICollection<TEntity> CreateCollection<TEntity>()
-            => RequiresDetectChanges ? (ICollection<TEntity>)new List<TEntity>() : new ObservableCollection<TEntity>();
+            => RequiresDetectChanges ? new List<TEntity>() : new ObservableCollection<TEntity>();
 
         protected ManyToManyTrackingTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 

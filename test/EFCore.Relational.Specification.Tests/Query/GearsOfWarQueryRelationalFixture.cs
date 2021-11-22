@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var discriminatorMapping = new Dictionary<(Type, string), Func<object, object>>
             {
                 {
-                    (typeof(Gear), "Discriminator"),
-                    e =>
+                    (typeof(Gear), "Discriminator"), e =>
                     {
                         switch (((Gear)e)?.Nickname)
                         {
@@ -35,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    (typeof(Faction), "Discriminator"),
-                    e =>
+                    (typeof(Faction), "Discriminator"), e =>
                     {
                         switch (((Faction)e)?.Id)
                         {
@@ -50,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
-                    (typeof(LocustLeader), "Discriminator"),
-                    e =>
+                    (typeof(LocustLeader), "Discriminator"), e =>
                     {
                         switch (((LocustLeader)e)?.Name)
                         {

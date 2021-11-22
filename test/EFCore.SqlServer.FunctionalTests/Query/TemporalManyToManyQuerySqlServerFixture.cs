@@ -202,7 +202,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 "EntityThrees",
                 "EntityRoots",
                 "EntityRootEntityThree",
-
                 "JoinCompositeKeyToLeaf",
                 "EntityCompositeKeyEntityRoot",
                 "JoinOneSelfPayload",
@@ -225,7 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 context.Database.ExecuteSqlRaw($"UPDATE [{tableName + "History"}] SET PeriodEnd = '2020-07-01T07:00:00.0000000Z'");
 
                 context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])");
-                context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
+                context.Database.ExecuteSqlRaw(
+                    $"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [dbo].[{tableName + "History"}]))");
             }
         }
     }

@@ -549,9 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>();
-            }
+                => modelBuilder.Entity<Customer>();
         }
 
         private class CustomerContextGuid : DbContext
@@ -562,15 +560,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<CustomerGuid>(
+                => modelBuilder.Entity<CustomerGuid>(
                     cb =>
                     {
                         cb.Property(c => c.Id).ToJsonProperty("id");
                         cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
                         cb.HasPartitionKey(c => c.PartitionKey);
                     });
-            }
         }
 
         private class CustomerContextDateTime : DbContext
@@ -581,8 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<CustomerDateTime>(
+                => modelBuilder.Entity<CustomerDateTime>(
                     cb =>
                     {
                         cb.Property(c => c.Id);
@@ -590,7 +585,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.HasKey(c => new { c.Id, c.Name });
                     });
-            }
         }
 
         [ConditionalFact]
@@ -670,23 +664,41 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 new[] { "1", null },
                 c =>
                 {
-                    c.Collection = new List<string> { "3", "2", "1" };
+                    c.Collection = new List<string>
+                    {
+                        "3",
+                        "2",
+                        "1"
+                    };
                 },
-                new List<string> { "3", "2", "1" });
+                new List<string>
+                {
+                    "3",
+                    "2",
+                    "1"
+                });
 
             // See #25343
             await Can_add_update_delete_with_collection(
-                new List<EntityType> { EntityType.Base, EntityType.Derived, EntityType.Derived },
+                new List<EntityType>
+                {
+                    EntityType.Base,
+                    EntityType.Derived,
+                    EntityType.Derived
+                },
                 c =>
                 {
                     c.Collection.Clear();
                     c.Collection.Add(EntityType.Base);
                 },
                 new List<EntityType> { EntityType.Base },
-                modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<EntityType>>>(c =>
-                    c.Property(s => s.Collection)
-                        .HasConversion(m => m.Select(v => (int)v).ToList(), p => p.Select(v => (EntityType)v).ToList(),
-                            new ListComparer<EntityType, List<EntityType>>(ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
+                modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<EntityType>>>(
+                    c =>
+                        c.Property(s => s.Collection)
+                            .HasConversion(
+                                m => m.Select(v => (int)v).ToList(), p => p.Select(v => (EntityType)v).ToList(),
+                                new ListComparer<EntityType, List<EntityType>>(
+                                    ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
 
             await Can_add_update_delete_with_collection(
                 new[] { 1f, 2 },
@@ -722,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 new SortedDictionary<string, long?> { { "2", null } });
 
             await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, short?>>(
-                 ImmutableDictionary<string, short?>.Empty
+                ImmutableDictionary<string, short?>.Empty
                     .Add("2", 2).Add("1", 1),
                 c =>
                 {
@@ -792,14 +804,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 new SortedDictionary<string, long?[]> { { "2", null } });
 
             await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
-                 ImmutableDictionary<string, Dictionary<string, short?>>.Empty
-                    .Add("2", new Dictionary<string, short?> { { "value", 2 } }).Add("1", new Dictionary<string, short?> { { "value", 1 } }),
+                ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+                    .Add("2", new Dictionary<string, short?> { { "value", 2 } })
+                    .Add("1", new Dictionary<string, short?> { { "value", 1 } }),
                 c =>
                 {
                     c.Collection = ImmutableDictionary<string, Dictionary<string, short?>>.Empty
                         .Add("1", new Dictionary<string, short?> { { "value", 1 } }).Add("2", null);
                 },
-                new Dictionary<string, Dictionary<string, short?>> { { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null } });
+                new Dictionary<string, Dictionary<string, short?>>
+                {
+                    { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null }
+                });
         }
 
         private async Task Can_add_update_delete_with_collection<TCollection>(
@@ -811,7 +827,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new CustomerWithCollection<TCollection> { Id = 42, Name = "Theon", Collection = initialValue };
+            var customer = new CustomerWithCollection<TCollection>
+            {
+                Id = 42,
+                Name = "Theon",
+                Collection = initialValue
+            };
 
             using (var context = new CollectionCustomerContext<TCollection>(options, onModelBuilder))
             {
@@ -875,9 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                _onModelBuilder?.Invoke(modelBuilder);
-            }
+                => _onModelBuilder?.Invoke(modelBuilder);
         }
 
         [ConditionalFact]
@@ -1305,15 +1324,13 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     cb =>
                     {
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
                         cb.HasKey(c => new { c.Id, c.PartitionKey });
                     });
-            }
         }
 
         private class PartitionKeyContextEntityWithNoPartitionKey : DbContext
@@ -1324,9 +1341,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<CustomerNoPartitionKey>();
-            }
+                => modelBuilder.Entity<CustomerNoPartitionKey>();
         }
 
         private class PartitionKeyContextCustomValueGenerator : DbContext
@@ -1337,8 +1352,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     cb =>
                     {
                         cb.Property(StoreKeyConvention.DefaultIdPropertyName)
@@ -1349,7 +1363,6 @@ OFFSET 0 LIMIT 1");
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.HasKey(c => new { c.PartitionKey, c.Id });
                     });
-            }
         }
 
         private class PartitionKeyContextNoValueGenerator : DbContext
@@ -1360,8 +1373,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     cb =>
                     {
                         cb.Property(StoreKeyConvention.DefaultIdPropertyName).HasValueGenerator((Type)null);
@@ -1371,7 +1383,6 @@ OFFSET 0 LIMIT 1");
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.HasKey(c => new { c.PartitionKey, c.Id });
                     });
-            }
         }
 
         private class PartitionKeyContextNonPrimaryKey : DbContext
@@ -1382,9 +1393,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>();
-            }
+                => modelBuilder.Entity<Customer>();
         }
 
         private class PartitionKeyContextPrimaryKey : DbContext
@@ -1395,15 +1404,13 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>(
+                => modelBuilder.Entity<Customer>(
                     cb =>
                     {
                         cb.HasNoDiscriminator();
                         cb.Property(c => c.Id).HasConversion<string>();
                         cb.HasPartitionKey(c => c.Id);
                     });
-            }
         }
 
         private class PartitionKeyContextWithPrimaryKeyResourceId : DbContext
@@ -1414,8 +1421,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<CustomerWithResourceId>(
+                => modelBuilder.Entity<CustomerWithResourceId>(
                     cb =>
                     {
                         cb.HasPartitionKey(c => c.PartitionKey);
@@ -1423,7 +1429,6 @@ OFFSET 0 LIMIT 1");
                         cb.Property(c => c.id).HasConversion<string>();
                         cb.HasKey(c => new { c.id });
                     });
-            }
         }
 
         private class PartitionKeyContextWithResourceId : DbContext
@@ -1434,15 +1439,13 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<CustomerWithResourceId>(
+                => modelBuilder.Entity<CustomerWithResourceId>(
                     cb =>
                     {
                         cb.HasPartitionKey(c => c.PartitionKey);
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
                         cb.HasKey(c => new { c.PartitionKey, c.id });
                     });
-            }
         }
 
         [ConditionalFact]
@@ -1496,9 +1499,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>().HasNoDiscriminator();
-            }
+                => modelBuilder.Entity<Customer>().HasNoDiscriminator();
         }
 
         [ConditionalFact]
@@ -1606,9 +1607,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
-            }
+                => modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
         }
 
         [ConditionalFact]
@@ -1685,9 +1684,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<ConflictingIncompatibleId>();
-            }
+                => modelBuilder.Entity<ConflictingIncompatibleId>();
         }
 
         [ConditionalFact]
@@ -1758,9 +1755,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<ConflictingId>();
-            }
+                => modelBuilder.Entity<ConflictingId>();
         }
 
         [ConditionalFact]
@@ -1795,9 +1790,7 @@ OFFSET 0 LIMIT 1");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<NonStringDiscriminator>();
-            }
+                => modelBuilder.Entity<NonStringDiscriminator>();
         }
 
         private void AssertSql(DbContext context, params string[] expected)

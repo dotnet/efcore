@@ -27,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Generates_non_temp_values()
-        {
-            Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
     }
 }

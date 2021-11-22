@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         protected DesignTimeTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected abstract Assembly ProviderAssembly { get; }
 
@@ -29,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore
             var serviceCollection = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices();
             ((IDesignTimeServices)Activator.CreateInstance(
-                ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetType(
+                        ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
+                        throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
             using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
@@ -48,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkDesignTimeServices()
                 .AddDbContextDesignTimeServices(context);
             ((IDesignTimeServices)Activator.CreateInstance(
-                ProviderAssembly.GetType(
-                    ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
-                    throwOnError: true))!)
+                    ProviderAssembly.GetType(
+                        ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
+                        throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
             using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 

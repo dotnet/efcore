@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
@@ -1449,10 +1447,8 @@ namespace ModelSnapshot22
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Blog>().HasData(
+            => modelBuilder.Entity<Blog>().HasData(
                 new Blog { Id = 1, Name = "HalfADonkey" });
-        }
     }
 }
 

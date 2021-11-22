@@ -547,7 +547,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(
-                new[] { "Orders", "DerivedOrders" }, ((IReadOnlyEntityType)specialCustomerType).GetNavigations().Select(p => p.Name).ToArray());
+                new[] { "Orders", "DerivedOrders" },
+                ((IReadOnlyEntityType)specialCustomerType).GetNavigations().Select(p => p.Name).ToArray());
             Assert.Same(customerType.FindNavigation("Orders"), specialCustomerType.FindNavigation("Orders"));
         }
 

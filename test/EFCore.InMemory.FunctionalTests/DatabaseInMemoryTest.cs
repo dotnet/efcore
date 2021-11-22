@@ -102,9 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>();
-        }
+            => modelBuilder.Entity<Customer>();
 
         [ConditionalFact]
         public async Task Can_share_instance_between_contexts_with_sugar_experience()

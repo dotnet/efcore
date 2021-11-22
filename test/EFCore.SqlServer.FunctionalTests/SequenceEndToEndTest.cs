@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -294,14 +293,12 @@ namespace Microsoft.EntityFrameworkCore
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Pegasus>(
+                => modelBuilder.Entity<Pegasus>(
                     b =>
                     {
                         b.HasKey(e => e.Identifier);
                         b.Property(e => e.Identifier).UseHiLo();
                     });
-            }
         }
 
         private class Pegasus
@@ -401,8 +398,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString(_databaseName), b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Unicon>(
+                => modelBuilder.Entity<Unicon>(
                     b =>
                     {
                         b.HasKey(e => e.Identifier);
@@ -415,7 +411,6 @@ namespace Microsoft.EntityFrameworkCore
                             b.Property(e => e.Identifier).UseIdentityColumn();
                         }
                     });
-            }
         }
 
         private class Unicon

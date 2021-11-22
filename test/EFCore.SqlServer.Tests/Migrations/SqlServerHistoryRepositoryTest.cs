@@ -183,7 +183,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             }
-
         }
 
         private class Blog

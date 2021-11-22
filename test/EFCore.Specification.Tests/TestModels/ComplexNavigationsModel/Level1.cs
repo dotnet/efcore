@@ -41,9 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         }
 
         private bool Equals(Level1 other)
-        {
-            return Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date);
-        }
+            => Id == other.Id && string.Equals(Name, other.Name) && Date.Equals(other.Date);
 
         public override int GetHashCode()
             => HashCode.Combine(Id, Name, Date);

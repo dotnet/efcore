@@ -172,7 +172,7 @@ WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_with_non_literal_language_term()
         {
-            int language = 1033;
+            var language = 1033;
             using var context = CreateContext();
             var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", language));
 
@@ -389,7 +389,7 @@ WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)");
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_with_non_literal_language_term()
         {
-            int language = 1033;
+            var language = 1033;
             using var context = CreateContext();
             var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", language));
 
@@ -971,7 +971,7 @@ WHERE '2018-12-29T23:20:40.0000000' > DATETIME2FROMPARTS(DATEPART(year, GETDATE(
         public virtual void DateTime2FromParts_compare_with_local_variable()
         {
             var dateTime = new DateTime(1919, 12, 12, 10, 20, 15);
-            int fractions = 9999999;
+            var fractions = 9999999;
             using (var context = CreateContext())
             {
                 var count = context.Orders
@@ -1038,9 +1038,9 @@ WHERE '2018-12-29T23:20:40.0000000+01:00' > DATETIMEOFFSETFROMPARTS(DATEPART(yea
         public virtual void DateTimeOffsetFromParts_compare_with_local_variable()
         {
             var dateTimeOffset = new DateTimeOffset(1919, 12, 12, 10, 20, 15, new TimeSpan(1, 30, 0));
-            int fractions = 5;
-            int hourOffset = 1;
-            int minuteOffset = 30;
+            var fractions = 5;
+            var hourOffset = 1;
+            var minuteOffset = 30;
             using (var context = CreateContext())
             {
                 var count = context.Orders

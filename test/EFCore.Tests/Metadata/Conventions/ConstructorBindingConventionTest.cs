@@ -374,14 +374,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         [ConditionalFact]
         public void Throws_if_two_constructors_with_same_number_of_parameters_could_be_used()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.ConstructorConflict(
                     "BlogConflict(string, int)",
                     "BlogConflict(string, Guid?)"),
                 Assert.Throws<InvalidOperationException>(
                     () => GetBinding<BlogConflict>()).Message);
-        }
 
         [ConditionalFact]
         public void Does_not_throw_if_explicit_binding_has_been_set()
@@ -683,7 +681,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 "    " + CoreStrings.ConstructorBindingFailed("did", "BlogNone(string title, int did)"),
                 "    " + CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Guid? shadow, int id)"),
                 "    " + CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Guid? shadow, bool dummy, int id)"),
-                "    " + CoreStrings.ConstructorBindingFailed(
+                "    "
+                + CoreStrings.ConstructorBindingFailed(
                     "dummy', 'description",
                     "BlogNone(string title, Guid? shadow, bool dummy, int id, string description)")
             };
@@ -716,8 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         [ConditionalFact]
         public void Throws_if_no_usable_constructor_due_to_bad_type()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 CoreStrings.ConstructorNotFound(
                     nameof(BlogBadType),
                     Environment.NewLine
@@ -725,7 +723,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     + CoreStrings.ConstructorBindingFailed("shadow", "BlogBadType(Guid shadow, int id)")
                     + Environment.NewLine),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogBadType>()).Message);
-        }
 
         private class BlogBadType : Blog
         {

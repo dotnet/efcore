@@ -22,15 +22,11 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_empty_constructor()
-        {
-            new RetryLimitExceededException();
-        }
+            => new RetryLimitExceededException();
 
         [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_string_constructor()
-        {
-            Assert.Equal("Foo", new RetryLimitExceededException("Foo").Message);
-        }
+            => Assert.Equal("Foo", new RetryLimitExceededException("Foo").Message);
 
         [ConditionalFact]
         public void RetryLimitExceededException_exposes_public_string_and_inner_exception_constructor()
@@ -58,15 +54,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void DbUpdateException_exposes_public_empty_constructor()
-        {
-            new DbUpdateException();
-        }
+            => new DbUpdateException();
 
         [ConditionalFact]
         public void DbUpdateException_exposes_public_string_constructor()
-        {
-            Assert.Equal("Foo", new DbUpdateException("Foo").Message);
-        }
+            => Assert.Equal("Foo", new DbUpdateException("Foo").Message);
 
         [ConditionalFact]
         public void DbUpdateException_exposes_public_string_and_inner_exception_constructor()
@@ -106,15 +98,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_empty_constructor()
-        {
-            new DbUpdateConcurrencyException();
-        }
+            => new DbUpdateConcurrencyException();
 
         [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_string_constructor()
-        {
-            Assert.Equal("Foo", new DbUpdateConcurrencyException("Foo").Message);
-        }
+            => Assert.Equal("Foo", new DbUpdateConcurrencyException("Foo").Message);
 
         [ConditionalFact]
         public void DbUpdateConcurrencyException_exposes_public_string_and_inner_exception_constructor()

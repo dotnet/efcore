@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -95,8 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual void AppendInsertOperation_appends_insert_and_select_and_where_if_store_generated_columns_exist_verification(
             StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "INSERT INTO "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -143,7 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void
@@ -196,8 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual void AppendInsertOperation_appends_insert_and_select_store_generated_columns_but_no_identity_verification(
             StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "INSERT INTO "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -246,7 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity()
@@ -260,8 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_identity_verification(StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "INSERT INTO "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -304,7 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns()
@@ -319,8 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_all_store_generated_columns_verification(
             StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "INSERT INTO "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -355,7 +348,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns()
@@ -370,8 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual void AppendInsertOperation_appends_insert_and_select_for_only_single_identity_columns_verification(
             StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "INSERT INTO "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -402,7 +393,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
@@ -417,8 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(
             StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "UPDATE "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -471,7 +460,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void AppendUpdateOperation_appends_update_and_select_rowcount_if_store_generated_columns_dont_exist()
@@ -573,8 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         protected virtual void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 "UPDATE "
                 + SchemaPrefix
                 + OpenDelimiter
@@ -623,7 +610,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 + Environment.NewLine
                 + Environment.NewLine,
                 stringBuilder.ToString());
-        }
 
         [ConditionalFact]
         public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()

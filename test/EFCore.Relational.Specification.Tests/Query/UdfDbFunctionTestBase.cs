@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : SharedStoreFixtureBase<DbContext>, new()
     {
         protected UdfDbFunctionTestBase(TFixture fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected TFixture Fixture { get; }
 
@@ -233,46 +235,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => throw new Exception();
 
             public int AddValues(int a, int b)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public int AddValues(Expression<Func<int>> a, int b)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             #region Queryable Functions
 
             public IQueryable<OrderByYear> GetCustomerOrderCountByYear(int customerId)
-            {
-                return FromExpression(() => GetCustomerOrderCountByYear(customerId));
-            }
+                => FromExpression(() => GetCustomerOrderCountByYear(customerId));
 
             public IQueryable<OrderByYear> GetCustomerOrderCountByYearOnlyFrom2000(int customerId, bool onlyFrom2000)
-            {
-                return FromExpression(() => GetCustomerOrderCountByYearOnlyFrom2000(customerId, onlyFrom2000));
-            }
+                => FromExpression(() => GetCustomerOrderCountByYearOnlyFrom2000(customerId, onlyFrom2000));
 
             public IQueryable<TopSellingProduct> GetTopTwoSellingProducts()
-            {
-                return FromExpression(() => GetTopTwoSellingProducts());
-            }
+                => FromExpression(() => GetTopTwoSellingProducts());
 
             public IQueryable<TopSellingProduct> GetTopSellingProductsForCustomer(int customerId)
-            {
-                return FromExpression(() => GetTopSellingProductsForCustomer(customerId));
-            }
+                => FromExpression(() => GetTopSellingProductsForCustomer(customerId));
 
             public IQueryable<MultProductOrders> GetOrdersWithMultipleProducts(int customerId)
-            {
-                return FromExpression(() => GetOrdersWithMultipleProducts(customerId));
-            }
+                => FromExpression(() => GetOrdersWithMultipleProducts(customerId));
 
             public IQueryable<CustomerData> GetCustomerData(int customerId)
-            {
-                return FromExpression(() => GetCustomerData(customerId));
-            }
+                => FromExpression(() => GetCustomerData(customerId));
 
             #endregion
 
@@ -309,25 +295,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                         typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
                     .IsNullable(false);
 
-                var abc = new string[] { "A", "B", "C" };
+                var abc = new[] { "A", "B", "C" };
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), new[] { typeof(string) }))
-                    .HasTranslation(args => new InExpression(
-                        args.First(),
-                        new SqlConstantExpression(Expression.Constant(abc), typeMapping: null),// args.First().TypeMapping),
-                        negated: false,
-                        typeMapping: null));
-
-                var trueFalse = new bool[] { true, false };
-                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), new[] { typeof(string) }))
-                    .HasTranslation(args => new InExpression(
-                        new InExpression(
+                    .HasTranslation(
+                        args => new InExpression(
                             args.First(),
-                            new SqlConstantExpression(Expression.Constant(abc), args.First().TypeMapping),
+                            new SqlConstantExpression(Expression.Constant(abc), typeMapping: null), // args.First().TypeMapping),
                             negated: false,
-                            typeMapping: null),
-                        new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
-                        negated: false,
-                        typeMapping: null));
+                            typeMapping: null));
+
+                var trueFalse = new[] { true, false };
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), new[] { typeof(string) }))
+                    .HasTranslation(
+                        args => new InExpression(
+                            new InExpression(
+                                args.First(),
+                                new SqlConstantExpression(Expression.Constant(abc), args.First().TypeMapping),
+                                negated: false,
+                                typeMapping: null),
+                            new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
+                            negated: false,
+                            typeMapping: null));
 
                 //Instance
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
@@ -393,10 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order11",
                     OrderDate = new DateTime(2000, 1, 20),
-                    Items = new List<LineItem>
-                    {
-                        new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 }
-                    }
+                    Items = new List<LineItem> { new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 } }
                 };
 
                 var order12 = new Order
@@ -434,10 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Name = "Order22",
                     OrderDate = new DateTime(2000, 5, 20),
-                    Items = new List<LineItem>
-                    {
-                        new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 }
-                    }
+                    Items = new List<LineItem> { new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 } }
                 };
 
                 var order31 = new Order
@@ -1584,8 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => (from c in context.Customers
                            select new
                            {
-                               c.Id,
-                               Prods = context.GetTopTwoSellingProducts().ToList(),
+                               c.Id, Prods = context.GetTopTwoSellingProducts().ToList(),
                            }).ToList()).Message;
 
                 Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -1600,8 +1581,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = (from c in context.Customers
                              select new
                              {
-                                 c.Id,
-                                 Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
+                                 c.Id, Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
                              }).ToList();
             }
         }
@@ -1689,11 +1669,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new
                            {
                                c.Id,
-                               OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(o => new
-                               {
-                                   OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
-                                   Prods = context.GetTopTwoSellingProducts().ToList(),
-                               }).ToList()
+                               OrderCountYear = context.GetOrdersWithMultipleProducts(c.Id).Where(o => o.OrderDate.Day == 21).Select(
+                                   o => new
+                                   {
+                                       OrderCountYearNested = context.GetOrdersWithMultipleProducts(o.CustomerId).ToList(),
+                                       Prods = context.GetTopTwoSellingProducts().ToList(),
+                                   }).ToList()
                            }).ToList()).Message;
 
                 Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -1727,8 +1708,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => (from c in context.Customers
                            select new
                            {
-                               c.Id,
-                               Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
+                               c.Id, Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
                            }).ToList()).Message;
 
                 Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
@@ -1746,7 +1726,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new
                            {
                                c.Id,
-                               Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId).ToList(),
+                               Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId)
+                                   .ToList(),
                            }).ToList()).Message;
 
                 Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);

@@ -148,7 +148,9 @@ namespace Microsoft.EntityFrameworkCore
         private class SqlServerConstructorContext : SqlServerOnConfiguringContext
         {
             public SqlServerConstructorContext()
-                => IsSqlServerSet = Database.IsSqlServer();
+            {
+                IsSqlServerSet = Database.IsSqlServer();
+            }
         }
 
         private class SqlServerUseInOnConfiguringContext : SqlServerOnConfiguringContext
@@ -176,7 +178,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             public ProviderConstructorContext(DbContextOptions options)
                 : base(options)
-                => IsSqlServerSet = Database.IsSqlServer();
+            {
+                IsSqlServerSet = Database.IsSqlServer();
+            }
         }
 
         private class ProviderUseInOnConfiguringContext : ProviderContext

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         };
 
         public string TargetDir { get; set; }
-        public Dictionary<string, string> Sources { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Sources { get; set; } = new();
         public bool NullableReferenceTypes { get; set; }
 
         public BuildFileResult Build()
@@ -105,17 +105,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private CSharpCompilationOptions CreateOptions()
-            => new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary,
-                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
-                    reportSuppressedDiagnostics: false,
-                    generalDiagnosticOption: ReportDiagnostic.Error,
-                    specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>()
+            => new(
+                OutputKind.DynamicallyLinkedLibrary,
+                nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
+                reportSuppressedDiagnostics: false,
+                generalDiagnosticOption: ReportDiagnostic.Error,
+                specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
+                {
+                    { "CS1030", ReportDiagnostic.Suppress },
+                    { "CS1701", ReportDiagnostic.Suppress },
+                    { "CS1702", ReportDiagnostic.Suppress }, // Always thrown for .NET Core
                     {
-                        { "CS1030", ReportDiagnostic.Suppress },
-                        { "CS1701", ReportDiagnostic.Suppress }, { "CS1702", ReportDiagnostic.Suppress }, // Always thrown for .NET Core
-                        { "CS1705", ReportDiagnostic.Suppress }, // Assembly 'AssemblyName1' uses 'TypeName' which has a higher version than referenced assembly 'AssemblyName2'
-                        { "CS8019", ReportDiagnostic.Suppress } // Unnecessary using directive.
-                    });
+                        "CS1705", ReportDiagnostic.Suppress
+                    }, // Assembly 'AssemblyName1' uses 'TypeName' which has a higher version than referenced assembly 'AssemblyName2'
+                    { "CS8019", ReportDiagnostic.Suppress } // Unnecessary using directive.
+                });
     }
 }

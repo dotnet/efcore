@@ -547,6 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         #endregion
 
         #region UnicodeAttribute
+
         [ConditionalFact]
         public void UnicodeAttribute_overrides_configuration_from_convention_source()
         {
@@ -594,9 +595,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.True(entityTypeBuilder.Property<string>(nameof(F.UnicodeField)).Metadata.IsUnicode());
             Assert.False(entityTypeBuilder.Property<string>(nameof(F.NonUnicodeField)).Metadata.IsUnicode());
         }
+
         #endregion
 
         #region PrecisionAttribute
+
         [ConditionalFact]
         public void PrecisionAttribute_overrides_configuration_from_convention_source()
         {
@@ -648,7 +651,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(10, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetPrecision());
             Assert.Equal(2, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetScale());
         }
+
         #endregion
+
         [ConditionalFact]
         public void Property_attribute_convention_runs_for_private_property()
         {

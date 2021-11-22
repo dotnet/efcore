@@ -16,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact(Skip = "#25886")]
-        public override void Find_base_type_using_derived_set_tracked() {}
+        public override void Find_base_type_using_derived_set_tracked() { }
 
         [ConditionalFact(Skip = "#25886")]
         public override Task Find_base_type_using_derived_set_tracked_async()
             => Task.CompletedTask;
 
         [ConditionalFact(Skip = "#25886")]
-        public override void Find_derived_using_base_set_type_from_store() {}
+        public override void Find_derived_using_base_set_type_from_store() { }
 
         [ConditionalFact(Skip = "#25886")]
         public override Task Find_derived_using_base_set_type_from_store_async()

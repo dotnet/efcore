@@ -61,19 +61,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             private TestInMemoryTransactionManager TransactionManager { get; }
 
             public void Dispose()
-            {
-                TransactionManager._currentTransaction = null;
-            }
+                => TransactionManager._currentTransaction = null;
 
             public void Commit()
-            {
-                TransactionManager._currentTransaction = null;
-            }
+                => TransactionManager._currentTransaction = null;
 
             public void Rollback()
-            {
-                TransactionManager._currentTransaction = null;
-            }
+                => TransactionManager._currentTransaction = null;
 
             public Task CommitAsync(CancellationToken cancellationToken = default)
             {

@@ -18,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public virtual void Table_can_configure_TPT_with_Owned()
-        {
-            ExecuteWithStrategyInTransaction(
+            => ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     var model = context.Model;
@@ -47,11 +46,16 @@ namespace Microsoft.EntityFrameworkCore
                     var dogType = model.FindEntityType(typeof(Dog));
                     Assert.Equal("Dogs", dogType.GetTableMappings().Last().Table.Name);
 
-                    var petFood = new PetFood() { FoodName = "Fish" };
+                    var petFood = new PetFood { FoodName = "Fish" };
                     context.Add(petFood);
 
                     context.Add(
-                        new Cat { Species = "Felis catus", Tag = new PetTag { TagId = 2 }, FavoritePetFood = petFood });
+                        new Cat
+                        {
+                            Species = "Felis catus",
+                            Tag = new PetTag { TagId = 2 },
+                            FavoritePetFood = petFood
+                        });
 
                     context.SaveChanges();
                 },
@@ -61,7 +65,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("Felis catus", cat.Species);
                     Assert.Equal(2u, cat.Tag.TagId);
                 });
-        }
 
         public abstract class DataAnnotationRelationalFixtureBase : DataAnnotationFixtureBase
         {
@@ -81,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             [Key]
             public int Key { get; set; }
+
             public string Species { get; set; }
         }
 
@@ -92,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             [Column("FavoritePetFood_Id")]
             [ForeignKey(nameof(FavoritePetFood))]
             public int? FavoritePetFoodId { get; set; }
+
             public PetFood FavoritePetFood { get; set; }
 
             [Required]

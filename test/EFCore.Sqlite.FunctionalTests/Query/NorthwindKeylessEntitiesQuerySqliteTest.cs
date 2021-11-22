@@ -21,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalFact(Skip = "Issue#21627")]
         public override void KeylessEntity_with_nav_defining_query()
-        {
-            base.KeylessEntity_with_nav_defining_query();
-        }
+            => base.KeylessEntity_with_nav_defining_query();
     }
 }

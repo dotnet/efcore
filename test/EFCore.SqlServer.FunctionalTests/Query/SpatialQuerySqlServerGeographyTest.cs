@@ -90,9 +90,7 @@ FROM [PointEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Boundary(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Buffer(bool async)
         {
@@ -105,15 +103,11 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Buffer_quadrantSegments(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Centroid(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Contains(bool async)
         {
@@ -155,21 +149,15 @@ FROM [LineStringEntity] AS [l]");
 
         // No SqlServer Translation
         public override Task CoveredBy(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Covers(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Crosses(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Difference(bool async)
         {
@@ -251,9 +239,7 @@ FROM [PointEntity] AS [p]");
 
         // Mixing SRIDs not supported
         public override Task Distance_constant(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Distance_constant_srid_4326(bool async)
         {
@@ -266,9 +252,7 @@ FROM [PointEntity] AS [p]");
 
         // Mixing SRIDs not supported
         public override Task Distance_constant_lhs(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Distance_on_converted_geometry_type(bool async)
         {
@@ -294,15 +278,11 @@ FROM [GeoPointEntity] AS [g]");
 
         // Mixing SRIDs not supported
         public override Task Distance_on_converted_geometry_type_constant(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // Mixing SRIDs not supported
         public override Task Distance_on_converted_geometry_type_constant_lhs(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task EndPoint(bool async)
         {
@@ -315,9 +295,7 @@ FROM [LineStringEntity] AS [l]");
 
         // No SqlServer Translation
         public override Task Envelope(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task EqualsTopologically(bool async)
         {
@@ -358,10 +336,8 @@ FROM [MultiLineStringEntity] AS [m]");
         }
 
         public override Task GetGeometryN_with_null_argument(bool async)
-        {
             // 'geometry::STGeometryN' failed because parameter 1 is not allowed to be null.
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task GetInteriorRingN(bool async)
         {
@@ -386,9 +362,7 @@ FROM [LineStringEntity] AS [l]");
 
         // No SqlServer Translation
         public override Task InteriorPoint(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Intersection(bool async)
         {
@@ -441,15 +415,11 @@ FROM [MultiLineStringEntity] AS [m]");
 
         // No SqlServer Translation
         public override Task IsRing(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task IsSimple(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task IsValid(bool async)
         {
@@ -503,9 +473,7 @@ FROM [PointEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Normalized(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task NumGeometries(bool async)
         {
@@ -568,21 +536,15 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task PointOnSurface(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Relate(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         // No SqlServer Translation
         public override Task Reverse(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task SRID(bool async)
         {
@@ -642,9 +604,7 @@ FROM [PointEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Touches(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Union(bool async)
         {
@@ -659,9 +619,7 @@ FROM [PolygonEntity] AS [p]");
 
         // No SqlServer Translation
         public override Task Union_void(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override async Task Within(bool async)
         {

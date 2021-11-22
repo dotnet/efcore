@@ -13,11 +13,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         [ConditionalFact]
         public void Returns_appropriate_name()
-        {
-            Assert.Equal(
+            => Assert.Equal(
                 typeof(InMemoryDatabase).Assembly.GetName().Name,
                 new DatabaseProvider<InMemoryOptionsExtension>(new DatabaseProviderDependencies()).Name);
-        }
 
         [ConditionalFact]
         public void Is_configured_when_configuration_contains_associated_extension()

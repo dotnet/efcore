@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore
             var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             using (var serviceScope = services
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
+                       .GetRequiredService<IServiceScopeFactory>()
+                       .CreateScope())
             {
                 var coreOptions = serviceScope.ServiceProvider
                     .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
         private class ApplicationDbContext : DbContext
         {
             public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-                   : base(options)
+                : base(options)
             {
             }
         }

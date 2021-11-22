@@ -9,15 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
     {
         [Fact]
         public void Literal_escapes()
-        {
-            Assert.Equal("\"test\\\\test\\\"test\"", Json.Literal("test\\test\"test"));
-        }
+            => Assert.Equal("\"test\\\\test\\\"test\"", Json.Literal("test\\test\"test"));
 
         [Fact]
         public void Literal_handles_null()
-        {
-            Assert.Equal("null", Json.Literal((string)null));
-        }
+            => Assert.Equal("null", Json.Literal((string)null));
 
         [Fact]
         public void Literal_handles_bool()

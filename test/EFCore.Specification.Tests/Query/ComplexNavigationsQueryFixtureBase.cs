@@ -56,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
                     e => l1s.SingleOrDefault(l => l.Id == ((Level1)e)?.Id)?.OneToMany_Optional_Self_Inverse1?.Id
                 },
-
                 {
                     (typeof(Level2), "OneToOne_Optional_PK_Inverse2Id"),
                     e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToOne_Optional_PK_Inverse2?.Id
@@ -81,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
                     e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToMany_Optional_Self_Inverse2?.Id
                 },
-
                 {
                     (typeof(Level3), "OneToOne_Optional_PK_Inverse3Id"),
                     e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToOne_Optional_PK_Inverse3?.Id
@@ -106,7 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
                     e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToMany_Optional_Self_Inverse3?.Id
                 },
-
                 {
                     (typeof(Level4), "OneToOne_Optional_PK_Inverse4Id"),
                     e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToOne_Optional_PK_Inverse4?.Id
@@ -131,89 +128,77 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
                     e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToMany_Optional_Self_Inverse4?.Id
                 },
-
+                { (typeof(InheritanceBase1), "InheritanceBase2Id"), e => ((InheritanceBase1)e)?.Id == 1 ? 1 : null },
+                { (typeof(InheritanceBase1), "InheritanceBase2Id1"), e => ((InheritanceBase1)e)?.Id == 1 ? null : 1 },
+                { (typeof(InheritanceBase2), "InheritanceLeaf2Id"), e => ((InheritanceBase2)e)?.Id == 1 ? 1 : null },
                 {
-                    (typeof(InheritanceBase1), "InheritanceBase2Id"),
-                    e => ((InheritanceBase1)e)?.Id == 1 ? 1 : null
-                },
-                {
-                    (typeof(InheritanceBase1), "InheritanceBase2Id1"),
-                    e => ((InheritanceBase1)e)?.Id == 1 ? null : 1
-                },
-
-                {
-                    (typeof(InheritanceBase2), "InheritanceLeaf2Id"),
-                    e => ((InheritanceBase2)e)?.Id == 1 ? 1 : null
-                },
-
-                {
-                    (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"),
-                    e =>
+                    (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"), e =>
                     {
                         switch (((InheritanceLeaf1)e)?.Id)
                         {
-                            case 1: return 1;
-                            case 2: return 2;
-                            default: return null;
+                            case 1:
+                                return 1;
+                            case 2:
+                                return 2;
+                            default:
+                                return null;
                         }
                     }
                 },
                 {
-                    (typeof(InheritanceLeaf1), "InheritanceDerived1Id"),
-                    e =>
+                    (typeof(InheritanceLeaf1), "InheritanceDerived1Id"), e =>
                     {
                         switch (((InheritanceLeaf1)e)?.Id)
                         {
-                            case 1: return 1;
-                            case 2: return 2;
-                            case 3: return 2;
-                            default: return null;
+                            case 1:
+                                return 1;
+                            case 2:
+                                return 2;
+                            case 3:
+                                return 2;
+                            default:
+                                return null;
+                        }
+                    }
+                },
+                { (typeof(InheritanceLeaf1), "InheritanceDerived1Id1"), e => ((InheritanceLeaf1)e)?.Id == 1 ? 1 : null },
+                {
+                    (typeof(InheritanceLeaf1), "InheritanceDerived2Id"), e =>
+                    {
+                        switch (((InheritanceLeaf1)e)?.Id)
+                        {
+                            case 2:
+                                return 3;
+                            case 3:
+                                return 3;
+                            default:
+                                return null;
                         }
                     }
                 },
                 {
-                    (typeof(InheritanceLeaf1), "InheritanceDerived1Id1"),
-                    e => ((InheritanceLeaf1)e)?.Id == 1 ? 1 : null
-                },
-                {
-                    (typeof(InheritanceLeaf1), "InheritanceDerived2Id"),
-                    e =>
+                    (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"), e =>
                     {
                         switch (((InheritanceLeaf1)e)?.Id)
                         {
-                            case 2: return 3;
-                            case 3: return 3;
-                            default: return null;
+                            case 1:
+                                return 1;
+                            case 2:
+                                return 2;
+                            default:
+                                return null;
                         }
                     }
                 },
-                {
-                    (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"),
-                    e =>
-                    {
-                        switch (((InheritanceLeaf1)e)?.Id)
-                        {
-                            case 1: return 1;
-                            case 2: return 2;
-                            default: return null;
-                        }
-                    }
-                },
-                {
-                    (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived2Id"),
-                    e => ((InheritanceLeaf1)e)?.Id == 3 ? 3 : null
-                },
-
+                { (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived2Id"), e => ((InheritanceLeaf1)e)?.Id == 3 ? 3 : null },
                 {
                     (typeof(InheritanceLeaf2), "DifferentTypeReference_InheritanceDerived2Id"),
                     e => ((InheritanceLeaf2)e)?.Id == 1 ? 3 : null
                 },
-                {
-                    (typeof(InheritanceLeaf2), "InheritanceDerived2Id"),
-                    e => ((InheritanceLeaf2)e)?.Id == 1 ? 3 : null
-                },
+                { (typeof(InheritanceLeaf2), "InheritanceDerived2Id"), e => ((InheritanceLeaf2)e)?.Id == 1 ? 3 : null },
             };
         }
+
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
             {

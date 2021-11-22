@@ -28,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Does_not_generate_temp_values()
-        {
-            Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.False(new SequentialGuidValueGenerator().GeneratesTemporaryValues);
     }
 }

@@ -13,15 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         [ConditionalFact]
         public void Does_simple_mapping_from_CLR_type()
-        {
-            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).StoreType);
-        }
+            => Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int)).StoreType);
 
         [ConditionalFact]
         public void Does_simple_mapping_from_nullable_CLR_type()
-        {
-            Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).StoreType);
-        }
+            => Assert.Equal("default_int_mapping", GetTypeMapping(typeof(int?)).StoreType);
 
         [ConditionalFact]
         public void Does_type_mapping_from_string_with_no_MaxLength()
@@ -76,15 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [ConditionalFact]
         public void Does_simple_mapping_from_name()
-        {
-            Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
-        }
+            => Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
 
         [ConditionalFact]
         public void Does_default_mapping_for_unrecognized_store_type()
-        {
-            Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
-        }
+            => Assert.Equal("int", GetTypeMapping(typeof(int), storeTypeName: "int").StoreType);
 
         [ConditionalFact]
         public void Does_type_mapping_from_named_string_with_no_MaxLength()
@@ -162,7 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Does_type_mapping_from_string_with_configuration()
         {
-            var mapping = GetTypeMapping(typeof(string),
+            var mapping = GetTypeMapping(
+                typeof(string),
                 maxLength: 666,
                 precision: 66,
                 scale: 6,
@@ -182,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Does_type_mapping_from_string_type_with_configuration()
         {
-            var mapping = GetTypeMapping(typeof(string),
+            var mapping = GetTypeMapping(
+                typeof(string),
                 storeTypeName: "ansi_string_fixed(666)",
                 useConfiguration: true);
 
@@ -197,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Does_type_mapping_from_decimal_with_configuration()
         {
-            var mapping = GetTypeMapping(typeof(decimal),
+            var mapping = GetTypeMapping(
+                typeof(decimal),
                 maxLength: 666,
                 precision: 66,
                 scale: 6,
@@ -217,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Does_type_mapping_from_decimal_type_with_configuration()
         {
-            var mapping = GetTypeMapping(typeof(decimal),
+            var mapping = GetTypeMapping(
+                typeof(decimal),
                 storeTypeName: "decimal_mapping(66,6)",
                 useConfiguration: true);
 

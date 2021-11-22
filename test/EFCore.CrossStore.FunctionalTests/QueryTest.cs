@@ -1,8 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
 // ReSharper disable InconsistentNaming
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -248,7 +248,6 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInMemoryDatabase(nameof(InMemoryQueryContext));
         }
 
-
         private class SqliteQueryContext : QueryContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -260,7 +259,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlite(((RelationalTestStore)SqlServerTestStoreFactory.Instance.Create(nameof(SqlServerQueryContext))).ConnectionString);
+                    .UseSqlite(
+                        ((RelationalTestStore)SqlServerTestStoreFactory.Instance.Create(nameof(SqlServerQueryContext))).ConnectionString);
         }
     }
 }

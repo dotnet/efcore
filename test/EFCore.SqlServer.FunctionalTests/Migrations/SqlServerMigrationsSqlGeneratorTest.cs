@@ -522,14 +522,7 @@ END;
         public virtual void AlterDatabaseOperation_collation_to_default()
         {
             Generate(
-                new AlterDatabaseOperation
-                {
-                    Collation = null,
-                    OldDatabase =
-                    {
-                        Collation = "SQL_Latin1_General_CP1_CI_AS"
-                    }
-                });
+                new AlterDatabaseOperation { Collation = null, OldDatabase = { Collation = "SQL_Latin1_General_CP1_CI_AS" } });
 
             AssertSql(
                 @"BEGIN
@@ -804,9 +797,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
         }
 
         public override void InsertDataOperation_throws_for_unsupported_column_types()
-        {
-            base.InsertDataOperation_throws_for_unsupported_column_types();
-        }
+            => base.InsertDataOperation_throws_for_unsupported_column_types();
 
         public override void DeleteDataOperation_all_args()
         {
@@ -1111,7 +1102,7 @@ SELECT @@ROWCOUNT;
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(N'DELETE FROM [Table1]
+                @"EXEC(N'DELETE FROM [Table1]
 WHERE [Id] = 1;
 SELECT @@ROWCOUNT');
 ");
@@ -1131,7 +1122,7 @@ SELECT @@ROWCOUNT');
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
+                @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
     SET IDENTITY_INSERT [Table1] ON;
 EXEC(N'INSERT INTO [Table1] ([Id])
 VALUES (1)');
@@ -1160,7 +1151,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [o
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(N'UPDATE [Table1] SET [Column1] = 2
+                @"EXEC(N'UPDATE [Table1] SET [Column1] = 2
 WHERE [Id] = 1;
 SELECT @@ROWCOUNT');
 ");
@@ -1179,7 +1170,7 @@ SELECT @@ROWCOUNT');
                         e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
                         e.HasKey("Id");
                     }).HasAnnotation(RelationalAnnotationNames.Schema, "dbo"),
-            migrationBuilder => migrationBuilder
+                migrationBuilder => migrationBuilder
                     .AlterTable("Customer")
                     .Annotation(SqlServerAnnotationNames.IsTemporal, true)
                     .Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, "CustomerHistory")

@@ -43,9 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override async Task Contains_with_local_tuple_array_closure(bool async)
-        {
-            await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
-        }
+            => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
 
         public override async Task Array_cast_to_IEnumerable_Contains_with_constant(bool async)
         {
@@ -1513,38 +1511,29 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') AND [c].[CustomerID] IN (N'ABCDE'
         }
 
         public override async Task Contains_with_local_collection_complex_predicate_or(bool async)
-        {
-            await base.Contains_with_local_collection_complex_predicate_or(async);
+            => await base.Contains_with_local_collection_complex_predicate_or(async);
 
-            // issue #18791
-            //            AssertSql(
-            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-            //FROM [Customers] AS [c]
-            //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI', N'ALFKI', N'ABCDE')");
-        }
-
+        // issue #18791
+        //            AssertSql(
+        //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        //FROM [Customers] AS [c]
+        //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI', N'ALFKI', N'ABCDE')");
         public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins1(bool async)
-        {
-            await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(async);
+            => await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(async);
 
-            // issue #18791
-            //            AssertSql(
-            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-            //FROM [Customers] AS [c]
-            //WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') OR [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
-        }
-
+        // issue #18791
+        //            AssertSql(
+        //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        //FROM [Customers] AS [c]
+        //WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') OR [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
         public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins2(bool async)
-        {
-            await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(async);
+            => await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(async);
 
-            // issue #18791
-            //            AssertSql(
-            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-            //FROM [Customers] AS [c]
-            //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI') AND [c].[CustomerID] NOT IN (N'ALFKI', N'ABCDE')");
-        }
-
+        // issue #18791
+        //            AssertSql(
+        //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+        //FROM [Customers] AS [c]
+        //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI') AND [c].[CustomerID] NOT IN (N'ALFKI', N'ABCDE')");
         public override async Task Contains_with_local_collection_sql_injection(bool async)
         {
             await base.Contains_with_local_collection_sql_injection(async);

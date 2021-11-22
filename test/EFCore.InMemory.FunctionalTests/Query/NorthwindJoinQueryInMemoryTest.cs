@@ -22,26 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#21200")]
         public override Task SelectMany_with_client_eval(bool async)
-        {
-            return base.SelectMany_with_client_eval(async);
-        }
+            => base.SelectMany_with_client_eval(async);
 
         [ConditionalTheory(Skip = "Issue#21200")]
         public override Task SelectMany_with_client_eval_with_collection_shaper(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_collection_shaper(async);
-        }
+            => base.SelectMany_with_client_eval_with_collection_shaper(async);
 
         [ConditionalTheory(Skip = "Issue#21200")]
         public override Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
-        }
+            => base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
 
         [ConditionalTheory(Skip = "Issue#21200")]
         public override Task SelectMany_with_client_eval_with_constructor(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_constructor(async);
-        }
+            => base.SelectMany_with_client_eval_with_constructor(async);
     }
 }

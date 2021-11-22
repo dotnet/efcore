@@ -113,7 +113,9 @@ namespace Microsoft.EntityFrameworkCore
         where TContext : DbContext
     {
         public SqlServerValueGenerationConflictTest(SqlServerValueGenerationStrategyFixture<TContext> fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected SqlServerValueGenerationStrategyFixture<TContext> Fixture { get; }
 

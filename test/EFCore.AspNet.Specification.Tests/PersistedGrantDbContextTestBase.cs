@@ -25,14 +25,15 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : PersistedGrantDbContextTestBase<TFixture>.PersistedGrantDbContextFixtureBase
     {
         protected PersistedGrantDbContextTestBase(PersistedGrantDbContextFixtureBase fixture)
-            => Fixture = fixture;
+        {
+            Fixture = fixture;
+        }
 
         protected PersistedGrantDbContextFixtureBase Fixture { get; }
 
         [ConditionalFact]
         public async Task Can_call_PersistedGrantStore_GetAllAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveGrants(context);
@@ -52,7 +53,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, results.Count);
                 }
             );
-        }
 
         private static async Task SaveGrants(PersistedGrantDbContext context)
         {
@@ -103,8 +103,7 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public async Task Can_call_PersistedGrantStore_GetAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveGrants(context);
@@ -117,12 +116,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(await store.GetAsync("???"));
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_PersistedGrantStore_RemoveAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveGrants(context);
@@ -136,12 +133,10 @@ namespace Microsoft.EntityFrameworkCore
                     await store.RemoveAsync("???");
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_PersistedGrantStore_RemoveAllAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveGrants(context);
@@ -163,12 +158,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotNull(await store.GetAsync("K3"));
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_TokenCleanupService_RemoveExpiredGrantsAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveGrants(context);
@@ -181,12 +174,10 @@ namespace Microsoft.EntityFrameworkCore
                     await service.RemoveExpiredGrantsAsync();
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_DeviceFlowStore_FindByUserCodeAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveDevices(context);
@@ -198,12 +189,10 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal("D2", (await store.FindByUserCodeAsync("U2")).Description);
                 }
             );
-        }
 
         [ConditionalFact]
         public async Task Can_call_DeviceFlowStore_FindByDeviceCodeAsync_and_RemoveByDeviceCodeAsync()
-        {
-            await ExecuteWithStrategyInTransactionAsync(
+            => await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
                     await SaveDevices(context);
@@ -219,7 +208,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Null(await store.FindByDeviceCodeAsync("DC2"));
                 }
             );
-        }
 
         private static async Task SaveDevices(PersistedGrantDbContext context)
         {
@@ -282,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.DeviceFlowCodes",
                     TableName = "DeviceCodes",
@@ -304,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
                         "{'DeviceCode'} Unique", "{'Expiration'} ",
                     },
                 },
-                new EntityTypeMapping()
+                new EntityTypeMapping
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.PersistedGrant",
                     TableName = "PersistedGrants",

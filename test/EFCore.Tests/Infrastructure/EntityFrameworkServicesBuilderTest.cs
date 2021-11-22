@@ -36,51 +36,38 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Assert.Equal(
                 CoreStrings.NotAProviderService("IConcurrencyDetector"),
-                Assert.Throws<InvalidOperationException>(() => builder.TryAddProviderSpecificServices(
-                    s => s.TryAddScoped<IConcurrencyDetector, FakeConcurrencyDetector>())).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => builder.TryAddProviderSpecificServices(
+                        s => s.TryAddScoped<IConcurrencyDetector, FakeConcurrencyDetector>())).Message);
         }
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation()
-        {
-            TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>());
-        }
+            => TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>());
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation_non_generic()
-        {
-            TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector)));
-        }
+            => TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector)));
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_full_factory()
-        {
-            TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>(p => new FakeConcurrencyDetector()));
-        }
+            => TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>(p => new FakeConcurrencyDetector()));
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_half_factory()
-        {
-            TestScoped(b => b.TryAdd<IConcurrencyDetector>(p => new FakeConcurrencyDetector()));
-        }
+            => TestScoped(b => b.TryAdd<IConcurrencyDetector>(p => new FakeConcurrencyDetector()));
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_full_factory_non_generic()
-        {
-            TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector), p => new FakeConcurrencyDetector()));
-        }
+            => TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(FakeConcurrencyDetector), p => new FakeConcurrencyDetector()));
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_half_factory_non_generic()
-        {
-            TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(IConcurrencyDetector), p => new FakeConcurrencyDetector()));
-        }
+            => TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(IConcurrencyDetector), p => new FakeConcurrencyDetector()));
 
         [ConditionalFact]
         public void Can_register_scoped_service_with_object_factory()
-        {
-            TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(object), p => new FakeConcurrencyDetector()));
-        }
+            => TestScoped(b => b.TryAdd(typeof(IConcurrencyDetector), typeof(object), p => new FakeConcurrencyDetector()));
 
         [ConditionalFact]
         public void Cannot_register_scoped_with_instance()
@@ -133,57 +120,39 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_concrete_implementation()
-        {
-            TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>());
-        }
+            => TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>());
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_concrete_implementation_non_generic()
-        {
-            TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer)));
-        }
+            => TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer)));
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_full_factory()
-        {
-            TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>(p => new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd<IDbSetInitializer, FakeDbSetInitializer>(p => new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_half_factory()
-        {
-            TestSingleton(b => b.TryAdd<IDbSetInitializer>(p => new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd<IDbSetInitializer>(p => new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_full_factory_non_generic()
-        {
-            TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer), p => new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(FakeDbSetInitializer), p => new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_half_factory_non_generic()
-        {
-            TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(IDbSetInitializer), p => new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(IDbSetInitializer), p => new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_service_with_object_factory()
-        {
-            TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(object), p => new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), typeof(object), p => new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_with_instance()
-        {
-            TestSingleton(b => b.TryAdd<IDbSetInitializer>(new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd<IDbSetInitializer>(new FakeDbSetInitializer()));
 
         [ConditionalFact]
         public void Can_register_singleton_with_instance_non_generic()
-        {
-            TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), new FakeDbSetInitializer()));
-        }
+            => TestSingleton(b => b.TryAdd(typeof(IDbSetInitializer), new FakeDbSetInitializer()));
 
         private static void TestSingleton(Action<EntityFrameworkServicesBuilder> tryAdd)
         {
@@ -212,21 +181,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation()
-        {
-            TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>());
-        }
+            => TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>());
 
         [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_concrete_implementation_non_generic()
-        {
-            TestMultipleScoped(b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService)));
-        }
+            => TestMultipleScoped(b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService)));
 
         [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_full_factory()
-        {
-            TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>(p => new FakeResetableService()));
-        }
+            => TestMultipleScoped(b => b.TryAdd<IResettableService, FakeResetableService>(p => new FakeResetableService()));
 
         [ConditionalFact]
         public void Cannot_register_multiple_scoped_service_with_half_factory()
@@ -242,10 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         [ConditionalFact]
         public void Can_register_multiple_scoped_service_with_full_factory_non_generic()
-        {
-            TestMultipleScoped(
+            => TestMultipleScoped(
                 b => b.TryAdd(typeof(IResettableService), typeof(FakeResetableService), p => new FakeResetableService()));
-        }
 
         [ConditionalFact]
         public void Cannot_register_multiple_scoped_service_with_half_factory_non_generic()
@@ -340,14 +301,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private class FakeConcurrencyDetector : IConcurrencyDetector
         {
             ConcurrencyDetectorCriticalSectionDisposer IConcurrencyDetector.EnterCriticalSection()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public void ExitCriticalSection()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
         }
 
         private class FakeDbSetInitializer : IDbSetInitializer

@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -738,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -1023,7 +1023,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                     using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
@@ -1078,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_query_that_throws(bool async, bool inject)
         {
-            string badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
+            var badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
 
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
@@ -1147,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
             using (context)
             {
-                string nonQuery = NormalizeDelimitersInRawString("DELETE FROM [TheVoid] WHERE [Id] = 555");
+                var nonQuery = NormalizeDelimitersInRawString("DELETE FROM [TheVoid] WHERE [Id] = 555");
 
                 try
                 {
@@ -1222,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    string nonQuery =
+                    var nonQuery =
                         NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     var exception = async
@@ -1240,52 +1240,40 @@ namespace Microsoft.EntityFrameworkCore
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
 
             public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
                 CancellationToken cancellationToken = default)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
 
             public override InterceptionResult<object> ScalarExecuting(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
 
             public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
                 CancellationToken cancellationToken = default)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
 
             public override InterceptionResult<int> NonQueryExecuting(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
 
             public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
                 CancellationToken cancellationToken = default)
-            {
-                throw new Exception("Bang!");
-            }
+                => throw new Exception("Bang!");
         }
 
         [ConditionalTheory]
@@ -1356,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (context.Database.BeginTransaction())
             {
-                string nonQuery =
+                var nonQuery =
                     NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                 Assert.Equal(
@@ -1455,7 +1443,9 @@ namespace Microsoft.EntityFrameworkCore
             private readonly DbCommand _command;
 
             public WrappingDbCommand(DbCommand command)
-                => _command = command;
+            {
+                _command = command;
+            }
 
             public override void Cancel()
                 => _command.Cancel();
@@ -1650,7 +1640,8 @@ namespace Microsoft.EntityFrameworkCore
             private readonly DbCommandMethod _commandMethod;
             private readonly CommandSource _commandSource;
 
-            protected CommandInterceptorBase(DbCommandMethod commandMethod) : this(commandMethod, CommandSource.Unknown)
+            protected CommandInterceptorBase(DbCommandMethod commandMethod)
+                : this(commandMethod, CommandSource.Unknown)
             {
             }
 

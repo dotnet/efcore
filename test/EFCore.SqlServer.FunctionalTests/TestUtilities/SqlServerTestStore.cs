@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Connection, command =>
                 {
                     foreach (var batch in
-                        new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                            .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+                             new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                                 .Split(script).Where(b => !string.IsNullOrEmpty(b)))
                     {
                         command.CommandText = batch;
                         command.ExecuteNonQuery();

@@ -1,1127 +1,1118 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+/// <summary>
+///     <para>
+///         A query SQL generator to get <see cref="IRelationalCommand" /> for given <see cref="SelectExpression" />.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+public class QuerySqlGenerator : SqlExpressionVisitor
 {
-    /// <summary>
-    ///     <para>
-    ///         A query SQL generator to get <see cref="IRelationalCommand" /> for given <see cref="SelectExpression" />.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    /// </summary>
-    public class QuerySqlGenerator : SqlExpressionVisitor
+    private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
+    private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    private IRelationalCommandBuilder _relationalCommandBuilder;
+
+    private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
     {
-        private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-        private readonly ISqlGenerationHelper _sqlGenerationHelper;
-        private IRelationalCommandBuilder _relationalCommandBuilder;
+        { ExpressionType.Equal, " = " },
+        { ExpressionType.NotEqual, " <> " },
+        { ExpressionType.GreaterThan, " > " },
+        { ExpressionType.GreaterThanOrEqual, " >= " },
+        { ExpressionType.LessThan, " < " },
+        { ExpressionType.LessThanOrEqual, " <= " },
+        { ExpressionType.AndAlso, " AND " },
+        { ExpressionType.OrElse, " OR " },
+        { ExpressionType.Add, " + " },
+        { ExpressionType.Subtract, " - " },
+        { ExpressionType.Multiply, " * " },
+        { ExpressionType.Divide, " / " },
+        { ExpressionType.Modulo, " % " },
+        { ExpressionType.And, " & " },
+        { ExpressionType.Or, " | " }
+    };
 
-        private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
+    /// <summary>
+    ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+    public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+    {
+        Dependencies = dependencies;
+
+        _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
+        _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+        _relationalCommandBuilder = default!;
+    }
+
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Gets a relational command for a <see cref="SelectExpression" />.
+    /// </summary>
+    /// <param name="selectExpression">A select expression to print in command text.</param>
+    /// <returns>A relational command with a SQL represented by the select expression.</returns>
+    public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
+    {
+        _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
+
+        GenerateTagsHeaderComment(selectExpression);
+
+        if (selectExpression.IsNonComposedFromSql())
         {
-            { ExpressionType.Equal, " = " },
-            { ExpressionType.NotEqual, " <> " },
-            { ExpressionType.GreaterThan, " > " },
-            { ExpressionType.GreaterThanOrEqual, " >= " },
-            { ExpressionType.LessThan, " < " },
-            { ExpressionType.LessThanOrEqual, " <= " },
-            { ExpressionType.AndAlso, " AND " },
-            { ExpressionType.OrElse, " OR " },
-            { ExpressionType.Add, " + " },
-            { ExpressionType.Subtract, " - " },
-            { ExpressionType.Multiply, " * " },
-            { ExpressionType.Divide, " / " },
-            { ExpressionType.Modulo, " % " },
-            { ExpressionType.And, " & " },
-            { ExpressionType.Or, " | " }
-        };
-
-        /// <summary>
-        ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
-        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+            GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
+        }
+        else
         {
-            Dependencies = dependencies;
-
-            _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
-            _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-            _relationalCommandBuilder = default!;
+            VisitSelect(selectExpression);
         }
 
-        /// <summary>
-        ///     Relational provider-specific dependencies for this service.
-        /// </summary>
-        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
+        return _relationalCommandBuilder.Build();
+    }
 
-        /// <summary>
-        ///     Gets a relational command for a <see cref="SelectExpression" />.
-        /// </summary>
-        /// <param name="selectExpression">A select expression to print in command text.</param>
-        /// <returns>A relational command with a SQL represented by the select expression.</returns>
-        public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
+    /// <summary>
+    ///     The default alias separator.
+    /// </summary>
+    protected virtual string AliasSeparator { get; } = " AS ";
+
+    /// <summary>
+    ///     The current SQL command builder.
+    /// </summary>
+    protected virtual IRelationalCommandBuilder Sql
+        => _relationalCommandBuilder;
+
+    /// <summary>
+    ///     Generates the head comment for tags.
+    /// </summary>
+    /// <param name="selectExpression">A select expression to generate tags for.</param>
+    protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
+    {
+        if (selectExpression.Tags.Count > 0)
         {
-            _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
-
-            GenerateTagsHeaderComment(selectExpression);
-
-            if (selectExpression.IsNonComposedFromSql())
+            foreach (var tag in selectExpression.Tags)
             {
-                GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
-            }
-            else
-            {
-                VisitSelect(selectExpression);
+                _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
             }
 
-            return _relationalCommandBuilder.Build();
+            _relationalCommandBuilder.AppendLine();
         }
+    }
 
-        /// <summary>
-        ///     The default alias separator.
-        /// </summary>
-        protected virtual string AliasSeparator { get; } = " AS ";
+    /// <inheritdoc />
+    protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
+    {
+        _relationalCommandBuilder.Append(sqlFragmentExpression.Sql);
 
-        /// <summary>
-        ///     The current SQL command builder.
-        /// </summary>
-        protected virtual IRelationalCommandBuilder Sql
-            => _relationalCommandBuilder;
+        return sqlFragmentExpression;
+    }
 
-        /// <summary>
-        ///     Generates the head comment for tags.
-        /// </summary>
-        /// <param name="selectExpression">A select expression to generate tags for.</param>
-        protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
+    private bool IsNonComposedSetOperation(SelectExpression selectExpression)
+        => selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && !selectExpression.IsDistinct
+            && selectExpression.Predicate == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] is SetOperationBase setOperation
+            && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+            && selectExpression.Projection.Select(
+                    (pe, index) => pe.Expression is ColumnExpression column
+                        && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(
+                            column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                .All(e => e);
+
+    /// <inheritdoc />
+    protected override Expression VisitSelect(SelectExpression selectExpression)
+    {
+        if (IsNonComposedSetOperation(selectExpression))
         {
-            if (selectExpression.Tags.Count > 0)
-            {
-                foreach (var tag in selectExpression.Tags)
-                {
-                    _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
-                }
-
-                _relationalCommandBuilder.AppendLine();
-            }
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-        {
-            _relationalCommandBuilder.Append(sqlFragmentExpression.Sql);
-
-            return sqlFragmentExpression;
-        }
-
-        private bool IsNonComposedSetOperation(SelectExpression selectExpression)
-            => selectExpression.Offset == null
-                && selectExpression.Limit == null
-                && !selectExpression.IsDistinct
-                && selectExpression.Predicate == null
-                && selectExpression.Having == null
-                && selectExpression.Orderings.Count == 0
-                && selectExpression.GroupBy.Count == 0
-                && selectExpression.Tables.Count == 1
-                && selectExpression.Tables[0] is SetOperationBase setOperation
-                && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
-                && selectExpression.Projection.Select(
-                        (pe, index) => pe.Expression is ColumnExpression column
-                            && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(
-                                column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
-                    .All(e => e);
-
-        /// <inheritdoc />
-        protected override Expression VisitSelect(SelectExpression selectExpression)
-        {
-            if (IsNonComposedSetOperation(selectExpression))
-            {
-                // Naked set operation
-                GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
-
-                return selectExpression;
-            }
-
-            IDisposable? subQueryIndent = null;
-
-            if (selectExpression.Alias != null)
-            {
-                _relationalCommandBuilder.AppendLine("(");
-                subQueryIndent = _relationalCommandBuilder.Indent();
-            }
-
-            _relationalCommandBuilder.Append("SELECT ");
-
-            if (selectExpression.IsDistinct)
-            {
-                _relationalCommandBuilder.Append("DISTINCT ");
-            }
-
-            GenerateTop(selectExpression);
-
-            if (selectExpression.Projection.Any())
-            {
-                GenerateList(selectExpression.Projection, e => Visit(e));
-            }
-            else
-            {
-                _relationalCommandBuilder.Append("1");
-            }
-
-            if (selectExpression.Tables.Any())
-            {
-                _relationalCommandBuilder.AppendLine().Append("FROM ");
-
-                GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
-            }
-            else
-            {
-                GeneratePseudoFromClause();
-            }
-
-            if (selectExpression.Predicate != null)
-            {
-                _relationalCommandBuilder.AppendLine().Append("WHERE ");
-
-                Visit(selectExpression.Predicate);
-            }
-
-            if (selectExpression.GroupBy.Count > 0)
-            {
-                _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
-
-                GenerateList(selectExpression.GroupBy, e => Visit(e));
-            }
-
-            if (selectExpression.Having != null)
-            {
-                _relationalCommandBuilder.AppendLine().Append("HAVING ");
-
-                Visit(selectExpression.Having);
-            }
-
-            GenerateOrderings(selectExpression);
-            GenerateLimitOffset(selectExpression);
-
-            if (selectExpression.Alias != null)
-            {
-                subQueryIndent!.Dispose();
-
-                _relationalCommandBuilder.AppendLine()
-                    .Append(")")
-                    .Append(AliasSeparator)
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
-            }
+            // Naked set operation
+            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
 
             return selectExpression;
         }
 
-        /// <summary>
-        ///     Generates a pseudo FROM clause. Required by some providers when a query has no actual FROM clause.
-        /// </summary>
-        protected virtual void GeneratePseudoFromClause()
+        IDisposable? subQueryIndent = null;
+
+        if (selectExpression.Alias != null)
         {
+            _relationalCommandBuilder.AppendLine("(");
+            subQueryIndent = _relationalCommandBuilder.Indent();
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+        _relationalCommandBuilder.Append("SELECT ");
+
+        if (selectExpression.IsDistinct)
         {
-            Visit(projectionExpression.Expression);
-
-            if (projectionExpression.Alias != string.Empty
-                && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
-            {
-                _relationalCommandBuilder
-                    .Append(AliasSeparator)
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
-            }
-
-            return projectionExpression;
+            _relationalCommandBuilder.Append("DISTINCT ");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+        GenerateTop(selectExpression);
+
+        if (selectExpression.Projection.Any())
         {
-            if (sqlFunctionExpression.IsBuiltIn)
-            {
-                if (sqlFunctionExpression.Instance != null)
-                {
-                    Visit(sqlFunctionExpression.Instance);
-                    _relationalCommandBuilder.Append(".");
-                }
-
-                _relationalCommandBuilder.Append(sqlFunctionExpression.Name);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(sqlFunctionExpression.Schema))
-                {
-                    _relationalCommandBuilder
-                        .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Schema))
-                        .Append(".");
-                }
-
-                _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Name));
-            }
-
-            if (!sqlFunctionExpression.IsNiladic)
-            {
-                _relationalCommandBuilder.Append("(");
-                GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
-                _relationalCommandBuilder.Append(")");
-            }
-
-            return sqlFunctionExpression;
+            GenerateList(selectExpression.Projection, e => Visit(e));
+        }
+        else
+        {
+            _relationalCommandBuilder.Append("1");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+        if (selectExpression.Tables.Any())
         {
-            if (!string.IsNullOrEmpty(tableValuedFunctionExpression.StoreFunction.Schema))
+            _relationalCommandBuilder.AppendLine().Append("FROM ");
+
+            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+        }
+        else
+        {
+            GeneratePseudoFromClause();
+        }
+
+        if (selectExpression.Predicate != null)
+        {
+            _relationalCommandBuilder.AppendLine().Append("WHERE ");
+
+            Visit(selectExpression.Predicate);
+        }
+
+        if (selectExpression.GroupBy.Count > 0)
+        {
+            _relationalCommandBuilder.AppendLine().Append("GROUP BY ");
+
+            GenerateList(selectExpression.GroupBy, e => Visit(e));
+        }
+
+        if (selectExpression.Having != null)
+        {
+            _relationalCommandBuilder.AppendLine().Append("HAVING ");
+
+            Visit(selectExpression.Having);
+        }
+
+        GenerateOrderings(selectExpression);
+        GenerateLimitOffset(selectExpression);
+
+        if (selectExpression.Alias != null)
+        {
+            subQueryIndent!.Dispose();
+
+            _relationalCommandBuilder.AppendLine()
+                .Append(")")
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+        }
+
+        return selectExpression;
+    }
+
+    /// <summary>
+    ///     Generates a pseudo FROM clause. Required by some providers when a query has no actual FROM clause.
+    /// </summary>
+    protected virtual void GeneratePseudoFromClause()
+    {
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+    {
+        Visit(projectionExpression.Expression);
+
+        if (projectionExpression.Alias != string.Empty
+            && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
+        {
+            _relationalCommandBuilder
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+        }
+
+        return projectionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+    {
+        if (sqlFunctionExpression.IsBuiltIn)
+        {
+            if (sqlFunctionExpression.Instance != null)
+            {
+                Visit(sqlFunctionExpression.Instance);
+                _relationalCommandBuilder.Append(".");
+            }
+
+            _relationalCommandBuilder.Append(sqlFunctionExpression.Name);
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(sqlFunctionExpression.Schema))
             {
                 _relationalCommandBuilder
-                    .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Schema))
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Schema))
                     .Append(".");
             }
 
-            var name = tableValuedFunctionExpression.StoreFunction.IsBuiltIn
-                ? tableValuedFunctionExpression.StoreFunction.Name
-                : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name);
-
             _relationalCommandBuilder
-                .Append(name)
-                .Append("(");
-
-            GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
-
-            _relationalCommandBuilder
-                .Append(")")
-                .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
-
-            return tableValuedFunctionExpression;
+                .Append(_sqlGenerationHelper.DelimitIdentifier(sqlFunctionExpression.Name));
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitColumn(ColumnExpression columnExpression)
+        if (!sqlFunctionExpression.IsNiladic)
         {
-            _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
-                .Append(".")
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
-
-            return columnExpression;
+            _relationalCommandBuilder.Append("(");
+            GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
+            _relationalCommandBuilder.Append(")");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitTable(TableExpression tableExpression)
+        return sqlFunctionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+    {
+        if (!string.IsNullOrEmpty(tableValuedFunctionExpression.StoreFunction.Schema))
         {
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
-                .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
-
-            return tableExpression;
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Schema))
+                .Append(".");
         }
 
-        private void GenerateFromSql(FromSqlExpression fromSqlExpression)
-        {
-            var sql = fromSqlExpression.Sql;
-            string[]? substitutions;
+        var name = tableValuedFunctionExpression.StoreFunction.IsBuiltIn
+            ? tableValuedFunctionExpression.StoreFunction.Name
+            : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name);
 
-            switch (fromSqlExpression.Arguments)
+        _relationalCommandBuilder
+            .Append(name)
+            .Append("(");
+
+        GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
+
+        _relationalCommandBuilder
+            .Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Alias));
+
+        return tableValuedFunctionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitColumn(ColumnExpression columnExpression)
+    {
+        _relationalCommandBuilder
+            .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
+            .Append(".")
+            .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
+
+        return columnExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitTable(TableExpression tableExpression)
+    {
+        _relationalCommandBuilder
+            .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
+
+        return tableExpression;
+    }
+
+    private void GenerateFromSql(FromSqlExpression fromSqlExpression)
+    {
+        var sql = fromSqlExpression.Sql;
+        string[]? substitutions;
+
+        switch (fromSqlExpression.Arguments)
+        {
+            case ConstantExpression { Value: CompositeRelationalParameter compositeRelationalParameter }:
             {
-                case ConstantExpression { Value: CompositeRelationalParameter compositeRelationalParameter }:
+                var subParameters = compositeRelationalParameter.RelationalParameters;
+                substitutions = new string[subParameters.Count];
+                for (var i = 0; i < subParameters.Count; i++)
                 {
-                    var subParameters = compositeRelationalParameter.RelationalParameters;
-                    substitutions = new string[subParameters.Count];
-                    for (var i = 0; i < subParameters.Count; i++)
-                    {
-                        substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(subParameters[i].InvariantName);
-                    }
-
-                    _relationalCommandBuilder.AddParameter(compositeRelationalParameter);
-
-                    break;
+                    substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(subParameters[i].InvariantName);
                 }
 
-                case ConstantExpression { Value: object[] constantValues }:
-                {
-                    substitutions = new string[constantValues.Length];
-                    for (var i = 0; i < constantValues.Length; i++)
-                    {
-                        var value = constantValues[i];
-                        if (value is RawRelationalParameter rawRelationalParameter)
-                        {
-                            substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
-                            _relationalCommandBuilder.AddParameter(rawRelationalParameter);
-                        }
-                        else if (value is SqlConstantExpression sqlConstantExpression)
-                        {
-                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
-                        }
-                    }
+                _relationalCommandBuilder.AddParameter(compositeRelationalParameter);
 
-                    break;
-                }
-
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        nameof(fromSqlExpression),
-                        fromSqlExpression.Arguments,
-                        RelationalStrings.InvalidFromSqlArguments(
-                            fromSqlExpression.Arguments.GetType(),
-                            fromSqlExpression.Arguments is ConstantExpression constantExpression
-                                ? constantExpression.Value?.GetType()
-                                : null));
+                break;
             }
 
-            // ReSharper disable once CoVariantArrayConversion
-            // InvariantCulture not needed since substitutions are all strings
-            sql = string.Format(sql, substitutions);
-
-            _relationalCommandBuilder.AppendLines(sql);
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
-        {
-            _relationalCommandBuilder.AppendLine("(");
-
-            CheckComposableSql(fromSqlExpression.Sql);
-
-            using (_relationalCommandBuilder.Indent())
+            case ConstantExpression { Value: object[] constantValues }:
             {
-                GenerateFromSql(fromSqlExpression);
-            }
-
-            _relationalCommandBuilder.Append(")")
-                .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
-
-            return fromSqlExpression;
-        }
-
-        /// <summary>
-        ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
-        ///     larger SQL query.
-        /// </summary>
-        /// <param name="sql">An SQL string to be checked for composability.</param>
-        /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
-        protected virtual void CheckComposableSql(string sql)
-        {
-            var span = sql.AsSpan().TrimStart();
-
-            while (true)
-            {
-                // SQL -- comment
-                if (span.StartsWith("--"))
+                substitutions = new string[constantValues.Length];
+                for (var i = 0; i < constantValues.Length; i++)
                 {
-                    var i = span.IndexOf('\n');
-                    span = i > 0
-                        ? span[(i + 1)..].TrimStart()
-                        : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-                    continue;
-                }
-
-                // SQL /* */ comment
-                if (span.StartsWith("/*"))
-                {
-                    var i = span.IndexOf("*/");
-                    span = i > 0
-                        ? span[(i + 2)..].TrimStart()
-                        : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-                    continue;
+                    var value = constantValues[i];
+                    if (value is RawRelationalParameter rawRelationalParameter)
+                    {
+                        substitutions[i] = _sqlGenerationHelper.GenerateParameterNamePlaceholder(rawRelationalParameter.InvariantName);
+                        _relationalCommandBuilder.AddParameter(rawRelationalParameter);
+                    }
+                    else if (value is SqlConstantExpression sqlConstantExpression)
+                    {
+                        substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
+                    }
                 }
 
                 break;
             }
 
-            CheckComposableSqlTrimmed(span);
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(fromSqlExpression),
+                    fromSqlExpression.Arguments,
+                    RelationalStrings.InvalidFromSqlArguments(
+                        fromSqlExpression.Arguments.GetType(),
+                        fromSqlExpression.Arguments is ConstantExpression constantExpression
+                            ? constantExpression.Value?.GetType()
+                            : null));
         }
 
-        /// <summary>
-        ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
-        ///     larger SQL query. The provided <paramref name="sql" /> is already trimmed for whitespace and comments.
-        /// </summary>
-        /// <param name="sql">An trimmed SQL string to be checked for composability.</param>
-        /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
-        protected virtual void CheckComposableSqlTrimmed(ReadOnlySpan<char> sql)
+        // ReSharper disable once CoVariantArrayConversion
+        // InvariantCulture not needed since substitutions are all strings
+        sql = string.Format(sql, substitutions);
+
+        _relationalCommandBuilder.AppendLines(sql);
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+    {
+        _relationalCommandBuilder.AppendLine("(");
+
+        CheckComposableSql(fromSqlExpression.Sql);
+
+        using (_relationalCommandBuilder.Indent())
         {
-            sql = sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase)
-                ? sql["SELECT".Length..]
-                : sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase)
-                    ? sql["WITH".Length..]
+            GenerateFromSql(fromSqlExpression);
+        }
+
+        _relationalCommandBuilder.Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
+
+        return fromSqlExpression;
+    }
+
+    /// <summary>
+    ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
+    ///     larger SQL query.
+    /// </summary>
+    /// <param name="sql">An SQL string to be checked for composability.</param>
+    /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
+    protected virtual void CheckComposableSql(string sql)
+    {
+        var span = sql.AsSpan().TrimStart();
+
+        while (true)
+        {
+            // SQL -- comment
+            if (span.StartsWith("--"))
+            {
+                var i = span.IndexOf('\n');
+                span = i > 0
+                    ? span[(i + 1)..].TrimStart()
                     : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
-
-            if (sql.Length > 0
-                && (char.IsWhiteSpace(sql[0]) || sql.StartsWith("--") || sql.StartsWith("/*")))
-            {
-                return;
+                continue;
             }
 
-            throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            // SQL /* */ comment
+            if (span.StartsWith("/*"))
+            {
+                var i = span.IndexOf("*/");
+                span = i > 0
+                    ? span[(i + 2)..].TrimStart()
+                    : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+                continue;
+            }
+
+            break;
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+        CheckComposableSqlTrimmed(span);
+    }
+
+    /// <summary>
+    ///     Checks whether a given SQL string is composable, i.e. can be embedded as a subquery within a
+    ///     larger SQL query. The provided <paramref name="sql" /> is already trimmed for whitespace and comments.
+    /// </summary>
+    /// <param name="sql">An trimmed SQL string to be checked for composability.</param>
+    /// <exception cref="InvalidOperationException">The given SQL isn't composable.</exception>
+    protected virtual void CheckComposableSqlTrimmed(ReadOnlySpan<char> sql)
+    {
+        sql = sql.StartsWith("SELECT", StringComparison.OrdinalIgnoreCase)
+            ? sql["SELECT".Length..]
+            : sql.StartsWith("WITH", StringComparison.OrdinalIgnoreCase)
+                ? sql["WITH".Length..]
+                : throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+
+        if (sql.Length > 0
+            && (char.IsWhiteSpace(sql[0]) || sql.StartsWith("--") || sql.StartsWith("/*")))
         {
-            var requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
-
-            if (requiresBrackets)
-            {
-                _relationalCommandBuilder.Append("(");
-            }
-
-            Visit(sqlBinaryExpression.Left);
-
-            if (requiresBrackets)
-            {
-                _relationalCommandBuilder.Append(")");
-            }
-
-            _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
-
-            requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
-
-            if (requiresBrackets)
-            {
-                _relationalCommandBuilder.Append("(");
-            }
-
-            Visit(sqlBinaryExpression.Right);
-
-            if (requiresBrackets)
-            {
-                _relationalCommandBuilder.Append(")");
-            }
-
-            return sqlBinaryExpression;
+            return;
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
-        {
-            _relationalCommandBuilder
-                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+        throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+    }
 
-            return sqlConstantExpression;
+    /// <inheritdoc />
+    protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+    {
+        var requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
+        Visit(sqlBinaryExpression.Left);
+
+        if (requiresBrackets)
         {
-            var parameterNameInCommand = _sqlGenerationHelper.GenerateParameterName(sqlParameterExpression.Name);
-
-            if (_relationalCommandBuilder.Parameters
-                .All(p => p.InvariantName != sqlParameterExpression.Name))
-            {
-                _relationalCommandBuilder.AddParameter(
-                    sqlParameterExpression.Name,
-                    parameterNameInCommand,
-                    sqlParameterExpression.TypeMapping!,
-                    sqlParameterExpression.IsNullable);
-            }
-
-            _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(sqlParameterExpression.Name));
-
-            return sqlParameterExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitOrdering(OrderingExpression orderingExpression)
-        {
-            if (orderingExpression.Expression is SqlConstantExpression
-                || orderingExpression.Expression is SqlParameterExpression)
-            {
-                _relationalCommandBuilder.Append("(SELECT 1)");
-            }
-            else
-            {
-                Visit(orderingExpression.Expression);
-            }
-
-            if (!orderingExpression.IsAscending)
-            {
-                _relationalCommandBuilder.Append(" DESC");
-            }
-
-            return orderingExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitLike(LikeExpression likeExpression)
-        {
-            Visit(likeExpression.Match);
-            _relationalCommandBuilder.Append(" LIKE ");
-            Visit(likeExpression.Pattern);
-
-            if (likeExpression.EscapeChar != null)
-            {
-                _relationalCommandBuilder.Append(" ESCAPE ");
-                Visit(likeExpression.EscapeChar);
-            }
-
-            return likeExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitCollate(CollateExpression collateExpresion)
-        {
-            Visit(collateExpresion.Operand);
-
-            _relationalCommandBuilder
-                .Append(" COLLATE ")
-                .Append(collateExpresion.Collation);
-
-            return collateExpresion;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitDistinct(DistinctExpression distinctExpression)
-        {
-            _relationalCommandBuilder.Append("DISTINCT (");
-            Visit(distinctExpression.Operand);
             _relationalCommandBuilder.Append(")");
-
-            return distinctExpression;
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitCase(CaseExpression caseExpression)
-        {
-            _relationalCommandBuilder.Append("CASE");
+        _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
 
-            if (caseExpression.Operand != null)
+        requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(sqlBinaryExpression.Right);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
+
+        return sqlBinaryExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        _relationalCommandBuilder
+            .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
+
+        return sqlConstantExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
+    {
+        var parameterNameInCommand = _sqlGenerationHelper.GenerateParameterName(sqlParameterExpression.Name);
+
+        if (_relationalCommandBuilder.Parameters
+            .All(p => p.InvariantName != sqlParameterExpression.Name))
+        {
+            _relationalCommandBuilder.AddParameter(
+                sqlParameterExpression.Name,
+                parameterNameInCommand,
+                sqlParameterExpression.TypeMapping!,
+                sqlParameterExpression.IsNullable);
+        }
+
+        _relationalCommandBuilder
+            .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(sqlParameterExpression.Name));
+
+        return sqlParameterExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+    {
+        if (orderingExpression.Expression is SqlConstantExpression
+            || orderingExpression.Expression is SqlParameterExpression)
+        {
+            _relationalCommandBuilder.Append("(SELECT 1)");
+        }
+        else
+        {
+            Visit(orderingExpression.Expression);
+        }
+
+        if (!orderingExpression.IsAscending)
+        {
+            _relationalCommandBuilder.Append(" DESC");
+        }
+
+        return orderingExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitLike(LikeExpression likeExpression)
+    {
+        Visit(likeExpression.Match);
+        _relationalCommandBuilder.Append(" LIKE ");
+        Visit(likeExpression.Pattern);
+
+        if (likeExpression.EscapeChar != null)
+        {
+            _relationalCommandBuilder.Append(" ESCAPE ");
+            Visit(likeExpression.EscapeChar);
+        }
+
+        return likeExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitCollate(CollateExpression collateExpresion)
+    {
+        Visit(collateExpresion.Operand);
+
+        _relationalCommandBuilder
+            .Append(" COLLATE ")
+            .Append(collateExpresion.Collation);
+
+        return collateExpresion;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitDistinct(DistinctExpression distinctExpression)
+    {
+        _relationalCommandBuilder.Append("DISTINCT (");
+        Visit(distinctExpression.Operand);
+        _relationalCommandBuilder.Append(")");
+
+        return distinctExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitCase(CaseExpression caseExpression)
+    {
+        _relationalCommandBuilder.Append("CASE");
+
+        if (caseExpression.Operand != null)
+        {
+            _relationalCommandBuilder.Append(" ");
+            Visit(caseExpression.Operand);
+        }
+
+        using (_relationalCommandBuilder.Indent())
+        {
+            foreach (var whenClause in caseExpression.WhenClauses)
             {
-                _relationalCommandBuilder.Append(" ");
-                Visit(caseExpression.Operand);
+                _relationalCommandBuilder
+                    .AppendLine()
+                    .Append("WHEN ");
+                Visit(whenClause.Test);
+                _relationalCommandBuilder.Append(" THEN ");
+                Visit(whenClause.Result);
             }
+
+            if (caseExpression.ElseResult != null)
+            {
+                _relationalCommandBuilder
+                    .AppendLine()
+                    .Append("ELSE ");
+                Visit(caseExpression.ElseResult);
+            }
+        }
+
+        _relationalCommandBuilder
+            .AppendLine()
+            .Append("END");
+
+        return caseExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+    {
+        switch (sqlUnaryExpression.OperatorType)
+        {
+            case ExpressionType.Convert:
+            {
+                _relationalCommandBuilder.Append("CAST(");
+                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append("(");
+                }
+
+                Visit(sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append(")");
+                }
+
+                _relationalCommandBuilder.Append(" AS ");
+                _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping!.StoreType);
+                _relationalCommandBuilder.Append(")");
+                break;
+            }
+
+            case ExpressionType.Not
+                when sqlUnaryExpression.Type == typeof(bool):
+            {
+                _relationalCommandBuilder.Append("NOT (");
+                Visit(sqlUnaryExpression.Operand);
+                _relationalCommandBuilder.Append(")");
+                break;
+            }
+
+            case ExpressionType.Not:
+            {
+                _relationalCommandBuilder.Append("~");
+
+                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append("(");
+                }
+
+                Visit(sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append(")");
+                }
+
+                break;
+            }
+
+            case ExpressionType.Equal:
+            {
+                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append("(");
+                }
+
+                Visit(sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append(")");
+                }
+
+                _relationalCommandBuilder.Append(" IS NULL");
+                break;
+            }
+
+            case ExpressionType.NotEqual:
+            {
+                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append("(");
+                }
+
+                Visit(sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append(")");
+                }
+
+                _relationalCommandBuilder.Append(" IS NOT NULL");
+                break;
+            }
+
+            case ExpressionType.Negate:
+            {
+                _relationalCommandBuilder.Append("-");
+                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append("(");
+                }
+
+                Visit(sqlUnaryExpression.Operand);
+                if (requiresBrackets)
+                {
+                    _relationalCommandBuilder.Append(")");
+                }
+
+                break;
+            }
+        }
+
+        return sqlUnaryExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitExists(ExistsExpression existsExpression)
+    {
+        if (existsExpression.IsNegated)
+        {
+            _relationalCommandBuilder.Append("NOT ");
+        }
+
+        _relationalCommandBuilder.AppendLine("EXISTS (");
+
+        using (_relationalCommandBuilder.Indent())
+        {
+            Visit(existsExpression.Subquery);
+        }
+
+        _relationalCommandBuilder.Append(")");
+
+        return existsExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitIn(InExpression inExpression)
+    {
+        if (inExpression.Values != null)
+        {
+            Visit(inExpression.Item);
+            _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+            _relationalCommandBuilder.Append("(");
+            var valuesConstant = (SqlConstantExpression)inExpression.Values;
+            var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
+                .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
+            GenerateList(valuesList, e => Visit(e));
+            _relationalCommandBuilder.Append(")");
+        }
+        else
+        {
+            Visit(inExpression.Item);
+            _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+            _relationalCommandBuilder.AppendLine("(");
 
             using (_relationalCommandBuilder.Indent())
             {
-                foreach (var whenClause in caseExpression.WhenClauses)
-                {
-                    _relationalCommandBuilder
-                        .AppendLine()
-                        .Append("WHEN ");
-                    Visit(whenClause.Test);
-                    _relationalCommandBuilder.Append(" THEN ");
-                    Visit(whenClause.Result);
-                }
-
-                if (caseExpression.ElseResult != null)
-                {
-                    _relationalCommandBuilder
-                        .AppendLine()
-                        .Append("ELSE ");
-                    Visit(caseExpression.ElseResult);
-                }
+                Visit(inExpression.Subquery);
             }
 
-            _relationalCommandBuilder
-                .AppendLine()
-                .Append("END");
-
-            return caseExpression;
+            _relationalCommandBuilder.AppendLine().Append(")");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+        return inExpression;
+    }
+
+    /// <summary>
+    ///     Gets a SQL operator for a SQL binary operation.
+    /// </summary>
+    /// <param name="binaryExpression">A SQL binary operation.</param>
+    /// <returns>A string representation of the binary operator.</returns>
+    protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
+        => _operatorMap[binaryExpression.OperatorType];
+
+    /// <summary>
+    ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis
+    ///     when generating SQL for outer SQL expression.
+    /// </summary>
+    /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
+    /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
+    /// <returns>A bool value indicating that parenthesis is required or not. </returns>
+    protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
+    {
+        switch (innerExpression)
         {
-            switch (sqlUnaryExpression.OperatorType)
+            case LikeExpression _:
+                return true;
+
+            case SqlUnaryExpression sqlUnaryExpression:
             {
-                case ExpressionType.Convert:
-                {
-                    _relationalCommandBuilder.Append("CAST(");
-                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    _relationalCommandBuilder.Append(" AS ");
-                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping!.StoreType);
-                    _relationalCommandBuilder.Append(")");
-                    break;
-                }
-
-                case ExpressionType.Not
-                    when sqlUnaryExpression.Type == typeof(bool):
-                {
-                    _relationalCommandBuilder.Append("NOT (");
-                    Visit(sqlUnaryExpression.Operand);
-                    _relationalCommandBuilder.Append(")");
-                    break;
-                }
-
-                case ExpressionType.Not:
-                {
-                    _relationalCommandBuilder.Append("~");
-
-                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    break;
-                }
-
-                case ExpressionType.Equal:
-                {
-
-                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    _relationalCommandBuilder.Append(" IS NULL");
-                    break;
-                }
-
-                case ExpressionType.NotEqual:
-                {
-
-                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    _relationalCommandBuilder.Append(" IS NOT NULL");
-                    break;
-                }
-
-                case ExpressionType.Negate:
-                {
-                    _relationalCommandBuilder.Append("-");
-                    var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append("(");
-                    }
-
-                    Visit(sqlUnaryExpression.Operand);
-                    if (requiresBrackets)
-                    {
-                        _relationalCommandBuilder.Append(")");
-                    }
-
-                    break;
-                }
-            }
-
-            return sqlUnaryExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitExists(ExistsExpression existsExpression)
-        {
-            if (existsExpression.IsNegated)
-            {
-                _relationalCommandBuilder.Append("NOT ");
-            }
-
-            _relationalCommandBuilder.AppendLine("EXISTS (");
-
-            using (_relationalCommandBuilder.Indent())
-            {
-                Visit(existsExpression.Subquery);
-            }
-
-            _relationalCommandBuilder.Append(")");
-
-            return existsExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitIn(InExpression inExpression)
-        {
-            if (inExpression.Values != null)
-            {
-                Visit(inExpression.Item);
-                _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
-                _relationalCommandBuilder.Append("(");
-                var valuesConstant = (SqlConstantExpression)inExpression.Values;
-                var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
-                    .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
-                GenerateList(valuesList, e => Visit(e));
-                _relationalCommandBuilder.Append(")");
-            }
-            else
-            {
-                Visit(inExpression.Item);
-                _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
-                _relationalCommandBuilder.AppendLine("(");
-
-                using (_relationalCommandBuilder.Indent())
-                {
-                    Visit(inExpression.Subquery);
-                }
-
-                _relationalCommandBuilder.AppendLine().Append(")");
-            }
-
-            return inExpression;
-        }
-
-        /// <summary>
-        ///     Gets a SQL operator for a SQL binary operation.
-        /// </summary>
-        /// <param name="binaryExpression">A SQL binary operation.</param>
-        /// <returns>A string representation of the binary operator.</returns>
-        protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
-            => _operatorMap[binaryExpression.OperatorType];
-
-        /// <summary>
-        ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis
-        ///     when generating SQL for outer SQL expression.
-        /// </summary>
-        /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
-        /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
-        /// <returns>A bool value indicating that parenthesis is required or not. </returns>
-        protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
-        {
-            switch (innerExpression)
-            {
-                case LikeExpression _:
-                    return true;
-
-                case SqlUnaryExpression sqlUnaryExpression:
-                {
-                    // Wrap IS (NOT) NULL operation when applied on bool column.
-                    if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                // Wrap IS (NOT) NULL operation when applied on bool column.
+                if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
                         || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
-                        && sqlUnaryExpression.Operand.Type == typeof(bool))
-                    {
-                        return true;
-                    }
-
-                    if (sqlUnaryExpression.OperatorType == ExpressionType.Negate
-                        && outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate })
-                    {
-                        // double negative sign is interpreted as a comment in SQL, so we need to enclose it in brackets
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                case SqlBinaryExpression sqlBinaryExpression:
+                    && sqlUnaryExpression.Operand.Type == typeof(bool))
                 {
-                    if (outerExpression is SqlBinaryExpression outerBinary)
-                    {
-                        // Math, bitwise, comparison and equality operators have higher precedence
-                        if (outerBinary.OperatorType == ExpressionType.AndAlso)
-                        {
-                            return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
-                        }
-
-                        if (outerBinary.OperatorType == ExpressionType.OrElse)
-                        {
-                            // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
-                            return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
-                        }
-                    }
-
                     return true;
                 }
+
+                if (sqlUnaryExpression.OperatorType == ExpressionType.Negate
+                    && outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate })
+                {
+                    // double negative sign is interpreted as a comment in SQL, so we need to enclose it in brackets
+                    return true;
+                }
+
+                return false;
             }
 
-            return false;
-        }
-
-        /// <summary>
-        ///     Generates a TOP construct in the relational command
-        /// </summary>
-        /// <param name="selectExpression">A select expression to use.</param>
-        protected virtual void GenerateTop(SelectExpression selectExpression)
-        {
-        }
-
-        /// <summary>
-        ///     Generates an ORDER BY clause in the relational command
-        /// </summary>
-        /// <param name="selectExpression">A select expression to use.</param>
-        protected virtual void GenerateOrderings(SelectExpression selectExpression)
-        {
-            if (selectExpression.Orderings.Any())
+            case SqlBinaryExpression sqlBinaryExpression:
             {
-                var orderings = selectExpression.Orderings.ToList();
-
-                if (selectExpression.Limit == null
-                    && selectExpression.Offset == null)
+                if (outerExpression is SqlBinaryExpression outerBinary)
                 {
-                    orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression || oe.Expression is SqlParameterExpression);
+                    // Math, bitwise, comparison and equality operators have higher precedence
+                    if (outerBinary.OperatorType == ExpressionType.AndAlso)
+                    {
+                        return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
+                    }
+
+                    if (outerBinary.OperatorType == ExpressionType.OrElse)
+                    {
+                        // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
+                        return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
+                    }
                 }
 
-                if (orderings.Count > 0)
-                {
-                    _relationalCommandBuilder.AppendLine()
-                        .Append("ORDER BY ");
-
-                    GenerateList(orderings, e => Visit(e));
-                }
+                return true;
             }
         }
 
-        /// <summary>
-        ///     Generates a LIMIT...OFFSET... construct in the relational command
-        /// </summary>
-        /// <param name="selectExpression">A select expression to use.</param>
-        protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
+        return false;
+    }
+
+    /// <summary>
+    ///     Generates a TOP construct in the relational command
+    /// </summary>
+    /// <param name="selectExpression">A select expression to use.</param>
+    protected virtual void GenerateTop(SelectExpression selectExpression)
+    {
+    }
+
+    /// <summary>
+    ///     Generates an ORDER BY clause in the relational command
+    /// </summary>
+    /// <param name="selectExpression">A select expression to use.</param>
+    protected virtual void GenerateOrderings(SelectExpression selectExpression)
+    {
+        if (selectExpression.Orderings.Any())
         {
-            if (selectExpression.Offset != null)
+            var orderings = selectExpression.Orderings.ToList();
+
+            if (selectExpression.Limit == null
+                && selectExpression.Offset == null)
             {
-                _relationalCommandBuilder.AppendLine()
-                    .Append("OFFSET ");
-
-                Visit(selectExpression.Offset);
-
-                _relationalCommandBuilder.Append(" ROWS");
-
-                if (selectExpression.Limit != null)
-                {
-                    _relationalCommandBuilder.Append(" FETCH NEXT ");
-
-                    Visit(selectExpression.Limit);
-
-                    _relationalCommandBuilder.Append(" ROWS ONLY");
-                }
+                orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression || oe.Expression is SqlParameterExpression);
             }
-            else if (selectExpression.Limit != null)
+
+            if (orderings.Count > 0)
             {
                 _relationalCommandBuilder.AppendLine()
-                    .Append("FETCH FIRST ");
+                    .Append("ORDER BY ");
+
+                GenerateList(orderings, e => Visit(e));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Generates a LIMIT...OFFSET... construct in the relational command
+    /// </summary>
+    /// <param name="selectExpression">A select expression to use.</param>
+    protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
+    {
+        if (selectExpression.Offset != null)
+        {
+            _relationalCommandBuilder.AppendLine()
+                .Append("OFFSET ");
+
+            Visit(selectExpression.Offset);
+
+            _relationalCommandBuilder.Append(" ROWS");
+
+            if (selectExpression.Limit != null)
+            {
+                _relationalCommandBuilder.Append(" FETCH NEXT ");
 
                 Visit(selectExpression.Limit);
 
                 _relationalCommandBuilder.Append(" ROWS ONLY");
             }
         }
-
-        private void GenerateList<T>(
-            IReadOnlyList<T> items,
-            Action<T> generationAction,
-            Action<IRelationalCommandBuilder>? joinAction = null)
+        else if (selectExpression.Limit != null)
         {
-            joinAction ??= (isb => isb.Append(", "));
+            _relationalCommandBuilder.AppendLine()
+                .Append("FETCH FIRST ");
 
-            for (var i = 0; i < items.Count; i++)
+            Visit(selectExpression.Limit);
+
+            _relationalCommandBuilder.Append(" ROWS ONLY");
+        }
+    }
+
+    private void GenerateList<T>(
+        IReadOnlyList<T> items,
+        Action<T> generationAction,
+        Action<IRelationalCommandBuilder>? joinAction = null)
+    {
+        joinAction ??= (isb => isb.Append(", "));
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (i > 0)
             {
-                if (i > 0)
-                {
-                    joinAction(_relationalCommandBuilder);
-                }
-
-                generationAction(items[i]);
+                joinAction(_relationalCommandBuilder);
             }
-        }
 
-        /// <inheritdoc />
-        protected override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
+            generationAction(items[i]);
+        }
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
+    {
+        _relationalCommandBuilder.Append("CROSS JOIN ");
+        Visit(crossJoinExpression.Table);
+
+        return crossJoinExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+    {
+        _relationalCommandBuilder.Append("CROSS APPLY ");
+        Visit(crossApplyExpression.Table);
+
+        return crossApplyExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
+    {
+        _relationalCommandBuilder.Append("OUTER APPLY ");
+        Visit(outerApplyExpression.Table);
+
+        return outerApplyExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
+    {
+        _relationalCommandBuilder.Append("INNER JOIN ");
+        Visit(innerJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(innerJoinExpression.JoinPredicate);
+
+        return innerJoinExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
+    {
+        _relationalCommandBuilder.Append("LEFT JOIN ");
+        Visit(leftJoinExpression.Table);
+        _relationalCommandBuilder.Append(" ON ");
+        Visit(leftJoinExpression.JoinPredicate);
+
+        return leftJoinExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
+    {
+        _relationalCommandBuilder.AppendLine("(");
+        using (_relationalCommandBuilder.Indent())
         {
-            _relationalCommandBuilder.Append("CROSS JOIN ");
-            Visit(crossJoinExpression.Table);
-
-            return crossJoinExpression;
+            Visit(scalarSubqueryExpression.Subquery);
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+        _relationalCommandBuilder.Append(")");
+
+        return scalarSubqueryExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
+    {
+        _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
+        if (rowNumberExpression.Partitions.Any())
         {
-            _relationalCommandBuilder.Append("CROSS APPLY ");
-            Visit(crossApplyExpression.Table);
-
-            return crossApplyExpression;
+            _relationalCommandBuilder.Append("PARTITION BY ");
+            GenerateList(rowNumberExpression.Partitions, e => Visit(e));
+            _relationalCommandBuilder.Append(" ");
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
-        {
-            _relationalCommandBuilder.Append("OUTER APPLY ");
-            Visit(outerApplyExpression.Table);
+        _relationalCommandBuilder.Append("ORDER BY ");
+        GenerateList(rowNumberExpression.Orderings, e => Visit(e));
+        _relationalCommandBuilder.Append(")");
 
-            return outerApplyExpression;
-        }
+        return rowNumberExpression;
+    }
 
-        /// <inheritdoc />
-        protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
-        {
-            _relationalCommandBuilder.Append("INNER JOIN ");
-            Visit(innerJoinExpression.Table);
-            _relationalCommandBuilder.Append(" ON ");
-            Visit(innerJoinExpression.JoinPredicate);
+    /// <summary>
+    ///     Generates a set operation in the relational command.
+    /// </summary>
+    /// <param name="setOperation">A set operation to print.</param>
+    protected virtual void GenerateSetOperation(SetOperationBase setOperation)
+    {
+        GenerateSetOperationOperand(setOperation, setOperation.Source1);
+        _relationalCommandBuilder
+            .AppendLine()
+            .Append(GetSetOperation(setOperation))
+            .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
+        GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
-            return innerJoinExpression;
-        }
+        static string GetSetOperation(SetOperationBase operation)
+            => operation switch
+            {
+                ExceptExpression _ => "EXCEPT",
+                IntersectExpression _ => "INTERSECT",
+                UnionExpression _ => "UNION",
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
+            };
+    }
 
-        /// <inheritdoc />
-        protected override Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
-        {
-            _relationalCommandBuilder.Append("LEFT JOIN ");
-            Visit(leftJoinExpression.Table);
-            _relationalCommandBuilder.Append(" ON ");
-            Visit(leftJoinExpression.JoinPredicate);
-
-            return leftJoinExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
+    /// <summary>
+    ///     Generates an operand for a given set operation in the relational command.
+    /// </summary>
+    /// <param name="setOperation">A set operation to use.</param>
+    /// <param name="operand">A set operation operand to print.</param>
+    protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
+    {
+        // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
+        // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
+        if (IsNonComposedSetOperation(operand)
+            && operand.Tables[0].GetType() != setOperation.GetType())
         {
             _relationalCommandBuilder.AppendLine("(");
             using (_relationalCommandBuilder.Indent())
-            {
-                Visit(scalarSubqueryExpression.Subquery);
-            }
-
-            _relationalCommandBuilder.Append(")");
-
-            return scalarSubqueryExpression;
-        }
-
-        /// <inheritdoc />
-        protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
-        {
-            _relationalCommandBuilder.Append("ROW_NUMBER() OVER(");
-            if (rowNumberExpression.Partitions.Any())
-            {
-                _relationalCommandBuilder.Append("PARTITION BY ");
-                GenerateList(rowNumberExpression.Partitions, e => Visit(e));
-                _relationalCommandBuilder.Append(" ");
-            }
-
-            _relationalCommandBuilder.Append("ORDER BY ");
-            GenerateList(rowNumberExpression.Orderings, e => Visit(e));
-            _relationalCommandBuilder.Append(")");
-
-            return rowNumberExpression;
-        }
-
-        /// <summary>
-        ///     Generates a set operation in the relational command.
-        /// </summary>
-        /// <param name="setOperation">A set operation to print.</param>
-        protected virtual void GenerateSetOperation(SetOperationBase setOperation)
-        {
-            GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder
-                .AppendLine()
-                .Append(GetSetOperation(setOperation))
-                .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
-            GenerateSetOperationOperand(setOperation, setOperation.Source2);
-
-            static string GetSetOperation(SetOperationBase operation)
-                => operation switch
-                {
-                    ExceptExpression _ => "EXCEPT",
-                    IntersectExpression _ => "INTERSECT",
-                    UnionExpression _ => "UNION",
-                    _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
-                };
-        }
-
-        /// <summary>
-        ///     Generates an operand for a given set operation in the relational command.
-        /// </summary>
-        /// <param name="setOperation">A set operation to use.</param>
-        /// <param name="operand">A set operation operand to print.</param>
-        protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
-        {
-            // INTERSECT has higher precedence over UNION and EXCEPT, but otherwise evaluation is left-to-right.
-            // To preserve meaning, add parentheses whenever a set operation is nested within a different set operation.
-            if (IsNonComposedSetOperation(operand)
-                && operand.Tables[0].GetType() != setOperation.GetType())
-            {
-                _relationalCommandBuilder.AppendLine("(");
-                using (_relationalCommandBuilder.Indent())
-                {
-                    Visit(operand);
-                }
-
-                _relationalCommandBuilder.AppendLine().Append(")");
-            }
-            else
             {
                 Visit(operand);
             }
-        }
 
-        private void GenerateSetOperationHelper(SetOperationBase setOperation)
+            _relationalCommandBuilder.AppendLine().Append(")");
+        }
+        else
         {
-            _relationalCommandBuilder.AppendLine("(");
-            using (_relationalCommandBuilder.Indent())
-            {
-                GenerateSetOperation(setOperation);
-            }
-
-            _relationalCommandBuilder.AppendLine()
-                .Append(")")
-                .Append(AliasSeparator)
-                .Append(_sqlGenerationHelper.DelimitIdentifier(setOperation.Alias));
+            Visit(operand);
         }
+    }
 
-        /// <inheritdoc />
-        protected override Expression VisitExcept(ExceptExpression exceptExpression)
+    private void GenerateSetOperationHelper(SetOperationBase setOperation)
+    {
+        _relationalCommandBuilder.AppendLine("(");
+        using (_relationalCommandBuilder.Indent())
         {
-            GenerateSetOperationHelper(exceptExpression);
-
-            return exceptExpression;
+            GenerateSetOperation(setOperation);
         }
 
-        /// <inheritdoc />
-        protected override Expression VisitIntersect(IntersectExpression intersectExpression)
-        {
-            GenerateSetOperationHelper(intersectExpression);
+        _relationalCommandBuilder.AppendLine()
+            .Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(setOperation.Alias));
+    }
 
-            return intersectExpression;
-        }
+    /// <inheritdoc />
+    protected override Expression VisitExcept(ExceptExpression exceptExpression)
+    {
+        GenerateSetOperationHelper(exceptExpression);
 
-        /// <inheritdoc />
-        protected override Expression VisitUnion(UnionExpression unionExpression)
-        {
-            GenerateSetOperationHelper(unionExpression);
+        return exceptExpression;
+    }
 
-            return unionExpression;
-        }
+    /// <inheritdoc />
+    protected override Expression VisitIntersect(IntersectExpression intersectExpression)
+    {
+        GenerateSetOperationHelper(intersectExpression);
+
+        return intersectExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitUnion(UnionExpression unionExpression)
+    {
+        GenerateSetOperationHelper(unionExpression);
+
+        return unionExpression;
     }
 }

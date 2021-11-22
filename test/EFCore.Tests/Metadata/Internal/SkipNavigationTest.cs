@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class SkipNavigationTest
     {
-
         [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {
@@ -30,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
-                Assert.Throws<InvalidOperationException>(() => firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, true, false)).Message);
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
@@ -231,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, ((IConventionSkipNavigation)ordersNavigation).GetInverseConfigurationSource());
 
             Assert.Equal(
-                CoreStrings.SkipNavigationInUseBySkipNavigation(nameof(Order), nameof(Order.Products), nameof(Product), nameof(Product.Orders)),
+                CoreStrings.SkipNavigationInUseBySkipNavigation(
+                    nameof(Order), nameof(Order.Products), nameof(Product), nameof(Product.Orders)),
                 Assert.Throws<InvalidOperationException>(() => orderEntity.RemoveSkipNavigation(productsNavigation)).Message);
 
             productsNavigation.SetInverse(null);

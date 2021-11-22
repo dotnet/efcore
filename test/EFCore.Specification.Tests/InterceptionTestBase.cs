@@ -160,9 +160,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public void Dispose()
-            {
-                _subscription.Dispose();
-            }
+                => _subscription.Dispose();
         }
 
         public abstract class InterceptionFixtureBase : SharedStoreFixtureBase<UniverseContext>
@@ -171,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public virtual ITestDiagnosticListener SubscribeToDiagnosticListener(DbContextId contextId)
                 => ShouldSubscribeToDiagnosticListener
-                    ? (ITestDiagnosticListener)new TestDiagnosticListener(contextId)
+                    ? new TestDiagnosticListener(contextId)
                     : new NullDiagnosticListener();
 
             public virtual DbContextOptions CreateOptions(

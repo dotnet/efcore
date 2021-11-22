@@ -15,9 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -37,56 +39,68 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class Context24777 : DbContext
         {
             public Context24777(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             public DbSet<Root24777> Roots { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Root24777>(b =>
-                {
-                    b.ToTable(nameof(Root24777));
-                    b.HasKey(x => x.Id);
-                    b.OwnsOne(x => x.ModdleA, ob =>
+                => modelBuilder.Entity<Root24777>(
+                    b =>
                     {
-                        ob.ToTable(nameof(ModdleA24777));
-                        ob.HasKey(x => x.Id);
-                        ob.WithOwner().HasForeignKey(e => e.RootId);
-                        ob.OwnsMany(x => x.Leaves, oob =>
-                        {
-                            oob.ToTable(nameof(Leaf24777));
-                            oob.HasKey(x => new { ProductCommissionRulesetId = x.ModdleAId, x.UnitThreshold });
-                            oob.WithOwner().HasForeignKey(e => e.ModdleAId);
-                            oob.HasData(
-                                new Leaf24777 { ModdleAId = 1, UnitThreshold = 1 },
-                                new Leaf24777 { ModdleAId = 3, UnitThreshold = 1 },
-                                new Leaf24777 { ModdleAId = 3, UnitThreshold = 15 });
-                        });
+                        b.ToTable(nameof(Root24777));
+                        b.HasKey(x => x.Id);
+                        b.OwnsOne(
+                            x => x.ModdleA, ob =>
+                            {
+                                ob.ToTable(nameof(ModdleA24777));
+                                ob.HasKey(x => x.Id);
+                                ob.WithOwner().HasForeignKey(e => e.RootId);
+                                ob.OwnsMany(
+                                    x => x.Leaves, oob =>
+                                    {
+                                        oob.ToTable(nameof(Leaf24777));
+                                        oob.HasKey(x => new { ProductCommissionRulesetId = x.ModdleAId, x.UnitThreshold });
+                                        oob.WithOwner().HasForeignKey(e => e.ModdleAId);
+                                        oob.HasData(
+                                            new Leaf24777 { ModdleAId = 1, UnitThreshold = 1 },
+                                            new Leaf24777 { ModdleAId = 3, UnitThreshold = 1 },
+                                            new Leaf24777 { ModdleAId = 3, UnitThreshold = 15 });
+                                    });
 
-                        ob.HasData(
-                            new ModdleA24777 { Id = 1, RootId = 1 },
-                            new ModdleA24777 { Id = 2, RootId = 2 },
-                            new ModdleA24777 { Id = 3, RootId = 3 });
+                                ob.HasData(
+                                    new ModdleA24777 { Id = 1, RootId = 1 },
+                                    new ModdleA24777 { Id = 2, RootId = 2 },
+                                    new ModdleA24777 { Id = 3, RootId = 3 });
+                            });
+
+                        b.OwnsOne(
+                            x => x.MiddleB, ob =>
+                            {
+                                ob.ToTable(nameof(MiddleB24777));
+                                ob.HasKey(x => x.Id);
+                                ob.WithOwner().HasForeignKey(e => e.RootId);
+                                ob.HasData(
+                                    new MiddleB24777
+                                    {
+                                        Id = 1,
+                                        RootId = 1,
+                                        Enabled = true
+                                    },
+                                    new MiddleB24777
+                                    {
+                                        Id = 2,
+                                        RootId = 3,
+                                        Enabled = true
+                                    });
+                            });
+
+                        b.HasData(
+                            new Root24777 { Id = 1 },
+                            new Root24777 { Id = 2 },
+                            new Root24777 { Id = 3 });
                     });
-
-                    b.OwnsOne(x => x.MiddleB, ob =>
-                    {
-                        ob.ToTable(nameof(MiddleB24777));
-                        ob.HasKey(x => x.Id);
-                        ob.WithOwner().HasForeignKey(e => e.RootId);
-                        ob.HasData(
-                            new MiddleB24777 { Id = 1, RootId = 1, Enabled = true },
-                            new MiddleB24777 { Id = 2, RootId = 3, Enabled = true });
-                    });
-
-                    b.HasData(
-                        new Root24777 { Id = 1 },
-                        new Root24777 { Id = 2 },
-                        new Root24777 { Id = 3 });
-                });
-            }
         }
 
         protected class Root24777
@@ -133,19 +147,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class Context25680 : DbContext
         {
             public Context25680(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Location25680>().OwnsMany(e => e.PublishTokenTypes,
+                => modelBuilder.Entity<Location25680>().OwnsMany(
+                    e => e.PublishTokenTypes,
                     b =>
                     {
                         b.WithOwner(e => e.Location).HasForeignKey(e => e.LocationId);
-                        b.HasKey(e => new { e.LocationId, e.ExternalId, e.VisualNumber, e.TokenGroupId });
+                        b.HasKey(
+                            e => new
+                            {
+                                e.LocationId,
+                                e.ExternalId,
+                                e.VisualNumber,
+                                e.TokenGroupId
+                            });
                     });
-            }
         }
 
         protected class Location25680
@@ -204,12 +224,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<Owner>(
                     b =>
                     {
-                        b.OwnsOne(e => e.OwnedEntity, o =>
-                        {
-                            o.ToTable("IntermediateOwnedEntity");
-                            o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
-                            o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
-                        });
+                        b.OwnsOne(
+                            e => e.OwnedEntity, o =>
+                            {
+                                o.ToTable("IntermediateOwnedEntity");
+                                o.OwnsOne(e => e.CustomerData).ToTable("IM_CustomerData");
+                                o.OwnsOne(e => e.SupplierData).ToTable("IM_SupplierData");
+                            });
                     });
             }
         }

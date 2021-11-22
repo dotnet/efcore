@@ -828,12 +828,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
                     Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
                     Assert.Equal(EntityState.Unchanged, subDependent1Entry.State);
-                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.BillingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
+                    Assert.Equal(
+                        typeof(OrderDetails).DisplayName()
+                        + "."
+                        + nameof(OrderDetails.BillingAddress)
+                        + "#"
+                        + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
 
                     var subDependent2Entry = dependentEntry.Reference(p => p.ShippingAddress).TargetEntry;
                     Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
                     Assert.Equal(EntityState.Unchanged, subDependent2Entry.State);
-                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.ShippingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
+                    Assert.Equal(
+                        typeof(OrderDetails).DisplayName()
+                        + "."
+                        + nameof(OrderDetails.ShippingAddress)
+                        + "#"
+                        + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
                 });
         }
 

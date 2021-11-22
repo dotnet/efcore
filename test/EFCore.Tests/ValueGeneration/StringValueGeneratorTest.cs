@@ -27,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         [ConditionalFact]
         public void Generates_non_temp_values()
-        {
-            Assert.False(new StringValueGenerator().GeneratesTemporaryValues);
-        }
+            => Assert.False(new StringValueGenerator().GeneratesTemporaryValues);
     }
 }

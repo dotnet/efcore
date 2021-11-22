@@ -110,9 +110,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var results = await context.Contacts.Select(
                         contact => new ContactDto22089
-                            {
-                                Id = contact.Id, Names = contact.Names.Select(name => new NameDto22089()).ToArray()
-                            })
+                        {
+                            Id = contact.Id, Names = contact.Names.Select(name => new NameDto22089()).ToArray()
+                        })
                     .ToListAsync();
             }
         }

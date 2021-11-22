@@ -12,9 +12,12 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
-    public class TemporalFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<TemporalFiltersInheritanceQuerySqlServerFixture>
+    public class TemporalFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<
+        TemporalFiltersInheritanceQuerySqlServerFixture>
     {
-        public TemporalFiltersInheritanceQuerySqlServerTest(TemporalFiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public TemporalFiltersInheritanceQuerySqlServerTest(
+            TemporalFiltersInheritanceQuerySqlServerFixture fixture,
+            ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -149,5 +152,4 @@ WHERE [a].[Discriminator] = N'Eagle' AND [a].[CountryId] = 1");
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
-
 }

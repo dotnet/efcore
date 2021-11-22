@@ -203,15 +203,18 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 (IProperty)model.FindEntityType(typeof(Product)).FindProperty("Id"),
-                ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0]).FindGenerationProperty());
+                ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0])
+                .FindGenerationProperty());
 
             Assert.Equal(
                 (IProperty)model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-                ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1]).FindGenerationProperty());
+                ((IProperty)model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1])
+                .FindGenerationProperty());
 
             Assert.Equal(
                 (IProperty)model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
-                ((IProperty)model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0]).FindGenerationProperty());
+                ((IProperty)model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0])
+                .FindGenerationProperty());
         }
 
         [ConditionalFact]
@@ -226,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 (IProperty)model.FindEntityType(typeof(Product)).FindProperty("Id"),
-                ((IProperty)model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId")
+                ((IProperty)model.FindEntityType(typeof(OrderDetails)).GetForeignKeys()
+                    .Single(k => k.Properties.First().Name == "ProductId")
                     .Properties[0]).FindGenerationProperty());
         }
 

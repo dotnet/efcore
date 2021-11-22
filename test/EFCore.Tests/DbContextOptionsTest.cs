@@ -281,15 +281,11 @@ namespace Microsoft.EntityFrameworkCore
 
         [ConditionalFact]
         public void EnableSensitiveDataLogging_on_generic_builder_returns_generic_builder()
-        {
-            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableSensitiveDataLogging());
-        }
+            => GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableSensitiveDataLogging());
 
         [ConditionalFact]
         public void EnableDetailedErrors_on_generic_builder_returns_generic_builder()
-        {
-            GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
-        }
+            => GenericCheck(new DbContextOptionsBuilder<UnkoolContext>().EnableDetailedErrors());
 
         [ConditionalFact]
         public void UseQueryTrackingBehavior_on_generic_builder_returns_generic_builder()
