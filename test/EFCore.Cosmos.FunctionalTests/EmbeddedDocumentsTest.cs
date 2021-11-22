@@ -3,9 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json.Linq;
-using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming

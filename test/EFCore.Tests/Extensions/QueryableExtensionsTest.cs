@@ -4,7 +4,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable RedundantArgumentDefaultValue

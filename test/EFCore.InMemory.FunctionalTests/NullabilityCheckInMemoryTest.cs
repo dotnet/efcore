@@ -3,8 +3,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

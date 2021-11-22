@@ -3,7 +3,6 @@
 
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Commands;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Tools;
 

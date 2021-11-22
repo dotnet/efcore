@@ -3,8 +3,6 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable NotAccessedField.Local

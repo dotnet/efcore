@@ -4,8 +4,6 @@
 using System.Data;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable MethodHasAsyncOverload

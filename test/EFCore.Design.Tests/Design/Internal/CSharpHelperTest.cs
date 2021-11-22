@@ -4,9 +4,7 @@
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 

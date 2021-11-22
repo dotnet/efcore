@@ -3,9 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 

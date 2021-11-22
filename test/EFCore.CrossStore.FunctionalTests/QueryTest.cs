@@ -5,8 +5,6 @@
 
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

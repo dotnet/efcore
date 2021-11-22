@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable StringEndsWithIsCultureSpecific

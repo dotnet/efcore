@@ -1,12 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class GraphUpdatesTestBase<TFixture>

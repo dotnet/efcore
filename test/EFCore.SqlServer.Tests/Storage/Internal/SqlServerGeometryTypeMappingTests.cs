@@ -3,7 +3,6 @@
 
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 

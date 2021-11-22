@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

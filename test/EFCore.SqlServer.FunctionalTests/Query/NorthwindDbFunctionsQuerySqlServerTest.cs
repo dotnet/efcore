@@ -3,8 +3,6 @@
 
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming

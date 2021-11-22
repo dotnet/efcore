@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Transactions;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 

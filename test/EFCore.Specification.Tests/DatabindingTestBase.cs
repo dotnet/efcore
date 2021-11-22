@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
-using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable InconsistentNaming

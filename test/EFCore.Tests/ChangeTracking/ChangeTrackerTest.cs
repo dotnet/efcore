@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local

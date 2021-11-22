@@ -3,9 +3,7 @@
 
 using Identity30.Data;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using ModelSnapshot22;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {

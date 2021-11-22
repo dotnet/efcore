@@ -3,8 +3,6 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.TestModels;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming

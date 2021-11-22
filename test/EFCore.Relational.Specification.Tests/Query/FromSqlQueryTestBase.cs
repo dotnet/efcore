@@ -3,8 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable FormatStringProblem
 // ReSharper disable InconsistentNaming

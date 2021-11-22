@@ -5,10 +5,7 @@ using System.Collections.Immutable;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Cosmos;

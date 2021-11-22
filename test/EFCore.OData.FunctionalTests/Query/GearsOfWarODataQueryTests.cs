@@ -4,7 +4,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore.Extensions;
 using Newtonsoft.Json.Linq;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

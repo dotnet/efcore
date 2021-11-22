@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 

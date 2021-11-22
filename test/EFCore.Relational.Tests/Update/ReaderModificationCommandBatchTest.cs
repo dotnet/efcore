@@ -3,10 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Local

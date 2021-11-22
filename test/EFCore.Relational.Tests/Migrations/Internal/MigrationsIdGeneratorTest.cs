@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 

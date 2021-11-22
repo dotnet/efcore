@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 

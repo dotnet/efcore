@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 

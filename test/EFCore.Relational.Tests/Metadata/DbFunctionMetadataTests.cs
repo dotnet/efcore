@@ -3,9 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local

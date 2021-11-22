@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure

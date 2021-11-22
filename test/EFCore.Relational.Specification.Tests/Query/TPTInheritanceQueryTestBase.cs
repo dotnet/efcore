@@ -4,7 +4,6 @@
 // ReSharper disable InconsistentNaming
 
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 using Microsoft.Extensions.Primitives;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

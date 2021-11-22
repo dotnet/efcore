@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 

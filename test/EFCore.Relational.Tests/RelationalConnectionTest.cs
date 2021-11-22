@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

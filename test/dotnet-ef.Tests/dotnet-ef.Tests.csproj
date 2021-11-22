@@ -10,6 +10,8 @@
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
+    <Using Include="Xunit" />
   </ItemGroup>
 
   <ItemGroup>

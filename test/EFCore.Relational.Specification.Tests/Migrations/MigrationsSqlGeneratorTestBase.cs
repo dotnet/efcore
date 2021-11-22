@@ -2,10 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite.Geometries;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
 

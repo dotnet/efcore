@@ -4,8 +4,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
 using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Attendee = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO.Attendee;
 using Session = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO.Session;
 using Speaker = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Speaker;

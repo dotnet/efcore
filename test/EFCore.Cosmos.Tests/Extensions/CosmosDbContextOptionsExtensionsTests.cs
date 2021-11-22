@@ -6,7 +6,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
-using Xunit;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore;

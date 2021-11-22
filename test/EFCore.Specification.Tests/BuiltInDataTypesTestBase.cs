@@ -3,8 +3,6 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable InconsistentNaming

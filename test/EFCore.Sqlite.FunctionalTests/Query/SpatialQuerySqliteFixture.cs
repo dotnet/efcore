@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;

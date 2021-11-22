@@ -3,10 +3,7 @@
 
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 #nullable enable
 

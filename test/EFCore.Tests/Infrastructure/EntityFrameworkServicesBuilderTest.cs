@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 

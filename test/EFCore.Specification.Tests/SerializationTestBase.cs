@@ -6,7 +6,6 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Newtonsoft.Json;
-using Xunit;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;

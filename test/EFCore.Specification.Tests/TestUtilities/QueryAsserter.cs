@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 

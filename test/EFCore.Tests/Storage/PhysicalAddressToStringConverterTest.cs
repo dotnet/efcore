@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Text.RegularExpressions;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 

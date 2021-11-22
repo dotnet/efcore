@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 

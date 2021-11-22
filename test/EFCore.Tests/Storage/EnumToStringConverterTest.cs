@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 

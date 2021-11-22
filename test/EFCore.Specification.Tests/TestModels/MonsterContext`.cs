@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable UnusedVariable
+
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
 public class MonsterContext<
@@ -534,9 +533,9 @@ public class MonsterContext<
             }).Entity;
         var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
-                    {
-                        Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
-                    })
+                {
+                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                })
             .Entity;
 
         var rsaToken1 = Add(
@@ -751,9 +750,9 @@ public class MonsterContext<
             }).Entity;
         var productDetail2 = Add(
                 new TProductDetail
-                    {
-                        Details = "Eeky Bear's favorite!", ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
-                    })
+                {
+                    Details = "Eeky Bear's favorite!", ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue
+                })
             .Entity;
 
         var productReview1 = Add(
@@ -761,9 +760,9 @@ public class MonsterContext<
             .Entity;
         var productReview2 = Add(
                 new TProductReview
-                    {
-                        ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Good with maple syrup."
-                    })
+                {
+                    ProductId = Entry(product1).Property(e => e.ProductId).CurrentValue, Review = "Good with maple syrup."
+                })
             .Entity;
         var productReview3 = Add(
                 new TProductReview { ProductId = Entry(product2).Property(e => e.ProductId).CurrentValue, Review = "Eeky says yes!" })
@@ -803,9 +802,9 @@ public class MonsterContext<
 
         var supplierLogo1 = Add(
                 new TSupplierLogo
-                    {
-                        SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = new byte[] { 201, 202 }
-                    })
+                {
+                    SupplierId = Entry(supplier1).Property(e => e.SupplierId).CurrentValue, Logo = new byte[] { 201, 202 }
+                })
             .Entity;
 
         var supplierInfo1 = Add(
@@ -818,9 +817,9 @@ public class MonsterContext<
             .Entity;
         var supplierInfo3 = Add(
                 new TSupplierInfo
-                    {
-                        SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue, Information = "Very expensive!"
-                    })
+                {
+                    SupplierId = Entry(supplier2).Property(e => e.SupplierId).CurrentValue, Information = "Very expensive!"
+                })
             .Entity;
 
         var customerInfo1 = Add(
@@ -1075,9 +1074,9 @@ public class MonsterContext<
             }).Entity;
         var suspiciousActivity3 = Add(
                 new TSuspiciousActivity
-                    {
-                        Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
-                    })
+                {
+                    Activity = "Donuts gone missing", Username = Entry(login3).Property(e => e.Username).CurrentValue
+                })
             .Entity;
 
         var rsaToken1 = Add(

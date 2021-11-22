@@ -5,7 +5,6 @@ using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore;
 

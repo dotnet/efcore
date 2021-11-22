@@ -3,8 +3,6 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ConstantNullCoalescingCondition

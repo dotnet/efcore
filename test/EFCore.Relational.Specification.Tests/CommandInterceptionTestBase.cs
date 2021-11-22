@@ -3,8 +3,6 @@
 
 using System.Collections;
 using System.Data;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;

@@ -3,8 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable MethodSupportsCancellation
 // ReSharper disable AccessToDisposedClosure

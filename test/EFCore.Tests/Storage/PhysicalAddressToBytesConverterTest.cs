@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net.NetworkInformation;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 

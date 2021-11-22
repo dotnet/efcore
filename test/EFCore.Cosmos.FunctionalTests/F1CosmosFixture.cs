@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos;

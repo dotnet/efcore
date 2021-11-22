@@ -3,9 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Xunit;
 
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore;

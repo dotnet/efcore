@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
-
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable UnusedMember.Local
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class PropertyTest

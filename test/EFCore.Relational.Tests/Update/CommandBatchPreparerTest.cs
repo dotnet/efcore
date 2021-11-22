@@ -4,9 +4,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
-using Xunit;
 using Xunit.Sdk;
 
 // ReSharper disable RedundantArgumentDefaultValue

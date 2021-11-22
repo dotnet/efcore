@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Routing.Conventions;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OData.Edm;
 

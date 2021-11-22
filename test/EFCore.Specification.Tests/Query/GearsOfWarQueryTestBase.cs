@@ -4,8 +4,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable SimplifyConditionalTernaryExpression

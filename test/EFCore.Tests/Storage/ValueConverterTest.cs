@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 

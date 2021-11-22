@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 

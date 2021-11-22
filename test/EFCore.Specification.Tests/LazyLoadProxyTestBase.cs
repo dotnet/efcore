@@ -6,9 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json;
-using Xunit;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 // ReSharper disable InconsistentNaming

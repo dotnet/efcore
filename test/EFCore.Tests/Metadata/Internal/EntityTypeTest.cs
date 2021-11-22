@@ -3,8 +3,6 @@
 
 using System.ComponentModel;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local

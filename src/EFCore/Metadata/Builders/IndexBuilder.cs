@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;

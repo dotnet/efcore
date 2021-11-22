@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query;
