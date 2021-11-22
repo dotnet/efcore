@@ -583,16 +583,16 @@ public static class SqlServerLoggerExtensions
     {
         var definition = SqlServerResources.LogSavepointsDisabledBecauseOfMARS(diagnostics);
 
-    if (diagnostics.ShouldLog(definition))
-    {
-        definition.Log(diagnostics);
-    }
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
 
-    if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-    {
-        var eventData = new EventData(
-            definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage());
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                (d, p) => ((EventDefinition)d).GenerateMessage());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
