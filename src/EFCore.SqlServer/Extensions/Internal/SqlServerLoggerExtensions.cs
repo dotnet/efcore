@@ -572,49 +572,48 @@ public static class SqlServerLoggerExtensions
         // No DiagnosticsSource events because these are purely design-time messages
     }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static void SavepointsDisabledBecauseOfMARS(
-            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
-        {
-            var definition = SqlServerResources.LogSavepointsDisabledBecauseOfMARS(diagnostics);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void SavepointsDisabledBecauseOfMARS(
+        this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
+    {
+        var definition = SqlServerResources.LogSavepointsDisabledBecauseOfMARS(diagnostics);
+
+    if (diagnostics.ShouldLog(definition))
+    {
+        definition.Log(diagnostics);
+    }
+
+    if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+    {
+        var eventData = new EventData(
+            definition,
+            (d, p) => ((EventDefinition)d).GenerateMessage());
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void MissingViewDefinitionRightsWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
+    {
+        var definition = SqlServerResources.LogMissingViewDefinitionRights(diagnostics);
 
         if (diagnostics.ShouldLog(definition))
         {
             definition.Log(diagnostics);
         }
 
-        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = new EventData(
-                definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
-
-                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static void MissingViewDefinitionRightsWarning(
-            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
-        {
-            var definition = SqlServerResources.LogMissingViewDefinitionRights(diagnostics);
-
-            if (diagnostics.ShouldLog(definition))
-            {
-                definition.Log(diagnostics);
-            }
-
-            // No DiagnosticsSource events because these are purely design-time messages
-        }
+        // No DiagnosticsSource events because these are purely design-time messages
     }
 }

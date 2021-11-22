@@ -280,21 +280,20 @@ public static class SqlServerEventId
     /// </remarks>
     public static readonly EventId DuplicateForeignKeyConstraintIgnored = MakeScaffoldingId(Id.DuplicateForeignKeyConstraintIgnored);
 
-        /// <summary>
-        ///     A column was skipped because its database type could not be found.
-        /// </summary>
-        /// <remarks>
-        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
-        /// </remarks>
-        public static readonly EventId ColumnWithoutTypeWarning = MakeScaffoldingId(Id.ColumnWithoutTypeWarning);
+    /// <summary>
+    ///     A column was skipped because its database type could not be found.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId ColumnWithoutTypeWarning = MakeScaffoldingId(Id.ColumnWithoutTypeWarning);
 
-        /// <summary>
-        ///     Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.
-        /// </summary>
-        /// <remarks>
-        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
-        /// </remarks>
-        public static readonly EventId MissingViewDefinitionRightsWarning = MakeScaffoldingId(Id.MissingViewDefinitionRightsWarning);
+    /// <summary>
+    ///     Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+    /// </remarks>
+    public static readonly EventId MissingViewDefinitionRightsWarning = MakeScaffoldingId(Id.MissingViewDefinitionRightsWarning);
 
-    }
 }
