@@ -22,7 +22,11 @@ public abstract class DiagnosticAnalyzerTestBase
         Assert.Empty(diagnostics);
     }
 
-    protected virtual async Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
+    protected virtual Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
+        => GetDiagnosticsAsync(source, analyzerDiagnosticsOnly: true, extraUsings);
+
+    protected virtual async Task<(Diagnostic[], string)> GetDiagnosticsAsync(
+            string source, bool analyzerDiagnosticsOnly, params string[] extraUsings)
     {
         var sb = new StringBuilder();
         foreach (var @using in _usings.Concat(extraUsings))
@@ -42,10 +46,10 @@ public abstract class DiagnosticAnalyzerTestBase
             .AppendLine("}");
 
         var fullSource = sb.ToString();
-        return (await GetDiagnosticsFullSourceAsync(fullSource), fullSource);
+        return (await GetDiagnosticsFullSourceAsync(fullSource, analyzerDiagnosticsOnly), fullSource);
     }
 
-    protected async Task<Diagnostic[]> GetDiagnosticsFullSourceAsync(string source)
+    protected async Task<Diagnostic[]> GetDiagnosticsFullSourceAsync(string source, bool analyzerDiagnosticsOnly = true)
     {
         var compilation = await CreateProject(source).GetCompilationAsync();
         var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error);
@@ -60,7 +64,9 @@ public abstract class DiagnosticAnalyzerTestBase
                         analyzer.SupportedDiagnostics.ToDictionary(d => d.Id, d => ReportDiagnostic.Default)))
                 .WithAnalyzers(ImmutableArray.Create(analyzer));
 
-        var diagnostics = await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
+        var diagnostics = analyzerDiagnosticsOnly
+            ? await compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync()
+            : await compilationWithAnalyzers.GetAllDiagnosticsAsync();
 
         return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
     }
@@ -89,6 +95,9 @@ public abstract class DiagnosticAnalyzerTestBase
             .AddDocument(documentId, fileName, SourceText.From(source));
 
         return solution.GetProject(projectId)
-            .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            .WithCompilationOptions(
+                new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableContextOptions.Enable));
     }
 }

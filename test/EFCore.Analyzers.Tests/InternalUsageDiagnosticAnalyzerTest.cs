@@ -8,9 +8,6 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class InternalUsageDiagnosticAnalyzerTest : DiagnosticAnalyzerTestBase
 {
-    protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()
-        => new InternalUsageDiagnosticAnalyzer();
-
     [ConditionalFact]
     public Task Invocation_on_type_in_internal_namespace()
         => Test(
@@ -232,4 +229,7 @@ namespace Bar
 
     protected override Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
         => base.GetDiagnosticsAsync(source, extraUsings.Concat(new[] { "Microsoft.EntityFrameworkCore.Internal" }).ToArray());
+
+    protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()
+        => new InternalUsageDiagnosticAnalyzer();
 }
