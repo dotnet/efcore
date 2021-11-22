@@ -240,9 +240,11 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        using var stream = new MemoryStream();
+        var stream = new MemoryStream();
+        await using var __ = stream.ConfigureAwait(false);
         var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
-        await using var __ = writer.ConfigureAwait(false);
+        await using var ___ = writer.ConfigureAwait(false);
+
         using var jsonWriter = new JsonTextWriter(writer);
         Serializer.Serialize(jsonWriter, parameters.Document);
         await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
@@ -311,8 +313,10 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         (string ContainerId, string ResourceId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
         CancellationToken cancellationToken = default)
     {
-        await using var stream = new MemoryStream();
-        await using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+        var stream = new MemoryStream();
+        await using var __ = stream.ConfigureAwait(false);
+        var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+        await using var ___ = writer.ConfigureAwait(false);
         using var jsonWriter = new JsonTextWriter(writer);
         Serializer.Serialize(jsonWriter, parameters.Document);
         await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);

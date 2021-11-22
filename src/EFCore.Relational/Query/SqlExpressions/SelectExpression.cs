@@ -3026,7 +3026,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         Check.DebugAssert(_tables.Count == _tableReferences.Count, "All the tables should have their associated TableReferences.");
         Check.DebugAssert(
-            string.Equals(GetAliasFromTableExpressionBase(tableExpressionBase), tableReferenceExpression.Alias),
+            string.Equals(
+                GetAliasFromTableExpressionBase(tableExpressionBase), tableReferenceExpression.Alias, StringComparison.Ordinal),
             "Alias of table and table reference should be the same.");
 
         var uniqueAlias = GenerateUniqueAlias(_usedAliases, tableReferenceExpression.Alias);

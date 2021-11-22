@@ -51,7 +51,7 @@
       <Rule Id="CA1305" Action="None" />             <!-- Specify IFormatProvider -->
       <Rule Id="CA1307" Action="None" />             <!-- Specify StringComparison -->
       <Rule Id="CA1308" Action="None" />             <!-- Normalize strings to uppercase -->
-      <Rule Id="CA1309" Action="Error" />            <!-- Use ordinal stringcomparison -->
+      <Rule Id="CA1309" Action="None" />             <!-- Use ordinal stringcomparison -->
       <Rule Id="CA1401" Action="None" />             <!-- P/Invokes should not be visible -->
       <Rule Id="CA1501" Action="None" />             <!-- Avoid excessive inheritance -->
       <Rule Id="CA1502" Action="None" />             <!-- Avoid excessive complexity -->
@@ -95,7 +95,7 @@
       <Rule Id="CA1829" Action="None" />             <!-- Use Length/Count property instead of Count() when available -->
       <Rule Id="CA2000" Action="None" />             <!-- Dispose objects before losing scope -->
       <Rule Id="CA2002" Action="None" />             <!-- Do not lock on objects with weak identity -->
-      <Rule Id="CA2007" Action="Error" />            <!-- Consider calling ConfigureAwait on the awaited task -->
+      <Rule Id="CA2007" Action="None" />             <!-- Consider calling ConfigureAwait on the awaited task -->
       <Rule Id="CA2008" Action="Error" />            <!-- Do not create tasks without passing a TaskScheduler -->
       <Rule Id="CA2009" Action="Error" />            <!-- Do not call ToImmutableCollection on an ImmutableCollection value -->
       <Rule Id="CA2010" Action="None" />             <!-- Always consume the value returned by methods marked with PreserveSigAttribute -->
