@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -18,7 +17,8 @@ public class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
         justification: "DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor");
 
     /// <inheritdoc />
-    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(_suppressUninitializedDbSetRule);
+    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; }
+        = ImmutableArray.Create(_suppressUninitializedDbSetRule);
 
     /// <inheritdoc />
     public override void ReportSuppressions(SuppressionAnalysisContext context)
@@ -28,24 +28,18 @@ public class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
 
         foreach (var diagnostic in context.ReportedDiagnostics)
         {
-            if (diagnostic.Id != "CS8618" || !diagnostic.Location.IsInSource)
-            {
-                continue;
-            }
-
             // We have an warning about an uninitialized non-nullable property.
             // Get the node, and make sure it's a property who's type syntactically contains DbSet (fast check before getting the
             // semantic model, which is heavier).
-            var sourceTree = diagnostic.Location.SourceTree;
-            var node = sourceTree?.GetRoot().FindNode(diagnostic.Location.SourceSpan);
-            if (node is not PropertyDeclarationSyntax propertyDeclarationSyntax
+            if (diagnostic.Location.SourceTree is not { } sourceTree
+                || sourceTree.GetRoot().FindNode(diagnostic.Location.SourceSpan) is not PropertyDeclarationSyntax propertyDeclarationSyntax
                 || !propertyDeclarationSyntax.Type.ToString().Contains("DbSet"))
             {
                 continue;
             }
 
             // Get the semantic symbol and do some basic checks
-            if (context.GetSemanticModel(sourceTree!).GetDeclaredSymbol(node) is not IPropertySymbol propertySymbol
+            if (context.GetSemanticModel(sourceTree).GetDeclaredSymbol(propertyDeclarationSyntax) is not IPropertySymbol propertySymbol
                 || propertySymbol.IsStatic
                 || propertySymbol.IsReadOnly)
             {
