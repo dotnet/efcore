@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -136,6 +137,9 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IMigrationsAssembly, MigrationsAssembly>();
         TryAdd<IDatabase, RelationalDatabase>();
         TryAdd<IBatchExecutor, BatchExecutor>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        TryAdd<IValueGenerationManager, RelationalValueGenerationManager>();
+#pragma warning restore EF1001 // Internal EF Core API usage.
         TryAdd<IValueGeneratorSelector, RelationalValueGeneratorSelector>();
         TryAdd<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>();
         TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
