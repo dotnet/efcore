@@ -127,54 +127,54 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     /// </summary>
     public InternalEntityEntry? SharedIdentityEntry { get; set; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public void SetEntityState(
-            EntityState entityState,
-            bool acceptChanges = false,
-            bool modifyProperties = true,
-            EntityState? forceStateWhenUnknownKey = null)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public void SetEntityState(
+        EntityState entityState,
+        bool acceptChanges = false,
+        bool modifyProperties = true,
+        EntityState? forceStateWhenUnknownKey = null)
+    {
+        var oldState = _stateData.EntityState;
+        var addingOrUpdating = PrepareForAddOrUpdate(entityState);
+
+        entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
+
+        if (addingOrUpdating)
         {
-            var oldState = _stateData.EntityState;
-            var addingOrUpdating = PrepareForAddOrUpdate(entityState);
-
-            entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
-
-            if (addingOrUpdating)
-            {
-                StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: addingOrUpdating);
-            }
+            StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: addingOrUpdating);
+        }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
     }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public async Task SetEntityStateAsync(
-            EntityState entityState,
-            bool acceptChanges = false,
-            bool modifyProperties = true,
-            EntityState? forceStateWhenUnknownKey = null,
-            CancellationToken cancellationToken = default)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public async Task SetEntityStateAsync(
+        EntityState entityState,
+        bool acceptChanges = false,
+        bool modifyProperties = true,
+        EntityState? forceStateWhenUnknownKey = null,
+        CancellationToken cancellationToken = default)
+    {
+        var oldState = _stateData.EntityState;
+        var addingOrUpdating = PrepareForAddOrUpdate(entityState);
+
+        entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
+
+        if (addingOrUpdating)
         {
-            var oldState = _stateData.EntityState;
-            var addingOrUpdating = PrepareForAddOrUpdate(entityState);
-
-            entityState = PropagateToUnknownKey(oldState, entityState, addingOrUpdating, forceStateWhenUnknownKey);
-
-            if (addingOrUpdating)
-            {
-                await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: addingOrUpdating, cancellationToken)
-                    .ConfigureAwait(false);
-            }
+            await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: addingOrUpdating, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
     }
@@ -187,11 +187,11 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var keyUnknown = IsKeyUnknown;
 
-            if (entityState == EntityState.Added
-                || (oldState == EntityState.Detached
-                    && keyUnknown))
-            {
-                var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
+        if (entityState == EntityState.Added
+            || (oldState == EntityState.Detached
+                && keyUnknown))
+        {
+            var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
 
             if (forceStateWhenUnknownKey.HasValue
                 && keyUnknown
@@ -208,62 +208,59 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         return entityState;
     }
 
-        private bool PrepareForAddOrUpdate(EntityState newState)
+    private bool PrepareForAddOrUpdate(EntityState newState)
+    {
+        switch (newState)
         {
-            switch (newState)
-            {
-                case EntityState.Added:
-                    //If old state is Added,so return false to skip PropagateToUnknownKey And ValueGeneration,don't need duplicate.
-                    if (EntityState == EntityState.Added || EntityState == EntityState.Modified || EntityState == EntityState.Unchanged)
-                    {
-                        return false;
-                    }
-                    // Temporarily change the internal state to unknown so that key generation, including setting key values
-                    // can happen without constraints on changing read-only values kicking in
-                    _stateData.EntityState = EntityState.Detached;
-                    return true;
-                case EntityState.Modified:
-                    if (EntityState == EntityState.Modified)
-                    {
-                        _stateData.FlagAllProperties(
-                            EntityType.PropertyCount(), PropertyFlag.Modified,
-                            flagged: false);
-                        //If old state is Modified,it's always true.
-                        return true;
-                    }
-                    if (EntityState == EntityState.Unchanged)
-                    {
-                        return true;
-                    }
-
+            case EntityState.Added:
+                //If old state is Added,so return false to skip PropagateToUnknownKey And ValueGeneration,don't need duplicate.
+                if (EntityState == EntityState.Added || EntityState == EntityState.Modified || EntityState == EntityState.Unchanged)
+                {
                     return false;
-                case EntityState.Unchanged:
+                }
+                // Temporarily change the internal state to unknown so that key generation, including setting key values
+                // can happen without constraints on changing read-only values kicking in
+                _stateData.EntityState = EntityState.Detached;
+                return true;
+            case EntityState.Modified:
+                if (EntityState == EntityState.Modified)
+                {
+                    //If old state is Modified,it's always true.
+                    return true;
+                }
+                if (EntityState == EntityState.Unchanged)
+                {
+                    return true;
+                }
+
+                return false;
+            case EntityState.Unchanged:
 
                 if (EntityState == EntityState.Modified)
                 {
                     return true;
                 }
                 if (EntityState == EntityState.Detached)
-                    {
-                        return true;
-                    }
-                    return false;
-                case EntityState.Detached:
-                    if (EntityState == EntityState.Modified)
-                    {
-                        _stateData.FlagAllProperties(
-                            EntityType.PropertyCount(), PropertyFlag.Modified,
-                            flagged: false);
-                    }
-                    // Temporarily change the internal state to unknown so that key generation, including setting key values
-                    // can happen without constraints on changing read-only values kicking in
-                    _stateData.EntityState = EntityState.Detached;
+                {
                     return true;
-                case EntityState.Deleted:
-                default:
-                    return false;
-            }
+                }
+                return false;
+            case EntityState.Detached:
+                if (EntityState == EntityState.Modified)
+                {
+                    _stateData.FlagAllProperties(
+                        EntityType.PropertyCount(), PropertyFlag.Modified,
+                        flagged: false);
+                }
+                // Temporarily change the internal state to unknown so that key generation, including setting key values
+                // can happen without constraints on changing read-only values kicking in
+                _stateData.EntityState = EntityState.Detached;
+                return true;
+            case EntityState.Deleted:
+            default:
+                return false;
         }
+    }
 
     private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
     {
@@ -1918,7 +1915,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     throw new InvalidOperationException(CoreStrings.ResetNotSupported);
-                // Note: ignoring Move since index not important
+                    // Note: ignoring Move since index not important
             }
         }
     }
