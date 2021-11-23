@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var inverse in inverses)
             {
-                unconfiguredNavigations.RemoveAll(n => string.Equals(n.GetSimpleMemberName(), inverse));
-                foreignKeyNavigations.RemoveAll(n => string.Equals(n.GetSimpleMemberName(), inverse));
+                unconfiguredNavigations.RemoveAll(n => string.Equals(n.GetSimpleMemberName(), inverse, StringComparison.Ordinal));
+                foreignKeyNavigations.RemoveAll(n => string.Equals(n.GetSimpleMemberName(), inverse, StringComparison.Ordinal));
             }
 
             if (unconfiguredNavigations.Count == 1)

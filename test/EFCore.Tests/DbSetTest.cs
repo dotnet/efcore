@@ -625,11 +625,11 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_use_Add_to_change_entity_state_async()
         {
-            await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Detached, EntityState.Added);
-            await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Unchanged, EntityState.Added);
-            await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Deleted, EntityState.Added);
-            await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Modified, EntityState.Added);
-            await ChangeStateWithMethod((c, e) => c.Categories.AddAsync(e), EntityState.Added, EntityState.Added);
+            await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Detached, EntityState.Added);
+            await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Unchanged, EntityState.Added);
+            await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Deleted, EntityState.Added);
+            await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Modified, EntityState.Added);
+            await ChangeStateWithMethod(async (c, e) => await c.Categories.AddAsync(e), EntityState.Added, EntityState.Added);
         }
 
         [ConditionalFact]
