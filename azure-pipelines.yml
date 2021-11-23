@@ -31,9 +31,10 @@ jobs:
   parameters:
     agentOs: macOS
     configuration: Release
+    buildArgs: /bl:artifacts/log/Build.binlog
     artifacts:
       publish: true
-      path: 'artifacts/'
+      path: 'artifacts/log/'
 
 - template: build/templates/default-build.yml
   parameters:
