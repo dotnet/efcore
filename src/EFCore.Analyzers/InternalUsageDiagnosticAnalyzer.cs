@@ -10,7 +10,7 @@ using CSharpSyntax = Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Microsoft.EntityFrameworkCore;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
+public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public const string Id = "EF1001";
 
@@ -19,8 +19,8 @@ public class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
         + "not subject to the same compatibility standards as public APIs. "
         + "It may be changed or removed without notice in any release.";
 
-    protected const string DefaultTitle = "Internal EF Core API usage.";
-    protected const string Category = "Usage";
+    private const string DefaultTitle = "Internal EF Core API usage.";
+    private const string Category = "Usage";
 
     private static readonly int EFLen = "EntityFrameworkCore".Length;
 

@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace Microsoft.EntityFrameworkCore;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
+public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
 {
     private static readonly SuppressionDescriptor _suppressUninitializedDbSetRule = new(
         id: "SPR1001",
