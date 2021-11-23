@@ -18,7 +18,7 @@ public class StringGuidConverter<TModel, TProvider> : ValueConverter<TModel, TPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // ReSharper disable once StaticMemberInGenericType
-    protected static readonly ConverterMappingHints _defaultHints
+    protected static readonly ConverterMappingHints DefaultHints
         = new(size: 36, valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
 
     /// <summary>

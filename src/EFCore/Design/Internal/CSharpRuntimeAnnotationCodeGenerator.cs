@@ -262,28 +262,34 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
     /// <param name="namespaces">The set of namespaces to add to.</param>
     protected virtual void AddNamespace(Type type, ISet<string> namespaces)
     {
-        if (type.IsNested)
+        while (true)
         {
-            AddNamespace(type.DeclaringType!, namespaces);
-        }
-
-        if (type.Namespace != null)
-        {
-            namespaces.Add(type.Namespace);
-        }
-
-        if (type.IsGenericType)
-        {
-            foreach (var argument in type.GenericTypeArguments)
+            if (type.IsNested)
             {
-                AddNamespace(argument, namespaces);
+                AddNamespace(type.DeclaringType!, namespaces);
             }
-        }
 
-        var sequenceType = type.TryGetSequenceType();
-        if (sequenceType != null)
-        {
-            AddNamespace(sequenceType, namespaces);
+            if (type.Namespace != null)
+            {
+                namespaces.Add(type.Namespace);
+            }
+
+            if (type.IsGenericType)
+            {
+                foreach (var argument in type.GenericTypeArguments)
+                {
+                    AddNamespace(argument, namespaces);
+                }
+            }
+
+            var sequenceType = type.TryGetSequenceType();
+            if (sequenceType != null)
+            {
+                type = sequenceType;
+                continue;
+            }
+
+            break;
         }
     }
 }

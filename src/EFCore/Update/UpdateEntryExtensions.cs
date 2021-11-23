@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
@@ -222,7 +223,7 @@ public static class UpdateEntryExtensions
                 var stringValue = value.ToString();
                 if (stringValue?.Length > 63)
                 {
-                    stringValue = stringValue.Substring(0, 60) + "...";
+                    stringValue = string.Concat(stringValue.AsSpan(0, 60), "...");
                 }
 
                 builder

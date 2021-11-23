@@ -226,11 +226,10 @@ public class RelationshipDiscoveryConvention :
                         && navigations.Count == 1)
                     {
                         // Target type should be the principal, discover the relationship from the other side
-                        var targetType = candidateTargetEntityType;
-                        if (targetType.IsInModel
-                            && IsImplicitlyCreatedUnusedType(targetType))
+                        if (candidateTargetEntityType.IsInModel
+                            && IsImplicitlyCreatedUnusedType(candidateTargetEntityType))
                         {
-                            targetType.Builder.ModelBuilder.HasNoEntityType(targetType);
+                            candidateTargetEntityType.Builder.ModelBuilder.HasNoEntityType(candidateTargetEntityType);
                         }
 
                         goto Continue;
@@ -802,7 +801,7 @@ public class RelationshipDiscoveryConvention :
         }
     }
 
-    private void RemoveExtraOwnershipInverse(IConventionEntityType entityType, RelationshipCandidate relationshipCandidate)
+    private static void RemoveExtraOwnershipInverse(IConventionEntityType entityType, RelationshipCandidate relationshipCandidate)
     {
         if (relationshipCandidate.NavigationProperties.Count > 1
             && entityType.FindOwnership()?.PrincipalEntityType == relationshipCandidate.TargetTypeBuilder.Metadata)
@@ -923,7 +922,7 @@ public class RelationshipDiscoveryConvention :
         return false;
     }
 
-    private void RemoveNavigation(
+    private static void RemoveNavigation(
         PropertyInfo navigationProperty,
         IConventionEntityType declaringEntityType,
         List<PropertyInfo> toRemoveFrom)
@@ -1078,7 +1077,7 @@ public class RelationshipDiscoveryConvention :
                 memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
             != null)
         {
-            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo!, context);
+            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
         }
     }
 

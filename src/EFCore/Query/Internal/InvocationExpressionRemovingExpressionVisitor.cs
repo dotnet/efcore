@@ -28,7 +28,7 @@ public class InvocationExpressionRemovingExpressionVisitor : ExpressionVisitor
             : base.VisitInvocation(invocationExpression);
     }
 
-    private Expression StripTrivialConversions(Expression expression)
+    private static Expression StripTrivialConversions(Expression expression)
     {
         while (expression is UnaryExpression unaryExpression
                && unaryExpression.NodeType == ExpressionType.Convert
@@ -41,7 +41,7 @@ public class InvocationExpressionRemovingExpressionVisitor : ExpressionVisitor
         return expression;
     }
 
-    private Expression InlineLambdaExpression(LambdaExpression lambdaExpression, ReadOnlyCollection<Expression> arguments)
+    private static Expression InlineLambdaExpression(LambdaExpression lambdaExpression, ReadOnlyCollection<Expression> arguments)
         => new ReplacingExpressionVisitor(
                 lambdaExpression.Parameters.ToArray<Expression>(), arguments.ToArray())
             .Visit(lambdaExpression.Body);

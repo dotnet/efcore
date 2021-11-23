@@ -83,16 +83,15 @@ internal static class EnumerableExtensions
             return true;
         }
 
-        using (var firstEnumerator = first.GetEnumerator())
+        using var firstEnumerator = first.GetEnumerator();
+        using var secondEnumerator = second.GetEnumerator();
+
+        while (secondEnumerator.MoveNext())
         {
-            using var secondEnumerator = second.GetEnumerator();
-            while (secondEnumerator.MoveNext())
+            if (!firstEnumerator.MoveNext()
+                || !Equals(firstEnumerator.Current, secondEnumerator.Current))
             {
-                if (!firstEnumerator.MoveNext()
-                    || !Equals(firstEnumerator.Current, secondEnumerator.Current))
-                {
-                    return false;
-                }
+                return false;
             }
         }
 

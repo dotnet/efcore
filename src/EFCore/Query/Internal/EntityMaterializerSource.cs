@@ -127,14 +127,16 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     /// </summary>
     public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
         => Materializers.GetOrAdd(
-            entityType, e =>
+            entityType,
+            static (e, self) =>
             {
                 var materializationContextParameter
                     = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
                 return Expression.Lambda<Func<MaterializationContext, object>>(
-                        CreateMaterializeExpression(e, "instance", materializationContextParameter),
+                        self.CreateMaterializeExpression(e, "instance", materializationContextParameter),
                         materializationContextParameter)
                     .Compile();
-            });
+            },
+            this);
 }

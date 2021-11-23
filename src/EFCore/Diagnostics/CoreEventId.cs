@@ -125,7 +125,7 @@ public static class CoreEventId
         StartedTracking,
         StateChanged,
         ValueGenerated,
-        SkipCollectionChangeDetected,
+        SkipCollectionChangeDetected
     }
 
     private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";

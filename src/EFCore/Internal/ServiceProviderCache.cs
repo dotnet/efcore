@@ -58,7 +58,10 @@ public class ServiceProviderCache
             return BuildServiceProvider(options, _configurations).ServiceProvider;
         }
 
-        return _configurations.GetOrAdd(options, BuildServiceProvider, _configurations).ServiceProvider;
+        return _configurations.GetOrAdd(
+                options,
+                static (contextOptions, tuples) => BuildServiceProvider(contextOptions, tuples), _configurations)
+            .ServiceProvider;
 
         static (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider(
             IDbContextOptions options,
@@ -128,7 +131,7 @@ public class ServiceProviderCache
                         loggingDefinitions,
                         new NullDbContextLogger());
 
-                    if (configurations.Count == 0)
+                    if (configurations.IsEmpty)
                     {
                         logger.ServiceProviderCreated(serviceProvider);
                     }

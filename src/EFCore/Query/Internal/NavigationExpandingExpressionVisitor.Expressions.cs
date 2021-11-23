@@ -139,10 +139,7 @@ public partial class NavigationExpandingExpressionVisitor
                 }
             }
 
-            if (nodeToAdd == null)
-            {
-                nodeToAdd = new IncludeTreeNode(navigation.TargetEntityType, null, setLoaded);
-            }
+            nodeToAdd ??= new IncludeTreeNode(navigation.TargetEntityType, null, setLoaded);
 
             this[navigation] = nodeToAdd;
 
@@ -451,10 +448,10 @@ public partial class NavigationExpandingExpressionVisitor
                 return CurrentParameter!;
             }
 
-            var parentExperssion = _parent.GetExpression();
+            var parentExpression = _parent.GetExpression();
             return _parent.Left == this
-                ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Outer")[0])
-                : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Inner")[0]);
+                ? MakeMemberAccess(parentExpression, parentExpression.Type.GetMember("Outer")[0])
+                : MakeMemberAccess(parentExpression, parentExpression.Type.GetMember("Inner")[0]);
         }
     }
 

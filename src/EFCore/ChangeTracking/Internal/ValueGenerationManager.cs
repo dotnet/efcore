@@ -53,10 +53,7 @@ public class ValueGenerationManager : IValueGenerationManager
             }
 
             var principalEntry = _keyPropagator.PropagateValue(entry, property);
-            if (chosenPrincipal == null)
-            {
-                chosenPrincipal = principalEntry;
-            }
+            chosenPrincipal ??= principalEntry;
         }
 
         return chosenPrincipal;

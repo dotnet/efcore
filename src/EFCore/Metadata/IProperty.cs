@@ -25,7 +25,7 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <returns>A new equality comparer.</returns>
     IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>()
     {
-        var comparer = GetKeyValueComparer()!;
+        var comparer = GetKeyValueComparer();
 
         return comparer is IEqualityComparer<TProperty> nullableComparer
             ? nullableComparer

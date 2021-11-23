@@ -108,37 +108,41 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         return base.Visit(expression);
     }
 
-    private bool PreserveInitializationConstant(Expression expression, bool generateParameter)
+    private static bool PreserveInitializationConstant(Expression expression, bool generateParameter)
         => !generateParameter && (expression is NewExpression || expression is MemberInitExpression);
 
-    private bool PreserveConvertNode(Expression expression)
+    private static bool PreserveConvertNode(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        while (true)
         {
-            if (unaryExpression.Type == typeof(object)
-                || unaryExpression.Type == typeof(Enum)
-                || unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                return true;
+                if (unaryExpression.Type == typeof(object)
+                    || unaryExpression.Type == typeof(Enum)
+                    || unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
+                {
+                    return true;
+                }
+
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
+                    && (innerType == typeof(byte)
+                        || innerType == typeof(sbyte)
+                        || innerType == typeof(char)
+                        || innerType == typeof(short)
+                        || innerType == typeof(ushort)))
+                {
+                    return true;
+                }
+
+                expression = unaryExpression.Operand;
+                continue;
             }
 
-            var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-            if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
-                && (innerType == typeof(byte)
-                    || innerType == typeof(sbyte)
-                    || innerType == typeof(char)
-                    || innerType == typeof(short)
-                    || innerType == typeof(ushort)))
-            {
-                return true;
-            }
-
-            return PreserveConvertNode(unaryExpression.Operand);
+            return false;
         }
-
-        return false;
     }
 
     /// <summary>
@@ -201,12 +205,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
                 }
 
                 var newRightExpression = TryGetConstantValue(binaryExpression.Right) ?? Visit(binaryExpression.Right);
-                if (ShortCircuitLogicalExpression(newRightExpression, binaryExpression.NodeType))
-                {
-                    return newRightExpression;
-                }
-
-                return binaryExpression.Update(newLeftExpression, binaryExpression.Conversion, newRightExpression);
+                return ShortCircuitLogicalExpression(newRightExpression, binaryExpression.NodeType)
+                    ? newRightExpression
+                    : binaryExpression.Update(newLeftExpression, binaryExpression.Conversion, newRightExpression);
             }
 
             default:
@@ -315,10 +316,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        if (parameterName == null)
-        {
-            parameterName = "p";
-        }
+        parameterName ??= "p";
 
         if (string.Equals(QueryFilterPrefix, parameterName, StringComparison.Ordinal))
         {
@@ -370,14 +368,18 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
     private static Expression RemoveConvert(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
+        while (true)
         {
-            return RemoveConvert(unaryExpression.Operand);
-        }
+            if (expression is UnaryExpression unaryExpression
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
+            {
+                expression = unaryExpression.Operand;
+                continue;
+            }
 
-        return expression;
+            return expression;
+        }
     }
 
     private object? GetValue(Expression? expression, out string? parameterName)
@@ -654,8 +656,8 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
     private sealed class EvaluatedValues
     {
-        public string? CandidateParameterName { get; set; }
-        public object? Value { get; set; }
+        public string? CandidateParameterName { get; init; }
+        public object? Value { get; init; }
         public Expression? Constant { get; set; }
         public Expression? Parameter { get; set; }
     }

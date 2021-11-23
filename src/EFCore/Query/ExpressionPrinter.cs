@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -190,7 +191,7 @@ public class ExpressionPrinter : ExpressionVisitor
             && characterLimit.Value > 0)
         {
             queryPlan = queryPlan.Length > characterLimit
-                ? queryPlan.Substring(0, characterLimit.Value) + "..."
+                ? string.Concat(queryPlan.AsSpan(0, characterLimit.Value), "...")
                 : queryPlan;
         }
 
@@ -770,14 +771,7 @@ public class ExpressionPrinter : ExpressionVisitor
             indent?.Dispose();
         }
 
-        if (!isAnonymousType)
-        {
-            _stringBuilder.Append(")");
-        }
-        else
-        {
-            _stringBuilder.Append(" }");
-        }
+        _stringBuilder.Append(!isAnonymousType ? ")" : " }");
 
         return newExpression;
     }
@@ -825,7 +819,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 Append(_namelessParameters.IndexOf(parameterExpression).ToString());
                 Append("}");
             }
-            else if (parameterName.Contains("."))
+            else if (parameterName.Contains('.'))
             {
                 Append("[");
                 Append(parameterName);
@@ -982,7 +976,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 _stringBuilder.AppendLine(": ");
             }
 
-            using (var indent = _stringBuilder.Indent())
+            using (_stringBuilder.Indent())
             {
                 Visit(@case.Body);
             }
@@ -1040,7 +1034,7 @@ public class ExpressionPrinter : ExpressionVisitor
         }
     }
 
-    private string PostProcess(string printedExpression)
+    private static string PostProcess(string printedExpression)
     {
         var processedPrintedExpression = printedExpression
             .Replace("Microsoft.EntityFrameworkCore.Query.", "")

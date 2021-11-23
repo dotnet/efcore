@@ -116,8 +116,8 @@ public class ValueConverterSelector : IValueConverterSelector
             {
                 yield return _converters.GetOrAdd(
                     (modelClrType, typeof(byte[])),
-                    k => new ValueConverterInfo(
-                        modelClrType,
+                    static k => new ValueConverterInfo(
+                        k.ModelClrType,
                         typeof(byte[]),
                         info => new BoolToZeroOneConverter<byte>().ComposeWith(
                             NumberToBytesConverter<byte>.DefaultInfo.Create()),
@@ -275,8 +275,8 @@ public class ValueConverterSelector : IValueConverterSelector
                         k => DateTimeOffsetToBytesConverter.DefaultInfo)
                     : _converters.GetOrAdd(
                         (modelClrType, typeof(byte[])),
-                        k => new ValueConverterInfo(
-                            modelClrType,
+                        static k => new ValueConverterInfo(
+                            k.ModelClrType,
                             typeof(byte[]),
                             i => (i.ModelClrType == typeof(DateTime)
                                     ? DateTimeToBinaryConverter.DefaultInfo.Create()
@@ -389,7 +389,7 @@ public class ValueConverterSelector : IValueConverterSelector
         {
             yield return _converters.GetOrAdd(
                 (underlyingModelType, typeof(byte[])),
-                k =>
+                static k =>
                 {
                     var toNumber = GetDefaultValueConverterInfo(
                         typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
@@ -398,7 +398,7 @@ public class ValueConverterSelector : IValueConverterSelector
                         typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
 
                     return new ValueConverterInfo(
-                        underlyingModelType,
+                        k.ModelClrType,
                         typeof(byte[]),
                         i => toNumber.Create().ComposeWith(toBytes.Create()),
                         toBytes.MappingHints);
@@ -516,10 +516,11 @@ public class ValueConverterSelector : IValueConverterSelector
             {
                 yield return _converters.GetOrAdd(
                     (modelType, numeric),
-                    k => GetDefaultValueConverterInfo(
-                        converterType.GetTypeInfo().GenericTypeParameters.Length == 1
-                            ? converterType.MakeGenericType(k.ProviderClrType)
-                            : converterType.MakeGenericType(k.ModelClrType, k.ProviderClrType)));
+                    static (k, t) => GetDefaultValueConverterInfo(
+                        t.GetTypeInfo().GenericTypeParameters.Length == 1
+                            ? t.MakeGenericType(k.ProviderClrType)
+                            : t.MakeGenericType(k.ModelClrType, k.ProviderClrType)),
+                    converterType);
             }
         }
     }
@@ -548,7 +549,8 @@ public class ValueConverterSelector : IValueConverterSelector
                     {
                         yield return _converters.GetOrAdd(
                             (modelType, candidateTypes[i]),
-                            k => GetDefaultValueConverterInfo(converterType.MakeGenericType(k.ModelClrType, k.ProviderClrType)));
+                            static (k, t) => GetDefaultValueConverterInfo(t.MakeGenericType(k.ModelClrType, k.ProviderClrType)),
+                            converterType);
                     }
                 }
             }

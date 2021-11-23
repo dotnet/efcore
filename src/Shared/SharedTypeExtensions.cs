@@ -106,33 +106,6 @@ internal static class SharedTypeExtensions
             && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
             && type.Name.Contains("AnonymousType");
 
-    public static bool IsTupleType(this Type type)
-    {
-        if (type == typeof(Tuple))
-        {
-            return true;
-        }
-
-        if (type.IsGenericType)
-        {
-            var genericDefinition = type.GetGenericTypeDefinition();
-            if (genericDefinition == typeof(Tuple<>)
-                || genericDefinition == typeof(Tuple<,>)
-                || genericDefinition == typeof(Tuple<,,>)
-                || genericDefinition == typeof(Tuple<,,,>)
-                || genericDefinition == typeof(Tuple<,,,,>)
-                || genericDefinition == typeof(Tuple<,,,,,>)
-                || genericDefinition == typeof(Tuple<,,,,,,>)
-                || genericDefinition == typeof(Tuple<,,,,,,,>)
-                || genericDefinition == typeof(Tuple<,,,,,,,>))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public static PropertyInfo? GetAnyProperty(this Type type, string name)
     {
         var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
@@ -473,17 +446,6 @@ internal static class SharedTypeExtensions
         {
             return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
         }
-    }
-
-    public static bool IsQueryableType(this Type type)
-    {
-        if (type.IsGenericType
-            && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
-        {
-            return true;
-        }
-
-        return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
     }
 
     /// <summary>

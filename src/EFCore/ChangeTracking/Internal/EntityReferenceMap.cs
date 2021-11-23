@@ -48,10 +48,7 @@ public class EntityReferenceMap
         if (_hasSubMap
             && entityType.HasSharedClrType)
         {
-            if (_sharedTypeReferenceMap == null)
-            {
-                _sharedTypeReferenceMap = new Dictionary<IEntityType, EntityReferenceMap>();
-            }
+            _sharedTypeReferenceMap ??= new Dictionary<IEntityType, EntityReferenceMap>();
 
             if (!_sharedTypeReferenceMap.TryGetValue(entityType, out var sharedMap))
             {
@@ -263,32 +260,18 @@ public class EntityReferenceMap
                 + (returnDeleted ? 1 : 0)
                 + (returnUnchanged ? 1 : 0);
 
-            if (numberOfStates == 1)
+            switch (numberOfStates)
             {
-                if (returnUnchanged)
-                {
+                case 1 when returnUnchanged:
                     return _unchangedReferenceMap!.Values;
-                }
-
-                if (returnAdded)
-                {
+                case 1 when returnAdded:
                     return _addedReferenceMap!.Values;
-                }
-
-                if (returnModified)
-                {
+                case 1 when returnModified:
                     return _modifiedReferenceMap!.Values;
-                }
-
-                if (returnDeleted)
-                {
+                case 1 when returnDeleted:
                     return _deletedReferenceMap!.Values;
-                }
-            }
-
-            if (numberOfStates == 0)
-            {
-                return Enumerable.Empty<InternalEntityEntry>();
+                case 0:
+                    return Enumerable.Empty<InternalEntityEntry>();
             }
         }
 

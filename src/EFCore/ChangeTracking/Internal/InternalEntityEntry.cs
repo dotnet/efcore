@@ -232,22 +232,20 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
     {
-        var entityType = EntityType;
-
         // Prevent temp values from becoming permanent values
         if (oldState == EntityState.Added
             && newState != EntityState.Added
             && newState != EntityState.Detached)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in EntityType.GetProperties())
             {
                 if (property.IsKey() && HasTemporaryValue(property))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.TempValuePersists(
                             property.Name,
-                            entityType.DisplayName(), newState));
+                            EntityType.DisplayName(), newState));
                 }
             }
         }
@@ -257,10 +255,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Modified
             && modifyProperties)
         {
-            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
+            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
 
             // Hot path; do not use LINQ
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in EntityType.GetProperties())
             {
                 if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                 {
@@ -277,7 +275,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Unchanged)
         {
             _stateData.FlagAllProperties(
-                entityType.PropertyCount(), PropertyFlag.Modified,
+                EntityType.PropertyCount(), PropertyFlag.Modified,
                 flagged: false);
         }
 
@@ -320,7 +318,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 || newState == EntityState.Detached)
             && HasConceptualNull)
         {
-            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
         }
 
         if (oldState == EntityState.Detached
@@ -341,7 +339,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         FireStateChanged(oldState);
 
-        HandleSharedIdentityEntry(oldState, newState, entityType);
+        HandleSharedIdentityEntry(oldState, newState, EntityType);
 
         if ((newState == EntityState.Deleted
                 || newState == EntityState.Detached)
@@ -1309,7 +1307,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                         }
 
                         EnsureStoreGeneratedValues();
-                        _storeGeneratedValues.SetValue(asProperty!, value, storeGeneratedIndex);
+                        _storeGeneratedValues.SetValue(asProperty, value, storeGeneratedIndex);
                     }
                     else
                     {
@@ -1426,23 +1424,21 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Unknown, false);
 
         var currentState = EntityState;
-        if ((currentState == EntityState.Unchanged)
-            || (currentState == EntityState.Detached))
+        switch (currentState)
         {
-            return;
-        }
+            case EntityState.Unchanged:
+            case EntityState.Detached:
+                return;
+            case EntityState.Added:
+            case EntityState.Modified:
+                _originalValues.AcceptChanges(this);
+                SharedIdentityEntry?.AcceptChanges();
 
-        if ((currentState == EntityState.Added)
-            || (currentState == EntityState.Modified))
-        {
-            _originalValues.AcceptChanges(this);
-            SharedIdentityEntry?.AcceptChanges();
-
-            SetEntityState(EntityState.Unchanged, true);
-        }
-        else if (currentState == EntityState.Deleted)
-        {
-            SetEntityState(EntityState.Detached);
+                SetEntityState(EntityState.Unchanged, true);
+                break;
+            case EntityState.Deleted:
+                SetEntityState(EntityState.Detached);
+                break;
         }
     }
 

@@ -38,7 +38,7 @@ public class NumberToStringConverter<TNumber> : StringNumberConverter<TNumber, s
         : base(
             ToString(),
             ToNumber(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -46,5 +46,5 @@ public class NumberToStringConverter<TNumber> : StringNumberConverter<TNumber, s
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), _defaultHints);
+        = new(typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), DefaultHints);
 }

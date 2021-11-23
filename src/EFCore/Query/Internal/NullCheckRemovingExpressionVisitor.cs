@@ -83,7 +83,7 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
         return base.VisitConditional(conditionalExpression);
     }
 
-    private Expression? TryOptimizeConditionalEquality(Expression expression)
+    private static Expression? TryOptimizeConditionalEquality(Expression expression)
     {
         // Simplify (a ? b : null) == null => !a || b == null
         // Simplify (a ? null : b) == null => a || b == null
@@ -168,7 +168,7 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private bool IsNullConstant(Expression expression)
+    private static bool IsNullConstant(Expression expression)
         => expression is ConstantExpression constantExpression
             && constantExpression.Value == null;
 }

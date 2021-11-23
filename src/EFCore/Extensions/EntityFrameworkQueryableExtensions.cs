@@ -2255,7 +2255,7 @@ public static class EntityFrameworkQueryableExtensions
             .GetTypeInfo().GetDeclaredMethods(nameof(Include))
             .Single(
                 mi =>
-                    mi.GetGenericArguments().Count() == 2
+                    mi.GetGenericArguments().Length == 2
                     && mi.GetParameters().Any(
                         pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
@@ -2264,7 +2264,7 @@ public static class EntityFrameworkQueryableExtensions
             .GetTypeInfo().GetDeclaredMethods(nameof(NotQuiteInclude))
             .Single(
                 mi =>
-                    mi.GetGenericArguments().Count() == 2
+                    mi.GetGenericArguments().Length == 2
                     && mi.GetParameters().Any(
                         pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
@@ -2324,7 +2324,7 @@ public static class EntityFrameworkQueryableExtensions
     internal static readonly MethodInfo ThenIncludeAfterEnumerableMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
-            .Where(mi => mi.GetGenericArguments().Count() == 3)
+            .Where(mi => mi.GetGenericArguments().Length == 3)
             .Single(
                 mi =>
                 {
@@ -2337,7 +2337,7 @@ public static class EntityFrameworkQueryableExtensions
         = typeof(EntityFrameworkQueryableExtensions)
             .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
             .Single(
-                mi => mi.GetGenericArguments().Count() == 3
+                mi => mi.GetGenericArguments().Length == 3
                     && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
     /// <summary>
@@ -2812,11 +2812,9 @@ public static class EntityFrameworkQueryableExtensions
         this IQueryable<TSource> source,
         CancellationToken cancellationToken = default)
     {
-        await using (var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken))
+        await using var enumerator = source.AsAsyncEnumerable().GetAsyncEnumerator(cancellationToken);
+        while (await enumerator.MoveNextAsync().ConfigureAwait(false))
         {
-            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            {
-            }
         }
     }
 

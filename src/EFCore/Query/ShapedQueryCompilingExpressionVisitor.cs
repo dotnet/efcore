@@ -296,7 +296,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly QueryTrackingBehavior _queryTrackingBehavior;
-        private readonly bool _queryStateMananger;
+        private readonly bool _queryStateManager;
         private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
         private int _currentEntityIndex;
 
@@ -306,7 +306,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         {
             _entityMaterializerSource = entityMaterializerSource;
             _queryTrackingBehavior = queryTrackingBehavior;
-            _queryStateMananger = queryTrackingBehavior == QueryTrackingBehavior.TrackAll
+            _queryStateManager = queryTrackingBehavior == QueryTrackingBehavior.TrackAll
                 || queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         }
 
@@ -375,7 +375,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     instanceVariable,
                     Expression.Constant(null, entityType.ClrType)));
 
-            if (_queryStateMananger
+            if (_queryStateManager
                 && primaryKey != null)
             {
                 var entryVariable = Expression.Variable(typeof(InternalEntityEntry), "entry" + _currentEntityIndex);
@@ -503,7 +503,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     Expression.Constant(ValueBuffer.Empty)));
 
             var returnType = entityType.ClrType;
-            Expression materializationExpression;
             var valueBufferExpression = Expression.Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
             var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
             expressions.Add(
@@ -524,14 +523,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     Expression.Constant(concreteEntityTypes[i], typeof(IEntityType)));
             }
 
-            materializationExpression = Expression.Switch(
+            var materializationExpression = Expression.Switch(
                 concreteEntityTypeVariable,
                 Expression.Constant(null, returnType),
                 switchCases);
 
             expressions.Add(Expression.Assign(instanceVariable, materializationExpression));
 
-            if (_queryStateMananger
+            if (_queryStateManager
                 && entityType.FindPrimaryKey() != null)
             {
                 foreach (var et in entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()))
@@ -570,7 +569,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         {
             var (returnType,
                 materializationContextVariable,
-                concreteEntityTypeVariable,
+                _,
                 shadowValuesVariable) = materializeExpressionContext;
 
             var blockExpressions = new List<Expression>(2);
@@ -578,7 +577,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var materializer = _entityMaterializerSource
                 .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextVariable);
 
-            if (_queryStateMananger
+            if (_queryStateManager
                 && concreteEntityType.ShadowPropertyCount() > 0)
             {
                 var valueBufferExpression = Expression.Call(

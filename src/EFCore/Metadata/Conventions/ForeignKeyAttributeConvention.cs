@@ -394,7 +394,7 @@ public class ForeignKeyAttributeConvention :
         return memberInfo.GetCustomAttribute<TAttribute>(inherit: true);
     }
 
-    [ContractAnnotation("navigationName:null => null")]
+    [ContractAnnotation("navigation:null => null")]
     private MemberInfo? FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, MemberInfo? navigation)
     {
         if (navigation == null)
@@ -448,7 +448,7 @@ public class ForeignKeyAttributeConvention :
     }
 
     private bool IsNavigationCandidate(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out var _);
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out _);
 
     private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
         IConventionForeignKeyBuilder relationshipBuilder,
@@ -530,7 +530,7 @@ public class ForeignKeyAttributeConvention :
         {
             throw new InvalidOperationException(
                 CoreStrings.InvalidPropertyListOnNavigation(
-                    skipNavigation!.Name, skipNavigation.DeclaringEntityType.DisplayName(), navigationFkAttribute.Name));
+                    skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName(), navigationFkAttribute.Name));
         }
 
         return properties;

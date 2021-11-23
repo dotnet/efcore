@@ -110,11 +110,10 @@ public static class ExpressionExtensions
     {
         var memberInfos = new List<TMemberInfo>();
 
-        MemberExpression? memberExpression;
         var unwrappedExpression = RemoveTypeAs(RemoveConvert(memberAccessExpression));
         do
         {
-            memberExpression = unwrappedExpression as MemberExpression;
+            var memberExpression = unwrappedExpression as MemberExpression;
 
             if (!(memberExpression?.Member is TMemberInfo memberInfo))
             {
@@ -183,14 +182,18 @@ public static class ExpressionExtensions
     [return: NotNullIfNotNull("expression")]
     private static Expression? RemoveConvert(Expression? expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
+        while (true)
         {
-            return RemoveConvert(unaryExpression.Operand);
-        }
+            if (expression is UnaryExpression unaryExpression
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
+            {
+                expression = unaryExpression.Operand;
+                continue;
+            }
 
-        return expression;
+            return expression;
+        }
     }
 
     private static readonly MethodInfo _objectEqualsMethodInfo

@@ -47,7 +47,7 @@ public class QueryRootExpression : Expression, IPrintableExpression
     public virtual IAsyncQueryProvider? QueryProvider { get; }
 
     /// <summary>
-    ///     The entity type reprenseted by this query root.
+    ///     The entity type represented by this query root.
     /// </summary>
     public virtual IEntityType EntityType { get; }
 
@@ -89,16 +89,10 @@ public class QueryRootExpression : Expression, IPrintableExpression
     /// </summary>
     /// <param name="expressionPrinter">The expression printer to use.</param>
     protected virtual void Print(ExpressionPrinter expressionPrinter)
-    {
-        if (EntityType.HasSharedClrType)
-        {
-            expressionPrinter.Append($"DbSet<{EntityType.ClrType.ShortDisplayName()}>(\"{EntityType.Name}\")");
-        }
-        else
-        {
-            expressionPrinter.Append($"DbSet<{EntityType.ClrType.ShortDisplayName()}>()");
-        }
-    }
+        => expressionPrinter.Append(
+            EntityType.HasSharedClrType
+                ? $"DbSet<{EntityType.ClrType.ShortDisplayName()}>(\"{EntityType.Name}\")"
+                : $"DbSet<{EntityType.ClrType.ShortDisplayName()}>()");
 
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)

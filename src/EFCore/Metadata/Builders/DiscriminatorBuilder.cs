@@ -80,7 +80,7 @@ public class DiscriminatorBuilder : IConventionDiscriminatorBuilder
     /// <param name="value">The discriminator value.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
     public virtual DiscriminatorBuilder HasValue<TEntity>(object? value)
-        => HasValue(typeof(TEntity), value)!;
+        => HasValue(typeof(TEntity), value);
 
     /// <summary>
     ///     Configures the discriminator value to use for entities of the given type.

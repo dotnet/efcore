@@ -198,10 +198,7 @@ public class QueryCompilationContext
             throw new ArgumentException(CoreStrings.RuntimeParameterMissingParameter, nameof(valueExtractor));
         }
 
-        if (_runtimeParameters == null)
-        {
-            _runtimeParameters = new Dictionary<string, LambdaExpression>();
-        }
+        _runtimeParameters ??= new Dictionary<string, LambdaExpression>();
 
         _runtimeParameters[name] = valueExtractor;
         return Expression.Parameter(valueExtractor.ReturnType, name);

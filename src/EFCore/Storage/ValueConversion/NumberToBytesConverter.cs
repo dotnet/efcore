@@ -166,17 +166,13 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
             return expression;
         }
 
-        switch (GetByteCount())
+        return GetByteCount() switch
         {
-            case 8:
-                return Expression.Call(_reverseLongMethod, expression);
-            case 4:
-                return Expression.Call(_reverseIntMethod, expression);
-            case 2:
-                return Expression.Call(_reverseShortMethod, expression);
-            default:
-                return expression;
-        }
+            8 => Expression.Call(_reverseLongMethod, expression),
+            4 => Expression.Call(_reverseIntMethod, expression),
+            2 => Expression.Call(_reverseShortMethod, expression),
+            _ => expression
+        };
     }
 
     private static readonly MethodInfo _reverseLongMethod

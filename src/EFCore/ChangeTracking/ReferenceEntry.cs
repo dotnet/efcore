@@ -182,7 +182,7 @@ public class ReferenceEntry : NavigationEntry
         }
     }
 
-    private void SetFkPropertiesModified(
+    private static void SetFkPropertiesModified(
         INavigation navigation,
         InternalEntityEntry internalEntityEntry,
         bool modified)

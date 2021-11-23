@@ -163,7 +163,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
         return body.Type != lambdaExpression.Body.Type
             ? Expression.Lambda(Expression.Convert(body, lambdaExpression.Body.Type), lambdaExpression.Parameters)
-            : lambdaExpression.Update(body, lambdaExpression.Parameters)!;
+            : lambdaExpression.Update(body, lambdaExpression.Parameters);
     }
 
     /// <summary>
@@ -303,9 +303,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             && visited.Method.DeclaringType?.Namespace == "Microsoft.VisualBasic.CompilerServices"
             && visited.Object == null
             && visited.Arguments.Count == 3
-            && visited.Arguments[2] is ConstantExpression textCompareConstantExpression
-            && _stringCompareWithComparisonMethod != null
-            && _stringCompareWithoutComparisonMethod != null)
+            && visited.Arguments[2] is ConstantExpression textCompareConstantExpression)
         {
             return textCompareConstantExpression.Value is bool boolValue
                 && boolValue
@@ -409,12 +407,12 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             Visit(unaryExpression.Operand));
     }
 
-    private Expression MatchExpressionType(Expression expression, Type typeToMatch)
+    private static Expression MatchExpressionType(Expression expression, Type typeToMatch)
         => expression.Type != typeToMatch
             ? Expression.Convert(expression, typeToMatch)
             : expression;
 
-    private bool TryExtractEqualityOperands(
+    private static bool TryExtractEqualityOperands(
         Expression expression,
         [NotNullWhen(true)] out Expression? left,
         [NotNullWhen(true)] out Expression? right,
@@ -475,7 +473,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         return false;
     }
 
-    private Expression? TryOptimizeMemberAccessOverConditional(Expression expression)
+    private static Expression? TryOptimizeMemberAccessOverConditional(Expression expression)
     {
         // Simplify (a != null ? new { Member = b, ... } : null).Member
         // to a != null ? b : null
@@ -525,7 +523,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         return null;
     }
 
-    private bool IsNullConstant(Expression expression)
+    private static bool IsNullConstant(Expression expression)
         => expression is ConstantExpression constantExpression
             && constantExpression.Value == null;
 }

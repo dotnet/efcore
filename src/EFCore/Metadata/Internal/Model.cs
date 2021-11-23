@@ -544,14 +544,11 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
 
         _ignoredTypeNames[name] = configurationSource;
 
-        if (type == null)
-        {
-            // This is to populate Type for convention when removing shared type entity type
-            type = _entityTypes.TryGetValue(name, out var existingEntityType)
-                && existingEntityType.HasSharedClrType
-                    ? existingEntityType.ClrType
-                    : null;
-        }
+        // This is to populate Type for convention when removing shared type entity type
+        type ??= _entityTypes.TryGetValue(name, out var existingEntityType)
+            && existingEntityType.HasSharedClrType
+                ? existingEntityType.ClrType
+                : null;
 
         return ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
     }
@@ -973,7 +970,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
 
     /// <summary>
-    ///     Gets a value indicating whether the given MethodInfo reprensents an indexer access.
+    ///     Gets a value indicating whether the given MethodInfo represents an indexer access.
     /// </summary>
     /// <param name="methodInfo">The MethodInfo to check for.</param>
     public virtual bool IsIndexerMethod(MethodInfo methodInfo)

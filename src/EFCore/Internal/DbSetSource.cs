@@ -40,9 +40,10 @@ public class DbSetSource : IDbSetSource
     private object CreateCore(DbContext context, Type type, string? name, MethodInfo createMethod)
         => _cache.GetOrAdd(
             (type, name),
-            t => (Func<DbContext, string?, object>)createMethod
+            static (t, createMethod) => (Func<DbContext, string?, object>)createMethod
                 .MakeGenericMethod(t.Type)
-                .Invoke(null, null)!)(context, name);
+                .Invoke(null, null)!,
+            createMethod)(context, name);
 
     [UsedImplicitly]
     private static Func<DbContext, string?, object> CreateSetFactory<TEntity>()

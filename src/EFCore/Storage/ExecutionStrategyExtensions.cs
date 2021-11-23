@@ -361,7 +361,7 @@ public static class ExecutionStrategyExtensions
         TState state,
         Func<TState, CancellationToken, Task<TResult>> operation,
         CancellationToken cancellationToken)
-        => strategy.ExecuteAsync(state, operation, verifySucceeded: null, cancellationToken: cancellationToken);
+        => strategy.ExecuteAsync(state, operation, verifySucceeded: null, cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation and returns the result.

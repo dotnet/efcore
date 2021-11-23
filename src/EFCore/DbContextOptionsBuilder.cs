@@ -155,36 +155,35 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
 
         var eventsArray = events.ToArray();
 
-        if (eventsArray.Length == 0)
+        switch (eventsArray.Length)
         {
-            return this;
+            case 0:
+                return this;
+            case 1:
+            {
+                var firstEvent = eventsArray[0];
+                return LogTo(
+                    action,
+                    (eventId, level) => level >= minimumLevel
+                        && eventId == firstEvent,
+                    options);
+            }
+            case < 6:
+                return LogTo(
+                    action,
+                    (eventId, level) => level >= minimumLevel
+                        && eventsArray.Contains(eventId),
+                    options);
+            default:
+            {
+                var eventsHash = eventsArray.ToHashSet();
+                return LogTo(
+                    action,
+                    (eventId, level) => level >= minimumLevel
+                        && eventsHash.Contains(eventId),
+                    options);
+            }
         }
-
-        if (eventsArray.Length == 1)
-        {
-            var firstEvent = eventsArray[0];
-            return LogTo(
-                action,
-                (eventId, level) => level >= minimumLevel
-                    && eventId == firstEvent,
-                options);
-        }
-
-        if (eventsArray.Length < 6)
-        {
-            return LogTo(
-                action,
-                (eventId, level) => level >= minimumLevel
-                    && eventsArray.Contains(eventId),
-                options);
-        }
-
-        var eventsHash = eventsArray.ToHashSet();
-        return LogTo(
-            action,
-            (eventId, level) => level >= minimumLevel
-                && eventsHash.Contains(eventId),
-            options);
     }
 
     /// <summary>
