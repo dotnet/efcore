@@ -19,6 +19,11 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Update="Properties\AnalyzerStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AnalyzerStrings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +48,14 @@
   <ItemGroup>
     <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
     <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\AnalyzerStrings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AnalyzerStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore</CustomToolNamespace>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

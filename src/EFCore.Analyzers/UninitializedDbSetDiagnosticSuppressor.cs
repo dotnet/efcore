@@ -14,7 +14,7 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
     private static readonly SuppressionDescriptor _suppressUninitializedDbSetRule = new(
         id: "SPR1001",
         suppressedDiagnosticId: "CS8618",
-        justification: "DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor");
+        justification: AnalyzerStrings.UninitializedDbSetWarningSuppressionJustification);
 
     /// <inheritdoc />
     public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; }

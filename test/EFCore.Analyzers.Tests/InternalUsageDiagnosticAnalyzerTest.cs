@@ -40,7 +40,7 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                 Assert.Equal(
                     string.Format(
-                        InternalUsageDiagnosticAnalyzer.MessageFormat,
+                        AnalyzerStrings.InternalUsageMessageFormat,
                         "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                     diagnostic.GetMessage());
 
@@ -55,7 +55,7 @@ class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalPara
                 Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
                 Assert.Equal(
                     string.Format(
-                        InternalUsageDiagnosticAnalyzer.MessageFormat,
+                        AnalyzerStrings.InternalUsageMessageFormat,
                         "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
                     diagnostic.GetMessage());
 
@@ -201,9 +201,7 @@ namespace Bar
 
         Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
         Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-        Assert.Equal(
-            string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
-            diagnostic.GetMessage());
+        Assert.Equal(string.Format(AnalyzerStrings.InternalUsageMessageFormat, expectedInternalApi), diagnostic.GetMessage());
 
         var span = diagnostic.Location.SourceSpan;
         Assert.Equal(expectedDiagnosticSpan, fullSource[span.Start..span.End]);
@@ -219,9 +217,7 @@ namespace Bar
 
         Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
         Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-        Assert.Equal(
-            string.Format(InternalUsageDiagnosticAnalyzer.MessageFormat, expectedInternalApi),
-            diagnostic.GetMessage());
+        Assert.Equal(string.Format(AnalyzerStrings.InternalUsageMessageFormat, expectedInternalApi), diagnostic.GetMessage());
 
         var span = diagnostic.Location.SourceSpan;
         Assert.Equal(expectedDiagnosticSpan, fullSource[span.Start..span.End]);
