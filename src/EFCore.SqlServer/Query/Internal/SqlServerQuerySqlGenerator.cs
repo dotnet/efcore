@@ -98,55 +98,67 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
     {
-        if (extensionExpression is TemporalTableExpression temporalTableExpression)
+        if (extensionExpression is TableExpression tableExpression
+            && tableExpression.FindAnnotation(SqlServerSqlExpressionAnnotationNames.TemporalOperationType) != null)
         {
-            Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
+            Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
                 .Append(" FOR SYSTEM_TIME ");
 
-            switch (temporalTableExpression)
+            var temporalOperationType = (TemporalOperationType)tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType]!;
+
+            switch (temporalOperationType)
             {
-                case TemporalAsOfTableExpression asOf:
-                    Sql.Append("AS OF ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(asOf.PointInTime));
-                    break;
-
-                case TemporalFromToTableExpression fromTo:
-                    Sql.Append("FROM ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(fromTo.From))
-                        .Append(" TO ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(fromTo.To));
-                    break;
-
-                case TemporalBetweenTableExpression between:
-                    Sql.Append("BETWEEN ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(between.From))
-                        .Append(" AND ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(between.To));
-                    break;
-
-                case TemporalContainedInTableExpression containedIn:
-                    Sql.Append("CONTAINED IN (")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(containedIn.From))
-                        .Append(", ")
-                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(containedIn.To))
-                        .Append(")");
-                    break;
-
-                case TemporalAllTableExpression _:
+                case TemporalOperationType.All:
                     Sql.Append("ALL");
                     break;
 
+                case TemporalOperationType.AsOf:
+                    var pointInTime = (DateTime)tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalAsOfPointInTime]!;
+        
+                    Sql.Append("AS OF ")
+                        .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
+                    break;
+
+                case TemporalOperationType.Between:
+                case TemporalOperationType.ContainedIn:
+                case TemporalOperationType.FromTo:
+                    var from = Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
+                        (DateTime)tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationFrom]!);
+
+                    var to = Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
+                        (DateTime)tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationTo]!);
+
+                    switch (temporalOperationType)
+                    {
+                        case TemporalOperationType.FromTo:
+                            Sql.Append($"FROM {from} TO {to}");
+                            break;
+
+                        case TemporalOperationType.Between:
+                            Sql.Append($"BETWEEN {from} AND {to}");
+                            break;
+
+                        case TemporalOperationType.ContainedIn:
+                            Sql.Append($"CONTAINED IN ({from}, {to})");
+                            break;
+
+                        default:
+                            throw new InvalidOperationException(tableExpression.Print());
+                    }
+
+                    break;
+
                 default:
-                    throw new InvalidOperationException(temporalTableExpression.Print());
+                    throw new InvalidOperationException(tableExpression.Print());
             }
 
-            if (temporalTableExpression.Alias != null)
+            if (tableExpression.Alias != null)
             {
                 Sql.Append(AliasSeparator)
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Alias));
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
             }
 
-            return temporalTableExpression;
+            return tableExpression;
         }
 
         return base.VisitExtension(extensionExpression);

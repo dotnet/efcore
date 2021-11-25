@@ -59,7 +59,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         List<TableExpressionBase> tables,
         List<TableReferenceExpression> tableReferences,
         List<SqlExpression> groupBy,
-        List<OrderingExpression> orderings)
+        List<OrderingExpression> orderings,
+        IEnumerable<ISqlExpressionAnnotation> annotations)
         : base(alias)
     {
         _projection = projections;
@@ -67,6 +68,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         _tableReferences = tableReferences;
         _groupBy = groupBy;
         _orderings = orderings;
+
+        SetAnnotations(annotations);
     }
 
     internal SelectExpression(SqlExpression? projection)
@@ -1429,7 +1432,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
-            null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList())
+            null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(), GetAnnotations())
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -1727,7 +1730,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             new List<TableExpressionBase>(),
             new List<TableReferenceExpression>(),
             new List<SqlExpression>(),
-            new List<OrderingExpression>());
+            new List<OrderingExpression>(),
+            Enumerable.Empty<ISqlExpressionAnnotation>());
 
         if (Orderings.Any()
             || Limit != null
@@ -2580,7 +2584,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
         var subquery = new SelectExpression(
             subqueryAlias, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
-            _orderings.ToList())
+            _orderings.ToList(), GetAnnotations())
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -3221,7 +3225,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var newTableReferences = _tableReferences.ToList();
                 var newSelectExpression = new SelectExpression(
-                    Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
+                    Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, GetAnnotations())
                 {
                     _clientProjections = _clientProjections,
                     _projectionMapping = _projectionMapping,
@@ -3330,7 +3334,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         var newTableReferences = _tableReferences.ToList();
         var newSelectExpression = new SelectExpression(
-            Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
+            Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList(), GetAnnotations())
         {
             _projectionMapping = projectionMapping,
             _clientProjections = _clientProjections.ToList(),

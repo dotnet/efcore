@@ -56,22 +56,43 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
         {
-            // sql server model validator will throw if entity is mapped to multiple tables
-            var table = queryRootExpression.EntityType.GetTableMappings().Single().Table;
-            var temporalTableExpression = queryRootExpression switch
-            {
-                TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
-                TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
-                TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
-                TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(
-                    table, containedIn.From, containedIn.To),
-                TemporalFromToQueryRootExpression fromTo => new TemporalFromToTableExpression(table, fromTo.From, fromTo.To),
-                _ => throw new InvalidOperationException(queryRootExpression.Print())
-            };
+            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(queryRootExpression.EntityType);
 
-            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(
-                queryRootExpression.EntityType,
-                temporalTableExpression);
+            // TODO: test table sharing etc once the support is in.
+            var tableExpression = selectExpression.Tables.First();
+
+            switch (queryRootExpression)
+            {
+                case TemporalAllQueryRootExpression:
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType] = TemporalOperationType.All;
+                    break;
+
+                case TemporalAsOfQueryRootExpression asOf:
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType] = TemporalOperationType.AsOf;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalAsOfPointInTime] = asOf.PointInTime;
+                    break;
+
+                case TemporalBetweenQueryRootExpression between:
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType] = TemporalOperationType.Between;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationFrom] = between.From;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationTo] = between.To;
+                    break;
+
+                case TemporalContainedInQueryRootExpression containedIn:
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType] = TemporalOperationType.ContainedIn;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationFrom] = containedIn.From;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationTo] = containedIn.To;
+                    break;
+
+                case TemporalFromToQueryRootExpression fromTo:
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalOperationType] = TemporalOperationType.FromTo;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationFrom] = fromTo.From;
+                    tableExpression[SqlServerSqlExpressionAnnotationNames.TemporalRangeOperationTo] = fromTo.To;
+                    break;
+
+                default:
+                    throw new InvalidOperationException(queryRootExpression.Print());
+            }
 
             return new ShapedQueryExpression(
                 selectExpression,

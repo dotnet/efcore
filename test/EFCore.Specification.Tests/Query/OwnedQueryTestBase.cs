@@ -788,6 +788,15 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         await myFunc(async, zipCode);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Simple_query_entity_with_owned_collection(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Star>());
+    }
+
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
 
@@ -1487,6 +1496,11 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             if (typeof(TEntity) == typeof(Barton))
             {
                 return (IQueryable<TEntity>)_bartons.AsQueryable();
+            }
+
+            if (typeof(TEntity) == typeof(Star))
+            {
+                return (IQueryable<TEntity>)_stars.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

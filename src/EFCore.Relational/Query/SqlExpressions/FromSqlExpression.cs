@@ -16,6 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase
 {
+    private FromSqlExpression(
+        string alias,
+        string sql,
+        Expression arguments,
+        IEnumerable<ISqlExpressionAnnotation> annotations)
+        : this(alias, sql, arguments)
+    {
+        SetAnnotations(annotations);
+    }
+
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
     /// </summary>
@@ -66,7 +76,7 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     /// <inheritdoc />
     public virtual TableExpressionBase Clone()
-        => new FromSqlExpression(Alias, Sql, Arguments);
+        => new FromSqlExpression(Alias, Sql, Arguments, GetAnnotations());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
