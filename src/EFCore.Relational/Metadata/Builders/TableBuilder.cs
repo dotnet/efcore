@@ -18,15 +18,20 @@ public class TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(IMutableEntityType entityType)
+    public TableBuilder(EntityTypeBuilder entityTypeBuilder)
     {
-        Metadata = entityType;
+        EntityTypeBuilder = entityTypeBuilder;
     }
 
     /// <summary>
     ///     The entity type being configured.
     /// </summary>
-    public virtual IMutableEntityType Metadata { get; }
+    public virtual IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
+
+    /// <summary>
+    ///     The entity type builder.
+    /// </summary>
+    public virtual EntityTypeBuilder EntityTypeBuilder { get; }
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.

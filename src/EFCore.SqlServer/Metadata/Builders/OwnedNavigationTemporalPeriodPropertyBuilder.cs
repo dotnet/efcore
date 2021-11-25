@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-public class TemporalPeriodPropertyBuilder
+public class OwnedNavigationTemporalPeriodPropertyBuilder
 {
     private readonly PropertyBuilder _propertyBuilder;
 
@@ -20,7 +20,8 @@ public class TemporalPeriodPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TemporalPeriodPropertyBuilder(PropertyBuilder propertyBuilder)
+    public OwnedNavigationTemporalPeriodPropertyBuilder(
+        PropertyBuilder propertyBuilder)
     {
         _propertyBuilder = propertyBuilder;
     }
@@ -30,14 +31,12 @@ public class TemporalPeriodPropertyBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///     for more information and examples.
+    ///     for more information.
     /// </remarks>
     /// <param name="name">The name of the column.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public virtual TemporalPeriodPropertyBuilder HasColumnName(string name)
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
     {
-        // when column name is set explicitly, use the regular (i.e. non-convention) builder
-        // so that the column name doesn't get uniquified
         _propertyBuilder.HasColumnName(name);
 
         return this;

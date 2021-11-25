@@ -25,12 +25,17 @@ public class TableValuedFunctionExpression : TableExpressionBase
         : this(
             storeFunction.Name[..1].ToLowerInvariant(),
             storeFunction,
-            arguments)
+            arguments,
+            annotations: null)
     {
     }
 
-    private TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
-        : base(alias)
+    private TableValuedFunctionExpression(
+        string alias,
+        IStoreFunction storeFunction,
+        IReadOnlyList<SqlExpression> arguments,
+        IEnumerable<IAnnotation>? annotations)
+        : base(alias, annotations)
     {
         StoreFunction = storeFunction;
         Arguments = arguments;
@@ -68,7 +73,7 @@ public class TableValuedFunctionExpression : TableExpressionBase
         }
 
         return changed
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
     }
 
@@ -80,7 +85,7 @@ public class TableValuedFunctionExpression : TableExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         => !arguments.SequenceEqual(Arguments)
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -94,7 +99,9 @@ public class TableValuedFunctionExpression : TableExpressionBase
         expressionPrinter.Append(StoreFunction.Name);
         expressionPrinter.Append("(");
         expressionPrinter.VisitCollection(Arguments);
-        expressionPrinter.Append(") AS ");
+        expressionPrinter.Append(")");
+        PrintAnnotations(expressionPrinter);
+        expressionPrinter.Append(" AS ");
         expressionPrinter.Append(Alias);
     }
 

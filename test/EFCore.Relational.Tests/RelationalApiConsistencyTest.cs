@@ -194,13 +194,13 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 new[] { typeof(EntityTypeBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
             typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                 nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                new[] { typeof(OwnedNavigationBuilder), typeof(Action<TableBuilder>) }),
+                new[] { typeof(OwnedNavigationBuilder), typeof(Action<OwnedNavigationTableBuilder>) }),
             typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                 nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<OwnedNavigationTableBuilder>) }),
             typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                 nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
+                new[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<OwnedNavigationTableBuilder>) }),
             typeof(RelationalIndexBuilderExtensions).GetMethod(
                 nameof(RelationalIndexBuilderExtensions.HasName),
                 new[] { typeof(IndexBuilder), typeof(string) })

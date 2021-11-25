@@ -18,8 +18,8 @@ public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TemporalTableBuilder(IMutableEntityType entityType)
-        : base(entityType)
+    public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
+        : base(entityTypeBuilder)
     {
     }
 

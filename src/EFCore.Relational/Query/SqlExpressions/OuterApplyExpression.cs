@@ -19,7 +19,12 @@ public class OuterApplyExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to OUTER APPLY with.</param>
     public OuterApplyExpression(TableExpressionBase table)
-        : base(table)
+        : this(table, annotations: null)
+    {
+    }
+
+    private OuterApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
+        : base(table, annotations)
     {
     }
 
@@ -35,7 +40,7 @@ public class OuterApplyExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual OuterApplyExpression Update(TableExpressionBase table)
         => table != Table
-            ? new OuterApplyExpression(table)
+            ? new OuterApplyExpression(table, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -43,6 +48,7 @@ public class OuterApplyExpression : JoinExpressionBase
     {
         expressionPrinter.Append("OUTER APPLY ");
         expressionPrinter.Visit(Table);
+        PrintAnnotations(expressionPrinter);
     }
 
     /// <inheritdoc />

@@ -51,7 +51,7 @@ public static class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -76,7 +76,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
-        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -114,7 +114,7 @@ public static class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -141,7 +141,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
-        buildAction(new TableBuilder<TEntity>(name, null, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder<TEntity>(name, null, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -192,7 +192,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
-        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -240,7 +240,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
-        buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder));
 
         return entityTypeBuilder;
     }
@@ -277,11 +277,11 @@ public static class RelationalEntityTypeBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder ToTable(
         this OwnedNavigationBuilder referenceOwnershipBuilder,
-        Action<TableBuilder> buildAction)
+        Action<OwnedNavigationTableBuilder> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }
@@ -297,13 +297,13 @@ public static class RelationalEntityTypeBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
-        Action<TableBuilder<TRelatedEntity>> buildAction)
+        Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
         where TOwnerEntity : class
         where TRelatedEntity : class
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder<TRelatedEntity>(null, null, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }
@@ -337,14 +337,14 @@ public static class RelationalEntityTypeBuilderExtensions
     public static OwnedNavigationBuilder ToTable(
         this OwnedNavigationBuilder referenceOwnershipBuilder,
         string? name,
-        Action<TableBuilder> buildAction)
+        Action<OwnedNavigationTableBuilder> buildAction)
     {
         Check.NullButNotEmpty(name, nameof(name));
         Check.NotNull(buildAction, nameof(buildAction));
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
-        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }
@@ -362,7 +362,7 @@ public static class RelationalEntityTypeBuilderExtensions
     public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
         this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
         string? name,
-        Action<TableBuilder<TRelatedEntity>> buildAction)
+        Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
         where TOwnerEntity : class
         where TRelatedEntity : class
     {
@@ -371,7 +371,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
-        buildAction(new TableBuilder<TRelatedEntity>(name, null, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }
@@ -415,7 +415,7 @@ public static class RelationalEntityTypeBuilderExtensions
         this OwnedNavigationBuilder referenceOwnershipBuilder,
         string name,
         string? schema,
-        Action<TableBuilder> buildAction)
+        Action<OwnedNavigationTableBuilder> buildAction)
     {
         Check.NotNull(name, nameof(name));
         Check.NullButNotEmpty(schema, nameof(schema));
@@ -423,7 +423,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }
@@ -462,7 +462,7 @@ public static class RelationalEntityTypeBuilderExtensions
         this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
         string name,
         string? schema,
-        Action<TableBuilder<TRelatedEntity>> buildAction)
+        Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
         where TOwnerEntity : class
         where TRelatedEntity : class
     {
@@ -472,7 +472,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-        buildAction(new TableBuilder<TRelatedEntity>(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
         return referenceOwnershipBuilder;
     }

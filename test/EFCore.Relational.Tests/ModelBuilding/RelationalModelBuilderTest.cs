@@ -54,6 +54,50 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
     }
 
+    public abstract class TestOwnedNavigationTableBuilder<TEntity>
+        where TEntity : class
+    {
+        public abstract TestOwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
+    }
+
+    public class GenericTestOwnedNavigationTableBuilder<TEntity> : TestOwnedNavigationTableBuilder<TEntity>, IInfrastructure<OwnedNavigationTableBuilder<TEntity>>
+        where TEntity : class
+    {
+        public GenericTestOwnedNavigationTableBuilder(OwnedNavigationTableBuilder<TEntity> tableBuilder)
+        {
+            TableBuilder = tableBuilder;
+        }
+
+        protected OwnedNavigationTableBuilder<TEntity> TableBuilder { get; }
+
+        public OwnedNavigationTableBuilder<TEntity> Instance => TableBuilder;
+
+        protected virtual TestOwnedNavigationTableBuilder<TEntity> Wrap(OwnedNavigationTableBuilder<TEntity> tableBuilder)
+            => new GenericTestOwnedNavigationTableBuilder<TEntity>(tableBuilder);
+
+        public override TestOwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
+            => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+    }
+
+    public class NonGenericTestOwnedNavigationTableBuilder<TEntity> : TestOwnedNavigationTableBuilder<TEntity>, IInfrastructure<OwnedNavigationTableBuilder>
+        where TEntity : class
+    {
+        public NonGenericTestOwnedNavigationTableBuilder(OwnedNavigationTableBuilder tableBuilder)
+        {
+            TableBuilder = tableBuilder;
+        }
+
+        protected OwnedNavigationTableBuilder TableBuilder { get; }
+
+        public OwnedNavigationTableBuilder Instance => TableBuilder;
+
+        protected virtual TestOwnedNavigationTableBuilder<TEntity> Wrap(OwnedNavigationTableBuilder tableBuilder)
+            => new NonGenericTestOwnedNavigationTableBuilder<TEntity>(tableBuilder);
+
+        public override TestOwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
+            => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+    }
+
     public abstract class TestCheckConstraintBuilder
     {
         public abstract TestCheckConstraintBuilder HasName(string name);

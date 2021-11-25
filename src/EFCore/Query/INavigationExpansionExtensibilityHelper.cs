@@ -27,6 +27,13 @@ public interface INavigationExpansionExtensibilityHelper
     QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source);
 
     /// <summary>
+    ///     Validates whether a new <see cref="QueryRootExpression" /> can be created.
+    /// </summary>
+    /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression" />.</param>
+    /// <param name="source">Source expression.</param>
+    void ValidateQueryRootCreation(IEntityType entityType, QueryRootExpression? source);
+
+    /// <summary>
     ///     Checks whether two query roots are compatible for a set operation to combine them.
     /// </summary>
     /// <param name="first">The first query root.</param>

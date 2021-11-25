@@ -28,7 +28,25 @@ public abstract class SetOperationBase : TableExpressionBase
         SelectExpression source1,
         SelectExpression source2,
         bool distinct)
-        : base(alias)
+        : this(alias, source1, source2, distinct, annotations: null)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SetOperationBase" /> class.
+    /// </summary>
+    /// <param name="alias">A string alias for the table source.</param>
+    /// <param name="source1">A table source which is first source in the set operation.</param>
+    /// <param name="source2">A table source which is second source in the set operation.</param>
+    /// <param name="distinct">A bool value indicating whether result will remove duplicate rows.</param>
+    /// <param name="annotations">Collection of annotations associated with this expression.</param>
+    protected SetOperationBase(
+        string alias,
+        SelectExpression source1,
+        SelectExpression source2,
+        bool distinct,
+        IEnumerable<IAnnotation>? annotations)
+        : base(alias, annotations)
     {
         IsDistinct = distinct;
         Source1 = source1;

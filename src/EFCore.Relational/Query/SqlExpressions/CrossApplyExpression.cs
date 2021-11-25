@@ -19,7 +19,12 @@ public class CrossApplyExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to CROSS APPLY with.</param>
     public CrossApplyExpression(TableExpressionBase table)
-        : base(table)
+        : this(table, annotations: null)
+    {
+    }
+
+    private CrossApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
+        : base(table, annotations)
     {
     }
 
@@ -35,7 +40,7 @@ public class CrossApplyExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual CrossApplyExpression Update(TableExpressionBase table)
         => table != Table
-            ? new CrossApplyExpression(table)
+            ? new CrossApplyExpression(table, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -43,6 +48,7 @@ public class CrossApplyExpression : JoinExpressionBase
     {
         expressionPrinter.Append("CROSS APPLY ");
         expressionPrinter.Visit(Table);
+        PrintAnnotations(expressionPrinter);
     }
 
     /// <inheritdoc />

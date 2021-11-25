@@ -23,7 +23,18 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <param name="sql">A user-provided custom SQL for the table source.</param>
     /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
     public FromSqlExpression(string alias, string sql, Expression arguments)
-        : base(alias)
+        : this(alias, sql, arguments, annotations: null)
+    {
+        Sql = sql;
+        Arguments = arguments;
+    }
+
+    private FromSqlExpression(
+        string alias,
+        string sql,
+        Expression arguments,
+        IEnumerable<IAnnotation>? annotations)
+        : base(alias, annotations)
     {
         Sql = sql;
         Arguments = arguments;
@@ -66,11 +77,14 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     /// <inheritdoc />
     public virtual TableExpressionBase Clone()
-        => new FromSqlExpression(Alias, Sql, Arguments);
+        => new FromSqlExpression(Alias, Sql, Arguments, GetAnnotations());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append(Sql);
+    {
+        expressionPrinter.Append(Sql);
+        PrintAnnotations(expressionPrinter);
+    }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

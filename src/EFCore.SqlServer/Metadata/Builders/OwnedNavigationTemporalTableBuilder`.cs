@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
 /// <typeparam name="TEntity">The entity type being configured.</typeparam>
-public class TableBuilder<TEntity> : TableBuilder
+public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTemporalTableBuilder
     where TEntity : class
 {
     /// <summary>
@@ -18,19 +18,21 @@ public class TableBuilder<TEntity> : TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
-        : base(entityTypeBuilder)
+    public OwnedNavigationTemporalTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
+        : base(referenceOwnershipBuilder)
     {
     }
 
     /// <summary>
-    ///     Configures the table to be ignored by migrations.
+    ///     Configures a history table for the entity mapped to a temporal table.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
     /// </remarks>
-    /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
+    /// <param name="name">The name of the history table.</param>
+    /// <param name="schema">The schema of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual TableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
-        => (TableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
+    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
+        => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
 }

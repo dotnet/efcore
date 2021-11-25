@@ -20,7 +20,15 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <param name="table">A table source to LEFT JOIN with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
-        : base(table, joinPredicate)
+        : this(table, joinPredicate, annotations: null)
+    {
+    }
+
+    private LeftJoinExpression(
+        TableExpressionBase table,
+        SqlExpression joinPredicate,
+        IEnumerable<IAnnotation>? annotations)
+        : base(table, joinPredicate, annotations)
     {
     }
 
@@ -42,7 +50,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new LeftJoinExpression(table, joinPredicate)
+            ? new LeftJoinExpression(table, joinPredicate, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -52,6 +60,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
         expressionPrinter.Visit(Table);
         expressionPrinter.Append(" ON ");
         expressionPrinter.Visit(JoinPredicate);
+        PrintAnnotations(expressionPrinter);
     }
 
     /// <inheritdoc />

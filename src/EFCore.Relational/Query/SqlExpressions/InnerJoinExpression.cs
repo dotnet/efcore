@@ -20,7 +20,15 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <param name="table">A table source to INNER JOIN with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     public InnerJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
-        : base(table, joinPredicate)
+        : this(table, joinPredicate, annotations: null)
+    {
+    }
+
+    private InnerJoinExpression(
+        TableExpressionBase table,
+        SqlExpression joinPredicate,
+        IEnumerable<IAnnotation>? annotations)
+        : base(table, joinPredicate, annotations)
     {
     }
 
@@ -42,7 +50,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new InnerJoinExpression(table, joinPredicate)
+            ? new InnerJoinExpression(table, joinPredicate, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -52,6 +60,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
         expressionPrinter.Visit(Table);
         expressionPrinter.Append(" ON ");
         expressionPrinter.Visit(JoinPredicate);
+        PrintAnnotations(expressionPrinter);
     }
 
     /// <inheritdoc />

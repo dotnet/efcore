@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-public class TemporalTableBuilder
+public class OwnedNavigationTemporalTableBuilder
 {
-    private readonly EntityTypeBuilder _entityTypeBuilder;
+    private readonly OwnedNavigationBuilder _referenceOwnershipBuilder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,9 +20,9 @@ public class TemporalTableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
+    public OwnedNavigationTemporalTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
     {
-        _entityTypeBuilder = entityTypeBuilder;
+        _referenceOwnershipBuilder = referenceOwnershipBuilder;
     }
 
     /// <summary>
@@ -30,13 +30,13 @@ public class TemporalTableBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///     for more information and examples.
+    ///     for more information.
     /// </remarks>
     /// <param name="name">The name of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public virtual TemporalTableBuilder UseHistoryTable(string name)
+    public virtual OwnedNavigationTemporalTableBuilder UseHistoryTable(string name)
     {
-        _entityTypeBuilder.Metadata.SetHistoryTableName(name);
+        _referenceOwnershipBuilder.OwnedEntityType.SetHistoryTableName(name);
 
         return this;
     }
@@ -46,15 +46,15 @@ public class TemporalTableBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///     for more information and examples.
+    ///     for more information.
     /// </remarks>
     /// <param name="name">The name of the history table.</param>
     /// <param name="schema">The schema of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public virtual TemporalTableBuilder UseHistoryTable(string name, string? schema)
+    public virtual OwnedNavigationTemporalTableBuilder UseHistoryTable(string name, string? schema)
     {
-        _entityTypeBuilder.Metadata.SetHistoryTableName(name);
-        _entityTypeBuilder.Metadata.SetHistoryTableSchema(schema);
+        _referenceOwnershipBuilder.OwnedEntityType.SetHistoryTableName(name);
+        _referenceOwnershipBuilder.OwnedEntityType.SetHistoryTableSchema(schema);
 
         return this;
     }
@@ -64,17 +64,17 @@ public class TemporalTableBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///     for more information and examples.
+    ///     for more information.
     /// </remarks>
     /// <param name="propertyName">The name of the period start property.</param>
     /// <returns>An object that can be used to configure the period start property.</returns>
-    public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
     {
-        _entityTypeBuilder.Metadata.SetPeriodStartPropertyName(propertyName);
+        _referenceOwnershipBuilder.OwnedEntityType.SetPeriodStartPropertyName(propertyName);
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new OwnedNavigationTemporalPeriodPropertyBuilder(new PropertyBuilder(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
@@ -83,24 +83,24 @@ public class TemporalTableBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-    ///     for more information and examples.
+    ///     for more information.
     /// </remarks>
     /// <param name="propertyName">The name of the period end property.</param>
     /// <returns>An object that can be used to configure the period end property.</returns>
-    public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
+    public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
     {
-        _entityTypeBuilder.Metadata.SetPeriodEndPropertyName(propertyName);
+        _referenceOwnershipBuilder.OwnedEntityType.SetPeriodEndPropertyName(propertyName);
         var property = ConfigurePeriodProperty(propertyName);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        return new TemporalPeriodPropertyBuilder(new PropertyBuilder(property));
+        return new OwnedNavigationTemporalPeriodPropertyBuilder(new PropertyBuilder(property));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 
     private IMutableProperty ConfigurePeriodProperty(string propertyName)
     {
         // TODO: Configure the property explicitly, but remove it if it's no longer used, issue #15898
-        var conventionPropertyBuilder = _entityTypeBuilder.GetInfrastructure().Property(
+        var conventionPropertyBuilder = _referenceOwnershipBuilder.GetInfrastructure().Property(
             typeof(DateTime),
             propertyName,
             setTypeConfigurationSource: false);
@@ -112,7 +112,7 @@ public class TemporalTableBuilder
             conventionPropertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate);
         }
 
-        return _entityTypeBuilder.Metadata.FindProperty(propertyName)!;
+        return _referenceOwnershipBuilder.OwnedEntityType.FindProperty(propertyName)!;
     }
 
     #region Hidden System.Object members

@@ -20,7 +20,21 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     /// <param name="table">A table source to join with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
     protected PredicateJoinExpressionBase(TableExpressionBase table, SqlExpression joinPredicate)
-        : base(table)
+        : this(table, joinPredicate, annotations: null)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="PredicateJoinExpressionBase" /> class.
+    /// </summary>
+    /// <param name="table">A table source to join with.</param>
+    /// <param name="joinPredicate">A predicate to use for the join.</param>
+    /// <param name="annotations">A collection of annotations associated with this expression.</param>
+    protected PredicateJoinExpressionBase(
+        TableExpressionBase table,
+        SqlExpression joinPredicate,
+        IEnumerable<IAnnotation>? annotations)
+        : base(table, annotations)
     {
         JoinPredicate = joinPredicate;
     }

@@ -171,6 +171,32 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
+    ///     Returns an object that can be used to configure a property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual PropertyBuilder Property(
+        Type propertyType,
+        string propertyName,
+        bool setTypeConfigurationSource = true)
+        => new(
+            DependentEntityType.Builder.Property(
+                Check.NotNull(propertyType, nameof(propertyType)),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                setTypeConfigurationSource ? ConfigurationSource.Explicit : null,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
     ///     Returns an object that can be used to configure a property of the owned entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>

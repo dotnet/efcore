@@ -299,8 +299,11 @@
   <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
     <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
   </data>
-  <data name="TemporalNotSupportedForTableSplitting" xml:space="preserve">
-    <value>Temporal tables are not supported for table splitting scenario. Table: '{table}'.</value>
+  <data name="TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping" xml:space="preserve">
+    <value>When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.</value>
+  </data>
+  <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
+    <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>
   <data name="TemporalOnlyOnRoot" xml:space="preserve">
     <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>

@@ -19,7 +19,12 @@ public class CrossJoinExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to CROSS JOIN with.</param>
     public CrossJoinExpression(TableExpressionBase table)
-        : base(table)
+        : this(table, annotations: null)
+    {
+    }
+
+    private CrossJoinExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
+        : base(table, annotations)
     {
     }
 
@@ -35,7 +40,7 @@ public class CrossJoinExpression : JoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual CrossJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new CrossJoinExpression(table)
+            ? new CrossJoinExpression(table, GetAnnotations())
             : this;
 
     /// <inheritdoc />
@@ -43,6 +48,7 @@ public class CrossJoinExpression : JoinExpressionBase
     {
         expressionPrinter.Append("CROSS JOIN ");
         expressionPrinter.Visit(Table);
+        PrintAnnotations(expressionPrinter);
     }
 
     /// <inheritdoc />
