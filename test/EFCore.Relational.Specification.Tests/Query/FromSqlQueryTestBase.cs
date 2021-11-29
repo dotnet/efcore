@@ -811,8 +811,8 @@ FROM [Customers]"))
 FROM [Products]
 WHERE [Discontinued] <> "
                     + boolMapping.GenerateSqlLiteral(true)
-                    + @"
-AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
+                    + NormalizeDelimitersInRawString(@"
+AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])")))
             .Select(p => p.ProductName);
 
         var actual = async
