@@ -3,7 +3,6 @@
 
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 

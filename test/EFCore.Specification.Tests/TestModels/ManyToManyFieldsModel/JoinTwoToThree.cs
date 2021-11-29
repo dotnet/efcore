@@ -1,13 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
+namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel;
+
+public class JoinTwoToThree
 {
-    public class JoinTwoToThree
-    {
-        public int TwoId;
-        public int ThreeId;
-        public EntityTwo Two;
-        public EntityThree Three;
-    }
+    public int TwoId;
+    public int ThreeId;
+    public EntityTwo Two;
+    public EntityThree Three;
 }

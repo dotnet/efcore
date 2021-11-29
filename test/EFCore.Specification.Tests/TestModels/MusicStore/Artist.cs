@@ -3,13 +3,12 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
-{
-    public class Artist
-    {
-        public int ArtistId { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore;
 
-        [Required]
-        public string Name { get; set; }
-    }
+public class Artist
+{
+    public int ArtistId { get; set; }
+
+    [Required]
+    public string Name { get; set; }
 }

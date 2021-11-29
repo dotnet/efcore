@@ -1,21 +1,18 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+public class TestLogger<TDefinitions> : TestLogger
+    where TDefinitions : LoggingDefinitions, new()
 {
-    public class TestLogger<TDefinitions> : TestLogger
-        where TDefinitions : LoggingDefinitions, new()
+    public TestLogger()
+        : base(new TDefinitions())
     {
-        public TestLogger()
-            : base(new TDefinitions())
-        {
-        }
+    }
 
-        public TestLogger(LoggingDefinitions definitions)
-            : base(definitions)
-        {
-        }
+    public TestLogger(LoggingDefinitions definitions)
+        : base(definitions)
+    {
     }
 }

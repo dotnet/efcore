@@ -1,31 +1,28 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConvertersSqlServerTest.CustomConvertersSqlServerFixture>
+    public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
+        : base(fixture)
     {
-        public CustomConvertersSqlServerTest(CustomConvertersSqlServerFixture fixture)
-            : base(fixture)
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-        }
+        Fixture.TestSqlLoggerFactory.Clear();
+    }
 
-        [ConditionalFact]
-        public virtual void Columns_have_expected_data_types()
-        {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
-                CreateContext(),
-                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
+    [ConditionalFact]
+    public virtual void Columns_have_expected_data_types()
+    {
+        var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+            CreateContext(),
+            nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+        const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
 AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
@@ -207,146 +204,145 @@ User23059.IsSoftDeleted ---> [bit]
 User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
-            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
-        }
+        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+    }
 
-        [ConditionalFact]
-        public override void Value_conversion_is_appropriately_used_for_join_condition()
-        {
-            base.Value_conversion_is_appropriately_used_for_join_condition();
+    [ConditionalFact]
+    public override void Value_conversion_is_appropriately_used_for_join_condition()
+    {
+        base.Value_conversion_is_appropriately_used_for_join_condition();
 
-            AssertSql(
-                @"@__blogId_0='1'
+        AssertSql(
+            @"@__blogId_0='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
 WHERE [b].[IsVisible] = N'Y'");
-        }
+    }
 
-        [ConditionalFact]
-        public override void Value_conversion_is_appropriately_used_for_left_join_condition()
-        {
-            base.Value_conversion_is_appropriately_used_for_left_join_condition();
+    [ConditionalFact]
+    public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+    {
+        base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
-            AssertSql(
-                @"@__blogId_0='1'
+        AssertSql(
+            @"@__blogId_0='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
 WHERE [b].[IsVisible] = N'Y'");
-        }
+    }
 
-        [ConditionalFact]
-        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
-        {
-            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+    [ConditionalFact]
+    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    {
+        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
-            AssertSql(
-                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+        AssertSql(
+            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'Y'");
-        }
+    }
 
-        [ConditionalFact]
-        public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
-        {
-            base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+    [ConditionalFact]
+    public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+    {
+        base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
-            AssertSql(
-                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+        AssertSql(
+            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'N'");
-        }
+    }
 
-        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
-        {
-            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+    {
+        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
-            AssertSql(
-                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+        AssertSql(
+            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'Y'");
-        }
+    }
 
-        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
-        {
-            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+    public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+    {
+        base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
-            AssertSql(
-                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+        AssertSql(
+            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IndexerVisible] = N'Nay'");
-        }
+    }
 
-        public override void Object_to_string_conversion()
-        {
-            // Return values are not string
-        }
+    public override void Object_to_string_conversion()
+    {
+        // Return values are not string
+    }
 
-        public override void Id_object_as_entity_key()
-        {
-            base.Id_object_as_entity_key();
+    public override void Id_object_as_entity_key()
+    {
+        base.Id_object_as_entity_key();
 
-            AssertSql(
-                @"SELECT [b].[Id], [b].[Value]
+        AssertSql(
+            @"SELECT [b].[Id], [b].[Value]
 FROM [Book] AS [b]
 WHERE [b].[Id] = 1");
-        }
+    }
 
-        public override void Value_conversion_on_enum_collection_contains()
-            => Assert.Contains(
-                CoreStrings.TranslationFailed("")[47..],
-                Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
+    public override void Value_conversion_on_enum_collection_contains()
+        => Assert.Contains(
+            CoreStrings.TranslationFailed("")[47..],
+            Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        public class CustomConvertersSqlServerFixture : CustomConvertersFixtureBase
+    public class CustomConvertersSqlServerFixture : CustomConvertersFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
+
+        public override bool SupportsAnsi
+            => true;
+
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
+
+        public override bool SupportsLargeStringComparisons
+            => true;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        public override bool SupportsBinaryKeys
+            => true;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => false;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base
+                .AddOptions(builder)
+                .ConfigureWarnings(
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            public override bool StrictEquality
-                => true;
+            base.OnModelCreating(modelBuilder, context);
 
-            public override bool SupportsAnsi
-                => true;
-
-            public override bool SupportsUnicodeToAnsiConversion
-                => true;
-
-            public override bool SupportsLargeStringComparisons
-                => true;
-
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-
-            public TestSqlLoggerFactory TestSqlLoggerFactory
-                => (TestSqlLoggerFactory)ListLoggerFactory;
-
-            public override bool SupportsBinaryKeys
-                => true;
-
-            public override bool SupportsDecimalComparisons
-                => true;
-
-            public override DateTime DefaultDateTime
-                => new();
-
-            public override bool PreservesDateTimeKind
-                => false;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.TestBoolean).IsFixedLength();
-            }
+            modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.TestBoolean).IsFixedLength();
         }
     }
 }

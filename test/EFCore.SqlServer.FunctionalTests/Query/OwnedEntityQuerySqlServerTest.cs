@@ -1,23 +1,22 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
+
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
 {
-    public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
+
+    public override async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
     {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
+        await base.Multiple_single_result_in_projection_containing_owned_types(async);
 
-        public override async Task Multiple_single_result_in_projection_containing_owned_types(bool async)
-        {
-            await base.Multiple_single_result_in_projection_containing_owned_types(async);
-
-            AssertSql(
-                @"SELECT [e].[Id], [t0].[Id], [t0].[Entity20277Id], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t1].[Id], [t1].[Entity20277Id], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
+        AssertSql(
+            @"SELECT [e].[Id], [t0].[Id], [t0].[Entity20277Id], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t1].[Id], [t1].[Entity20277Id], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
 FROM [Entities] AS [e]
 LEFT JOIN (
     SELECT [t].[Id], [t].[Entity20277Id], [t].[Owned_IsDeleted], [t].[Owned_Value], [t].[Type], [t].[c]
@@ -37,21 +36,21 @@ LEFT JOIN (
     ) AS [t2]
     WHERE [t2].[row] <= 1
 ) AS [t1] ON [e].[Id] = [t1].[Entity20277Id]");
-        }
+    }
 
-        public override async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
-        {
-            await base.Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(async);
+    public override async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
+    {
+        await base.Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(async);
 
-            AssertSql(
-                @"SELECT TOP(2) [r].[Id], [m].[Id], [m].[Enabled], [m].[RootId], [m0].[Id], [m0].[RootId]
+        AssertSql(
+            @"SELECT TOP(2) [r].[Id], [m].[Id], [m].[Enabled], [m].[RootId], [m0].[Id], [m0].[RootId]
 FROM [Root24777] AS [r]
 LEFT JOIN [MiddleB24777] AS [m] ON [r].[Id] = [m].[RootId]
 LEFT JOIN [ModdleA24777] AS [m0] ON [r].[Id] = [m0].[RootId]
 WHERE [r].[Id] = 3
 ORDER BY [r].[Id], [m].[Id], [m0].[Id]",
-                //
-                @"SELECT [l].[ModdleAId], [l].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
+            //
+            @"SELECT [l].[ModdleAId], [l].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
 FROM (
     SELECT TOP(1) [r].[Id], [m].[Id] AS [Id0], [m0].[Id] AS [Id1]
     FROM [Root24777] AS [r]
@@ -61,52 +60,52 @@ FROM (
 ) AS [t]
 INNER JOIN [Leaf24777] AS [l] ON [t].[Id1] = [l].[ModdleAId]
 ORDER BY [t].[Id], [t].[Id0], [t].[Id1]");
-        }
+    }
 
-        public override async Task Projecting_owned_collection_and_aggregate(bool async)
-        {
-            await base.Projecting_owned_collection_and_aggregate(async);
+    public override async Task Projecting_owned_collection_and_aggregate(bool async)
+    {
+        await base.Projecting_owned_collection_and_aggregate(async);
 
-            AssertSql(
-                @"SELECT [b].[Id], (
+        AssertSql(
+            @"SELECT [b].[Id], (
     SELECT COALESCE(SUM([p].[CommentsCount]), 0)
     FROM [Post24133] AS [p]
     WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
 FROM [Blog24133] AS [b]
 LEFT JOIN [Post24133] AS [p0] ON [b].[Id] = [p0].[BlogId]
 ORDER BY [b].[Id], [p0].[BlogId]");
-        }
+    }
 
-        public override async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
-        {
-            await base.Projecting_correlated_collection_property_for_owned_entity(async);
+    public override async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
+    {
+        await base.Projecting_correlated_collection_property_for_owned_entity(async);
 
-            AssertSql(
-                @"SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
+        AssertSql(
+            @"SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
 ORDER BY [w].[Id], [w0].[WarehouseCode]");
-        }
+    }
 
-        public override async Task Owned_collection_basic_split_query(bool async)
-        {
-            await base.Owned_collection_basic_split_query(async);
+    public override async Task Owned_collection_basic_split_query(bool async)
+    {
+        await base.Owned_collection_basic_split_query(async);
 
-            AssertSql(
-                @"@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
+        AssertSql(
+            @"@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
 
 SELECT TOP(1) [l].[Id]
 FROM [Location25680] AS [l]
 WHERE [l].[Id] = @__id_0
 ORDER BY [l].[Id]");
-        }
+    }
 
-        public override async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
-        {
-            await base.Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(async);
+    public override async Task Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(bool async)
+    {
+        await base.Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(async);
 
-            AssertSql(
-                @"@__p_0='10'
+        AssertSql(
+            @"@__p_0='10'
 
 SELECT [t].[Id], [t].[Name], [t].[CompanyId], [t].[AdditionalCustomerData], [t].[Id0], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
 FROM (
@@ -118,14 +117,14 @@ FROM (
 ) AS [t]
 LEFT JOIN [SupplierData] AS [s] ON [t].[Id] = [s].[CompanyId]
 ORDER BY [t].[Id]");
-        }
+    }
 
-        public override async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
-        {
-            await base.Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(async);
+    public override async Task Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(bool async)
+    {
+        await base.Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(async);
 
-            AssertSql(
-                @"@__p_0='10'
+        AssertSql(
+            @"@__p_0='10'
 
 SELECT [t].[Id], [t].[Name], [t].[OwnerId], [t].[Id0], [t].[Name0], [t].[IntermediateOwnedEntityOwnerId], [t].[AdditionalCustomerData], [t].[Id1], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
 FROM (
@@ -138,6 +137,5 @@ FROM (
 ) AS [t]
 LEFT JOIN [IM_SupplierData] AS [i1] ON [t].[OwnerId] = [i1].[IntermediateOwnedEntityOwnerId]
 ORDER BY [t].[Id]");
-        }
     }
 }
