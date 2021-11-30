@@ -386,15 +386,14 @@ namespace Microsoft.EntityFrameworkCore
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
                 => throw new NotImplementedException();
 
-            public void BeginAttachGraph()
+            public bool BeginDelayedFixup()
+                => false;
+
+            public void CompleteDelayedFixup()
             {
             }
 
-            public void CompleteAttachGraph()
-            {
-            }
-
-            public void AbortAttachGraph()
+            public void AbortDelayedFixup()
             {
             }
 

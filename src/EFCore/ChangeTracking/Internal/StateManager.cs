@@ -638,7 +638,7 @@ public class StateManager : IStateManager
     public virtual void ResetState()
     {
         Clear();
-        Dependencies.NavigationFixer.AbortAttachGraph();
+        Dependencies.NavigationFixer.AbortDelayedFixup();
 
         Tracked = null;
         StateChanged = null;
@@ -688,7 +688,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void BeginAttachGraph()
-        => Dependencies.NavigationFixer.BeginAttachGraph();
+        => Dependencies.NavigationFixer.BeginDelayedFixup();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -697,7 +697,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void CompleteAttachGraph()
-        => Dependencies.NavigationFixer.CompleteAttachGraph();
+        => Dependencies.NavigationFixer.CompleteDelayedFixup();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -706,7 +706,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void AbortAttachGraph()
-        => Dependencies.NavigationFixer.AbortAttachGraph();
+        => Dependencies.NavigationFixer.AbortDelayedFixup();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
