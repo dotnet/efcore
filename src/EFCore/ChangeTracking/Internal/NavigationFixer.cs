@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private bool _inFixup;
         private bool _inAttachGraph;
 
+        private readonly bool _useOldBehavior26779
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26779", out var enabled) && enabled;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -294,7 +297,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindJoinEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
+                            var joinEntry = FindJoinEntry(entry, oldTargetEntry, skipNavigation);
+
+                            joinEntry?.SetEntityState(
+                                _useOldBehavior26779 || joinEntry.EntityState != EntityState.Added
+                                    ? EntityState.Deleted
+                                    : EntityState.Detached);
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,

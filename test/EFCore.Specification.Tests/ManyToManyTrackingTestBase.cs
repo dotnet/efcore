@@ -4868,6 +4868,907 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(false, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, false, false)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(true, true, true, false)]
+        [InlineData(false, false, true, true)]
+        [InlineData(false, true, true, true)]
+        [InlineData(true, false, true, true)]
+        [InlineData(true, true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship(bool modifyLeft, bool modifyRight, bool useJoin, bool useNavs)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.TwoSkip.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin)
+                    {
+                        context.Add(
+                            RequiresDetectChanges
+                                ? useNavs
+                                    ? new JoinOneToTwo { One = left, Two = right }
+                                    : new JoinOneToTwo { OneId = leftId, TwoId = rightId }
+                                : useNavs
+                                    ? context.CreateProxy<JoinOneToTwo>(
+                                        e =>
+                                        {
+                                            e.One = left;
+                                            e.Two = right;
+                                        })
+                                    : context.CreateProxy<JoinOneToTwo>(
+                                        e =>
+                                        {
+                                            e.OneId = leftId;
+                                            e.TwoId = rightId;
+                                        }));
+                    }
+                    else
+                    {
+                        left.TwoSkip ??= CreateCollection<EntityTwo>();
+                        left.TwoSkip.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.TwoSkip.Single());
+                    Assert.Same(left, right.OneSkip.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<JoinOneToTwo>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, joinEntry.Entity.OneId);
+                    Assert.Equal(right.Id, joinEntry.Entity.TwoId);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.OneSkip.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.TwoSkip);
+                        Assert.Empty(right.OneSkip);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(leftId, joinEntry.Entity.OneId);
+                    Assert.Equal(rightId, joinEntry.Entity.TwoId);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.TwoSkip.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_self(bool modifyLeft, bool modifyRight, bool useJoin)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityTwo>().Where(e => !e.SelfSkipSharedRight.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().Where(e => !e.SelfSkipSharedLeft.Any()).OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin && RequiresDetectChanges)
+                    {
+                        context.Set<Dictionary<string, object>>("EntityTwoEntityTwo")
+                            .Add(new() { ["SelfSkipSharedLeftId"] = leftId, ["SelfSkipSharedRightId"] = rightId });
+                    }
+                    else
+                    {
+                        left.SelfSkipSharedRight ??= CreateCollection<EntityTwo>();
+                        left.SelfSkipSharedRight.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.SelfSkipSharedRight.Single());
+                    Assert.Same(left, right.SelfSkipSharedLeft.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<Dictionary<string, object>>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, joinEntry.Entity["SelfSkipSharedLeftId"]);
+                    Assert.Equal(right.Id, joinEntry.Entity["SelfSkipSharedRightId"]);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        left.SelfSkipSharedRight.Remove(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.SelfSkipSharedRight);
+                        Assert.Empty(right.SelfSkipSharedLeft);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(left.Id, joinEntry.Entity["SelfSkipSharedLeftId"]);
+                    Assert.Equal(right.Id, joinEntry.Entity["SelfSkipSharedRightId"]);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityTwo>().Where(e => !e.SelfSkipSharedRight.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().Where(e => !e.SelfSkipSharedLeft.Any()).OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, false, false)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(true, true, true, false)]
+        [InlineData(false, false, true, true)]
+        [InlineData(false, true, true, true)]
+        [InlineData(true, false, true, true)]
+        [InlineData(true, true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_composite_with_navs(
+            bool modifyLeft,
+            bool modifyRight,
+            bool useJoin,
+            bool useNavs)
+        {
+            var leftKey1 = -1;
+            var leftKey2 = "-1";
+            var leftKey3 = new DateTime();
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityCompositeKey>()
+                        .Where(e => !e.LeafSkipFull.Any())
+                        .OrderBy(e => e.Key1)
+                        .ThenBy(e => e.Key2)
+                        .ThenBy(e => e.Key3)
+                        .First();
+
+                    var right = context.Set<EntityLeaf>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftKey1 = left.Key1;
+                    leftKey2 = left.Key2;
+                    leftKey3 = left.Key3;
+                    rightId = right.Id;
+
+                    if (useJoin)
+                    {
+                        context.Add(
+                            RequiresDetectChanges
+                                ? useNavs
+                                    ? new JoinCompositeKeyToLeaf { Composite = left, Leaf = right }
+                                    : new JoinCompositeKeyToLeaf
+                                    {
+                                        CompositeId1 = leftKey1,
+                                        CompositeId2 = leftKey2,
+                                        CompositeId3 = leftKey3,
+                                        LeafId = rightId
+                                    }
+                                : useNavs
+                                    ? context.CreateProxy<JoinCompositeKeyToLeaf>(
+                                        e =>
+                                        {
+                                            e.Composite = left;
+                                            e.Leaf = right;
+                                        })
+                                    : context.CreateProxy<JoinCompositeKeyToLeaf>(
+                                        e =>
+                                        {
+                                            e.CompositeId1 = leftKey1;
+                                            e.CompositeId2 = leftKey2;
+                                            e.CompositeId3 = leftKey3;
+                                            e.LeafId = rightId;
+                                        }));
+                    }
+                    else
+                    {
+                        left.LeafSkipFull ??= CreateCollection<EntityLeaf>();
+                        left.LeafSkipFull.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.LeafSkipFull.Single());
+                    Assert.Same(left, right.CompositeKeySkipFull.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<JoinCompositeKeyToLeaf>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Key1, joinEntry.Entity.CompositeId1);
+                    Assert.Equal(left.Key2, joinEntry.Entity.CompositeId2);
+                    Assert.Equal(left.Key3, joinEntry.Entity.CompositeId3);
+                    Assert.Equal(right.Id, joinEntry.Entity.LeafId);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.CompositeKeySkipFull.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.LeafSkipFull);
+                        Assert.Empty(right.CompositeKeySkipFull);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(left.Key1, joinEntry.Entity.CompositeId1);
+                    Assert.Equal(left.Key2, joinEntry.Entity.CompositeId2);
+                    Assert.Equal(left.Key3, joinEntry.Entity.CompositeId3);
+                    Assert.Equal(right.Id, joinEntry.Entity.LeafId);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityCompositeKey>()
+                        .Where(e => !e.LeafSkipFull.Any())
+                        .OrderBy(e => e.Key1)
+                        .ThenBy(e => e.Key2)
+                        .ThenBy(e => e.Key3)
+                        .First();
+
+                    var right = context.Set<EntityLeaf>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftKey1, left.Key1);
+                    Assert.Equal(leftKey2, left.Key2);
+                    Assert.Equal(leftKey3, left.Key3);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, false, false)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(true, true, true, false)]
+        [InlineData(false, false, true, true)]
+        [InlineData(false, true, true, true)]
+        [InlineData(true, false, true, true)]
+        [InlineData(true, true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_composite_additional_pk_with_navs(
+            bool modifyLeft,
+            bool modifyRight,
+            bool useJoin,
+            bool useNavs)
+        {
+            var leftKey1 = -1;
+            var leftKey2 = "-1";
+            var leftKey3 = new DateTime();
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityCompositeKey>()
+                        .Where(e => !e.ThreeSkipFull.Any())
+                        .OrderBy(e => e.Key1)
+                        .ThenBy(e => e.Key2)
+                        .ThenBy(e => e.Key3)
+                        .First();
+
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftKey1 = left.Key1;
+                    leftKey2 = left.Key2;
+                    leftKey3 = left.Key3;
+                    rightId = right.Id;
+
+                    if (useJoin)
+                    {
+                        context.Add(
+                            RequiresDetectChanges
+                                ? useNavs
+                                    ? new JoinThreeToCompositeKeyFull { Composite = left, Three = right }
+                                    : new JoinThreeToCompositeKeyFull
+                                    {
+                                        CompositeId1 = leftKey1,
+                                        CompositeId2 = leftKey2,
+                                        CompositeId3 = leftKey3,
+                                        ThreeId = rightId
+                                    }
+                                : useNavs
+                                    ? context.CreateProxy<JoinThreeToCompositeKeyFull>(
+                                        e =>
+                                        {
+                                            e.Composite = left;
+                                            e.Three = right;
+                                        })
+                                    : context.CreateProxy<JoinThreeToCompositeKeyFull>(
+                                        e =>
+                                        {
+                                            e.CompositeId1 = leftKey1;
+                                            e.CompositeId2 = leftKey2;
+                                            e.CompositeId3 = leftKey3;
+                                            e.ThreeId = rightId;
+                                        }));
+                    }
+                    else
+                    {
+                        left.ThreeSkipFull ??= CreateCollection<EntityThree>();
+                        left.ThreeSkipFull.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.ThreeSkipFull.Single());
+                    Assert.Same(left, right.CompositeKeySkipFull.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<JoinThreeToCompositeKeyFull>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Key1, joinEntry.Entity.CompositeId1);
+                    Assert.Equal(left.Key2, joinEntry.Entity.CompositeId2);
+                    Assert.Equal(left.Key3, joinEntry.Entity.CompositeId3);
+                    Assert.Equal(right.Id, joinEntry.Entity.ThreeId);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.CompositeKeySkipFull.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.ThreeSkipFull);
+                        Assert.Empty(right.CompositeKeySkipFull);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(left.Key1, joinEntry.Entity.CompositeId1);
+                    Assert.Equal(left.Key2, joinEntry.Entity.CompositeId2);
+                    Assert.Equal(left.Key3, joinEntry.Entity.CompositeId3);
+                    Assert.Equal(right.Id, joinEntry.Entity.ThreeId);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityCompositeKey>()
+                        .Where(e => !e.ThreeSkipFull.Any())
+                        .OrderBy(e => e.Key1)
+                        .ThenBy(e => e.Key2)
+                        .ThenBy(e => e.Key3)
+                        .First();
+
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftKey1, left.Key1);
+                    Assert.Equal(leftKey2, left.Key2);
+                    Assert.Equal(leftKey3, left.Key3);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_with_inheritance(bool modifyLeft, bool modifyRight, bool useJoin)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.BranchSkip.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityBranch>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin)
+                    {
+                        context.Add(
+                            RequiresDetectChanges
+                                ? new JoinOneToBranch { EntityOneId = leftId, EntityBranchId = rightId }
+                                : context.CreateProxy<JoinOneToBranch>(
+                                    e =>
+                                    {
+                                        e.EntityOneId = leftId;
+                                        e.EntityBranchId = rightId;
+                                    }));
+                    }
+                    else
+                    {
+                        left.BranchSkip ??= CreateCollection<EntityBranch>();
+                        left.BranchSkip.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.BranchSkip.Single());
+                    Assert.Same(left, right.OneSkip.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<JoinOneToBranch>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, joinEntry.Entity.EntityOneId);
+                    Assert.Equal(right.Id, joinEntry.Entity.EntityBranchId);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.OneSkip.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.BranchSkip);
+                        Assert.Empty(right.OneSkip);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(leftId, joinEntry.Entity.EntityOneId);
+                    Assert.Equal(rightId, joinEntry.Entity.EntityBranchId);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.BranchSkip.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityBranch>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_shared_with_payload(bool modifyLeft, bool modifyRight, bool useJoin)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.ThreeSkipPayloadFullShared.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin && RequiresDetectChanges)
+                    {
+                        context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
+                            .Add(new() { ["OneId"] = leftId, ["ThreeId"] = rightId });
+                    }
+                    else
+                    {
+                        left.ThreeSkipPayloadFullShared ??= CreateCollection<EntityThree>();
+                        left.ThreeSkipPayloadFullShared.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.ThreeSkipPayloadFullShared.Single());
+                    Assert.Same(left, right.OneSkipPayloadFullShared.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<Dictionary<string, object>>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, (int)joinEntry.Entity["OneId"]);
+                    Assert.Equal(right.Id, (int)joinEntry.Entity["ThreeId"]);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.OneSkipPayloadFullShared.Remove(left);
+                    }
+
+                    if (RequiresDetectChanges)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.ThreeSkipPayloadFullShared);
+                        Assert.Empty(right.OneSkipPayloadFullShared);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.ThreeSkipPayloadFullShared.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, false, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_shared(bool modifyLeft, bool modifyRight, bool useJoin)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.TwoSkipShared.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin && RequiresDetectChanges)
+                    {
+                        context.Set<Dictionary<string, object>>("EntityOneEntityTwo")
+                            .Add(new() { ["OneSkipSharedId"] = leftId, ["TwoSkipSharedId"] = rightId });
+                    }
+                    else
+                    {
+                        left.TwoSkipShared ??= CreateCollection<EntityTwo>();
+                        left.TwoSkipShared.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.TwoSkipShared.Single());
+                    Assert.Same(left, right.OneSkipShared.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<Dictionary<string, object>>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, (int)joinEntry.Entity["OneSkipSharedId"]);
+                    Assert.Equal(right.Id, (int)joinEntry.Entity["TwoSkipSharedId"]);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.OneSkipShared.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.TwoSkipShared);
+                        Assert.Empty(right.OneSkipShared);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(left.Id, (int)joinEntry.Entity["OneSkipSharedId"]);
+                    Assert.Equal(right.Id, (int)joinEntry.Entity["TwoSkipSharedId"]);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.TwoSkipShared.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityTwo>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(true, false, false, false)]
+        [InlineData(true, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(false, true, true, false)]
+        [InlineData(true, false, true, false)]
+        [InlineData(true, true, true, false)]
+        [InlineData(false, false, true, true)]
+        [InlineData(false, true, true, true)]
+        [InlineData(true, false, true, true)]
+        [InlineData(true, true, true, true)]
+        public virtual void Can_add_and_remove_a_new_relationship_with_payload(
+            bool modifyLeft,
+            bool modifyRight,
+            bool useJoin,
+            bool useNavs)
+        {
+            var leftId = -1;
+            var rightId = -1;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.ThreeSkipPayloadFull.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    if (modifyLeft)
+                    {
+                        context.Entry(left).State = EntityState.Modified;
+                    }
+
+                    if (modifyRight)
+                    {
+                        context.Entry(right).State = EntityState.Modified;
+                    }
+
+                    leftId = left.Id;
+                    rightId = right.Id;
+
+                    if (useJoin)
+                    {
+                        context.Add(
+                            RequiresDetectChanges
+                                ? useNavs
+                                    ? new JoinOneToThreePayloadFull { One = left, Three = right }
+                                    : new JoinOneToThreePayloadFull { OneId = leftId, ThreeId = rightId }
+                                : useNavs
+                                    ? context.CreateProxy<JoinOneToThreePayloadFull>(
+                                        e =>
+                                        {
+                                            e.One = left;
+                                            e.Three = right;
+                                        })
+                                    : context.CreateProxy<JoinOneToThreePayloadFull>(
+                                        e =>
+                                        {
+                                            e.OneId = leftId;
+                                            e.ThreeId = rightId;
+                                        }));
+                    }
+                    else
+                    {
+                        left.ThreeSkipPayloadFull ??= CreateCollection<EntityThree>();
+                        left.ThreeSkipPayloadFull.Add(right);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    Assert.Same(right, left.ThreeSkipPayloadFull.Single());
+                    Assert.Same(left, right.OneSkipPayloadFull.Single());
+
+                    var joinEntry = context.ChangeTracker.Entries<JoinOneToThreePayloadFull>().Single();
+                    Assert.Equal(EntityState.Added, joinEntry.State);
+                    Assert.Equal(left.Id, joinEntry.Entity.OneId);
+                    Assert.Equal(right.Id, joinEntry.Entity.ThreeId);
+
+                    if (useJoin)
+                    {
+                        joinEntry.State = EntityState.Detached;
+                    }
+                    else
+                    {
+                        right.OneSkipPayloadFull.Remove(left);
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    if (!useJoin) // Issue #26886
+                    {
+                        Assert.Empty(left.ThreeSkipPayloadFull);
+                        Assert.Empty(right.OneSkipPayloadFull);
+                    }
+
+                    Assert.Equal(EntityState.Detached, joinEntry.State);
+                    Assert.Equal(leftId, joinEntry.Entity.OneId);
+                    Assert.Equal(rightId, joinEntry.Entity.ThreeId);
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var left = context.Set<EntityOne>().Where(e => !e.ThreeSkipPayloadFull.Any()).OrderBy(e => e.Id).First();
+                    var right = context.Set<EntityThree>().OrderBy(e => e.Id).First();
+
+                    Assert.Equal(leftId, left.Id);
+                    Assert.Equal(rightId, right.Id);
+                });
+        }
+
         protected static void VerifyRelationshipSnapshots(DbContext context, IEnumerable<object> entities)
         {
             var detectChanges = context.ChangeTracker.AutoDetectChangesEnabled;
