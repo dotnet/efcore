@@ -31,7 +31,7 @@ public class SqlBinaryExpression : SqlExpression
         ExpressionType.GreaterThan,
         ExpressionType.GreaterThanOrEqual,
         ExpressionType.Equal,
-        ExpressionType.NotEqual,
+        ExpressionType.NotEqual
         //ExpressionType.ExclusiveOr,
         //ExpressionType.ArrayIndex,
         //ExpressionType.RightShift,

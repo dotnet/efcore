@@ -707,7 +707,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             {
                 var dropHistoryTableOperation = new DropTableOperation
                 {
-                    Name = historyTableName, Schema = historyTableSchema,
+                    Name = historyTableName, Schema = historyTableSchema
                 };
 
                 Generate(dropHistoryTableOperation, model, builder, terminate);

@@ -1298,6 +1298,6 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
             "CASCADE" => ReferentialAction.Cascade,
             "SET_NULL" => ReferentialAction.SetNull,
             "SET_DEFAULT" => ReferentialAction.SetDefault,
-            _ => null,
+            _ => null
         };
 }

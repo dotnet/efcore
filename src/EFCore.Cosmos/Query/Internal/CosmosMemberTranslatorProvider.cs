@@ -29,7 +29,7 @@ public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
             .AddRange(
                 new IMemberTranslator[]
                 {
-                    new CosmosStringMemberTranslator(sqlExpressionFactory), new CosmosDateTimeMemberTranslator(sqlExpressionFactory),
+                    new CosmosStringMemberTranslator(sqlExpressionFactory), new CosmosDateTimeMemberTranslator(sqlExpressionFactory)
                 });
     }
 

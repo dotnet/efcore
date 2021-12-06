@@ -425,7 +425,7 @@ public sealed partial class SelectExpression
             {
                 ColumnExpression columnExpression => columnExpression.IsNullable,
                 SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                _ => true,
+                _ => true
             };
 
         public ConcreteColumnExpression(

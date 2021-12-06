@@ -1125,7 +1125,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction =>
                 ReferentialAction.NoAction,
             DeleteBehavior.Restrict => ReferentialAction.Restrict,
-            _ => throw new NotSupportedException(deleteBehavior.ToString()),
+            _ => throw new NotSupportedException(deleteBehavior.ToString())
         };
 
     /// <summary>

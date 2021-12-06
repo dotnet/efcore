@@ -860,7 +860,7 @@ public class BufferedDataReader : DbDataReader
                 TypeCase.UShort => (T)(object)GetUInt16(ordinal),
                 TypeCase.UInt => (T)(object)GetUInt32(ordinal),
                 TypeCase.ULong => (T)(object)GetUInt64(ordinal),
-                _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]],
+                _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]]
             };
 
         public bool IsDBNull(int ordinal)

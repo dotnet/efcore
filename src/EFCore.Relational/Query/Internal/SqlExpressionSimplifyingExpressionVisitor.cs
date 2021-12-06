@@ -161,7 +161,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         0 => _sqlExpressionFactory.NotEqual(testLeft, testRight),
                         1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
+                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight)
                     });
 
             // CompareTo(a, b) > 0 -> a > b
@@ -173,7 +173,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         0 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
                         1 => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
-                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
+                        _ => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight)
                     });
 
             // CompareTo(a, b) >= 0 -> a >= b
@@ -185,7 +185,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         0 => _sqlExpressionFactory.GreaterThanOrEqual(testLeft, testRight),
                         1 => _sqlExpressionFactory.GreaterThan(testLeft, testRight),
-                        _ => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
+                        _ => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping)
                     });
 
             // CompareTo(a, b) < 0 -> a < b
@@ -197,7 +197,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         0 => _sqlExpressionFactory.LessThan(testLeft, testRight),
                         1 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
-                        _ => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping),
+                        _ => _sqlExpressionFactory.Constant(false, sqlBinaryExpression.TypeMapping)
                     });
 
             // operatorType == ExpressionType.LessThanOrEqual
@@ -210,12 +210,10 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         0 => _sqlExpressionFactory.LessThanOrEqual(testLeft, testRight),
                         1 => _sqlExpressionFactory.Constant(true, sqlBinaryExpression.TypeMapping),
-                        _ => _sqlExpressionFactory.LessThan(testLeft, testRight),
+                        _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
                     });
         }
-
-        ;
-    }
+   }
 
     private Expression SimplifySqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {

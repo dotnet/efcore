@@ -1244,7 +1244,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 ProjectionBindingExpression projectionBindingExpression
                     => (EntityProjectionExpression)_selectExpression.GetProjection(projectionBindingExpression),
                 EntityProjectionExpression entityProjectionExpression => entityProjectionExpression,
-                _ => throw new InvalidOperationException(),
+                _ => throw new InvalidOperationException()
             };
 
         private sealed class DeferredOwnedExpansionExpression : Expression
@@ -1309,7 +1309,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     DeferredOwnedExpansionExpression doee => UnwrapDeferredEntityProjectionExpression(doee),
                     // For the source entity shaper or owned collection expansion
                     EntityShaperExpression _ or ShapedQueryExpression _ => expression,
-                    _ => base.Visit(expression),
+                    _ => base.Visit(expression)
                 };
 
             public EntityShaperExpression UnwrapDeferredEntityProjectionExpression(DeferredOwnedExpansionExpression doee)

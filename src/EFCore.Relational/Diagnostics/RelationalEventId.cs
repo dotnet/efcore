@@ -93,7 +93,7 @@ public static class RelationalEventId
         BatchSmallerThanMinBatchSize,
         BatchExecutorFailedToRollbackToSavepoint,
         BatchExecutorFailedToReleaseSavepoint,
-        OptionalDependentWithAllNullPropertiesWarning,
+        OptionalDependentWithAllNullPropertiesWarning
     }
 
     private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
