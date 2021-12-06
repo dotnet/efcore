@@ -191,7 +191,7 @@ public class ExpressionPrinter : ExpressionVisitor
             && characterLimit.Value > 0)
         {
             queryPlan = queryPlan.Length > characterLimit
-                ? string.Concat(queryPlan.AsSpan(0, characterLimit.Value), "...")
+                ? queryPlan[..characterLimit.Value] + "..."
                 : queryPlan;
         }
 

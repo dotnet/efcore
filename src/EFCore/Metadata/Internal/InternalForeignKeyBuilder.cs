@@ -1906,12 +1906,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(members, configurationSource),
             configurationSource);
 
-        if (relationship == null)
-        {
-            return null;
-        }
-
-        return (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
+        return relationship is null ? null : (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
     }
 
     /// <summary>
@@ -1930,12 +1925,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             Metadata.PrincipalEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
             configurationSource);
 
-        if (relationship == null)
-        {
-            return null;
-        }
-
-        return (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
+        return relationship is null ? null : (InternalForeignKeyBuilder?)batch.Run(relationship.Metadata)?.Builder;
     }
 
     /// <summary>
