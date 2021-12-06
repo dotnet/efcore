@@ -1421,13 +1421,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         }
         else if (defaultValue != null)
         {
-            var typeMapping = columnType != null
+            var typeMapping = (columnType != null
                 ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType)
-                : null;
-            if (typeMapping == null)
-            {
-                typeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
-            }
+                : null)
+                ?? Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
 
             builder
                 .Append(" DEFAULT ")

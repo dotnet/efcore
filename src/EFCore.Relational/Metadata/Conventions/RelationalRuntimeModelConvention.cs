@@ -344,14 +344,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
         base.ProcessIndexAnnotations(annotations, index, runtimeIndex, runtime);
 
-        if (runtime)
-        {
-            annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
-        }
-        else
-        {
-            annotations.Remove(RelationalAnnotationNames.Filter);
-        }
+        annotations.Remove(runtime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
     }
 
     /// <summary>

@@ -963,12 +963,7 @@ public class CSharpHelper : ICSharpHelper
 
                 builder.Append(" + ");
 
-                if (!HandleExpression(binaryExpression.Right, builder))
-                {
-                    return false;
-                }
-
-                return true;
+                return HandleExpression(binaryExpression.Right, builder);
             }
         }
 

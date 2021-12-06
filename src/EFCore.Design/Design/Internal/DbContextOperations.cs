@@ -93,14 +93,10 @@ public class DbContextOperations
         using var context = CreateContext(contextType);
         var connection = context.Database.GetDbConnection();
         _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database, connection.DataSource));
-        if (context.Database.EnsureDeleted())
-        {
-            _reporter.WriteInformation(DesignStrings.DatabaseDropped(connection.Database));
-        }
-        else
-        {
-            _reporter.WriteInformation(DesignStrings.NotExistDatabase(connection.Database));
-        }
+        _reporter.WriteInformation(
+            context.Database.EnsureDeleted()
+                ? DesignStrings.DatabaseDropped(connection.Database)
+                : DesignStrings.NotExistDatabase(connection.Database));
     }
 
     /// <summary>

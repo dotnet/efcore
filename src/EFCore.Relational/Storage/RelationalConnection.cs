@@ -539,13 +539,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
         EnsureNoAmbientOrEnlistedTransactions();
 
-        if (CurrentTransaction != null
-            && transaction == CurrentTransaction.GetDbTransaction())
-        {
-            return false;
-        }
-
-        return true;
+        return CurrentTransaction == null || transaction != CurrentTransaction.GetDbTransaction();
     }
 
     /// <summary>

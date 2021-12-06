@@ -171,9 +171,7 @@ public class EntityFrameworkServicesBuilder
     protected virtual ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
     {
         var characteristics = TryGetServiceCharacteristics(serviceType);
-        return characteristics == null
-            ? throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name))
-            : characteristics.Value;
+        return characteristics ?? throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name));
     }
 
     /// <summary>

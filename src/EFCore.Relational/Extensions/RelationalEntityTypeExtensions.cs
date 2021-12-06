@@ -445,20 +445,10 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <returns>The SQL string used to provide data for the entity type.</returns>
     public static string? GetSqlQuery(this IReadOnlyEntityType entityType)
-    {
-        var queryAnnotation = (string?)entityType[RelationalAnnotationNames.SqlQuery];
-        if (queryAnnotation != null)
-        {
-            return queryAnnotation;
-        }
-
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetSqlQuery();
-        }
-
-        return null;
-    }
+        => (string?)entityType[RelationalAnnotationNames.SqlQuery]
+            ?? (entityType.BaseType != null
+                ? entityType.GetRootType().GetSqlQuery()
+                : null);
 
     /// <summary>
     ///     Sets the SQL string used to provide data for the entity type.
@@ -511,20 +501,10 @@ public static class RelationalEntityTypeExtensions
     /// <param name="entityType">The entity type to get the function name for.</param>
     /// <returns>The name of the function to which the entity type is mapped.</returns>
     public static string? GetFunctionName(this IReadOnlyEntityType entityType)
-    {
-        var nameAnnotation = (string?)entityType[RelationalAnnotationNames.FunctionName];
-        if (nameAnnotation != null)
-        {
-            return nameAnnotation;
-        }
-
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetFunctionName();
-        }
-
-        return null;
-    }
+        => (string?)entityType[RelationalAnnotationNames.FunctionName]
+            ?? (entityType.BaseType != null
+                ? entityType.GetRootType().GetFunctionName()
+                : null);
 
     /// <summary>
     ///     Sets the name of the function to which the entity type is mapped.

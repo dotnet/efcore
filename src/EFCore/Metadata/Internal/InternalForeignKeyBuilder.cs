@@ -936,12 +936,9 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         Metadata.DeclaringEntityType.Model.ConventionDispatcher.Track(
             () => Metadata.SetIsRequired(required, configurationSource), ref foreignKey);
 
-        if (foreignKey != null)
-        {
-            return ((ForeignKey)foreignKey).Builder;
-        }
-
-        return this;
+        return foreignKey != null
+            ? ((ForeignKey)foreignKey).Builder
+            : this;
     }
 
     /// <summary>

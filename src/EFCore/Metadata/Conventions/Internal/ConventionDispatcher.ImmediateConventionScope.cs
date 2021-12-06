@@ -140,12 +140,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!entityTypeBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return entityTypeBuilder;
+            return !entityTypeBuilder.Metadata.IsInModel ? null : entityTypeBuilder;
         }
 
         public override string? OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
@@ -168,12 +163,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!modelBuilder.Metadata.IsIgnored(name))
-            {
-                return null;
-            }
-
-            return name;
+            return !modelBuilder.Metadata.IsIgnored(name) ? null : name;
         }
 
         public override IConventionEntityType? OnEntityTypeRemoved(
@@ -225,12 +215,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!entityTypeBuilder.Metadata.IsIgnored(name))
-            {
-                return null;
-            }
-
-            return name;
+            return !entityTypeBuilder.Metadata.IsIgnored(name) ? null : name;
         }
 
         public override IConventionEntityType? OnEntityTypeBaseTypeChanged(
@@ -257,12 +242,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!entityTypeBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return newBaseType;
+            return !entityTypeBuilder.Metadata.IsInModel ? null : newBaseType;
         }
 
         public override IConventionKey? OnEntityTypePrimaryKeyChanged(
@@ -329,12 +309,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!entityTypeBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return annotation;
+            return !entityTypeBuilder.Metadata.IsInModel ? null : annotation;
         }
 
         public override IConventionForeignKeyBuilder? OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder)
@@ -363,12 +338,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return relationshipBuilder;
+            return !relationshipBuilder.Metadata.IsInModel ? null : relationshipBuilder;
         }
 
         public override IConventionForeignKey? OnForeignKeyRemoved(
@@ -429,12 +399,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return relationshipBuilder.Metadata.Properties;
+            return !relationshipBuilder.Metadata.IsInModel ? null : relationshipBuilder.Metadata.Properties;
         }
 
         public override bool? OnForeignKeyUniquenessChanged(IConventionForeignKeyBuilder relationshipBuilder)
@@ -458,12 +423,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override bool? OnForeignKeyRequirednessChanged(
@@ -488,12 +448,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override bool? OnForeignKeyDependentRequirednessChanged(
@@ -518,12 +473,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override bool? OnForeignKeyOwnershipChanged(
@@ -547,12 +497,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !relationshipBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override IConventionForeignKeyBuilder? OnForeignKeyPrincipalEndChanged(
@@ -577,12 +522,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!relationshipBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return relationshipBuilder;
+            return !relationshipBuilder.Metadata.IsInModel ? null : relationshipBuilder;
         }
 
         public override IConventionAnnotation? OnForeignKeyAnnotationChanged(
@@ -659,12 +599,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!navigationBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return navigationBuilder;
+            return !navigationBuilder.Metadata.IsInModel ? null : navigationBuilder;
         }
 
         public override IConventionAnnotation? OnNavigationAnnotationChanged(
@@ -728,12 +663,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (sourceEntityTypeBuilder.Metadata.FindNavigation(navigationName) != null)
-            {
-                return null;
-            }
-
-            return navigationName;
+            return sourceEntityTypeBuilder.Metadata.FindNavigation(navigationName) != null ? null : navigationName;
         }
 
         public override IConventionSkipNavigationBuilder? OnSkipNavigationAdded(
@@ -762,12 +692,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!navigationBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return navigationBuilder;
+            return !navigationBuilder.Metadata.IsInModel ? null : navigationBuilder;
         }
 
         public override IConventionAnnotation? OnSkipNavigationAnnotationChanged(
@@ -835,12 +760,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!navigationBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return foreignKey;
+            return !navigationBuilder.Metadata.IsInModel ? null : foreignKey;
         }
 
         public override IConventionSkipNavigation? OnSkipNavigationInverseChanged(
@@ -867,12 +787,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!navigationBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return inverse;
+            return !navigationBuilder.Metadata.IsInModel ? null : inverse;
         }
 
         public override IConventionSkipNavigation? OnSkipNavigationRemoved(
@@ -926,12 +841,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!keyBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return keyBuilder;
+            return !keyBuilder.Metadata.IsInModel ? null : keyBuilder;
         }
 
         public override IConventionKey? OnKeyRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
@@ -1010,12 +920,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!indexBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return indexBuilder;
+            return !indexBuilder.Metadata.IsInModel ? null : indexBuilder;
         }
 
         public override IConventionIndex? OnIndexRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionIndex index)
@@ -1061,12 +966,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!indexBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !indexBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override IConventionAnnotation? OnIndexAnnotationChanged(
@@ -1122,12 +1022,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!propertyBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return propertyBuilder;
+            return !propertyBuilder.Metadata.IsInModel ? null : propertyBuilder;
         }
 
         public override bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder)
@@ -1155,12 +1050,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            if (!propertyBuilder.Metadata.IsInModel)
-            {
-                return null;
-            }
-
-            return _boolConventionContext.Result;
+            return !propertyBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
         }
 
         public override FieldInfo? OnPropertyFieldChanged(

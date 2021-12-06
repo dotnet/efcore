@@ -219,11 +219,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private static string GetPartitionKeyStoreName(IEntityType entityType)
     {
         var name = entityType.GetPartitionKeyPropertyName();
-        if (name != null)
-        {
-            return entityType.FindProperty(name)!.GetJsonPropertyName();
-        }
-
-        return CosmosClientWrapper.DefaultPartitionKey;
+        return name != null
+            ? entityType.FindProperty(name)!.GetJsonPropertyName()
+            : CosmosClientWrapper.DefaultPartitionKey;
     }
 }

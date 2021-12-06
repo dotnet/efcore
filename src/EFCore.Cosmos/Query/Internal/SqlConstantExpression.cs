@@ -131,9 +131,7 @@ public class SqlConstantExpression : SqlExpression
 
     private bool Equals(SqlConstantExpression sqlConstantExpression)
         => base.Equals(sqlConstantExpression)
-            && (Value == null
-                ? sqlConstantExpression.Value == null
-                : Value.Equals(sqlConstantExpression.Value));
+            && (Value?.Equals(sqlConstantExpression.Value) ?? sqlConstantExpression.Value == null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

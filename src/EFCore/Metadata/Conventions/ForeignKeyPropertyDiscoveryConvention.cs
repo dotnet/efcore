@@ -347,11 +347,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
         var entityTypeToReference = onDependent
             ? foreignKey.PrincipalEntityType
             : foreignKey.DeclaringEntityType;
-        if (TryFindMatchingProperties(foreignKey, entityTypeToReference.ShortName(), onDependent, matchPk, out match))
-        {
-            return match;
-        }
 
+        TryFindMatchingProperties(foreignKey, entityTypeToReference.ShortName(), onDependent, matchPk, out match);
         return match;
     }
 
