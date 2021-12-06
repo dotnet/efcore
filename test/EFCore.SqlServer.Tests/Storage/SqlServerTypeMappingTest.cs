@@ -182,17 +182,38 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     }
 
     public override void DateTimeOffset_literal_generated_correctly()
-        => Test_GenerateSqlLiteral_helper(
+    {
+        Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateTimeOffset)),
-            new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0)),
-            "'2015-03-12T13:36:37.3710000-07:00'");
+            new DateTimeOffset(2015, 3, 12, 13, 36, 37, new TimeSpan(-7, 0, 0)).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1234567-07:00'");
+
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(DateTimeOffset)),
+            new DateTimeOffset(2015, 3, 12, 13, 36, 37, new TimeSpan(-7, 0, 0)).AddTicks(1230000),
+            "'2015-03-12T13:36:37.1230000-07:00'"); //should this really output trailing zeros?
+    }
+
+    [ConditionalFact]
+    public override void Timespan_literal_generated_correctly()
+    {
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(TimeSpan)),
+            new TimeSpan(7, 14, 30),
+            "'07:14:30'");
+
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(TimeSpan)),
+            new TimeSpan(0, 7, 14, 30, 120),
+            "'07:14:30.12'");
+    }
 
     public override void DateTime_literal_generated_correctly()
     {
         Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateTime)),
-            new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
-            "'2015-03-12T13:36:37.3710000Z'");
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1234567Z'");
 
         Test_GenerateSqlLiteral_helper(
             GetMapping("date"),
@@ -211,8 +232,44 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 
         Test_GenerateSqlLiteral_helper(
             GetMapping("datetime2"),
-            new DateTime(2015, 3, 12, 13, 36, 37, 371, DateTimeKind.Utc),
-            "'2015-03-12T13:36:37.3710000Z'");
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1234567Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(0)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(1)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(2)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.12Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(3)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.123Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(4)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1234Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(5)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.12345Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(6)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.123456Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(7)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1234567),
+            "'2015-03-12T13:36:37.1234567Z'");
+        Test_GenerateSqlLiteral_helper(
+            GetMapping("datetime2(7)"),
+            new DateTime(2015, 3, 12, 13, 36, 37, DateTimeKind.Utc).AddTicks(1200000),
+            "'2015-03-12T13:36:37.1200000Z'"); //should this really output trailing zeros?
     }
 
     public override void Float_literal_generated_correctly()
