@@ -136,7 +136,7 @@ public class CSharpUtilities : ICSharpUtilities
     {
         var proposedIdentifier =
             identifier.Length > 1 && identifier[0] == '@'
-                ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
+                ? "@" + _invalidCharsRegex.Replace(identifier[1..], "_")
                 : _invalidCharsRegex.Replace(identifier, "_");
         if (string.IsNullOrEmpty(proposedIdentifier))
         {

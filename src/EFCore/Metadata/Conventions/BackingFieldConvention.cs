@@ -164,7 +164,7 @@ public class BackingFieldConvention :
             match = TryMatch(sortedFields, propertyName, "", "", propertyBase, null, entityClrType, propertyName);
 
             var camelPrefix = char.ToLowerInvariant(propertyName[0]).ToString();
-            var camelizedSuffix = propertyName.Substring(1);
+            var camelizedSuffix = propertyName[1..];
 
             match = TryMatch(sortedFields, camelPrefix, camelizedSuffix, "", propertyBase, match, entityClrType, propertyName);
             match = TryMatch(sortedFields, "_", camelPrefix, camelizedSuffix, propertyBase, match, entityClrType, propertyName);

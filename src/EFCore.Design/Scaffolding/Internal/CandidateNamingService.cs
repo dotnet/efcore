@@ -128,14 +128,14 @@ public class CandidateNamingService : ICandidateNamingService
                 if (s.Length <= prefixLength
                     || s[prefixLength] != c)
                 {
-                    return firstName.Substring(0, prefixLength);
+                    return firstName[..prefixLength];
                 }
             }
 
             prefixLength++;
         }
 
-        return firstName.Substring(0, prefixLength);
+        return firstName[..prefixLength];
     }
 
     private static string StripId(string commonPrefix)
@@ -156,7 +156,7 @@ public class CandidateNamingService : ICandidateNamingService
         }
 
         return i != 0
-            ? commonPrefix.Substring(0, i + 1)
+            ? commonPrefix[..(i + 1)]
             : commonPrefix;
     }
 }

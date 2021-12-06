@@ -233,7 +233,7 @@ public class CSharpHelper : ICSharpHelper
 
         if (partStart != name.Length)
         {
-            builder.Append(name.Substring(partStart));
+            builder.Append(name[partStart..]);
         }
 
         if (builder.Length == 0

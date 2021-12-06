@@ -40,7 +40,7 @@ public abstract class LoggerCategory<T>
         var index = name.IndexOf(outerClassName, StringComparison.Ordinal);
         if (index >= 0)
         {
-            name = name.Substring(0, index) + name[(index + outerClassName.Length)..];
+            name = name[..index] + name[(index + outerClassName.Length)..];
         }
 
         return name;

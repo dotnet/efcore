@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
 {
     internal TableExpression(ITableBase table)
-        : base(table.Name.Substring(0, 1).ToLowerInvariant())
+        : base(table.Name[..1].ToLowerInvariant())
     {
         Name = table.Name;
         Schema = table.Schema;

@@ -127,7 +127,7 @@ public class DatabaseOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(projectDir.Length);
+        var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(
@@ -151,7 +151,7 @@ public class DatabaseOperations
             return path;
         }
 
-        var last = path[path.Length - 1];
+        var last = path[^1];
         return last == Path.DirectorySeparatorChar
             || last == Path.AltDirectorySeparatorChar
                 ? path
