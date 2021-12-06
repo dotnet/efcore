@@ -349,23 +349,21 @@ FROM [sys].[types] AS [t]
 JOIN [sys].[types] AS [t2] ON [t].[system_type_id] = [t2].[user_type_id]
 WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id]";
 
-        using (var reader = command.ExecuteReader())
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            while (reader.Read())
-            {
-                var schema = reader.GetValueOrDefault<string>("schema_name");
-                var userType = reader.GetFieldValue<string>("type_name");
-                var systemType = reader.GetFieldValue<string>("underlying_system_type");
-                var maxLength = reader.GetValueOrDefault<int>("max_length");
-                var precision = reader.GetValueOrDefault<int>("precision");
-                var scale = reader.GetValueOrDefault<int>("scale");
+            var schema = reader.GetValueOrDefault<string>("schema_name");
+            var userType = reader.GetFieldValue<string>("type_name");
+            var systemType = reader.GetFieldValue<string>("underlying_system_type");
+            var maxLength = reader.GetValueOrDefault<int>("max_length");
+            var precision = reader.GetValueOrDefault<int>("precision");
+            var scale = reader.GetValueOrDefault<int>("scale");
 
-                var storeType = GetStoreType(systemType, maxLength, precision, scale);
+            var storeType = GetStoreType(systemType, maxLength, precision, scale);
 
-                _logger.TypeAliasFound(DisplayName(schema, userType), storeType);
+            _logger.TypeAliasFound(DisplayName(schema, userType), storeType);
 
-                typeAliasMap.Add($"[{schema}].[{userType}]", (storeType, systemType));
-            }
+            typeAliasMap.Add($"[{schema}].[{userType}]", (storeType, systemType));
         }
 
         return typeAliasMap;

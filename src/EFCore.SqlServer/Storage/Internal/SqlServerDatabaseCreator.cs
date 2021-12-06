@@ -77,7 +77,7 @@ public class SqlServerDatabaseCreator : RelationalDatabaseCreator
     /// </summary>
     public override async Task CreateAsync(CancellationToken cancellationToken = default)
     {
-        using (var masterConnection = _connection.CreateMasterConnection())
+        await using (var masterConnection = _connection.CreateMasterConnection())
         {
             await Dependencies.MigrationCommandExecutor
                 .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
@@ -360,7 +360,7 @@ SELECT 1 ELSE SELECT 0");
     {
         ClearAllPools();
 
-        using var masterConnection = _connection.CreateMasterConnection();
+        await using var masterConnection = _connection.CreateMasterConnection();
         await Dependencies.MigrationCommandExecutor
             .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
             .ConfigureAwait(false);
