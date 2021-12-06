@@ -146,20 +146,19 @@ public class InternalSkipNavigationBuilder : InternalPropertyBaseBuilder<SkipNav
             inverse.UpdateConfigurationSource(configurationSource);
         }
 
-        using (Metadata.DeclaringEntityType.Model.DelayConventions())
+        using var _ = Metadata.DeclaringEntityType.Model.DelayConventions();
+
+        if (Metadata.Inverse != null
+            && Metadata.Inverse != inverse)
         {
-            if (Metadata.Inverse != null
-                && Metadata.Inverse != inverse)
-            {
-                Metadata.Inverse.SetInverse(null, configurationSource);
-            }
+            Metadata.Inverse.SetInverse(null, configurationSource);
+        }
 
-            Metadata.SetInverse(inverse, configurationSource);
+        Metadata.SetInverse(inverse, configurationSource);
 
-            if (inverse != null)
-            {
-                inverse.SetInverse(Metadata, configurationSource);
-            }
+        if (inverse != null)
+        {
+            inverse.SetInverse(Metadata, configurationSource);
         }
 
         return this;
