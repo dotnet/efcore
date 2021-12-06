@@ -232,20 +232,22 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
     {
+        var entityType = EntityType;
+
         // Prevent temp values from becoming permanent values
         if (oldState == EntityState.Added
             && newState != EntityState.Added
             && newState != EntityState.Detached)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var property in EntityType.GetProperties())
+            foreach (var property in entityType.GetProperties())
             {
                 if (property.IsKey() && HasTemporaryValue(property))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.TempValuePersists(
                             property.Name,
-                            EntityType.DisplayName(), newState));
+                            entityType.DisplayName(), newState));
                 }
             }
         }
@@ -255,10 +257,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Modified
             && modifyProperties)
         {
-            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
+            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
 
             // Hot path; do not use LINQ
-            foreach (var property in EntityType.GetProperties())
+            foreach (var property in entityType.GetProperties())
             {
                 if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                 {
@@ -275,7 +277,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Unchanged)
         {
             _stateData.FlagAllProperties(
-                EntityType.PropertyCount(), PropertyFlag.Modified,
+                entityType.PropertyCount(), PropertyFlag.Modified,
                 flagged: false);
         }
 
@@ -318,7 +320,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 || newState == EntityState.Detached)
             && HasConceptualNull)
         {
-            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Null, flagged: false);
         }
 
         if (oldState == EntityState.Detached
@@ -339,7 +341,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         FireStateChanged(oldState);
 
-        HandleSharedIdentityEntry(oldState, newState, EntityType);
+        HandleSharedIdentityEntry(oldState, newState, entityType);
 
         if ((newState == EntityState.Deleted
                 || newState == EntityState.Detached)
