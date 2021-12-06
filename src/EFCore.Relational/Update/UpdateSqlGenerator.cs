@@ -254,7 +254,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     operations,
                     SqlGenerationHelper,
                     (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName))
-                .Append(")");
+                .Append(')');
         }
     }
 

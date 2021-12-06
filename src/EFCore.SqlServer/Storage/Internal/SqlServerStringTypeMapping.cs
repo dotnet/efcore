@@ -294,7 +294,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                     builder.Append(" AS ");
                     if (IsUnicode)
                     {
-                        builder.Append("n");
+                        builder.Append('n');
                     }
 
                     builder.Append("varchar(max))");
