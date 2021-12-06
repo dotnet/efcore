@@ -25,7 +25,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
 
     [UsedImplicitly]
     private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator?.ToString()));
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator.ToString()));
 
     /// <summary>
     ///     Creates a new instance of the <see cref="EntityShaperExpression" /> class.
@@ -214,7 +214,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if nullability not changed, or an expression with updated nullability.</returns>
     public virtual EntityShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
-            // Marking nullable requires recomputation of materialization condition
+            // Marking nullable requires re-computation of materialization condition
             ? new EntityShaperExpression(EntityType, ValueBufferExpression, nullable)
             : this;
 

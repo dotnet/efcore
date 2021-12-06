@@ -658,7 +658,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
     /// <summary>
     ///     Translates <see cref="Queryable.GroupBy{TSource, TKey}(IQueryable{TSource}, Expression{Func{TSource, TKey}})" /> method and
-    ///     other overlods over the given source.
+    ///     other overloads over the given source.
     /// </summary>
     /// <param name="source">The shaped query on which the operator is applied.</param>
     /// <param name="keySelector">The key selector supplied in the call.</param>

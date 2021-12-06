@@ -369,7 +369,7 @@ public static class QueryableMethods
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
     public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
-        => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
+        => AverageWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
     ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Average" /> with a selector.
@@ -378,7 +378,7 @@ public static class QueryableMethods
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
     public static bool IsAverageWithSelector(MethodInfo methodInfo)
         => methodInfo.IsGenericMethod
-            && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+            && AverageWithSelectorMethods.ContainsValue(methodInfo.GetGenericMethodDefinition());
 
     /// <summary>
     ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> without a selector.
@@ -386,7 +386,7 @@ public static class QueryableMethods
     /// <param name="methodInfo">The method to check.</param>
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
     public static bool IsSumWithoutSelector(MethodInfo methodInfo)
-        => SumWithoutSelectorMethods.Values.Contains(methodInfo);
+        => SumWithoutSelectorMethods.ContainsValue(methodInfo);
 
     /// <summary>
     ///     Checks whether or not the given <see cref="MethodInfo" /> is one of the <see cref="O:Queryable.Sum" /> with a selector.
@@ -395,7 +395,7 @@ public static class QueryableMethods
     /// <returns><see langword="true" /> if the method matches; <see langword="false" /> otherwise.</returns>
     public static bool IsSumWithSelector(MethodInfo methodInfo)
         => methodInfo.IsGenericMethod
-            && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+            && SumWithSelectorMethods.ContainsValue(methodInfo.GetGenericMethodDefinition());
 
     /// <summary>
     ///     Returns the <see cref="MethodInfo" /> for the <see cref="O:Queryable.Average" /> method without a selector for the given type.

@@ -88,7 +88,6 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         }
         else
         {
-            var length = shortName.Length;
             var dotIndex = shortName.LastIndexOf(".", hashIndex, hashIndex + 1, StringComparison.Ordinal);
             if (dotIndex != -1)
             {

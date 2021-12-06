@@ -131,7 +131,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                         var propertyType = methodCallExpression.Type;
                         if (nullable && !propertyType.IsNullableType())
                         {
-                            propertyType = propertyType.MakeNullable();
+                            propertyType.MakeNullable();
                         }
 
                         var indexerExpression = Expression.Call(

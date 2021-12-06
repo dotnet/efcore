@@ -618,10 +618,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 return newKey;
             }
 
-            if (newKey == null)
-            {
-                newKey = AddKey(properties, configurationSource);
-            }
+            newKey ??= AddKey(properties, configurationSource);
         }
 
         if (oldPrimaryKey != null)
@@ -2062,7 +2059,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         }
     }
 
-    private void UpdatePropertyIndexes(IReadOnlyList<Property> properties, Index index)
+    private static void UpdatePropertyIndexes(IReadOnlyList<Property> properties, Index index)
     {
         foreach (var property in properties)
         {
@@ -3148,7 +3145,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         foreach (var entity in data)
         {
             if (ClrType != entity.GetType()
-                && ClrType.IsAssignableFrom(entity.GetType()))
+                && ClrType.IsInstanceOfType(entity))
             {
                 throw new InvalidOperationException(
                     CoreStrings.SeedDatumDerivedType(
@@ -3399,7 +3396,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 CoreStrings.NoDiscriminatorForValue(entityType.DisplayName(), entityType.GetRootType().DisplayName()));
         }
 
-        if (!discriminatorProperty.ClrType.IsAssignableFrom(value.GetType()))
+        if (!discriminatorProperty.ClrType.IsInstanceOfType(value))
         {
             throw new InvalidOperationException(
                 CoreStrings.DiscriminatorValueIncompatible(value, discriminatorProperty.Name, discriminatorProperty.ClrType));
@@ -5400,11 +5397,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             }
         }
 
-        private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, EntityType entityType)
+        private static InstantiationBinding? Create(InstantiationBinding? instantiationBinding, EntityType entityType)
             => instantiationBinding?.With(
                 instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
 
-        private ParameterBinding Create(ParameterBinding parameterBinding, EntityType entityType)
+        private static ParameterBinding Create(ParameterBinding parameterBinding, EntityType entityType)
             => parameterBinding.With(
                 parameterBinding.ConsumedProperties.Select(
                     property =>

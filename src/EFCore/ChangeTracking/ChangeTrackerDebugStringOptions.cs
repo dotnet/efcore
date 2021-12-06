@@ -31,5 +31,5 @@ public enum ChangeTrackerDebugStringOptions
     /// <summary>
     ///     Default settings for long debug string.
     /// </summary>
-    LongDefault = IncludeProperties | IncludeNavigations,
+    LongDefault = IncludeProperties | IncludeNavigations
 }

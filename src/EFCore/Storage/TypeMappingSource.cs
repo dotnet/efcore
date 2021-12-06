@@ -83,12 +83,12 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         ValueConverter? customConverter)
         => _explicitMappings.GetOrAdd(
             (mappingInfo, providerClrType, customConverter),
-            k =>
+            static (k, self) =>
             {
                 var (info, providerType, converter) = k;
                 var mapping = providerType == null
                     || providerType == info.ClrType
-                        ? FindMapping(info)
+                        ? self.FindMapping(info)
                         : null;
 
                 if (mapping == null)
@@ -96,21 +96,21 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                     var sourceType = info.ClrType;
                     if (sourceType != null)
                     {
-                        foreach (var converterInfo in Dependencies
+                        foreach (var converterInfo in self.Dependencies
                                      .ValueConverterSelector
                                      .Select(sourceType, providerType))
                         {
                             var mappingInfoUsed = info.WithConverter(converterInfo);
-                            mapping = FindMapping(mappingInfoUsed);
+                            mapping = self.FindMapping(mappingInfoUsed);
 
                             if (mapping == null
                                 && providerType != null)
                             {
-                                foreach (var secondConverterInfo in Dependencies
+                                foreach (var secondConverterInfo in self.Dependencies
                                              .ValueConverterSelector
                                              .Select(providerType))
                                 {
-                                    mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+                                    mapping = self.FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
 
                                     if (mapping != null)
                                     {
@@ -136,7 +136,8 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 }
 
                 return mapping;
-            });
+            },
+            this);
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.

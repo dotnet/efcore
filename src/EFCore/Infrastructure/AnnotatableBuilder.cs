@@ -167,17 +167,17 @@ public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConvention
     }
 
     /// <summary>
-    ///     Copies all the explicitly configured annotations from the given object ovewriting any existing ones.
+    ///     Copies all the explicitly configured annotations from the given object overwriting any existing ones.
     /// </summary>
     /// <param name="annotatable">The object to copy annotations from.</param>
     public virtual void MergeAnnotationsFrom(TMetadata annotatable)
         => MergeAnnotationsFrom(annotatable, ConfigurationSource.Explicit);
 
     /// <summary>
-    ///     Copies all the configured annotations from the given object ovewriting any existing ones.
+    ///     Copies all the configured annotations from the given object overwriting any existing ones.
     /// </summary>
     /// <param name="annotatable">The object to copy annotations from.</param>
-    /// <param name="minimalConfigurationSource">The minimum configuration source for an annoptation to be copied.</param>
+    /// <param name="minimalConfigurationSource">The minimum configuration source for an annotation to be copied.</param>
     public virtual void MergeAnnotationsFrom(TMetadata annotatable, ConfigurationSource minimalConfigurationSource)
     {
         foreach (var annotation in annotatable.GetAnnotations())

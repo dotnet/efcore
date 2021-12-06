@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         A class that postprocesses the translated query.
+///         A class that post-processes the translated query.
 ///         This class allows to process the generated server query expression and the associated shaper expression.
 ///     </para>
 ///     <para>

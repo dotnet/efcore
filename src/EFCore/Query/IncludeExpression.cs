@@ -54,7 +54,7 @@ public class IncludeExpression : Expression, IPrintableExpression
     }
 
     /// <summary>
-    ///     The expression representing entity perfoming this include.
+    ///     The expression representing entity performing this include.
     /// </summary>
     public virtual Expression EntityExpression { get; }
 

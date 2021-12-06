@@ -204,37 +204,39 @@ internal static class EnumerableMethods
 
     //public static MethodInfo Zip { get; }
 
-    private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
+    // private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
-    private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
+    // private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MaxWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MaxWithSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MinWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MinWithSelectorMethods { get; }
 
-    public static bool IsSumWithoutSelector(MethodInfo methodInfo)
-        => SumWithoutSelectorMethods.Values.Contains(methodInfo);
-
-    public static bool IsSumWithSelector(MethodInfo methodInfo)
-        => methodInfo.IsGenericMethod
-            && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
-
-    public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
-        => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
-
-    public static bool IsAverageWithSelector(MethodInfo methodInfo)
-        => methodInfo.IsGenericMethod
-            && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
-
-    public static MethodInfo GetSumWithoutSelector(Type type)
-        => SumWithoutSelectorMethods[type];
+    // Not currently used
+    //
+    // public static bool IsSumWithoutSelector(MethodInfo methodInfo)
+    //     => SumWithoutSelectorMethods.Values.Contains(methodInfo);
+    //
+    // public static bool IsSumWithSelector(MethodInfo methodInfo)
+    //     => methodInfo.IsGenericMethod
+    //         && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+    //
+    // public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
+    //     => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
+    //
+    // public static bool IsAverageWithSelector(MethodInfo methodInfo)
+    //     => methodInfo.IsGenericMethod
+    //         && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+    //
+    // public static MethodInfo GetSumWithoutSelector(Type type)
+    //     => SumWithoutSelectorMethods[type];
 
     public static MethodInfo GetSumWithSelector(Type type)
         => SumWithSelectorMethods[type];
 
-    public static MethodInfo GetAverageWithoutSelector(Type type)
-        => AverageWithoutSelectorMethods[type];
+    // public static MethodInfo GetAverageWithoutSelector(Type type)
+    //     => AverageWithoutSelectorMethods[type];
 
     public static MethodInfo GetAverageWithSelector(Type type)
         => AverageWithSelectorMethods[type];
@@ -544,19 +546,19 @@ internal static class EnumerableMethods
             typeof(decimal?)
         };
 
-        AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        // AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
         AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>();
         MaxWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
         MaxWithSelectorMethods = new Dictionary<Type, MethodInfo>();
         MinWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
         MinWithSelectorMethods = new Dictionary<Type, MethodInfo>();
-        SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
+        // SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>();
         SumWithSelectorMethods = new Dictionary<Type, MethodInfo>();
 
         foreach (var type in numericTypes)
         {
-            AverageWithoutSelectorMethods[type] = GetMethod(
-                nameof(Enumerable.Average), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
+            // AverageWithoutSelectorMethods[type] = GetMethod(
+            //     nameof(Enumerable.Average), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
             AverageWithSelectorMethods[type] = GetMethod(
                 nameof(Enumerable.Average), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });
@@ -570,8 +572,8 @@ internal static class EnumerableMethods
             MinWithSelectorMethods[type] = GetMethod(
                 nameof(Enumerable.Min), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });
-            SumWithoutSelectorMethods[type] = GetMethod(
-                nameof(Enumerable.Sum), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
+            // SumWithoutSelectorMethods[type] = GetMethod(
+            //     nameof(Enumerable.Sum), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
             SumWithSelectorMethods[type] = GetMethod(
                 nameof(Enumerable.Sum), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });

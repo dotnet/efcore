@@ -38,7 +38,7 @@ public class TimeSpanToStringConverter : StringTimeSpanConverter<TimeSpan, strin
         : base(
             ToString(),
             ToTimeSpan(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -46,5 +46,5 @@ public class TimeSpanToStringConverter : StringTimeSpanConverter<TimeSpan, strin
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TimeSpan), typeof(string), i => new TimeSpanToStringConverter(i.MappingHints), _defaultHints);
+        = new(typeof(TimeSpan), typeof(string), i => new TimeSpanToStringConverter(i.MappingHints), DefaultHints);
 }

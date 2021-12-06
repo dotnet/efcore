@@ -113,7 +113,7 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
         return false;
     }
 
-    private bool DoesTypeHaveNonNullableContext(Type type, NonNullabilityConventionState state)
+    private static bool DoesTypeHaveNonNullableContext(Type type, NonNullabilityConventionState state)
     {
         if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
         {
@@ -144,7 +144,7 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
         return state.TypeCache[type] = false;
     }
 
-    private NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)
+    private static NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)
         => (NonNullabilityConventionState)(
             modelBuilder.Metadata.FindAnnotation(StateAnnotationName)
             ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())

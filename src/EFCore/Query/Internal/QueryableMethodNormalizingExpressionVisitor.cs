@@ -85,7 +85,6 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 }
 
                 var genericArguments = methodCallExpression.Method.GetGenericArguments();
-                var lastGenericArgument = genericArguments[^1];
 
                 if (body.Type.IsGenericType
                     && body.Type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
@@ -113,17 +112,17 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = base.VisitMethodCall(methodCallExpression);
         }
 
-        if (visitedExpression is MethodCallExpression visitedMethodcall
-            && visitedMethodcall.Method.DeclaringType == typeof(Queryable)
-            && visitedMethodcall.Method.IsGenericMethod)
+        if (visitedExpression is MethodCallExpression visitedMethodCall
+            && visitedMethodCall.Method.DeclaringType == typeof(Queryable)
+            && visitedMethodCall.Method.IsGenericMethod)
         {
-            return TryFlattenGroupJoinSelectMany(visitedMethodcall);
+            return TryFlattenGroupJoinSelectMany(visitedMethodCall);
         }
 
         return visitedExpression;
     }
 
-    private void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
+    private static void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
     {
         switch (expression)
         {

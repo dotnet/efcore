@@ -38,7 +38,7 @@ public class StringToDateTimeOffsetConverter : StringDateTimeOffsetConverter<str
         : base(
             ToDateTimeOffset(),
             ToString(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -46,5 +46,5 @@ public class StringToDateTimeOffsetConverter : StringDateTimeOffsetConverter<str
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(DateTimeOffset), i => new StringToDateTimeOffsetConverter(i.MappingHints), _defaultHints);
+        = new(typeof(string), typeof(DateTimeOffset), i => new StringToDateTimeOffsetConverter(i.MappingHints), DefaultHints);
 }

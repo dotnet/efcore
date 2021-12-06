@@ -292,17 +292,11 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     {
         Check.NotNull(joinEntityType, nameof(joinEntityType));
 
-        if (!joinEntityType.IsInModel)
-        {
-            return this;
-        }
-
-        if (!joinEntityType.IsImplicitlyCreatedJoinEntityType)
-        {
-            return null;
-        }
-
-        return HasNoEntityType(joinEntityType, ConfigurationSource.Convention);
+        return !joinEntityType.IsInModel
+            ? this
+            : !joinEntityType.IsImplicitlyCreatedJoinEntityType
+                ? null
+                : HasNoEntityType(joinEntityType, ConfigurationSource.Convention);
     }
 
     /// <summary>

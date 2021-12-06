@@ -146,7 +146,7 @@ public class InternalSkipNavigationBuilder : InternalPropertyBaseBuilder<SkipNav
             inverse.UpdateConfigurationSource(configurationSource);
         }
 
-        using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
+        using (Metadata.DeclaringEntityType.Model.DelayConventions())
         {
             if (Metadata.Inverse != null
                 && Metadata.Inverse != inverse)

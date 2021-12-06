@@ -101,14 +101,12 @@ public class InternalNavigationBuilder : InternalPropertyBaseBuilder<Navigation>
     {
         var foreignKey = Metadata.ForeignKey;
         return foreignKey.IsUnique
-            ? foreignKey.GetPrincipalEndConfigurationSource() == null
-                ? false
-                : Metadata.IsOnDependent
-                    ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
-                    : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource)
-            : Metadata.IsOnDependent
+            ? foreignKey.GetPrincipalEndConfigurationSource() != null
+            && (Metadata.IsOnDependent
                 ? foreignKey.Builder.CanSetIsRequired(required, configurationSource)
-                : false;
+                : foreignKey.Builder.CanSetIsRequiredDependent(required, configurationSource))
+            : Metadata.IsOnDependent
+            && foreignKey.Builder.CanSetIsRequired(required, configurationSource);
     }
 
     /// <summary>

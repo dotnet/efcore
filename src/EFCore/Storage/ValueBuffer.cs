@@ -78,9 +78,7 @@ public readonly struct ValueBuffer : IEquatable<ValueBuffer>
     ///     <see langword="true" /> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false" />.
     /// </returns>
     public override bool Equals(object? obj)
-        => !(obj is null)
-            && obj is ValueBuffer buffer
-            && Equals(buffer);
+        => obj is ValueBuffer buffer && Equals(buffer);
 
     /// <summary>
     ///     Indicates whether the current object is equal to another object of the same type.

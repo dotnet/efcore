@@ -42,10 +42,7 @@ public class LazyLoader : ILazyLoader
         [CallerMemberName] string navigationName = "",
         bool loaded = true)
     {
-        if (_loadedStates == null)
-        {
-            _loadedStates = new Dictionary<string, bool>();
-        }
+        _loadedStates ??= new Dictionary<string, bool>();
 
         _loadedStates[navigationName] = loaded;
     }

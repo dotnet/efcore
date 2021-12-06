@@ -74,7 +74,7 @@ public class FormattingDbContextLogger : IDbContextLogger
                 var lastDot = eventId.Name!.LastIndexOf('.');
                 if (lastDot > 0)
                 {
-                    messageBuilder.Append('(').Append(eventId.Name.Substring(0, lastDot)).Append(") ");
+                    messageBuilder.Append('(').Append(eventId.Name[..lastDot]).Append(") ");
                 }
             }
 
@@ -121,6 +121,6 @@ public class FormattingDbContextLogger : IDbContextLogger
             LogLevel.Warning => "warn: ",
             LogLevel.Error => "fail: ",
             LogLevel.Critical => "crit: ",
-            _ => "none",
+            _ => "none"
         };
 }

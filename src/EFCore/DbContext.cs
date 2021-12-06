@@ -672,7 +672,7 @@ public class DbContext :
     /// </exception>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
+        => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken);
 
     /// <summary>
     ///     Saves all changes made in this context to the database.
@@ -1106,7 +1106,7 @@ public class DbContext :
                 entityState,
                 entityState,
                 forceStateWhenUnknownKey: true,
-                cancellationToken: cancellationToken)
+                cancellationToken)
             : entry.SetEntityStateAsync(
                 entityState,
                 acceptChanges: true,

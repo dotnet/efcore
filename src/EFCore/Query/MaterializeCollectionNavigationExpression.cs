@@ -21,7 +21,7 @@ public class MaterializeCollectionNavigationExpression : Expression, IPrintableE
     /// <summary>
     ///     Creates a new instance of the <see cref="MaterializeCollectionNavigationExpression" /> class.
     /// </summary>
-    /// <param name="subquery">An expression reprensenting how to get value from query to create the collection.</param>
+    /// <param name="subquery">An expression representing how to get value from query to create the collection.</param>
     /// <param name="navigation">A navigation associated with this collection.</param>
     public MaterializeCollectionNavigationExpression(Expression subquery, INavigationBase navigation)
     {

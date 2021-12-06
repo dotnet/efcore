@@ -1342,7 +1342,7 @@ public class EntityTypeBuilder<TEntity> : EntityTypeBuilder
     ///     Adds seed data to this entity type. It is used to generate data motion migrations.
     /// </summary>
     /// <param name="data">
-    ///     A colection of seed data represented by anonymous types.
+    ///     A collection of seed data represented by anonymous types.
     /// </param>
     /// <returns>An object that can be used to configure the model data.</returns>
     public new virtual DataBuilder<TEntity> HasData(IEnumerable<object> data)

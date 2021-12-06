@@ -90,10 +90,10 @@ public class ManyToManyJoinEntityTypeConvention :
     }
 
     /// <summary>
-    ///     Checks whether a new join antity type is needed.
+    ///     Checks whether a new join entity type is needed.
     /// </summary>
     /// <param name="skipNavigation">The target skip navigation.</param>
-    /// <returns>A value indicating whether a new join antity type is needed.</returns>
+    /// <returns>A value indicating whether a new join entity type is needed.</returns>
     protected virtual bool ShouldCreateJoinType(IConventionSkipNavigation skipNavigation)
     {
         var inverseSkipNavigation = skipNavigation.Inverse;

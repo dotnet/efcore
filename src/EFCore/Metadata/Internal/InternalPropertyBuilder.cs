@@ -695,7 +695,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
                 : identifyingMemberInfo == null
                     ? entityTypeBuilder.Property(
                         Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
-                    : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource!);
+                    : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource);
 
             if (newPropertyBuilder is null)
             {

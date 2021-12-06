@@ -63,7 +63,7 @@ public class DbContextFactorySource<TContext> : IDbContextFactorySource<TContext
             }
         }
 
-        var factory = ActivatorUtilities.CreateFactory(typeof(TContext), new Type[0]);
+        var factory = ActivatorUtilities.CreateFactory(typeof(TContext), Type.EmptyTypes);
 
         return (p, _) => (TContext)factory(p, null);
     }

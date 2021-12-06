@@ -512,7 +512,7 @@ public class ModelValidator : IModelValidator
         }
     }
 
-    private void ValidateClrInheritance(
+    private static void ValidateClrInheritance(
         IModel model,
         IEntityType entityType,
         HashSet<IEntityType> validEntityTypes)
@@ -714,7 +714,7 @@ public class ModelValidator : IModelValidator
         }
     }
 
-    private bool Contains(IForeignKey? inheritedFk, IForeignKey derivedFk)
+    private static bool Contains(IForeignKey? inheritedFk, IForeignKey derivedFk)
         => inheritedFk != null
             && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
             && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
@@ -901,13 +901,14 @@ public class ModelValidator : IModelValidator
                 }
             }
 
-            var requiredNavigationWithQueryFilter = entityType.GetNavigations()
-                .Where(
+            var requiredNavigationWithQueryFilter = entityType
+                .GetNavigations()
+                .FirstOrDefault(
                     n => !n.IsCollection
                         && n.ForeignKey.IsRequired
                         && n.IsOnDependent
                         && n.ForeignKey.PrincipalEntityType.GetQueryFilter() != null
-                        && n.ForeignKey.DeclaringEntityType.GetQueryFilter() == null).FirstOrDefault();
+                        && n.ForeignKey.DeclaringEntityType.GetQueryFilter() == null);
 
             if (requiredNavigationWithQueryFilter != null)
             {
