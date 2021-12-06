@@ -2581,7 +2581,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
                 .Append(", ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
-                .Append(")")
+                .Append(')')
                 .ToString();
 
             if (options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))

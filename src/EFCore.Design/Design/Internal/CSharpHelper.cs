@@ -428,9 +428,9 @@ public class CSharpHelper : ICSharpHelper
             return $"double.{nameof(double.PositiveInfinity)}";
         }
 
-        return !literal.Contains("E")
-            && !literal.Contains("e")
-            && !literal.Contains(".")
+        return !literal.Contains('E')
+            && !literal.Contains('e')
+            && !literal.Contains('.')
                 ? literal + ".0"
                 : literal;
     }

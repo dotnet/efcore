@@ -263,18 +263,18 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         }
 
         commandStringBuilder
-            .Append(")")
+            .Append(')')
             .AppendLine(" ON 1=0")
             .AppendLine("WHEN NOT MATCHED THEN");
 
         commandStringBuilder
             .Append("INSERT ")
-            .Append("(")
+            .Append('(')
             .AppendJoin(
                 writeOperations,
                 SqlGenerationHelper,
                 (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName))
-            .Append(")");
+            .Append(')');
 
         AppendValuesHeader(commandStringBuilder, writeOperations);
         commandStringBuilder

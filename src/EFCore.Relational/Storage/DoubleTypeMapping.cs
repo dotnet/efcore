@@ -62,9 +62,9 @@ public class DoubleTypeMapping : RelationalTypeMapping
         var doubleValue = Convert.ToDouble(value);
         var literal = doubleValue.ToString("G17", CultureInfo.InvariantCulture);
 
-        return !literal.Contains("E")
-            && !literal.Contains("e")
-            && !literal.Contains(".")
+        return !literal.Contains('E')
+            && !literal.Contains('e')
+            && !literal.Contains('.')
             && !double.IsNaN(doubleValue)
             && !double.IsInfinity(doubleValue)
                 ? literal + ".0"
