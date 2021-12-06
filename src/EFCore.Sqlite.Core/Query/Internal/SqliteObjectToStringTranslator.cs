@@ -31,7 +31,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         typeof(short),
         typeof(TimeSpan),
         typeof(uint),
-        typeof(ushort),
+        typeof(ushort)
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

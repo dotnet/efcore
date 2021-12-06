@@ -34,7 +34,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
             { typeof(DateTimeOffset), $"varchar({DefaultLength})" },
             { typeof(TimeSpan), $"varchar({DefaultLength})" },
             { typeof(Guid), "varchar(36)" },
-            { typeof(byte[]), $"varchar({DefaultLength})" },
+            { typeof(byte[]), $"varchar({DefaultLength})" }
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

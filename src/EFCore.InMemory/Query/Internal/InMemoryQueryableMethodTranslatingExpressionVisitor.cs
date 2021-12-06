@@ -1394,7 +1394,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                 nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
                 nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
                 nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
-                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("Aggregate Operator")),
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("Aggregate Operator"))
             };
     }
 

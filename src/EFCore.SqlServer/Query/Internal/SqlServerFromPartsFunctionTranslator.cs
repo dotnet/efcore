@@ -50,7 +50,7 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
             { _dateTime2FromPartsMethodInfo, ("DATETIME2FROMPARTS", "datetime2") },
             { _dateTimeOffsetFromPartsMethodInfo, ("DATETIMEOFFSETFROMPARTS", "datetimeoffset") },
             { _smallDateTimeFromPartsMethodInfo, ("SMALLDATETIMEFROMPARTS", "smalldatetime") },
-            { _timeFromPartsMethodInfo, ("TIMEFROMPARTS", "time") },
+            { _timeFromPartsMethodInfo, ("TIMEFROMPARTS", "time") }
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

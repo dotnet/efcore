@@ -1048,7 +1048,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 ExceptExpression _ => "EXCEPT",
                 IntersectExpression _ => "INTERSECT",
                 UnionExpression _ => "UNION",
-                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType")),
+                _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType"))
             };
     }
 

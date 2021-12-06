@@ -33,7 +33,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             { ExpressionType.LessThan, ExpressionType.GreaterThan },
             { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThanOrEqual },
             { ExpressionType.GreaterThan, ExpressionType.LessThan },
-            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
+            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual }
         };
 
     private readonly List<ProjectionExpression> _projection = new();

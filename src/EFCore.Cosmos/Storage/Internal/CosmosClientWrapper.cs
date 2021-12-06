@@ -192,7 +192,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
                 {
                     PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
                     DefaultTimeToLive = parameters.DefaultTimeToLive,
-                    AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
+                    AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds
                 },
                 parameters.Throughput,
                 cancellationToken: cancellationToken)
