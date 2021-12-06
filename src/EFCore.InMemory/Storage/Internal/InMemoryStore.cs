@@ -204,10 +204,7 @@ public class InMemoryStore : IInMemoryStore
     // Must be called from inside the lock
     private IInMemoryTable EnsureTable(IEntityType entityType)
     {
-        if (_tables == null)
-        {
-            _tables = CreateTables();
-        }
+        _tables ??= CreateTables();
 
         IInMemoryTable? baseTable = null;
 

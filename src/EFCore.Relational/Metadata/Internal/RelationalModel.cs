@@ -1001,18 +1001,12 @@ public class RelationalModel : Annotatable, IRelationalModel
                     && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                     && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
                 {
-                    if (rowInternalForeignKeys == null)
-                    {
-                        rowInternalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
-                    }
+                    rowInternalForeignKeys ??= new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
 
                     rowInternalForeignKeys.Add(foreignKey);
 
-                    if (referencingInternalForeignKeyMap == null)
-                    {
-                        referencingInternalForeignKeyMap =
-                            new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
-                    }
+                    referencingInternalForeignKeyMap ??=
+                        new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
 
                     var principalEntityType = foreignKey.PrincipalEntityType;
                     if (!referencingInternalForeignKeyMap.TryGetValue(principalEntityType, out var internalReferencingForeignKeys))

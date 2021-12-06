@@ -167,10 +167,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var isMainEntry = true;
                 if (table.IsShared)
                 {
-                    if (sharedTablesCommandsMap == null)
-                    {
-                        sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
-                    }
+                    sharedTablesCommandsMap ??= new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
 
                     var tableKey = (table.Name, table.Schema);
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))

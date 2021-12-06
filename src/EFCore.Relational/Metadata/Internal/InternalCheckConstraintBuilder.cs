@@ -98,10 +98,7 @@ public class InternalCheckConstraintBuilder :
                     return null;
                 }
 
-                if (checkConstraintsToBeDetached == null)
-                {
-                    checkConstraintsToBeDetached = new List<IConventionCheckConstraint>();
-                }
+                checkConstraintsToBeDetached ??= new List<IConventionCheckConstraint>();
 
                 checkConstraintsToBeDetached.Add(derivedCheckConstraint);
             }

@@ -352,12 +352,9 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 modelSnapshotName,
                 model);
 
-            if (modelSnapshotFile == null)
-            {
-                modelSnapshotFile = Path.Combine(
-                    GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
-                    modelSnapshotFileName);
-            }
+            modelSnapshotFile ??= Path.Combine(
+                GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
+                modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingSnapshot);
             File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
