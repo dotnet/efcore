@@ -33,7 +33,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     private readonly IPluralizer _pluralizer;
     private readonly ICSharpUtilities _cSharpUtilities;
     private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
-    private readonly LoggingDefinitions _loggingDefinitions;
     private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
     /// <summary>
@@ -48,7 +47,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         IPluralizer pluralizer,
         ICSharpUtilities cSharpUtilities,
         IScaffoldingTypeMapper scaffoldingTypeMapper,
-        LoggingDefinitions loggingDefinitions,
         IModelRuntimeInitializer modelRuntimeInitializer)
     {
         _reporter = reporter;
@@ -56,7 +54,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         _pluralizer = pluralizer;
         _cSharpUtilities = cSharpUtilities;
         _scaffoldingTypeMapper = scaffoldingTypeMapper;
-        _loggingDefinitions = loggingDefinitions;
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 

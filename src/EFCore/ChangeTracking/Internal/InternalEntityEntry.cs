@@ -341,7 +341,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         FireStateChanged(oldState);
 
-        HandleSharedIdentityEntry(oldState, newState, entityType);
+        HandleSharedIdentityEntry(newState);
 
         if ((newState == EntityState.Deleted
                 || newState == EntityState.Detached)
@@ -352,7 +352,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
     }
 
-    private void HandleSharedIdentityEntry(EntityState oldState, EntityState newState, IEntityType entityType)
+    private void HandleSharedIdentityEntry(EntityState newState)
     {
         var sharedIdentityEntry = SharedIdentityEntry;
         if (sharedIdentityEntry == null)

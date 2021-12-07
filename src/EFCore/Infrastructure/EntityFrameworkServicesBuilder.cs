@@ -289,7 +289,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IParameterBindingFactory, LazyLoaderParameterBindingFactory>();
         TryAdd<IParameterBindingFactory, ContextParameterBindingFactory>();
         TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
-        TryAdd<IMemoryCache>(p => new MemoryCache(new MemoryCacheOptions { SizeLimit = 10240 }));
+        TryAdd<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions { SizeLimit = 10240 }));
         TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
         TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
         TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
@@ -302,7 +302,7 @@ public class EntityFrameworkServicesBuilder
 
         // This has to be lazy to avoid creating instances that are not disposed
         ServiceCollectionMap
-            .TryAddSingleton<DiagnosticSource>(p => new DiagnosticListener(DbLoggerCategory.Name));
+            .TryAddSingleton<DiagnosticSource>(_ => new DiagnosticListener(DbLoggerCategory.Name));
 
         ServiceCollectionMap.GetInfrastructure()
             .AddDependencySingleton<LazyLoaderParameterBindingFactoryDependencies>()

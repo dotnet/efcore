@@ -84,7 +84,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     sqlFunctionExpression.Name,
                     distinctArguments,
                     sqlFunctionExpression.IsNullable,
-                    argumentsPropagateNullability: distinctArguments.Select(a => false).ToArray(),
+                    argumentsPropagateNullability: distinctArguments.Select(_ => false).ToArray(),
                     sqlFunctionExpression.Type,
                     sqlFunctionExpression.TypeMapping)
                 : distinctArguments[0];

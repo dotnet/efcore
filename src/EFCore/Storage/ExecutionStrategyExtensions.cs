@@ -106,7 +106,7 @@ public static class ExecutionStrategyExtensions
         Check.NotNull(operation, nameof(operation));
 
         return strategy.ExecuteAsync(
-            operation, async (operationScoped, ct) =>
+            operation, async (operationScoped, _) =>
             {
                 await operationScoped().ConfigureAwait(false);
                 return true;
@@ -172,7 +172,7 @@ public static class ExecutionStrategyExtensions
     {
         Check.NotNull(operation, nameof(operation));
 
-        return strategy.ExecuteAsync(operation, (operationScoped, ct) => operationScoped(), default);
+        return strategy.ExecuteAsync(operation, (operationScoped, _) => operationScoped(), default);
     }
 
     /// <summary>
@@ -233,7 +233,7 @@ public static class ExecutionStrategyExtensions
         Check.NotNull(operation, nameof(operation));
 
         return strategy.ExecuteAsync(
-            new { operation, state }, async (t, ct) =>
+            new { operation, state }, async (t, _) =>
             {
                 await t.operation(t.state).ConfigureAwait(false);
                 return true;
@@ -306,7 +306,7 @@ public static class ExecutionStrategyExtensions
         Check.NotNull(operation, nameof(operation));
 
         return strategy.ExecuteAsync(
-            new { operation, state }, (t, ct) => t.operation(t.state), default);
+            new { operation, state }, (t, _) => t.operation(t.state), default);
     }
 
     /// <summary>
@@ -389,8 +389,8 @@ public static class ExecutionStrategyExtensions
         Func<TState, ExecutionResult<TResult>>? verifySucceeded)
         => strategy.Execute(
             state,
-            (c, s) => operation(s),
-            verifySucceeded == null ? null : (c, s) => verifySucceeded(s));
+            (_, s) => operation(s),
+            verifySucceeded == null ? null : (_, s) => verifySucceeded(s));
 
     /// <summary>
     ///     Executes the specified asynchronous operation and returns the result.
@@ -428,10 +428,10 @@ public static class ExecutionStrategyExtensions
         CancellationToken cancellationToken = default)
         => strategy.ExecuteAsync(
             state,
-            (c, s, ct) => operation(s, ct),
+            (_, s, ct) => operation(s, ct),
             verifySucceeded == null
                 ? null
-                : (c, s, ct) => verifySucceeded(s, ct), cancellationToken);
+                : (_, s, ct) => verifySucceeded(s, ct), cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation in a transaction. Allows to check whether
@@ -456,7 +456,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Action operation,
         Func<bool> verifySucceeded)
-        => strategy.ExecuteInTransaction<object?>(null, s => operation(), s => verifySucceeded());
+        => strategy.ExecuteInTransaction<object?>(null, _ => operation(), _ => verifySucceeded());
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -486,7 +486,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Func<Task> operation,
         Func<Task<bool>> verifySucceeded)
-        => strategy.ExecuteInTransactionAsync<object?>(null, (s, ct) => operation(), (s, ct) => verifySucceeded());
+        => strategy.ExecuteInTransactionAsync<object?>(null, (_, _) => operation(), (_, _) => verifySucceeded());
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -523,7 +523,7 @@ public static class ExecutionStrategyExtensions
         Func<CancellationToken, Task<bool>> verifySucceeded,
         CancellationToken cancellationToken = default)
         => strategy.ExecuteInTransactionAsync<object?>(
-            null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
+            null, (_, ct) => operation(ct), (_, ct) => verifySucceeded(ct), cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -550,7 +550,7 @@ public static class ExecutionStrategyExtensions
         this IExecutionStrategy strategy,
         Func<TResult> operation,
         Func<bool> verifySucceeded)
-        => strategy.ExecuteInTransaction<object?, TResult>(null, s => operation(), s => verifySucceeded());
+        => strategy.ExecuteInTransaction<object?, TResult>(null, _ => operation(), _ => verifySucceeded());
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -588,7 +588,7 @@ public static class ExecutionStrategyExtensions
         Func<CancellationToken, Task<bool>> verifySucceeded,
         CancellationToken cancellationToken = default)
         => strategy.ExecuteInTransactionAsync<object?, TResult>(
-            null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
+            null, (_, ct) => operation(ct), (_, ct) => verifySucceeded(ct), cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation in a transaction. Allows to check whether
@@ -789,7 +789,7 @@ public static class ExecutionStrategyExtensions
                 }
 
                 return s.Result;
-            }, (c, s) => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
+            }, (_, s) => new ExecutionResult<TResult>(s.CommitFailed && s.VerifySucceeded(s.State), s.Result));
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -846,7 +846,7 @@ public static class ExecutionStrategyExtensions
                 }
 
                 return s.Result;
-            }, async (c, s, ct) => new ExecutionResult<TResult>(
+            }, async (_, s, ct) => new ExecutionResult<TResult>(
                 s.CommitFailed && await s.VerifySucceeded(s.State, ct).ConfigureAwait(false),
                 s.Result), cancellationToken);
 

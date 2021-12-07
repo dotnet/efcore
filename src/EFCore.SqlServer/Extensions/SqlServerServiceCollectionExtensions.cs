@@ -65,7 +65,7 @@ public static class SqlServerServiceCollectionExtensions
         Check.NotEmpty(connectionString, nameof(connectionString));
 
         return serviceCollection.AddDbContext<TContext>(
-            (serviceProvider, options) =>
+            (_, options) =>
             {
                 optionsAction?.Invoke(options);
                 options.UseSqlServer(connectionString, sqlServerOptionsAction);

@@ -546,7 +546,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -672,7 +672,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEndEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -799,7 +799,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEndEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -925,7 +925,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1050,7 +1050,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1169,7 +1169,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1294,7 +1294,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1413,7 +1413,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1538,7 +1538,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1657,7 +1657,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1706,7 +1706,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new TransactionEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 transaction,
                 connection.Context,
                 transactionId,
@@ -1741,7 +1741,7 @@ public static class RelationalLoggerExtensions
     {
         var definition = RelationalResources.LogTransactionError(diagnostics);
 
-        LogTransactionError(diagnostics, exception, definition);
+        LogTransactionError(diagnostics, definition);
 
         if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1791,7 +1791,7 @@ public static class RelationalLoggerExtensions
     {
         var definition = RelationalResources.LogTransactionError(diagnostics);
 
-        LogTransactionError(diagnostics, exception, definition);
+        LogTransactionError(diagnostics, definition);
 
         if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1835,7 +1835,7 @@ public static class RelationalLoggerExtensions
     {
         var eventData = new TransactionErrorEventData(
             definition,
-            (d, p) => ((EventDefinition)d).GenerateMessage(),
+            (d, _) => ((EventDefinition)d).GenerateMessage(),
             transaction,
             connection.Context,
             transactionId,
@@ -1853,7 +1853,6 @@ public static class RelationalLoggerExtensions
 
     private static void LogTransactionError(
         IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-        Exception exception,
         EventDefinition definition)
     {
         if (diagnostics.ShouldLog(definition))
@@ -1884,7 +1883,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new ConnectionEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 connection.DbConnection,
                 connection.Context,
                 connection.ConnectionId,
@@ -2199,7 +2198,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new MigratorEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 migrator);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -2332,7 +2331,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new EventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
+                (d, _) => ((EventDefinition)d).GenerateMessage());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -2889,7 +2888,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new DbContextTypeErrorEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 contextType,
                 exception);
 
@@ -2919,7 +2918,7 @@ public static class RelationalLoggerExtensions
         {
             var eventData = new DbContextTypeErrorEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 contextType,
                 exception);
 

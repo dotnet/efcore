@@ -42,7 +42,7 @@ public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     {
         foreach (var function in modelBuilder.Metadata.GetDbFunctions())
         {
-            ProcessDbFunctionAdded(function.Builder, context);
+            ProcessDbFunctionAdded(function.Builder);
         }
     }
 
@@ -50,10 +50,8 @@ public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     ///     Called when an <see cref="IConventionDbFunction" /> is added to the model.
     /// </summary>
     /// <param name="dbFunctionBuilder">The builder for the <see cref="IConventionDbFunction" />.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
     private void ProcessDbFunctionAdded(
-        IConventionDbFunctionBuilder dbFunctionBuilder,
-        IConventionContext context)
+        IConventionDbFunctionBuilder dbFunctionBuilder)
     {
         var function = dbFunctionBuilder.Metadata;
         if (function.IsScalar)

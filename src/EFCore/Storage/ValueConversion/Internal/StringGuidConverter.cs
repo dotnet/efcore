@@ -19,7 +19,7 @@ public class StringGuidConverter<TModel, TProvider> : ValueConverter<TModel, TPr
     /// </summary>
     // ReSharper disable once StaticMemberInGenericType
     protected static readonly ConverterMappingHints DefaultHints
-        = new(size: 36, valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
+        = new(size: 36, valueGeneratorFactory: (_, _) => new SequentialGuidValueGenerator());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

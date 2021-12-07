@@ -264,23 +264,21 @@ public class CSharpHelper : ICSharpHelper
         return _keywords.Contains(identifier) ? "@" + identifier : identifier;
     }
 
-    private static StringBuilder ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
+    private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
     {
         if (builder.Length == 0)
         {
-            return builder;
+            return;
         }
 
         var first = builder[index: 0];
         if (char.IsUpper(first) == capitalize)
         {
-            return builder;
+            return;
         }
 
         builder.Remove(startIndex: 0, length: 1)
             .Insert(index: 0, value: capitalize ? char.ToUpperInvariant(first) : char.ToLowerInvariant(first));
-
-        return builder;
     }
 
     /// <summary>

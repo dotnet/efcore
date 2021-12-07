@@ -43,7 +43,6 @@ public static class RelationalIndexExtensions
     public static string GetDefaultDatabaseName(this IReadOnlyIndex index)
     {
         var tableName = index.DeclaringEntityType.GetTableName();
-        var schema = index.DeclaringEntityType.GetSchema();
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(tableName)

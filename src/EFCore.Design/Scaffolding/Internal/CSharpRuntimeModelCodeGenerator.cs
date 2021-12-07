@@ -58,7 +58,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         CompiledModelCodeGenerationOptions options)
     {
         var scaffoldedFiles = new List<ScaffoldedFile>();
-        var modelCode = CreateModel(model, options.ModelNamespace, options.ContextType, options.UseNullableReferenceTypes);
+        var modelCode = CreateModel(options.ModelNamespace, options.ContextType, options.UseNullableReferenceTypes);
         var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
 
@@ -115,7 +115,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     }
 
     private string CreateModel(
-        IModel model,
         string @namespace,
         Type contextType,
         bool nullable)
@@ -306,7 +305,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine();
                 }
 
-                foreach (var (entityType, namePair) in entityTypeIds)
+                foreach (var (_, namePair) in entityTypeIds)
                 {
                     var (variableName, entityClassName) = namePair;
 

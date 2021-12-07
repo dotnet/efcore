@@ -21,7 +21,7 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     {
         if (GetPropertyCount(entityType) == 0)
         {
-            return e => Snapshot.Empty;
+            return _ => Snapshot.Empty;
         }
 
         var parameter = Expression.Parameter(typeof(TInput), "source");

@@ -130,13 +130,13 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
         IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource typeMappingSource)
-        => GetTemporalValueGenerated(property, storeObject)
+        => GetTemporalValueGenerated(property)
             ?? RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
             ?? (property.GetValueGenerationStrategy(storeObject, typeMappingSource) != SqlServerValueGenerationStrategy.None
                 ? ValueGenerated.OnAdd
                 : null);
 
-    private ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    private ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property)
     {
         var entityType = property.DeclaringEntityType;
         return entityType.IsTemporal()

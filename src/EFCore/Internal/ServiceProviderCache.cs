@@ -76,7 +76,7 @@ public class ServiceProviderCache
                 optionsExtension.Info.PopulateDebugInfo(debugInfo);
             }
 
-            debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
+            debugInfo = debugInfo.OrderBy(_ => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
 
             var services = new ServiceCollection();
             var hasProvider = ApplyServices(options, services);

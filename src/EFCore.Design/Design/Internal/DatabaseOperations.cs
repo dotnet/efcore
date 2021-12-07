@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 /// </summary>
 public class DatabaseOperations
 {
-    private readonly IOperationReporter _reporter;
     private readonly string _projectDir;
     private readonly string? _rootNamespace;
     private readonly string? _language;
@@ -35,7 +34,6 @@ public class DatabaseOperations
         bool nullable,
         string[]? args)
     {
-        _reporter = reporter;
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;

@@ -30,13 +30,12 @@ public class ModelCleanupConvention : IModelFinalizingConvention
         IConventionModelBuilder modelBuilder,
         IConventionContext<IConventionModelBuilder> context)
     {
-        RemoveEntityTypesUnreachableByNavigations(modelBuilder, context);
+        RemoveEntityTypesUnreachableByNavigations(modelBuilder);
         RemoveNavigationlessForeignKeys(modelBuilder);
     }
 
     private static void RemoveEntityTypesUnreachableByNavigations(
-        IConventionModelBuilder modelBuilder,
-        IConventionContext<IConventionModelBuilder> context)
+        IConventionModelBuilder modelBuilder)
     {
         var model = modelBuilder.Metadata;
         var rootEntityTypes = GetRoots(model, ConfigurationSource.DataAnnotation);

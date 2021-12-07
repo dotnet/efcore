@@ -41,7 +41,7 @@ public static class RelationalExecutionStrategyExtensions
         Action operation,
         Func<bool> verifySucceeded,
         IsolationLevel isolationLevel)
-        => strategy.ExecuteInTransaction<object?>(null, s => operation(), s => verifySucceeded(), isolationLevel);
+        => strategy.ExecuteInTransaction<object?>(null, _ => operation(), _ => verifySucceeded(), isolationLevel);
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -73,7 +73,7 @@ public static class RelationalExecutionStrategyExtensions
         Func<Task> operation,
         Func<Task<bool>> verifySucceeded,
         IsolationLevel isolationLevel)
-        => strategy.ExecuteInTransactionAsync<object?>(null, (s, ct) => operation(), (s, ct) => verifySucceeded(), isolationLevel);
+        => strategy.ExecuteInTransactionAsync<object?>(null, (_, _) => operation(), (_, _) => verifySucceeded(), isolationLevel);
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -112,7 +112,7 @@ public static class RelationalExecutionStrategyExtensions
         IsolationLevel isolationLevel,
         CancellationToken cancellationToken = default)
         => strategy.ExecuteInTransactionAsync<object?>(
-            null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
+            null, (_, ct) => operation(ct), (_, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
@@ -141,7 +141,7 @@ public static class RelationalExecutionStrategyExtensions
         Func<TResult> operation,
         Func<bool> verifySucceeded,
         IsolationLevel isolationLevel)
-        => strategy.ExecuteInTransaction<object?, TResult>(null, s => operation(), s => verifySucceeded(), isolationLevel);
+        => strategy.ExecuteInTransaction<object?, TResult>(null, _ => operation(), _ => verifySucceeded(), isolationLevel);
 
     /// <summary>
     ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -181,7 +181,7 @@ public static class RelationalExecutionStrategyExtensions
         IsolationLevel isolationLevel,
         CancellationToken cancellationToken = default)
         => strategy.ExecuteInTransactionAsync<object?, TResult>(
-            null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
+            null, (_, ct) => operation(ct), (_, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
 
     /// <summary>
     ///     Executes the specified operation in a transaction. Allows to check whether

@@ -75,7 +75,7 @@ public class RelationshipDiscoveryConvention :
 
             if (entityType.FindNavigation(navigationPropertyInfo) == null
                 && entityType.FindSkipNavigation(navigationPropertyInfo) == null
-                && (!IsCandidateNavigationProperty(entityType, targetClrType, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo)
+                && (!IsCandidateNavigationProperty(entityType, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo)
                     || IsNewSharedType(targetClrType, entityType)))
             {
                 continue;
@@ -195,7 +195,7 @@ public class RelationshipDiscoveryConvention :
                         || (candidateTargetEntityType.FindNavigation(inversePropertyInfo) == null
                             && candidateTargetEntityType.FindSkipNavigation(inversePropertyInfo) == null
                             && !IsCandidateNavigationProperty(
-                                candidateTargetEntityType, entityType.ClrType, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo)))
+                                candidateTargetEntityType, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo)))
                     {
                         continue;
                     }
@@ -1084,7 +1084,7 @@ public class RelationshipDiscoveryConvention :
                 || !sourceEntityTypeBuilder.ModelBuilder.IsIgnored(targetEntityTypeBuilder.Metadata.Name))
             && memberInfo != null
             && IsCandidateNavigationProperty(
-                sourceEntityTypeBuilder.Metadata, targetEntityTypeBuilder.Metadata.ClrType, navigationName, memberInfo)
+                sourceEntityTypeBuilder.Metadata, navigationName, memberInfo)
             && Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
                 memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
             != null)
@@ -1114,7 +1114,6 @@ public class RelationshipDiscoveryConvention :
 
         private bool IsCandidateNavigationProperty(
             IConventionEntityType sourceEntityType,
-            Type targetClrType,
             string navigationName,
             MemberInfo memberInfo)
             => sourceEntityType.Builder?.IsIgnored(navigationName) == false

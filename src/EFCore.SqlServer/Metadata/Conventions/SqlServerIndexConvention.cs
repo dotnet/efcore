@@ -156,7 +156,7 @@ public class SqlServerIndexConvention :
         }
     }
 
-    private IConventionIndexBuilder SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
+    private void SetIndexFilter(IConventionIndexBuilder indexBuilder, bool columnNameChanged = false)
     {
         var index = indexBuilder.Metadata;
         if (index.IsUnique
@@ -177,8 +177,6 @@ public class SqlServerIndexConvention :
                 indexBuilder.HasFilter(null);
             }
         }
-
-        return indexBuilder;
     }
 
     private string CreateIndexFilter(List<string> nullableColumns)

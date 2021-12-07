@@ -63,7 +63,7 @@ public static class SqliteServiceCollectionExtensions
         Check.NotEmpty(connectionString, nameof(connectionString));
 
         return serviceCollection.AddDbContext<TContext>(
-            (serviceProvider, options) =>
+            (_, options) =>
             {
                 optionsAction?.Invoke(options);
                 options.UseSqlite(connectionString, sqliteOptionsAction);

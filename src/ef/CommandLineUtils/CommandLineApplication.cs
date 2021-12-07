@@ -34,7 +34,7 @@ internal class CommandLineApplication
         Commands = new List<CommandLineApplication>();
         RemainingArguments = new List<string>();
         ApplicationArguments = new List<string>();
-        Invoke = args => 0;
+        Invoke = _ => 0;
     }
 
     public CommandLineApplication? Parent { get; set; }
@@ -133,7 +133,7 @@ internal class CommandLineApplication
                 var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
                 if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
                 {
-                    var result = ParseOption(isLongOption, command, args, ref index, out var option);
+                    var result = ParseOption(isLongOption, command, args, ref index, out _);
                     if (result == ParseOptionResult.ShowHelp)
                     {
                         command.ShowHelp();

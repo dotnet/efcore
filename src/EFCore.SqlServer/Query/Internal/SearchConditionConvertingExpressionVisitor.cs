@@ -620,12 +620,10 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     {
         var parentSearchCondition = _isSearchCondition;
         _isSearchCondition = false;
-        var changed = false;
         var partitions = new List<SqlExpression>();
         foreach (var partition in rowNumberExpression.Partitions)
         {
             var newPartition = (SqlExpression)Visit(partition);
-            changed |= newPartition != partition;
             partitions.Add(newPartition);
         }
 
@@ -633,7 +631,6 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         foreach (var ordering in rowNumberExpression.Orderings)
         {
             var newOrdering = (OrderingExpression)Visit(ordering);
-            changed |= newOrdering != ordering;
             orderings.Add(newOrdering);
         }
 

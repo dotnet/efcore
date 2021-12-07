@@ -18,7 +18,7 @@ public class TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
+    public TableBuilder(IMutableEntityType entityType)
     {
         Metadata = entityType;
     }

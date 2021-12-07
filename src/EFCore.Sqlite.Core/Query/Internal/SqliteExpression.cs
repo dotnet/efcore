@@ -53,7 +53,7 @@ public static class SqliteExpression
             "strftime",
             finalArguments,
             nullable: true,
-            argumentsPropagateNullability: finalArguments.Select(a => true),
+            argumentsPropagateNullability: finalArguments.Select(_ => true),
             returnType,
             typeMapping);
     }
