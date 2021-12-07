@@ -2542,22 +2542,29 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry, ITable table)
         {
-            var entityType = entry.EntityType;
-            var foreignKeys = table.GetRowInternalForeignKeys(entityType);
-            foreach (var foreignKey in foreignKeys)
+            while (true)
             {
-                var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
-                if (principalEntry != null)
+                var entityType = entry.EntityType;
+                var foreignKeys = table.GetRowInternalForeignKeys(entityType);
+                foreach (var foreignKey in foreignKeys)
                 {
-                    return GetMainEntry(principalEntry, table);
+                    var principalEntry = _updateAdapter.FindPrincipal(entry, foreignKey);
+                    if (principalEntry != null)
+                    {
+                        return GetMainEntry(principalEntry, table);
+                    }
                 }
+
+                var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
+
+                if (mainTable != table)
+                {
+                    table = mainTable;
+                    continue;
+                }
+
+                return entry;
             }
-
-            var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
-
-            return mainTable != table
-                ? GetMainEntry(entry, mainTable)
-                : entry;
         }
     }
 

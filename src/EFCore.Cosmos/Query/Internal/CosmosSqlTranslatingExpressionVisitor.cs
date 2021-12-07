@@ -654,33 +654,37 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        while (true)
         {
-            var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-            if (innerType.IsEnum)
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                innerType = Enum.GetUnderlyingType(innerType);
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
+                {
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
+
+                var convertedType = unaryExpression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort)))
+                    || (convertedType == typeof(double)
+                        && (innerType == typeof(float))))
+                {
+                    expression = unaryExpression.Operand;
+                    continue;
+                }
             }
 
-            var convertedType = unaryExpression.Type.UnwrapNullableType();
-
-            if (innerType == convertedType
-                || (convertedType == typeof(int)
-                    && (innerType == typeof(byte)
-                        || innerType == typeof(sbyte)
-                        || innerType == typeof(char)
-                        || innerType == typeof(short)
-                        || innerType == typeof(ushort)))
-                || (convertedType == typeof(double)
-                    && (innerType == typeof(float))))
-            {
-                return TryRemoveImplicitConvert(unaryExpression.Operand);
-            }
+            return expression;
         }
-
-        return expression;
     }
 
     private bool TryRewriteContainsEntity(Expression source, Expression item, out Expression result)

@@ -952,31 +952,35 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        while (true)
         {
-            var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-            if (innerType.IsEnum)
+            if (expression is UnaryExpression unaryExpression
+                && (unaryExpression.NodeType == ExpressionType.Convert
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
             {
-                innerType = Enum.GetUnderlyingType(innerType);
+                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+                if (innerType.IsEnum)
+                {
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
+
+                var convertedType = expression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort))))
+                {
+                    expression = unaryExpression.Operand;
+                    continue;
+                }
             }
 
-            var convertedType = expression.Type.UnwrapNullableType();
-
-            if (innerType == convertedType
-                || (convertedType == typeof(int)
-                    && (innerType == typeof(byte)
-                        || innerType == typeof(sbyte)
-                        || innerType == typeof(char)
-                        || innerType == typeof(short)
-                        || innerType == typeof(ushort))))
-            {
-                return TryRemoveImplicitConvert(unaryExpression.Operand);
-            }
+            return expression;
         }
-
-        return expression;
     }
 
     private static Expression RemoveObjectConvert(Expression expression)

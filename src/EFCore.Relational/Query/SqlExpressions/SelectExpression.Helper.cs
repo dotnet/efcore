@@ -548,57 +548,54 @@ public sealed partial class SelectExpression
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
-            if (expression is ProjectionBindingExpression projectionBindingExpression)
+            while (true)
             {
-                var value = _clientProjectionIndexMap[projectionBindingExpression.Index!.Value];
-                if (value is int intValue)
+                if (expression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    return new ProjectionBindingExpression(
-                        projectionBindingExpression.QueryExpression, intValue, projectionBindingExpression.Type);
+                    var value = _clientProjectionIndexMap[projectionBindingExpression.Index!.Value];
+                    if (value is int intValue)
+                    {
+                        return new ProjectionBindingExpression(
+                            projectionBindingExpression.QueryExpression, intValue, projectionBindingExpression.Type);
+                    }
+
+                    if (value is Expression innerShaper)
+                    {
+                        expression = innerShaper;
+                        continue;
+                    }
+
+                    throw new InvalidCastException();
                 }
 
-                if (value is Expression innerShaper)
+                if (expression is CollectionResultExpression collectionResultExpression)
                 {
-                    return Visit(innerShaper);
+                    var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
+                    var value = _clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
+                    if (value is SingleCollectionInfo singleCollectionInfo)
+                    {
+                        return new RelationalCollectionShaperExpression(
+                            singleCollectionInfo.ParentIdentifier, singleCollectionInfo.OuterIdentifier,
+                            singleCollectionInfo.SelfIdentifier, singleCollectionInfo.ParentIdentifierValueComparers,
+                            singleCollectionInfo.OuterIdentifierValueComparers, singleCollectionInfo.SelfIdentifierValueComparers,
+                            singleCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                            collectionResultExpression.ElementType);
+                    }
+
+                    if (value is SplitCollectionInfo splitCollectionInfo)
+                    {
+                        return new RelationalSplitCollectionShaperExpression(
+                            splitCollectionInfo.ParentIdentifier, splitCollectionInfo.ChildIdentifier,
+                            splitCollectionInfo.IdentifierValueComparers, splitCollectionInfo.SelectExpression,
+                            splitCollectionInfo.ShaperExpression, collectionResultExpression.Navigation,
+                            collectionResultExpression.ElementType);
+                    }
+
+                    throw new InvalidOperationException();
                 }
 
-                throw new InvalidCastException();
+                return base.Visit(expression);
             }
-
-            if (expression is CollectionResultExpression collectionResultExpression)
-            {
-                var innerProjectionBindingExpression = collectionResultExpression.ProjectionBindingExpression;
-                var value = _clientProjectionIndexMap[innerProjectionBindingExpression.Index!.Value];
-                if (value is SingleCollectionInfo singleCollectionInfo)
-                {
-                    return new RelationalCollectionShaperExpression(
-                        singleCollectionInfo.ParentIdentifier,
-                        singleCollectionInfo.OuterIdentifier,
-                        singleCollectionInfo.SelfIdentifier,
-                        singleCollectionInfo.ParentIdentifierValueComparers,
-                        singleCollectionInfo.OuterIdentifierValueComparers,
-                        singleCollectionInfo.SelfIdentifierValueComparers,
-                        singleCollectionInfo.ShaperExpression,
-                        collectionResultExpression.Navigation,
-                        collectionResultExpression.ElementType);
-                }
-
-                if (value is SplitCollectionInfo splitCollectionInfo)
-                {
-                    return new RelationalSplitCollectionShaperExpression(
-                        splitCollectionInfo.ParentIdentifier,
-                        splitCollectionInfo.ChildIdentifier,
-                        splitCollectionInfo.IdentifierValueComparers,
-                        splitCollectionInfo.SelectExpression,
-                        splitCollectionInfo.ShaperExpression,
-                        collectionResultExpression.Navigation,
-                        collectionResultExpression.ElementType);
-                }
-
-                throw new InvalidOperationException();
-            }
-
-            return base.Visit(expression);
         }
     }
 

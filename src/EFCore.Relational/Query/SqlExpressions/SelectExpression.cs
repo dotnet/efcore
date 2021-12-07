@@ -575,10 +575,19 @@ public sealed partial class SelectExpression : TableExpressionBase
                         break;
 
                         static Expression RemoveConvert(Expression expression)
-                            => expression is UnaryExpression unaryExpression
-                                && unaryExpression.NodeType == ExpressionType.Convert
-                                    ? RemoveConvert(unaryExpression.Operand)
-                                    : expression;
+                        {
+                            while (true)
+                            {
+                                if (expression is UnaryExpression unaryExpression
+                                    && unaryExpression.NodeType == ExpressionType.Convert)
+                                {
+                                    expression = unaryExpression.Operand;
+                                    continue;
+                                }
+
+                                return expression;
+                            }
+                        }
                     }
 
                     case ShapedQueryExpression shapedQueryExpression

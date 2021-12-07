@@ -335,27 +335,32 @@ public class CosmosDatabaseWrapper : Database
     // Issue #16707
     private IUpdateEntry GetRootDocument(InternalEntityEntry entry)
     {
-        var stateManager = entry.StateManager;
-        var ownership = entry.EntityType.FindOwnership()!;
-        var principal = stateManager.FindPrincipal(entry, ownership);
-        if (principal == null)
+        while (true)
         {
-            if (_sensitiveLoggingEnabled)
+            var stateManager = entry.StateManager;
+            var ownership = entry.EntityType.FindOwnership()!;
+            var principal = stateManager.FindPrincipal(entry, ownership);
+            if (principal == null)
             {
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.OrphanedNestedDocumentSensitive(
+                            entry.EntityType.DisplayName(), ownership.PrincipalEntityType.DisplayName(),
+                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)));
+                }
+
                 throw new InvalidOperationException(
-                    CosmosStrings.OrphanedNestedDocumentSensitive(
-                        entry.EntityType.DisplayName(),
-                        ownership.PrincipalEntityType.DisplayName(),
-                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)));
+                    CosmosStrings.OrphanedNestedDocument(entry.EntityType.DisplayName(), ownership.PrincipalEntityType.DisplayName()));
             }
 
-            throw new InvalidOperationException(
-                CosmosStrings.OrphanedNestedDocument(
-                    entry.EntityType.DisplayName(),
-                    ownership.PrincipalEntityType.DisplayName()));
-        }
+            if (principal.EntityType.IsDocumentRoot())
+            {
+                return principal;
+            }
 
-        return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
+            entry = principal;
+        }
     }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 

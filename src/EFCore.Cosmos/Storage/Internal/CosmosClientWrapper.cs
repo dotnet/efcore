@@ -746,42 +746,39 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext()
             {
-                if (_jsonReader == null)
+                while (true)
                 {
-                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
-
-                    if (!_query.HasMoreResults)
+                    if (_jsonReader == null)
                     {
-                        _current = null;
-                        return false;
+                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
+
+                        if (!_query.HasMoreResults)
+                        {
+                            _current = null;
+                            return false;
+                        }
+
+                        _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+
+                        _cosmosClientWrapper._commandLogger.ExecutedReadNext(
+                            _responseMessage.Diagnostics.GetClientElapsedTime(), _responseMessage.Headers.RequestCharge,
+                            _responseMessage.Headers.ActivityId, _containerId, _partitionKey, _cosmosSqlQuery);
+
+                        _responseMessage.EnsureSuccessStatusCode();
+
+                        _responseStream = _responseMessage.Content;
+                        _reader = new StreamReader(_responseStream);
+                        _jsonReader = CreateJsonReader(_reader);
                     }
 
-                    _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
+                    if (TryReadJObject(_jsonReader, out var jObject))
+                    {
+                        _current = jObject;
+                        return true;
+                    }
 
-                    _cosmosClientWrapper._commandLogger.ExecutedReadNext(
-                        _responseMessage.Diagnostics.GetClientElapsedTime(),
-                        _responseMessage.Headers.RequestCharge,
-                        _responseMessage.Headers.ActivityId,
-                        _containerId,
-                        _partitionKey,
-                        _cosmosSqlQuery);
-
-                    _responseMessage.EnsureSuccessStatusCode();
-
-                    _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
-                    _jsonReader = CreateJsonReader(_reader);
+                    ResetRead();
                 }
-
-                if (TryReadJObject(_jsonReader, out var jObject))
-                {
-                    _current = jObject;
-                    return true;
-                }
-
-                ResetRead();
-
-                return MoveNext();
             }
 
             private void ResetRead()
@@ -860,44 +857,41 @@ public class CosmosClientWrapper : ICosmosClientWrapper
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public async ValueTask<bool> MoveNextAsync()
             {
-                _cancellationToken.ThrowIfCancellationRequested();
-
-                if (_jsonReader == null)
+                while (true)
                 {
-                    _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
+                    _cancellationToken.ThrowIfCancellationRequested();
 
-                    if (!_query.HasMoreResults)
+                    if (_jsonReader == null)
                     {
-                        _current = null;
-                        return false;
+                        _query ??= _cosmosClientWrapper.CreateQuery(_containerId, _partitionKey, _cosmosSqlQuery);
+
+                        if (!_query.HasMoreResults)
+                        {
+                            _current = null;
+                            return false;
+                        }
+
+                        _responseMessage = await _query.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
+
+                        _cosmosClientWrapper._commandLogger.ExecutedReadNext(
+                            _responseMessage.Diagnostics.GetClientElapsedTime(), _responseMessage.Headers.RequestCharge,
+                            _responseMessage.Headers.ActivityId, _containerId, _partitionKey, _cosmosSqlQuery);
+
+                        _responseMessage.EnsureSuccessStatusCode();
+
+                        _responseStream = _responseMessage.Content;
+                        _reader = new StreamReader(_responseStream);
+                        _jsonReader = CreateJsonReader(_reader);
                     }
 
-                    _responseMessage = await _query.ReadNextAsync(_cancellationToken).ConfigureAwait(false);
+                    if (TryReadJObject(_jsonReader, out var jObject))
+                    {
+                        _current = jObject;
+                        return true;
+                    }
 
-                    _cosmosClientWrapper._commandLogger.ExecutedReadNext(
-                        _responseMessage.Diagnostics.GetClientElapsedTime(),
-                        _responseMessage.Headers.RequestCharge,
-                        _responseMessage.Headers.ActivityId,
-                        _containerId,
-                        _partitionKey,
-                        _cosmosSqlQuery);
-
-                    _responseMessage.EnsureSuccessStatusCode();
-
-                    _responseStream = _responseMessage.Content;
-                    _reader = new StreamReader(_responseStream);
-                    _jsonReader = CreateJsonReader(_reader);
+                    await ResetReadAsync().ConfigureAwait(false);
                 }
-
-                if (TryReadJObject(_jsonReader, out var jObject))
-                {
-                    _current = jObject;
-                    return true;
-                }
-
-                await ResetReadAsync().ConfigureAwait(false);
-
-                return await MoveNextAsync().ConfigureAwait(false);
             }
 
             private async Task ResetReadAsync()

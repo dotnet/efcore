@@ -34,12 +34,10 @@ public static class SqlitePropertyExtensions
         in StoreObjectIdentifier storeObject)
     {
         var annotation = property.FindAnnotation(SqliteAnnotationNames.Srid);
-        if (annotation != null)
-        {
-            return (int?)annotation.Value;
-        }
 
-        return property.FindSharedStoreObjectRootProperty(storeObject)?.GetSrid(storeObject);
+        return annotation != null
+            ? (int?)annotation.Value
+            : property.FindSharedStoreObjectRootProperty(storeObject)?.GetSrid(storeObject);
     }
 
     /// <summary>
