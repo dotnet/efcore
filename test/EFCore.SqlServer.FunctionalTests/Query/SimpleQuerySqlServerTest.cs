@@ -186,4 +186,29 @@ INNER JOIN (
 WHERE [o].[OrderId] = @__orderId_0
 ORDER BY [o].[OrderId]");
     }
+
+    public override async Task Enum_with_value_converter_matching_take_value(bool async)
+    {
+        await base.Enum_with_value_converter_matching_take_value(async);
+
+        AssertSql(
+            @"@__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
+@__p_0='1'
+
+SELECT [o1].[Id], COALESCE((
+    SELECT TOP(1) [o2].[Price]
+    FROM [OrderItems] AS [o2]
+    WHERE [o1].[Id] = [o2].[OrderId] AND [o2].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
+FROM (
+    SELECT TOP(@__p_0) [o].[Id]
+    FROM [Orders] AS [o]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [OrderItems] AS [o0]
+        WHERE [o].[Id] = [o0].[OrderId])
+    ORDER BY [o].[Id]
+) AS [t]
+INNER JOIN [Orders] AS [o1] ON [t].[Id] = [o1].[Id]
+ORDER BY [t].[Id]");
+    }
 }
