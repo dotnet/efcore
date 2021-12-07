@@ -416,7 +416,7 @@ public static class SqlServerPropertyExtensions
         {
             return sharedTableRootProperty.GetValueGenerationStrategy(storeObject)
                 == SqlServerValueGenerationStrategy.IdentityColumn
-                && !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
+                && property.GetContainingForeignKeys().All(fk => fk.IsBaseLinking())
                     ? SqlServerValueGenerationStrategy.IdentityColumn
                     : SqlServerValueGenerationStrategy.None;
         }

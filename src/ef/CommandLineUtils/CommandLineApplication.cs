@@ -395,7 +395,7 @@ internal class CommandLineApplication
         {
             if (cmd.Arguments.Count > 0)
             {
-                var outputFormat = "  {0}{1}";
+                const string outputFormat = "  {0}{1}";
                 foreach (var arg in cmd.Arguments)
                 {
                     argumentsBuilder.AppendFormat(

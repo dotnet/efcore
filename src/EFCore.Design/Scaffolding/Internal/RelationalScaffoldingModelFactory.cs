@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -793,9 +794,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         var principalKey = principalEntityType.FindKey(principalProperties);
         if (principalKey == null)
         {
-            var index = principalEntityType.GetIndexes()
-                .Where(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique)
-                .FirstOrDefault();
+            var index = principalEntityType
+                .GetIndexes()
+                .FirstOrDefault(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique);
             if (index != null)
             {
                 // ensure all principal properties are non-nullable even if the columns

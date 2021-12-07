@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
 public sealed partial class SelectExpression : TableExpressionBase
 {
-    private static readonly string _discriminatorColumnAlias = "Discriminator";
+    private const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly IdentifierComparer _identifierComparer = new();
 
     private static readonly Dictionary<ExpressionType, ExpressionType> _mirroredOperationMap =
@@ -530,10 +530,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var sentinelExpression = innerSelectExpression.Limit!;
                             var sentinelNullableType = sentinelExpression.Type.MakeNullable();
-                            ProjectionBindingExpression dummyProjection;
                             innerSelectExpression._clientProjections.Add(sentinelExpression);
                             innerSelectExpression._aliasForClientProjections.Add(null);
-                            dummyProjection = new ProjectionBindingExpression(
+                            var dummyProjection = new ProjectionBindingExpression(
                                 innerSelectExpression, innerSelectExpression._clientProjections.Count - 1, sentinelNullableType);
 
                             var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
@@ -986,7 +985,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             if (entityProjectionExpression.DiscriminatorExpression != null)
             {
-                AddToProjection(entityProjectionExpression.DiscriminatorExpression, _discriminatorColumnAlias);
+                AddToProjection(entityProjectionExpression.DiscriminatorExpression, DiscriminatorColumnAlias);
             }
 
             return Constant(dictionary);
@@ -1666,7 +1665,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (projection1.DiscriminatorExpression != null
                 && projection2.DiscriminatorExpression != null)
             {
-                var alias = GenerateUniqueColumnAlias(_discriminatorColumnAlias);
+                var alias = GenerateUniqueColumnAlias(DiscriminatorColumnAlias);
                 var innerProjection = new ProjectionExpression(projection1.DiscriminatorExpression, alias);
                 select1._projection.Add(innerProjection);
                 select2._projection.Add(new ProjectionExpression(projection2.DiscriminatorExpression, alias));
@@ -2787,7 +2786,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (entityProjection.DiscriminatorExpression != null)
             {
                 discriminatorExpression = subquery.GenerateOuterColumn(
-                    subqueryTableReferenceExpression, entityProjection.DiscriminatorExpression, _discriminatorColumnAlias);
+                    subqueryTableReferenceExpression, entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
                 projectionMap[entityProjection.DiscriminatorExpression] = discriminatorExpression;
             }
 

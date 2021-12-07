@@ -509,7 +509,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         using (mainBuilder.Indent())
         {
-            var entityTypeVariable = "runtimeEntityType";
+            const string entityTypeVariable = "runtimeEntityType";
             var variables = new HashSet<string>
             {
                 "model",
@@ -1044,8 +1044,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         string className,
         bool nullable)
     {
-        var declaringEntityType = "declaringEntityType";
-        var principalEntityType = "principalEntityType";
+        const string declaringEntityType = "declaringEntityType";
+        const string principalEntityType = "principalEntityType";
         mainBuilder.AppendLine()
             .Append("public static RuntimeForeignKey CreateForeignKey").Append(foreignKeyNumber.ToString())
             .Append("(RuntimeEntityType ").Append(declaringEntityType)
@@ -1198,9 +1198,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         string className,
         bool nullable)
     {
-        var declaringEntityType = "declaringEntityType";
-        var targetEntityType = "targetEntityType";
-        var joinEntityType = "joinEntityType";
+        const string declaringEntityType = "declaringEntityType";
+        const string targetEntityType = "targetEntityType";
+        const string joinEntityType = "joinEntityType";
         mainBuilder.AppendLine()
             .Append("public static RuntimeSkipNavigation CreateSkipNavigation")
             .Append(navigationNumber.ToString())
@@ -1211,7 +1211,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         using (mainBuilder.Indent())
         {
-            var navigationVariable = "skipNavigation";
+            const string navigationVariable = "skipNavigation";
             var variables = new HashSet<string>
             {
                 declaringEntityType,
@@ -1318,7 +1318,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         using (mainBuilder.Indent())
         {
-            var entityTypeVariable = "runtimeEntityType";
+            const string entityTypeVariable = "runtimeEntityType";
             var variables = new HashSet<string> { entityTypeVariable };
 
             CreateAnnotations(

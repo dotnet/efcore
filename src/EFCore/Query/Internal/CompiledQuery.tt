@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
 <#
-    var maxParameters = 15;
+    const int maxParameters = 15;
 
     for (var parameterCount = 0; parameterCount <= maxParameters; parameterCount++)
     {

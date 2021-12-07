@@ -58,7 +58,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
 
-        public CosmosProjectionBindingRemovingExpressionVisitorBase(
+        protected CosmosProjectionBindingRemovingExpressionVisitorBase(
             ParameterExpression jObjectParameter,
             bool trackQueryResults)
         {

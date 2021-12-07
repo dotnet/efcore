@@ -17,7 +17,7 @@ public abstract class TemporalRangeQueryRootExpression : TemporalQueryRootExpres
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TemporalRangeQueryRootExpression(
+    protected TemporalRangeQueryRootExpression(
         IEntityType entityType,
         DateTime from,
         DateTime to)
@@ -33,7 +33,7 @@ public abstract class TemporalRangeQueryRootExpression : TemporalQueryRootExpres
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TemporalRangeQueryRootExpression(
+    protected TemporalRangeQueryRootExpression(
         IAsyncQueryProvider queryProvider,
         IEntityType entityType,
         DateTime from,
