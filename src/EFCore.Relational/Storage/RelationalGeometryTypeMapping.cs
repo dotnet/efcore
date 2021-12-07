@@ -149,6 +149,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     /// <summary>
     ///     The type of the NTS 'WKTReader'.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     protected abstract Type WKTReaderType { get; }
 
     /// <summary>

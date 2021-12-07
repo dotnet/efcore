@@ -113,7 +113,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
             = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
-        private readonly IDictionary<ParameterExpression, int> entityTypeIdentifyingExpressionOffsets
+        private readonly IDictionary<ParameterExpression, int> _entityTypeIdentifyingExpressionOffsets
             = new Dictionary<ParameterExpression, int>();
 
         public ShaperProcessingExpressionVisitor(
@@ -359,7 +359,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 var propertyMap = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
                 _materializationContextBindings[parameterExpression] = propertyMap;
-                entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
+                _entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
 
                 var updatedExpression = newExpression.Update(
                     new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
@@ -868,7 +868,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
                 var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                 var projectionIndex = property == null
-                    ? entityTypeIdentifyingExpressionOffsets[mappingParameter]
+                    ? _entityTypeIdentifyingExpressionOffsets[mappingParameter]
                     + methodCallExpression.Arguments[1].GetConstantValue<int>()
                     : _materializationContextBindings[mappingParameter][property];
                 var projection = _selectExpression.Projection[projectionIndex];

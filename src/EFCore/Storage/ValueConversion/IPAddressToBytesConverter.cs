@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
 /// </remarks>
+// ReSharper disable once InconsistentNaming
 public class IPAddressToBytesConverter : ValueConverter<IPAddress?, byte[]?>
 {
     private static readonly ConverterMappingHints _defaultHints = new(size: 16);

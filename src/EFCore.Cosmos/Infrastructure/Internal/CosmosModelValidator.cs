@@ -90,8 +90,8 @@ public class CosmosModelValidator : ModelValidator
     {
         var discriminatorValues = new Dictionary<object, IEntityType>();
         IProperty? partitionKey = null;
-        int? analyticalTTL = null;
-        int? defaultTTL = null;
+        int? analyticalTtl = null;
+        int? defaultTtl = null;
         ThroughputProperties? throughput = null;
         IEntityType? firstEntityType = null;
         foreach (var entityType in mappedTypes)
@@ -156,36 +156,36 @@ public class CosmosModelValidator : ModelValidator
                 discriminatorValues[discriminatorValue] = entityType;
             }
 
-            var currentAnalyticalTTL = entityType.GetAnalyticalStoreTimeToLive();
-            if (currentAnalyticalTTL != null)
+            var currentAnalyticalTtl = entityType.GetAnalyticalStoreTimeToLive();
+            if (currentAnalyticalTtl != null)
             {
-                if (analyticalTTL == null)
+                if (analyticalTtl == null)
                 {
-                    analyticalTTL = currentAnalyticalTTL;
+                    analyticalTtl = currentAnalyticalTtl;
                 }
-                else if (analyticalTTL != currentAnalyticalTTL)
+                else if (analyticalTtl != currentAnalyticalTtl)
                 {
                     var conflictingEntityType = mappedTypes.First(et => et.GetAnalyticalStoreTimeToLive() != null);
                     throw new InvalidOperationException(
                         CosmosStrings.AnalyticalTTLMismatch(
-                            analyticalTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTTL,
+                            analyticalTtl, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTtl,
                             container));
                 }
             }
 
-            var currentDefaultTTL = entityType.GetDefaultTimeToLive();
-            if (currentDefaultTTL != null)
+            var currentDefaultTtl = entityType.GetDefaultTimeToLive();
+            if (currentDefaultTtl != null)
             {
-                if (defaultTTL == null)
+                if (defaultTtl == null)
                 {
-                    defaultTTL = currentDefaultTTL;
+                    defaultTtl = currentDefaultTtl;
                 }
-                else if (defaultTTL != currentDefaultTTL)
+                else if (defaultTtl != currentDefaultTtl)
                 {
                     var conflictingEntityType = mappedTypes.First(et => et.GetDefaultTimeToLive() != null);
                     throw new InvalidOperationException(
                         CosmosStrings.DefaultTTLMismatch(
-                            defaultTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentDefaultTTL, container));
+                            defaultTtl, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentDefaultTtl, container));
                 }
             }
 

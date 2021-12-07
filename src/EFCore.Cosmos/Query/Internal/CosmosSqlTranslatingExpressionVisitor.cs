@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string _runtimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
     private static readonly MethodInfo _parameterValueExtractor =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
@@ -737,7 +737,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 );
 
                 var newParameterName =
-                    $"{_runtimeParameterPrefix}"
+                    $"{RuntimeParameterPrefix}"
                     + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
@@ -863,7 +863,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{_runtimeParameterPrefix}"
+                    $"{RuntimeParameterPrefix}"
                     + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);

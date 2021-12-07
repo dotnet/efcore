@@ -863,6 +863,7 @@ public class BufferedDataReader : DbDataReader
                 _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]]
             };
 
+        // ReSharper disable once InconsistentNaming
         public bool IsDBNull(int ordinal)
             => _nulls[_currentRowNumber * _nullCount + _nullOrdinalToIndexMap[ordinal]];
 
@@ -873,6 +874,7 @@ public class BufferedDataReader : DbDataReader
         public Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken)
             => Task.FromResult(GetFieldValue<T>(ordinal));
 
+        // ReSharper disable once InconsistentNaming
         public Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
             => Task.FromResult(IsDBNull(ordinal));
 

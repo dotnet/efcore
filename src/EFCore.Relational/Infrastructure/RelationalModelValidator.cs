@@ -1252,9 +1252,9 @@ public class RelationalModelValidator : ModelValidator
             }
 
             // Hierarchy mapping strategy must be the same across all types of mappings
-            var isTPH = rootEntityType.FindPrimaryKey() == null
+            var isTph = rootEntityType.FindPrimaryKey() == null
                 || rootEntityType.FindDiscriminatorProperty() != null;
-            if (isTPH)
+            if (isTph)
             {
                 ValidateTPHMapping(rootEntityType, forTables: false);
                 ValidateTPHMapping(rootEntityType, forTables: true);

@@ -42,7 +42,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             "nvarchar"
         };
 
-    private const string _namePartRegex
+    private const string NamePartRegex
         = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
     private static readonly Regex _partExtractor
@@ -50,8 +50,8 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             string.Format(
                 CultureInfo.InvariantCulture,
                 @"^{0}(?:\.{1})?$",
-                string.Format(CultureInfo.InvariantCulture, _namePartRegex, 1),
-                string.Format(CultureInfo.InvariantCulture, _namePartRegex, 2)),
+                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 1),
+                string.Format(CultureInfo.InvariantCulture, NamePartRegex, 2)),
             RegexOptions.Compiled,
             TimeSpan.FromMilliseconds(1000));
 

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore;
 public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public const string Id = "EF1001";
-    private static readonly int EFLen = "EntityFrameworkCore".Length;
+    private static readonly int _efLen = "EntityFrameworkCore".Length;
 
     private static readonly DiagnosticDescriptor _descriptor
         = new(
@@ -318,8 +318,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             return
                 i != -1
                 && (i == 0 || ns[i - 1] == '.')
-                && i + EFLen < ns.Length
-                && ns[i + EFLen] == '.'
+                && i + _efLen < ns.Length
+                && ns[i + _efLen] == '.'
                 && ns.EndsWith(".Internal", StringComparison.Ordinal);
         }
 

@@ -4,6 +4,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 

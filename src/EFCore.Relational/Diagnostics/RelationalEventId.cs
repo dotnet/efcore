@@ -74,6 +74,7 @@ public static class RelationalEventId
         // Query events
         QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
         QueryPossibleUnintendedUseOfEqualsWarning,
+        // ReSharper disable twice InconsistentNaming
         Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
         Obsolete_ValueConversionSqlLiteralWarning,
         MultipleCollectionIncludeWarning,

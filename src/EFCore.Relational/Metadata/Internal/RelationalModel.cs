@@ -146,7 +146,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             AddMappedFunctions(databaseModel, entityType);
         }
 
-        AddTVFs(databaseModel);
+        AddTvfs(databaseModel);
 
         foreach (var table in databaseModel.Tables.Values)
         {
@@ -636,7 +636,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         functionMappings?.Reverse();
     }
 
-    private static void AddTVFs(RelationalModel relationalModel)
+    private static void AddTvfs(RelationalModel relationalModel)
     {
         var model = relationalModel.Model;
         foreach (IRuntimeDbFunction function in model.GetDbFunctions())

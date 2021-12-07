@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
 /// </remarks>
+// ReSharper disable once InconsistentNaming
 public class IPAddressToStringConverter : ValueConverter<IPAddress?, string?>
 {
     // IPv4-mapped IPv6 addresses can go up to 45 bytes, e.g. 0000:0000:0000:0000:0000:ffff:192.168.1.1
@@ -51,6 +52,7 @@ public class IPAddressToStringConverter : ValueConverter<IPAddress?, string?>
     private static new Expression<Func<IPAddress?, string?>> ToString()
         => v => v!.ToString();
 
+    // ReSharper disable once InconsistentNaming
     private static Expression<Func<string?, IPAddress?>> ToIPAddress()
         => v => IPAddress.Parse(v!);
 }

@@ -55,6 +55,7 @@ public class ValueConverterSelector : IValueConverterSelector
         typeof(float)
     };
 
+    // ReSharper disable once InconsistentNaming
     private static readonly Type? _readOnlyIPAddressType = IPAddress.Loopback.GetType();
 
     /// <summary>

@@ -703,7 +703,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         var entityProjection = (EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression);
                         var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-                        var predicate = GeneratePredicateTPT(entityProjection);
+                        var predicate = GeneratePredicateTpt(entityProjection);
 
                         subSelectExpression.ApplyPredicate(predicate);
                         subSelectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
@@ -721,10 +721,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         var entityProjection = (EntityProjectionExpression)Visit(
                             entityReferenceExpression.ParameterEntity.ValueBufferExpression);
 
-                        return GeneratePredicateTPT(entityProjection);
+                        return GeneratePredicateTpt(entityProjection);
                     }
 
-                    SqlExpression GeneratePredicateTPT(EntityProjectionExpression entityProjectionExpression)
+                    SqlExpression GeneratePredicateTpt(EntityProjectionExpression entityProjectionExpression)
                     {
                         if (entityProjectionExpression.DiscriminatorExpression is CaseExpression caseExpression)
                         {
