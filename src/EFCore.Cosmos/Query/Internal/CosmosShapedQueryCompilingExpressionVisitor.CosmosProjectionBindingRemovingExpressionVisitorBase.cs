@@ -461,10 +461,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     foreach (var relatedEntity in relatedEntities)
                     {
                         fixup(includingEntity, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
                 else

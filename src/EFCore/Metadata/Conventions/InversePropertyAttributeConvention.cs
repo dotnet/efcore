@@ -273,11 +273,9 @@ public class InversePropertyAttributeConvention :
 
                 var existingAmbiguousNavigation = FindActualEntityType(ambiguousInverse.Value.Item2)!
                     .FindSkipNavigation(ambiguousInverse.Value.Item1);
-                if (existingAmbiguousNavigation != null)
-                {
-                    existingAmbiguousNavigation.DeclaringEntityType.Builder.HasNoSkipNavigation(
-                        existingAmbiguousNavigation, fromDataAnnotation: true);
-                }
+
+                existingAmbiguousNavigation?.DeclaringEntityType.Builder.HasNoSkipNavigation(
+                    existingAmbiguousNavigation, fromDataAnnotation: true);
 
                 remainingInverseNavigation = entityType.FindSkipNavigation(navigationMemberInfo)?.ForeignKey!.Builder;
                 return true;
