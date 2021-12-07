@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>5.0.13</VersionPrefix>
+    <VersionPrefix>5.0.14</VersionPrefix>
     <PreReleaseVersionLabel>servicing</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
