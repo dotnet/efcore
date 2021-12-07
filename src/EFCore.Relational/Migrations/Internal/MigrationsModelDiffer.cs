@@ -1863,14 +1863,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var targetTable = diffContext.FindTarget(sourceTable);
-                    var removedMapping = true;
-                    if (targetTable != null
+                    bool removedMapping = !(targetTable != null
                         && targetKeyMap.Keys.Any(
                             k => k.Item2 == targetTable
-                                && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable))
-                    {
-                        removedMapping = false;
-                    }
+                                && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable));
 
                     if (removedMapping
                         && diffContext.FindDrop(sourceTable) == null)

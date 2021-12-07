@@ -1131,10 +1131,8 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch < 'A'
-                ? false
-                : ch <= 'Z'
-                || ch == '_';
+            return ch >= 'A' && (ch <= 'Z'
+                || ch == '_');
         }
 
         if (ch <= 'z')
@@ -1142,7 +1140,7 @@ public class CSharpHelper : ICSharpHelper
             return true;
         }
 
-        return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
     }
 
     private static bool IsIdentifierPartCharacter(char ch)

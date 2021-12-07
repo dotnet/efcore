@@ -1383,7 +1383,7 @@ public class RelationalModelValidator : ModelValidator
 
                             break;
                         case StoreObjectType.SqlQuery:
-                            if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetDefaultSqlQueryName() == name))
+                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetDefaultSqlQueryName() != name))
                             {
                                 throw new InvalidOperationException(
                                     RelationalStrings.SqlQueryOverrideMismatch(
@@ -1392,7 +1392,7 @@ public class RelationalModelValidator : ModelValidator
 
                             break;
                         case StoreObjectType.Function:
-                            if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetFunctionName() == name))
+                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetFunctionName() != name))
                             {
                                 throw new InvalidOperationException(
                                     RelationalStrings.FunctionOverrideMismatch(

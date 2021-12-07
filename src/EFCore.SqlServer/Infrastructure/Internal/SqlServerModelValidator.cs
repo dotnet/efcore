@@ -263,7 +263,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, nameof(DateTime)));
         }
 
-        var expectedPeriodColumnName = "datetime2";
+        const string expectedPeriodColumnName = "datetime2";
         if (periodProperty.GetColumnType() != expectedPeriodColumnName)
         {
             throw new InvalidOperationException(

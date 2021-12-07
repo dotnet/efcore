@@ -937,10 +937,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
             var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-            SqlExpression innerProjection;
             var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
             var entityProjectionExpression = (EntityProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-            innerProjection = entityProjectionExpression.BindProperty(property);
+            var innerProjection = entityProjectionExpression.BindProperty(property);
             subSelectExpression.ReplaceProjection(new List<Expression>());
             subSelectExpression.AddToProjection(innerProjection);
 

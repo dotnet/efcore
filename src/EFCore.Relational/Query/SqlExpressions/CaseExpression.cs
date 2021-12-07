@@ -77,7 +77,7 @@ public class CaseExpression : SqlExpression
             if (test != whenClause.Test
                 || result != whenClause.Result)
             {
-                changed |= true;
+                changed = true;
                 whenClauses.Add(new CaseWhenClause(test, result));
             }
             else

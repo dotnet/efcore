@@ -918,11 +918,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
             var inMemoryQueryExpression = (InMemoryQueryExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-            Expression readValueExpression;
             var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
             var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetProjection(
                 projectionBindingExpression);
-            readValueExpression = entityProjectionExpression.BindProperty(property);
+            var readValueExpression = entityProjectionExpression.BindProperty(property);
 
             return ProcessSingleResultScalar(
                 inMemoryQueryExpression,

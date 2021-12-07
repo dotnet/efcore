@@ -715,7 +715,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         IModel? model,
         MigrationCommandListBuilder builder)
     {
-        if (!operation.Columns.Any(c => !string.IsNullOrEmpty(c.Comment)))
+        if (operation.Columns.All(c => string.IsNullOrEmpty(c.Comment)))
         {
             base.CreateTableColumns(operation, model, builder);
         }
