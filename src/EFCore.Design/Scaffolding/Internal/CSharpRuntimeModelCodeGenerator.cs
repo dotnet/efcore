@@ -107,14 +107,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         builder.AppendLine()
             .AppendLine("#pragma warning disable 219, 612, 618");
 
-        if (nullable)
-        {
-            builder.AppendLine("#nullable enable");
-        }
-        else
-        {
-            builder.AppendLine("#nullable disable");
-        }
+        builder.AppendLine(nullable ? "#nullable enable" : "#nullable disable");
 
         builder.AppendLine();
 

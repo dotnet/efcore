@@ -153,9 +153,9 @@ public class CaseExpression : SqlExpression
 
     private bool Equals(CaseExpression caseExpression)
         => base.Equals(caseExpression)
-            && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
+            && (Operand?.Equals(caseExpression.Operand) ?? caseExpression.Operand == null)
             && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-            && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
+            && (ElseResult?.Equals(caseExpression.ElseResult) ?? caseExpression.ElseResult == null);
 
     /// <inheritdoc />
     public override int GetHashCode()

@@ -597,9 +597,7 @@ public static class SqlServerPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        return sharedTableRootProperty != null
-            ? sharedTableRootProperty.IsSparse(storeObject)
-            : null;
+        return sharedTableRootProperty?.IsSparse(storeObject);
     }
 
     /// <summary>

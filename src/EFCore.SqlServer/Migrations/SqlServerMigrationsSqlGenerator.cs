@@ -1528,16 +1528,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || name == periodEndColumnName)
         {
             builder.Append(" GENERATED ALWAYS AS ROW ");
-
-            if (name == periodStartColumnName)
-            {
-                builder.Append("START");
-            }
-            else
-            {
-                builder.Append("END");
-            }
-
+            builder.Append(name == periodStartColumnName ? "START" : "END");
             builder.Append(" HIDDEN");
         }
 
@@ -2526,15 +2517,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 stringBuilder.Append("EXEC(N'");
             }
 
-            var historyTable = default(string);
-            if (historyTableSchema != null)
-            {
-                historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName, historyTableSchema);
-            }
-            else
-            {
-                historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName);
-            }
+            var historyTable = historyTableSchema != null
+                ? Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName, historyTableSchema)
+                : Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName);
 
             stringBuilder
                 .Append("ALTER TABLE ")

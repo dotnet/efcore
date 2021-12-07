@@ -275,12 +275,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return GetColumnOrder(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? GetColumnOrder(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -538,12 +535,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return GetDefaultValueSql(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? GetDefaultValueSql(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -607,12 +601,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return GetComputedColumnSql(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? GetComputedColumnSql(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -684,12 +675,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return GetIsStored(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? GetIsStored(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -957,12 +945,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return IsFixedLength(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? IsFixedLength(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -1094,12 +1079,9 @@ public static class RelationalPropertyExtensions
         }
 
         var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return GetComment(sharedTableRootProperty, storeObject);
-        }
-
-        return null;
+        return sharedTableRootProperty != null
+            ? GetComment(sharedTableRootProperty, storeObject)
+            : null;
     }
 
     /// <summary>
@@ -1159,18 +1141,9 @@ public static class RelationalPropertyExtensions
         }
 
         var annotation = property.FindAnnotation(RelationalAnnotationNames.Collation);
-        if (annotation != null)
-        {
-            return (string?)annotation.Value;
-        }
-
-        var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-        if (sharedTableRootProperty != null)
-        {
-            return sharedTableRootProperty.GetCollation(storeObject);
-        }
-
-        return null;
+        return annotation != null
+            ? (string?)annotation.Value
+            : property.FindSharedStoreObjectRootProperty(storeObject)?.GetCollation(storeObject);
     }
 
     /// <summary>

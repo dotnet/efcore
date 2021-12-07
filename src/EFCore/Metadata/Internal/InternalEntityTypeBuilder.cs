@@ -1038,21 +1038,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
-    {
-        if (configurationSource == ConfigurationSource.Explicit)
-        {
-            return true;
-        }
-
-        if (ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() == false
-            || (type?.TryGetSequenceType() is Type sequenceType
-                && ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() == false))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => configurationSource == ConfigurationSource.Explicit
+            || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
+            && (type?.TryGetSequenceType() is not Type sequenceType
+                || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4943,14 +4932,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var memberInfo = Metadata.IsPropertyBag
             ? null
             : Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
-        if (memberInfo != null
-            && propertyType != memberInfo.GetMemberType()
-            && typeConfigurationSource != null)
-        {
-            return false;
-        }
 
-        return true;
+        return memberInfo == null
+            || propertyType == memberInfo.GetMemberType()
+            || typeConfigurationSource == null;
     }
 
     /// <summary>

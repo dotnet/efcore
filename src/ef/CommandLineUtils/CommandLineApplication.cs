@@ -200,13 +200,9 @@ internal class CommandLineApplication
         else
         {
             option = command.Options.SingleOrDefault(
-                opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal));
-
-            if (option == null)
-            {
-                option = command.Options.SingleOrDefault(
-                    opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
-            }
+                opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
+                ?? command.Options.SingleOrDefault(
+                opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
         }
 
         if (option == null)
@@ -300,14 +296,9 @@ internal class CommandLineApplication
         string template,
         string shortFormVersion,
         string? longFormVersion = null)
-    {
-        if (longFormVersion == null)
-        {
-            return VersionOption(template, () => shortFormVersion);
-        }
-
-        return VersionOption(template, () => shortFormVersion, () => longFormVersion);
-    }
+        => longFormVersion == null
+            ? VersionOption(template, () => shortFormVersion)
+            : VersionOption(template, () => shortFormVersion, () => longFormVersion);
 
     // Helper method that adds a version option
     public CommandOption VersionOption(
@@ -456,14 +447,7 @@ internal class CommandLineApplication
         if (target.AllowArgumentSeparator
             || target.HandleRemainingArguments)
         {
-            if (target.AllowArgumentSeparator)
-            {
-                headerBuilder.Append(" [[--] <arg>...]]");
-            }
-            else
-            {
-                headerBuilder.Append(" [args]");
-            }
+            headerBuilder.Append(target.AllowArgumentSeparator ? " [[--] <arg>...]]" : " [args]");
 
             if (!string.IsNullOrEmpty(target.ArgumentSeparatorHelpText))
             {
@@ -622,16 +606,10 @@ internal class CommandLineApplication
             => _enumerator.Dispose();
 
         public bool MoveNext()
-        {
-            if (Current?.MultipleValues != true)
-            {
-                return _enumerator.MoveNext();
-            }
-
             // If current argument allows multiple values, we don't move forward and
             // all later values will be added to current CommandArgument.Values
-            return true;
-        }
+            => Current?.MultipleValues == true
+                || _enumerator.MoveNext();
 
         public void Reset()
             => _enumerator.Reset();

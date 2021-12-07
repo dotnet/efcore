@@ -469,14 +469,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var annotations = parameters.Annotations;
-        if (parameters.IsRuntime)
-        {
-            annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
-        }
-        else
-        {
-            annotations.Remove(RelationalAnnotationNames.Filter);
-        }
+        annotations.Remove(parameters.IsRuntime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
 
         base.Generate(index, parameters);
     }

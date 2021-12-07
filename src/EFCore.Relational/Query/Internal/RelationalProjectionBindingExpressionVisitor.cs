@@ -198,12 +198,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
 
                 var translation = _sqlTranslator.Translate(expression);
-                if (translation != null)
-                {
-                    return AddClientProjection(translation, expression.Type.MakeNullable());
-                }
-
-                return base.Visit(expression);
+                return translation != null
+                    ? AddClientProjection(translation, expression.Type.MakeNullable())
+                    : base.Visit(expression);
             }
             else
             {

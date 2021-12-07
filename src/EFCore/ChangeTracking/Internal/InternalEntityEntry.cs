@@ -1685,19 +1685,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var defaultValue = property.ClrType.GetDefaultValue();
         var equals = ValuesEqualFunc(property);
 
-        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-            && !equals(defaultValue, generatedValue))
-        {
-            return false;
-        }
-
-        if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-            && !equals(defaultValue, generatedValue))
-        {
-            return false;
-        }
-
-        return true;
+        return (!_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                || @equals(defaultValue, generatedValue))
+            && (!_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
+                || @equals(defaultValue, generatedValue));
     }
 
     /// <summary>

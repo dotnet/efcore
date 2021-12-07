@@ -2554,12 +2554,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
 
             var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
-            if (mainTable != table)
-            {
-                return GetMainEntry(entry, mainTable);
-            }
 
-            return entry;
+            return mainTable != table
+                ? GetMainEntry(entry, mainTable)
+                : entry;
         }
     }
 

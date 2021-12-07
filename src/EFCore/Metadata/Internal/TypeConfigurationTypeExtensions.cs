@@ -18,9 +18,7 @@ public static class TypeConfigurationTypeExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool? IsEntityType(this TypeConfigurationType? configurationType)
-        => configurationType == null
-            ? null
-            : configurationType.Value.IsEntityType();
+        => configurationType?.IsEntityType();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
