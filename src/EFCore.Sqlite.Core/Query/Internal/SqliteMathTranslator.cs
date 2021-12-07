@@ -98,7 +98,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 sqlFunctionName,
                 finalArguments,
                 nullable: true,
-                argumentsPropagateNullability: finalArguments.Select(a => true).ToList(),
+                argumentsPropagateNullability: finalArguments.Select(_ => true).ToList(),
                 method.ReturnType,
                 typeMapping);
         }

@@ -305,7 +305,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         IConventionEntityType entityType,
         IConventionNavigation navigation)
         where TCustomAttribute : Attribute
-        => GetAttributes<TCustomAttribute>(entityType, navigation.GetIdentifyingMemberInfo());
+        => GetAttributes<TCustomAttribute>(navigation.GetIdentifyingMemberInfo());
 
     /// <summary>
     ///     Returns the attributes applied to the given skip navigation.
@@ -318,11 +318,9 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         IConventionEntityType entityType,
         IConventionSkipNavigation skipNavigation)
         where TCustomAttribute : Attribute
-        => GetAttributes<TCustomAttribute>(entityType, skipNavigation.GetIdentifyingMemberInfo());
+        => GetAttributes<TCustomAttribute>(skipNavigation.GetIdentifyingMemberInfo());
 
-    private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-        IConventionEntityType entityType,
-        MemberInfo? memberInfo)
+    private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(MemberInfo? memberInfo)
         where TCustomAttribute : Attribute
     {
         if (memberInfo == null)

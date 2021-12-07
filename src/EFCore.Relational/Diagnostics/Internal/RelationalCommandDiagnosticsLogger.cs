@@ -1293,7 +1293,7 @@ public class RelationalCommandDiagnosticsLogger
 
             var eventData = new DataReaderDisposingEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 command,
                 dataReader,
                 connection.Context,

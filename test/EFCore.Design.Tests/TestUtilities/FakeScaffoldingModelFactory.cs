@@ -15,10 +15,9 @@ public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
         IPluralizer pluralizer,
         ICSharpUtilities cSharpUtilities,
         IScaffoldingTypeMapper scaffoldingTypeMapper,
-        LoggingDefinitions loggingDefinitions,
         IModelRuntimeInitializer modelRuntimeInitializer)
         : base(
-            reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions,
+            reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
             modelRuntimeInitializer)
     {
     }

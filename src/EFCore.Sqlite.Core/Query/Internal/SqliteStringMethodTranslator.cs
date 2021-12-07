@@ -446,7 +446,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             functionName,
             sqlArguments,
             nullable: true,
-            argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
+            argumentsPropagateNullability: sqlArguments.Select(_ => true).ToList(),
             typeof(string),
             typeMapping);
     }

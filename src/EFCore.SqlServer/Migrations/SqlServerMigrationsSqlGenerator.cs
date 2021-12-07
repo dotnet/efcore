@@ -2280,7 +2280,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         operations.Add(operation);
                         break;
 
-                    case DropTableOperation dropTableOperation:
+                    case DropTableOperation:
                         DisableVersioning(table!, schema, historyTableName!, historyTableSchema);
                         operations.Add(operation);
 
@@ -2490,7 +2490,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void DisableVersioning(string table, string? schema, string historyTableName, string? historyTableSchema)
         {
-            if (!versioningMap.TryGetValue((table, schema), out var result))
+            if (!versioningMap.TryGetValue((table, schema), out _))
             {
                 versioningMap[(table, schema)] = (historyTableName, historyTableSchema);
 
@@ -2541,7 +2541,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         void DisablePeriod(string table, string? schema, string periodStartColumnName, string periodEndColumnName)
         {
-            if (!periodMap.TryGetValue((table, schema), out var result))
+            if (!periodMap.TryGetValue((table, schema), out _))
             {
                 periodMap[(table, schema)] = (periodStartColumnName, periodEndColumnName);
 

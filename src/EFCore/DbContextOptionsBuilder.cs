@@ -122,7 +122,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         Action<string> action,
         LogLevel minimumLevel = LogLevel.Debug,
         DbContextLoggerOptions? options = null)
-        => LogTo(action, (i, l) => l >= minimumLevel, options);
+        => LogTo(action, (_, l) => l >= minimumLevel, options);
 
     /// <summary>
     ///     Logs the specified events using the supplied action. For example, use

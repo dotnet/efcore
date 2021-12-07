@@ -93,7 +93,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         CreateSkipNavigationForeignKey(skipNavigation.Inverse!, joinEntityTypeBuilder, partitionKey);
     }
 
-    private IConventionForeignKey CreateSkipNavigationForeignKey(
+    private void CreateSkipNavigationForeignKey(
         IConventionSkipNavigation skipNavigation,
         IConventionEntityTypeBuilder joinEntityTypeBuilder,
         IConventionProperty partitionKeyProperty)
@@ -101,19 +101,20 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         if (skipNavigation.ForeignKey != null
             && !skipNavigation.Builder.CanSetForeignKey(null))
         {
-            return skipNavigation.ForeignKey;
+            return;
         }
 
         var principalKey = skipNavigation.DeclaringEntityType.FindPrimaryKey();
         if (principalKey == null
             || principalKey.Properties.All(p => p.Name != partitionKeyProperty.Name))
         {
-            return CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder);
+            CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder);
+            return;
         }
 
         if (skipNavigation.ForeignKey?.Properties.Contains(partitionKeyProperty) == true)
         {
-            return skipNavigation.ForeignKey;
+            return;
         }
 
         var dependentProperties = new IConventionProperty[principalKey.Properties.Count];
@@ -136,8 +137,6 @@ public class CosmosManyToManyJoinEntityTypeConvention :
             .Metadata;
 
         skipNavigation.Builder.HasForeignKey(foreignKey);
-
-        return foreignKey;
     }
 
     private void ProcessJoinPartitionKey(IConventionSkipNavigation skipNavigation)

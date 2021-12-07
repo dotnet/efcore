@@ -78,7 +78,7 @@ public class ValueGenerationManager : IValueGenerationManager
                 continue;
             }
 
-            var valueGenerator = GetValueGenerator(entry, property);
+            var valueGenerator = GetValueGenerator(property);
 
             var generatedValue = valueGenerator.Next(entityEntry);
             var temporary = valueGenerator.GeneratesTemporaryValues;
@@ -125,7 +125,7 @@ public class ValueGenerationManager : IValueGenerationManager
                 continue;
             }
 
-            var valueGenerator = GetValueGenerator(entry, property);
+            var valueGenerator = GetValueGenerator(property);
             var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken)
                 .ConfigureAwait(false);
             var temporary = valueGenerator.GeneratesTemporaryValues;
@@ -142,7 +142,7 @@ public class ValueGenerationManager : IValueGenerationManager
         }
     }
 
-    private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
+    private ValueGenerator GetValueGenerator(IProperty property)
         => _valueGeneratorSelector.Select(property, property.DeclaringEntityType);
 
     /// <summary>

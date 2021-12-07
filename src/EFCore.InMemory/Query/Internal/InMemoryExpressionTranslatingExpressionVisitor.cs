@@ -1264,7 +1264,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         switch (expression)
 #pragma warning restore IDE0066 // Convert switch statement to expression
         {
-            case ConstantExpression constantExpression:
+            case ConstantExpression:
                 return true;
 
             case NewExpression newExpression:

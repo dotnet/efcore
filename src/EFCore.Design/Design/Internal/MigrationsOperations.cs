@@ -18,7 +18,6 @@ public class MigrationsOperations
     private readonly string _projectDir;
     private readonly string? _rootNamespace;
     private readonly string? _language;
-    private readonly bool _nullable;
     private readonly DesignTimeServicesBuilder _servicesBuilder;
     private readonly DbContextOperations _contextOperations;
     private readonly string[] _args;
@@ -44,7 +43,6 @@ public class MigrationsOperations
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;
-        _nullable = nullable;
         _args = args ?? Array.Empty<string>();
         _contextOperations = new DbContextOperations(
             reporter,

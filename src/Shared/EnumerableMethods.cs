@@ -284,7 +284,7 @@ internal static class EnumerableMethods
             nameof(Enumerable.AsEnumerable), 1,
             types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]) });
 
-        Cast = GetMethod(nameof(Enumerable.Cast), 1, types => new[] { typeof(IEnumerable) });
+        Cast = GetMethod(nameof(Enumerable.Cast), 1, _ => new[] { typeof(IEnumerable) });
 
         Concat = GetMethod(
             nameof(Enumerable.Concat), 1,
@@ -435,7 +435,7 @@ internal static class EnumerableMethods
             nameof(Enumerable.Min), 2,
             types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], types[1]) });
 
-        OfType = GetMethod(nameof(Enumerable.OfType), 1, types => new[] { typeof(IEnumerable) });
+        OfType = GetMethod(nameof(Enumerable.OfType), 1, _ => new[] { typeof(IEnumerable) });
 
         OrderBy = GetMethod(
             nameof(Enumerable.OrderBy), 2,
@@ -563,12 +563,12 @@ internal static class EnumerableMethods
                 nameof(Enumerable.Average), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });
             MaxWithoutSelectorMethods[type] = GetMethod(
-                nameof(Enumerable.Max), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
+                nameof(Enumerable.Max), 0, _ => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
             MaxWithSelectorMethods[type] = GetMethod(
                 nameof(Enumerable.Max), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });
             MinWithoutSelectorMethods[type] = GetMethod(
-                nameof(Enumerable.Min), 0, types => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
+                nameof(Enumerable.Min), 0, _ => new[] { typeof(IEnumerable<>).MakeGenericType(type) });
             MinWithSelectorMethods[type] = GetMethod(
                 nameof(Enumerable.Min), 1,
                 types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], type) });

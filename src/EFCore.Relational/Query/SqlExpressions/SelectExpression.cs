@@ -919,7 +919,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             Expression CopyProjectionToOuter(SelectExpression innerSelectExpression, Expression innerShaperExpression)
             {
                 var projectionIndexMap = new int[innerSelectExpression._projection.Count];
-                var innerTableReferenceExpression = _tableReferences[^1];
                 for (var j = 0; j < projectionIndexMap.Length; j++)
                 {
                     var projection = MakeNullable(innerSelectExpression._projection[j].Expression, nullable: true);

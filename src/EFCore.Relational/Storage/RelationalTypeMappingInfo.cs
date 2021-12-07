@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public readonly record struct RelationalTypeMappingInfo : IEquatable<RelationalTypeMappingInfo>
+public readonly record struct RelationalTypeMappingInfo
 {
     private readonly TypeMappingInfo _coreTypeMappingInfo;
 

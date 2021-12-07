@@ -573,7 +573,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new EventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
+                (d, _) => ((EventDefinition)d).GenerateMessage());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -750,7 +750,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProviderEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProvider);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -777,7 +777,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProvidersEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProviders);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1101,7 +1101,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProviderEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProvider);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);

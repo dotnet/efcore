@@ -50,7 +50,7 @@ public class SqliteCharMethodTranslator : IMethodCallTranslator
                 sqlFunctionName,
                 arguments,
                 nullable: true,
-                argumentsPropagateNullability: arguments.Select(a => true).ToList(),
+                argumentsPropagateNullability: arguments.Select(_ => true).ToList(),
                 method.ReturnType,
                 arguments[0].TypeMapping);
         }

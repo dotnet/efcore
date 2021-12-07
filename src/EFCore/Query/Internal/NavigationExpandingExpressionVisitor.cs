@@ -625,8 +625,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            thenBy: false);
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.ThenBy)
                         when genericMethod == QueryableMethods.ThenBy:
@@ -635,8 +634,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            thenBy: true);
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
@@ -1433,8 +1431,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private GroupByNavigationExpansionExpression ProcessOrderByThenBy(
         GroupByNavigationExpansionExpression groupBySource,
         MethodInfo genericMethod,
-        LambdaExpression keySelector,
-        bool thenBy)
+        LambdaExpression keySelector)
     {
         keySelector = ProcessLambdaExpression(groupBySource, keySelector);
 

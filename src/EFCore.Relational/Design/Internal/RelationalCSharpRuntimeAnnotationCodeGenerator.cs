@@ -458,14 +458,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     }
 
     /// <inheritdoc />
-    public override void Generate(INavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => base.Generate(navigation, parameters);
-
-    /// <inheritdoc />
-    public override void Generate(ISkipNavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => base.Generate(navigation, parameters);
-
-    /// <inheritdoc />
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var annotations = parameters.Annotations;

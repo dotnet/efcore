@@ -157,7 +157,6 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
 
             var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
-            var mappingCount = mappings.Count;
             IModificationCommand? firstCommands = null;
             foreach (var mapping in mappings)
             {

@@ -93,7 +93,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
                 functionArguments,
                 nullable: true,
                 // TODO: don't propagate for now
-                argumentsPropagateNullability: functionArguments.Select(a => false).ToList(),
+                argumentsPropagateNullability: functionArguments.Select(_ => false).ToList(),
                 typeof(bool));
         }
 

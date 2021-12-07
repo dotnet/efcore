@@ -355,7 +355,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
         }
 
         return HasValueGenerator(
-            (_, __)
+            (_, _)
                 =>
             {
                 try
