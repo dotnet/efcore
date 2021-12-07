@@ -508,10 +508,7 @@ public class RelationalCommand : IRelationalCommand
                 reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
             }
 
-            if (_relationalReader == null)
-            {
-                _relationalReader = CreateRelationalDataReader();
-            }
+            _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
 
@@ -633,10 +630,7 @@ public class RelationalCommand : IRelationalCommand
                     .ConfigureAwait(false);
             }
 
-            if (_relationalReader == null)
-            {
-                _relationalReader = CreateRelationalDataReader();
-            }
+            _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
 

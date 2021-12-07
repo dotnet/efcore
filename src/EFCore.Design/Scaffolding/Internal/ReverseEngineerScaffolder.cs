@@ -88,10 +88,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
             _reporter.WriteWarning(DesignStrings.SensitiveInformationWarning);
         }
 
-        if (codeOptions.ConnectionString == null)
-        {
-            codeOptions.ConnectionString = connectionString;
-        }
+        codeOptions.ConnectionString ??= connectionString;
 
         var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
         var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);

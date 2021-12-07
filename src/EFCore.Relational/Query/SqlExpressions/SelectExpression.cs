@@ -2855,10 +2855,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     [EntityFrameworkInternal]
     public SelectExpression Clone()
     {
-        if (_cloningExpressionVisitor == null)
-        {
-            _cloningExpressionVisitor = new CloningExpressionVisitor();
-        }
+        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
 
         return (SelectExpression)_cloningExpressionVisitor.Visit(this);
     }

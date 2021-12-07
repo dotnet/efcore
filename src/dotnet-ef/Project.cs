@@ -49,10 +49,7 @@ internal class Project
     {
         Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
-        if (buildExtensionsDir == null)
-        {
-            buildExtensionsDir = Path.Combine(Path.GetDirectoryName(file)!, "obj");
-        }
+        buildExtensionsDir ??= Path.Combine(Path.GetDirectoryName(file)!, "obj");
 
         Directory.CreateDirectory(buildExtensionsDir);
 

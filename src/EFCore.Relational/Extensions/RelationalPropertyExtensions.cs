@@ -148,10 +148,7 @@ public static class RelationalPropertyExtensions
                 break;
             }
 
-            if (builder == null)
-            {
-                builder = new StringBuilder();
-            }
+            builder ??= new StringBuilder();
 
             builder.Insert(0, "_");
             builder.Insert(0, ownership.PrincipalToDependent!.Name);

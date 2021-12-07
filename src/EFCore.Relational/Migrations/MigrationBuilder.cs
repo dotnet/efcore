@@ -837,10 +837,7 @@ public class MigrationBuilder
         foreach (var property in typeof(TColumns).GetTypeInfo().DeclaredProperties)
         {
             var addColumnOperation = ((IInfrastructure<AddColumnOperation>)property.GetMethod!.Invoke(columnsObject, null)!).Instance;
-            if (addColumnOperation.Name == null)
-            {
-                addColumnOperation.Name = property.Name;
-            }
+            addColumnOperation.Name ??= property.Name;
             // TODO: addColumnOperation.Validate();
 
             columnMap.Add(property, addColumnOperation);

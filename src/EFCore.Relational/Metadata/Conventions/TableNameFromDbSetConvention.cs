@@ -32,10 +32,7 @@ public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityT
             }
             else
             {
-                if (ambiguousTypes == null)
-                {
-                    ambiguousTypes = new List<Type>();
-                }
+                ambiguousTypes ??= new List<Type>();
 
                 ambiguousTypes.Add(set.Type);
             }

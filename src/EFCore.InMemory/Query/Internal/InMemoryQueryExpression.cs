@@ -831,10 +831,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
     private InMemoryQueryExpression Clone()
     {
-        if (_cloningExpressionVisitor == null)
-        {
-            _cloningExpressionVisitor = new CloningExpressionVisitor();
-        }
+        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
 
         return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
     }

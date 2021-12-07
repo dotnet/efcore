@@ -213,10 +213,7 @@ public class ModificationCommand : IModificationCommand
     {
         var modification = CreateColumnModification(columnModificationParameters);
 
-        if (_columnModifications == null)
-        {
-            _columnModifications = new List<IColumnModification>();
-        }
+        _columnModifications ??= new List<IColumnModification>();
 
         _columnModifications.Add(modification);
 

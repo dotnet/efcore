@@ -241,10 +241,7 @@ public sealed partial class SelectExpression
                     var tableAlias = columnExpression.TableAlias!;
                     if (_columnReferenced!.ContainsKey(tableAlias))
                     {
-                        if (_columnReferenced[tableAlias] == null)
-                        {
-                            _columnReferenced[tableAlias] = new HashSet<string>();
-                        }
+                        _columnReferenced[tableAlias] ??= new HashSet<string>();
 
                         _columnReferenced[tableAlias]!.Add(columnExpression.Name);
                     }

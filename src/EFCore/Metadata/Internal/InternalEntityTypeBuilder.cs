@@ -1696,10 +1696,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         {
                             if (Metadata.IsAssignableFrom(referencingForeignKey.PrincipalEntityType))
                             {
-                                if (relationshipsToBeDetached == null)
-                                {
-                                    relationshipsToBeDetached = new List<ForeignKey>();
-                                }
+                                relationshipsToBeDetached ??= new List<ForeignKey>();
 
                                 relationshipsToBeDetached.Add(referencingForeignKey);
                             }
@@ -1733,10 +1730,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             continue;
                         }
 
-                        if (indexesToBeDetached == null)
-                        {
-                            indexesToBeDetached = new List<Index>();
-                        }
+                        indexesToBeDetached ??= new List<Index>();
 
                         indexesToBeDetached.Add(index);
                     }
@@ -1848,10 +1842,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                                 member.Name));
                     }
 
-                    if (membersToBeRemoved == null)
-                    {
-                        membersToBeRemoved = new List<T>();
-                    }
+                    membersToBeRemoved ??= new List<T>();
 
                     membersToBeRemoved.Add(member);
                     continue;
@@ -2174,10 +2165,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     continue;
                 }
 
-                if (detachedRelationships == null)
-                {
-                    detachedRelationships = new List<RelationshipSnapshot>();
-                }
+                detachedRelationships ??= new List<RelationshipSnapshot>();
 
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached, true);
                 if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -3734,10 +3722,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             }
         }
 
-        if (targetType == null)
-        {
-            targetType = Model.DefaultPropertyBagType;
-        }
+        targetType ??= Model.DefaultPropertyBagType;
 
         switch (ModelBuilder.Metadata.Configuration?.GetConfigurationType(targetType))
         {
@@ -4179,10 +4164,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
             if (conflictingNavigation != null)
             {
-                if (navigationsToDetach == null)
-                {
-                    navigationsToDetach = new List<SkipNavigation>();
-                }
+                navigationsToDetach ??= new List<SkipNavigation>();
 
                 navigationsToDetach.Add(conflictingNavigation);
             }

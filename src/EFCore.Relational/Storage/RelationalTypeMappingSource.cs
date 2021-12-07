@@ -212,10 +212,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 }
             }
 
-            if (isFixedLength == null)
-            {
-                isFixedLength = principal.IsFixedLength();
-            }
+            isFixedLength ??= principal.IsFixedLength();
         }
 
         var storeTypeNameBase = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
@@ -281,25 +278,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 storeTypeBaseName = ParseStoreTypeName(
                     storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
 
-                if (size == null)
-                {
-                    size = parsedSize;
-                }
-
-                if (precision == null)
-                {
-                    precision = parsedPrecision;
-                }
-
-                if (scale == null)
-                {
-                    scale = parsedScale;
-                }
-
-                if (isUnicode == null)
-                {
-                    isUnicode = parsedUnicode;
-                }
+                size ??= parsedSize;
+                precision ??= parsedPrecision;
+                scale ??= parsedScale;
+                isUnicode ??= parsedUnicode;
             }
 
             var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
@@ -411,25 +393,11 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         {
             storeTypeBaseName = ParseStoreTypeName(
                 storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
-            if (size == null)
-            {
-                size = parsedSize;
-            }
 
-            if (precision == null)
-            {
-                precision = parsedPrecision;
-            }
-
-            if (scale == null)
-            {
-                scale = parsedScale;
-            }
-
-            if (unicode == null)
-            {
-                unicode = parsedUnicode;
-            }
+            size ??= parsedSize;
+            precision ??= parsedPrecision;
+            scale ??= parsedScale;
+            unicode ??= parsedUnicode;
         }
 
         return FindMappingWithConversion(
