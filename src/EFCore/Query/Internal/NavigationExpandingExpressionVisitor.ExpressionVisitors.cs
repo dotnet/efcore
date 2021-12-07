@@ -328,10 +328,7 @@ public partial class NavigationExpandingExpressionVisitor
                     && entityReference.IncludePaths.TryGetValue(navigation, out var pendingIncludeTree))
                 {
                     var cachedEntityReference = UnwrapEntityReference(expansion);
-                    if (cachedEntityReference != null)
-                    {
-                        cachedEntityReference.IncludePaths.Merge(pendingIncludeTree);
-                    }
+                    cachedEntityReference?.IncludePaths.Merge(pendingIncludeTree);
                 }
 
                 return expansion;

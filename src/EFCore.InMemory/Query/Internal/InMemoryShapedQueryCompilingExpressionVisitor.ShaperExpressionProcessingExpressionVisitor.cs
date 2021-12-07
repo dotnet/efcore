@@ -330,10 +330,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(includingEntity, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
             }
