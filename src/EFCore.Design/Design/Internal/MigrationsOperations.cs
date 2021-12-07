@@ -98,7 +98,7 @@ public class MigrationsOperations
         return scaffolder.Save(_projectDir, migration, outputDir);
     }
 
-    // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+    // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
     private string? SubnamespaceFromOutputPath(string? outputDir)

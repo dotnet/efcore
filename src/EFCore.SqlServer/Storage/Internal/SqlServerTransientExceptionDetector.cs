@@ -172,7 +172,7 @@ public static class SqlServerTransientExceptionDetector
                     // The row object is inconsistent. Please rerun the query.
                     case 669:
                     // SQL Error Code: 617
-                    // Descriptor for object ID %ld in database ID %d not found in the hash table during attempt to unhash it.
+                    // Descriptor for object ID %ld in database ID %d not found in the hash table during attempt to un-hash it.
                     // A work table is missing an entry. Rerun the query. If a cursor is involved, close and reopen the cursor.
                     case 617:
                     // SQL Error Code: 601

@@ -2238,13 +2238,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         var versioningMap = new Dictionary<(string?, string?), (string, string?)>();
         var periodMap = new Dictionary<(string?, string?), (string, string)>();
-        var availbleSchemas = new List<string>();
+        var availableSchemas = new List<string>();
 
         foreach (var operation in migrationOperations)
         {
             if (operation is EnsureSchemaOperation ensureSchemaOperation)
             {
-                availbleSchemas.Add(ensureSchemaOperation.Name);
+                availableSchemas.Add(ensureSchemaOperation.Name);
             }
 
             var isTemporal = operation[SqlServerAnnotationNames.IsTemporal] as bool? == true;
@@ -2271,10 +2271,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     case CreateTableOperation createTableOperation:
                         if (historyTableSchema != createTableOperation.Schema
                             && historyTableSchema != null
-                            && !availbleSchemas.Contains(historyTableSchema))
+                            && !availableSchemas.Contains(historyTableSchema))
                         {
                             operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
-                            availbleSchemas.Add(historyTableSchema);
+                            availableSchemas.Add(historyTableSchema);
                         }
 
                         operations.Add(operation);
@@ -2329,10 +2329,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 || oldHistoryTableSchema != historyTableSchema)
                             {
                                 if (historyTableSchema != null
-                                    && !availbleSchemas.Contains(historyTableSchema))
+                                    && !availableSchemas.Contains(historyTableSchema))
                                 {
                                     operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
-                                    availbleSchemas.Add(historyTableSchema);
+                                    availableSchemas.Add(historyTableSchema);
                                 }
 
                                 operations.Add(

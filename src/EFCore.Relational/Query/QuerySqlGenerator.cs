@@ -596,15 +596,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitCollate(CollateExpression collateExpresion)
+    protected override Expression VisitCollate(CollateExpression collateExpression)
     {
-        Visit(collateExpresion.Operand);
+        Visit(collateExpression.Operand);
 
         _relationalCommandBuilder
             .Append(" COLLATE ")
-            .Append(collateExpresion.Collation);
+            .Append(collateExpression.Collation);
 
-        return collateExpresion;
+        return collateExpression;
     }
 
     /// <inheritdoc />

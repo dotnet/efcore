@@ -328,7 +328,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
         // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
         // For StartsWith we also first run a LIKE to quickly filter out most non-matching results (sargable, but imprecise
-        // because of wildchars).
+        // because of wild chars).
         if (startsWith)
         {
             return _sqlExpressionFactory.OrElse(

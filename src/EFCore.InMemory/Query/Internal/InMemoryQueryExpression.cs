@@ -680,9 +680,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             propertyExpression = MakeReadValueNullable(propertyExpression);
 
             selectorExpressions.Add(propertyExpression);
-            var readValueExperssion = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
-            innerReadExpressionMap[property] = readValueExperssion;
-            _projectionMappingExpressions.Add(readValueExperssion);
+            var readValueExpression = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
+            innerReadExpressionMap[property] = readValueExpression;
+            _projectionMappingExpressions.Add(readValueExpression);
         }
 
         innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);

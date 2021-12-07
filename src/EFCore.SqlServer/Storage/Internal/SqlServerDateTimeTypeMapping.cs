@@ -86,7 +86,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
 
         if (Precision.HasValue)
         {
-            // Workaround for inconsistant definition of precision/scale between EF and SQLClient for VarTime types
+            // Workaround for inconsistent definition of precision/scale between EF and SQLClient for VarTime types
             parameter.Scale = unchecked((byte)Precision.Value);
         }
     }

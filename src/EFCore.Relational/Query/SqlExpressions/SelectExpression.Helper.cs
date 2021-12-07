@@ -308,12 +308,12 @@ public sealed partial class SelectExpression
             => obj.Column.GetHashCode();
     }
 
-    private sealed class AliasUniquefier : ExpressionVisitor
+    private sealed class AliasUniquifier : ExpressionVisitor
     {
         private readonly HashSet<string> _usedAliases;
         private readonly List<SelectExpression> _visitedSelectExpressions = new();
 
-        public AliasUniquefier(HashSet<string> usedAliases)
+        public AliasUniquifier(HashSet<string> usedAliases)
         {
             _usedAliases = usedAliases;
         }

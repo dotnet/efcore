@@ -44,7 +44,7 @@ public class LikeExpression : SqlExpression
     public virtual SqlExpression Pattern { get; }
 
     /// <summary>
-    ///     The escape chater to use in LIKE.
+    ///     The escape character to use in LIKE.
     /// </summary>
     public virtual SqlExpression? EscapeChar { get; }
 

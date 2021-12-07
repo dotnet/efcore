@@ -263,8 +263,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
             || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
         {
-            if (TryGetInExressionCandidateInfo(left, out var leftCandidateInfo)
-                && TryGetInExressionCandidateInfo(right, out var rightCandidateInfo)
+            if (TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
+                && TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
                 && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                 && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
             {
@@ -416,7 +416,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private static bool TryGetInExressionCandidateInfo(
+    private static bool TryGetInExpressionCandidateInfo(
         SqlExpression sqlExpression,
         [MaybeNullWhen(false)]
         out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType)
@@ -425,7 +425,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
             && sqlUnaryExpression.OperatorType == ExpressionType.Not)
         {
-            if (TryGetInExressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
+            if (TryGetInExpressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
             {
                 candidateInfo = (inner.ColumnExpression, inner.ConstantValue, inner.TypeMapping,
                     inner.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
