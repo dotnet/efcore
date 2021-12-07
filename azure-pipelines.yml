@@ -105,7 +105,7 @@ stages:
 
           - job: macOS
             pool:
-              vmImage: macOS-10.14
+              vmImage: macOS-11
             steps:
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - task: Bash@3
