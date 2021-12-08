@@ -14,7 +14,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class NavigationFixer : INavigationFixer
 {
-    private IList<Action>? _danglingJoinEntities;
+    private IList<(
+            InternalEntityEntry Entry,
+            InternalEntityEntry OtherEntry,
+            ISkipNavigation SkipNavigation,
+            bool FromQuery,
+            bool SetModified)>? _danglingJoinEntities;
+
     private readonly IEntityGraphAttacher _attacher;
     private bool _inFixup;
     private bool _inAttachGraph;
@@ -43,7 +49,11 @@ public class NavigationFixer : INavigationFixer
             return false;
         }
 
-        _danglingJoinEntities?.Clear();
+        if (_danglingJoinEntities != null)
+        {
+            throw new InvalidOperationException(CoreStrings.InvalidDbContext);
+        }
+
         _inAttachGraph = true;
 
         return true;
@@ -61,10 +71,10 @@ public class NavigationFixer : INavigationFixer
         if (_danglingJoinEntities != null)
         {
             var dangles = _danglingJoinEntities.ToList();
-            _danglingJoinEntities.Clear();
-            foreach (var synthesize in dangles)
+            _danglingJoinEntities = null;
+            foreach (var arguments in dangles)
             {
-                synthesize();
+                FindOrCreateJoinEntry(arguments);
             }
         }
     }
@@ -1009,9 +1019,15 @@ public class NavigationFixer : INavigationFixer
         }
         else
         {
-            _danglingJoinEntities ??= new List<Action>();
+            _danglingJoinEntities ??=
+                new List<(
+                    InternalEntityEntry Entry,
+                    InternalEntityEntry OtherEntry,
+                    ISkipNavigation SkipNavigation,
+                    bool FromQuery,
+                    bool SetModified)>();
 
-            _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
+            _danglingJoinEntities.Add(arguments);
         }
     }
 
