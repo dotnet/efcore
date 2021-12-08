@@ -65,6 +65,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
             InExpression e => ApplyTypeMappingOnIn(e),
+            RowValueExpression e => e,
             _ => sqlExpression
         };
     }
@@ -566,6 +567,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null)
         => new(Expression.Constant(value), typeMapping);
+
+    /// <inheritdoc />
+    public virtual RowValueExpression RowValue(
+        ExpressionType operatorType,
+        IReadOnlyList<SqlExpression> columns,
+        IReadOnlyList<SqlExpression> values)
+        => new(operatorType, columns, values, null);
 
     /// <inheritdoc />
     public virtual SelectExpression Select(SqlExpression? projection)

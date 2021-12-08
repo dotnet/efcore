@@ -378,6 +378,8 @@ public class SqlNullabilityProcessor
                 => VisitSqlParameter(sqlParameterExpression, allowOptimizedExpansion, out nullable),
             SqlUnaryExpression sqlUnaryExpression
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
+            RowValueExpression rowValueExpression
+                => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -1092,6 +1094,26 @@ public class SqlNullabilityProcessor
         return !operandNullable && sqlUnaryExpression.OperatorType == ExpressionType.Not
             ? OptimizeNonNullableNotExpression(updated)
             : updated;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="RowValueExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="rowValueExpression">A row value expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitRowValue(RowValueExpression rowValueExpression, bool allowOptimizedExpansion, out bool nullable)
+    {
+        nullable = false;
+        return rowValueExpression;
+        //var match = Visit(likeExpression.Match, out var matchNullable);
+        //var pattern = Visit(likeExpression.Pattern, out var patternNullable);
+        //var escapeChar = Visit(likeExpression.EscapeChar, out var escapeCharNullable);
+
+        //nullable = matchNullable || patternNullable || escapeCharNullable;
+
+        //return likeExpression.Update(match, pattern, escapeChar);
     }
 
     private static bool? TryGetBoolConstantValue(SqlExpression? expression)

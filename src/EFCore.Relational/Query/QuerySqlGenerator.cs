@@ -1139,4 +1139,39 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         return unionExpression;
     }
+
+    /// <inheritdoc />
+    protected override Expression VisitRowValue(RowValueExpression rowValueExpression)
+    {
+        var count = rowValueExpression.Columns.Count;
+
+        _relationalCommandBuilder.Append("(");
+        for (var i = 0; i < count; i++)
+        {
+            Visit(rowValueExpression.Columns[i]);
+
+            if (i < count - 1)
+            {
+                _relationalCommandBuilder.Append(", ");
+            }
+        }
+        _relationalCommandBuilder.Append(")");
+
+        var @operator = _operatorMap[rowValueExpression.OperatorType];
+        _relationalCommandBuilder.Append(@operator);
+
+        _relationalCommandBuilder.Append("(");
+        for (var i = 0; i < count; i++)
+        {
+            Visit(rowValueExpression.Values[i]);
+
+            if (i < count - 1)
+            {
+                _relationalCommandBuilder.Append(", ");
+            }
+        }
+        _relationalCommandBuilder.Append(")");
+
+        return rowValueExpression;
+    }
 }

@@ -46,7 +46,8 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
                 new GetValueOrDefaultTranslator(sqlExpressionFactory),
                 new ComparisonTranslator(sqlExpressionFactory),
                 new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
-                new RandomTranslator(sqlExpressionFactory)
+                new RandomTranslator(sqlExpressionFactory),
+                CreateRowValueTranslator(sqlExpressionFactory),
             });
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -55,6 +56,12 @@ public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvi
     ///     Dependencies for this service.
     /// </summary>
     protected virtual RelationalMethodCallTranslatorProviderDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Creates the translator that handles row value function calls (LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual).
+    /// </summary>
+    protected virtual IMethodCallTranslator CreateRowValueTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        => new RowValueTranslator(sqlExpressionFactory);
 
     /// <inheritdoc />
     public virtual SqlExpression? Translate(

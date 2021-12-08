@@ -469,4 +469,16 @@ public interface ISqlExpressionFactory
     /// <param name="tableExpressionBase">A table source to project from.</param>
     /// <returns>An expression representing a SELECT in a SQL tree.</returns>
     SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase);
+
+    /// <summary>
+    ///     Creates a new <see cref="RowValueExpression" /> which represents a row value comparison in a SQL tree.
+    /// </summary>
+    /// <param name="operatorType">The operator to apply.</param>
+    /// <param name="columns">The columns on which the comparison will be performed..</param>
+    /// <param name="values">The values to compare with.</param>
+    /// <returns>An expression representing a row value comparison in a SQL tree.</returns>
+    RowValueExpression RowValue(
+        ExpressionType operatorType,
+        IReadOnlyList<SqlExpression> columns,
+        IReadOnlyList<SqlExpression> values);
 }

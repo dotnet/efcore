@@ -400,6 +400,9 @@
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
   </data>
+  <data name="InvalidRowValueArgumentsCount" xml:space="preserve">
+    <value>Columns count and values count should be equal.</value>
+  </data>
   <data name="LastUsedWithoutOrderBy" xml:space="preserve">
     <value>Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.</value>
   </data>

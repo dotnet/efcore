@@ -111,6 +111,9 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
 
             case UnionExpression unionExpression:
                 return VisitUnion(unionExpression);
+
+            case RowValueExpression rowValueExpression:
+                return VisitRowValue(rowValueExpression);
         }
 
         return base.VisitExtension(extensionExpression);
@@ -318,4 +321,11 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="unionExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitUnion(UnionExpression unionExpression);
+
+    /// <summary>
+    ///     Visits the children of the row value expression.
+    /// </summary>
+    /// <param name="rowValueExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitRowValue(RowValueExpression rowValueExpression);
 }

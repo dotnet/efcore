@@ -760,6 +760,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 value);
 
         /// <summary>
+        ///     Columns count and values count should be equal.
+        /// </summary>
+        public static string InvalidRowValueArgumentsCount
+            => GetString("InvalidRowValueArgumentsCount");
+
+        /// <summary>
         ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an 'OrderBy' operation on the sequence before calling '{method}'.
         /// </summary>
         public static string LastUsedWithoutOrderBy(object? method)
