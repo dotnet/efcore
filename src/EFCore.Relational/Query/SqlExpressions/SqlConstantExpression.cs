@@ -65,7 +65,7 @@ public class SqlConstantExpression : SqlExpression
         => base.Equals(sqlConstantExpression)
             && ValueEquals(Value, sqlConstantExpression.Value);
 
-    private bool ValueEquals(object? value1, object? value2)
+    private static bool ValueEquals(object? value1, object? value2)
     {
         if (value1 == null)
         {

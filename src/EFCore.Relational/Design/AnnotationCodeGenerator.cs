@@ -580,7 +580,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     protected virtual AttributeCodeFragment? GenerateDataAnnotation(IProperty property, IAnnotation annotation)
         => null;
 
-    private IEnumerable<TCodeFragment> GenerateFluentApiCallsHelper<TAnnotatable, TCodeFragment>(
+    private static IEnumerable<TCodeFragment> GenerateFluentApiCallsHelper<TAnnotatable, TCodeFragment>(
         TAnnotatable annotatable,
         IDictionary<string, IAnnotation> annotations,
         Func<TAnnotatable, IAnnotation, TCodeFragment?> generateCodeFragment)
@@ -597,7 +597,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         }
     }
 
-    private void RemoveConventionalAnnotationsHelper<TAnnotatable>(
+    private static void RemoveConventionalAnnotationsHelper<TAnnotatable>(
         TAnnotatable annotatable,
         IDictionary<string, IAnnotation> annotations,
         Func<TAnnotatable, IAnnotation, bool> isHandledByConvention)

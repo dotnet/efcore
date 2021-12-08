@@ -299,16 +299,16 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
         return result;
     }
 
-    IEnumerable<string> Lines(string value)
+    static IEnumerable<string> Lines(string value)
         => value.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
 
-    string Xml(string value)
+    static string Xml(string value)
         => value.Replace("<", "&lt;").Replace(">", "&gt;");
 
-    string List(IEnumerable<string> items)
+    static string List(IEnumerable<string> items)
         => List(null, items);
 
-    string List(string prefix, IEnumerable<string> items, string suffix = null)
+    static string List(string prefix, IEnumerable<string> items, string suffix = null)
         => string.Join(", ", items.Select(i => prefix + i + suffix));
 
     class ResourceFile

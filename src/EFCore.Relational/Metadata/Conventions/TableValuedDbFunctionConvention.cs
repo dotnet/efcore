@@ -50,7 +50,7 @@ public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     ///     Called when an <see cref="IConventionDbFunction" /> is added to the model.
     /// </summary>
     /// <param name="dbFunctionBuilder">The builder for the <see cref="IConventionDbFunction" />.</param>
-    private void ProcessDbFunctionAdded(
+    private static void ProcessDbFunctionAdded(
         IConventionDbFunctionBuilder dbFunctionBuilder)
     {
         var function = dbFunctionBuilder.Metadata;

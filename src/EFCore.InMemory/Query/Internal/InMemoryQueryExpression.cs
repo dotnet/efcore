@@ -836,7 +836,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
     }
 
-    private Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
+    private static Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
     {
         switch (key)
         {

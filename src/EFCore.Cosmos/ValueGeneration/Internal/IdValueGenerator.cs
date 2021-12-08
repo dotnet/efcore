@@ -79,7 +79,7 @@ public class IdValueGenerator : ValueGenerator
         return builder.ToString();
     }
 
-    private void AppendString(StringBuilder builder, object? propertyValue)
+    private static void AppendString(StringBuilder builder, object? propertyValue)
     {
         switch (propertyValue)
         {

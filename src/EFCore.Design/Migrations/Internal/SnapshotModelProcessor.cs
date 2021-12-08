@@ -129,7 +129,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         }
     }
 
-    private void UpdateSequences(IReadOnlyModel model, string version)
+    private static void UpdateSequences(IReadOnlyModel model, string version)
     {
         if ((!version.StartsWith("1.", StringComparison.Ordinal)
                 && !version.StartsWith("2.", StringComparison.Ordinal)
@@ -157,7 +157,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         }
     }
 
-    private void UpdateOwnedTypes(IMutableEntityType entityType)
+    private static void UpdateOwnedTypes(IMutableEntityType entityType)
     {
         var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
             .ToList();

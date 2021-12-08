@@ -303,7 +303,7 @@ public class DocumentSource
         return anyPropertyUpdated ? document : null;
     }
 
-    private IProperty? FindOrdinalKeyProperty(IEntityType entityType)
+    private static IProperty? FindOrdinalKeyProperty(IEntityType entityType)
         => entityType.FindPrimaryKey()!.Properties.FirstOrDefault(
             p =>
                 p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());

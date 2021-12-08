@@ -152,7 +152,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
         }
     }
 
-    private bool AreCompatible(IConventionCheckConstraint checkConstraint, IConventionCheckConstraint baseCheckConstraint)
+    private static bool AreCompatible(IConventionCheckConstraint checkConstraint, IConventionCheckConstraint baseCheckConstraint)
     {
         var baseTable = StoreObjectIdentifier.Create(baseCheckConstraint.EntityType, StoreObjectType.Table);
         if (baseTable == null)

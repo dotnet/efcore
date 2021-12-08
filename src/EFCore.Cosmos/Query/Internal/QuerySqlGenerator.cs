@@ -430,14 +430,14 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlConstantExpression;
     }
 
-    private string GenerateConstant(object value, CoreTypeMapping typeMapping)
+    private static string GenerateConstant(object value, CoreTypeMapping typeMapping)
     {
         var jToken = GenerateJToken(value, typeMapping);
 
         return jToken is null ? "null" : jToken.ToString(Formatting.None);
     }
 
-    private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+    private static JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
     {
         if (value?.GetType().IsInteger() == true)
         {

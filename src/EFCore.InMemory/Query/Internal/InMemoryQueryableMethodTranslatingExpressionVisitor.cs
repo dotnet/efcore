@@ -1424,7 +1424,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             : source;
     }
 
-    private ShapedQueryExpression TranslateSetOperation(
+    private static ShapedQueryExpression TranslateSetOperation(
         MethodInfo setOperationMethodInfo,
         ShapedQueryExpression source1,
         ShapedQueryExpression source2)
@@ -1446,7 +1446,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                 source1.ShaperExpression, source2.ShaperExpression, makeNullable));
     }
 
-    private Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
+    private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
     {
         switch (shaper1)
         {

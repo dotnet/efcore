@@ -735,7 +735,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return valueExpression;
         }
 
-        private Expression ConvertJTokenToType(Expression jTokenExpression, Type type)
+        private static Expression ConvertJTokenToType(Expression jTokenExpression, Type type)
             => type == typeof(JToken)
                 ? jTokenExpression
                 : Expression.Call(

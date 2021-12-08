@@ -119,7 +119,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlFragmentExpression;
     }
 
-    private bool IsNonComposedSetOperation(SelectExpression selectExpression)
+    private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
         => selectExpression.Offset == null
             && selectExpression.Limit == null
             && !selectExpression.IsDistinct

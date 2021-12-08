@@ -1746,7 +1746,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         IndexWithOptions(operation, builder);
     }
 
-    private void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
+    private static void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
     {
         var options = new List<string>();
 
@@ -2172,10 +2172,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             && model?.GetRelationalModel().FindTable(operation.Table, operation.Schema) is var table
             && operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
-    private string IntegerConstant(long value)
+    private static string IntegerConstant(long value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
-    private bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
+    private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
             ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
 

@@ -1252,7 +1252,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 new QueryExpressionReplacingExpressionVisitor(this, clonedSelectExpression).Visit(shaperExpression)));
     }
 
-    private void PopulateGroupByTerms(
+    private static void PopulateGroupByTerms(
         Expression keySelector,
         List<SqlExpression> groupByTerms,
         List<string?> groupByAliases,

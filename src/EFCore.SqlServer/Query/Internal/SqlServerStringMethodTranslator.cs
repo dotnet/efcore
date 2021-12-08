@@ -487,10 +487,10 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
     }
 
     // See https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
-    private bool IsLikeWildChar(char c)
+    private static bool IsLikeWildChar(char c)
         => c == '%' || c == '_' || c == '[';
 
-    private string EscapeLikePattern(string pattern)
+    private static string EscapeLikePattern(string pattern)
     {
         var builder = new StringBuilder();
         for (var i = 0; i < pattern.Length; i++)
