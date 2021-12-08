@@ -52,4 +52,29 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     protected abstract string CaseInsensitiveCollation { get; }
     protected abstract string CaseSensitiveCollation { get; }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task LessThan(bool async)
+    {
+        return AssertCount(
+            async,
+            ss => ss.Set<Employee>(),
+            ss => ss.Set<Employee>(),
+            e => EF.Functions.LessThan(new object[] { e.EmployeeID }, new object[] { 2 }),
+            e => e.EmployeeID < 2);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task LessThan2(bool async)
+    {
+        var a = 2;
+        return AssertCount(
+            async,
+            ss => ss.Set<Employee>(),
+            ss => ss.Set<Employee>(),
+            e => EF.Functions.LessThan(new object[] { e.EmployeeID }, new object[] { a }),
+            e => e.EmployeeID < 2);
+    }
 }

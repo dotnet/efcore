@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Query.Internal;
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
@@ -40,4 +42,10 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
                 new SqlServerStringMethodTranslator(sqlExpressionFactory)
             });
     }
+
+    /// <inheritdoc/>
+    protected override IMethodCallTranslator CreateRowValueTranslator(ISqlExpressionFactory sqlExpressionFactory)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        => new RowValueExpandedTranslator(sqlExpressionFactory);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 }
