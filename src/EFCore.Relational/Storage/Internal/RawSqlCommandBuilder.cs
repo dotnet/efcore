@@ -14,6 +14,7 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
     private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,11 +25,13 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
     public RawSqlCommandBuilder(
         IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
         ISqlGenerationHelper sqlGenerationHelper,
-        IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+        IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            IRelationalTypeMappingSource typeMappingSource)
     {
         _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
         _sqlGenerationHelper = sqlGenerationHelper;
         _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+        _typeMappingSource = typeMappingSource;
     }
 
     /// <summary>
@@ -77,7 +80,12 @@ public class RawSqlCommandBuilder : IRawSqlCommandBuilder
                 var substitutedName = _sqlGenerationHelper.GenerateParameterName(parameterName);
 
                 substitutions.Add(substitutedName);
-                relationalCommandBuilder.AddParameter(parameterName, substitutedName);
+                var typeMapping = parameter == null
+                        ? _typeMappingSource.GetMappingForValue(null)
+                        : _typeMappingSource.GetMapping(parameter.GetType());
+                var nullable = parameter == null || parameter.GetType().IsNullableType();
+
+                relationalCommandBuilder.AddParameter(parameterName, substitutedName, typeMapping, nullable);
                 parameterValues.Add(parameterName, parameter);
             }
         }

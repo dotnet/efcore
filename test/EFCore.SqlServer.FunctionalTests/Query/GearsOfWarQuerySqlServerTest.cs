@@ -8222,6 +8222,32 @@ FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (CAST(0 AS bit), CAST(1 AS bit))");
     }
 
+    public override async Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)
+    {
+        await base.Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(async);
+
+        AssertSql(
+            @"@__place_0='Seattle' (Size = 4000)
+@__place_0_1='Seattle' (Size = 100) (DbType = AnsiString)
+
+SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = @__place_0 OR [c].[Location] = @__place_0_1");
+    }
+
+    public override async Task Enum_matching_take_value_gets_different_type_mapping(bool async)
+    {
+        await base.Enum_matching_take_value_gets_different_type_mapping(async);
+
+        AssertSql(
+            @"@__p_0='1'
+@__value_1='1'
+
+SELECT TOP(@__p_0) [g].[Rank] & @__value_1
+FROM [Gears] AS [g]
+ORDER BY [g].[Nickname]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class QuerySqlGenerator : SqlExpressionVisitor
 {
-    private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-    private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private IRelationalCommandBuilder _relationalCommandBuilder;
 
     private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
     {
@@ -39,6 +36,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         { ExpressionType.And, " & " },
         { ExpressionType.Or, " | " }
     };
+
+    private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
+    private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    private IRelationalCommandBuilder _relationalCommandBuilder;
+    private Dictionary<string, int>? _repeatedParameterCounts;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
@@ -516,22 +518,44 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
     {
-        var parameterNameInCommand = _sqlGenerationHelper.GenerateParameterName(sqlParameterExpression.Name);
+        var invariantName = sqlParameterExpression.Name;
+        var parameterName = sqlParameterExpression.Name;
 
         if (_relationalCommandBuilder.Parameters
-            .All(p => p.InvariantName != sqlParameterExpression.Name))
+            .All(p => p.InvariantName != parameterName
+                || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
+                    && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
+                        || typeMappedRelationalParameter.RelationalTypeMapping.Converter != sqlParameterExpression.TypeMapping!.Converter))))
         {
+            parameterName = GetUniqueParameterName(parameterName);
             _relationalCommandBuilder.AddParameter(
-                sqlParameterExpression.Name,
-                parameterNameInCommand,
-                sqlParameterExpression.TypeMapping!,
-                sqlParameterExpression.IsNullable);
+                invariantName,
+                _sqlGenerationHelper.GenerateParameterName(parameterName),
+                 sqlParameterExpression.TypeMapping!,
+                 sqlParameterExpression.IsNullable);
         }
 
         _relationalCommandBuilder
-            .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(sqlParameterExpression.Name));
+            .Append(_sqlGenerationHelper.GenerateParameterNamePlaceholder(parameterName));
 
         return sqlParameterExpression;
+
+        string GetUniqueParameterName(string currentName)
+        {
+            _repeatedParameterCounts ??= new Dictionary<string, int>();
+
+            if (!_repeatedParameterCounts.TryGetValue(currentName, out var currentCount))
+            {
+                _repeatedParameterCounts[currentName] = 0;
+
+                return currentName;
+            }
+
+            currentCount++;
+            _repeatedParameterCounts[currentName] = currentCount;
+
+            return currentName + "_" + currentCount;
+        }
     }
 
     /// <inheritdoc />
