@@ -36,4 +36,72 @@ public static class RelationalDbFunctionsExtensions
         TProperty operand,
         [NotParameterized] string collation)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target SQL row value comparisons.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="columns">The columns on which the comparison will be performed.</param>
+    /// <param name="values">The values to compare with.</param>
+    public static bool LessThan(
+        this DbFunctions _,
+        object[] columns,
+        object[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThan)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target SQL row value comparisons.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="columns">The columns on which the comparison will be performed.</param>
+    /// <param name="values">The values to compare with.</param>
+    public static bool LessThanOrEqual(
+        this DbFunctions _,
+        object[] columns,
+        object[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThanOrEqual)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target SQL row value comparisons.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="columns">The columns on which the comparison will be performed.</param>
+    /// <param name="values">The values to compare with.</param>
+    public static bool GreaterThan(
+        this DbFunctions _,
+        object[] columns,
+        object[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThan)));
+
+    /// <summary>
+    ///     A DbFunction method stub that can be used in LINQ queries to target SQL row value comparisons.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="columns">The columns on which the comparison will be performed.</param>
+    /// <param name="values">The values to compare with.</param>
+    public static bool GreaterThanOrEqual(
+        this DbFunctions _,
+        object[] columns,
+        object[] values)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThanOrEqual)));
 }
