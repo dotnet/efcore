@@ -278,10 +278,9 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
         using (var reader = new ResXResourceReader(resourceFile))
         {
             reader.UseResXDataNodes = true;
-            sortedResources = Enumerable.ToList(
-                from DictionaryEntry r in reader
-                orderby r.Key
-                select (ResXDataNode)r.Value);
+            sortedResources = (from DictionaryEntry r in reader
+                               orderby r.Key
+                               select (ResXDataNode)r.Value).ToList();
 
             result.Resources = sortedResources
                 .Select(r => new Resource(r))
@@ -367,7 +366,7 @@ namespace <#= model.Namespace.EndsWith(".Internal", StringComparison.Ordinal) ? 
         public string EventId { get; }
         public string Level { get; }
         public bool Obsolete { get; }
-        public bool ForLogging => Name.StartsWith("Log");
+        public bool ForLogging => Name.StartsWith("Log", StringComparison.Ordinal);
         public IEnumerable<(string NameOfString, string ParamString)> Parameters { get; }
         public IEnumerable<string> Types { get; }
     }

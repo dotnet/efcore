@@ -113,7 +113,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     _ownerMappings[accessExpression] =
                                         (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                     break;
-                                case RootReferenceExpression _:
+                                case RootReferenceExpression:
                                     innerAccessExpression = _jObjectParameter;
                                     break;
                                 default:

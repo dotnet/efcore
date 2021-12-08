@@ -118,7 +118,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             {
                 switch (expression)
                 {
-                    case ConstantExpression _:
+                    case ConstantExpression:
                         return expression;
 
                     case ParameterExpression parameterExpression:
@@ -306,7 +306,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
-            case IncludeExpression _:
+            case IncludeExpression:
                 return _indexBasedBinding ? base.VisitExtension(extensionExpression) : QueryCompilationContext.NotTranslatedExpression;
 
             case CollectionResultExpression collectionResultExpression:
@@ -544,7 +544,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
-        var operand = Visit(unaryExpression.Operand)!;
+        var operand = Visit(unaryExpression.Operand);
 
         return (unaryExpression.NodeType == ExpressionType.Convert
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked)

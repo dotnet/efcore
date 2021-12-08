@@ -110,7 +110,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             switch (expression)
             {
-                case ConstantExpression _:
+                case ConstantExpression:
                     return expression;
 
                 case ParameterExpression parameterExpression:
@@ -130,7 +130,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                     throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
-                case MaterializeCollectionNavigationExpression _:
+                case MaterializeCollectionNavigationExpression:
                     return base.Visit(expression);
             }
 

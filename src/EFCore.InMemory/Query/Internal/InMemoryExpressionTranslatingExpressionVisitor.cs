@@ -247,8 +247,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityProjectionExpression _:
-            case EntityReferenceExpression _:
+            case EntityProjectionExpression:
+            case EntityReferenceExpression:
                 return extensionExpression;
 
             case EntityShaperExpression entityShaperExpression:
@@ -527,7 +527,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = left;
-            arguments = new Expression[1] { right };
+            arguments = new[] { right };
         }
         else if (method.Name == nameof(object.Equals)
                  && methodCallExpression.Object == null
@@ -560,7 +560,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new Expression[2] { left, right };
+            arguments = new[] { left, right };
         }
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
@@ -582,7 +582,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new Expression[2] { enumerable, item };
+            arguments = new[] { enumerable, item };
         }
         else if (methodCallExpression.Arguments.Count == 1
                  && method.IsContainsMethod())
@@ -605,7 +605,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = enumerable;
-            arguments = new Expression[1] { item };
+            arguments = new[] { item };
         }
         else
         {

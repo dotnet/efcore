@@ -715,8 +715,6 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .AppendLine()
                     .Append("oldCollation: ")
                     .Append(Code.Literal(operation.OldDatabase.Collation));
-
-                needComma = true;
             }
 
             builder.Append(")");

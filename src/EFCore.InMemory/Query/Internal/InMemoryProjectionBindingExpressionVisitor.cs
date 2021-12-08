@@ -110,7 +110,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             {
                 switch (expression)
                 {
-                    case ConstantExpression _:
+                    case ConstantExpression:
                         return expression;
 
                     case ProjectionBindingExpression projectionBindingExpression:

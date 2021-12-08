@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data.Common;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -68,7 +70,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
         => _command;
 
     /// <summary>
-    ///     Calls <see cref="DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
+    ///     Calls <see cref="System.Data.Common.DbDataReader.Read" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
     /// </summary>
     /// <returns><see langword="true" /> if there are more rows; otherwise <see langword="false" />.</returns>
     public virtual bool Read()
@@ -79,7 +81,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    ///     Calls <see cref="DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
+    ///     Calls <see cref="System.Data.Common.DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
     ///     <see cref="System.Data.Common.DbDataReader" />.
     /// </summary>
     /// <returns><see langword="true" /> if there are more rows; otherwise <see langword="false" />.</returns>

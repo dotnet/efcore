@@ -136,7 +136,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                         .Append(")");
                     break;
 
-                case TemporalAllTableExpression _:
+                case TemporalAllTableExpression:
                     Sql.Append("ALL");
                     break;
 

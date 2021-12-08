@@ -747,13 +747,13 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
             => value == null ? null : long.Parse(value, CultureInfo.InvariantCulture);
 
         private static Type AsType(string value)
-            => value == typeof(long).Name
+            => value == nameof(Int64)
                 ? typeof(long)
-                : value == typeof(int).Name
+                : value == nameof(Int32)
                     ? typeof(int)
-                    : value == typeof(short).Name
+                    : value == nameof(Int16)
                         ? typeof(short)
-                        : value == typeof(decimal).Name
+                        : value == nameof(Decimal)
                             ? typeof(decimal)
                             : typeof(byte);
 
