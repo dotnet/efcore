@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Transactions;
 
 // ReSharper disable AccessToModifiedClosure
@@ -627,6 +628,35 @@ public class ExecutionStrategyTest : IDisposable
             });
 
         Assert.Equal(2, executionCount);
+    }
+
+    [ConditionalFact]
+    public async Task ExecuteAsync_preserves_synchronization_context_across_retries()
+    {
+        var mockExecutionStrategy = new TestExecutionStrategy(Context, shouldRetryOn: e => e is DbUpdateConcurrencyException);
+
+        var origSyncContext = SynchronizationContext.Current;
+        using var syncContext = new SingleThreadSynchronizationContext();
+        SynchronizationContext.SetSynchronizationContext(syncContext);
+
+        try
+        {
+            var executionCount = 0;
+
+            await mockExecutionStrategy.ExecuteAsync(async _ =>
+            {
+                Assert.Same(syncContext, SynchronizationContext.Current);
+                await Task.Yield();
+                if (executionCount++ < 1)
+                {
+                    throw new DbUpdateConcurrencyException("");
+                }
+            }, cancellationToken: default);
+        }
+        finally
+        {
+            SynchronizationContext.SetSynchronizationContext(origSyncContext);
+        }
     }
 
     protected DbContext CreateContext()
