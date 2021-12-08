@@ -508,7 +508,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             && methodCallExpression.Arguments.Count == 1)
         {
             var left = Visit(methodCallExpression.Object);
-            var right = Visit(methodCallExpression.Arguments[0])!;
+            var right = Visit(methodCallExpression.Arguments[0]);
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
@@ -541,8 +541,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
             }
 
-            var left = Visit(methodCallExpression.Arguments[0])!;
-            var right = Visit(methodCallExpression.Arguments[1])!;
+            var left = Visit(methodCallExpression.Arguments[0]);
+            var right = Visit(methodCallExpression.Arguments[1]);
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
@@ -565,8 +565,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
         {
-            var enumerable = Visit(methodCallExpression.Arguments[0])!;
-            var item = Visit(methodCallExpression.Arguments[1])!;
+            var enumerable = Visit(methodCallExpression.Arguments[0]);
+            var item = Visit(methodCallExpression.Arguments[1]);
 
             if (TryRewriteContainsEntity(
                     enumerable,
@@ -588,7 +588,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                  && method.IsContainsMethod())
         {
             var enumerable = Visit(methodCallExpression.Object);
-            var item = Visit(methodCallExpression.Arguments[0])!;
+            var item = Visit(methodCallExpression.Arguments[0]);
 
             if (TryRewriteContainsEntity(
                     enumerable,

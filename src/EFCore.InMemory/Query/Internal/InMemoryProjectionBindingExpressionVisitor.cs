@@ -74,7 +74,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
 
         _queryExpression = null!;
         _projectionMembers.Clear();
-        result = MatchTypes(result!, expression.Type);
+        result = MatchTypes(result, expression.Type);
 
         return result;
     }

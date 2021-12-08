@@ -1040,7 +1040,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1069,7 +1069,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1117,7 +1117,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                     if (column is null)
                     {
@@ -1227,19 +1227,19 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                     var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
                         ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                     if (principalColumn == null)
                     {
                         invalid = true;
                         _logger.ForeignKeyPrincipalColumnMissingWarning(
                             fkName!,
-                            DisplayName(table.Schema, table.Name!),
+                            DisplayName(table.Schema, table.Name),
                             principalColumnName!,
                             DisplayName(principalTableSchema, principalTableName));
                         break;
@@ -1255,7 +1255,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     {
                         _logger.ReflexiveConstraintIgnored(
                             foreignKey.Name!,
-                            DisplayName(table.Schema, table.Name!));
+                            DisplayName(table.Schema, table.Name));
                     }
                     else
                     {
@@ -1267,7 +1267,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         {
                             _logger.DuplicateForeignKeyConstraintIgnored(
                                 foreignKey.Name!,
-                                DisplayName(table.Schema, table.Name!),
+                                DisplayName(table.Schema, table.Name),
                                 duplicated.Name!);
                             continue;
                         }

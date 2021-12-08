@@ -374,8 +374,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     (name, schema) switch
                     {
                         (null, null) => Array.Empty<object>(),
-                        (_, null) => new object[] { name! },
-                        _ => new object[] { name!, schema! }
+                        (_, null) => new object[] { name },
+                        _ => new object[] { name!, schema }
                     });
 
             case SqlServerValueGenerationStrategy.None:
