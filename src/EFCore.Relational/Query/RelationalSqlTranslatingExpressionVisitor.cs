@@ -667,7 +667,20 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => QueryCompilationContext.NotTranslatedExpression;
+    {
+        var sqlExpressions = new List<SqlExpression>(newArrayExpression.Expressions.Count);
+        foreach (var expression in newArrayExpression.Expressions)
+        {
+            if (TranslationFailed(expression, Visit(expression), out var sqlExpression))
+            {
+                return QueryCompilationContext.NotTranslatedExpression;
+            }
+
+            sqlExpressions.Add(sqlExpression!);
+        }
+
+        return new ArrayExpression(sqlExpressions);
+    }
 
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
