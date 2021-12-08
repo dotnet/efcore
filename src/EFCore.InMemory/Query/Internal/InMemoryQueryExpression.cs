@@ -72,7 +72,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         var discriminatorProperty = entityType.FindDiscriminatorProperty();
         if (discriminatorProperty != null)
         {
-            var keyValueComparer = discriminatorProperty.GetKeyValueComparer()!;
+            var keyValueComparer = discriminatorProperty.GetKeyValueComparer();
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()

@@ -361,7 +361,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                 || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 ? property.IsNullable ? "varbinary(8)" : "binary(8)"
-                : typeName!;
+                : typeName;
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local

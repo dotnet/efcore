@@ -238,7 +238,7 @@ public sealed partial class SelectExpression
             switch (expression)
             {
                 case ColumnExpression columnExpression:
-                    var tableAlias = columnExpression.TableAlias!;
+                    var tableAlias = columnExpression.TableAlias;
                     if (_columnReferenced!.ContainsKey(tableAlias))
                     {
                         _columnReferenced[tableAlias] ??= new HashSet<string>();

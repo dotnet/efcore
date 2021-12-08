@@ -349,7 +349,7 @@ public static class RelationalModelExtensions
     /// <returns>The new <see cref="IMutableDbFunction" />.</returns>
     public static IMutableDbFunction AddDbFunction(this IMutableModel model, MethodInfo methodInfo)
         => DbFunction.AddDbFunction(
-            model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit)!;
+            model, Check.NotNull(methodInfo, nameof(methodInfo)), ConfigurationSource.Explicit);
 
     /// <summary>
     ///     Creates a function mapped to the given method.
