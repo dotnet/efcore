@@ -108,7 +108,7 @@ public class MigrationsOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(_projectDir.Length);
+        var subPath = outputDir[_projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(

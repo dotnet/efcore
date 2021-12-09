@@ -32,7 +32,7 @@ public class PropertyParameterBindingFactory : IPropertyParameterBindingFactory
 
     private static IList<string> GetCandidatePropertyNames(string parameterName)
     {
-        var pascalized = char.ToUpperInvariant(parameterName[0]) + parameterName.Substring(1);
+        var pascalized = char.ToUpperInvariant(parameterName[0]) + parameterName[1..];
 
         return new List<string>
         {

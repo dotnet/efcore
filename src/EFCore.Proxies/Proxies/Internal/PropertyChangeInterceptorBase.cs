@@ -64,6 +64,6 @@ public abstract class PropertyChangeInterceptorBase
             }
         }
 
-        return methodName.Substring(4);
+        return methodName[4..];
     }
 }

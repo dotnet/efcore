@@ -34,7 +34,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                .Select(p => ((string)p.GetValue(null)!).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
+                .Select(p => ((string)p.GetValue(null)!)[(RelationalAnnotationNames.Prefix.Length - 1)..]));
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 
@@ -107,7 +107,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                 var colon = annotation.Name.IndexOf(':');
                 if (colon > 0)
                 {
-                    var stripped = annotation.Name.Substring(colon);
+                    var stripped = annotation.Name[colon..];
                     if (_relationalNames.Contains(stripped))
                     {
                         mutableMetadata.RemoveAnnotation(annotation.Name);
@@ -121,7 +121,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                         else if (!Equals(duplicate.Value, annotation.Value))
                         {
                             _operationReporter.WriteWarning(
-                                DesignStrings.MultipleAnnotationConflict(stripped.Substring(1)));
+                                DesignStrings.MultipleAnnotationConflict(stripped[1..]));
                         }
                     }
                 }

@@ -100,7 +100,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         var genericMarkIndex = sanitizedContextName.IndexOf('`');
         if (genericMarkIndex != -1)
         {
-            sanitizedContextName = sanitizedContextName.Substring(0, genericMarkIndex);
+            sanitizedContextName = sanitizedContextName[..genericMarkIndex];
         }
 
         if (ContainsForeignMigrations(migrationNamespace!))
@@ -207,7 +207,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         return @namespace == rootNamespace
             ? string.Empty
             : @namespace.StartsWith(rootNamespace + '.', StringComparison.Ordinal)
-                ? @namespace.Substring(rootNamespace.Length + 1)
+                ? @namespace[(rootNamespace.Length + 1)..]
                 : @namespace;
     }
 
@@ -252,7 +252,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             .ToList();
         if (migrations.Count != 0)
         {
-            var migration = migrations[migrations.Count - 1];
+            var migration = migrations[^1];
             model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
             if (!Dependencies.MigrationsModelDiffer.HasDifferences(
@@ -277,7 +277,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                     {
                         Dependencies.Migrator.Migrate(
                             migrations.Count > 1
-                                ? migrations[migrations.Count - 2].GetId()
+                                ? migrations[^2].GetId()
                                 : Migration.InitialDatabase);
                     }
                     else
@@ -314,7 +314,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 model = migrations.Count > 1
-                    ? Dependencies.SnapshotModelProcessor.Process(migrations[migrations.Count - 2].TargetModel)
+                    ? Dependencies.SnapshotModelProcessor.Process(migrations[^2].TargetModel)
                     : null;
             }
             else

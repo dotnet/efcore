@@ -43,7 +43,7 @@ public static class TypeExtensions
         var sb = new StringBuilder();
         var removeLowerCase = sb.Append(type.Name.Where(char.IsUpper).ToArray()).ToString();
 
-        return removeLowerCase.Length > 0 ? removeLowerCase.ToLowerInvariant() : type.Name.ToLowerInvariant().Substring(0, 1);
+        return removeLowerCase.Length > 0 ? removeLowerCase.ToLowerInvariant() : type.Name.ToLowerInvariant()[..1];
     }
 
     /// <summary>

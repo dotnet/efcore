@@ -960,7 +960,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 dataDirectory = AppDomain.CurrentDomain.BaseDirectory;
             }
 
-            fileName = Path.Combine(dataDirectory, fileName.Substring("|DataDirectory|".Length));
+            fileName = Path.Combine(dataDirectory, fileName["|DataDirectory|".Length..]);
         }
 
         return Path.GetFullPath(fileName);

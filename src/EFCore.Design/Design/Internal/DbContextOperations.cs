@@ -187,7 +187,7 @@ public class DbContextOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(projectDir.Length);
+        var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(

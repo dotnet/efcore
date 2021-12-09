@@ -442,7 +442,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
             if (openParen > 0)
             {
-                var storeTypeNameBase = storeTypeName.Substring(0, openParen).Trim();
+                var storeTypeNameBase = storeTypeName[..openParen].Trim();
                 var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
                 if (closeParen > openParen)
                 {

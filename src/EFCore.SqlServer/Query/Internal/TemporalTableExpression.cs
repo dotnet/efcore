@@ -20,7 +20,7 @@ public abstract class TemporalTableExpression : TableExpressionBase, IClonableTa
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected TemporalTableExpression(ITableBase table)
-        : base(table.Name.Substring(0, 1).ToLowerInvariant())
+        : base(table.Name[..1].ToLowerInvariant())
     {
         Name = table.Name;
         Schema = table.Schema;
