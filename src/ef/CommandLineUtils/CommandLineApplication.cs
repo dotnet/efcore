@@ -177,7 +177,7 @@ internal class CommandLineApplication
         return command.Invoke(command.ApplicationArguments.ToArray());
     }
 
-    private ParseOptionResult ParseOption(
+    private static ParseOptionResult ParseOption(
         bool isLongOption,
         CommandLineApplication command,
         string[] args,

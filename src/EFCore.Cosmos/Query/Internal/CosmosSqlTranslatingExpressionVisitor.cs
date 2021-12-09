@@ -901,7 +901,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static bool IsNullSqlConstantExpression(Expression expression)
         => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
 
-    private SqlConstantExpression GetConstantOrNull(Expression expression)
+    private static SqlConstantExpression GetConstantOrNull(Expression expression)
         => CanEvaluate(expression)
             ? new SqlConstantExpression(
                 Expression.Constant(
@@ -933,7 +933,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     [DebuggerStepThrough]
-    private bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
+    private static bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
     {
         if (original != null
             && !(translation is SqlExpression))

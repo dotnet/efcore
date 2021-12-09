@@ -214,7 +214,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         return commands;
     }
 
-    private void AddUnchangedSharingEntries(
+    private static void AddUnchangedSharingEntries(
         IEnumerable<SharedTableEntryMap<IModificationCommand>> sharedTablesCommands,
         IList<IUpdateEntry> entries)
     {

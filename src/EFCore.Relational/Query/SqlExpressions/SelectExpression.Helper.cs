@@ -898,7 +898,7 @@ public sealed partial class SelectExpression
             return base.Visit(expression);
         }
 
-        private void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
+        private static void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
         {
             if (target._projection.Count != source._projection.Count)
             {

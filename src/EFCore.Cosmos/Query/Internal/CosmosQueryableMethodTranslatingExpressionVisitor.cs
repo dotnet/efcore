@@ -224,7 +224,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
         return CreateShapedQueryExpression(entityType, selectExpression);
     }
 
-    private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
+    private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
         => new(
             queryExpression,
             new EntityShaperExpression(
@@ -1050,7 +1050,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private static Expression RemapLambdaBody(Expression shaperBody, LambdaExpression lambdaExpression)
         => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters.Single(), shaperBody, lambdaExpression.Body);
 
-    private ShapedQueryExpression AggregateResultShaper(
+    private static ShapedQueryExpression AggregateResultShaper(
         ShapedQueryExpression source,
         Expression projection,
         bool throwOnNullResult,

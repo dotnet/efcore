@@ -156,7 +156,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         target.AddRuntimeAnnotations(annotations);
     }
 
-    private RuntimeDbFunction Create(IDbFunction function, RuntimeModel runtimeModel)
+    private static RuntimeDbFunction Create(IDbFunction function, RuntimeModel runtimeModel)
         => new(
             function.ModelName,
             runtimeModel,
@@ -187,7 +187,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
     }
 
-    private RuntimeDbFunctionParameter Create(IDbFunctionParameter parameter, RuntimeDbFunction runtimeFunction)
+    private static RuntimeDbFunctionParameter Create(IDbFunctionParameter parameter, RuntimeDbFunction runtimeFunction)
         => runtimeFunction.AddParameter(
             parameter.Name,
             parameter.ClrType,
@@ -210,7 +210,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
     {
     }
 
-    private RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
+    private static RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
         => new(
             sequence.Name,
             runtimeModel,
@@ -285,7 +285,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         }
     }
 
-    private RuntimeRelationalPropertyOverrides Create(
+    private static RuntimeRelationalPropertyOverrides Create(
         IRelationalPropertyOverrides propertyOverrides,
         RuntimeProperty runtimeProperty)
         => new(

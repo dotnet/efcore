@@ -49,6 +49,6 @@ public class JsonCosmosSerializer : CosmosSerializer
         return streamPayload;
     }
 
-    private JsonSerializer GetSerializer()
+    private static JsonSerializer GetSerializer()
         => CosmosClientWrapper.Serializer;
 }

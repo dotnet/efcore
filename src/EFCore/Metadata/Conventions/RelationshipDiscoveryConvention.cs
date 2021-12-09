@@ -1112,7 +1112,7 @@ public class RelationshipDiscoveryConvention :
         }
     }
 
-        private bool IsCandidateNavigationProperty(
+        private static bool IsCandidateNavigationProperty(
             IConventionEntityType sourceEntityType,
             string navigationName,
             MemberInfo memberInfo)

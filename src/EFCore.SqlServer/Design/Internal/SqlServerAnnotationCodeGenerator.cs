@@ -321,7 +321,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             _ => null
         };
 
-    private MethodCallCodeFragment? GenerateValueGenerationStrategy(
+    private static MethodCallCodeFragment? GenerateValueGenerationStrategy(
         IDictionary<string, IAnnotation> annotations,
         IModel model,
         bool onModel)

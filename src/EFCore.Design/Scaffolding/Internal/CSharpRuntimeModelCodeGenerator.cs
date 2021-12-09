@@ -1342,7 +1342,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
     }
 
-    private void CreateAnnotations<TAnnotatable>(
+    private static void CreateAnnotations<TAnnotatable>(
         TAnnotatable annotatable,
         Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)

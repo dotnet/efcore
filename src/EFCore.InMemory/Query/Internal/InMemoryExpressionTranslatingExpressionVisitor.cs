@@ -986,7 +986,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
             : expression;
 
-    private IProperty? FindProperty(Expression expression)
+    private static IProperty? FindProperty(Expression expression)
     {
         if (expression.NodeType == ExpressionType.Convert
             && expression.Type.IsNullableType()

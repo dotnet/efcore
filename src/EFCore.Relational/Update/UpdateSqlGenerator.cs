@@ -299,7 +299,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     sb.Append(" = ");
                     if (!o.UseCurrentValueParameter)
                     {
-                        g.AppendSqlLiteral(sb, o, n, s);
+                        AppendSqlLiteral(sb, o, n, s);
                     }
                     else
                     {
@@ -380,7 +380,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                             var (g, n, s) = p;
                             if (!o.UseCurrentValueParameter)
                             {
-                                g.AppendSqlLiteral(sb, o, n, s);
+                                AppendSqlLiteral(sb, o, n, s);
                             }
                             else
                             {
@@ -556,7 +556,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
     }
 
-    private void AppendSqlLiteral(
+    private static void AppendSqlLiteral(
         StringBuilder commandStringBuilder,
         IColumnModification modification,
         string? tableName,

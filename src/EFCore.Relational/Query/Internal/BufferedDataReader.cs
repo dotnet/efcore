@@ -490,7 +490,7 @@ public class BufferedDataReader : DbDataReader
     public override int GetValues(object[] values)
     {
         AssertReaderIsOpenWithData();
-        return _currentResultSet.GetValues(values);
+        return BufferedDataRecord.GetValues(values);
     }
 
     /// <summary>
@@ -837,7 +837,7 @@ public class BufferedDataReader : DbDataReader
             => GetFieldValue<object>(ordinal);
 
 #pragma warning disable IDE0060 // Remove unused parameter
-        public int GetValues(object[] values)
+        public static int GetValues(object[] values)
 #pragma warning restore IDE0060 // Remove unused parameter
             => throw new NotSupportedException();
 

@@ -351,7 +351,7 @@ public class DbContextOperations
         return info;
     }
 
-    private Func<DbContext>? FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
+    private static Func<DbContext>? FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
     {
         var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType);
         var service = appServices.GetService(factoryInterface);

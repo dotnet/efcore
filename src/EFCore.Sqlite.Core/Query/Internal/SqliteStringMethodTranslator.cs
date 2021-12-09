@@ -388,10 +388,10 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
     }
 
     // See https://www.sqlite.org/lang_expr.html
-    private bool IsLikeWildChar(char c)
+    private static bool IsLikeWildChar(char c)
         => c == '%' || c == '_';
 
-    private string EscapeLikePattern(string pattern)
+    private static string EscapeLikePattern(string pattern)
     {
         var builder = new StringBuilder();
         for (var i = 0; i < pattern.Length; i++)

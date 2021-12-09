@@ -338,7 +338,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                 (sb, o, generator) =>
                 {
                     generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                    sb.Append(' ').Append(generator.GetTypeNameForCopy(o.Property!));
+                    sb.Append(' ').Append(GetTypeNameForCopy(o.Property!));
                 });
 
         if (additionalColumns != null)
@@ -353,7 +353,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             .AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
-    private string GetTypeNameForCopy(IProperty property)
+    private static string GetTypeNameForCopy(IProperty property)
     {
         var typeName = property.GetColumnType();
 

@@ -227,7 +227,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         }
     }
 
-    private void ValidateTemporalPeriodProperty(IEntityType temporalEntityType, bool periodStart)
+    private static void ValidateTemporalPeriodProperty(IEntityType temporalEntityType, bool periodStart)
     {
         var annotationPropertyName = periodStart
             ? temporalEntityType.GetPeriodStartPropertyName()
