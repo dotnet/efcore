@@ -33,7 +33,7 @@ public class RelationalSqlTranslatingExpressionVisitorFactory : IRelationalSqlTr
     ///     Creates a new <see cref="RelationalSqlTranslatingExpressionVisitor" />.
     /// </summary>
     /// <param name="queryCompilationContext">The query compilation context to use.</param>
-    /// <param name="queryableMethodTranslatingExpressionVisitor">The visitor to use to translate sub-queries.</param>
+    /// <param name="queryableMethodTranslatingExpressionVisitor">The visitor to use to translate subqueries.</param>
     /// <returns>A relational sql translating expression visitor.</returns>
     public virtual RelationalSqlTranslatingExpressionVisitor Create(
         QueryCompilationContext queryCompilationContext,
