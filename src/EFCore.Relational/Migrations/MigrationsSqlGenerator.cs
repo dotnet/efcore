@@ -969,7 +969,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
                     FormatTable(operation.Table, operation.Schema)));
         }
 
-        var keypropertyMappings = operation.KeyColumnTypes == null
+        var keyPropertyMappings = operation.KeyColumnTypes == null
             ? GetPropertyMappings(operation.KeyColumns, operation.Table, operation.Schema, model)
             : null;
 
@@ -981,7 +981,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             {
                 var name = operation.KeyColumns[j];
                 var value = operation.KeyValues[i, j];
-                var propertyMapping = keypropertyMappings?[j];
+                var propertyMapping = keyPropertyMappings?[j];
                 var columnType = operation.KeyColumnTypes?[j];
                 var typeMapping = propertyMapping != null
                     ? propertyMapping.TypeMapping

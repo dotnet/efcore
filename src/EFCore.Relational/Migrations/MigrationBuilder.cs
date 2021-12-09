@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 /// <summary>
-///     A builder providing a fluentish API for building <see cref="MigrationOperation" />s.
+///     A builder providing a fluent-like API for building <see cref="MigrationOperation" />s.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.

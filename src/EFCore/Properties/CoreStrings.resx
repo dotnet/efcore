@@ -496,7 +496,7 @@
     <value>The block size used for Hi-Lo value generation is not positive. The Hi-Lo generator is usually backed by a SQL sequence and this means that the sequence increment must be positive.</value>
   </data>
   <data name="IdentifyingRelationshipCycle" xml:space="preserve">
-    <value>A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
+    <value>A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.</value>
   </data>
   <data name="IdentityConflict" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
@@ -1426,7 +1426,7 @@
     <value>Unhandled 'INavigationBase' of type '{type}'.</value>
   </data>
   <data name="UnknownEntity" xml:space="preserve">
-    <value>Unhandled {entity} encounted.</value>
+    <value>Unhandled {entity} encountered.</value>
   </data>
   <data name="UnknownKeyValue" xml:space="preserve">
     <value>The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.</value>

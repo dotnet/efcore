@@ -113,7 +113,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
                     typeof(DateTime),
                     periodPropertyName);
 
-                // set column name explicitly so that we don't try to uniquefy it to some other column
+                // set column name explicitly so that we don't try to uniquify it to some other column
                 // in case another property is defined that maps to the same column
                 periodPropertyBuilder?.HasColumnName(periodPropertyName);
             }
