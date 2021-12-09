@@ -86,7 +86,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <summary>
     ///     The default alias separator.
     /// </summary>
-    protected virtual string AliasSeparator { get; } = " AS ";
+    protected virtual string AliasSeparator
+        => " AS ";
 
     /// <summary>
     ///     The current SQL command builder.
@@ -838,7 +839,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         switch (innerExpression)
         {
-            case LikeExpression _:
+            case LikeExpression:
                 return true;
 
             case SqlUnaryExpression sqlUnaryExpression:
@@ -1069,9 +1070,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         static string GetSetOperation(SetOperationBase operation)
             => operation switch
             {
-                ExceptExpression _ => "EXCEPT",
-                IntersectExpression _ => "INTERSECT",
-                UnionExpression _ => "UNION",
+                ExceptExpression => "EXCEPT",
+                IntersectExpression => "INTERSECT",
+                UnionExpression => "UNION",
                 _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType"))
             };
     }

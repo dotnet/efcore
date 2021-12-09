@@ -454,7 +454,8 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <summary>
     ///     Gets the string format to be used to generate SQL literals of this type.
     /// </summary>
-    protected virtual string SqlLiteralFormatString { get; } = "{0}";
+    protected virtual string SqlLiteralFormatString
+        => "{0}";
 
     /// <summary>
     ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.

@@ -217,7 +217,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             TableExpression tableExpression => tableExpression.Table,
             TableValuedFunctionExpression tableValuedFunctionExpression => tableValuedFunctionExpression.StoreFunction,
-            _ => entityType.GetDefaultMappings().Single().Table,
+            _ => entityType.GetDefaultMappings().Single().Table
         };
 
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpressionBase.Alias!);
@@ -1158,7 +1158,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 newGroupByTerms.Add(newItem);
             }
 
-            keySelector = new ReplacingExpressionVisitor(groupByTerms, newGroupByTerms).Visit(keySelector);
+            new ReplacingExpressionVisitor(groupByTerms, newGroupByTerms).Visit(keySelector);
             groupByTerms = newGroupByTerms;
         }
 
@@ -1706,7 +1706,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 ColumnExpression columnExpression => columnExpression.IsNullable,
                 SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                _ => true,
+                _ => true
             };
     }
 

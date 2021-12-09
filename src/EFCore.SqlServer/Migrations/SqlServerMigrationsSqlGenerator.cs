@@ -570,7 +570,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-            var historyTable = default(string);
+            string historyTable;
             if (needsExec)
             {
                 historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName!);
@@ -1684,10 +1684,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
     protected override void IndexTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
-        if (clustered.HasValue)
+        if (operation[SqlServerAnnotationNames.Clustered] is bool clustered)
         {
-            builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");
+            builder.Append(clustered ? "CLUSTERED " : "NONCLUSTERED ");
         }
     }
 

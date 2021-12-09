@@ -976,7 +976,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     }
 
     /// <summary>
-    ///     Template method that by default calls <see cref="DbConnection.CloseAsync" /> but can be overridden
+    ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.CloseAsync" /> but can be overridden
     ///     by providers to make a different call instead.
     /// </summary>
     protected virtual Task CloseDbConnectionAsync()
@@ -1073,7 +1073,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         => DbConnection.Dispose();
 
     /// <summary>
-    ///     Template method that by default calls <see cref="DbConnection.DisposeAsync" /> but can be overridden by
+    ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overridden by
     ///     providers to make a different call instead.
     /// </summary>
     protected virtual ValueTask DisposeDbConnectionAsync()

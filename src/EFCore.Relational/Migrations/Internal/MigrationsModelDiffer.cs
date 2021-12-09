@@ -1863,7 +1863,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var targetTable = diffContext.FindTarget(sourceTable);
-                    bool removedMapping = !(targetTable != null
+                    var removedMapping = !(targetTable != null
                         && targetKeyMap.Keys.Any(
                             k => k.Item2 == targetTable
                                 && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable));

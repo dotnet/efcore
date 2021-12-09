@@ -557,7 +557,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         bool defaultElementSelector)
     {
         var source = ServerQueryExpression;
-        Expression? selector = null;
+        Expression? selector;
         if (defaultElementSelector)
         {
             selector = Lambda(

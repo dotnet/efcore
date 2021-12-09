@@ -70,14 +70,14 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             switch (operation)
             {
-                case AddPrimaryKeyOperation _:
-                case AddUniqueConstraintOperation _:
-                case AddCheckConstraintOperation _:
-                case AlterTableOperation _:
-                case DropCheckConstraintOperation _:
-                case DropForeignKeyOperation _:
-                case DropPrimaryKeyOperation _:
-                case DropUniqueConstraintOperation _:
+                case AddPrimaryKeyOperation:
+                case AddUniqueConstraintOperation:
+                case AddCheckConstraintOperation:
+                case AlterTableOperation:
+                case DropCheckConstraintOperation:
+                case DropForeignKeyOperation:
+                case DropPrimaryKeyOperation:
+                case DropUniqueConstraintOperation:
                 {
                     var tableOperation = (ITableMigrationOperation)operation;
                     var rebuild = rebuilds.GetOrAddNew((tableOperation.Table, tableOperation.Schema));
@@ -220,25 +220,25 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     break;
                 }
 
-                case AlterSequenceOperation _:
-                case CreateSequenceOperation _:
-                case CreateTableOperation _:
-                case DropIndexOperation _:
-                case DropSchemaOperation _:
-                case DropSequenceOperation _:
-                case DropTableOperation _:
-                case EnsureSchemaOperation _:
-                case RenameSequenceOperation _:
-                case RestartSequenceOperation _:
+                case AlterSequenceOperation:
+                case CreateSequenceOperation:
+                case CreateTableOperation:
+                case DropIndexOperation:
+                case DropSchemaOperation:
+                case DropSequenceOperation:
+                case DropTableOperation:
+                case EnsureSchemaOperation:
+                case RenameSequenceOperation:
+                case RestartSequenceOperation:
                 {
                     operations.Add(operation);
 
                     break;
                 }
 
-                case DeleteDataOperation _:
-                case InsertDataOperation _:
-                case UpdateDataOperation _:
+                case DeleteDataOperation:
+                case InsertDataOperation:
+                case UpdateDataOperation:
                 {
                     var tableOperation = (ITableMigrationOperation)operation;
                     if (rebuilds.TryGetValue((tableOperation.Table, tableOperation.Schema), out var rebuild))
