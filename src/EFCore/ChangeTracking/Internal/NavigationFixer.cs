@@ -49,7 +49,8 @@ public class NavigationFixer : INavigationFixer
             return false;
         }
 
-        if (_danglingJoinEntities != null)
+        if (_danglingJoinEntities != null
+            && _danglingJoinEntities.Any())
         {
             throw new InvalidOperationException(CoreStrings.InvalidDbContext);
         }
@@ -68,10 +69,11 @@ public class NavigationFixer : INavigationFixer
     public virtual void CompleteDelayedFixup()
     {
         _inAttachGraph = false;
-        if (_danglingJoinEntities != null)
+        if (_danglingJoinEntities != null
+            && _danglingJoinEntities.Any())
         {
             var dangles = _danglingJoinEntities.ToList();
-            _danglingJoinEntities = null;
+            _danglingJoinEntities.Clear();
             foreach (var arguments in dangles)
             {
                 FindOrCreateJoinEntry(arguments);
