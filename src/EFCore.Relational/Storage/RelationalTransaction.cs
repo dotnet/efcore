@@ -314,7 +314,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
 
             if (!interceptionResult.IsSuppressed)
             {
-                using var command = Connection.DbConnection.CreateCommand();
+                await using var command = Connection.DbConnection.CreateCommand();
                 command.Transaction = _dbTransaction;
                 command.CommandText = _sqlGenerationHelper.GenerateCreateSavepointStatement(name);
                 await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -403,7 +403,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
 
             if (!interceptionResult.IsSuppressed)
             {
-                using var command = Connection.DbConnection.CreateCommand();
+                await using var command = Connection.DbConnection.CreateCommand();
                 command.Transaction = _dbTransaction;
                 command.CommandText = _sqlGenerationHelper.GenerateRollbackToSavepointStatement(name);
                 await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -492,7 +492,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
 
             if (!interceptionResult.IsSuppressed)
             {
-                using var command = Connection.DbConnection.CreateCommand();
+                await using var command = Connection.DbConnection.CreateCommand();
                 command.Transaction = _dbTransaction;
                 command.CommandText = _sqlGenerationHelper.GenerateReleaseSavepointStatement(name);
                 await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
