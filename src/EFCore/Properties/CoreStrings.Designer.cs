@@ -1150,6 +1150,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyProperty);
 
         /// <summary>
+        ///     A previous error has left the DbContext in an invalid state. Applications should not continue to use a DbContext instance after an InvalidOperationException has been thrown.
+        /// </summary>
+        public static string InvalidDbContext
+            => GetString("InvalidDbContext");
+
+        /// <summary>
         ///     The specified type '{type}' must be a non-interface reference type to be used as an entity type.
         /// </summary>
         public static string InvalidEntityType(object? type)

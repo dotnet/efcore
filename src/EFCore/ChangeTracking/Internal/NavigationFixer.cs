@@ -14,8 +14,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class NavigationFixer : INavigationFixer
 {
-    private IList<Action>? _danglingJoinEntities;
-    private readonly IChangeDetector _changeDetector;
+    private IList<(
+            InternalEntityEntry Entry,
+            InternalEntityEntry OtherEntry,
+            ISkipNavigation SkipNavigation,
+            bool FromQuery,
+            bool SetModified)>? _danglingJoinEntities;
+
     private readonly IEntityGraphAttacher _attacher;
     private bool _inFixup;
     private bool _inAttachGraph;
@@ -26,11 +31,8 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public NavigationFixer(
-        IChangeDetector changeDetector,
-        IEntityGraphAttacher attacher)
+    public NavigationFixer(IEntityGraphAttacher attacher)
     {
-        _changeDetector = changeDetector;
         _attacher = attacher;
     }
 
@@ -40,10 +42,22 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void BeginAttachGraph()
+    public virtual bool BeginDelayedFixup()
     {
-        _danglingJoinEntities?.Clear();
+        if (_inAttachGraph)
+        {
+            return false;
+        }
+
+        if (_danglingJoinEntities != null
+            && _danglingJoinEntities.Any())
+        {
+            throw new InvalidOperationException(CoreStrings.InvalidDbContext);
+        }
+
         _inAttachGraph = true;
+
+        return true;
     }
 
     /// <summary>
@@ -52,22 +66,18 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void CompleteAttachGraph()
+    public virtual void CompleteDelayedFixup()
     {
         _inAttachGraph = false;
-        try
+        if (_danglingJoinEntities != null
+            && _danglingJoinEntities.Any())
         {
-            if (_danglingJoinEntities != null)
+            var dangles = _danglingJoinEntities.ToList();
+            _danglingJoinEntities.Clear();
+            foreach (var arguments in dangles)
             {
-                foreach (var synthesize in _danglingJoinEntities)
-                {
-                    synthesize();
-                }
+                FindOrCreateJoinEntry(arguments);
             }
-        }
-        finally
-        {
-            _danglingJoinEntities?.Clear();
         }
     }
 
@@ -77,7 +87,7 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AbortAttachGraph()
+    public virtual void AbortDelayedFixup()
     {
         _inAttachGraph = false;
         _danglingJoinEntities?.Clear();
@@ -120,10 +130,9 @@ public class NavigationFixer : INavigationFixer
             newTargetEntry = null;
         }
 
+        var delayingFixup = BeginDelayedFixup();
         try
         {
-            _inFixup = true;
-
             if (navigation.IsOnDependent)
             {
                 if (newValue != null)
@@ -226,7 +235,10 @@ public class NavigationFixer : INavigationFixer
         }
         finally
         {
-            _inFixup = false;
+            if (delayingFixup)
+            {
+                CompleteDelayedFixup();
+            }
         }
 
         if (newValue != null
@@ -273,13 +285,17 @@ public class NavigationFixer : INavigationFixer
             if (oldTargetEntry != null
                 && oldTargetEntry.EntityState != EntityState.Detached)
             {
+                var delayingFixup = BeginDelayedFixup();
                 try
                 {
-                    _inFixup = true;
-
                     if (navigationBase is ISkipNavigation skipNavigation)
                     {
-                        FindJoinEntry(entry, oldTargetEntry, skipNavigation)?.SetEntityState(EntityState.Deleted);
+                        var joinEntry = FindJoinEntry(entry, oldTargetEntry, skipNavigation);
+
+                        joinEntry?.SetEntityState(
+                            joinEntry.EntityState != EntityState.Added
+                                ? EntityState.Deleted
+                                : EntityState.Detached);
 
                         Check.DebugAssert(
                             skipNavigation.Inverse.IsCollection,
@@ -309,7 +325,10 @@ public class NavigationFixer : INavigationFixer
                 }
                 finally
                 {
-                    _inFixup = false;
+                    if (delayingFixup)
+                    {
+                        CompleteDelayedFixup();
+                    }
                 }
             }
         }
@@ -319,10 +338,9 @@ public class NavigationFixer : INavigationFixer
             var newTargetEntry = stateManager.GetOrCreateEntry(newValue, targetEntityType);
             if (newTargetEntry.EntityState != EntityState.Detached)
             {
+                var delayingFixup = BeginDelayedFixup();
                 try
                 {
-                    _inFixup = true;
-
                     if (navigationBase is ISkipNavigation skipNavigation)
                     {
                         FindOrCreateJoinEntry(
@@ -357,7 +375,10 @@ public class NavigationFixer : INavigationFixer
                 }
                 finally
                 {
-                    _inFixup = false;
+                    if (delayingFixup)
+                    {
+                        CompleteDelayedFixup();
+                    }
                 }
             }
             else
@@ -394,10 +415,9 @@ public class NavigationFixer : INavigationFixer
             return;
         }
 
+        var delayingFixup = BeginDelayedFixup();
         try
         {
-            _inFixup = true;
-
             var stateManager = entry.StateManager;
 
             foreach (var foreignKey in containingForeignKeys)
@@ -538,7 +558,10 @@ public class NavigationFixer : INavigationFixer
         }
         finally
         {
-            _inFixup = false;
+            if (delayingFixup)
+            {
+                CompleteDelayedFixup();
+            }
         }
     }
 
@@ -558,20 +581,8 @@ public class NavigationFixer : INavigationFixer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void TrackedFromQuery(
-        InternalEntityEntry entry)
-    {
-        try
-        {
-            _inFixup = true;
-
-            InitialFixup(entry, fromQuery: true);
-        }
-        finally
-        {
-            _inFixup = false;
-        }
-    }
+    public virtual void TrackedFromQuery(InternalEntityEntry entry)
+        => InitialFixup(entry, fromQuery: true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -584,20 +595,15 @@ public class NavigationFixer : INavigationFixer
         EntityState oldState,
         bool fromQuery)
     {
-        if (fromQuery || _inFixup)
-        {
-            return;
-        }
-
+        var delayingFixup = BeginDelayedFixup();
         try
         {
-            _inFixup = true;
-
             if (oldState == EntityState.Detached)
             {
-                InitialFixup(entry, fromQuery: false);
+                InitialFixup(entry, fromQuery);
             }
-            else if (oldState == EntityState.Deleted
+            else if ((oldState == EntityState.Deleted
+                         || oldState == EntityState.Added)
                      && entry.EntityState == EntityState.Detached)
             {
                 DeleteFixup(entry);
@@ -605,7 +611,10 @@ public class NavigationFixer : INavigationFixer
         }
         finally
         {
-            _inFixup = false;
+            if (delayingFixup)
+            {
+                CompleteDelayedFixup();
+            }
         }
     }
 
@@ -1012,9 +1021,15 @@ public class NavigationFixer : INavigationFixer
         }
         else
         {
-            _danglingJoinEntities ??= new List<Action>();
+            _danglingJoinEntities ??=
+                new List<(
+                    InternalEntityEntry Entry,
+                    InternalEntityEntry OtherEntry,
+                    ISkipNavigation SkipNavigation,
+                    bool FromQuery,
+                    bool SetModified)>();
 
-            _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
+            _danglingJoinEntities.Add(arguments);
         }
     }
 
@@ -1314,18 +1329,26 @@ public class NavigationFixer : INavigationFixer
             && hasOnlyKeyProperties
             && dependentEntry.EntityState != EntityState.Detached)
         {
-            switch (dependentEntry.EntityState)
+            try
             {
-                case EntityState.Added:
-                    dependentEntry.SetEntityState(EntityState.Detached);
-                    DeleteFixup(dependentEntry);
-                    break;
-                case EntityState.Unchanged:
-                case EntityState.Modified:
-                    dependentEntry.SetEntityState(
-                        dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
-                    DeleteFixup(dependentEntry);
-                    break;
+                _inFixup = true;
+                switch (dependentEntry.EntityState)
+                {
+                    case EntityState.Added:
+                        dependentEntry.SetEntityState(EntityState.Detached);
+                        DeleteFixup(dependentEntry);
+                        break;
+                    case EntityState.Unchanged:
+                    case EntityState.Modified:
+                        dependentEntry.SetEntityState(
+                            dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                        DeleteFixup(dependentEntry);
+                        break;
+                }
+            }
+            finally
+            {
+                _inFixup = false;
             }
         }
     }
@@ -1350,7 +1373,7 @@ public class NavigationFixer : INavigationFixer
     {
         if (navigation != null)
         {
-            _changeDetector.Suspend();
+            _inFixup = true;
             var entity = value?.Entity;
             try
             {
@@ -1358,7 +1381,7 @@ public class NavigationFixer : INavigationFixer
             }
             finally
             {
-                _changeDetector.Resume();
+                _inFixup = false;
             }
 
             entry.SetRelationshipSnapshotValue(navigation, entity);
@@ -1369,7 +1392,7 @@ public class NavigationFixer : INavigationFixer
     {
         if (navigation != null)
         {
-            _changeDetector.Suspend();
+            _inFixup = true;
             try
             {
                 if (entry.AddToCollection(navigation, value, fromQuery))
@@ -1379,14 +1402,14 @@ public class NavigationFixer : INavigationFixer
             }
             finally
             {
-                _changeDetector.Resume();
+                _inFixup = false;
             }
         }
     }
 
     private void RemoveFromCollection(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value)
     {
-        _changeDetector.Suspend();
+        _inFixup = true;
         try
         {
             if (entry.RemoveFromCollection(navigation, value))
@@ -1396,7 +1419,7 @@ public class NavigationFixer : INavigationFixer
         }
         finally
         {
-            _changeDetector.Resume();
+            _inFixup = false;
         }
     }
 

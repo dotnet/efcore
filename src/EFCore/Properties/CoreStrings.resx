@@ -547,6 +547,9 @@
   <data name="InvalidAlternateKeyValue" xml:space="preserve">
     <value>Unable to track an entity of type '{entityType}' because alternate key property '{keyProperty}' is null. If the alternate key is not used in a relationship, then consider using a unique index instead. Unique indexes may contain nulls, while alternate keys may not.</value>
   </data>
+  <data name="InvalidDbContext" xml:space="preserve">
+    <value>A previous error has left the DbContext in an invalid state. Applications should not continue to use a DbContext instance after an InvalidOperationException has been thrown.</value>
+  </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The specified type '{type}' must be a non-interface reference type to be used as an entity type.</value>
   </data>
