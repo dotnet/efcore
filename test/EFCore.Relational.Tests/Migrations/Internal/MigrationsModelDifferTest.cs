@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -932,6 +933,138 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Cats", operation.NewName);
                     Assert.Equal("dbo", operation.NewSchema);
                 });
+        }
+
+        [ConditionalFact]
+        public void Rename_table_with_foreign_keys()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                    modelBuilder
+                        .HasAnnotation("ProductVersion", "6.0.0");
+
+                    modelBuilder.Entity("TableRename.Entity1", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.Property<int>("Entity2Id");
+
+                        b.Property<int>("Entity3Id");
+
+                        b.HasKey("Id");
+
+                        b.HasIndex("Entity2Id");
+
+                        b.HasIndex("Entity3Id");
+
+                        b.ToTable("Entity1");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity2", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Entity2");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity3", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Entity3");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity1", b =>
+                    {
+                        b.HasOne("TableRename.Entity2", "Entity2Navigation")
+                            .WithMany("Entity1s")
+                            .HasForeignKey("Entity2Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b.HasOne("TableRename.Entity3", "Entity3Navigation")
+                            .WithMany("Entity1s")
+                            .HasForeignKey("Entity3Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+                    });
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("TableRename.Entity4", b =>
+                    {
+                        b.Property<int>("Id");
+
+                        b.Property<int>("Entity2Id");
+
+                        b.Property<int>("Entity3Id");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity2", b =>
+                    {
+                        b.Property<int>("Id");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity3", b =>
+                    {
+                        b.Property<int>("Id");
+                    });
+
+                    modelBuilder.Entity("TableRename.Entity4", b =>
+                    {
+                        b.HasOne("TableRename.Entity2", "Entity2Navigation")
+                            .WithMany("Entity4s")
+                            .HasForeignKey("Entity2Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b.HasOne("TableRename.Entity3", "Entity3Navigation")
+                            .WithMany("Entity4s")
+                            .HasForeignKey("Entity3Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+                    });
+                },
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DropTableOperation>(o);
+                        Assert.Equal("Entity1", m.Name);
+                        Assert.Null(m.Schema);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<CreateTableOperation>(o);
+                        Assert.Equal("Entity4", m.Name);
+                        Assert.Null(m.Schema);
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("Entity4", m.Table);
+                        Assert.Equal("IX_Entity4_Entity2Id", m.Name);
+                        Assert.Collection(
+                            m.Columns,
+                            v => Assert.Equal("Entity2Id", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("Entity4", m.Table);
+                        Assert.Equal("IX_Entity4_Entity3Id", m.Name);
+                        Assert.Collection(
+                            m.Columns,
+                            v => Assert.Equal("Entity3Id", v));
+                    }), skipSourceConventions: true);
         }
 
         [ConditionalFact]

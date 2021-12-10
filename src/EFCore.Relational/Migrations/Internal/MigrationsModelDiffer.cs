@@ -758,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var leastPriorityPrimaryKeyProperties = new List<IProperty>();
             var primaryKeyPropertyGroups = new Dictionary<PropertyInfo, IProperty>();
             var groups = new Dictionary<PropertyInfo, List<IProperty>>();
-            var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<int, IProperty>>();
+            var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<(int, string), IProperty>>();
             var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
 
             foreach (var property in entityType.GetDeclaredProperties())
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     clrProperty = foreignKey.DependentToPrincipal!.PropertyInfo!;
                     var groupIndex = foreignKey.Properties.IndexOf(property);
 
-                    unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
+                    unorderedGroups.GetOrAddNew(clrProperty).Add((groupIndex, property.Name), property);
                 }
                 else
                 {
