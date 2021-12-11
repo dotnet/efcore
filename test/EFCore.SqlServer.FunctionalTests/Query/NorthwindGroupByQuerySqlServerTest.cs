@@ -66,6 +66,26 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
     }
 
+    public override async Task GroupBy_Property_Select_Count_with_nulls(bool async)
+    {
+        await base.GroupBy_Property_Select_Count_with_nulls(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COUNT(*) AS [Faxes]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
+    public override async Task GroupBy_Property_Select_LongCount_with_nulls(bool async)
+    {
+        await base.GroupBy_Property_Select_LongCount_with_nulls(async);
+
+        AssertSql(
+            @"SELECT [c].[City], COUNT_BIG(*) AS [Faxes]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+    }
+
     public override async Task GroupBy_Property_Select_Max(bool async)
     {
         await base.GroupBy_Property_Select_Max(async);
