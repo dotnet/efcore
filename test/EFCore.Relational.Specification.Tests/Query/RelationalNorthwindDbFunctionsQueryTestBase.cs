@@ -55,7 +55,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task LessThan(bool async)
+    public virtual Task LessThan_constant(bool async)
     {
         return AssertCount(
             async,
@@ -67,7 +67,7 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task LessThan2(bool async)
+    public virtual Task LessThan_variables(bool async)
     {
         var a = 2;
         return AssertCount(

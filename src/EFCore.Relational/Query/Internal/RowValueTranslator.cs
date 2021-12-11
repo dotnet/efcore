@@ -69,6 +69,7 @@ public class RowValueTranslator : IMethodCallTranslator
     {
         if (_methodInfoOperatorTypeMap.TryGetValue(method, out var operatorType))
         {
+
             var columns = UnwrapColumns(arguments[1]);
             var values = UnwrapValues(arguments[2]);
             return _sqlExpressionFactory.RowValue(operatorType, columns, values);
@@ -79,18 +80,16 @@ public class RowValueTranslator : IMethodCallTranslator
 
     private IReadOnlyList<SqlExpression> UnwrapColumns(SqlExpression sqlExpression)
     {
-        return ((ArrayExpression)sqlExpression).Values;
+        return ((ArrayExpression)sqlExpression).Values
+            .Select(x => RemoveObjectConvert(x))
+            .ToList();
     }
 
-    private IReadOnlyList<SqlExpression> UnwrapValues(SqlExpression sqlExpression)
+    private IReadOnlyList<object> UnwrapValues(SqlExpression sqlExpression)
     {
-        //var c = ((SqlConstantExpression)sqlExpression).Value;
-
-        // ---
-
-        var sqlParamExp = sqlExpression as SqlParameterExpression;
-
-        return new List<SqlExpression>();
+        var constantValue = ((SqlConstantExpression)sqlExpression).Value!;
+        var valuesArray = (object[])constantValue;
+        return valuesArray.ToList();
     }
 
     /// <summary>
@@ -99,11 +98,8 @@ public class RowValueTranslator : IMethodCallTranslator
     protected virtual SqlExpression? CreateSqlExpression(
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
-        IReadOnlyList<SqlExpression> values)
+        IReadOnlyList<object> values)
         => _sqlExpressionFactory.RowValue(operatorType, columns, values);
-
-    private bool ValidateValues(SqlExpression values)
-        => values is SqlConstantExpression || values is SqlParameterExpression;
 
     private SqlExpression RemoveObjectConvert(SqlExpression expression)
         => expression is SqlUnaryExpression sqlUnaryExpression

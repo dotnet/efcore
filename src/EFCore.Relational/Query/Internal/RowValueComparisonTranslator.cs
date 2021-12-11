@@ -28,7 +28,7 @@ public class RowValueComparisonTranslator : RowValueTranslator
     protected override SqlExpression? CreateSqlExpression(
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
-        IReadOnlyList<SqlExpression> values)
+        IReadOnlyList<object> values)
     {
         // Create a SqlBinaryExpression
         //new SqlBinaryExpression(operatorType, , , typeof(bool), null);

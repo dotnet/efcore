@@ -480,5 +480,5 @@ public interface ISqlExpressionFactory
     RowValueExpression RowValue(
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
-        IReadOnlyList<SqlExpression> values);
+        IReadOnlyList<object> values);
 }

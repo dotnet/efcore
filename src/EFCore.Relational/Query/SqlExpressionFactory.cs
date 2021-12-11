@@ -572,8 +572,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual RowValueExpression RowValue(
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
-        IReadOnlyList<SqlExpression> values)
-        => new(operatorType, columns, values, null);
+        IReadOnlyList<object> values)
+    {
+        var valuesTypeMappings = values
+            .Select(x => Dependencies.TypeMappingSource.FindMapping(x.GetType(), Dependencies.Model)!)
+            .ToList();
+        return new(operatorType, columns, values, valuesTypeMappings, _boolTypeMapping);
+    }
 
     /// <inheritdoc />
     public virtual SelectExpression Select(SqlExpression? projection)

@@ -28,11 +28,13 @@ public class RowValueExpression : SqlExpression
     /// <param name="operatorType">The operator to apply.</param>
     /// <param name="columns">The columns on which the comparison will be performed..</param>
     /// <param name="values">The values to compare with.</param>
+    /// <param name="valuesTypeMappings">The <see cref="RelationalTypeMapping" />s associated with the values.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public RowValueExpression(
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
-        IReadOnlyList<SqlExpression> values,
+        IReadOnlyList<object> values,
+        IReadOnlyList<RelationalTypeMapping> valuesTypeMappings,
         RelationalTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
@@ -47,12 +49,17 @@ public class RowValueExpression : SqlExpression
         {
             throw new InvalidOperationException(RelationalStrings.InvalidRowValueArgumentsCount);
         }
+        if (values.Count != valuesTypeMappings.Count)
+        {
+            throw new InvalidOperationException(RelationalStrings.InvalidRowValueArgumentsCount);
+        }
 
         // TODO: Validate columns.
 
         OperatorType = operatorType;
         Columns = columns;
         Values = values;
+        ValuesTypeMappings = valuesTypeMappings;
     }
 
     /// <summary>
@@ -68,7 +75,12 @@ public class RowValueExpression : SqlExpression
     /// <summary>
     ///     The values to compare with.
     /// </summary>
-    public virtual IReadOnlyList<SqlExpression> Values { get; }
+    public virtual IReadOnlyList<object> Values { get; }
+
+    /// <summary>
+    ///     The values type mappings.
+    /// </summary>
+    public virtual IReadOnlyList<RelationalTypeMapping> ValuesTypeMappings { get; }
 
     internal static bool IsValidOperator(ExpressionType operatorType)
         => _allowedOperators.Contains(operatorType);
@@ -99,7 +111,7 @@ public class RowValueExpression : SqlExpression
         expressionPrinter.Append("(");
         for (var i = 0; i < count; i++)
         {
-            expressionPrinter.Visit(Values[i]);
+            expressionPrinter.Append(Values[i].ToString()!);
 
             if (i < count - 1)
             {

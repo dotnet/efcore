@@ -1163,7 +1163,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         _relationalCommandBuilder.Append("(");
         for (var i = 0; i < count; i++)
         {
-            Visit(rowValueExpression.Values[i]);
+            _relationalCommandBuilder.Append(
+                rowValueExpression.ValuesTypeMappings[i].GenerateSqlLiteral(rowValueExpression.Values[i]));
 
             if (i < count - 1)
             {
