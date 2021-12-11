@@ -39,13 +39,10 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
                 new SqlServerMathTranslator(sqlExpressionFactory),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
                 new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                new SqlServerStringMethodTranslator(sqlExpressionFactory)
+                new SqlServerStringMethodTranslator(sqlExpressionFactory),
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                new RowValueComparisonTranslator(sqlExpressionFactory),
+#pragma warning restore EF1001 // Internal EF Core API usage.
             });
     }
-
-    /// <inheritdoc/>
-    protected override IMethodCallTranslator CreateRowValueTranslator(ISqlExpressionFactory sqlExpressionFactory)
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        => new RowValueComparisonTranslator(sqlExpressionFactory);
-#pragma warning restore EF1001 // Internal EF Core API usage.
 }
