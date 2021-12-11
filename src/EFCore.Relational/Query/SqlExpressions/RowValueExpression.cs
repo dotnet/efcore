@@ -49,12 +49,6 @@ public class RowValueExpression : SqlExpression
         {
             throw new InvalidOperationException(RelationalStrings.InvalidRowValueArgumentsCount);
         }
-        if (values.Count != valuesTypeMappings.Count)
-        {
-            throw new InvalidOperationException(RelationalStrings.InvalidRowValueArgumentsCount);
-        }
-
-        // TODO: Validate columns.
 
         OperatorType = operatorType;
         Columns = columns;
