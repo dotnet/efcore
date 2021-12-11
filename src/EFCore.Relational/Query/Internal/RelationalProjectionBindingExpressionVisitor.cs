@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly MethodInfo _getParameterValueMethodInfo
+    private static readonly MethodInfo GetParameterValueMethodInfo
         = typeof(RelationalProjectionBindingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
 
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
@@ -126,7 +126,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
                             == true
                                 ? Expression.Call(
-                                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                    GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                                     QueryCompilationContext.QueryContextParameter,
                                     Expression.Constant(parameterExpression.Name))
                                 : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));

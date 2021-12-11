@@ -24,14 +24,14 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 {
     private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
 
-    private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string>
+    private static readonly ISet<string> DateTimePrecisionTypes = new HashSet<string>
     {
         "datetimeoffset",
         "datetime2",
         "time"
     };
 
-    private static readonly ISet<string> _maxLengthRequiredTypes
+    private static readonly ISet<string> MaxLengthRequiredTypes
         = new HashSet<string>
         {
             "binary",
@@ -45,7 +45,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     private const string NamePartRegex
         = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
-    private static readonly Regex _partExtractor
+    private static readonly Regex PartExtractor
         = new(
             string.Format(
                 CultureInfo.InvariantCulture,
@@ -57,7 +57,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
     // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
     // decimal/numeric are excluded because default value varies based on the precision.
-    private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
+    private static readonly Dictionary<string, long[]> DefaultSequenceMinMax =
         new(StringComparer.OrdinalIgnoreCase)
         {
             { "tinyint", new[] { 0L, 255L } },
@@ -244,7 +244,7 @@ WHERE name = '{connection.Database}';";
 
     private static (string? Schema, string Table) Parse(string table)
     {
-        var match = _partExtractor.Match(table.Trim());
+        var match = PartExtractor.Match(table.Trim());
 
         if (!match.Success)
         {
@@ -449,7 +449,7 @@ WHERE "
                 MaxValue = maxValue
             };
 
-            if (_defaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))
+            if (DefaultSequenceMinMax.TryGetValue(storeType, out var defaultMinMax))
             {
                 var defaultMin = defaultMinMax[0];
                 sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
@@ -876,13 +876,13 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             return $"{dataTypeName}({precision}, {scale})";
         }
 
-        if (_dateTimePrecisionTypes.Contains(dataTypeName)
+        if (DateTimePrecisionTypes.Contains(dataTypeName)
             && scale != 7)
         {
             return $"{dataTypeName}({scale})";
         }
 
-        if (_maxLengthRequiredTypes.Contains(dataTypeName))
+        if (MaxLengthRequiredTypes.Contains(dataTypeName))
         {
             if (maxLength == -1)
             {

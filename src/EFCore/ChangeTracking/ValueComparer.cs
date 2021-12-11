@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </remarks>
 public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
 {
-    private static readonly MethodInfo _doubleEqualsMethodInfo
+    private static readonly MethodInfo DoubleEqualsMethodInfo
         = typeof(double).GetRequiredRuntimeMethod(nameof(double.Equals), typeof(double));
 
-    private static readonly MethodInfo _floatEqualsMethodInfo
+    private static readonly MethodInfo FloatEqualsMethodInfo
         = typeof(float).GetRequiredRuntimeMethod(nameof(float.Equals), typeof(float));
 
     internal static readonly MethodInfo ArrayCopyMethod
@@ -256,7 +256,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         }
 
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, _doubleEqualsMethodInfo, rightExpression);
+            => Expression.Call(leftExpression, DoubleEqualsMethodInfo, rightExpression);
     }
 
     internal sealed class DefaultFloatValueComparer : DefaultValueComparer<float>
@@ -267,12 +267,12 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         }
 
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, _floatEqualsMethodInfo, rightExpression);
+            => Expression.Call(leftExpression, FloatEqualsMethodInfo, rightExpression);
     }
 
     internal sealed class DefaultDateTimeOffsetValueComparer : DefaultValueComparer<DateTimeOffset>
     {
-        private static readonly MethodInfo _equalsExactMethodInfo
+        private static readonly MethodInfo EqualsExactMethodInfo
             = typeof(DateTimeOffset).GetRequiredRuntimeMethod(nameof(DateTimeOffset.EqualsExact), typeof(DateTimeOffset));
 
         // In .NET, two DateTimeOffset instances are considered equal if they represent the same point in time but with different
@@ -283,6 +283,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         }
 
         public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
-            => Expression.Call(leftExpression, _equalsExactMethodInfo, rightExpression);
+            => Expression.Call(leftExpression, EqualsExactMethodInfo, rightExpression);
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteMathTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> _supportedMethods = new()
+    private static readonly Dictionary<MethodInfo, string> SupportedMethods = new()
     {
         { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(double)), "abs" },
         { typeof(Math).GetRequiredMethod(nameof(Math.Abs), typeof(float)), "abs" },
@@ -74,7 +74,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_supportedMethods.TryGetValue(method, out var sqlFunctionName))
+        if (SupportedMethods.TryGetValue(method, out var sqlFunctionName))
         {
             RelationalTypeMapping? typeMapping;
             List<SqlExpression>? newArguments = null;

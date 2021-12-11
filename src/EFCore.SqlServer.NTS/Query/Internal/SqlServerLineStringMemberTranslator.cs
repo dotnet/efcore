@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerLineStringMemberTranslator : IMemberTranslator
 {
-    private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
+    private static readonly IDictionary<MemberInfo, string> MemberToFunctionName = new Dictionary<MemberInfo, string>
     {
         { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.Count)), "STNumPoints" },
         { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.EndPoint)), "STEndPoint" },
@@ -52,7 +52,7 @@ public class SqlServerLineStringMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_memberToFunctionName.TryGetValue(member, out var functionName))
+        if (MemberToFunctionName.TryGetValue(member, out var functionName))
         {
             Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
             var storeType = instance.TypeMapping.StoreType;

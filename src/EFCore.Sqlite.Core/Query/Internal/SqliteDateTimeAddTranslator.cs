@@ -13,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteDateTimeAddTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _addMilliseconds
+    private static readonly MethodInfo AddMilliseconds
         = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMilliseconds), typeof(double));
 
-    private static readonly MethodInfo _addTicks
+    private static readonly MethodInfo AddTicks
         = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddTicks), typeof(long));
 
     private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
@@ -68,7 +68,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments)
     {
         SqlExpression? modifier = null;
-        if (_addMilliseconds.Equals(method))
+        if (AddMilliseconds.Equals(method))
         {
             modifier = _sqlExpressionFactory.Add(
                 _sqlExpressionFactory.Convert(
@@ -78,7 +78,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
                     typeof(string)),
                 _sqlExpressionFactory.Constant(" seconds"));
         }
-        else if (_addTicks.Equals(method))
+        else if (AddTicks.Equals(method))
         {
             modifier = _sqlExpressionFactory.Add(
                 _sqlExpressionFactory.Convert(

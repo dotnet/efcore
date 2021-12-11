@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class CompiledQueryCache : ICompiledQueryCache
 {
-    private static readonly ConcurrentDictionary<object, object> _locks = new();
+    private static readonly ConcurrentDictionary<object, object> Locks = new();
 
     private readonly IMemoryCache _memoryCache;
 
@@ -50,7 +50,7 @@ public class CompiledQueryCache : ICompiledQueryCache
         // herd), have only one actually process and block the others.
         // Note that the following synchronization isn't perfect - some race conditions may cause concurrent
         // processing. This is benign (and rare).
-        var compilationLock = _locks.GetOrAdd(cacheKey, _ => new object());
+        var compilationLock = Locks.GetOrAdd(cacheKey, _ => new object());
         try
         {
             lock (compilationLock)
@@ -72,7 +72,7 @@ public class CompiledQueryCache : ICompiledQueryCache
         }
         finally
         {
-            _locks.TryRemove(cacheKey, out _);
+            Locks.TryRemove(cacheKey, out _);
         }
     }
 }

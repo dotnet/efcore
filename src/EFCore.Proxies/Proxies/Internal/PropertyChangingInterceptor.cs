@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 /// </summary>
 public class PropertyChangingInterceptor : PropertyChangeInterceptorBase, IInterceptor
 {
-    private static readonly Type _notifyChangingInterface = typeof(INotifyPropertyChanging);
+    private static readonly Type NotifyChangingInterface = typeof(INotifyPropertyChanging);
 
     private readonly bool _checkEquality;
     private PropertyChangingEventHandler? _handler;
@@ -46,7 +46,7 @@ public class PropertyChangingInterceptor : PropertyChangeInterceptorBase, IInter
     {
         var methodName = invocation.Method.Name;
 
-        if (invocation.Method.DeclaringType == _notifyChangingInterface)
+        if (invocation.Method.DeclaringType == NotifyChangingInterface)
         {
             if (methodName == $"add_{nameof(INotifyPropertyChanging.PropertyChanging)}")
             {

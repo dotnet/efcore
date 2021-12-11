@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqlitePolygonMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _getInteriorRingN
+    private static readonly MethodInfo GetInteriorRingN
         = typeof(Polygon).GetRequiredRuntimeMethod(nameof(Polygon.GetInteriorRingN), typeof(int));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -42,7 +42,7 @@ public class SqlitePolygonMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _getInteriorRingN))
+        if (Equals(method, GetInteriorRingN))
         {
             return _sqlExpressionFactory.Function(
                 "InteriorRingN",

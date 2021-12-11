@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlUnaryExpression : SqlExpression
 {
-    private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+    private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
     {
         ExpressionType.Equal,
         ExpressionType.NotEqual,
@@ -24,7 +24,7 @@ public class SqlUnaryExpression : SqlExpression
     };
 
     internal static bool IsValidOperator(ExpressionType operatorType)
-        => _allowedOperators.Contains(operatorType);
+        => AllowedOperators.Contains(operatorType);
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlUnaryExpression" /> class.

@@ -26,21 +26,21 @@ public class ValueConverterSelector : IValueConverterSelector
 {
     private readonly ConcurrentDictionary<(Type ModelClrType, Type ProviderClrType), ValueConverterInfo> _converters = new();
 
-    private static readonly Type[] _signedPreferred = { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
+    private static readonly Type[] SignedPreferred = { typeof(sbyte), typeof(short), typeof(int), typeof(long), typeof(decimal) };
 
-    private static readonly Type[] _unsignedPreferred =
+    private static readonly Type[] UnsignedPreferred =
     {
         typeof(byte), typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
     };
 
-    private static readonly Type[] _floatingPreferred = { typeof(float), typeof(double), typeof(decimal) };
+    private static readonly Type[] FloatingPreferred = { typeof(float), typeof(double), typeof(decimal) };
 
-    private static readonly Type[] _charPreferred =
+    private static readonly Type[] CharPreferred =
     {
         typeof(char), typeof(int), typeof(ushort), typeof(uint), typeof(long), typeof(ulong), typeof(decimal)
     };
 
-    private static readonly Type[] _numerics =
+    private static readonly Type[] Numerics =
     {
         typeof(int),
         typeof(long),
@@ -185,7 +185,7 @@ public class ValueConverterSelector : IValueConverterSelector
                     (typeof(string), providerClrType),
                     k => GetDefaultValueConverterInfo(typeof(StringToEnumConverter<>).MakeGenericType(k.ProviderClrType)));
             }
-            else if (_numerics.Contains(providerClrType))
+            else if (Numerics.Contains(providerClrType))
             {
                 foreach (var converterInfo in FindNumericConventions(
                              typeof(string),
@@ -321,11 +321,11 @@ public class ValueConverterSelector : IValueConverterSelector
                     _ => PhysicalAddressToBytesConverter.DefaultInfo);
             }
         }
-        else if (_numerics.Contains(modelClrType)
+        else if (Numerics.Contains(modelClrType)
                  && (providerClrType == null
                      || providerClrType == typeof(byte[])
                      || providerClrType == typeof(string)
-                     || _numerics.Contains(providerClrType)))
+                     || Numerics.Contains(providerClrType)))
         {
             foreach (var converterInfo in FindNumericConventions(
                          modelClrType,
@@ -449,7 +449,7 @@ public class ValueConverterSelector : IValueConverterSelector
         }
 
         foreach (var converterInfo in FindPreferredConversions(
-                     _signedPreferred, modelType, providerType, converterType))
+                     SignedPreferred, modelType, providerType, converterType))
         {
             if (!usedTypes.Contains(converterInfo.ProviderClrType))
             {
@@ -465,7 +465,7 @@ public class ValueConverterSelector : IValueConverterSelector
             || underlyingModelType == typeof(ushort))
         {
             foreach (var converterInfo in FindPreferredConversions(
-                         _unsignedPreferred, modelType, providerType, converterType))
+                         UnsignedPreferred, modelType, providerType, converterType))
             {
                 if (!usedTypes.Contains(converterInfo.ProviderClrType))
                 {
@@ -480,7 +480,7 @@ public class ValueConverterSelector : IValueConverterSelector
             || underlyingModelType == typeof(double))
         {
             foreach (var converterInfo in FindPreferredConversions(
-                         _floatingPreferred, modelType, providerType, converterType))
+                         FloatingPreferred, modelType, providerType, converterType))
             {
                 yield return converterInfo;
 
@@ -491,7 +491,7 @@ public class ValueConverterSelector : IValueConverterSelector
         if (underlyingModelType == typeof(char))
         {
             foreach (var converterInfo in FindPreferredConversions(
-                         _charPreferred, modelType, providerType, converterType))
+                         CharPreferred, modelType, providerType, converterType))
             {
                 yield return converterInfo;
 
@@ -509,7 +509,7 @@ public class ValueConverterSelector : IValueConverterSelector
             }
         }
 
-        foreach (var numeric in _numerics)
+        foreach (var numeric in Numerics)
         {
             if ((providerType == null
                     || providerType == numeric)

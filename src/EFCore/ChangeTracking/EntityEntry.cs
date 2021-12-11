@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
 public class EntityEntry : IInfrastructure<InternalEntityEntry>
 {
-    private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+    private static readonly int MaxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
     private IEntityFinder? _finder;
 
     /// <summary>
@@ -81,7 +81,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         set
         {
             if (value < 0
-                || (int)value > _maxEntityState)
+                || (int)value > MaxEntityState)
             {
                 throw new ArgumentException(CoreStrings.InvalidEnumValue(value, nameof(value), typeof(EntityState)));
             }

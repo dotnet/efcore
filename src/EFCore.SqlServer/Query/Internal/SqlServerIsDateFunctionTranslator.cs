@@ -15,7 +15,7 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
 {
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private static readonly MethodInfo _methodInfo = typeof(SqlServerDbFunctionsExtensions)
+    private static readonly MethodInfo MethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRequiredRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsDate), typeof(DbFunctions), typeof(string));
 
     /// <summary>
@@ -40,14 +40,14 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => _methodInfo.Equals(method)
+        => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Convert(
                 _sqlExpressionFactory.Function(
                     "ISDATE",
                     new[] { arguments[1] },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
-                    _methodInfo.ReturnType),
-                _methodInfo.ReturnType)
+                    MethodInfo.ReturnType),
+                MethodInfo.ReturnType)
             : null;
 }

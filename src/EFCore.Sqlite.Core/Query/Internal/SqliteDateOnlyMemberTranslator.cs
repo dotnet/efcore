@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteDateOnlyMemberTranslator : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> _datePartMapping
+    private static readonly Dictionary<string, string> DatePartMapping
         = new()
         {
             { nameof(DateOnly.Year), "%Y" },
@@ -47,7 +47,7 @@ public class SqliteDateOnlyMemberTranslator : IMemberTranslator
         MemberInfo member,
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => member.DeclaringType == typeof(DateOnly) && _datePartMapping.TryGetValue(member.Name, out var datePart)
+        => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
             ? _sqlExpressionFactory.Convert(
                 SqliteExpression.Strftime(
                     _sqlExpressionFactory,

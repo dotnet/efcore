@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly ConverterMappingHints _defaultHints = new(size: GetByteCount());
+    private static readonly ConverterMappingHints DefaultHints = new(size: GetByteCount());
 
     /// <summary>
     ///     Creates a new instance of this converter.
@@ -52,7 +52,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     facets for the converted data.
     /// </param>
     public NumberToBytesConverter(ConverterMappingHints? mappingHints)
-        : base(ToBytes(), ToNumber(), _defaultHints.With(mappingHints))
+        : base(ToBytes(), ToNumber(), DefaultHints.With(mappingHints))
     {
     }
 
@@ -60,7 +60,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+        = new(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), DefaultHints);
 
     private static Expression<Func<TNumber, byte[]>> ToBytes()
     {
@@ -87,7 +87,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                     Expression.Convert(input, typeof(byte)))
                 : type == typeof(decimal)
                     ? Expression.Call(
-                        _toBytesMethod,
+                        ToBytesMethod,
                         input)
                     : EnsureEndian(
                         Expression.Call(
@@ -124,7 +124,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                     typeof(sbyte))
                 : type == typeof(decimal)
                     ? Expression.Call(
-                        _toDecimalMethod,
+                        ToDecimalMethod,
                         param)
                     : (Expression)Expression.Call(
                         typeof(BitConverter).GetMethod(
@@ -168,24 +168,24 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
 
         return GetByteCount() switch
         {
-            8 => Expression.Call(_reverseLongMethod, expression),
-            4 => Expression.Call(_reverseIntMethod, expression),
-            2 => Expression.Call(_reverseShortMethod, expression),
+            8 => Expression.Call(ReverseLongMethod, expression),
+            4 => Expression.Call(ReverseIntMethod, expression),
+            2 => Expression.Call(ReverseShortMethod, expression),
             _ => expression
         };
     }
 
-    private static readonly MethodInfo _reverseLongMethod
+    private static readonly MethodInfo ReverseLongMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
             nameof(ReverseLong),
             BindingFlags.Static | BindingFlags.NonPublic)!;
 
-    private static readonly MethodInfo _reverseIntMethod
+    private static readonly MethodInfo ReverseIntMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
             nameof(ReverseInt),
             BindingFlags.Static | BindingFlags.NonPublic)!;
 
-    private static readonly MethodInfo _reverseShortMethod
+    private static readonly MethodInfo ReverseShortMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
             nameof(ReverseShort),
             BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -225,7 +225,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
             ? ReverseInt(bytes)
             : bytes;
 
-    private static readonly MethodInfo _toBytesMethod
+    private static readonly MethodInfo ToBytesMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
             nameof(DecimalToBytes),
             BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -243,7 +243,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
         return bytes;
     }
 
-    private static readonly MethodInfo _toDecimalMethod
+    private static readonly MethodInfo ToDecimalMethod
         = typeof(NumberToBytesConverter<TNumber>).GetMethod(
             nameof(BytesToDecimal),
             BindingFlags.Static | BindingFlags.NonPublic)!;

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteGeometryMethodTranslator : IMethodCallTranslator
 {
-    private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
+    private static readonly IDictionary<MethodInfo, string> MethodToFunctionName = new Dictionary<MethodInfo, string>
     {
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes), "AsBinary" },
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes), "AsText" },
@@ -43,10 +43,10 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), typeof(Geometry)), "Within" }
     };
 
-    private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo GetGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
         nameof(Geometry.GetGeometryN), typeof(int));
 
-    private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo IsWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
         nameof(Geometry.IsWithinDistance), typeof(Geometry), typeof(double));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -76,7 +76,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
     {
         if (instance != null)
         {
-            if (_methodToFunctionName.TryGetValue(method, out var functionName))
+            if (MethodToFunctionName.TryGetValue(method, out var functionName))
             {
                 var finalArguments = new[] { instance }.Concat(arguments);
 
@@ -113,7 +113,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                     method.ReturnType);
             }
 
-            if (Equals(method, _getGeometryN))
+            if (Equals(method, GetGeometryN))
             {
                 return _sqlExpressionFactory.Function(
                     "GeometryN",
@@ -129,7 +129,7 @@ public class SqliteGeometryMethodTranslator : IMethodCallTranslator
                     method.ReturnType);
             }
 
-            if (Equals(method, _isWithinDistance))
+            if (Equals(method, IsWithinDistance))
             {
                 return _sqlExpressionFactory.LessThanOrEqual(
                     _sqlExpressionFactory.Function(

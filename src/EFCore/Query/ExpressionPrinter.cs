@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public class ExpressionPrinter : ExpressionVisitor
 {
-    private static readonly List<string> _simpleMethods = new()
+    private static readonly List<string> SimpleMethods = new()
     {
         "get_Item",
         "TryReadValue",
@@ -652,7 +652,7 @@ public class ExpressionPrinter : ExpressionVisitor
 
         _stringBuilder.Append("(");
 
-        var isSimpleMethodOrProperty = _simpleMethods.Contains(method.Name)
+        var isSimpleMethodOrProperty = SimpleMethods.Contains(method.Name)
             || methodArguments.Count < 2
             || method.IsEFPropertyMethod();
 

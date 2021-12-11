@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerMathTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> _supportedMethodTranslations = new()
+    private static readonly Dictionary<MethodInfo, string> SupportedMethodTranslations = new()
     {
         { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), typeof(decimal)), "ABS" },
         { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), typeof(double)), "ABS" },
@@ -66,14 +66,14 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Sign), typeof(float)), "SIGN" }
     };
 
-    private static readonly IEnumerable<MethodInfo> _truncateMethodInfos = new[]
+    private static readonly IEnumerable<MethodInfo> TruncateMethodInfos = new[]
     {
         typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Truncate), typeof(decimal)),
         typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Truncate), typeof(double)),
         typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Truncate), typeof(float))
     };
 
-    private static readonly IEnumerable<MethodInfo> _roundMethodInfos = new[]
+    private static readonly IEnumerable<MethodInfo> RoundMethodInfos = new[]
     {
         typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Round), typeof(decimal)),
         typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Round), typeof(double)),
@@ -108,7 +108,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_supportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
+        if (SupportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
         {
             var typeMapping = arguments.Count == 1
                 ? ExpressionExtensions.InferTypeMapping(arguments[0])
@@ -131,7 +131,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 sqlFunctionName == "SIGN" ? null : typeMapping);
         }
 
-        if (_truncateMethodInfos.Contains(method))
+        if (TruncateMethodInfos.Contains(method))
         {
             var argument = arguments[0];
             // Result of ROUND for float/double is always double in server side
@@ -150,7 +150,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
         }
 
-        if (_roundMethodInfos.Contains(method))
+        if (RoundMethodInfos.Contains(method))
         {
             var argument = arguments[0];
             var digits = arguments.Count == 2 ? arguments[1] : _sqlExpressionFactory.Constant(0);

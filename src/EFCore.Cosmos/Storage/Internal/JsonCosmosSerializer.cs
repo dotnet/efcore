@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class JsonCosmosSerializer : CosmosSerializer
 {
-    private static readonly Encoding _defaultEncoding = new UTF8Encoding(false, true);
+    private static readonly Encoding DefaultEncoding = new UTF8Encoding(false, true);
 
     /// <inheritdoc />
     public override T FromStream<T>(Stream stream)
@@ -36,7 +36,7 @@ public class JsonCosmosSerializer : CosmosSerializer
     public override Stream ToStream<T>(T input)
     {
         var streamPayload = new MemoryStream();
-        using (var streamWriter = new StreamWriter(streamPayload, encoding: _defaultEncoding, bufferSize: 1024, leaveOpen: true))
+        using (var streamWriter = new StreamWriter(streamPayload, encoding: DefaultEncoding, bufferSize: 1024, leaveOpen: true))
         {
             using var jsonTextWriter = new JsonTextWriter(streamWriter);
             jsonTextWriter.Formatting = Formatting.None;

@@ -21,19 +21,19 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly MethodInfo _parameterValueExtractor =
+    private static readonly MethodInfo ParameterValueExtractorMethid =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterValueExtractor));
 
-    private static readonly MethodInfo _parameterListValueExtractor =
+    private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
 
-    private static readonly MethodInfo _stringEqualsWithStringComparison
+    private static readonly MethodInfo StringEqualsWithStringComparison
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(StringComparison));
 
-    private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
+    private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(string), typeof(StringComparison));
 
-    private static readonly MethodInfo _objectEqualsMethodInfo
+    private static readonly MethodInfo ObjectEqualsMethodInfo
         = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
     private readonly QueryCompilationContext _queryCompilationContext;
@@ -644,8 +644,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         if (translation == null)
         {
-            if (methodCallExpression.Method == _stringEqualsWithStringComparison
-                || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
+            if (methodCallExpression.Method == StringEqualsWithStringComparison
+                || methodCallExpression.Method == StringEqualsWithStringComparisonStatic)
             {
                 AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
             }
@@ -992,7 +992,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         return leftExpressions.Zip(
                 rightExpressions,
-                (l, r) => (Expression)Expression.Call(_objectEqualsMethodInfo, l, r))
+                (l, r) => (Expression)Expression.Call(ObjectEqualsMethodInfo, l, r))
             .Aggregate((a, b) => Expression.AndAlso(a, b));
     }
 
@@ -1051,7 +1051,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
+                        ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
@@ -1112,7 +1112,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             p =>
                             {
                                 var comparison = Expression.Call(
-                                    _objectEqualsMethodInfo,
+                                    ObjectEqualsMethodInfo,
                                     Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
                                     Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
@@ -1133,7 +1133,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             p =>
                             {
                                 var comparison = Expression.Call(
-                                    _objectEqualsMethodInfo,
+                                    ObjectEqualsMethodInfo,
                                     Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
                                     Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
@@ -1178,7 +1178,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     p =>
                     {
                         var comparison = Expression.Call(
-                            _objectEqualsMethodInfo,
+                            ObjectEqualsMethodInfo,
                             Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
                             Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
@@ -1236,7 +1236,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 p =>
                 {
                     var comparison = Expression.Call(
-                        _objectEqualsMethodInfo,
+                        ObjectEqualsMethodInfo,
                         Expression.Convert(CreatePropertyAccessExpression(left, p), typeof(object)),
                         Expression.Convert(CreatePropertyAccessExpression(right, p), typeof(object)));
 
@@ -1266,7 +1266,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        ParameterValueExtractorMethid.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),

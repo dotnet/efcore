@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class QuerySqlGenerator : SqlExpressionVisitor
 {
 
-    private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
+    private static readonly Dictionary<ExpressionType, string> OperatorMap = new()
     {
         { ExpressionType.Equal, " = " },
         { ExpressionType.NotEqual, " <> " },
@@ -826,7 +826,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="binaryExpression">A SQL binary operation.</param>
     /// <returns>A string representation of the binary operator.</returns>
     protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
-        => _operatorMap[binaryExpression.OperatorType];
+        => OperatorMap[binaryExpression.OperatorType];
 
     /// <summary>
     ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
 {
-    private static readonly IReadOnlyDictionary<ExpressionType, IReadOnlyCollection<Type>> _restrictedBinaryExpressions
+    private static readonly IReadOnlyDictionary<ExpressionType, IReadOnlyCollection<Type>> RestrictedBinaryExpressions
         = new Dictionary<ExpressionType, IReadOnlyCollection<Type>>
         {
             [ExpressionType.Add] = new HashSet<Type>
@@ -58,7 +58,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             }
         };
 
-    private static readonly IReadOnlyCollection<Type> _functionModuloTypes = new HashSet<Type>
+    private static readonly IReadOnlyCollection<Type> FunctionModuloTypes = new HashSet<Type>
     {
         typeof(decimal),
         typeof(double),
@@ -179,8 +179,8 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         if (visitedExpression is SqlBinaryExpression sqlBinary)
         {
             if (sqlBinary.OperatorType == ExpressionType.Modulo
-                && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                && (FunctionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
+                    || FunctionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
             {
                 return Dependencies.SqlExpressionFactory.Function(
                     "ef_mod",
@@ -201,7 +201,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                 return DoDecimalArithmetics(visitedExpression, sqlBinary.OperatorType, sqlBinary.Left, sqlBinary.Right);
             }
 
-            if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
+            if (RestrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
                 && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
                     || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
             {

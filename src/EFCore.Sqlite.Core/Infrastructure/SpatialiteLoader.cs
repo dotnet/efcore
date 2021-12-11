@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public static class SpatialiteLoader
 {
-    private static readonly string? _sharedLibraryExtension;
-    private static readonly string? _pathVariableName;
+    private static readonly string? SharedLibraryExtension;
+    private static readonly string? PathVariableName;
 
     private static bool _looked;
 
@@ -26,8 +26,8 @@ public static class SpatialiteLoader
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            _sharedLibraryExtension = ".dll";
-            _pathVariableName = "PATH";
+            SharedLibraryExtension = ".dll";
+            PathVariableName = "PATH";
         }
         else
         {
@@ -132,7 +132,7 @@ public static class SpatialiteLoader
                     {
                         if (string.Equals(
                                 Path.GetFileName(file.Path),
-                                "mod_spatialite" + _sharedLibraryExtension,
+                                "mod_spatialite" + SharedLibraryExtension,
                                 StringComparison.OrdinalIgnoreCase))
                         {
                             var fallbacks = rids.IndexOf(group.Runtime);
@@ -184,12 +184,12 @@ public static class SpatialiteLoader
                 // with another thread setting it. Therefore we do a bit of back off and retry here.
                 // Note that the result can be null if no path is set on the system.
                 var delay = 1;
-                var currentPath = Environment.GetEnvironmentVariable(_pathVariableName!);
+                var currentPath = Environment.GetEnvironmentVariable(PathVariableName!);
                 while (currentPath == null && delay < 1000)
                 {
                     Thread.Sleep(delay);
                     delay *= 2;
-                    currentPath = Environment.GetEnvironmentVariable(_pathVariableName!);
+                    currentPath = Environment.GetEnvironmentVariable(PathVariableName!);
                 }
 
                 if (currentPath == null
@@ -200,7 +200,7 @@ public static class SpatialiteLoader
                             StringComparison.OrdinalIgnoreCase)))
                 {
                     Environment.SetEnvironmentVariable(
-                        _pathVariableName!,
+                        PathVariableName!,
                         assetDirectory + Path.PathSeparator + currentPath);
                 }
             }

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, byte[]?>
 {
-    private static readonly ConverterMappingHints _defaultHints = new(size: 8);
+    private static readonly ConverterMappingHints DefaultHints = new(size: 8);
 
     /// <summary>
     ///     Creates a new instance of this converter.
@@ -40,7 +40,7 @@ public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, 
         : base(
             v => v!.GetAddressBytes(),
             v => new PhysicalAddress(v!),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -48,5 +48,5 @@ public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, 
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(byte[]), i => new PhysicalAddressToBytesConverter(i.MappingHints), _defaultHints);
+        = new(typeof(PhysicalAddress), typeof(byte[]), i => new PhysicalAddressToBytesConverter(i.MappingHints), DefaultHints);
 }

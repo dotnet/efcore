@@ -41,13 +41,13 @@ public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFa
     public static readonly ParameterExpression DataReaderParameter
         = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
-    private static readonly MethodInfo _getFieldValueMethod =
+    private static readonly MethodInfo GetFieldValueMethod =
         typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
-    private static readonly MethodInfo _isDbNullMethod =
+    private static readonly MethodInfo IsDbNullMethod =
         typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
 
-    private static readonly MethodInfo _throwReadValueExceptionMethod
+    private static readonly MethodInfo ThrowReadValueExceptionMethod
         = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
     /// <summary>
@@ -210,12 +210,12 @@ public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFa
                     .Catch(
                         exceptionParameter,
                         Expression.Call(
-                            _throwReadValueExceptionMethod
+                            ThrowReadValueExceptionMethod
                                 .MakeGenericMethod(valueExpression.Type),
                             exceptionParameter,
                             Expression.Call(
                                 dataReaderExpression,
-                                _getFieldValueMethod.MakeGenericMethod(typeof(object)),
+                                GetFieldValueMethod.MakeGenericMethod(typeof(object)),
                                 indexExpression),
                             Expression.Constant(property, typeof(IPropertyBase))));
 
@@ -249,7 +249,7 @@ public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFa
 
             valueExpression
                 = Expression.Condition(
-                    Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
+                    Expression.Call(dataReaderExpression, IsDbNullMethod, indexExpression),
                     replaceExpression,
                     valueExpression);
         }

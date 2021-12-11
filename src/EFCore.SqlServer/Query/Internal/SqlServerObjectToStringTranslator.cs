@@ -15,7 +15,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
 {
     private const int DefaultLength = 100;
 
-    private static readonly Dictionary<Type, string> _typeMapping
+    private static readonly Dictionary<Type, string> TypeMapping
         = new()
         {
             { typeof(sbyte), "varchar(4)" },
@@ -94,7 +94,7 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Constant(true.ToString()));
         }
 
-        return _typeMapping.TryGetValue(instance.Type, out var storeType)
+        return TypeMapping.TryGetValue(instance.Type, out var storeType)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",
                 new[] { _sqlExpressionFactory.Fragment(storeType), instance },

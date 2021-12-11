@@ -35,7 +35,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
         {
             case InMemoryTableExpression inMemoryTableExpression:
                 return Expression.Call(
-                    _tableMethodInfo,
+                    TableMethodInfo,
                     QueryCompilationContext.QueryContextParameter,
                     Expression.Constant(inMemoryTableExpression.EntityType));
         }
@@ -70,7 +70,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
             Expression.Constant(_threadSafetyChecksEnabled));
     }
 
-    private static readonly MethodInfo _tableMethodInfo
+    private static readonly MethodInfo TableMethodInfo
         = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(Table));
 
     private static IEnumerable<ValueBuffer> Table(

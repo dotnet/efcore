@@ -319,12 +319,12 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var queryRoot = BuildQueryRoot(ownerEntityType);
         var collectionNavigation = ownerEntityType.FindNavigation(navigationName)!.IsCollection;
 
-        return (IQueryable)(collectionNavigation ? _selectManyMethod : _selectMethod)
+        return (IQueryable)(collectionNavigation ? SelectManyMethod : SelectMethod)
             .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
             .Invoke(null, new object[] { queryRoot, navigationName })!;
     }
 
-    private static readonly MethodInfo _selectMethod
+    private static readonly MethodInfo SelectMethod
         = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(Select)).Single(mi => mi.IsGenericMethodDefinition);
 
     private static IQueryable<TResult> Select<TSource, TResult>(
@@ -340,7 +340,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 parameter));
     }
 
-    private static readonly MethodInfo _selectManyMethod
+    private static readonly MethodInfo SelectManyMethod
         = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(SelectMany)).Single(mi => mi.IsGenericMethodDefinition);
 
     private static IQueryable<TResult> SelectMany<TSource, TResult>(

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteLineStringMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _getPointN
+    private static readonly MethodInfo GetPointN
         = typeof(LineString).GetRequiredRuntimeMethod(nameof(LineString.GetPointN), typeof(int));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -42,7 +42,7 @@ public class SqliteLineStringMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _getPointN))
+        if (Equals(method, GetPointN))
         {
             return _sqlExpressionFactory.Function(
                 "PointN",

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class ClrAccessorFactory<TAccessor>
     where TAccessor : class
 {
-    private static readonly MethodInfo _genericCreate
+    private static readonly MethodInfo GenericCreate
         = typeof(ClrAccessorFactory<TAccessor>).GetTypeInfo().GetDeclaredMethods(nameof(CreateGeneric)).Single();
 
     /// <summary>
@@ -43,11 +43,11 @@ public abstract class ClrAccessorFactory<TAccessor>
     protected virtual TAccessor Create(MemberInfo memberInfo, IPropertyBase? propertyBase)
     {
         var boundMethod = propertyBase != null
-            ? _genericCreate.MakeGenericMethod(
+            ? GenericCreate.MakeGenericMethod(
                 propertyBase.DeclaringType.ClrType,
                 propertyBase.ClrType,
                 propertyBase.ClrType.UnwrapNullableType())
-            : _genericCreate.MakeGenericMethod(
+            : GenericCreate.MakeGenericMethod(
                 memberInfo.DeclaringType!,
                 memberInfo.GetMemberType(),
                 memberInfo.GetMemberType().UnwrapNullableType());

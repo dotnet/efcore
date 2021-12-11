@@ -15,71 +15,71 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteStringMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _indexOfMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
 
-    private static readonly MethodInfo _replaceMethodInfo
+    private static readonly MethodInfo ReplaceMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _toLowerMethodInfo
+    private static readonly MethodInfo ToLowerMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
 
-    private static readonly MethodInfo _toUpperMethodInfo
+    private static readonly MethodInfo ToUpperMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
-    private static readonly MethodInfo _substringMethodInfoWithOneArg
+    private static readonly MethodInfo SubstringMethodInfoWithOneArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int));
 
-    private static readonly MethodInfo _substringMethodInfoWithTwoArgs
+    private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int), typeof(int));
 
-    private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
+    private static readonly MethodInfo IsNullOrWhiteSpaceMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), typeof(string));
 
     // Method defined in netcoreapp2.0 only
-    private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimStartMethodInfoWithCharArg
+    private static readonly MethodInfo TrimStartMethodInfoWithCharArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char));
 
-    private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimEndMethodInfoWithCharArg
+    private static readonly MethodInfo TrimEndMethodInfoWithCharArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char));
 
-    private static readonly MethodInfo _trimMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimMethodInfoWithCharArg
+    private static readonly MethodInfo TrimMethodInfoWithCharArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char));
 
     // Method defined in netstandard2.0
-    private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char[]));
 
-    private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char[]));
 
-    private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char[]));
 
-    private static readonly MethodInfo _startsWithMethodInfo
+    private static readonly MethodInfo StartsWithMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
-    private static readonly MethodInfo _containsMethodInfo
+    private static readonly MethodInfo ContainsMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), typeof(string));
 
-    private static readonly MethodInfo _endsWithMethodInfo
+    private static readonly MethodInfo EndsWithMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
-    private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
+    private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.FirstOrDefault)
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
-    private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
+    private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.LastOrDefault)
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
@@ -112,7 +112,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
     {
         if (instance != null)
         {
-            if (_indexOfMethodInfo.Equals(method))
+            if (IndexOfMethodInfo.Equals(method))
             {
                 var argument = arguments[0];
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
@@ -131,7 +131,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(1));
             }
 
-            if (_replaceMethodInfo.Equals(method))
+            if (ReplaceMethodInfo.Equals(method))
             {
                 var firstArgument = arguments[0];
                 var secondArgument = arguments[1];
@@ -151,11 +151,11 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     stringTypeMapping);
             }
 
-            if (_toLowerMethodInfo.Equals(method)
-                || _toUpperMethodInfo.Equals(method))
+            if (ToLowerMethodInfo.Equals(method)
+                || ToUpperMethodInfo.Equals(method))
             {
                 return _sqlExpressionFactory.Function(
-                    _toLowerMethodInfo.Equals(method) ? "lower" : "upper",
+                    ToLowerMethodInfo.Equals(method) ? "lower" : "upper",
                     new[] { instance },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true },
@@ -163,7 +163,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (_substringMethodInfoWithOneArg.Equals(method))
+            if (SubstringMethodInfoWithOneArg.Equals(method))
             {
                 return _sqlExpressionFactory.Function(
                     "substr",
@@ -174,7 +174,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (_substringMethodInfoWithTwoArgs.Equals(method))
+            if (SubstringMethodInfoWithTwoArgs.Equals(method))
             {
                 return _sqlExpressionFactory.Function(
                     "substr",
@@ -185,28 +185,28 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (_trimStartMethodInfoWithoutArgs?.Equals(method) == true
-                || _trimStartMethodInfoWithCharArg?.Equals(method) == true
-                || _trimStartMethodInfoWithCharArrayArg.Equals(method))
+            if (TrimStartMethodInfoWithoutArgs?.Equals(method) == true
+                || TrimStartMethodInfoWithCharArg?.Equals(method) == true
+                || TrimStartMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "ltrim");
             }
 
-            if (_trimEndMethodInfoWithoutArgs?.Equals(method) == true
-                || _trimEndMethodInfoWithCharArg?.Equals(method) == true
-                || _trimEndMethodInfoWithCharArrayArg.Equals(method))
+            if (TrimEndMethodInfoWithoutArgs?.Equals(method) == true
+                || TrimEndMethodInfoWithCharArg?.Equals(method) == true
+                || TrimEndMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "rtrim");
             }
 
-            if (_trimMethodInfoWithoutArgs?.Equals(method) == true
-                || _trimMethodInfoWithCharArg?.Equals(method) == true
-                || _trimMethodInfoWithCharArrayArg.Equals(method))
+            if (TrimMethodInfoWithoutArgs?.Equals(method) == true
+                || TrimMethodInfoWithCharArg?.Equals(method) == true
+                || TrimMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "trim");
             }
 
-            if (_containsMethodInfo.Equals(method))
+            if (ContainsMethodInfo.Equals(method))
             {
                 var pattern = arguments[0];
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
@@ -228,18 +228,18 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Constant(0)));
             }
 
-            if (_startsWithMethodInfo.Equals(method))
+            if (StartsWithMethodInfo.Equals(method))
             {
                 return TranslateStartsEndsWith(instance, arguments[0], true);
             }
 
-            if (_endsWithMethodInfo.Equals(method))
+            if (EndsWithMethodInfo.Equals(method))
             {
                 return TranslateStartsEndsWith(instance, arguments[0], false);
             }
         }
 
-        if (_isNullOrWhiteSpaceMethodInfo.Equals(method))
+        if (IsNullOrWhiteSpaceMethodInfo.Equals(method))
         {
             var argument = arguments[0];
 
@@ -256,7 +256,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(string.Empty)));
         }
 
-        if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
+        if (FirstOrDefaultMethodInfoWithoutArgs.Equals(method))
         {
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(
@@ -267,7 +267,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 method.ReturnType);
         }
 
-        if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
+        if (LastOrDefaultMethodInfoWithoutArgs.Equals(method))
         {
             var argument = arguments[0];
             return _sqlExpressionFactory.Function(

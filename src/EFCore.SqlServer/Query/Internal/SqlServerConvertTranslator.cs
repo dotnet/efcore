@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerConvertTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<string, string> _typeMapping = new()
+    private static readonly Dictionary<string, string> TypeMapping = new()
     {
         [nameof(Convert.ToBoolean)] = "bit",
         [nameof(Convert.ToByte)] = "tinyint",
@@ -25,7 +25,7 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         [nameof(Convert.ToString)] = "nvarchar(max)"
     };
 
-    private static readonly List<Type> _supportedTypes = new()
+    private static readonly List<Type> SupportedTypes = new()
     {
         typeof(bool),
         typeof(byte),
@@ -39,13 +39,13 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         typeof(string)
     };
 
-    private static readonly IEnumerable<MethodInfo> _supportedMethods
-        = _typeMapping.Keys
+    private static readonly IEnumerable<MethodInfo> SupportedMethods
+        = TypeMapping.Keys
             .SelectMany(
                 t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
                     .Where(
                         m => m.GetParameters().Length == 1
-                            && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
+                            && SupportedTypes.Contains(m.GetParameters().First().ParameterType)));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -71,10 +71,10 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => _supportedMethods.Contains(method)
+        => SupportedMethods.Contains(method)
             ? _sqlExpressionFactory.Function(
                 "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(_typeMapping[method.Name]), arguments[0] },
+                new[] { _sqlExpressionFactory.Fragment(TypeMapping[method.Name]), arguments[0] },
                 nullable: true,
                 argumentsPropagateNullability: new[] { false, true },
                 method.ReturnType)

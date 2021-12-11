@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 /// </summary>
 public class SqliteNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
 {
-    private static readonly Dictionary<string, Type> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, Type> StoreTypeMappings = new(StringComparer.OrdinalIgnoreCase)
     {
         { "GEOMETRY", typeof(Geometry) },
         { "GEOMETRYZ", typeof(Geometry) },
@@ -78,7 +78,7 @@ public class SqliteNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMapp
         return (clrType != null
                 && TryGetDefaultStoreType(clrType, out defaultStoreType))
             || (storeTypeName != null
-                && _storeTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
+                && StoreTypeMappings.TryGetValue(storeTypeName, out defaultClrType))
                 ? (RelationalTypeMapping)Activator.CreateInstance(
                     typeof(SqliteGeometryTypeMapping<>).MakeGenericType(clrType ?? defaultClrType ?? typeof(Geometry)),
                     _geometryServices,

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly MethodInfo _getParameterValueMethodInfo
+    private static readonly MethodInfo GetParameterValueMethodInfo
         = typeof(CosmosProjectionBindingExpressionVisitor)
             .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
@@ -124,7 +124,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         == true)
                     {
                         return Expression.Call(
-                            _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                            GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterExpression.Name));
                     }

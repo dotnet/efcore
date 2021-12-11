@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 /// </summary>
 public class SqliteTypeMappingSource : RelationalTypeMappingSource
 {
-    private static readonly HashSet<string> _spatialiteTypes
+    private static readonly HashSet<string> SpatialiteTypes
         = new(StringComparer.OrdinalIgnoreCase)
         {
             "GEOMETRY",
@@ -53,20 +53,20 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     private const string BlobTypeName = "BLOB";
     private const string TextTypeName = "TEXT";
 
-    private static readonly LongTypeMapping _integer = new(IntegerTypeName);
-    private static readonly DoubleTypeMapping _real = new(RealTypeName);
-    private static readonly ByteArrayTypeMapping _blob = new(BlobTypeName);
-    private static readonly SqliteStringTypeMapping _text = new(TextTypeName);
+    private static readonly LongTypeMapping Integer = new(IntegerTypeName);
+    private static readonly DoubleTypeMapping Real = new(RealTypeName);
+    private static readonly ByteArrayTypeMapping Blob = new(BlobTypeName);
+    private static readonly SqliteStringTypeMapping Text = new(TextTypeName);
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
     {
-        { typeof(string), _text },
-        { typeof(byte[]), _blob },
+        { typeof(string), Text },
+        { typeof(byte[]), Blob },
         { typeof(bool), new BoolTypeMapping(IntegerTypeName) },
         { typeof(byte), new ByteTypeMapping(IntegerTypeName) },
         { typeof(char), new CharTypeMapping(TextTypeName) },
         { typeof(int), new IntTypeMapping(IntegerTypeName) },
-        { typeof(long), _integer },
+        { typeof(long), Integer },
         { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
         { typeof(short), new ShortTypeMapping(IntegerTypeName) },
         { typeof(uint), new UIntTypeMapping(IntegerTypeName) },
@@ -78,17 +78,17 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(DateOnly), new SqliteDateOnlyTypeMapping(TextTypeName) },
         { typeof(TimeOnly), new SqliteTimeOnlyTypeMapping(TextTypeName) },
         { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
-        { typeof(double), _real },
+        { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
         { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) }
     };
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)
     {
-        { IntegerTypeName, _integer },
-        { RealTypeName, _real },
-        { BlobTypeName, _blob },
-        { TextTypeName, _text }
+        { IntegerTypeName, Integer },
+        { RealTypeName, Real },
+        { BlobTypeName, Blob },
+        { TextTypeName, Text }
     };
 
     /// <summary>
@@ -111,7 +111,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsSpatialiteType(string columnType)
-        => _spatialiteTypes.Contains(columnType);
+        => SpatialiteTypes.Contains(columnType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -151,7 +151,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
 
             if (affinityTypeMapping == null)
             {
-                return _blob;
+                return Blob;
             }
 
             if (clrType == null
@@ -167,21 +167,21 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     private readonly Func<string, RelationalTypeMapping?>[] _typeRules =
     {
         name => Contains(name, "INT")
-            ? _integer
+            ? Integer
             : null,
         name => Contains(name, "CHAR")
             || Contains(name, "CLOB")
             || Contains(name, "TEXT")
-                ? _text
+                ? Text
                 : null,
         name => Contains(name, "BLOB")
             || Contains(name, "BIN")
-                ? _blob
+                ? Blob
                 : null,
         name => Contains(name, "REAL")
             || Contains(name, "FLOA")
             || Contains(name, "DOUB")
-                ? _real
+                ? Real
                 : null
     };
 

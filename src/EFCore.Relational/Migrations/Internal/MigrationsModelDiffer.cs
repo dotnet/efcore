@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
-    private static readonly Type[] _dropOperationTypes =
+    private static readonly Type[] DropOperationTypes =
     {
         typeof(DropIndexOperation),
         typeof(DropPrimaryKeyOperation),
@@ -26,19 +26,19 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         typeof(DropCheckConstraintOperation)
     };
 
-    private static readonly Type[] _alterOperationTypes =
+    private static readonly Type[] AlterOperationTypes =
     {
         typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation)
     };
 
-    private static readonly Type[] _renameOperationTypes =
+    private static readonly Type[] RenameOperationTypes =
     {
         typeof(RenameColumnOperation), typeof(RenameIndexOperation), typeof(RenameSequenceOperation)
     };
 
-    private static readonly Type[] _columnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
+    private static readonly Type[] ColumnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
 
-    private static readonly Type[] _constraintOperationTypes =
+    private static readonly Type[] ConstraintOperationTypes =
     {
         typeof(AddForeignKeyOperation), typeof(CreateIndexOperation), typeof(AddCheckConstraintOperation)
     };
@@ -172,7 +172,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             {
                 dropForeignKeyOperations.Add(operation);
             }
-            else if (_dropOperationTypes.Contains(type))
+            else if (DropOperationTypes.Contains(type))
             {
                 dropOperations.Add(operation);
             }
@@ -211,7 +211,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             {
                 alterTableOperations.Add(operation);
             }
-            else if (_columnOperationTypes.Contains(type))
+            else if (ColumnOperationTypes.Contains(type))
             {
                 if (string.IsNullOrWhiteSpace(((ColumnOperation)operation).ComputedColumnSql))
                 {
@@ -222,7 +222,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     computedColumnOperations.Add(operation);
                 }
             }
-            else if (_alterOperationTypes.Contains(type))
+            else if (AlterOperationTypes.Contains(type))
             {
                 alterOperations.Add(operation);
             }
@@ -230,11 +230,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             {
                 restartSequenceOperations.Add(operation);
             }
-            else if (_constraintOperationTypes.Contains(type))
+            else if (ConstraintOperationTypes.Contains(type))
             {
                 constraintOperations.Add(operation);
             }
-            else if (_renameOperationTypes.Contains(type))
+            else if (RenameOperationTypes.Contains(type))
             {
                 renameOperations.Add(operation);
             }

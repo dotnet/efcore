@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class SqlBinaryExpression : SqlExpression
 {
-    private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+    private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
     {
         ExpressionType.Add,
         ExpressionType.Subtract,
@@ -39,7 +39,7 @@ public class SqlBinaryExpression : SqlExpression
     };
 
     internal static bool IsValidOperator(ExpressionType operatorType)
-        => _allowedOperators.Contains(operatorType);
+        => AllowedOperators.Contains(operatorType);
 
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlBinaryExpression" /> class.

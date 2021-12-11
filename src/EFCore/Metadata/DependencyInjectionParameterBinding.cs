@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class DependencyInjectionParameterBinding : ServiceParameterBinding
 {
-    private static readonly MethodInfo _getServiceMethod
+    private static readonly MethodInfo GetServiceMethod
         = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService))!;
 
     /// <summary>
@@ -47,7 +47,7 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
         Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
 
         return Expression.Call(
-            _getServiceMethod.MakeGenericMethod(ServiceType),
+            GetServiceMethod.MakeGenericMethod(ServiceType),
             Expression.Convert(
                 Expression.Property(
                     materializationExpression,

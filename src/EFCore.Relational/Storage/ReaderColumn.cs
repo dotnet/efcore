@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public abstract class ReaderColumn
 {
-    private static readonly ConcurrentDictionary<Type, ConstructorInfo> _constructors = new();
+    private static readonly ConcurrentDictionary<Type, ConstructorInfo> Constructors = new();
 
     /// <summary>
     ///     Creates a new instance of the <see cref="ReaderColumn" /> class.
@@ -77,6 +77,6 @@ public abstract class ReaderColumn
         => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, property, readFunc });
 
     private static ConstructorInfo GetConstructor(Type type)
-        => _constructors.GetOrAdd(
+        => Constructors.GetOrAdd(
             type, t => typeof(ReaderColumn<>).MakeGenericType(t).GetConstructors().First(ci => ci.GetParameters().Length == 4));
 }

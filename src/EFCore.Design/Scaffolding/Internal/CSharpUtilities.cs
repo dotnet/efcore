@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class CSharpUtilities : ICSharpUtilities
 {
-    private static readonly HashSet<string> _cSharpKeywords = new()
+    private static readonly HashSet<string> CSharpKeywords = new()
     {
         "abstract",
         "as",
@@ -95,7 +95,7 @@ public class CSharpUtilities : ICSharpUtilities
         "while"
     };
 
-    private static readonly Regex _invalidCharsRegex
+    private static readonly Regex InvalidCharsRegex
         = new(
             @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
             default,
@@ -108,7 +108,7 @@ public class CSharpUtilities : ICSharpUtilities
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsCSharpKeyword(string identifier)
-        => _cSharpKeywords.Contains(identifier);
+        => CSharpKeywords.Contains(identifier);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -136,8 +136,8 @@ public class CSharpUtilities : ICSharpUtilities
     {
         var proposedIdentifier =
             identifier.Length > 1 && identifier[0] == '@'
-                ? "@" + _invalidCharsRegex.Replace(identifier[1..], "_")
-                : _invalidCharsRegex.Replace(identifier, "_");
+                ? "@" + InvalidCharsRegex.Replace(identifier[1..], "_")
+                : InvalidCharsRegex.Replace(identifier, "_");
         if (string.IsNullOrEmpty(proposedIdentifier))
         {
             proposedIdentifier = "_";

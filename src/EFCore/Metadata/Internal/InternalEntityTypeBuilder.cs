@@ -4787,7 +4787,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
     private const string DefaultDiscriminatorName = "Discriminator";
 
-    private static readonly Type _defaultDiscriminatorType = typeof(string);
+    private static readonly Type DefaultDiscriminatorType = typeof(string);
 
     private InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(Type? type, string? name, ConfigurationSource configurationSource)
     {
@@ -4799,7 +4799,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
 
         return Metadata.RootType().Builder.Property(
-                type ?? discriminatorProperty?.ClrType ?? _defaultDiscriminatorType,
+                type ?? discriminatorProperty?.ClrType ?? DefaultDiscriminatorType,
                 name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
                 typeConfigurationSource: type != null ? configurationSource : null,
                 configurationSource)
@@ -4905,7 +4905,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 || configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
             && (discriminatorProperty != null
                 || Metadata.RootType().Builder.CanAddDiscriminatorProperty(
-                    discriminatorType ?? _defaultDiscriminatorType,
+                    discriminatorType ?? DefaultDiscriminatorType,
                     name ?? DefaultDiscriminatorName,
                     typeConfigurationSource: discriminatorType != null
                         ? configurationSource

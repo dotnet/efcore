@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class MathTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> _supportedMethodTranslations = new()
+    private static readonly Dictionary<MethodInfo, string> SupportedMethodTranslations = new()
     {
         { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), typeof(decimal)), "ABS" },
         { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Abs), typeof(double)), "ABS" },
@@ -94,7 +94,7 @@ public class MathTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_supportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
+        if (SupportedMethodTranslations.TryGetValue(method, out var sqlFunctionName))
         {
             var typeMapping = arguments.Count == 1
                 ? ExpressionExtensions.InferTypeMapping(arguments[0])

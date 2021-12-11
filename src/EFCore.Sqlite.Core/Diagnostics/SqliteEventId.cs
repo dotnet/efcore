@@ -49,10 +49,10 @@ public static class SqliteEventId
         UniqueConstraintFound
     }
 
-    private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
+    private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
     private static EventId MakeValidationId(Id id)
-        => new((int)id, _validationPrefix + id);
+        => new((int)id, ValidationPrefix + id);
 
     /// <summary>
     ///     A schema was configured for an entity type, but SQLite does not support schemas.
@@ -80,10 +80,10 @@ public static class SqliteEventId
     /// </remarks>
     public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
 
-    private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
+    private static readonly string InfraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 
     private static EventId MakeInfraId(Id id)
-        => new((int)id, _infraPrefix + id);
+        => new((int)id, InfraPrefix + id);
 
     /// <summary>
     ///     A connection of an unexpected type is being used.
@@ -99,10 +99,10 @@ public static class SqliteEventId
     /// </remarks>
     public static readonly EventId UnexpectedConnectionTypeWarning = MakeInfraId(Id.UnexpectedConnectionTypeWarning);
 
-    private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
+    private static readonly string MigrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
 
     private static EventId MakeMigrationsId(Id id)
-        => new((int)id, _migrationsPrefix + id);
+        => new((int)id, MigrationsPrefix + id);
 
     /// <summary>
     ///     An operation may fail due to a pending rebuild of the table.
@@ -112,10 +112,10 @@ public static class SqliteEventId
     /// </remarks>
     public static readonly EventId TableRebuildPendingWarning = MakeMigrationsId(Id.TableRebuildPendingWarning);
 
-    private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
+    private static readonly string ScaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
 
     private static EventId MakeScaffoldingId(Id id)
-        => new((int)id, _scaffoldingPrefix + id);
+        => new((int)id, ScaffoldingPrefix + id);
 
     /// <summary>
     ///     A column was found.

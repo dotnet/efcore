@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteObjectToStringTranslator : IMethodCallTranslator
 {
-    private static readonly HashSet<Type> _typeMapping = new()
+    private static readonly HashSet<Type> TypeMapping = new()
     {
         typeof(bool),
         typeof(byte),
@@ -91,7 +91,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Constant(true.ToString()));
         }
 
-        return _typeMapping.Contains(instance.Type)
+        return TypeMapping.Contains(instance.Type)
             ? _sqlExpressionFactory.Convert(instance, typeof(string))
             : null;
     }

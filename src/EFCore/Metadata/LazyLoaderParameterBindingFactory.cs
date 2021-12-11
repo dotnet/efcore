@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class LazyLoaderParameterBindingFactory : ServiceParameterBindingFactory
 {
-    private static readonly MethodInfo _loadMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.Load))!;
-    private static readonly MethodInfo _loadAsyncMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.LoadAsync))!;
+    private static readonly MethodInfo LoadMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.Load))!;
+    private static readonly MethodInfo LoadAsyncMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.LoadAsync))!;
 
     /// <summary>
     ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
@@ -120,12 +120,12 @@ public class LazyLoaderParameterBindingFactory : ServiceParameterBindingFactory
                 ? new DependencyInjectionMethodParameterBinding(
                     typeof(Action<object, string>),
                     typeof(ILazyLoader),
-                    _loadMethod,
+                    LoadMethod,
                     entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderMethod(p.ClrType, p.Name)).ToArray())
                 : new DependencyInjectionMethodParameterBinding(
                     typeof(Func<object, CancellationToken, string, Task>),
                     typeof(ILazyLoader),
-                    _loadAsyncMethod,
+                    LoadAsyncMethod,
                     entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name))
                         .ToArray());
 

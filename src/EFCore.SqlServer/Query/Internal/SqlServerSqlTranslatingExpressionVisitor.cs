@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
 {
-    private static readonly HashSet<string?> _dateTimeDataTypes
+    private static readonly HashSet<string?> DateTimeDataTypes
         = new()
         {
             "time",
@@ -23,7 +23,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
             "datetimeoffset"
         };
 
-    private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
+    private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes
         = new()
         {
             ExpressionType.Add,
@@ -85,9 +85,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
             ? QueryCompilationContext.NotTranslatedExpression
             : visitedExpression is SqlBinaryExpression sqlBinary
-            && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-            && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+            && ArithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+            && (DateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                || DateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
                 ? QueryCompilationContext.NotTranslatedExpression
                 : visitedExpression;
     }

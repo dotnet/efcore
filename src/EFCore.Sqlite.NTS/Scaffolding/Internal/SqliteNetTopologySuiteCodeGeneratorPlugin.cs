@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 /// </summary>
 public class SqliteNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
 {
-    private static readonly MethodInfo _useNetTopologySuiteMethodInfo
+    private static readonly MethodInfo UseNetTopologySuiteMethodInfo
         = typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions).GetRequiredRuntimeMethod(
             nameof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
             typeof(SqliteDbContextOptionsBuilder));
@@ -23,5 +23,5 @@ public class SqliteNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGeneratorPl
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override MethodCallCodeFragment GenerateProviderOptions()
-        => new(_useNetTopologySuiteMethodInfo);
+        => new(UseNetTopologySuiteMethodInfo);
 }

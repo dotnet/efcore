@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteGlobMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _methodInfo = typeof(SqliteDbFunctionsExtensions)
+    private static readonly MethodInfo MethodInfo = typeof(SqliteDbFunctionsExtensions)
         .GetRequiredMethod(nameof(SqliteDbFunctionsExtensions.Glob), typeof(DbFunctions), typeof(string), typeof(string));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -42,7 +42,7 @@ public class SqliteGlobMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.Equals(_methodInfo))
+        if (method.Equals(MethodInfo))
         {
             var matchExpression = arguments[1];
             var pattern = arguments[2];

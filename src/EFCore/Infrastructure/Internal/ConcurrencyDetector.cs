@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 public class ConcurrencyDetector : IConcurrencyDetector
 {
     private int _inCriticalSection;
-    private static readonly AsyncLocal<bool> _threadHasLock = new();
+    private static readonly AsyncLocal<bool> ThreadHasLock = new();
     private int _refCount;
 
     /// <summary>
@@ -25,14 +25,14 @@ public class ConcurrencyDetector : IConcurrencyDetector
     {
         if (Interlocked.CompareExchange(ref _inCriticalSection, 1, 0) == 1)
         {
-            if (!_threadHasLock.Value)
+            if (!ThreadHasLock.Value)
             {
                 throw new InvalidOperationException(CoreStrings.ConcurrentMethodInvocation);
             }
         }
         else
         {
-            _threadHasLock.Value = true;
+            ThreadHasLock.Value = true;
         }
 
         _refCount++;
@@ -51,7 +51,7 @@ public class ConcurrencyDetector : IConcurrencyDetector
 
         if (--_refCount == 0)
         {
-            _threadHasLock.Value = false;
+            ThreadHasLock.Value = false;
             _inCriticalSection = 0;
         }
     }

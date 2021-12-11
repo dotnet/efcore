@@ -14,16 +14,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 /// </summary>
 public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 {
-    private static readonly ConstructorInfo _valueBufferConstructor
+    private static readonly ConstructorInfo ValueBufferConstructor
         = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
-    private static readonly PropertyInfo _valueBufferCountMemberInfo
+    private static readonly PropertyInfo ValueBufferCountMemberInfo
         = typeof(ValueBuffer).GetRequiredProperty(nameof(ValueBuffer.Count));
 
-    private static readonly MethodInfo _leftJoinMethodInfo = typeof(InMemoryQueryExpression).GetTypeInfo()
+    private static readonly MethodInfo LeftJoinMethodInfo = typeof(InMemoryQueryExpression).GetTypeInfo()
         .GetDeclaredMethods(nameof(LeftJoin)).Single(mi => mi.GetParameters().Length == 6);
 
-    private static readonly ConstructorInfo _resultEnumerableConstructor
+    private static readonly ConstructorInfo ResultEnumerableConstructor
         = typeof(ResultEnumerable).GetConstructors().Single();
 
     private readonly ParameterExpression _valueBufferParameter;
@@ -101,7 +101,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             // Force a selector if entity projection has complex expressions.
             var selectorLambda = Lambda(
                 New(
-                    _valueBufferConstructor,
+                    ValueBufferConstructor,
                     NewArrayInit(
                         typeof(object),
                         selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
@@ -184,7 +184,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var selectorLambda = Lambda(
             New(
-                _valueBufferConstructor,
+                ValueBufferConstructor,
                 NewArrayInit(
                     typeof(object),
                     selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
@@ -328,7 +328,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var selectorLambda = Lambda(
             New(
-                _valueBufferConstructor,
+                ValueBufferConstructor,
                 NewArrayInit(
                     typeof(object),
                     selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
@@ -425,7 +425,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 ServerQueryExpression,
                 Lambda(
                     New(
-                        _valueBufferConstructor,
+                        ValueBufferConstructor,
                         NewArrayInit(
                             typeof(object),
                             source1SelectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
@@ -436,7 +436,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 source2.ServerQueryExpression,
                 Lambda(
                     New(
-                        _valueBufferConstructor,
+                        ValueBufferConstructor,
                         NewArrayInit(
                             typeof(object),
                             source2SelectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
@@ -531,7 +531,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var selectorLambda = Lambda(
             New(
-                _valueBufferConstructor,
+                ValueBufferConstructor,
                 NewArrayInit(
                     typeof(object),
                     selectorExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e).ToArray())),
@@ -562,7 +562,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         {
             selector = Lambda(
                 New(
-                    _valueBufferConstructor,
+                    ValueBufferConstructor,
                     NewArrayInit(
                         typeof(object),
                         _projectionMappingExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
@@ -581,7 +581,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         groupingKey = GetGroupingKey(groupingKey, groupingKeyExpressions, groupingKeyAccessExpression);
         var keySelector = Lambda(
             New(
-                _valueBufferConstructor,
+                ValueBufferConstructor,
                 NewArrayInit(
                     typeof(object),
                     groupingKeyExpressions.Select(e => e.Type.IsValueType ? Convert(e, typeof(object)) : e))),
@@ -689,7 +689,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var resultSelector = Lambda(
             New(
-                _valueBufferConstructor,
+                ValueBufferConstructor,
                 NewArrayInit(
                     typeof(object),
                     selectorExpressions
@@ -699,7 +699,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             innerParameter);
 
         ServerQueryExpression = Call(
-            _leftJoinMethodInfo.MakeGenericMethod(
+            LeftJoinMethodInfo.MakeGenericMethod(
                 typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
             ServerQueryExpression,
             innerQueryExpression.ServerQueryExpression,
@@ -1013,7 +1013,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
         var resultSelector = Lambda(
             New(
-                _valueBufferConstructor, NewArrayInit(
+                ValueBufferConstructor, NewArrayInit(
                     typeof(object),
                     resultSelectorExpressions.Select(
                         (e, i) =>
@@ -1041,7 +1041,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             if (innerNullable)
             {
                 ServerQueryExpression = Call(
-                    _leftJoinMethodInfo.MakeGenericMethod(
+                    LeftJoinMethodInfo.MakeGenericMethod(
                         typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
                     ServerQueryExpression,
                     innerQueryExpression.ServerQueryExpression,
@@ -1105,16 +1105,16 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 }
 
                 ServerQueryExpression = New(
-                    _resultEnumerableConstructor,
+                    ResultEnumerableConstructor,
                     Lambda<Func<ValueBuffer>>(
                         New(
-                            _valueBufferConstructor,
+                            ValueBufferConstructor,
                             NewArrayInit(typeof(object), ServerQueryExpression))));
             }
             else
             {
                 ServerQueryExpression = New(
-                    _resultEnumerableConstructor,
+                    ResultEnumerableConstructor,
                     Lambda<Func<ValueBuffer>>(ServerQueryExpression));
             }
         }

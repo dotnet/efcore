@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// </summary>
 public class SqlServerDoubleTypeMapping : DoubleTypeMapping
 {
-    private static readonly MethodInfo _getFloatMethod
+    private static readonly MethodInfo GetFloatMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), new[] { typeof(int) })!;
 
     /// <summary>
@@ -79,7 +79,7 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
     /// </summary>
     /// <returns>The method to use to read the value.</returns>
     public override MethodInfo GetDataReaderMethod()
-        => Precision is <= 24 ? _getFloatMethod : base.GetDataReaderMethod();
+        => Precision is <= 24 ? GetFloatMethod : base.GetDataReaderMethod();
 
     /// <summary>
     ///     Gets a custom expression tree for reading the value from the input data reader

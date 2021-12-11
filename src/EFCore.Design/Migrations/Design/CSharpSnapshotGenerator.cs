@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 /// </remarks>
 public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 {
-    private static readonly MethodInfo _hasAnnotationMethodInfo
+    private static readonly MethodInfo HasAnnotationMethodInfo
         = typeof(ModelBuilder).GetRequiredRuntimeMethod(nameof(ModelBuilder.HasAnnotation), typeof(string), typeof(string));
 
     /// <summary>
@@ -1404,7 +1404,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Append remaining raw annotations which did not get generated as Fluent API calls
         foreach (var annotation in annotations.Values.OrderBy(a => a.Name))
         {
-            var call = new MethodCallCodeFragment(_hasAnnotationMethodInfo, annotation.Name, annotation.Value);
+            var call = new MethodCallCodeFragment(HasAnnotationMethodInfo, annotation.Name, annotation.Value);
             chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
         }
 

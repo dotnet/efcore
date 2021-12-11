@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EnumHasFlagTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _methodInfo
+    private static readonly MethodInfo MethodInfo
         = typeof(Enum).GetRequiredRuntimeMethod(nameof(Enum.HasFlag), typeof(Enum));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -41,7 +41,7 @@ public class EnumHasFlagTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _methodInfo)
+        if (Equals(method, MethodInfo)
             && instance != null)
         {
             var argument = arguments[0];

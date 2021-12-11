@@ -31,10 +31,10 @@ public static class InMemoryEventId
         ChangesSaved = CoreEventId.ProviderBaseId + 100
     }
 
-    private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
+    private static readonly string TransactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
 
     private static EventId MakeTransactionId(Id id)
-        => new((int)id, _transactionPrefix + id);
+        => new((int)id, TransactionPrefix + id);
 
     /// <summary>
     ///     A transaction operation was requested, but ignored because in-memory does not support transactions.
@@ -49,10 +49,10 @@ public static class InMemoryEventId
     /// </remarks>
     public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);
 
-    private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
+    private static readonly string UpdatePrefix = DbLoggerCategory.Update.Name + ".";
 
     private static EventId MakeUpdateId(Id id)
-        => new((int)id, _updatePrefix + id);
+        => new((int)id, UpdatePrefix + id);
 
     /// <summary>
     ///     Changes were saved to the database.

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class CollateTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _methodInfo
+    private static readonly MethodInfo MethodInfo
         = typeof(RelationalDbFunctionsExtensions).GetRequiredMethod(nameof(RelationalDbFunctionsExtensions.Collate));
 
     /// <summary>
@@ -28,7 +28,7 @@ public class CollateTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         => method.IsGenericMethod
-            && Equals(method.GetGenericMethodDefinition(), _methodInfo)
+            && Equals(method.GetGenericMethodDefinition(), MethodInfo)
             && arguments[2] is SqlConstantExpression constantExpression
             && constantExpression.Value is string collation
                 ? new CollateExpression(arguments[1], collation)

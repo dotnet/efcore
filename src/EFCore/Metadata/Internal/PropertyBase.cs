@@ -410,7 +410,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
                 return new CurrentValueComparerFactory().Create(property);
             });
 
-    private static readonly MethodInfo _containsKeyMethod =
+    private static readonly MethodInfo ContainsKeyMethod =
         typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), typeof(string));
 
     /// <summary>
@@ -433,7 +433,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             {
                 expression = Expression.Condition(
                     Expression.Call(
-                        instanceExpression, _containsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
+                        instanceExpression, ContainsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
                     expression,
                     expression.Type.GetDefaultValueConstant());
             }

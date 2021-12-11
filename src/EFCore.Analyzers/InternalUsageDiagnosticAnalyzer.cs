@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore;
 public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 {
     public const string Id = "EF1001";
-    private static readonly int _efLen = "EntityFrameworkCore".Length;
+    private static readonly int EFLen = "EntityFrameworkCore".Length;
 
-    private static readonly DiagnosticDescriptor _descriptor
+    private static readonly DiagnosticDescriptor Descriptor
         = new(
             Id,
             title: AnalyzerStrings.InternalUsageTitle,
@@ -25,7 +25,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             isEnabledByDefault: true);
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(_descriptor);
+        => ImmutableArray.Create(Descriptor);
 
     public override void Initialize(AnalysisContext context)
     {
@@ -115,7 +115,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
         {
             if (IsInternal(context, a))
             {
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, context.Operation.Syntax.GetLocation(), a));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, context.Operation.Syntax.GetLocation(), a));
             }
         }
 
@@ -134,7 +134,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     CSharpSyntax.VariableDeclarationSyntax s => s.Type,
                     _ => context.Operation.Syntax
                 };
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, syntax.GetLocation(), declarator.Symbol.Type));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, syntax.GetLocation(), declarator.Symbol.Type));
                 return;
             }
         }
@@ -191,7 +191,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, baseSymbol));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, location, baseSymbol));
             }
         }
 
@@ -205,7 +205,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, @interface));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, location, @interface));
             }
         }
     }
@@ -229,7 +229,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, symbol.ReturnType));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, location, symbol.ReturnType));
             }
         }
 
@@ -243,7 +243,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, paramSymbol.Type));
+                context.ReportDiagnostic(Diagnostic.Create(Descriptor, location, paramSymbol.Type));
             }
         }
     }
@@ -264,10 +264,10 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 
     private static void ReportDiagnostic(OperationAnalysisContext context, object messageArg)
         => context.ReportDiagnostic(
-            Diagnostic.Create(_descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
+            Diagnostic.Create(Descriptor, NarrowDownSyntax(context.Operation.Syntax).GetLocation(), messageArg));
 
     private static void ReportDiagnostic(SymbolAnalysisContext context, SyntaxNode syntax, object messageArg)
-        => context.ReportDiagnostic(Diagnostic.Create(_descriptor, NarrowDownSyntax(syntax).GetLocation(), messageArg));
+        => context.ReportDiagnostic(Diagnostic.Create(Descriptor, NarrowDownSyntax(syntax).GetLocation(), messageArg));
 
     /// <summary>
     ///     Given a syntax node, pattern matches some known types and returns a narrowed-down node for the type syntax which
@@ -318,8 +318,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             return
                 i != -1
                 && (i == 0 || ns[i - 1] == '.')
-                && i + _efLen < ns.Length
-                && ns[i + _efLen] == '.'
+                && i + EFLen < ns.Length
+                && ns[i + EFLen] == '.'
                 && ns.EndsWith(".Internal", StringComparison.Ordinal);
         }
 

@@ -20,40 +20,40 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly MemberInfo _valueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
+    private static readonly MemberInfo ValueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
-    private static readonly MethodInfo _parameterValueExtractor =
+    private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterValueExtractor));
 
-    private static readonly MethodInfo _parameterListValueExtractor =
+    private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
 
-    private static readonly MethodInfo _getParameterValueMethodInfo =
+    private static readonly MethodInfo GetParameterValueMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
 
-    private static readonly MethodInfo _likeMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
         nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _likeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
         nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _randomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
         nameof(DbFunctionsExtensions.Random), typeof(DbFunctions));
 
-    private static readonly MethodInfo _randomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
         nameof(Random.NextDouble), Array.Empty<Type>());
 
-    private static readonly MethodInfo _inMemoryLikeMethodInfo =
+    private static readonly MethodInfo InMemoryLikeMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));
 
     // Regex special chars defined here:
     // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
-    private static readonly char[] _regexSpecialChars
+    private static readonly char[] RegexSpecialChars
         = { '.', '$', '^', '{', '[', '(', '|', ')', '*', '+', '?', '\\' };
 
-    private static readonly string _defaultEscapeRegexCharsPattern = BuildEscapeRegexCharsPattern(_regexSpecialChars);
+    private static readonly string DefaultEscapeRegexCharsPattern = BuildEscapeRegexCharsPattern(RegexSpecialChars);
 
-    private static readonly TimeSpan _regexTimeout = TimeSpan.FromMilliseconds(value: 1000.0);
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(value: 1000.0);
 
     private static string BuildEscapeRegexCharsPattern(IEnumerable<char> regexSpecialChars)
         => string.Join("|", regexSpecialChars.Select(c => @"\" + c));
@@ -473,8 +473,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 methodCallExpression.Type);
         }
 
-        if (methodCallExpression.Method == _likeMethodInfo
-            || methodCallExpression.Method == _likeMethodInfoWithEscape)
+        if (methodCallExpression.Method == LikeMethodInfo
+            || methodCallExpression.Method == LikeMethodInfoWithEscape)
         {
             // EF.Functions.Like
             var visitedArguments = new Expression[3];
@@ -491,12 +491,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 visitedArguments[i - 1] = argument;
             }
 
-            return Expression.Call(_inMemoryLikeMethodInfo, visitedArguments);
+            return Expression.Call(InMemoryLikeMethodInfo, visitedArguments);
         }
 
-        if (methodCallExpression.Method == _randomMethodInfo)
+        if (methodCallExpression.Method == RandomMethodInfo)
         {
-            return Expression.Call(Expression.New(typeof(Random)), _randomNextDoubleMethodInfo);
+            return Expression.Call(Expression.New(typeof(Random)), RandomNextDoubleMethodInfo);
         }
 
         Expression? @object = null;
@@ -751,7 +751,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         if (parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
         {
             return Expression.Call(
-                _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                GetParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                 QueryCompilationContext.QueryContextParameter,
                 Expression.Constant(parameterExpression.Name));
         }
@@ -962,7 +962,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             variables: new[] { valueBufferVariable },
             Expression.Assign(valueBufferVariable, serverQuery),
             Expression.Condition(
-                Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
+                Expression.MakeMemberAccess(valueBufferVariable, ValueBufferIsEmpty),
                 Expression.Default(type),
                 readExpression));
     }
@@ -1050,11 +1050,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
             case MethodCallExpression methodCallExpression
                 when methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
+                && methodCallExpression.Method.GetGenericMethodDefinition() == GetParameterValueMethodInfo:
                 var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
+                        ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(parameterName, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
@@ -1196,11 +1196,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
             case MethodCallExpression methodCallExpression
                 when methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == _getParameterValueMethodInfo:
+                && methodCallExpression.Method.GetGenericMethodDefinition() == GetParameterValueMethodInfo:
                 var parameterName = methodCallExpression.Arguments[1].GetConstantValue<string>();
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(parameterName, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
@@ -1349,8 +1349,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
         var escapeRegexCharsPattern
             = singleEscapeCharacter == null
-                ? _defaultEscapeRegexCharsPattern
-                : BuildEscapeRegexCharsPattern(_regexSpecialChars.Where(c => c != singleEscapeCharacter));
+                ? DefaultEscapeRegexCharsPattern
+                : BuildEscapeRegexCharsPattern(RegexSpecialChars.Where(c => c != singleEscapeCharacter));
 
         var regexPattern
             = Regex.Replace(
@@ -1358,7 +1358,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 escapeRegexCharsPattern,
                 c => @"\" + c,
                 default,
-                _regexTimeout);
+                RegexTimeout);
 
         var stringBuilder = new StringBuilder();
 
@@ -1397,7 +1397,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             matchExpression,
             @"\A" + regexPattern + @"\s*\z",
             RegexOptions.IgnoreCase | RegexOptions.Singleline,
-            _regexTimeout);
+            RegexTimeout);
     }
 
     private sealed class EntityReferenceFindingExpressionVisitor : ExpressionVisitor

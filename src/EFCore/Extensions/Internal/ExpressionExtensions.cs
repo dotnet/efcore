@@ -196,7 +196,7 @@ public static class ExpressionExtensions
         }
     }
 
-    private static readonly MethodInfo _objectEqualsMethodInfo
+    private static readonly MethodInfo ObjectEqualsMethodInfo
         = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
     /// <summary>
@@ -230,7 +230,7 @@ public static class ExpressionExtensions
                 && property.ClrType.UnwrapNullableType() is Type nonNullableType
                 && !(nonNullableType == typeof(bool) || nonNullableType.IsNumeric() || nonNullableType.IsEnum)
                     ? Expression.Call(
-                        _objectEqualsMethodInfo,
+                        ObjectEqualsMethodInfo,
                         Expression.Call(
                             EF.PropertyMethod.MakeGenericMethod(typeof(object)),
                             entityParameterExpression,

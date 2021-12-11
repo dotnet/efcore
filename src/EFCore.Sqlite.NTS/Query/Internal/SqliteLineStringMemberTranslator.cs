@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteLineStringMemberTranslator : IMemberTranslator
 {
-    private static readonly IDictionary<MemberInfo, string> _memberToFunctionName
+    private static readonly IDictionary<MemberInfo, string> MemberToFunctionName
         = new Dictionary<MemberInfo, string>
         {
             { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.Count)), "NumPoints" },
@@ -49,7 +49,7 @@ public class SqliteLineStringMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_memberToFunctionName.TryGetValue(member, out var functionName)
+        if (MemberToFunctionName.TryGetValue(member, out var functionName)
             && instance != null)
         {
             return returnType == typeof(bool)

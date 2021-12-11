@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteCharMethodTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> _supportedMethods = new()
+    private static readonly Dictionary<MethodInfo, string> SupportedMethods = new()
     {
         { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), typeof(char)), "lower" },
         { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), typeof(char)), "upper" }
@@ -44,7 +44,7 @@ public class SqliteCharMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_supportedMethods.TryGetValue(method, out var sqlFunctionName))
+        if (SupportedMethods.TryGetValue(method, out var sqlFunctionName))
         {
             return _sqlExpressionFactory.Function(
                 sqlFunctionName,
