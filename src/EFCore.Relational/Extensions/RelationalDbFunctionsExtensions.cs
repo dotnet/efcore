@@ -51,7 +51,7 @@ public static class RelationalDbFunctionsExtensions
     public static bool LessThan(
         this DbFunctions _,
         object[] columns,
-        object[] values)
+        [NotParameterized] object[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThan)));
 
     /// <summary>
@@ -68,7 +68,7 @@ public static class RelationalDbFunctionsExtensions
     public static bool LessThanOrEqual(
         this DbFunctions _,
         object[] columns,
-        object[] values)
+        [NotParameterized] object[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(LessThanOrEqual)));
 
     /// <summary>
@@ -85,7 +85,7 @@ public static class RelationalDbFunctionsExtensions
     public static bool GreaterThan(
         this DbFunctions _,
         object[] columns,
-        object[] values)
+        [NotParameterized] object[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThan)));
 
     /// <summary>
@@ -102,6 +102,6 @@ public static class RelationalDbFunctionsExtensions
     public static bool GreaterThanOrEqual(
         this DbFunctions _,
         object[] columns,
-        object[] values)
+        [NotParameterized] object[] values)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(GreaterThanOrEqual)));
 }
