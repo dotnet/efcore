@@ -28,7 +28,7 @@ public class ArrayExpression : SqlExpression
     /// <summary>
     ///     The values of the array.
     /// </summary>
-    public IReadOnlyList<SqlExpression> Values { get; }
+    public virtual IReadOnlyList<SqlExpression> Values { get; }
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
