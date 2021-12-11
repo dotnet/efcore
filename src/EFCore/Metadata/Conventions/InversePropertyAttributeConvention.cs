@@ -471,17 +471,17 @@ public class InversePropertyAttributeConvention :
                 continue;
             }
 
-            foreach (var inverseNavigation in inverseNavigations.Values)
+            foreach (var (navigation, references) in inverseNavigations.Values)
             {
-                foreach (var referencingNavigationWithAttribute in inverseNavigation.References)
+                foreach (var (memberInfo, conventionEntityType) in references)
                 {
                     if (TryRemoveIfAmbiguous(
-                            referencingNavigationWithAttribute.Item2,
-                            referencingNavigationWithAttribute.Item1,
+                            conventionEntityType,
+                            memberInfo,
                             entityType,
                             newBaseType,
-                            inverseNavigation.Navigation,
-                            inverseNavigation.References,
+                            navigation,
+                            references,
                             out _))
                     {
                         break;
@@ -542,14 +542,14 @@ public class InversePropertyAttributeConvention :
                 continue;
             }
 
-            foreach (var inverseNavigation in inverseNavigations.Values)
+            foreach (var (navigation, references) in inverseNavigations.Values)
             {
-                foreach (var referencingNavigationWithAttribute in inverseNavigation.References)
+                foreach (var (memberInfo, conventionEntityType) in references)
                 {
                     var ambiguousInverse = FindAmbiguousInverse(
-                        referencingNavigationWithAttribute.Item1,
-                        referencingNavigationWithAttribute.Item2,
-                        inverseNavigation.References);
+                        memberInfo,
+                        conventionEntityType,
+                        references);
 
                     var baseType = entityType.BaseType;
                     while (ambiguousInverse == null
@@ -557,12 +557,12 @@ public class InversePropertyAttributeConvention :
                     {
                         var navigationMap = GetInverseNavigations(baseType);
                         if (navigationMap != null
-                            && navigationMap.TryGetValue(inverseNavigation.Navigation.Name, out var inverseTuple))
+                            && navigationMap.TryGetValue(navigation.Name, out var inverseTuple))
                         {
                             var referencingNavigationsWithAttribute = inverseTuple.References;
                             ambiguousInverse = FindAmbiguousInverse(
-                                referencingNavigationWithAttribute.Item1,
-                                referencingNavigationWithAttribute.Item2,
+                                memberInfo,
+                                conventionEntityType,
                                 referencingNavigationsWithAttribute);
                         }
 
@@ -575,10 +575,10 @@ public class InversePropertyAttributeConvention :
                             new[]
                             {
                                 Tuple.Create<MemberInfo?, Type>(
-                                    referencingNavigationWithAttribute.Item1, referencingNavigationWithAttribute.Item2.ClrType),
+                                    memberInfo, conventionEntityType.ClrType),
                                 Tuple.Create<MemberInfo?, Type>(ambiguousInverse.Value.Item1, ambiguousInverse.Value.Item2.ClrType)
                             },
-                            inverseNavigation.Navigation,
+                            navigation,
                             entityType.ClrType);
                         break;
                     }
@@ -618,10 +618,10 @@ public class InversePropertyAttributeConvention :
             var navigationMap = GetInverseNavigations(currentEntityType);
             if (navigationMap != null)
             {
-                foreach (var inverseNavigationTuple in navigationMap.Values)
+                foreach (var (memberInfo, references) in navigationMap.Values)
                 {
-                    if (inverseNavigationTuple.Navigation.GetMemberType().IsAssignableFrom(entityType.ClrType)
-                        && IsAmbiguousInverse(navigation, entityType, inverseNavigationTuple.References))
+                    if (memberInfo.GetMemberType().IsAssignableFrom(entityType.ClrType)
+                        && IsAmbiguousInverse(navigation, entityType, references))
                     {
                         return true;
                     }
@@ -691,11 +691,11 @@ public class InversePropertyAttributeConvention :
             referencingNavigationsWithAttribute = inverseTuple.References;
         }
 
-        foreach (var referencingTuple in referencingNavigationsWithAttribute)
+        foreach (var (memberInfo, conventionEntityType) in referencingNavigationsWithAttribute)
         {
-            if (referencingTuple.Item1.IsSameAs(navigation)
-                && referencingTuple.Item2.ClrType == entityType.ClrType
-                && FindActualEntityType(referencingTuple.Item2) == entityType)
+            if (memberInfo.IsSameAs(navigation)
+                && conventionEntityType.ClrType == entityType.ClrType
+                && FindActualEntityType(conventionEntityType) == entityType)
             {
                 return referencingNavigationsWithAttribute;
             }
@@ -724,7 +724,7 @@ public class InversePropertyAttributeConvention :
         var (inverseNavigation, referencingNavigationsWithAttribute) = inverseNavigationPair;
         for (var index = 0; index < referencingNavigationsWithAttribute.Count; index++)
         {
-            var referencingTuple = referencingNavigationsWithAttribute[index];
+            var (memberInfo, conventionEntityType) = referencingNavigationsWithAttribute[index];
             if (navigation == null)
             {
                 anyRemoved = true;
@@ -734,7 +734,7 @@ public class InversePropertyAttributeConvention :
                     inverseNavigations.Remove(inverseNavigation.Name);
                 }
 
-                var otherEntityType = FindActualEntityType(referencingTuple.Item2);
+                var otherEntityType = FindActualEntityType(conventionEntityType);
                 if (otherEntityType != null)
                 {
                     // TODO: Rely on layering to trigger relationship discovery instead #15898
@@ -746,7 +746,7 @@ public class InversePropertyAttributeConvention :
                     {
                         otherEntityType.Builder.HasRelationship(
                             targetEntityType,
-                            referencingTuple.Item1,
+                            memberInfo,
                             null);
                     }
                     else if (existingInverses.Count == 1)
@@ -758,7 +758,7 @@ public class InversePropertyAttributeConvention :
                             // to override the null navigation configuration #15898
                             otherEntityType.Builder.HasRelationship(
                                 targetEntityType,
-                                referencingTuple.Item1,
+                                memberInfo,
                                 existingInverse.PropertyInfo,
                                 fromDataAnnotation: true);
                         }
@@ -766,17 +766,17 @@ public class InversePropertyAttributeConvention :
                         {
                             otherEntityType.Builder.HasRelationship(
                                 targetEntityType,
-                                referencingTuple.Item1,
+                                memberInfo,
                                 null);
                         }
                     }
                 }
             }
-            else if (referencingTuple.Item1.IsSameAs(navigation)
-                     && ((!referencingTuple.Item2.IsInModel
-                             && declaringType!.IsAssignableFrom(referencingTuple.Item2.ClrType))
-                         || (referencingTuple.Item2.IsInModel
-                             && declaringEntityType!.IsAssignableFrom(referencingTuple.Item2))))
+            else if (memberInfo.IsSameAs(navigation)
+                     && ((!conventionEntityType.IsInModel
+                             && declaringType!.IsAssignableFrom(conventionEntityType.ClrType))
+                         || (conventionEntityType.IsInModel
+                             && declaringEntityType!.IsAssignableFrom(conventionEntityType))))
             {
                 anyRemoved = true;
                 referencingNavigationsWithAttribute.RemoveAt(index--);

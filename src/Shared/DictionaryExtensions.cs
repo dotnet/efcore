@@ -92,11 +92,11 @@ internal static class DictionaryExtensions
                 return;
             }
 
-            foreach (var pair in pairsRemainder)
+            foreach (var (key, value) in pairsRemainder)
             {
-                if (predicate(pair.Key, pair.Value, state))
+                if (predicate(key, value, state))
                 {
-                    source.Remove(pair.Key);
+                    source.Remove(key);
                 }
             }
         }

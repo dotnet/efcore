@@ -160,18 +160,18 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         _projectionMappingExpressions.Clear();
         _clientProjections.Clear();
         var selectorExpressions = new List<Expression>();
-        foreach (var keyValuePair in projectionMapping)
+        foreach (var (projectionMember, expression) in projectionMapping)
         {
-            if (keyValuePair.Value is EntityProjectionExpression entityProjectionExpression)
+            if (expression is EntityProjectionExpression entityProjectionExpression)
             {
-                _projectionMapping[keyValuePair.Key] = AddEntityProjection(entityProjectionExpression);
+                _projectionMapping[projectionMember] = AddEntityProjection(entityProjectionExpression);
             }
             else
             {
-                selectorExpressions.Add(keyValuePair.Value);
+                selectorExpressions.Add(expression);
                 var readExpression = CreateReadValueExpression(
-                    keyValuePair.Value.Type, selectorExpressions.Count - 1, InferPropertyFromInner(keyValuePair.Value));
-                _projectionMapping[keyValuePair.Key] = readExpression;
+                    expression.Type, selectorExpressions.Count - 1, InferPropertyFromInner(expression));
+                _projectionMapping[projectionMember] = readExpression;
                 _projectionMappingExpressions.Add(readExpression);
             }
         }
@@ -302,9 +302,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         else
         {
             var newProjectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var keyValuePair in _projectionMapping)
+            foreach (var (projectionMember, expression) in _projectionMapping)
             {
-                if (keyValuePair.Value is EntityProjectionExpression entityProjectionExpression)
+                if (expression is EntityProjectionExpression entityProjectionExpression)
                 {
                     var indexMap = new Dictionary<IProperty, int>();
                     foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
@@ -313,12 +313,12 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                         indexMap[property] = selectorExpressions.Count - 1;
                     }
 
-                    newProjectionMapping[keyValuePair.Key] = Constant(indexMap);
+                    newProjectionMapping[projectionMember] = Constant(indexMap);
                 }
                 else
                 {
-                    selectorExpressions.Add(keyValuePair.Value);
-                    newProjectionMapping[keyValuePair.Key] = Constant(selectorExpressions.Count - 1);
+                    selectorExpressions.Add(expression);
+                    newProjectionMapping[projectionMember] = Constant(selectorExpressions.Count - 1);
                 }
             }
 
@@ -465,11 +465,11 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         }
 
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        foreach (var keyValuePair in _projectionMapping)
+        foreach (var (projectionMember, expression) in _projectionMapping)
         {
-            projectionMapping[keyValuePair.Key] = keyValuePair.Value is EntityProjectionExpression entityProjectionExpression
+            projectionMapping[projectionMember] = expression is EntityProjectionExpression entityProjectionExpression
                 ? MakeEntityProjectionNullable(entityProjectionExpression)
-                : MakeReadValueNullable(keyValuePair.Value);
+                : MakeReadValueNullable(expression);
         }
 
         _projectionMapping = projectionMapping;
@@ -816,10 +816,10 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 expressionPrinter.AppendLine("ProjectionMapping:");
                 using (expressionPrinter.Indent())
                 {
-                    foreach (var projectionMapping in _projectionMapping)
+                    foreach (var (projectionMember, expression) in _projectionMapping)
                     {
-                        expressionPrinter.Append("Member: " + projectionMapping.Key + " Projection: ");
-                        expressionPrinter.Visit(projectionMapping.Value);
+                        expressionPrinter.Append("Member: " + projectionMember + " Projection: ");
+                        expressionPrinter.Visit(expression);
                         expressionPrinter.AppendLine(",");
                     }
                 }
@@ -961,20 +961,20 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         {
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             var mapping = new Dictionary<ProjectionMember, ProjectionMember>();
-            foreach (var projection in _projectionMapping)
+            foreach (var (projectionMember, expression) in _projectionMapping)
             {
-                var newProjectionMember = projection.Key.Prepend(outerMemberInfo);
-                mapping[projection.Key] = newProjectionMember;
-                if (projection.Value is EntityProjectionExpression entityProjectionExpression)
+                var newProjectionMember = projectionMember.Prepend(outerMemberInfo);
+                mapping[projectionMember] = newProjectionMember;
+                if (expression is EntityProjectionExpression entityProjectionExpression)
                 {
                     projectionMapping[newProjectionMember] = TraverseEntityProjection(
                         resultSelectorExpressions, entityProjectionExpression, makeNullable: false);
                 }
                 else
                 {
-                    resultSelectorExpressions.Add(projection.Value);
+                    resultSelectorExpressions.Add(expression);
                     projectionMapping[newProjectionMember] = CreateReadValueExpression(
-                        projection.Value.Type, resultSelectorExpressions.Count - 1, InferPropertyFromInner(projection.Value));
+                        expression.Type, resultSelectorExpressions.Count - 1, InferPropertyFromInner(expression));
                 }
             }
 

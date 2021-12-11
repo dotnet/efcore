@@ -59,12 +59,12 @@ public class EntityProjectionExpression : Expression
     {
         var changed = false;
         var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var expression in _propertyExpressionMap)
+        foreach (var (property, columnExpression) in _propertyExpressionMap)
         {
-            var newExpression = (ColumnExpression)visitor.Visit(expression.Value);
-            changed |= newExpression != expression.Value;
+            var newExpression = (ColumnExpression)visitor.Visit(columnExpression);
+            changed |= newExpression != columnExpression;
 
-            propertyExpressionMap[expression.Key] = newExpression;
+            propertyExpressionMap[property] = newExpression;
         }
 
         var discriminatorExpression = (SqlExpression?)visitor.Visit(DiscriminatorExpression);
@@ -82,9 +82,9 @@ public class EntityProjectionExpression : Expression
     public virtual EntityProjectionExpression MakeNullable()
     {
         var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var expression in _propertyExpressionMap)
+        foreach (var (property, columnExpression) in _propertyExpressionMap)
         {
-            propertyExpressionMap[expression.Key] = expression.Value.MakeNullable();
+            propertyExpressionMap[property] = columnExpression.MakeNullable();
         }
 
         // We don't need to process DiscriminatorExpression because they are already nullable
@@ -106,13 +106,12 @@ public class EntityProjectionExpression : Expression
         }
 
         var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-        foreach (var kvp in _propertyExpressionMap)
+        foreach (var (property, columnExpression) in _propertyExpressionMap)
         {
-            var property = kvp.Key;
             if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
                 || property.DeclaringEntityType.IsAssignableFrom(derivedType))
             {
-                propertyExpressionMap[property] = kvp.Value;
+                propertyExpressionMap[property] = columnExpression;
             }
         }
 

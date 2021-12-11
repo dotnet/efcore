@@ -81,7 +81,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
             subNamespace = "Migrations";
         }
 
-        var lastMigration = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
+        var (key, typeInfo) = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
         var migrationNamespace =
             (!string.IsNullOrEmpty(rootNamespace)
@@ -93,7 +93,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         if (subNamespaceDefaulted)
         {
-            migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace!);
+            migrationNamespace = GetNamespace(typeInfo?.AsType(), migrationNamespace!);
         }
 
         var sanitizedContextName = _contextType.Name;
@@ -184,7 +184,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
 
         return new ScaffoldedMigration(
             codeGenerator.FileExtension,
-            lastMigration.Key,
+            key,
             migrationCode,
             migrationId,
             migrationMetadataCode,

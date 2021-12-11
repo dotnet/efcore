@@ -185,8 +185,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         (ContainerProperties Parameters, CosmosClientWrapper Wrapper) parametersTuple,
         CancellationToken cancellationToken = default)
     {
-        var parameters = parametersTuple.Parameters;
-        var wrapper = parametersTuple.Wrapper;
+        var (parameters, wrapper) = parametersTuple;
         using var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerStreamAsync(
                 new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
                 {

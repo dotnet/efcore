@@ -144,11 +144,11 @@ public class KeyPropagator : IKeyPropagator
                     }
                     else if (foreignKey.PrincipalToDependent != null)
                     {
-                        foreach (var danglerEntry in stateManager.GetRecordedReferrers(entry.Entity, clear: false))
+                        foreach (var (navigationBase, internalEntityEntry) in stateManager.GetRecordedReferrers(entry.Entity, clear: false))
                         {
-                            if (danglerEntry.Item1 == foreignKey.PrincipalToDependent)
+                            if (navigationBase == foreignKey.PrincipalToDependent)
                             {
-                                principalEntry = danglerEntry.Item2;
+                                principalEntry = internalEntityEntry;
                                 break;
                             }
                         }

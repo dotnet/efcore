@@ -188,9 +188,8 @@ public class RelationshipDiscoveryConvention :
             if (!entityType.IsKeyless)
             {
                 var inverseCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(candidateTargetEntityType);
-                foreach (var inverseCandidateTuple in inverseCandidates)
+                foreach (var (inversePropertyInfo, value) in inverseCandidates)
                 {
-                    var inversePropertyInfo = inverseCandidateTuple.Key;
                     if (navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                         || (candidateTargetEntityType.FindNavigation(inversePropertyInfo) == null
                             && candidateTargetEntityType.FindSkipNavigation(inversePropertyInfo) == null
@@ -200,7 +199,7 @@ public class RelationshipDiscoveryConvention :
                         continue;
                     }
 
-                    var inverseTargetType = inverseCandidateTuple.Value.Type;
+                    var inverseTargetType = value.Type;
                     var inverseIsCollection = inverseTargetType != inversePropertyInfo.PropertyType;
                     if (inverseTargetType != entityType.ClrType
                         && (!inverseTargetType.IsAssignableFrom(entityType.ClrType)
@@ -1177,21 +1176,20 @@ public class RelationshipDiscoveryConvention :
         }
 
         var ambiguousNavigationFound = false;
-        foreach (var navigation in ambiguousNavigations)
+        foreach (var (memberInfo, targetClrType) in ambiguousNavigations)
         {
-            if (navigation.Key.GetSimpleMemberName() != name
-                && navigation.Key.GetMemberType() != property.PropertyType)
+            if (memberInfo.GetSimpleMemberName() != name
+                && memberInfo.GetMemberType() != property.PropertyType)
             {
                 continue;
             }
 
             ambiguousNavigationFound = true;
 
-            var targetClrType = navigation.Value;
             RemoveAmbiguous(entityType, targetClrType);
 
             var targetType = TryGetTargetEntityTypeBuilder(
-                entityType.Builder, targetClrType, navigation.Key, shouldCreate: false)?.Metadata;
+                entityType.Builder, targetClrType, memberInfo, shouldCreate: false)?.Metadata;
             if (targetType != null)
             {
                 RemoveAmbiguous(targetType, entityType.ClrType);
@@ -1223,20 +1221,19 @@ public class RelationshipDiscoveryConvention :
         }
 
         var ambiguousNavigationFound = false;
-        foreach (var navigation in ambiguousNavigations)
+        foreach (var (memberInfo, targetClrType) in ambiguousNavigations)
         {
-            if (navigation.Value != targetEntityType.ClrType)
+            if (targetClrType != targetEntityType.ClrType)
             {
                 continue;
             }
 
             ambiguousNavigationFound = true;
 
-            var targetClrType = navigation.Value;
             RemoveAmbiguous(entityType, targetClrType);
 
             var targetType = TryGetTargetEntityTypeBuilder(
-                entityType.Builder, targetClrType, navigation.Key, shouldCreate: false)?.Metadata;
+                entityType.Builder, targetClrType, memberInfo, shouldCreate: false)?.Metadata;
             if (targetType != null)
             {
                 RemoveAmbiguous(targetType, entityType.ClrType);
@@ -1367,11 +1364,11 @@ public class RelationshipDiscoveryConvention :
         if (ambiguousNavigations?.IsEmpty == false)
         {
             var newAmbiguousNavigations = ambiguousNavigations;
-            foreach (var ambiguousNavigation in ambiguousNavigations)
+            foreach (var (memberInfo, type) in ambiguousNavigations)
             {
-                if (targetType.IsAssignableFrom(ambiguousNavigation.Value))
+                if (targetType.IsAssignableFrom(type))
                 {
-                    newAmbiguousNavigations = newAmbiguousNavigations.Remove(ambiguousNavigation.Key);
+                    newAmbiguousNavigations = newAmbiguousNavigations.Remove(memberInfo);
                 }
             }
 

@@ -33,19 +33,21 @@ public sealed class NamedListComparer : IComparer<(string, string?, IReadOnlyLis
     /// </summary>
     public int Compare((string, string?, IReadOnlyList<string>) x, (string, string?, IReadOnlyList<string>) y)
     {
-        var result = StringComparer.Ordinal.Compare(x.Item1, y.Item1);
+        var (x1, x2, xList) = x;
+        var (y1, y2, yList) = y;
+        var result = StringComparer.Ordinal.Compare(x1, y1);
         if (result != 0)
         {
             return result;
         }
 
-        result = StringComparer.Ordinal.Compare(x.Item2, y.Item2);
+        result = StringComparer.Ordinal.Compare(x2, y2);
         if (result != 0)
         {
             return result;
         }
 
-        result = x.Item3.Count - y.Item3.Count;
+        result = xList.Count - yList.Count;
         if (result != 0)
         {
             return result;
@@ -53,9 +55,9 @@ public sealed class NamedListComparer : IComparer<(string, string?, IReadOnlyLis
 
         var index = 0;
         while ((result == 0)
-               && (index < x.Item3.Count))
+               && (index < xList.Count))
         {
-            result = StringComparer.Ordinal.Compare(x.Item3[index], y.Item3[index]);
+            result = StringComparer.Ordinal.Compare(xList[index], yList[index]);
             index++;
         }
 
@@ -80,11 +82,12 @@ public sealed class NamedListComparer : IComparer<(string, string?, IReadOnlyLis
     public int GetHashCode((string, string?, IReadOnlyList<string>) obj)
     {
         var hash = new HashCode();
-        hash.Add(obj.Item1);
-        hash.Add(obj.Item2);
-        for (var i = 0; i < obj.Item3.Count; i++)
+        var (item1, item2, list) = obj;
+        hash.Add(item1);
+        hash.Add(item2);
+        for (var i = 0; i < list.Count; i++)
         {
-            hash.Add(obj.Item3[i]);
+            hash.Add(list[i]);
         }
 
         return hash.ToHashCode();

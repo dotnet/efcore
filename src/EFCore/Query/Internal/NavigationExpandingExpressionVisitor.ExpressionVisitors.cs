@@ -698,10 +698,8 @@ public partial class NavigationExpandingExpressionVisitor
 
         private static void VerifyNoCycles(IncludeTreeNode includeTreeNode)
         {
-            foreach (var keyValuePair in includeTreeNode)
+            foreach (var (navigation, referenceIncludeTreeNode) in includeTreeNode)
             {
-                var navigation = keyValuePair.Key;
-                var referenceIncludeTreeNode = keyValuePair.Value;
                 var inverseNavigation = navigation.Inverse;
                 if (inverseNavigation != null
                     && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
@@ -717,9 +715,8 @@ public partial class NavigationExpandingExpressionVisitor
         {
             var result = root;
             var convertedRoot = root;
-            foreach (var kvp in entityReference.IncludePaths)
+            foreach (var (navigationBase, includeTreeNode) in entityReference.IncludePaths)
             {
-                var navigationBase = kvp.Key;
                 if (!navigationBase.IsCollection
                     && previousNavigation?.Inverse == navigationBase)
                 {
@@ -878,7 +875,7 @@ public partial class NavigationExpandingExpressionVisitor
                     }
                 }
 
-                result = new IncludeExpression(result, included, navigationBase, kvp.Value.SetLoaded);
+                result = new IncludeExpression(result, included, navigationBase, includeTreeNode.SetLoaded);
             }
 
             return result;

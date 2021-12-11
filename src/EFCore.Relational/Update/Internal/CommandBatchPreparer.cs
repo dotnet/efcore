@@ -282,22 +282,22 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         var builder = new StringBuilder();
         for (var i = 0; i < data.Count; i++)
         {
-            var edge = data[i];
-            Format(edge.Item1, builder);
+            var (command1, command2, annotatables) = data[i];
+            Format(command1, builder);
 
-            switch (edge.Item3.First())
+            switch (annotatables.First())
             {
                 case IForeignKey foreignKey:
-                    Format(foreignKey, edge.Item1, edge.Item2, builder);
+                    Format(foreignKey, command1, command2, builder);
                     break;
                 case IIndex index:
-                    Format(index, edge.Item1, edge.Item2, builder);
+                    Format(index, command1, command2, builder);
                     break;
             }
 
             if (i == data.Count - 1)
             {
-                Format(edge.Item2, builder);
+                Format(command2, builder);
             }
         }
 

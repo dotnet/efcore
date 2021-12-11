@@ -64,28 +64,22 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             mappedTypes.Add(entityType);
         }
 
-        foreach (var tableToEntityType in tableToEntityTypes)
+        foreach (var ((name, schema), mappedTypes) in tableToEntityTypes)
         {
-            var table = tableToEntityType.Key;
-            var mappedTypes = tableToEntityType.Value;
-
-            var concurrencyColumns = GetConcurrencyTokensMap(StoreObjectIdentifier.Table(table.Name, table.Schema), mappedTypes);
+            var concurrencyColumns = GetConcurrencyTokensMap(StoreObjectIdentifier.Table(name, schema), mappedTypes);
             if (concurrencyColumns == null)
             {
                 continue;
             }
 
-            foreach (var concurrencyColumn in concurrencyColumns)
+            foreach (var (concurrencyColumnName, readOnlyProperties) in concurrencyColumns)
             {
-                var concurrencyColumnName = concurrencyColumn.Key;
-                var propertiesMappedToConcurrencyColumn = concurrencyColumn.Value;
-
                 Dictionary<IConventionEntityType, IReadOnlyProperty>? entityTypesMissingConcurrencyColumn = null;
                 foreach (var entityType in mappedTypes)
                 {
-                    var foundMappedProperty = !IsConcurrencyTokenMissing(propertiesMappedToConcurrencyColumn, entityType, mappedTypes)
+                    var foundMappedProperty = !IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes)
                         || entityType.GetProperties()
-                            .Any(p => p.GetColumnName(StoreObjectIdentifier.Table(table.Name, table.Schema)) == concurrencyColumnName);
+                            .Any(p => p.GetColumnName(StoreObjectIdentifier.Table(name, schema)) == concurrencyColumnName);
 
                     if (!foundMappedProperty)
                     {
@@ -96,7 +90,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                         // property which _is_ mapped to this concurrency token
                         // column and which will be used later as a template
                         entityTypesMissingConcurrencyColumn.Add(
-                            entityType, propertiesMappedToConcurrencyColumn.First());
+                            entityType, readOnlyProperties.First());
                     }
                 }
 
@@ -107,10 +101,9 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                 RemoveDerivedEntityTypes(entityTypesMissingConcurrencyColumn);
 
-                foreach (var entityTypeToExampleProperty in entityTypesMissingConcurrencyColumn)
+                foreach (var (conventionEntityType, exampleProperty) in entityTypesMissingConcurrencyColumn)
                 {
-                    var exampleProperty = entityTypeToExampleProperty.Value;
-                    entityTypeToExampleProperty.Key.Builder.CreateUniqueProperty(
+                    conventionEntityType.Builder.CreateUniqueProperty(
                             exampleProperty.ClrType,
                             ConcurrencyPropertyPrefix + exampleProperty.Name,
                             !exampleProperty.IsNullable)!

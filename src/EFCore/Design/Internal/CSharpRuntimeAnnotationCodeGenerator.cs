@@ -30,13 +30,13 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         var annotations = parameters.Annotations;
         if (!parameters.IsRuntime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
-                    && annotation.Key != CoreAnnotationNames.ProductVersion
-                    && annotation.Key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.ProductVersion
+                    && key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -55,12 +55,12 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         var annotations = parameters.Annotations;
         if (!parameters.IsRuntime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
-                    && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.DiscriminatorMappingComplete)
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -74,11 +74,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -92,11 +92,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -110,11 +110,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (s, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(s))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(s);
                 }
             }
         }
@@ -128,11 +128,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -146,11 +146,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -164,11 +164,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -182,11 +182,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -200,11 +200,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (!parameters.IsRuntime)
         {
             var annotations = parameters.Annotations;
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }

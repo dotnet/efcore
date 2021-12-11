@@ -267,24 +267,24 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
         var skippedRebuilds = new List<(string Table, string? Schema)>();
         var indexesToRebuild = new List<ITableIndex>();
-        foreach (var rebuild in rebuilds)
+        foreach (var (key, rebuildContext) in rebuilds)
         {
-            var table = model?.GetRelationalModel().FindTable(rebuild.Key.Table, rebuild.Key.Schema);
+            var table = model?.GetRelationalModel().FindTable(key.Table, key.Schema);
             if (table == null)
             {
-                skippedRebuilds.Add(rebuild.Key);
+                skippedRebuilds.Add(key);
 
                 continue;
             }
 
-            foreach (var operationToWarnFor in rebuild.Value.OperationsToWarnFor)
+            foreach (var operationToWarnFor in rebuildContext.OperationsToWarnFor)
             {
                 // TODO: Consider warning once per table--list all operation types we're warning for
                 // TODO: Consider listing which operations required a rebuild
                 Dependencies.MigrationsLogger.TableRebuildPendingWarning(operationToWarnFor.GetType(), table.Name);
             }
 
-            foreach (var operationToReplace in rebuild.Value.OperationsToReplace)
+            foreach (var operationToReplace in rebuildContext.OperationsToReplace)
             {
                 operations.Remove(operationToReplace);
             }
@@ -315,7 +315,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                     Name = column.Name,
                     ColumnType = column.StoreType,
                     IsNullable = column.IsNullable,
-                    DefaultValue = rebuild.Value.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
+                    DefaultValue = rebuildContext.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
                         && !originalOperation.IsNullable
                             ? originalOperation.DefaultValue
                             : defaultValue,
@@ -349,7 +349,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
             foreach (var index in table.Indexes)
             {
-                if (index.IsUnique && rebuild.Value.CreateIndexesDeferred.Contains(index.Name))
+                if (index.IsUnique && rebuildContext.CreateIndexesDeferred.Contains(index.Name))
                 {
                     var createIndexOperation = CreateIndexOperation.CreateFrom(index);
                     createIndexOperation.Table = createTableOperation.Name;
@@ -367,7 +367,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
             foreach (var column in table.Columns)
             {
                 if (column.ComputedColumnSql != null
-                    || rebuild.Value.AddColumnsDeferred.ContainsKey(column.Name))
+                    || rebuildContext.AddColumnsDeferred.ContainsKey(column.Name))
                 {
                     continue;
                 }
@@ -384,7 +384,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 intoBuilder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(column.Name));
 
-                var defaultValue = rebuild.Value.AlterColumnsDeferred.TryGetValue(column.Name, out var alterColumnOperation)
+                var defaultValue = rebuildContext.AlterColumnsDeferred.TryGetValue(column.Name, out var alterColumnOperation)
                     && !alterColumnOperation.IsNullable
                     && alterColumnOperation.OldColumn.IsNullable
                         ? alterColumnOperation.DefaultValue
@@ -396,7 +396,7 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 selectBuilder.Append(
                     Dependencies.SqlGenerationHelper.DelimitIdentifier(
-                        rebuild.Value.RenameColumnsDeferred.TryGetValue(column.Name, out var renameColumnOperation)
+                        rebuildContext.RenameColumnsDeferred.TryGetValue(column.Name, out var renameColumnOperation)
                             ? renameColumnOperation.Name
                             : column.Name));
 
@@ -444,17 +444,17 @@ public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
                 new SqlOperation { Sql = "PRAGMA foreign_keys = 0;", SuppressTransaction = true });
         }
 
-        foreach (var rebuild in rebuilds)
+        foreach (var ((table, schema), _) in rebuilds)
         {
             operations.Add(
-                new DropTableOperation { Name = rebuild.Key.Table, Schema = rebuild.Key.Schema });
+                new DropTableOperation { Name = table, Schema = schema });
             operations.Add(
                 new RenameTableOperation
                 {
-                    Name = "ef_temp_" + rebuild.Key.Table,
-                    Schema = rebuild.Key.Schema,
-                    NewName = rebuild.Key.Table,
-                    NewSchema = rebuild.Key.Schema
+                    Name = "ef_temp_" + table,
+                    Schema = schema,
+                    NewName = table,
+                    NewSchema = schema
                 });
         }
 

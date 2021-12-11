@@ -72,13 +72,12 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         }
 
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
-        foreach (var kvp in _readExpressionMap)
+        foreach (var (property, methodCallExpression) in _readExpressionMap)
         {
-            var property = kvp.Key;
             if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
                 || property.DeclaringEntityType.IsAssignableFrom(derivedType))
             {
-                readExpressionMap[property] = kvp.Value;
+                readExpressionMap[property] = methodCallExpression;
             }
         }
 
@@ -151,12 +150,12 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     {
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>(_readExpressionMap);
         var entityProjectionExpression = new EntityProjectionExpression(EntityType, readExpressionMap);
-        foreach (var kvp in _navigationExpressionsCache)
+        foreach (var (navigation, entityShaperExpression) in _navigationExpressionsCache)
         {
-            entityProjectionExpression._navigationExpressionsCache[kvp.Key] = new EntityShaperExpression(
-                kvp.Value.EntityType,
-                ((EntityProjectionExpression)kvp.Value.ValueBufferExpression).Clone(),
-                kvp.Value.IsNullable);
+            entityProjectionExpression._navigationExpressionsCache[navigation] = new EntityShaperExpression(
+                entityShaperExpression.EntityType,
+                ((EntityProjectionExpression)entityShaperExpression.ValueBufferExpression).Clone(),
+                entityShaperExpression.IsNullable);
         }
 
         return entityProjectionExpression;
@@ -173,10 +172,10 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         expressionPrinter.AppendLine(nameof(EntityProjectionExpression) + ":");
         using (expressionPrinter.Indent())
         {
-            foreach (var readExpressionMapEntry in _readExpressionMap)
+            foreach (var (property, methodCallExpression) in _readExpressionMap)
             {
-                expressionPrinter.Append(readExpressionMapEntry.Key + " -> ");
-                expressionPrinter.Visit(readExpressionMapEntry.Value);
+                expressionPrinter.Append(property + " -> ");
+                expressionPrinter.Visit(methodCallExpression);
                 expressionPrinter.AppendLine();
             }
         }

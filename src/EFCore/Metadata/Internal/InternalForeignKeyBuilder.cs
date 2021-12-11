@@ -248,13 +248,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()),
                 "configurationSource does not override Metadata.GetPrincipalKeyConfigurationSource");
 
-            var entityType = principalEntityType;
-            principalEntityType = dependentEntityType;
-            dependentEntityType = entityType;
-
-            var navigation = navigationToPrincipal;
-            navigationToPrincipal = navigationToDependent;
-            navigationToDependent = navigation;
+            (principalEntityType, dependentEntityType) = (dependentEntityType, principalEntityType);
+            (navigationToPrincipal, navigationToDependent) = (navigationToDependent, navigationToPrincipal);
 
             navigationToPrincipalName = navigationToPrincipal?.Name;
             navigationToDependentName = navigationToDependent?.Name;
@@ -1601,9 +1596,9 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
         if (detachedKeys != null)
         {
-            foreach (var detachedKeyTuple in detachedKeys)
+            foreach (var (internalKeyBuilder, configurationSource) in detachedKeys)
             {
-                detachedKeyTuple.Item1.Attach(Metadata.DeclaringEntityType.RootType().Builder, detachedKeyTuple.Item2);
+                internalKeyBuilder.Attach(Metadata.DeclaringEntityType.RootType().Builder, configurationSource);
             }
         }
 
@@ -2309,13 +2304,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             oldRelationshipInverted = !oldRelationshipInverted;
             existingRelationshipInverted = false;
 
-            var entityTypeBuilder = principalEntityTypeBuilder;
-            principalEntityTypeBuilder = dependentEntityTypeBuilder;
-            dependentEntityTypeBuilder = entityTypeBuilder;
-
-            var navigation = navigationToPrincipal;
-            navigationToPrincipal = navigationToDependent;
-            navigationToDependent = navigation;
+            (principalEntityTypeBuilder, dependentEntityTypeBuilder) = (dependentEntityTypeBuilder, principalEntityTypeBuilder);
+            (navigationToPrincipal, navigationToDependent) = (navigationToDependent, navigationToPrincipal);
 
             dependentProperties = null;
             principalProperties = null;

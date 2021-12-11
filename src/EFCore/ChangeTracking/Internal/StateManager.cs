@@ -595,17 +595,17 @@ public class StateManager : IStateManager
 
         if (_referencedUntrackedEntities != null)
         {
-            foreach (var keyValuePair in _referencedUntrackedEntities.ToList())
+            foreach (var (key, value) in _referencedUntrackedEntities.ToList())
             {
-                if (keyValuePair.Value.Any(t => t.Item2 == entry))
+                if (value.Any(t => t.Item2 == entry))
                 {
-                    _referencedUntrackedEntities.Remove(keyValuePair.Key);
+                    _referencedUntrackedEntities.Remove(key);
 
-                    var newList = keyValuePair.Value.Where(tuple => tuple.Item2 != entry).ToList();
+                    var newList = value.Where(tuple => tuple.Item2 != entry).ToList();
 
                     if (newList.Count > 0)
                     {
-                        _referencedUntrackedEntities.Add(keyValuePair.Key, newList);
+                        _referencedUntrackedEntities.Add(key, newList);
                     }
                 }
             }

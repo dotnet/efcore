@@ -61,12 +61,12 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
             {
                 var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
-                foreach (var functionPair in (SortedDictionary<string, IDbFunction>)functions!)
+                foreach (var (key, dbFunction) in (SortedDictionary<string, IDbFunction>)functions!)
                 {
-                    var runtimeFunction = Create(functionPair.Value, runtimeModel);
-                    runtimeFunctions[functionPair.Key] = runtimeFunction;
+                    var runtimeFunction = Create(dbFunction, runtimeModel);
+                    runtimeFunctions[key] = runtimeFunction;
 
-                    foreach (var parameter in functionPair.Value.Parameters)
+                    foreach (var parameter in dbFunction.Parameters)
                     {
                         var runtimeParameter = Create(parameter, runtimeFunction);
 
@@ -76,7 +76,7 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
                     }
 
                     CreateAnnotations(
-                        functionPair.Value, runtimeFunction, static (convention, annotations, source, target, runtime) =>
+                        dbFunction, runtimeFunction, static (convention, annotations, source, target, runtime) =>
                             convention.ProcessFunctionAnnotations(annotations, source, target, runtime));
                 }
 
@@ -86,13 +86,13 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             if (annotations.TryGetValue(RelationalAnnotationNames.Sequences, out var sequences))
             {
                 var runtimeSequences = new SortedDictionary<(string, string?), ISequence>();
-                foreach (var sequencePair in (SortedDictionary<(string, string?), ISequence>)sequences!)
+                foreach (var (key, value) in (SortedDictionary<(string, string?), ISequence>)sequences!)
                 {
-                    var runtimeSequence = Create(sequencePair.Value, runtimeModel);
-                    runtimeSequences[sequencePair.Key] = runtimeSequence;
+                    var runtimeSequence = Create(value, runtimeModel);
+                    runtimeSequences[key] = runtimeSequence;
 
                     CreateAnnotations(
-                        sequencePair.Value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
+                        value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
                             convention.ProcessSequenceAnnotations(annotations, source, target, runtime));
                 }
 
@@ -269,13 +269,13 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var overrides))
             {
                 var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
-                foreach (var overridesPair in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
+                foreach (var (storeObjectIdentifier, value) in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
                 {
-                    var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, runtimeProperty);
-                    runtimePropertyOverrides[overridesPair.Key] = runtimeOverrides;
+                    var runtimeOverrides = Create((IRelationalPropertyOverrides)value, runtimeProperty);
+                    runtimePropertyOverrides[storeObjectIdentifier] = runtimeOverrides;
 
                     CreateAnnotations(
-                        (IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
+                        (IRelationalPropertyOverrides)value, runtimeOverrides,
                         static (convention, annotations, source, target, runtime) =>
                             convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
                 }

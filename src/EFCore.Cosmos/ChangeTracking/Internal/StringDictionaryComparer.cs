@@ -52,10 +52,10 @@ public sealed class StringDictionaryComparer<TElement, TCollection> : ValueCompa
             return true;
         }
 
-        foreach (var aPair in aDict)
+        foreach (var (key, element) in aDict)
         {
-            if (!bDict.TryGetValue(aPair.Key, out var bValue)
-                || !elementComparer.Equals(aPair.Value, bValue))
+            if (!bDict.TryGetValue(key, out var bValue)
+                || !elementComparer.Equals(element, bValue))
             {
                 return false;
             }
@@ -67,10 +67,10 @@ public sealed class StringDictionaryComparer<TElement, TCollection> : ValueCompa
     private static int GetHashCode(TCollection source, ValueComparer<TElement> elementComparer)
     {
         var hash = new HashCode();
-        foreach (var el in source)
+        foreach (var (key, element) in source)
         {
-            hash.Add(el.Key);
-            hash.Add(el.Value, elementComparer);
+            hash.Add(key);
+            hash.Add(element, elementComparer);
         }
 
         return hash.ToHashCode();
@@ -84,9 +84,9 @@ public sealed class StringDictionaryComparer<TElement, TCollection> : ValueCompa
         }
 
         var snapshot = new Dictionary<string, TElement>(((IReadOnlyDictionary<string, TElement>)source).Count);
-        foreach (var e in source)
+        foreach (var (key, element) in source)
         {
-            snapshot.Add(e.Key, e.Value is null ? default! : elementComparer.Snapshot(e.Value));
+            snapshot.Add(key, element is null ? default! : elementComparer.Snapshot(element));
         }
 
         return (TCollection)(object)snapshot;

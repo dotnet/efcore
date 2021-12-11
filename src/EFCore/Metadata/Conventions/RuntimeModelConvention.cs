@@ -200,13 +200,13 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
-                    && annotation.Key != CoreAnnotationNames.ProductVersion
-                    && annotation.Key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.ProductVersion
+                    && key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -256,16 +256,16 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
-                    && annotation.Key != CoreAnnotationNames.QueryFilter
+                if (CoreAnnotationNames.AllNames.Contains(key)
+                    && key != CoreAnnotationNames.QueryFilter
 #pragma warning disable CS0612 // Type or member is obsolete
-                    && annotation.Key != CoreAnnotationNames.DefiningQuery
+                    && key != CoreAnnotationNames.DefiningQuery
 #pragma warning restore CS0612 // Type or member is obsolete
-                    && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
+                    && key != CoreAnnotationNames.DiscriminatorMappingComplete)
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
 
@@ -317,11 +317,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -365,11 +365,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -397,11 +397,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -425,11 +425,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (s, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(s))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(s);
                 }
             }
         }
@@ -456,11 +456,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -495,11 +495,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -532,11 +532,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }
@@ -605,11 +605,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     {
         if (!runtime)
         {
-            foreach (var annotation in annotations)
+            foreach (var (key, _) in annotations)
             {
-                if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                if (CoreAnnotationNames.AllNames.Contains(key))
                 {
-                    annotations.Remove(annotation.Key);
+                    annotations.Remove(key);
                 }
             }
         }

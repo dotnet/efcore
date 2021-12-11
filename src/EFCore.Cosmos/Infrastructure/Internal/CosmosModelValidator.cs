@@ -69,10 +69,8 @@ public class CosmosModelValidator : ModelValidator
             mappedTypes.Add(entityType);
         }
 
-        foreach (var containerMapping in containers)
+        foreach (var (container, mappedTypes) in containers)
         {
-            var mappedTypes = containerMapping.Value;
-            var container = containerMapping.Key;
             ValidateSharedContainerCompatibility(mappedTypes, container, logger);
         }
     }

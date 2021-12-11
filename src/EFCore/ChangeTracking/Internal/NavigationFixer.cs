@@ -902,9 +902,9 @@ public class NavigationFixer : INavigationFixer
 
             // If the entity was previously referenced while it was still untracked, go back and do the fixup
             // that we would have done then now that the entity is tracked.
-            foreach (var danglerEntry in stateManager.GetRecordedReferrers(entry.Entity, clear: true))
+            foreach (var (navigationBase, internalEntityEntry) in stateManager.GetRecordedReferrers(entry.Entity, clear: true))
             {
-                DelayedFixup(danglerEntry.Item2, danglerEntry.Item1, entry, fromQuery);
+                DelayedFixup(internalEntityEntry, navigationBase, entry, fromQuery);
             }
         }
     }

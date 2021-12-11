@@ -2473,16 +2473,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
         }
 
-        foreach (var periodMapEntry in periodMap)
+        foreach (var (key, value) in periodMap)
         {
-            EnablePeriod(periodMapEntry.Key.Item1!, periodMapEntry.Key.Item2, periodMapEntry.Value.Item1, periodMapEntry.Value.Item2);
+            EnablePeriod(key.Item1!, key.Item2, value.Item1, value.Item2);
         }
 
-        foreach (var versioningMapEntry in versioningMap)
+        foreach (var (key, value) in versioningMap)
         {
             EnableVersioning(
-                versioningMapEntry.Key.Item1!, versioningMapEntry.Key.Item2, versioningMapEntry.Value.Item1,
-                versioningMapEntry.Value.Item2);
+                key.Item1!, key.Item2, value.Item1,
+                value.Item2);
         }
 
         return operations;

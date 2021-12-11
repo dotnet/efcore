@@ -51,7 +51,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         var foreignKeys = new Dictionary<string, IConventionForeignKey>();
         var indexes = new Dictionary<string, IConventionIndex>();
         var checkConstraints = new Dictionary<(string, string?), IConventionCheckConstraint>();
-        foreach (var table in tables)
+        foreach (var ((tableName, schema), conventionEntityTypes) in tables)
         {
             columns.Clear();
             keys.Clear();
@@ -67,8 +67,8 @@ public class SharedTableConvention : IModelFinalizingConvention
                 checkConstraints.Clear();
             }
 
-            var storeObject = StoreObjectIdentifier.Table(table.Key.TableName, table.Key.Schema);
-            foreach (var entityType in table.Value)
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+            foreach (var entityType in conventionEntityTypes)
             {
                 TryUniquifyColumnNames(entityType, columns, storeObject, maxLength);
                 TryUniquifyKeyNames(entityType, keys, storeObject, maxLength);
@@ -162,11 +162,10 @@ public class SharedTableConvention : IModelFinalizingConvention
 
         // Some entity types might end up mapped to the same table after the table name is truncated,
         // so we need to map them to different tables as was intended initially
-        foreach (var subTables in clashingTables)
+        foreach (var (table, value) in clashingTables)
         {
-            var table = subTables.Key;
             var oldTable = tables[table];
-            foreach (var subTable in subTables.Value.Values.Skip(1))
+            foreach (var subTable in value.Values.Skip(1))
             {
                 var uniqueName = Uniquifier.Uniquify(table.Name, tables, n => (n, table.Schema), maxLength);
                 tables[(uniqueName, table.Schema)] = subTable;

@@ -191,10 +191,10 @@ public class WarningsConfiguration
             var hashCode = new HashCode();
             hashCode.Add(_defaultBehavior);
 
-            foreach (var explicitBehavior in _explicitBehaviors)
+            foreach (var (key, value) in _explicitBehaviors)
             {
-                hashCode.Add(explicitBehavior.Key);
-                hashCode.Add(explicitBehavior.Value);
+                hashCode.Add(key);
+                hashCode.Add(value);
             }
 
             _serviceProviderHash = hashCode.ToHashCode();

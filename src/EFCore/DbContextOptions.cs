@@ -151,10 +151,10 @@ public abstract class DbContextOptions : IDbContextOptions
     {
         var hashCode = new HashCode();
 
-        foreach (var dbContextOptionsExtension in _extensionsMap)
+        foreach (var (type, value) in _extensionsMap)
         {
-            hashCode.Add(dbContextOptionsExtension.Key);
-            hashCode.Add(dbContextOptionsExtension.Value.Extension.Info.GetServiceProviderHashCode());
+            hashCode.Add(type);
+            hashCode.Add(value.Extension.Info.GetServiceProviderHashCode());
         }
 
         return hashCode.ToHashCode();

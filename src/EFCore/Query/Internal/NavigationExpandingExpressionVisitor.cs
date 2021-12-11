@@ -116,16 +116,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     _queryContextContextPropertyInfo),
                 _queryCompilationContext.ContextType);
 
-        foreach (var parameterValue in _parameters.ParameterValues)
+        foreach (var (key, value) in _parameters.ParameterValues)
         {
-            var lambda = (LambdaExpression)parameterValue.Value!;
+            var lambda = (LambdaExpression)value!;
             var remappedLambdaBody = ReplacingExpressionVisitor.Replace(
                 lambda.Parameters[0],
                 dbContextOnQueryContextPropertyAccess,
                 lambda.Body);
 
             _queryCompilationContext.RegisterRuntimeParameter(
-                parameterValue.Key,
+                key,
                 Expression.Lambda(
                     remappedLambdaBody.Type.IsValueType
                         ? Expression.Convert(remappedLambdaBody, typeof(object))
