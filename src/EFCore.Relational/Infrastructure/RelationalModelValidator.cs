@@ -1268,7 +1268,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
     {
         var derivedTypes = new Dictionary<(string, string?), IEntityType>();
         foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
@@ -1294,7 +1294,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
     {
         string? firstName = null;
         string? firstSchema = null;

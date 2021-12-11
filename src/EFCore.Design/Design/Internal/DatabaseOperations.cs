@@ -115,7 +115,7 @@ public class DatabaseOperations
                 : _rootNamespace + "." + subNamespace;
     }
 
-    // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+    // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
     private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
@@ -125,7 +125,7 @@ public class DatabaseOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(projectDir.Length);
+        var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(
@@ -149,7 +149,7 @@ public class DatabaseOperations
             return path;
         }
 
-        var last = path[path.Length - 1];
+        var last = path[^1];
         return last == Path.DirectorySeparatorChar
             || last == Path.AltDirectorySeparatorChar
                 ? path

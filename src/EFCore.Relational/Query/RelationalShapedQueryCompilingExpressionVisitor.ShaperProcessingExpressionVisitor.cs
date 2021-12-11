@@ -852,7 +852,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return accessor;
                 }
 
-                case GroupByShaperExpression _:
+                case GroupByShaperExpression:
                     throw new InvalidOperationException(RelationalStrings.ClientGroupByNotSupported);
             }
 

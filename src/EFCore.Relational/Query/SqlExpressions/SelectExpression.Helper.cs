@@ -238,7 +238,7 @@ public sealed partial class SelectExpression
             switch (expression)
             {
                 case ColumnExpression columnExpression:
-                    var tableAlias = columnExpression.TableAlias!;
+                    var tableAlias = columnExpression.TableAlias;
                     if (_columnReferenced!.ContainsKey(tableAlias))
                     {
                         _columnReferenced[tableAlias] ??= new HashSet<string>();
@@ -308,12 +308,12 @@ public sealed partial class SelectExpression
             => obj.Column.GetHashCode();
     }
 
-    private sealed class AliasUniquefier : ExpressionVisitor
+    private sealed class AliasUniquifier : ExpressionVisitor
     {
         private readonly HashSet<string> _usedAliases;
         private readonly List<SelectExpression> _visitedSelectExpressions = new();
 
-        public AliasUniquefier(HashSet<string> usedAliases)
+        public AliasUniquifier(HashSet<string> usedAliases)
         {
             _usedAliases = usedAliases;
         }
@@ -898,7 +898,7 @@ public sealed partial class SelectExpression
             return base.Visit(expression);
         }
 
-        private void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
+        private static void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
         {
             if (target._projection.Count != source._projection.Count)
             {

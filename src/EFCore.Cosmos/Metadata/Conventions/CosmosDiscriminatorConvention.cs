@@ -94,7 +94,7 @@ public class CosmosDiscriminatorConvention :
         ProcessEntityType(entityTypeBuilder);
     }
 
-    private void ProcessEntityType(IConventionEntityTypeBuilder entityTypeBuilder)
+    private static void ProcessEntityType(IConventionEntityTypeBuilder entityTypeBuilder)
     {
         var entityType = entityTypeBuilder.Metadata;
         if (entityType.BaseType != null)

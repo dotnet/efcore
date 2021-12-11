@@ -466,7 +466,7 @@ public class RelationalCommand : IRelationalCommand
                     ? interceptionResult.Result
                     : command.ExecuteReader();
 
-                reader = logger!.CommandReaderExecuted(
+                reader = logger.CommandReaderExecuted(
                     connection,
                     command,
                     context,
@@ -580,7 +580,7 @@ public class RelationalCommand : IRelationalCommand
                     ? interceptionResult.Result
                     : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
 
-                reader = await logger!.CommandReaderExecutedAsync(
+                reader = await logger.CommandReaderExecutedAsync(
                         connection,
                         command,
                         context,

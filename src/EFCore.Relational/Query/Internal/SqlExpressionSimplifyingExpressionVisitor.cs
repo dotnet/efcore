@@ -100,7 +100,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                 && sqlFunctionExpression.Arguments?.Count > 1;
     }
 
-    private bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)
+    private static bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)
     {
         if (caseExpression != null
             && caseExpression.Operand == null
@@ -263,8 +263,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
             || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
         {
-            if (TryGetInExressionCandidateInfo(left, out var leftCandidateInfo)
-                && TryGetInExressionCandidateInfo(right, out var rightCandidateInfo)
+            if (TryGetInExpressionCandidateInfo(left, out var leftCandidateInfo)
+                && TryGetInExpressionCandidateInfo(right, out var rightCandidateInfo)
                 && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                 && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
             {
@@ -353,10 +353,10 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return sqlBinaryExpression.Update(left, right);
     }
 
-    private List<object> ConstructCollection(object left, object right)
+    private static List<object> ConstructCollection(object left, object right)
         => new() { left, right };
 
-    private List<object> AddToCollection(IEnumerable collection, object newElement)
+    private static List<object> AddToCollection(IEnumerable collection, object newElement)
     {
         var result = BuildListFromEnumerable(collection);
         if (!result.Contains(newElement))
@@ -367,7 +367,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private List<object> UnionCollections(IEnumerable first, IEnumerable second)
+    private static List<object> UnionCollections(IEnumerable first, IEnumerable second)
     {
         var result = BuildListFromEnumerable(first);
         foreach (var collectionElement in second)
@@ -381,7 +381,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private List<object> IntersectCollections(IEnumerable first, IEnumerable second)
+    private static List<object> IntersectCollections(IEnumerable first, IEnumerable second)
     {
         var firstList = BuildListFromEnumerable(first);
         var result = new List<object>();
@@ -397,7 +397,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private List<object> BuildListFromEnumerable(IEnumerable collection)
+    private static List<object> BuildListFromEnumerable(IEnumerable collection)
     {
         List<object> result;
         if (collection is List<object> list)
@@ -416,7 +416,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private bool TryGetInExressionCandidateInfo(
+    private static bool TryGetInExpressionCandidateInfo(
         SqlExpression sqlExpression,
         [MaybeNullWhen(false)]
         out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType)
@@ -425,7 +425,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
             && sqlUnaryExpression.OperatorType == ExpressionType.Not)
         {
-            if (TryGetInExressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
+            if (TryGetInExpressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
             {
                 candidateInfo = (inner.ColumnExpression, inner.ConstantValue, inner.TypeMapping,
                     inner.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);

@@ -149,7 +149,7 @@ public static class SpatialiteLoader
                 .Select(p => p.Key).FirstOrDefault();
             if (assetPath != default)
             {
-                string? assetDirectory = null;
+                string? assetDirectory;
                 if (File.Exists(Path.Combine(AppContext.BaseDirectory, assetPath.Item2)))
                 {
                     // NB: This enables framework-dependent deployments

@@ -47,7 +47,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 ?? base.FindMapping(mappingInfo));
     }
 
-    private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
+    private static CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
         if ((clrType.IsValueType
@@ -61,7 +61,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
         return null;
     }
 
-    private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
+    private static CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
         var elementType = clrType.TryGetSequenceType();

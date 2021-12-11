@@ -60,7 +60,7 @@ public class LazyLoadingInterceptor : IInterceptor
             if (_loader != null
                 && methodName.StartsWith("get_", StringComparison.Ordinal))
             {
-                var navigationName = methodName.Substring(4);
+                var navigationName = methodName[4..];
                 var navigationBase = _entityType.FindNavigation(navigationName)
                     ?? (INavigationBase?)_entityType.FindSkipNavigation(navigationName);
 

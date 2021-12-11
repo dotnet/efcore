@@ -1053,7 +1053,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         using (mainBuilder.Indent())
         {
-            var foreignKeyVariable = "runtimeForeignKey";
+            const string foreignKeyVariable = "runtimeForeignKey";
             var variables = new HashSet<string>
             {
                 declaringEntityType,
@@ -1342,7 +1342,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
     }
 
-    private void CreateAnnotations<TAnnotatable>(
+    private static void CreateAnnotations<TAnnotatable>(
         TAnnotatable annotatable,
         Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)

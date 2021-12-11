@@ -729,7 +729,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeFunction = (StoreFunction?)dbFunction.StoreFunction;
         if (storeFunction == null)
         {
-            var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType!).ToArray();
+            var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType).ToArray();
             storeFunction = (StoreFunction?)model.FindFunction(dbFunction.Name, dbFunction.Schema, parameterTypes);
             if (storeFunction == null)
             {

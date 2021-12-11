@@ -570,7 +570,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-            var historyTable = default(string);
+            string historyTable;
             if (needsExec)
             {
                 historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName!);
@@ -960,7 +960,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 dataDirectory = AppDomain.CurrentDomain.BaseDirectory;
             }
 
-            fileName = Path.Combine(dataDirectory, fileName.Substring("|DataDirectory|".Length));
+            fileName = Path.Combine(dataDirectory, fileName["|DataDirectory|".Length..]);
         }
 
         return Path.GetFullPath(fileName);
@@ -1684,10 +1684,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
     protected override void IndexTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
-        if (clustered.HasValue)
+        if (operation[SqlServerAnnotationNames.Clustered] is bool clustered)
         {
-            builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");
+            builder.Append(clustered ? "CLUSTERED " : "NONCLUSTERED ");
         }
     }
 
@@ -1746,7 +1745,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         IndexWithOptions(operation, builder);
     }
 
-    private void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
+    private static void IndexWithOptions(CreateIndexOperation operation, MigrationCommandListBuilder builder)
     {
         var options = new List<string>();
 
@@ -2172,10 +2171,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             && model?.GetRelationalModel().FindTable(operation.Table, operation.Schema) is var table
             && operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
-    private string IntegerConstant(long value)
+    private static string IntegerConstant(long value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
-    private bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
+    private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
             ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
 
@@ -2238,13 +2237,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         var versioningMap = new Dictionary<(string?, string?), (string, string?)>();
         var periodMap = new Dictionary<(string?, string?), (string, string)>();
-        var availbleSchemas = new List<string>();
+        var availableSchemas = new List<string>();
 
         foreach (var operation in migrationOperations)
         {
             if (operation is EnsureSchemaOperation ensureSchemaOperation)
             {
-                availbleSchemas.Add(ensureSchemaOperation.Name);
+                availableSchemas.Add(ensureSchemaOperation.Name);
             }
 
             var isTemporal = operation[SqlServerAnnotationNames.IsTemporal] as bool? == true;
@@ -2271,10 +2270,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     case CreateTableOperation createTableOperation:
                         if (historyTableSchema != createTableOperation.Schema
                             && historyTableSchema != null
-                            && !availbleSchemas.Contains(historyTableSchema))
+                            && !availableSchemas.Contains(historyTableSchema))
                         {
                             operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
-                            availbleSchemas.Add(historyTableSchema);
+                            availableSchemas.Add(historyTableSchema);
                         }
 
                         operations.Add(operation);
@@ -2329,10 +2328,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 || oldHistoryTableSchema != historyTableSchema)
                             {
                                 if (historyTableSchema != null
-                                    && !availbleSchemas.Contains(historyTableSchema))
+                                    && !availableSchemas.Contains(historyTableSchema))
                                 {
                                     operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
-                                    availbleSchemas.Add(historyTableSchema);
+                                    availableSchemas.Add(historyTableSchema);
                                 }
 
                                 operations.Add(

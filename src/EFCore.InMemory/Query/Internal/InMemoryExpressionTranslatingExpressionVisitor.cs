@@ -247,8 +247,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityProjectionExpression _:
-            case EntityReferenceExpression _:
+            case EntityProjectionExpression:
+            case EntityReferenceExpression:
                 return extensionExpression;
 
             case EntityShaperExpression entityShaperExpression:
@@ -508,7 +508,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             && methodCallExpression.Arguments.Count == 1)
         {
             var left = Visit(methodCallExpression.Object);
-            var right = Visit(methodCallExpression.Arguments[0])!;
+            var right = Visit(methodCallExpression.Arguments[0]);
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
@@ -527,7 +527,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = left;
-            arguments = new Expression[1] { right };
+            arguments = new[] { right };
         }
         else if (method.Name == nameof(object.Equals)
                  && methodCallExpression.Object == null
@@ -541,8 +541,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
             }
 
-            var left = Visit(methodCallExpression.Arguments[0])!;
-            var right = Visit(methodCallExpression.Arguments[1])!;
+            var left = Visit(methodCallExpression.Arguments[0]);
+            var right = Visit(methodCallExpression.Arguments[1]);
 
             if (TryRewriteEntityEquality(
                     ExpressionType.Equal,
@@ -560,13 +560,13 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new Expression[2] { left, right };
+            arguments = new[] { left, right };
         }
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
         {
-            var enumerable = Visit(methodCallExpression.Arguments[0])!;
-            var item = Visit(methodCallExpression.Arguments[1])!;
+            var enumerable = Visit(methodCallExpression.Arguments[0]);
+            var item = Visit(methodCallExpression.Arguments[1]);
 
             if (TryRewriteContainsEntity(
                     enumerable,
@@ -582,13 +582,13 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return QueryCompilationContext.NotTranslatedExpression;
             }
 
-            arguments = new Expression[2] { enumerable, item };
+            arguments = new[] { enumerable, item };
         }
         else if (methodCallExpression.Arguments.Count == 1
                  && method.IsContainsMethod())
         {
             var enumerable = Visit(methodCallExpression.Object);
-            var item = Visit(methodCallExpression.Arguments[0])!;
+            var item = Visit(methodCallExpression.Arguments[0]);
 
             if (TryRewriteContainsEntity(
                     enumerable,
@@ -605,7 +605,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             @object = enumerable;
-            arguments = new Expression[1] { item };
+            arguments = new[] { item };
         }
         else
         {
@@ -986,7 +986,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
             : expression;
 
-    private IProperty? FindProperty(Expression expression)
+    private static IProperty? FindProperty(Expression expression)
     {
         if (expression.NodeType == ExpressionType.Convert
             && expression.Type.IsNullableType()

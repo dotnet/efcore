@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 Session = new Dictionary<string, object>
                 {
-                    ["ContextType"] = context!,
+                    ["ContextType"] = context,
                     ["Assembly"] = assembly,
                     ["StartupAssembly"] = startupAssembly
                 }

@@ -18,7 +18,7 @@ public class CollectionResultExpression : Expression, IPrintableExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="CollectionResultExpression" /> class.
     /// </summary>
-    /// <param name="projectionBindingExpression">An expression reprensenting how to get the subquery from SelectExpression to get the elements.</param>
+    /// <param name="projectionBindingExpression">An expression representing how to get the subquery from SelectExpression to get the elements.</param>
     /// <param name="navigation">A navigation associated with this collection, if any.</param>
     /// <param name="elementType">The clr type of individual elements in the collection.</param>
     public CollectionResultExpression(

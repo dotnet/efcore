@@ -466,7 +466,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         base.Generate(index, parameters);
     }
 
-    private void CreateAnnotations<TAnnotatable>(
+    private static void CreateAnnotations<TAnnotatable>(
         TAnnotatable annotatable,
         Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -484,7 +484,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             });
     }
 
-    private string Capitalize(string @string)
+    private static string Capitalize(string @string)
     {
         switch (@string.Length)
         {

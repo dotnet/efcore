@@ -9041,7 +9041,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 
     #region Issue22841
 
-    [ConditionalFact(Skip = "Flaky, #26763")]
+    [ConditionalFact]
     public async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true_22841()
     {
         var contextFactory = await InitializeAsync<MyContext22841>();
@@ -9049,12 +9049,14 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         using var context = contextFactory.CreateContext();
         var observableThing = new ObservableThing22841();
 
+        using var trackingSynchronizationContext = new SingleThreadSynchronizationContext();
         var origSynchronizationContext = SynchronizationContext.Current;
-        var trackingSynchronizationContext = new SingleThreadSynchronizationContext22841();
         SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
 
         bool? isMySyncContext = null;
-        Action callback = () => isMySyncContext = Thread.CurrentThread == trackingSynchronizationContext.Thread;
+        Action callback = () => isMySyncContext =
+            SynchronizationContext.Current ==  trackingSynchronizationContext
+            && Thread.CurrentThread == trackingSynchronizationContext.Thread;
         observableThing.Event += callback;
 
         try
@@ -9066,7 +9068,6 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         {
             observableThing.Event -= callback;
             SynchronizationContext.SetSynchronizationContext(origSynchronizationContext);
-            trackingSynchronizationContext.Dispose();
         }
 
         Assert.True(isMySyncContext);
@@ -9103,42 +9104,6 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         private int _id;
 
         public event Action Event;
-    }
-
-    private class SingleThreadSynchronizationContext22841 : SynchronizationContext, IDisposable
-    {
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
-        internal Thread Thread { get; }
-
-        internal SingleThreadSynchronizationContext22841()
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-            Thread = new Thread(WorkLoop);
-            Thread.Start();
-        }
-
-        public override void Post(SendOrPostCallback callback, object state)
-            => _tasks.Add((callback, state));
-
-        public void Dispose()
-            => _tasks.CompleteAdding();
-
-        private void WorkLoop()
-        {
-            try
-            {
-                while (true)
-                {
-                    var (callback, state) = _tasks.Take();
-                    callback(state);
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                _tasks.Dispose();
-            }
-        }
     }
 
     #endregion Issue22841

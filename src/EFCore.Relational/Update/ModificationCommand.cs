@@ -393,7 +393,7 @@ public class ModificationCommand : IModificationCommand
         return tableMapping;
     }
 
-    private void InitializeSharedColumns(
+    private static void InitializeSharedColumns(
         IUpdateEntry entry,
         ITableMappingBase tableMapping,
         bool updating,

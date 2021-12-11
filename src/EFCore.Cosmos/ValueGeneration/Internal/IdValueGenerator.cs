@@ -79,7 +79,7 @@ public class IdValueGenerator : ValueGenerator
         return builder.ToString();
     }
 
-    private void AppendString(StringBuilder builder, object? propertyValue)
+    private static void AppendString(StringBuilder builder, object? propertyValue)
     {
         switch (propertyValue)
         {
@@ -115,7 +115,7 @@ public class IdValueGenerator : ValueGenerator
     {
         var startingIndex = builder.Length;
         return builder.Append(stringValue)
-            // We need this to avoid collissions with the value separator
+            // We need this to avoid collisions with the value separator
             .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
             // These are invalid characters, see https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.documents.resource.id
             .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)

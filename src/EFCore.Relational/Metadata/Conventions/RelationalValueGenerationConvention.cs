@@ -98,7 +98,7 @@ public class RelationalValueGenerationConvention :
         }
     }
 
-    private void ProcessTableChanged(
+    private static void ProcessTableChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? oldTable,
         string? oldSchema,

@@ -905,7 +905,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                                 && EntityTypePathEquals(sm.Property.DeclaringEntityType, tm.Property.DeclaringEntityType, c))),
             (s, t, _) => ColumnStructureEquals(s, t));
 
-    private bool ColumnStructureEquals(IColumn source, IColumn target)
+    private static bool ColumnStructureEquals(IColumn source, IColumn target)
     {
         if (!source.TryGetDefaultValue(out var sourceDefault))
         {
@@ -1863,7 +1863,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var targetTable = diffContext.FindTarget(sourceTable);
-                    bool removedMapping = !(targetTable != null
+                    var removedMapping = !(targetTable != null
                         && targetKeyMap.Keys.Any(
                             k => k.Item2 == targetTable
                                 && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable));
@@ -2316,7 +2316,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
     }
 
-    private object? GetValue(IColumnModification columnModification)
+    private static object? GetValue(IColumnModification columnModification)
     {
         var converter = GetValueConverter(columnModification.Property!);
         var value = columnModification.UseCurrentValue
@@ -2450,7 +2450,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 ? Array.CreateInstance(type.GetElementType()!, 0)
                 : type.UnwrapNullableType().GetDefaultValue();
 
-    private ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
+    private static ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
         => property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
     private static IEntityType GetMainType(ITable table)

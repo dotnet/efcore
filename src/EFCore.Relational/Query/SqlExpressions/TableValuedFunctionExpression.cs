@@ -23,7 +23,7 @@ public class TableValuedFunctionExpression : TableExpressionBase
     /// <param name="arguments">The arguments of the function.</param>
     public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
         : this(
-            storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
+            storeFunction.Name[..1].ToLowerInvariant(),
             storeFunction,
             arguments)
     {

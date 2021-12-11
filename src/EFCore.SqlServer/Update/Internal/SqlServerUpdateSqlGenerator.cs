@@ -338,7 +338,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                 (sb, o, generator) =>
                 {
                     generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                    sb.Append(' ').Append(generator.GetTypeNameForCopy(o.Property!));
+                    sb.Append(' ').Append(GetTypeNameForCopy(o.Property!));
                 });
 
         if (additionalColumns != null)
@@ -353,7 +353,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             .AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
-    private string GetTypeNameForCopy(IProperty property)
+    private static string GetTypeNameForCopy(IProperty property)
     {
         var typeName = property.GetColumnType();
 
@@ -361,7 +361,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                 || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 ? property.IsNullable ? "varbinary(8)" : "binary(8)"
-                : typeName!;
+                : typeName;
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local

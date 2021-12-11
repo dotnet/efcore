@@ -86,7 +86,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         return created;
     }
 
-    private IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
+    private static IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
     {
         var containers = new Dictionary<string, List<IEntityType>>();
         foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))

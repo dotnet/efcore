@@ -237,7 +237,7 @@ public class InternalDbFunctionBuilder : AnnotatableBuilder<DbFunction, IConvent
                 RelationalStrings.DbFunctionInvalidParameterName(Metadata.MethodInfo?.DisplayName(), name));
         }
 
-        return parameter.Builder!;
+        return parameter.Builder;
     }
 
     IConventionDbFunction IConventionDbFunctionBuilder.Metadata

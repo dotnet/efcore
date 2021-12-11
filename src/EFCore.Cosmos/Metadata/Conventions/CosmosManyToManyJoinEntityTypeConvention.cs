@@ -183,7 +183,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         }
     }
 
-    private bool ShouldSharePartitionKey(IConventionSkipNavigation skipNavigation)
+    private static bool ShouldSharePartitionKey(IConventionSkipNavigation skipNavigation)
         => skipNavigation.DeclaringEntityType.GetContainer() == skipNavigation.TargetEntityType.GetContainer()
             && skipNavigation.DeclaringEntityType.GetPartitionKeyPropertyName() != null
             && skipNavigation.Inverse?.DeclaringEntityType.GetPartitionKeyPropertyName()

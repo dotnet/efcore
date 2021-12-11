@@ -195,7 +195,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             }
         }
 
-        foreach (var iface in symbol.Interfaces.Where(i => IsInternal(context, i)))
+        foreach (var @interface in symbol.Interfaces.Where(i => IsInternal(context, i)))
         {
             foreach (var declaringSyntax in symbol.DeclaringSyntaxReferences)
             {
@@ -205,7 +205,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                     { } otherSyntax => otherSyntax.GetLocation()
                 };
 
-                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, iface));
+                context.ReportDiagnostic(Diagnostic.Create(_descriptor, location, @interface));
             }
         }
     }

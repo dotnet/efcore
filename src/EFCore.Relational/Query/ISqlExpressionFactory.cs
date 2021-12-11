@@ -37,7 +37,7 @@ public interface ISqlExpressionFactory
     /// <summary>
     ///     Creates a new <see cref="SqlUnaryExpression" /> with the given arguments.
     /// </summary>
-    /// <param name="operatorType">An <see cref="ExpressionType" /> reprenting SQL unary operator.</param>
+    /// <param name="operatorType">An <see cref="ExpressionType" /> representing SQL unary operator.</param>
     /// <param name="operand">A <see cref="SqlExpression" /> to apply unary operator on.</param>
     /// <param name="type">The type of the created expression.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>
@@ -51,7 +51,7 @@ public interface ISqlExpressionFactory
     /// <summary>
     ///     Creates a new <see cref="SqlBinaryExpression" /> with the given arguments.
     /// </summary>
-    /// <param name="operatorType">An <see cref="ExpressionType" /> reprenting SQL unary operator.</param>
+    /// <param name="operatorType">An <see cref="ExpressionType" /> representing SQL unary operator.</param>
     /// <param name="left">The left operand of binary operation.</param>
     /// <param name="right">The right operand of binary operation.</param>
     /// <param name="typeMapping">A type mapping to be assigned to the created expression.</param>

@@ -1089,7 +1089,7 @@ public class RelationshipDiscoveryConvention :
                 memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
             != null)
         {
-            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo!, context);
+            Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
         }
     }
 
@@ -1112,7 +1112,7 @@ public class RelationshipDiscoveryConvention :
         }
     }
 
-        private bool IsCandidateNavigationProperty(
+        private static bool IsCandidateNavigationProperty(
             IConventionEntityType sourceEntityType,
             string navigationName,
             MemberInfo memberInfo)

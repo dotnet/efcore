@@ -113,7 +113,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                                     _ownerMappings[accessExpression] =
                                         (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                     break;
-                                case RootReferenceExpression _:
+                                case RootReferenceExpression:
                                     innerAccessExpression = _jObjectParameter;
                                     break;
                                 default:
@@ -735,7 +735,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             return valueExpression;
         }
 
-        private Expression ConvertJTokenToType(Expression jTokenExpression, Type type)
+        private static Expression ConvertJTokenToType(Expression jTokenExpression, Type type)
             => type == typeof(JToken)
                 ? jTokenExpression
                 : Expression.Call(

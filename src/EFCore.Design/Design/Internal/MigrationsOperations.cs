@@ -20,7 +20,6 @@ public class MigrationsOperations
     private readonly string? _language;
     private readonly DesignTimeServicesBuilder _servicesBuilder;
     private readonly DbContextOperations _contextOperations;
-    private readonly string[] _args;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +42,7 @@ public class MigrationsOperations
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;
-        _args = args ?? Array.Empty<string>();
+        args ??= Array.Empty<string>();
         _contextOperations = new DbContextOperations(
             reporter,
             assembly,
@@ -52,9 +51,9 @@ public class MigrationsOperations
             rootNamespace,
             language,
             nullable,
-            _args);
+            args);
 
-        _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
+        _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
     }
 
     /// <summary>
@@ -98,7 +97,7 @@ public class MigrationsOperations
         return scaffolder.Save(_projectDir, migration, outputDir);
     }
 
-    // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+    // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
     private string? SubnamespaceFromOutputPath(string? outputDir)
@@ -108,7 +107,7 @@ public class MigrationsOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(_projectDir.Length);
+        var subPath = outputDir[_projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(

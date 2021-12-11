@@ -177,7 +177,7 @@ public class DbContextOperations
                 : _rootNamespace + "." + subNamespace;
     }
 
-    // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+    // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
     // --output-dir $(projectFolder)/A/B/C
     // => "namespace $(rootnamespace).A.B.C"
     private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
@@ -187,7 +187,7 @@ public class DbContextOperations
             return null;
         }
 
-        var subPath = outputDir.Substring(projectDir.Length);
+        var subPath = outputDir[projectDir.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(
@@ -351,7 +351,7 @@ public class DbContextOperations
         return info;
     }
 
-    private Func<DbContext>? FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
+    private static Func<DbContext>? FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
     {
         var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType);
         var service = appServices.GetService(factoryInterface);

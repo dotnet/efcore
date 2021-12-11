@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.HandleResponseFiles = true;
 
             command.OnExecute(
-                (args) =>
+                args =>
                 {
                     Reporter.IsVerbose = verbose.HasValue();
                     Reporter.NoColor = noColor.HasValue();

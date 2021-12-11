@@ -91,7 +91,7 @@ public class ScaffoldedMigration
     public virtual string SnapshotName { get; }
 
     /// <summary>
-    ///     Gets the model snapshot's subnamespace.
+    ///     Gets the model snapshot's sub-namespace.
     /// </summary>
     /// <value> The model snapshot's sub-namespace. </value>
     public virtual string SnapshotSubnamespace { get; }

@@ -78,11 +78,11 @@ public class CompiledModelScaffolder : ICompiledModelScaffolder
 
             if (File.Exists(fullPath))
             {
-                existingFiles.Add(path!);
+                existingFiles.Add(path);
 
                 if (File.GetAttributes(fullPath).HasFlag(FileAttributes.ReadOnly))
                 {
-                    readOnlyFiles.Add(path!);
+                    readOnlyFiles.Add(path);
                 }
             }
         }

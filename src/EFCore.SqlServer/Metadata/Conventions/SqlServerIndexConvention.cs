@@ -197,7 +197,7 @@ public class SqlServerIndexConvention :
         return builder.ToString();
     }
 
-    private List<string>? GetNullableColumns(IReadOnlyIndex index)
+    private static List<string>? GetNullableColumns(IReadOnlyIndex index)
     {
         var tableName = index.DeclaringEntityType.GetTableName();
         if (tableName == null)

@@ -86,7 +86,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <summary>
     ///     The default alias separator.
     /// </summary>
-    protected virtual string AliasSeparator { get; } = " AS ";
+    protected virtual string AliasSeparator
+        => " AS ";
 
     /// <summary>
     ///     The current SQL command builder.
@@ -119,7 +120,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlFragmentExpression;
     }
 
-    private bool IsNonComposedSetOperation(SelectExpression selectExpression)
+    private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
         => selectExpression.Offset == null
             && selectExpression.Limit == null
             && !selectExpression.IsDistinct
@@ -596,15 +597,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitCollate(CollateExpression collateExpresion)
+    protected override Expression VisitCollate(CollateExpression collateExpression)
     {
-        Visit(collateExpresion.Operand);
+        Visit(collateExpression.Operand);
 
         _relationalCommandBuilder
             .Append(" COLLATE ")
-            .Append(collateExpresion.Collation);
+            .Append(collateExpression.Collation);
 
-        return collateExpresion;
+        return collateExpression;
     }
 
     /// <inheritdoc />
@@ -838,7 +839,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         switch (innerExpression)
         {
-            case LikeExpression _:
+            case LikeExpression:
                 return true;
 
             case SqlUnaryExpression sqlUnaryExpression:
@@ -1069,9 +1070,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         static string GetSetOperation(SetOperationBase operation)
             => operation switch
             {
-                ExceptExpression _ => "EXCEPT",
-                IntersectExpression _ => "INTERSECT",
-                UnionExpression _ => "UNION",
+                ExceptExpression => "EXCEPT",
+                IntersectExpression => "INTERSECT",
+                UnionExpression => "UNION",
                 _ => throw new InvalidOperationException(CoreStrings.UnknownEntity("SetOperationType"))
             };
     }

@@ -56,10 +56,10 @@ public class ContainsTranslator : IMethodCallTranslator
         return null;
     }
 
-    private bool ValidateValues(SqlExpression values)
+    private static bool ValidateValues(SqlExpression values)
         => values is SqlConstantExpression || values is SqlParameterExpression;
 
-    private SqlExpression RemoveObjectConvert(SqlExpression expression)
+    private static SqlExpression RemoveObjectConvert(SqlExpression expression)
         => expression is SqlUnaryExpression sqlUnaryExpression
             && sqlUnaryExpression.OperatorType == ExpressionType.Convert
             && sqlUnaryExpression.Type == typeof(object)

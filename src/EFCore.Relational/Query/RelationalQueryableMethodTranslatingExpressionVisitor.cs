@@ -1308,7 +1308,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 {
                     DeferredOwnedExpansionExpression doee => UnwrapDeferredEntityProjectionExpression(doee),
                     // For the source entity shaper or owned collection expansion
-                    EntityShaperExpression _ or ShapedQueryExpression _ => expression,
+                    EntityShaperExpression or ShapedQueryExpression => expression,
                     _ => base.Visit(expression)
                 };
 
@@ -1365,7 +1365,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
     }
 
-    private Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
+    private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
     {
         switch (shaper1)
         {

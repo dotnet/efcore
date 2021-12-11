@@ -122,7 +122,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     protected override string GenerateNonNullSqlLiteral(object value)
     {
         return value is TimeSpan timeSpan && timeSpan.Milliseconds == 0
-            ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value) //handle trailing decimal seperator when no fractional seconds
+            ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value) //handle trailing decimal separator when no fractional seconds
             : string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
     }
 }
