@@ -29,10 +29,5 @@ public class RowValueComparisonTranslator : RowValueTranslator
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
         IReadOnlyList<object> values)
-    {
-        // Create a SqlBinaryExpression
-        //new SqlBinaryExpression(operatorType, , , typeof(bool), null);
-
-        return null;
-    }
+        => SqlExpressionFactory.RowValueComparison(operatorType, columns, values);
 }

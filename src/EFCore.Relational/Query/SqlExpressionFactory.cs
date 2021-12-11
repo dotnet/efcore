@@ -574,10 +574,73 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         IReadOnlyList<SqlExpression> columns,
         IReadOnlyList<object> values)
     {
-        var valuesTypeMappings = values
+        var valuesTypeMappings = FindMappingsForValues(values);
+        return new(operatorType, columns, values, valuesTypeMappings, _boolTypeMapping);
+    }
+
+    /// <inheritdoc />
+    public virtual SqlBinaryExpression RowValueComparison(
+        ExpressionType operatorType,
+        IReadOnlyList<SqlExpression> columns,
+        IReadOnlyList<object> values)
+    {
+        var valuesTypeMappings = FindMappingsForValues(values);
+
+        // A row value comparison in sql looks like this:
+        //   (x, y, ...) > (a, b, ...)
+        //
+        // The generalized expression for this if we expand to comparisons is:
+        //   (x > a) OR
+        //   (x = a AND y > b) OR
+        //   (x = a AND y = b AND z > c) OR...
+
+        var count = columns.Count;
+
+        var and = ExpressionType.AndAlso;
+        var or = ExpressionType.OrElse;
+
+        var orExpression = default(SqlBinaryExpression)!;
+        var innerLimit = 1;
+        // This loop compounds the outer OR expressions.
+        for (var i = 0; i < count; i++)
+        {
+            var andExpression = default(SqlBinaryExpression)!;
+
+            // This loop compounds the inner AND expressions.
+            // innerLimit grows from 1 to columns.Count by each iteration.
+            for (var j = 0; j < innerLimit; j++)
+            {
+                var isInnerLastOperation = j + 1 == innerLimit;
+                var column = columns[j];
+                var value = values[j];
+                var valueExpression = new SqlConstantExpression(Expression.Constant(value), valuesTypeMappings[j]);
+
+                var innerExpressionOperator = isInnerLastOperation ? operatorType : ExpressionType.Equal;
+                var innerExpression = new SqlBinaryExpression(
+                    innerExpressionOperator, column, valueExpression, typeof(bool), _boolTypeMapping);
+
+                andExpression = andExpression == null ?
+                    innerExpression :
+                    new SqlBinaryExpression(and, andExpression, innerExpression, typeof(bool), _boolTypeMapping);
+            }
+
+            orExpression = orExpression == null ?
+                andExpression :
+                new SqlBinaryExpression(or, orExpression, andExpression, typeof(bool), _boolTypeMapping);
+
+            innerLimit++;
+        }
+
+        var finalExpression = orExpression;
+
+        return finalExpression;
+    }
+
+    private IReadOnlyList<RelationalTypeMapping> FindMappingsForValues(IReadOnlyList<object> values)
+    {
+        return values
             .Select(x => Dependencies.TypeMappingSource.FindMapping(x.GetType(), Dependencies.Model)!)
             .ToList();
-        return new(operatorType, columns, values, valuesTypeMappings, _boolTypeMapping);
     }
 
     /// <inheritdoc />

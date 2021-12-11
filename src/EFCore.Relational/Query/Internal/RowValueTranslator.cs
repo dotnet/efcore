@@ -42,8 +42,6 @@ public class RowValueTranslator : IMethodCallTranslator
             { _greaterThanOrEqualMethodInfo, ExpressionType.GreaterThanOrEqual },
         };
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -52,8 +50,13 @@ public class RowValueTranslator : IMethodCallTranslator
     /// </summary>
     public RowValueTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
-        _sqlExpressionFactory = sqlExpressionFactory;
+        SqlExpressionFactory = sqlExpressionFactory;
     }
+
+    /// <summary>
+    /// The <see cref="ISqlExpressionFactory"/>.
+    /// </summary>
+    protected ISqlExpressionFactory SqlExpressionFactory { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,10 +72,9 @@ public class RowValueTranslator : IMethodCallTranslator
     {
         if (_methodInfoOperatorTypeMap.TryGetValue(method, out var operatorType))
         {
-
             var columns = UnwrapColumns(arguments[1]);
             var values = UnwrapValues(arguments[2]);
-            return _sqlExpressionFactory.RowValue(operatorType, columns, values);
+            return CreateSqlExpression(operatorType, columns, values);
         }
 
         return null;
@@ -99,7 +101,7 @@ public class RowValueTranslator : IMethodCallTranslator
         ExpressionType operatorType,
         IReadOnlyList<SqlExpression> columns,
         IReadOnlyList<object> values)
-        => _sqlExpressionFactory.RowValue(operatorType, columns, values);
+        => SqlExpressionFactory.RowValue(operatorType, columns, values);
 
     private SqlExpression RemoveObjectConvert(SqlExpression expression)
         => expression is SqlUnaryExpression sqlUnaryExpression
