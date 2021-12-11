@@ -15,6 +15,8 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention
 {
+    private readonly NullabilityInfoContext _nullabilityInfoContext = new();
+
     /// <summary>
     ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
     /// </summary>
@@ -26,8 +28,6 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
 
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
-        // If the model is spread across multiple assemblies, it may contain different NullableAttribute types as
-        // the compiler synthesizes them for each assembly.
         if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
             && IsNonNullableReferenceType(propertyBuilder.ModelBuilder, memberInfo))
         {

@@ -8,21 +8,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
+#nullable enable
+
 public class NonNullableNavigationConventionTest
 {
     [ConditionalFact]
     public void Non_nullability_does_not_override_configuration_from_explicit_source()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
-        var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
+        var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention)!;
 
         var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
             principalEntityTypeBuilder.Metadata,
             nameof(Post.Blog),
             nameof(Blog.Posts),
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
 
-        var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog));
+        var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog))!;
 
         relationshipBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
@@ -39,15 +41,15 @@ public class NonNullableNavigationConventionTest
     public void Non_nullability_does_not_override_configuration_from_data_annotation()
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Post>();
-        var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention);
+        var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Blog), ConfigurationSource.Convention)!;
 
         var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
             principalEntityTypeBuilder.Metadata,
             nameof(Post.Blog),
             nameof(Blog.Posts),
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
 
-        var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog));
+        var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Post.Blog))!;
 
         relationshipBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
 
@@ -65,15 +67,15 @@ public class NonNullableNavigationConventionTest
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
         var principalEntityTypeBuilder =
-            dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention)!;
 
         var relationshipBuilder = principalEntityTypeBuilder.HasRelationship(
             dependentEntityTypeBuilder.Metadata,
             nameof(Principal.Dependents),
             nameof(Dependent.Principal),
-            ConfigurationSource.Convention);
+            ConfigurationSource.Convention)!;
 
-        var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependents));
+        var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependents))!;
 
         Assert.False(relationshipBuilder.Metadata.IsRequired);
 
@@ -89,17 +91,17 @@ public class NonNullableNavigationConventionTest
     {
         var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
         var principalEntityTypeBuilder =
-            dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+            dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention)!;
 
         var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
                 principalEntityTypeBuilder.Metadata,
                 nameof(Dependent.Principal),
                 nameof(Principal.Dependent),
-                ConfigurationSource.Convention)
+                ConfigurationSource.Convention)!
             .HasEntityTypes
-                (principalEntityTypeBuilder.Metadata, dependentEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
+                (principalEntityTypeBuilder.Metadata, dependentEntityTypeBuilder.Metadata, ConfigurationSource.Explicit)!;
 
-        var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
+        var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent))!;
 
         Assert.False(relationshipBuilder.Metadata.IsRequired);
 
@@ -116,7 +118,7 @@ public class NonNullableNavigationConventionTest
         modelBuilder.Entity<BlogDetails>();
 
         Assert.True(
-            model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
+            model.FindEntityType(typeof(BlogDetails))!.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog))
                 .IsRequired);
     }
 
@@ -125,7 +127,7 @@ public class NonNullableNavigationConventionTest
         var context = new ConventionContext<IConventionNavigationBuilder>(
             relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
         CreateNotNullNavigationConvention().ProcessNavigationAdded(navigation.Builder, context);
-        return context.ShouldStopProcessing() ? (Navigation)context.Result?.Metadata : navigation;
+        return context.ShouldStopProcessing() ? (Navigation)context.Result?.Metadata! : navigation;
     }
 
     private NonNullableNavigationConvention CreateNotNullNavigationConvention()
@@ -146,15 +148,15 @@ public class NonNullableNavigationConventionTest
 
         var modelBuilder = new Model(conventionSet).Builder;
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private ModelBuilder CreateModelBuilder()
     {
         var serviceProvider = CreateServiceProvider();
         return new ModelBuilder(
-            serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
-            serviceProvider.GetService<ModelDependencies>());
+            serviceProvider.GetRequiredService<IConventionSetBuilder>().CreateConventionSet(),
+            serviceProvider.GetRequiredService<ModelDependencies>());
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -179,9 +181,9 @@ public class NonNullableNavigationConventionTest
         return modelLogger;
     }
 
-#nullable enable
 #pragma warning disable CS8618
-
+    // ReSharper disable UnusedMember.Local
+    // ReSharper disable ClassNeverInstantiated.Local
     private class Blog
     {
         public int Id { get; set; }
@@ -245,6 +247,7 @@ public class NonNullableNavigationConventionTest
         [ForeignKey("PrincipalId, PrincipalFk")]
         public Principal? CompositePrincipal { get; set; }
     }
+    // ReSharper restore ClassNeverInstantiated.Local
+    // ReSharper restore UnusedMember.Local
 #pragma warning restore CS8618
-#nullable disable
 }

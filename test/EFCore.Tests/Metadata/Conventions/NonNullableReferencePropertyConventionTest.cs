@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
+#nullable enable
+
 public class NonNullableReferencePropertyConventionTest
 {
     [ConditionalFact]
@@ -15,7 +17,7 @@ public class NonNullableReferencePropertyConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
@@ -29,7 +31,7 @@ public class NonNullableReferencePropertyConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit)!;
 
         propertyBuilder.IsRequired(false, ConfigurationSource.DataAnnotation);
 
@@ -77,7 +79,7 @@ public class NonNullableReferencePropertyConventionTest
     }
 
     [ConditionalFact]
-    public void Non_nullability_ignores_context_on_generic_types()
+    public void Dictionary_indexer_is_not_configured_as_non_nullable()
     {
         var modelBuilder = CreateModelBuilder();
         var entityTypeBuilder = modelBuilder.SharedTypeEntity<Dictionary<string, object>>("SomeBag");
@@ -102,30 +104,31 @@ public class NonNullableReferencePropertyConventionTest
 
         var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
-        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit)!;
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
+    // ReSharper disable PropertyCanBeMadeInitOnly.Local
     private class A
     {
+        // ReSharper disable once UnusedMember.Local
         public int Id { get; set; }
 
-#nullable enable
-        public string NonNullable { get; } = "";
+        public string NonNullable => "";
         public string? Nullable { get; set; }
 
         [MaybeNull]
-        public string NonNullablePropertyMaybeNull { get; } = "";
+        public string NonNullablePropertyMaybeNull { get; set; } = "";
 
         [AllowNull]
-        public string NonNullablePropertyAllowNull { get; } = "";
+        public string NonNullablePropertyAllowNull { get; set; } = "";
 
-        public string? NullablePropertyNotNull { get; } = "";
+        public string? NullablePropertyNotNull { get; set; } = "";
 
         [DisallowNull]
-        public string? NullablePropertyDisallowNull { get; } = "";
+        public string? NullablePropertyDisallowNull { get; set; } = "";
 
         [MaybeNull]
         public string NonNullableFieldMaybeNull = "";
@@ -140,15 +143,15 @@ public class NonNullableReferencePropertyConventionTest
 
         [Required]
         public string? RequiredAndNullable { get; set; }
-#nullable disable
 
+#nullable disable
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' context.
         public string NullObliviousNonNullable { get; set; }
         public string? NullObliviousNullable { get; set; }
 #pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' context.
+#nullable enable
     }
 
-#nullable enable
     public class B
     {
         [Key]
@@ -168,7 +171,7 @@ public class NonNullableReferencePropertyConventionTest
     {
         public string? Nullable { get; set; }
     }
-#nullable disable
+    // ReSharper restore PropertyCanBeMadeInitOnly.Local
 
     private static ModelBuilder CreateModelBuilder()
         => InMemoryTestHelpers.Instance.CreateConventionBuilder();
