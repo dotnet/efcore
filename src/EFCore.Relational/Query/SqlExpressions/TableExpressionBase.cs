@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public abstract class TableExpressionBase : Expression, IPrintableExpression
 {
+    private int? _hashCode;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
     /// </summary>
@@ -62,5 +64,13 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(Alias);
+    {
+        // ReSharper disable NonReadonlyMemberInGetHashCode
+        // Ensure hashcode does not change after it has been created for this object.
+        Check.DebugAssert(
+            _hashCode == null || _hashCode == HashCode.Combine(Alias),
+            "Hashed value has mutated.");
+
+        return _hashCode ??= HashCode.Combine(Alias);
+    }
 }
