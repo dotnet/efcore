@@ -895,6 +895,42 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return inExpression;
     }
 
+    /// <inheritdoc />
+    protected override Expression VisitAtTimeZone(AtTimeZoneExpression atTimeZoneExpression)
+    {
+        var requiresBrackets = RequiresParentheses(atTimeZoneExpression, atTimeZoneExpression.Operand);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(atTimeZoneExpression.Operand);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
+
+        _relationalCommandBuilder.Append(" AT TIME ZONE ");
+
+        requiresBrackets = RequiresParentheses(atTimeZoneExpression, atTimeZoneExpression.TimeZone);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append("(");
+        }
+
+        Visit(atTimeZoneExpression.TimeZone);
+
+        if (requiresBrackets)
+        {
+            _relationalCommandBuilder.Append(")");
+        }
+
+        return atTimeZoneExpression;
+    }
+
     /// <summary>
     ///     Gets a SQL operator for a SQL binary operation.
     /// </summary>
@@ -914,7 +950,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         switch (innerExpression)
         {
-            case LikeExpression:
+            case AtTimeZoneExpression or LikeExpression:
                 return true;
 
             case SqlUnaryExpression sqlUnaryExpression:
