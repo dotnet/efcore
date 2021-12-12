@@ -490,17 +490,8 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     public static TResult CallOnWrappedException<TResult>(
         Exception exception,
         Func<Exception, TResult> exceptionHandler)
-    {
-        while (true)
-        {
-            if (exception is DbUpdateException dbUpdateException
-                && dbUpdateException.InnerException != null)
-            {
-                exception = dbUpdateException.InnerException;
-                continue;
-            }
-
-            return exceptionHandler(exception);
-        }
-    }
+        => exception is DbUpdateException dbUpdateException
+            && dbUpdateException.InnerException != null
+                ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
+                : exceptionHandler(exception);
 }

@@ -111,38 +111,34 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     private static bool PreserveInitializationConstant(Expression expression, bool generateParameter)
         => !generateParameter && (expression is NewExpression || expression is MemberInitExpression);
 
-    private static bool PreserveConvertNode(Expression expression)
+    private bool PreserveConvertNode(Expression expression)
     {
-        while (true)
+        if (expression is UnaryExpression unaryExpression
+            && (unaryExpression.NodeType == ExpressionType.Convert
+                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
         {
-            if (expression is UnaryExpression unaryExpression
-                && (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+            if (unaryExpression.Type == typeof(object)
+                || unaryExpression.Type == typeof(Enum)
+                || unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
             {
-                if (unaryExpression.Type == typeof(object)
-                    || unaryExpression.Type == typeof(Enum)
-                    || unaryExpression.Operand.Type.UnwrapNullableType().IsEnum)
-                {
-                    return true;
-                }
-
-                var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
-                if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
-                    && (innerType == typeof(byte)
-                        || innerType == typeof(sbyte)
-                        || innerType == typeof(char)
-                        || innerType == typeof(short)
-                        || innerType == typeof(ushort)))
-                {
-                    return true;
-                }
-
-                expression = unaryExpression.Operand;
-                continue;
+                return true;
             }
 
-            return false;
+            var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
+            if (unaryExpression.Type.UnwrapNullableType() == typeof(int)
+                && (innerType == typeof(byte)
+                    || innerType == typeof(sbyte)
+                    || innerType == typeof(char)
+                    || innerType == typeof(short)
+                    || innerType == typeof(ushort)))
+            {
+                return true;
+            }
+
+            return PreserveConvertNode(unaryExpression.Operand);
         }
+
+        return false;
     }
 
     /// <summary>
@@ -368,18 +364,14 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
     private static Expression RemoveConvert(Expression expression)
     {
-        while (true)
+        if (expression is UnaryExpression unaryExpression
+            && (expression.NodeType == ExpressionType.Convert
+                || expression.NodeType == ExpressionType.ConvertChecked))
         {
-            if (expression is UnaryExpression unaryExpression
-                && (expression.NodeType == ExpressionType.Convert
-                    || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = unaryExpression.Operand;
-                continue;
-            }
-
-            return expression;
+            return RemoveConvert(unaryExpression.Operand);
         }
+
+        return expression;
     }
 
     private object? GetValue(Expression? expression, out string? parameterName)

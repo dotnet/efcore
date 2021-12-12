@@ -43,18 +43,14 @@ internal static class ExpressionExtensions
 
     private static Expression RemoveConvert(Expression expression)
     {
-        while (true)
+        if (expression is UnaryExpression unaryExpression
+            && (expression.NodeType == ExpressionType.Convert
+                || expression.NodeType == ExpressionType.ConvertChecked))
         {
-            if (expression is UnaryExpression unaryExpression
-                && (expression.NodeType == ExpressionType.Convert
-                    || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = unaryExpression.Operand;
-                continue;
-            }
-
-            return expression;
+            return RemoveConvert(unaryExpression.Operand);
         }
+
+        return expression;
     }
 
     public static T GetConstantValue<T>(this Expression expression)
