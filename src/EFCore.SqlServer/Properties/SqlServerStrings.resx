@@ -248,6 +248,10 @@
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
     <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
+  <data name="LogMissingViewDefinitionRights" xml:space="preserve">
+    <value>The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.</value>
+    <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning string?</comment>
+  </data>  
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
     <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>

@@ -906,5 +906,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
 
             return (EventDefinition)definition;
         }
+
+        /// <summary>
+        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
+        /// </summary>
+        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        SqlServerEventId.MissingViewDefinitionRightsWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            SqlServerEventId.MissingViewDefinitionRightsWarning,
+                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
     }
 }

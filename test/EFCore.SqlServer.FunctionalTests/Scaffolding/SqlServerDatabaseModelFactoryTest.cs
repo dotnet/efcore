@@ -2344,7 +2344,28 @@ DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;
 DROP TABLE OtherPrincipalTable;");
 
-    #endregion
+    [ConditionalFact]
+    public void No_warning_missing_view_definition()
+    {
+        Test(
+            @"CREATE TABLE TestViewDefinition (
+Id int PRIMARY KEY,
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var message = Fixture.OperationReporter.Messages
+                    .SingleOrDefault(m => m.Message == SqlServerResources.LogMissingViewDefinitionRights(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage()).Message;
+
+                Assert.Null(message);
+            },
+            @"
+DROP TABLE TestViewDefinition;");
+    }
+
+        #endregion
 
     private void Test(
         string createSql,

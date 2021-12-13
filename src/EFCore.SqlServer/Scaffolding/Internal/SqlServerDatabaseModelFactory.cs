@@ -110,6 +110,8 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 
         try
         {
+            CheckViewDefinitionRights(connection);
+
             _compatibilityLevel = GetCompatibilityLevel(connection);
             _engineEdition = GetEngineEdition(connection);
 
@@ -211,6 +213,19 @@ WHERE name = '{connection.Database}';";
             return command.ExecuteScalar() is string collation
                 ? collation
                 : null;
+        }
+    }
+
+    private void CheckViewDefinitionRights(DbConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
+        var hasAccess = (int)command.ExecuteScalar()!;
+
+        if (hasAccess == 0)
+        {
+            _logger.MissingViewDefinitionRightsWarning();
         }
     }
 
