@@ -362,6 +362,31 @@ public abstract class DbCommandInterceptor : IDbCommandInterceptor
         => new(result);
 
     /// <summary>
+    ///     Called when a command was canceled.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="eventData">Contextual information about the command and execution.</param>
+    public virtual void CommandCanceled(
+        DbCommand command,
+        CommandEndEventData eventData)
+    {
+    }
+
+    /// <summary>
+    ///     Called when a command was canceled.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="eventData">Contextual information about the command and execution.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public virtual Task CommandCanceledAsync(
+        DbCommand command,
+        CommandEndEventData eventData,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <summary>
     ///     Called when execution of a command has failed with an exception.
     /// </summary>
     /// <param name="command">The command.</param>

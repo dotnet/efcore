@@ -52,12 +52,14 @@ public sealed record QueryContextDependencies
         ICurrentDbContext currentContext,
         IExecutionStrategy executionStrategy,
         IConcurrencyDetector concurrencyDetector,
+        IExceptionDetector exceptionDetector,
         IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
         IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
     {
         CurrentContext = currentContext;
         ExecutionStrategy = executionStrategy;
         ConcurrencyDetector = concurrencyDetector;
+        ExceptionDetector = exceptionDetector;
         CommandLogger = commandLogger;
         QueryLogger = queryLogger;
     }
@@ -86,6 +88,11 @@ public sealed record QueryContextDependencies
     ///     Gets the concurrency detector.
     /// </summary>
     public IConcurrencyDetector ConcurrencyDetector { get; init; }
+
+    /// <summary>
+    ///     Gets the exception detector.
+    /// </summary>
+    public IExceptionDetector ExceptionDetector { get; init; }
 
     /// <summary>
     ///     The command logger.

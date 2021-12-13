@@ -1257,6 +1257,158 @@ public class RelationalCommandDiagnosticsLogger
 
     #endregion CommandError
 
+    #region CommandCanceled
+
+    /// <inheritdoc />
+    public virtual void CommandCanceled(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource)
+    {
+        var definition = RelationalResources.LogCommandCanceled(this);
+
+        LogCommandCanceled(command, duration, definition);
+
+        if (NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = BroadcastCommandCanceled(
+                connection.DbConnection,
+                command,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                false,
+                startTime,
+                duration,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled,
+                commandSource);
+
+            interceptor?.CommandCanceled(command, eventData);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual Task CommandCanceledAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource,
+        CancellationToken cancellationToken = default)
+    {
+        var definition = RelationalResources.LogCommandCanceled(this);
+
+        LogCommandCanceled(command, duration, definition);
+
+        if (NeedsEventData<IDbCommandInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = BroadcastCommandCanceled(
+                connection.DbConnection,
+                command,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                true,
+                startTime,
+                duration,
+                definition,
+                diagnosticSourceEnabled,
+                simpleLogEnabled,
+                commandSource);
+
+            if (interceptor != null)
+            {
+                return interceptor.CommandCanceledAsync(command, eventData, cancellationToken);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void LogCommandCanceled(
+        DbCommand command,
+        TimeSpan duration,
+        EventDefinition<string, string, CommandType, int, string, string> definition)
+    {
+        if (ShouldLog(definition))
+        {
+            definition.Log(
+                this,
+                string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
+                command.Parameters.FormatParameters(ShouldLogParameterValues(command)),
+                command.CommandType,
+                command.CommandTimeout,
+                Environment.NewLine,
+                command.CommandText.TrimEnd());
+        }
+    }
+
+    private CommandEndEventData BroadcastCommandCanceled(
+        DbConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        bool async,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        EventDefinition<string, string, CommandType, int, string, string> definition,
+        bool diagnosticSourceEnabled,
+        bool simpleLogEnabled,
+        CommandSource commandSource)
+    {
+        var eventData = new CommandEndEventData(
+            definition,
+            CommandCanceled,
+            connection,
+            command,
+            context,
+            executeMethod,
+            commandId,
+            connectionId,
+            async,
+            ShouldLogParameterValues(command),
+            startTime,
+            duration,
+            commandSource);
+
+        DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+        return eventData;
+
+        static string CommandCanceled(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, CommandType, int, string, string>)definition;
+            var p = (CommandEndEventData)payload;
+            return d.GenerateMessage(
+                string.Format(CultureInfo.InvariantCulture, "{0:N0}", p.Duration.TotalMilliseconds),
+                p.Command.Parameters.FormatParameters(p.LogParameterValues),
+                p.Command.CommandType,
+                p.Command.CommandTimeout,
+                Environment.NewLine,
+                p.Command.CommandText.TrimEnd());
+        }
+    }
+
+    #endregion CommandCanceled
+
     #region DataReaderDisposing
 
     /// <summary>

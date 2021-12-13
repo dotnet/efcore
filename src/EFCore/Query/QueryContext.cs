@@ -72,6 +72,12 @@ public abstract class QueryContext : IParameterValues
         => Dependencies.ConcurrencyDetector;
 
     /// <summary>
+    ///     The exception detector to use while executing the query.
+    /// </summary>
+    public virtual IExceptionDetector ExceptionDetector
+        => Dependencies.ExceptionDetector;
+
+    /// <summary>
     ///     The cancellation token to use while executing the query.
     /// </summary>
     public virtual CancellationToken CancellationToken { get; set; }

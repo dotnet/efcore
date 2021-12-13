@@ -56,6 +56,14 @@ public class SaveChangesInterceptorAggregator : InterceptorAggregator<ISaveChang
             }
         }
 
+        public void SaveChangesCanceled(DbContextEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                _interceptors[i].SaveChangesCanceled(eventData);
+            }
+        }
+
         public async ValueTask<InterceptionResult<int>> SavingChangesAsync(
             DbContextEventData eventData,
             InterceptionResult<int> result,
@@ -89,6 +97,16 @@ public class SaveChangesInterceptorAggregator : InterceptorAggregator<ISaveChang
             for (var i = 0; i < _interceptors.Length; i++)
             {
                 await _interceptors[i].SaveChangesFailedAsync(eventData, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        public async Task SaveChangesCanceledAsync(
+            DbContextEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                await _interceptors[i].SaveChangesCanceledAsync(eventData, cancellationToken).ConfigureAwait(false);
             }
         }
     }

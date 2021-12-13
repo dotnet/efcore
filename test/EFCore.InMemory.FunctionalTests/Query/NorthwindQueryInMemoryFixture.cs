@@ -11,4 +11,7 @@ public class NorthwindQueryInMemoryFixture<TModelCustomizer> : NorthwindQueryFix
 
     protected override Type ContextType
         => typeof(NorthwindInMemoryContext);
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
 }

@@ -5620,6 +5620,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         {
             // without fix, this usually throws within 2 or three iterations
 
+            Fixture.ListLoggerFactory.Log.Clear();
             using var context = CreateContext();
             var tokenSource = new CancellationTokenSource();
             var query = context.Employees.AsNoTracking().ToListAsync(tokenSource.Token);
@@ -5638,12 +5639,25 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             if (exception != null)
             {
                 Assert.Null(result);
+                Assert.Contains(CoreEventId.QueryCanceled, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
+                Assert.DoesNotContain(CoreEventId.QueryIterationFailed, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
             }
             else
             {
                 Assert.Equal(9, result.Count);
             }
         }
+    }
+
+    [ConditionalFact]
+    public virtual async Task ToListAsync_with_canceled_token()
+    {
+        using var context = CreateContext();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => context.Employees.ToListAsync(new CancellationToken(true)));
+
+        Assert.Contains(CoreEventId.QueryCanceled, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
+        Assert.DoesNotContain(CoreEventId.QueryIterationFailed, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
     }
 
     [ConditionalFact(Skip = "Issue #17019")]

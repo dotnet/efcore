@@ -134,6 +134,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         private RelationalDataReader? _dataReader;
         private DbDataReader? _dbDataReader;
         private SplitQueryResultCoordinator? _resultCoordinator;
+        private readonly IExceptionDetector _exceptionDetector;
 
         public Enumerator(SplitQueryingEnumerable<T> queryingEnumerable)
         {
@@ -145,6 +146,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             Current = default!;
 
             _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -200,7 +202,14 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             }
             catch (Exception exception)
             {
-                _queryLogger.QueryIterationFailed(_contextType, exception);
+                if (_exceptionDetector.IsCancellation(exception))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
 
                 throw;
             }
@@ -269,6 +278,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorEnabled;
         private readonly IConcurrencyDetector? _concurrencyDetector;
+        private readonly IExceptionDetector _exceptionDetector;
         private readonly CancellationToken _cancellationToken;
 
         private IRelationalCommand? _relationalCommand;
@@ -286,6 +296,7 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             _cancellationToken = _relationalQueryContext.CancellationToken;
             Current = default!;
 
@@ -344,7 +355,14 @@ public class SplitQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, I
             }
             catch (Exception exception)
             {
-                _queryLogger.QueryIterationFailed(_contextType, exception);
+                if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
 
                 throw;
             }

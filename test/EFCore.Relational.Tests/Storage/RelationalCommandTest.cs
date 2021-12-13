@@ -789,7 +789,8 @@ public class RelationalCommandTest
                 new RelationalCommandBuilderDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new ExceptionDetector()),
                 commandText,
                 Array.Empty<IRelationalParameter>());
 
@@ -1159,6 +1160,82 @@ public class RelationalCommandTest
         Assert.Equal(exception, afterData.Exception);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(CommandActions))]
+    public async Task Reports_command_diagnostic_on_cancellation(
+        Delegate commandDelegate,
+        DbCommandMethod diagnosticName,
+        bool async)
+    {
+        var exception = new OperationCanceledException();
+
+        var fakeDbConnection = new FakeDbConnection(
+            ConnectionString,
+            new FakeCommandExecutor(
+                c => throw exception,
+                c => throw exception,
+                (c, cb) => throw exception,
+                (c, ct) => throw exception,
+                (c, ct) => throw exception,
+                (c, cb, ct) => throw exception));
+
+        var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+        var options = CreateOptions(optionsExtension);
+
+        var diagnostic = new List<Tuple<string, object>>();
+
+        var fakeConnection = new FakeRelationalConnection(options);
+
+        var logger = new RelationalCommandDiagnosticsLogger(
+            new ListLoggerFactory(),
+            new FakeLoggingOptions(false),
+            new ListDiagnosticSource(diagnostic),
+            new TestRelationalLoggingDefinitions(),
+            new NullDbContextLogger(),
+            CreateOptions());
+
+        var relationalCommand = CreateRelationalCommand(
+            parameters: new[]
+            {
+                new TypeMappedRelationalParameter(
+                    "FirstInvariant", "FirstParameter", new IntTypeMapping("int", DbType.Int32), false)
+            });
+
+        var parameterValues = new Dictionary<string, object> { { "FirstInvariant", 17 } };
+
+        if (async)
+        {
+            await Assert.ThrowsAsync<OperationCanceledException>(
+                async ()
+                    => await ((CommandFunc)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+        }
+        else
+        {
+            Assert.Throws<OperationCanceledException>(
+                ()
+                    => ((CommandAction)commandDelegate)(fakeConnection, relationalCommand, parameterValues, logger));
+        }
+
+        Assert.Equal(4, diagnostic.Count);
+        Assert.Equal(RelationalEventId.CommandCreating.Name, diagnostic[0].Item1);
+        Assert.Equal(RelationalEventId.CommandCreated.Name, diagnostic[1].Item1);
+        Assert.Equal(RelationalEventId.CommandExecuting.Name, diagnostic[2].Item1);
+        Assert.Equal(RelationalEventId.CommandCanceled.Name, diagnostic[3].Item1);
+
+        var beforeData = (CommandEventData)diagnostic[2].Item2;
+        var afterData = (CommandEndEventData)diagnostic[3].Item2;
+
+        Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
+        Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
+
+        Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
+        Assert.Equal(diagnosticName, afterData.ExecuteMethod);
+
+        Assert.Equal(async, beforeData.IsAsync);
+        Assert.Equal(async, afterData.IsAsync);
+    }
+
     private const string ConnectionString = "Fake Connection String";
 
     private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
@@ -1206,7 +1283,8 @@ public class RelationalCommandTest
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                new ExceptionDetector()),
             commandText,
             parameters ?? Array.Empty<IRelationalParameter>());
 }

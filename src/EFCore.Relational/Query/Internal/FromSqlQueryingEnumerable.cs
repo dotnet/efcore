@@ -151,6 +151,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorsEnabled;
         private readonly IConcurrencyDetector? _concurrencyDetector;
+        private readonly IExceptionDetector _exceptionDetector;
 
         private IRelationalCommand? _relationalCommand;
         private RelationalDataReader? _dataReader;
@@ -166,6 +167,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             Current = default!;
 
             _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -206,7 +208,14 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             }
             catch (Exception exception)
             {
-                _queryLogger.QueryIterationFailed(_contextType, exception);
+                if (_exceptionDetector.IsCancellation(exception))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
 
                 throw;
             }
@@ -260,6 +269,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorsEnabled;
         private readonly IConcurrencyDetector? _concurrencyDetector;
+        private readonly IExceptionDetector _exceptionDetector;
 
         private IRelationalCommand? _relationalCommand;
         private RelationalDataReader? _dataReader;
@@ -275,6 +285,7 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             _queryLogger = queryingEnumerable._queryLogger;
             _standAloneStateManager = queryingEnumerable._standAloneStateManager;
             _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
+            _exceptionDetector = _relationalQueryContext.ExceptionDetector;
             Current = default!;
 
             _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -317,7 +328,14 @@ public class FromSqlQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>,
             }
             catch (Exception exception)
             {
-                _queryLogger.QueryIterationFailed(_contextType, exception);
+                if (_exceptionDetector.IsCancellation(exception, _relationalQueryContext.CancellationToken))
+                {
+                    _queryLogger.QueryCanceled(_contextType);
+                }
+                else
+                {
+                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                }
 
                 throw;
             }

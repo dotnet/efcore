@@ -414,6 +414,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
         public bool AsyncCalled { get; set; }
         public bool SyncCalled { get; set; }
         public bool FailedCalled { get; set; }
+        public bool CanceledCalled { get; set; }
         public bool SavedChangesCalled { get; set; }
         public bool SavingChangesCalled { get; set; }
 
@@ -447,6 +448,15 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             Context = eventData.Context;
             Exception = eventData.Exception;
             FailedCalled = true;
+            SyncCalled = true;
+        }
+
+        public virtual void SaveChangesCanceled(DbContextEventData eventData)
+        {
+            Assert.NotNull(eventData.Context);
+
+            Context = eventData.Context;
+            CanceledCalled = true;
             SyncCalled = true;
         }
 
@@ -488,6 +498,19 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             Context = eventData.Context;
             Exception = eventData.Exception;
             FailedCalled = true;
+            AsyncCalled = true;
+
+            return Task.CompletedTask;
+        }
+
+        public virtual Task SaveChangesCanceledAsync(
+            DbContextEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            Assert.NotNull(eventData.Context);
+
+            Context = eventData.Context;
+            CanceledCalled = true;
             AsyncCalled = true;
 
             return Task.CompletedTask;

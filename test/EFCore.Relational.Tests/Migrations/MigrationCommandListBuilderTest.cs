@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -135,7 +136,8 @@ Statement3
             new MigrationsSqlGeneratorDependencies(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
-                        typeMappingSource)),
+                        typeMappingSource,
+                        new ExceptionDetector())),
                 new FakeSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         generationHelper,

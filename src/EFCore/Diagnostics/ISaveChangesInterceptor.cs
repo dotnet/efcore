@@ -136,4 +136,19 @@ public interface ISaveChangesInterceptor : IInterceptor
     Task SaveChangesFailedAsync(
         DbContextErrorEventData eventData,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Called when <see cref="O:DbContext.SaveChanges" /> was canceled.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the failure.</param>
+    void SaveChangesCanceled(DbContextEventData eventData);
+
+    /// <summary>
+    ///     Called when <see cref="O:DbContext.SaveChangesAsync" /> was canceled.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the failure.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default);
 }

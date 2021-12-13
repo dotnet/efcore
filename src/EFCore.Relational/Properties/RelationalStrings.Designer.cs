@@ -1613,6 +1613,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A DbCommand was canceled ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
+        /// </summary>
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogCommandCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                        logger.Options,
+                        RelationalEventId.CommandCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandCanceled",
+                        level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
+                            level,
+                            RelationalEventId.CommandCanceled,
+                            _resourceManager.GetString("LogCommandCanceled")!)));
+            }
+
+            return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Created DbCommand for '{executionType}' ({elapsed}ms).
         /// </summary>
         public static EventDefinition<string, int> LogCommandCreated(IDiagnosticsLogger logger)

@@ -837,6 +837,10 @@
     <value>The unchanged property '{entityType}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
     <comment>Debug CoreEventId.PropertyChangeDetected string string object? object? string</comment>
   </data>
+  <data name="LogQueryCanceled" xml:space="preserve">
+    <value>A query was canceled for context type '{contextType}'.</value>
+    <comment>Debug CoreEventId.QueryCanceled Type</comment>
+  </data>
   <data name="LogQueryCompilationStarting" xml:space="preserve">
     <value>Compiling query expression: {newline}'{queryExpression}'</value>
     <comment>Debug CoreEventId.QueryCompilationStarting string string</comment>
@@ -876,6 +880,10 @@
   <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
     <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.</value>
     <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
+  </data>
+  <data name="LogSaveChangesCanceled" xml:space="preserve">
+    <value>A cancellation occurred while saving changes for context type '{contextType}'.</value>
+    <comment>Debug CoreEventId.SaveChangesCanceled Type?</comment>
   </data>
   <data name="LogSaveChangesCompleted" xml:space="preserve">
     <value>SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.</value>

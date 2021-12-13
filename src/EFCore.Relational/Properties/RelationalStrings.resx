@@ -455,6 +455,10 @@
     <value>The order of column '{table}.{column}' was ignored. Column orders are only used when the table is first created.</value>
     <comment>Warning RelationalEventId.ColumnOrderIgnoredWarning string string</comment>
   </data>
+  <data name="LogCommandCanceled" xml:space="preserve">
+    <value>A DbCommand was canceled ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Debug RelationalEventId.CommandCanceled string string System.Data.CommandType int string string</comment>
+  </data>
   <data name="LogCommandCreated" xml:space="preserve">
     <value>Created DbCommand for '{executionType}' ({elapsed}ms).</value>
     <comment>Debug RelationalEventId.CommandCreated string int</comment>

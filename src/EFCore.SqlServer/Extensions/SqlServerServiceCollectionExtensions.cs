@@ -126,6 +126,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqlServerParameterBasedSqlProcessorFactory>()
             .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
+            .TryAdd<IExceptionDetector, SqlServerExceptionDetector>()
             .TryAddProviderSpecificServices(
                 b => b
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()

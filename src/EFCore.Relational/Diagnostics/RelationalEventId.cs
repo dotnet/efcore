@@ -36,6 +36,7 @@ public static class RelationalEventId
         CommandError,
         CommandCreating,
         CommandCreated,
+        CommandCanceled,
 
         // Transaction events
         TransactionStarted = CoreEventId.RelationalBaseId + 200,
@@ -170,6 +171,19 @@ public static class RelationalEventId
 
     private static EventId MakeCommandId(Id id)
         => new((int)id, _sqlPrefix + id);
+
+    /// <summary>
+    ///     A <see cref="DbCommand" /> has been canceled.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="CommandEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId CommandCanceled = MakeCommandId(Id.CommandCanceled);
 
     /// <summary>
     ///     A <see cref="DbCommand" /> is being created.

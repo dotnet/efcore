@@ -24,7 +24,8 @@ public class RawSqlCommandBuilderTest
                 new RelationalCommandBuilderDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                    new ExceptionDetector())),
             new RelationalSqlGenerationHelper(
                 new RelationalSqlGenerationHelperDependencies()),
             new ParameterNameGeneratorFactory(

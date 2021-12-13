@@ -3910,6 +3910,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     A query was canceled for context type '{contextType}'.
+        /// </summary>
+        public static EventDefinition<Type> LogQueryCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogQueryCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogQueryCanceled,
+                    logger,
+                    static logger => new EventDefinition<Type>(
+                        logger.Options,
+                        CoreEventId.QueryCanceled,
+                        LogLevel.Debug,
+                        "CoreEventId.QueryCanceled",
+                        level => LoggerMessage.Define<Type>(
+                            level,
+                            CoreEventId.QueryCanceled,
+                            _resourceManager.GetString("LogQueryCanceled")!)));
+            }
+
+            return (EventDefinition<Type>)definition;
+        }
+
+        /// <summary>
         ///     Compiling query expression: {newline}'{queryExpression}'
         /// </summary>
         public static EventDefinition<string, string> LogQueryCompilationStarting(IDiagnosticsLogger logger)
@@ -4157,6 +4182,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     A cancellation occurred while saving changes for context type '{contextType}'.
+        /// </summary>
+        public static EventDefinition<Type?> LogSaveChangesCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangedCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogSaveChangedCanceled,
+                    logger,
+                    static logger => new EventDefinition<Type?>(
+                        logger.Options,
+                        CoreEventId.SaveChangesCanceled,
+                        LogLevel.Debug,
+                        "CoreEventId.SaveChangesCanceled",
+                        level => LoggerMessage.Define<Type?>(
+                            level,
+                            CoreEventId.SaveChangesCanceled,
+                            _resourceManager.GetString("LogSaveChangesCanceled")!)));
+            }
+
+            return (EventDefinition<Type?>)definition;
         }
 
         /// <summary>
