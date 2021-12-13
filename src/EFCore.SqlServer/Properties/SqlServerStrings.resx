@@ -249,7 +249,7 @@
     <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
   <data name="LogMissingViewDefinitionRights" xml:space="preserve">
-    <value>Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.</value>
+    <value>The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.</value>
     <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning string?</comment>
   </data>  
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">

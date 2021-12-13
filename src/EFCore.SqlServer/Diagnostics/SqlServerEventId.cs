@@ -289,7 +289,7 @@ public static class SqlServerEventId
     public static readonly EventId ColumnWithoutTypeWarning = MakeScaffoldingId(Id.ColumnWithoutTypeWarning);
 
     /// <summary>
-    ///     Aspects of your schema definition may be missing, as the credentials in use has not been granted 'VIEW DEFINITION' rights.
+    ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
     /// </summary>
     /// <remarks>
     ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
