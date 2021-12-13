@@ -51,7 +51,7 @@ public static class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder(null, null, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
 
         return entityTypeBuilder;
     }
@@ -76,7 +76,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(null);
-        buildAction(new TableBuilder(name, null, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
 
         return entityTypeBuilder;
     }
@@ -192,7 +192,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         entityTypeBuilder.Metadata.SetTableName(name);
         entityTypeBuilder.Metadata.SetSchema(schema);
-        buildAction(new TableBuilder(name, schema, entityTypeBuilder.Metadata));
+        buildAction(new TableBuilder(entityTypeBuilder.Metadata));
 
         return entityTypeBuilder;
     }
@@ -281,7 +281,7 @@ public static class RelationalEntityTypeBuilderExtensions
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
-        buildAction(new TableBuilder(null, null, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
 
         return referenceOwnershipBuilder;
     }
@@ -344,7 +344,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
-        buildAction(new TableBuilder(name, null, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
 
         return referenceOwnershipBuilder;
     }
@@ -423,7 +423,7 @@ public static class RelationalEntityTypeBuilderExtensions
 
         referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
         referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-        buildAction(new TableBuilder(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+        buildAction(new TableBuilder(referenceOwnershipBuilder.OwnedEntityType));
 
         return referenceOwnershipBuilder;
     }

@@ -490,7 +490,7 @@ public class BufferedDataReader : DbDataReader
     public override int GetValues(object[] values)
     {
         AssertReaderIsOpenWithData();
-        return _currentResultSet.GetValues(values);
+        return BufferedDataRecord.GetValues(values);
     }
 
     /// <summary>
@@ -837,7 +837,7 @@ public class BufferedDataReader : DbDataReader
             => GetFieldValue<object>(ordinal);
 
 #pragma warning disable IDE0060 // Remove unused parameter
-        public int GetValues(object[] values)
+        public static int GetValues(object[] values)
 #pragma warning restore IDE0060 // Remove unused parameter
             => throw new NotSupportedException();
 
@@ -860,7 +860,7 @@ public class BufferedDataReader : DbDataReader
                 TypeCase.UShort => (T)(object)GetUInt16(ordinal),
                 TypeCase.UInt => (T)(object)GetUInt32(ordinal),
                 TypeCase.ULong => (T)(object)GetUInt64(ordinal),
-                _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]],
+                _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]]
             };
 
         public bool IsDBNull(int ordinal)

@@ -9041,7 +9041,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 
     #region Issue22841
 
-    [ConditionalFact(Skip = "Flaky, #26763")]
+    [ConditionalFact]
     public async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true_22841()
     {
         var contextFactory = await InitializeAsync<MyContext22841>();
@@ -9049,12 +9049,14 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         using var context = contextFactory.CreateContext();
         var observableThing = new ObservableThing22841();
 
+        using var trackingSynchronizationContext = new SingleThreadSynchronizationContext();
         var origSynchronizationContext = SynchronizationContext.Current;
-        var trackingSynchronizationContext = new SingleThreadSynchronizationContext22841();
         SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
 
         bool? isMySyncContext = null;
-        Action callback = () => isMySyncContext = Thread.CurrentThread == trackingSynchronizationContext.Thread;
+        Action callback = () => isMySyncContext =
+            SynchronizationContext.Current ==  trackingSynchronizationContext
+            && Thread.CurrentThread == trackingSynchronizationContext.Thread;
         observableThing.Event += callback;
 
         try
@@ -9066,7 +9068,6 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         {
             observableThing.Event -= callback;
             SynchronizationContext.SetSynchronizationContext(origSynchronizationContext);
-            trackingSynchronizationContext.Dispose();
         }
 
         Assert.True(isMySyncContext);
@@ -9103,42 +9104,6 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         private int _id;
 
         public event Action Event;
-    }
-
-    private class SingleThreadSynchronizationContext22841 : SynchronizationContext, IDisposable
-    {
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
-        internal Thread Thread { get; }
-
-        internal SingleThreadSynchronizationContext22841()
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-            Thread = new Thread(WorkLoop);
-            Thread.Start();
-        }
-
-        public override void Post(SendOrPostCallback callback, object state)
-            => _tasks.Add((callback, state));
-
-        public void Dispose()
-            => _tasks.CompleteAdding();
-
-        private void WorkLoop()
-        {
-            try
-            {
-                while (true)
-                {
-                    var (callback, state) = _tasks.Take();
-                    callback(state);
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                _tasks.Dispose();
-            }
-        }
     }
 
     #endregion Issue22841
@@ -10251,9 +10216,133 @@ ORDER BY [t].[Id]");
 
     #endregion
 
-    protected override string StoreName
-        => "QueryBugsTest";
+    #region Issue26742
 
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTime).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='2021-11-12T13:14:15.1234567'{postfix}
+
+SELECT TOP(1) [e].[DateTime]
+FROM [Entities] AS [e]
+WHERE [e].[DateTime] = @__parameter_0");
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTimeOffset).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = new DateTimeOffset(new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567), TimeSpan.FromHours(10));
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='2021-11-12T13:14:15.1234567+10:00'{postfix}
+
+SELECT TOP(1) [e].[DateTimeOffset]
+FROM [Entities] AS [e]
+WHERE [e].[DateTimeOffset] = @__parameter_0");
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(null, "")]
+    //[InlineData(0, " (Scale = 0)")] //https://github.com/dotnet/SqlClient/issues/1380 cause this test to fail, not EF
+    [InlineData(1, " (Scale = 1)")]
+    [InlineData(2, " (Scale = 2)")]
+    [InlineData(3, " (Scale = 3)")]
+    [InlineData(4, " (Scale = 4)")]
+    [InlineData(5, " (Scale = 5)")]
+    [InlineData(6, " (Scale = 6)")]
+    [InlineData(7, " (Scale = 7)")]
+    public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
+    {
+        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
+        {
+            if (fractionalSeconds.HasValue)
+            {
+                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.TimeSpan).HasPrecision(fractionalSeconds.Value);
+            }
+        });
+
+        var parameter = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
+
+            AssertSql(
+                $@"@__parameter_0='12:34:56.7890123'{postfix}
+
+SELECT TOP(1) [e].[TimeSpan]
+FROM [Entities] AS [e]
+WHERE [e].[TimeSpan] = @__parameter_0");
+        }
+    }
+    protected class MyContext_26742 : DbContext
+    {
+        public DbSet<Entity> Entities { get; set; }
+
+        public MyContext_26742(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public class Entity
+        {
+            public int Id { get; set; }
+            public TimeSpan TimeSpan { get; set; }
+            public DateTime DateTime { get; set; }
+            public DateTimeOffset DateTimeOffset { get; set; }
+        }
+    }
+
+    #endregion
+
+    protected override string StoreName => "QueryBugsTest";
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

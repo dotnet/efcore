@@ -45,12 +45,11 @@ public class BaseTypeDiscoveryConvention :
         Check.DebugAssert(
             entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership) == null,
             "Ownerships present on non-owned entity type");
-        ProcessEntityType(entityTypeBuilder, context);
+        ProcessEntityType(entityTypeBuilder);
     }
 
     private static void ProcessEntityType(
-        IConventionEntityTypeBuilder entityTypeBuilder,
-        IConventionContext context)
+        IConventionEntityTypeBuilder entityTypeBuilder)
     {
         var entityType = entityTypeBuilder.Metadata;
         var model = entityType.Model;
@@ -127,7 +126,7 @@ public class BaseTypeDiscoveryConvention :
         if (foreignKey.IsOwnership
             && !entityTypeBuilder.Metadata.IsOwned())
         {
-            ProcessEntityType(entityTypeBuilder, context);
+            ProcessEntityType(entityTypeBuilder);
         }
     }
 }

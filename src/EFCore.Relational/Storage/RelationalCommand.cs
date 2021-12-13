@@ -466,7 +466,7 @@ public class RelationalCommand : IRelationalCommand
                     ? interceptionResult.Result
                     : command.ExecuteReader();
 
-                reader = logger!.CommandReaderExecuted(
+                reader = logger.CommandReaderExecuted(
                     connection,
                     command,
                     context,
@@ -508,10 +508,7 @@ public class RelationalCommand : IRelationalCommand
                 reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
             }
 
-            if (_relationalReader == null)
-            {
-                _relationalReader = CreateRelationalDataReader();
-            }
+            _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
 
@@ -583,7 +580,7 @@ public class RelationalCommand : IRelationalCommand
                     ? interceptionResult.Result
                     : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
 
-                reader = await logger!.CommandReaderExecutedAsync(
+                reader = await logger.CommandReaderExecutedAsync(
                         connection,
                         command,
                         context,
@@ -633,10 +630,7 @@ public class RelationalCommand : IRelationalCommand
                     .ConfigureAwait(false);
             }
 
-            if (_relationalReader == null)
-            {
-                _relationalReader = CreateRelationalDataReader();
-            }
+            _relationalReader ??= CreateRelationalDataReader();
 
             _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
 

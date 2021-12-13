@@ -20,7 +20,7 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // ReSharper disable once StaticMemberInGenericType
-    protected static readonly ConverterMappingHints _defaultHints = new(size: 64);
+    protected static readonly ConverterMappingHints DefaultHints = new(size: 64);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

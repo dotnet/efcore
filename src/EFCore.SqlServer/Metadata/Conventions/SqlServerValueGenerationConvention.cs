@@ -75,20 +75,14 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
             && annotation?.Value is string propertyName)
         {
             var periodProperty = entityTypeBuilder.Metadata.FindProperty(propertyName);
-            if (periodProperty != null)
-            {
-                periodProperty.Builder.ValueGenerated(GetValueGenerated(periodProperty));
-            }
+            periodProperty?.Builder.ValueGenerated(GetValueGenerated(periodProperty));
 
             // cleanup the previous period property - its possible that it won't be deleted
             // (e.g. when removing period with default name, while the property with that same name has been explicitly defined)
             if (oldAnnotation?.Value is string oldPropertyName)
             {
                 var oldPeriodProperty = entityTypeBuilder.Metadata.FindProperty(oldPropertyName);
-                if (oldPeriodProperty != null)
-                {
-                    oldPeriodProperty.Builder.ValueGenerated(GetValueGenerated(oldPeriodProperty));
-                }
+                oldPeriodProperty?.Builder.ValueGenerated(GetValueGenerated(oldPeriodProperty));
             }
         }
 
@@ -126,17 +120,17 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
                 ? ValueGenerated.OnAdd
                 : null);
 
-    private ValueGenerated? GetValueGenerated(
+    private static ValueGenerated? GetValueGenerated(
         IReadOnlyProperty property,
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource typeMappingSource)
-        => GetTemporalValueGenerated(property, storeObject)
+        => GetTemporalValueGenerated(property)
             ?? RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
             ?? (property.GetValueGenerationStrategy(storeObject, typeMappingSource) != SqlServerValueGenerationStrategy.None
                 ? ValueGenerated.OnAdd
                 : null);
 
-    private ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    private static ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property)
     {
         var entityType = property.DeclaringEntityType;
         return entityType.IsTemporal()

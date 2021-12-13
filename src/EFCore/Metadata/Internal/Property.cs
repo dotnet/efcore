@@ -178,12 +178,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         _isNullable = nullable;
 
-        if (isChanging)
-        {
-            return DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
-        }
-
-        return nullable;
+        return isChanging
+            ? DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder)
+            : nullable;
     }
 
     private bool DefaultIsNullable

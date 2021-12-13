@@ -76,7 +76,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
 
                     break;
 
-                case DefaultExpression defaultExpression:
+                case DefaultExpression:
                     // Intentionally empty. No additional members
                     break;
 
@@ -318,7 +318,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                 BlockExpression leftBlock => CompareBlock(leftBlock, (BlockExpression)right),
                 ConditionalExpression leftConditional => CompareConditional(leftConditional, (ConditionalExpression)right),
                 ConstantExpression leftConstant => CompareConstant(leftConstant, (ConstantExpression)right),
-                DefaultExpression _ => true, // Intentionally empty. No additional members
+                DefaultExpression => true, // Intentionally empty. No additional members
                 GotoExpression leftGoto => CompareGoto(leftGoto, (GotoExpression)right),
                 IndexExpression leftIndex => CompareIndex(leftIndex, (IndexExpression)right),
                 InvocationExpression leftInvocation => CompareInvocation(leftInvocation, (InvocationExpression)right),
@@ -508,7 +508,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
             return true;
         }
 
-        private bool CompareMemberList(IReadOnlyList<MemberInfo>? a, IReadOnlyList<MemberInfo>? b)
+        private static bool CompareMemberList(IReadOnlyList<MemberInfo>? a, IReadOnlyList<MemberInfo>? b)
         {
             if (ReferenceEquals(a, b))
             {

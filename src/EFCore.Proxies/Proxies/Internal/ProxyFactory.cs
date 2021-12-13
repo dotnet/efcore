@@ -141,7 +141,7 @@ public class ProxyFactory : IProxyFactory
             constructorArguments,
             GetNotifyChangeInterceptors(options, entityType));
 
-    private Type[] GetInterfacesToProxy(
+    private static Type[] GetInterfacesToProxy(
         ProxiesOptionsExtension options,
         Type type)
     {
@@ -168,7 +168,7 @@ public class ProxyFactory : IProxyFactory
         return interfacesToProxy.ToArray();
     }
 
-    private IInterceptor[] GetNotifyChangeInterceptors(
+    private static IInterceptor[] GetNotifyChangeInterceptors(
         ProxiesOptionsExtension options,
         IEntityType entityType,
         LazyLoadingInterceptor? lazyLoadingInterceptor = null)

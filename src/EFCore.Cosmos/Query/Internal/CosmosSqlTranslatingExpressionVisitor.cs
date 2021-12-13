@@ -253,9 +253,9 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityProjectionExpression _:
-            case EntityReferenceExpression _:
-            case SqlExpression _:
+            case EntityProjectionExpression:
+            case EntityReferenceExpression:
+            case SqlExpression:
                 return extensionExpression;
 
             case EntityShaperExpression entityShaperExpression:
@@ -380,7 +380,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && right is SqlExpression rightSql)
             {
                 sqlObject = leftSql;
-                arguments = new SqlExpression[1] { rightSql };
+                arguments = new[] { rightSql };
             }
             else
             {
@@ -407,7 +407,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (left is SqlExpression leftSql
                 && right is SqlExpression rightSql)
             {
-                arguments = new SqlExpression[2] { leftSql, rightSql };
+                arguments = new[] { leftSql, rightSql };
             }
             else
             {
@@ -428,7 +428,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (enumerable is SqlExpression sqlEnumerable
                 && item is SqlExpression sqlItem)
             {
-                arguments = new SqlExpression[2] { sqlEnumerable, sqlItem };
+                arguments = new[] { sqlEnumerable, sqlItem };
             }
             else
             {
@@ -450,7 +450,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && item is SqlExpression sqlItem)
             {
                 sqlObject = sqlEnumerable;
-                arguments = new SqlExpression[1] { sqlItem };
+                arguments = new[] { sqlItem };
             }
             else
             {
@@ -901,7 +901,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static bool IsNullSqlConstantExpression(Expression expression)
         => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
 
-    private SqlConstantExpression GetConstantOrNull(Expression expression)
+    private static SqlConstantExpression GetConstantOrNull(Expression expression)
         => CanEvaluate(expression)
             ? new SqlConstantExpression(
                 Expression.Constant(
@@ -916,7 +916,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         switch (expression)
 #pragma warning restore IDE0066 // Convert switch statement to expression
         {
-            case ConstantExpression constantExpression:
+            case ConstantExpression:
                 return true;
 
             case NewExpression newExpression:
@@ -933,7 +933,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     [DebuggerStepThrough]
-    private bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
+    private static bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
     {
         if (original != null
             && !(translation is SqlExpression))

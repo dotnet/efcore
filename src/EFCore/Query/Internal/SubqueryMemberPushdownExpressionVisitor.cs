@@ -128,12 +128,6 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                     innerMethodCall,
                     (target, nullable) =>
                     {
-                        var propertyType = methodCallExpression.Type;
-                        if (nullable && !propertyType.IsNullableType())
-                        {
-                            propertyType = propertyType.MakeNullable();
-                        }
-
                         var indexerExpression = Expression.Call(
                             target,
                             methodCallExpression.Method, methodCallExpression.Arguments[0]);

@@ -233,7 +233,7 @@ public class CSharpHelper : ICSharpHelper
 
         if (partStart != name.Length)
         {
-            builder.Append(name.Substring(partStart));
+            builder.Append(name[partStart..]);
         }
 
         if (builder.Length == 0
@@ -264,23 +264,21 @@ public class CSharpHelper : ICSharpHelper
         return _keywords.Contains(identifier) ? "@" + identifier : identifier;
     }
 
-    private static StringBuilder ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
+    private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
     {
         if (builder.Length == 0)
         {
-            return builder;
+            return;
         }
 
         var first = builder[index: 0];
         if (char.IsUpper(first) == capitalize)
         {
-            return builder;
+            return;
         }
 
         builder.Remove(startIndex: 0, length: 1)
             .Insert(index: 0, value: capitalize ? char.ToUpperInvariant(first) : char.ToLowerInvariant(first));
-
-        return builder;
     }
 
     /// <summary>
@@ -428,9 +426,9 @@ public class CSharpHelper : ICSharpHelper
             return $"double.{nameof(double.PositiveInfinity)}";
         }
 
-        return !literal.Contains("E")
-            && !literal.Contains("e")
-            && !literal.Contains(".")
+        return !literal.Contains('E')
+            && !literal.Contains('e')
+            && !literal.Contains('.')
                 ? literal + ".0"
                 : literal;
     }
@@ -963,12 +961,7 @@ public class CSharpHelper : ICSharpHelper
 
                 builder.Append(" + ");
 
-                if (!HandleExpression(binaryExpression.Right, builder))
-                {
-                    return false;
-                }
-
-                return true;
+                return HandleExpression(binaryExpression.Right, builder);
             }
         }
 
@@ -1136,10 +1129,8 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch < 'A'
-                ? false
-                : ch <= 'Z'
-                || ch == '_';
+            return ch >= 'A' && (ch <= 'Z'
+                || ch == '_');
         }
 
         if (ch <= 'z')
@@ -1147,7 +1138,7 @@ public class CSharpHelper : ICSharpHelper
             return true;
         }
 
-        return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
     }
 
     private static bool IsIdentifierPartCharacter(char ch)

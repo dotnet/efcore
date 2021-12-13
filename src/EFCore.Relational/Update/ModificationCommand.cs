@@ -213,10 +213,7 @@ public class ModificationCommand : IModificationCommand
     {
         var modification = CreateColumnModification(columnModificationParameters);
 
-        if (_columnModifications == null)
-        {
-            _columnModifications = new List<IColumnModification>();
-        }
+        _columnModifications ??= new List<IColumnModification>();
 
         _columnModifications.Add(modification);
 
@@ -396,7 +393,7 @@ public class ModificationCommand : IModificationCommand
         return tableMapping;
     }
 
-    private void InitializeSharedColumns(
+    private static void InitializeSharedColumns(
         IUpdateEntry entry,
         ITableMappingBase tableMapping,
         bool updating,

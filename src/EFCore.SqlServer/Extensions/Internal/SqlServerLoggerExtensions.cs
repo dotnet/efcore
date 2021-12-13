@@ -592,7 +592,7 @@ public static class SqlServerLoggerExtensions
         {
             var eventData = new EventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
+                (d, _) => ((EventDefinition)d).GenerateMessage());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }

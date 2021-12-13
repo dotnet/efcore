@@ -122,7 +122,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         Action<string> action,
         LogLevel minimumLevel = LogLevel.Debug,
         DbContextLoggerOptions? options = null)
-        => LogTo(action, (i, l) => l >= minimumLevel, options);
+        => LogTo(action, (_, l) => l >= minimumLevel, options);
 
     /// <summary>
     ///     Logs the specified events using the supplied action. For example, use
@@ -155,36 +155,13 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
 
         var eventsArray = events.ToArray();
 
-        if (eventsArray.Length == 0)
+        return eventsArray.Length switch
         {
-            return this;
-        }
-
-        if (eventsArray.Length == 1)
-        {
-            var firstEvent = eventsArray[0];
-            return LogTo(
-                action,
-                (eventId, level) => level >= minimumLevel
-                    && eventId == firstEvent,
-                options);
-        }
-
-        if (eventsArray.Length < 6)
-        {
-            return LogTo(
-                action,
-                (eventId, level) => level >= minimumLevel
-                    && eventsArray.Contains(eventId),
-                options);
-        }
-
-        var eventsHash = eventsArray.ToHashSet();
-        return LogTo(
-            action,
-            (eventId, level) => level >= minimumLevel
-                && eventsHash.Contains(eventId),
-            options);
+            0 => this,
+            1 => LogTo(action, (eventId, level) => level >= minimumLevel && eventId == eventsArray[0], options),
+            < 6 => LogTo(action, (eventId, level) => level >= minimumLevel && eventsArray.Contains(eventId), options),
+            _ => LogTo(action, (eventId, level) => level >= minimumLevel && eventsArray.ToHashSet().Contains(eventId), options)
+        };
     }
 
     /// <summary>

@@ -175,8 +175,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
 
-            case NavigationExpansionExpression _:
-            case OwnedNavigationReference _:
+            case NavigationExpansionExpression:
+            case OwnedNavigationReference:
                 return extensionExpression;
 
             default:
@@ -250,7 +250,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         {
             var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
             // First argument is source
-            var firstArgument = Visit(methodCallExpression.Arguments[0])!;
+            var firstArgument = Visit(methodCallExpression.Arguments[0]);
             if (firstArgument is NavigationExpansionExpression source)
             {
                 if (source.PendingOrderings.Any()
@@ -625,8 +625,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            thenBy: false);
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.ThenBy)
                         when genericMethod == QueryableMethods.ThenBy:
@@ -635,8 +634,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                         return ProcessOrderByThenBy(
                             groupBySource,
                             genericMethod,
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
-                            thenBy: true);
+                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
@@ -706,7 +704,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             {
                 // firstArgument was not an queryable
                 var visitedArguments = new[] { firstArgument }
-                    .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)!));
+                    .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)));
 
                 return ConvertToEnumerable(method, visitedArguments);
             }
@@ -774,15 +772,9 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
 
             var selectorLambda = GenerateLambda(source.PendingSelector, source.CurrentParameter);
-            if (method.GetGenericArguments().Length == 2)
-            {
-                // Min/Max with selector has 2 generic parameters
-                method = method.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType);
-            }
-            else
-            {
-                method = method.MakeGenericMethod(source.SourceElementType);
-            }
+            method = method.GetGenericArguments().Length == 2
+                ? method.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType)
+                : method.MakeGenericMethod(source.SourceElementType);
 
             return Expression.Call(method, source.Source, selectorLambda);
         }
@@ -896,7 +888,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
-    private NavigationExpansionExpression ProcessSkipTake(
+    private static NavigationExpansionExpression ProcessSkipTake(
         NavigationExpansionExpression source,
         MethodInfo genericMethod,
         Expression count)
@@ -938,7 +930,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var keySelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, keySelector));
 
         // Need to generate lambda after processing element/result selector
-        Expression result;
         if (elementSelector != null)
         {
             source = ProcessSelect(source, elementSelector);
@@ -976,7 +967,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         resultSelectorBody = Visit(resultSelectorBody);
         resultSelector = Expression.Lambda(resultSelectorBody, resultSelector.Parameters[0], enumerableParameter);
 
-        result = Expression.Call(
+        var result = Expression.Call(
             QueryableMethods.GroupByWithKeyResultSelector.MakeGenericMethod(
                 source.CurrentParameter.Type, keySelector.ReturnType, resultSelector.ReturnType),
             source.Source,
@@ -1254,7 +1245,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return source;
     }
 
-    private Expression ProcessReverse(NavigationExpansionExpression source)
+    private static Expression ProcessReverse(NavigationExpansionExpression source)
     {
         source.UpdateSource(
             Expression.Call(
@@ -1264,7 +1255,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return source;
     }
 
-    private NavigationExpansionExpression ProcessSelect(NavigationExpansionExpression source, LambdaExpression selector)
+    private static NavigationExpansionExpression ProcessSelect(NavigationExpansionExpression source, LambdaExpression selector)
     {
         var selectorBody = ReplacingExpressionVisitor.Replace(
             selector.Parameters[0],
@@ -1386,8 +1377,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             && methodCallExpression.Arguments.Count > 0
             && methodCallExpression.Arguments.Skip(1).All(e => e.Type.TryGetElementType(typeof(IQueryable<>)) == null))
         {
-            var firstArgumet = Visit(methodCallExpression.Arguments[0]);
-            if (firstArgumet is NavigationExpansionExpression source
+            var firstArgument = Visit(methodCallExpression.Arguments[0]);
+            if (firstArgument is NavigationExpansionExpression source
                 && source.Type == methodCallExpression.Type)
             {
                 source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
@@ -1440,8 +1431,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private GroupByNavigationExpansionExpression ProcessOrderByThenBy(
         GroupByNavigationExpansionExpression groupBySource,
         MethodInfo genericMethod,
-        LambdaExpression keySelector,
-        bool thenBy)
+        LambdaExpression keySelector)
     {
         keySelector = ProcessLambdaExpression(groupBySource, keySelector);
 
@@ -1481,7 +1471,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
     }
 
-    private GroupByNavigationExpansionExpression ProcessSkipTake(
+    private static GroupByNavigationExpansionExpression ProcessSkipTake(
         GroupByNavigationExpansionExpression groupBySource,
         MethodInfo genericMethod,
         Expression count)
@@ -1718,7 +1708,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private MethodCallExpression ConvertToEnumerable(MethodInfo queryableMethod, IEnumerable<Expression> arguments)
+    private static MethodCallExpression ConvertToEnumerable(MethodInfo queryableMethod, IEnumerable<Expression> arguments)
     {
         var genericTypeArguments = queryableMethod.IsGenericMethod
             ? queryableMethod.GetGenericArguments()
@@ -1876,7 +1866,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return expression;
     }
 
-    private Expression RemapLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
+    private static Expression RemapLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
         => ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], source.PendingSelector, lambdaExpression.Body);
 
     private LambdaExpression ProcessLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
@@ -2044,7 +2034,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         switch (expression)
         {
-            case ParameterExpression _:
+            case ParameterExpression:
                 return includeTreeNode;
 
             case MemberExpression memberExpression
@@ -2094,7 +2084,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private Expression Reduce(Expression source)
         => _reducingExpressionVisitor.Visit(source);
 
-    private Expression SnapshotExpression(Expression selector)
+    private static Expression SnapshotExpression(Expression selector)
     {
         switch (selector)
         {

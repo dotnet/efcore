@@ -33,6 +33,7 @@ public interface IRelationalCommandBuilder
     /// <summary>
     ///     The source for <see cref="RelationalTypeMapping" />s to use.
     /// </summary>
+    [Obsolete("Code trying to add parameter should add type mapped parameter using TypeMappingSource directly.")]
     IRelationalTypeMappingSource TypeMappingSource { get; }
 
     /// <summary>

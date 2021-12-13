@@ -65,8 +65,8 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
         var literal = base.GenerateNonNullSqlLiteral(value);
 
         var doubleValue = Convert.ToDouble(value);
-        return !literal.Contains("E")
-            && !literal.Contains("e")
+        return !literal.Contains('E')
+            && !literal.Contains('e')
             && !double.IsNaN(doubleValue)
             && !double.IsInfinity(doubleValue)
                 ? literal + "E0"

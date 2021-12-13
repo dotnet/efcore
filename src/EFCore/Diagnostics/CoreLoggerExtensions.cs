@@ -573,7 +573,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new EventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage());
+                (d, _) => ((EventDefinition)d).GenerateMessage());
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
         }
@@ -750,7 +750,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProviderEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProvider);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -777,7 +777,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProvidersEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProviders);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -933,7 +933,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            var lastException = exceptionsEncountered[exceptionsEncountered.Count - 1];
+            var lastException = exceptionsEncountered[^1];
             definition.Log(
                 diagnostics,
                 (int)delay.TotalMilliseconds, Environment.NewLine, lastException,
@@ -958,7 +958,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<int, string, Exception>)definition;
         var p = (ExecutionStrategyEventData)payload;
         return d.GenerateMessage(
-            (int)p.Delay.TotalMilliseconds, Environment.NewLine, p.ExceptionsEncountered[p.ExceptionsEncountered.Count - 1]);
+            (int)p.Delay.TotalMilliseconds, Environment.NewLine, p.ExceptionsEncountered[^1]);
     }
 
     /// <summary>
@@ -1101,7 +1101,7 @@ public static class CoreLoggerExtensions
         {
             var eventData = new ServiceProviderEventData(
                 definition,
-                (d, p) => ((EventDefinition)d).GenerateMessage(),
+                (d, _) => ((EventDefinition)d).GenerateMessage(),
                 serviceProvider);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);

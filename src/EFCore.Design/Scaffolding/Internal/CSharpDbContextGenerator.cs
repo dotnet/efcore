@@ -653,7 +653,6 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
         }
 
         var valueGenerated = property.ValueGenerated;
-        var isRowVersion = false;
         if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource
             valueGeneratedConfigurationSource
             && valueGeneratedConfigurationSource != ConfigurationSource.Convention
@@ -673,8 +672,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
             lines.Add($".{methodName}()");
         }
 
-        if (property.IsConcurrencyToken
-            && !isRowVersion)
+        if (property.IsConcurrencyToken)
         {
             lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
         }
@@ -925,7 +923,6 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
                             }
 
                             var valueGenerated = property.ValueGenerated;
-                            var isRowVersion = false;
                             if (((IConventionProperty)property).GetValueGeneratedConfigurationSource() is ConfigurationSource
                                 valueGeneratedConfigurationSource
                                 && valueGeneratedConfigurationSource != ConfigurationSource.Convention
@@ -946,8 +943,7 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
                                 lines.Add($".{methodName}()");
                             }
 
-                            if (property.IsConcurrencyToken
-                                && !isRowVersion)
+                            if (property.IsConcurrencyToken)
                             {
                                 lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
                             }

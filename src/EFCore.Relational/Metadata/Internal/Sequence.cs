@@ -105,7 +105,7 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [Obsolete("Use the other constructor")] // DO NOT REMOVE
-    // Used in snapsnot model processor. See issue#18557
+    // Used in snapshot model processor. See issue#18557
     public Sequence(IReadOnlyModel model, string annotationName)
     {
         Model = model;
@@ -747,13 +747,13 @@ public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequ
             => value == null ? null : long.Parse(value, CultureInfo.InvariantCulture);
 
         private static Type AsType(string value)
-            => value == typeof(long).Name
+            => value == nameof(Int64)
                 ? typeof(long)
-                : value == typeof(int).Name
+                : value == nameof(Int32)
                     ? typeof(int)
-                    : value == typeof(short).Name
+                    : value == nameof(Int16)
                         ? typeof(short)
-                        : value == typeof(decimal).Name
+                        : value == nameof(Decimal)
                             ? typeof(decimal)
                             : typeof(byte);
 

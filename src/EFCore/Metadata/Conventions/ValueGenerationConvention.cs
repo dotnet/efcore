@@ -185,7 +185,7 @@ public class ValueGenerationConvention :
     /// <param name="property">The property.</param>
     /// <returns>The store value generation strategy to set for the given property.</returns>
     public static ValueGenerated? GetValueGenerated(IReadOnlyProperty property)
-        => !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
+        => property.GetContainingForeignKeys().All(fk => fk.IsBaseLinking())
             && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
             && CanBeGenerated(property)
                 ? ValueGenerated.OnAdd

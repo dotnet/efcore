@@ -175,14 +175,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         }
 
         constructorBinding = foundBindings[0];
-        if (foundServiceOnlyBindings.Count == 1)
-        {
-            serviceOnlyBinding = foundServiceOnlyBindings[0];
-        }
-        else
-        {
-            serviceOnlyBinding = null;
-        }
+        serviceOnlyBinding = foundServiceOnlyBindings.Count == 1 ? foundServiceOnlyBindings[0] : null;
     }
 
     /// <summary>

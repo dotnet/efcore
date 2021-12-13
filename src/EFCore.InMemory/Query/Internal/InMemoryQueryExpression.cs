@@ -72,7 +72,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         var discriminatorProperty = entityType.FindDiscriminatorProperty();
         if (discriminatorProperty != null)
         {
-            var keyValueComparer = discriminatorProperty.GetKeyValueComparer()!;
+            var keyValueComparer = discriminatorProperty.GetKeyValueComparer();
             foreach (var derivedEntityType in entityType.GetDerivedTypes())
             {
                 var entityCheck = derivedEntityType.GetConcreteDerivedTypesInclusive()
@@ -557,7 +557,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         bool defaultElementSelector)
     {
         var source = ServerQueryExpression;
-        Expression? selector = null;
+        Expression? selector;
         if (defaultElementSelector)
         {
             selector = Lambda(
@@ -680,9 +680,9 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             propertyExpression = MakeReadValueNullable(propertyExpression);
 
             selectorExpressions.Add(propertyExpression);
-            var readValueExperssion = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
-            innerReadExpressionMap[property] = readValueExperssion;
-            _projectionMappingExpressions.Add(readValueExperssion);
+            var readValueExpression = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
+            innerReadExpressionMap[property] = readValueExpression;
+            _projectionMappingExpressions.Add(readValueExpression);
         }
 
         innerEntityProjection = new EntityProjectionExpression(innerEntityProjection.EntityType, innerReadExpressionMap);
@@ -831,15 +831,12 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
     private InMemoryQueryExpression Clone()
     {
-        if (_cloningExpressionVisitor == null)
-        {
-            _cloningExpressionVisitor = new CloningExpressionVisitor();
-        }
+        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
 
         return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
     }
 
-    private Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
+    private static Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
     {
         switch (key)
         {

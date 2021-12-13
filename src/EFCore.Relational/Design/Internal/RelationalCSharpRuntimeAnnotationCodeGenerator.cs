@@ -458,30 +458,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     }
 
     /// <inheritdoc />
-    public override void Generate(INavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => base.Generate(navigation, parameters);
-
-    /// <inheritdoc />
-    public override void Generate(ISkipNavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => base.Generate(navigation, parameters);
-
-    /// <inheritdoc />
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var annotations = parameters.Annotations;
-        if (parameters.IsRuntime)
-        {
-            annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
-        }
-        else
-        {
-            annotations.Remove(RelationalAnnotationNames.Filter);
-        }
+        annotations.Remove(parameters.IsRuntime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
 
         base.Generate(index, parameters);
     }
 
-    private void CreateAnnotations<TAnnotatable>(
+    private static void CreateAnnotations<TAnnotatable>(
         TAnnotatable annotatable,
         Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
@@ -499,7 +484,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             });
     }
 
-    private string Capitalize(string @string)
+    private static string Capitalize(string @string)
     {
         switch (@string.Length)
         {

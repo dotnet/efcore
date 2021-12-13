@@ -160,7 +160,7 @@ public class ArrayPropertyValues : PropertyValues
 
         if (value != null)
         {
-            if (!property.ClrType.IsAssignableFrom(value.GetType()))
+            if (!property.ClrType.IsInstanceOfType(value))
             {
                 throw new InvalidCastException(
                     CoreStrings.InvalidType(

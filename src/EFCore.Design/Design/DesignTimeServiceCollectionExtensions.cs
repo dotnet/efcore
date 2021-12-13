@@ -34,10 +34,7 @@ public static class DesignTimeServiceCollectionExtensions
         IOperationReporter? reporter = null,
         Func<IServiceProvider>? applicationServiceProviderAccessor = null)
     {
-        if (reporter == null)
-        {
-            reporter = new OperationReporter(handler: null);
-        }
+        reporter ??= new OperationReporter(handler: null);
 
         new EntityFrameworkRelationalDesignServicesBuilder(services)
             .TryAddProviderSpecificServices(

@@ -341,7 +341,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         FireStateChanged(oldState);
 
-        HandleSharedIdentityEntry(oldState, newState, entityType);
+        HandleSharedIdentityEntry(newState);
 
         if ((newState == EntityState.Deleted
                 || newState == EntityState.Detached)
@@ -352,7 +352,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
     }
 
-    private void HandleSharedIdentityEntry(EntityState oldState, EntityState newState, IEntityType entityType)
+    private void HandleSharedIdentityEntry(EntityState newState)
     {
         var sharedIdentityEntry = SharedIdentityEntry;
         if (sharedIdentityEntry == null)
@@ -1309,7 +1309,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                         }
 
                         EnsureStoreGeneratedValues();
-                        _storeGeneratedValues.SetValue(asProperty!, value, storeGeneratedIndex);
+                        _storeGeneratedValues.SetValue(asProperty, value, storeGeneratedIndex);
                     }
                     else
                     {
@@ -1426,23 +1426,21 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Unknown, false);
 
         var currentState = EntityState;
-        if ((currentState == EntityState.Unchanged)
-            || (currentState == EntityState.Detached))
+        switch (currentState)
         {
-            return;
-        }
+            case EntityState.Unchanged:
+            case EntityState.Detached:
+                return;
+            case EntityState.Added:
+            case EntityState.Modified:
+                _originalValues.AcceptChanges(this);
+                SharedIdentityEntry?.AcceptChanges();
 
-        if ((currentState == EntityState.Added)
-            || (currentState == EntityState.Modified))
-        {
-            _originalValues.AcceptChanges(this);
-            SharedIdentityEntry?.AcceptChanges();
-
-            SetEntityState(EntityState.Unchanged, true);
-        }
-        else if (currentState == EntityState.Deleted)
-        {
-            SetEntityState(EntityState.Detached);
+                SetEntityState(EntityState.Unchanged, true);
+                break;
+            case EntityState.Deleted:
+                SetEntityState(EntityState.Detached);
+                break;
         }
     }
 
@@ -1687,19 +1685,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var defaultValue = property.ClrType.GetDefaultValue();
         var equals = ValuesEqualFunc(property);
 
-        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-            && !equals(defaultValue, generatedValue))
-        {
-            return false;
-        }
-
-        if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-            && !equals(defaultValue, generatedValue))
-        {
-            return false;
-        }
-
-        return true;
+        return (!_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                || equals(defaultValue, generatedValue))
+            && (!_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
+                || equals(defaultValue, generatedValue));
     }
 
     /// <summary>

@@ -218,14 +218,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         _sqlBuilder.AppendLine();
 
-        if (selectExpression.FromExpression is FromSqlExpression)
-        {
-            _sqlBuilder.Append("FROM ");
-        }
-        else
-        {
-            _sqlBuilder.Append("FROM root ");
-        }
+        _sqlBuilder.Append(selectExpression.FromExpression is FromSqlExpression ? "FROM " : "FROM root ");
 
         Visit(selectExpression.FromExpression);
 
@@ -437,14 +430,14 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlConstantExpression;
     }
 
-    private string GenerateConstant(object value, CoreTypeMapping typeMapping)
+    private static string GenerateConstant(object value, CoreTypeMapping typeMapping)
     {
         var jToken = GenerateJToken(value, typeMapping);
 
         return jToken is null ? "null" : jToken.ToString(Formatting.None);
     }
 
-    private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+    private static JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
     {
         if (value?.GetType().IsInteger() == true)
         {

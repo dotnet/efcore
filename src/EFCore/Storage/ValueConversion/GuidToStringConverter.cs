@@ -39,7 +39,7 @@ public class GuidToStringConverter : StringGuidConverter<Guid, string>
         : base(
             ToString(),
             ToGuid(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -47,5 +47,5 @@ public class GuidToStringConverter : StringGuidConverter<Guid, string>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(Guid), typeof(string), i => new GuidToStringConverter(i.MappingHints), _defaultHints);
+        = new(typeof(Guid), typeof(string), i => new GuidToStringConverter(i.MappingHints), DefaultHints);
 }

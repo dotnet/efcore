@@ -323,10 +323,7 @@ public class IdentityMap<TKey> : IIdentityMap
     /// </summary>
     public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
     {
-        if (_dependentMaps == null)
-        {
-            _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
-        }
+        _dependentMaps ??= new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
 
         if (!_dependentMaps.TryGetValue(foreignKey, out var map))
         {
@@ -374,7 +371,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Remove(InternalEntityEntry entry)
-        => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry)!, entry);
+        => Remove(PrincipalKeyValueFactory.CreateFromCurrentValues(entry), entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -383,7 +380,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void RemoveUsingRelationshipSnapshot(InternalEntityEntry entry)
-        => Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry)!, entry);
+        => Remove(PrincipalKeyValueFactory.CreateFromRelationshipSnapshot(entry), entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

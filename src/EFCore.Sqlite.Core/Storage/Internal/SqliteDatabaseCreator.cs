@@ -72,16 +72,14 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
             return true;
         }
 
-        using (var readOnlyConnection = _connection.CreateReadOnlyConnection())
+        using var readOnlyConnection = _connection.CreateReadOnlyConnection();
+        try
         {
-            try
-            {
-                readOnlyConnection.Open(errorsExpected: true);
-            }
-            catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_CANTOPEN)
-            {
-                return false;
-            }
+            readOnlyConnection.Open(errorsExpected: true);
+        }
+        catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_CANTOPEN)
+        {
+            return false;
         }
 
         return true;

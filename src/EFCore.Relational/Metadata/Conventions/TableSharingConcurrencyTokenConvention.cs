@@ -89,10 +89,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                     if (!foundMappedProperty)
                     {
-                        if (entityTypesMissingConcurrencyColumn == null)
-                        {
-                            entityTypesMissingConcurrencyColumn = new Dictionary<IConventionEntityType, IReadOnlyProperty>();
-                        }
+                        entityTypesMissingConcurrencyColumn ??= new Dictionary<IConventionEntityType, IReadOnlyProperty>();
 
                         // store the entity type which is missing the
                         // concurrency token property, mapped to an example
@@ -166,10 +163,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     continue;
                 }
 
-                if (concurrencyColumns == null)
-                {
-                    concurrencyColumns = new Dictionary<string, List<IReadOnlyProperty>>();
-                }
+                concurrencyColumns ??= new Dictionary<string, List<IReadOnlyProperty>>();
 
                 if (!concurrencyColumns.TryGetValue(columnName, out var properties))
                 {
@@ -220,7 +214,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     fk => fk.PrincipalKey.IsPrimaryKey()
                         && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
             if (linkingFks.Count > 0
-                && !linkingFks.Any(fk => fk.PrincipalEntityType == entityType)
+                && linkingFks.All(fk => fk.PrincipalEntityType != entityType)
                 && linkingFks.Any(
                     fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
                         || entityType.IsAssignableFrom(fk.PrincipalEntityType)))

@@ -998,7 +998,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     public override string ToString()
         => ((IReadOnlyForeignKey)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-    private void Validate(
+    private static void Validate(
         IReadOnlyList<Property> properties,
         Key principalKey,
         EntityType declaringEntityType,

@@ -44,7 +44,7 @@ public class ClrCollectionAccessorFactory
     public virtual IClrCollectionAccessor? Create(INavigationBase navigation)
         => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
 
-    private IClrCollectionAccessor? Create(IPropertyBase navigation, IEntityType? targetType)
+    private static IClrCollectionAccessor? Create(IPropertyBase navigation, IEntityType? targetType)
     {
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (navigation is IClrCollectionAccessor accessor)
@@ -95,16 +95,16 @@ public class ClrCollectionAccessorFactory
 
         MemberInfo GetMostDerivedMemberInfo()
         {
-            var propertyInfo = navigation.PropertyInfo!;
-            var fieldInfo = navigation.FieldInfo!;
+            var propertyInfo = navigation.PropertyInfo;
+            var fieldInfo = navigation.FieldInfo;
 
-            return fieldInfo == null
+            return (fieldInfo == null
                 ? propertyInfo
                 : propertyInfo == null
                     ? fieldInfo
                     : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
                         ? propertyInfo
-                        : fieldInfo;
+                        : fieldInfo)!;
         }
     }
 

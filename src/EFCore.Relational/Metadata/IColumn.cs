@@ -174,18 +174,8 @@ public interface IColumn : IColumnBase
         }
 
         builder.Append(Name).Append(" (");
-
         builder.Append(StoreType).Append(')');
-
-        if (IsNullable)
-        {
-            builder.Append(" Nullable");
-        }
-        else
-        {
-            builder.Append(" NonNullable");
-        }
-
+        builder.Append(IsNullable ? " Nullable" : " NonNullable");
         builder.Append(')');
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

@@ -42,7 +42,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
             SelectExpression selectExpression => VisitSelect(selectExpression),
             InnerJoinExpression innerJoinExpression => VisitInnerJoin(innerJoinExpression),
             LeftJoinExpression leftJoinExpression => VisitLeftJoin(leftJoinExpression),
-            _ => base.VisitExtension(extensionExpression),
+            _ => base.VisitExtension(extensionExpression)
         };
 
     private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)

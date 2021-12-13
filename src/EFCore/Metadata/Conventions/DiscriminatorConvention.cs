@@ -46,7 +46,6 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
             oldBaseType.Builder.HasNoDiscriminator();
         }
 
-        var conventionEntityTypeBuilder = entityTypeBuilder;
         var entityType = entityTypeBuilder.Metadata;
         var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
@@ -55,15 +54,15 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
         {
             if (derivedEntityTypes.Count == 0)
             {
-                conventionEntityTypeBuilder.HasNoDiscriminator();
+                entityTypeBuilder.HasNoDiscriminator();
                 return;
             }
 
-            discriminator = conventionEntityTypeBuilder.HasDiscriminator(typeof(string));
+            discriminator = entityTypeBuilder.HasDiscriminator(typeof(string));
         }
         else
         {
-            if (conventionEntityTypeBuilder.HasNoDiscriminator() == null)
+            if (entityTypeBuilder.HasNoDiscriminator() == null)
             {
                 return;
             }

@@ -52,7 +52,7 @@ public class SqliteSubstrMethodTranslator : IMethodCallTranslator
                 "substr",
                 arguments.Skip(1),
                 nullable: true,
-                arguments.Skip(1).Select(a => true).ToArray(),
+                arguments.Skip(1).Select(_ => true).ToArray(),
                 typeof(byte[]),
                 arguments[1].TypeMapping);
         }

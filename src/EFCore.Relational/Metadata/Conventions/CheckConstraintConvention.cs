@@ -117,10 +117,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
                                 baseCheckConstraint.EntityType.DisplayName()));
                     }
 
-                    if (checkConstraintsToBeRemoved == null)
-                    {
-                        checkConstraintsToBeRemoved = new List<IConventionCheckConstraint>();
-                    }
+                    checkConstraintsToBeRemoved ??= new List<IConventionCheckConstraint>();
 
                     checkConstraintsToBeRemoved.Add(checkConstraint);
                     continue;
@@ -128,10 +125,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
 
                 if (baseCheckConstraint != null)
                 {
-                    if (checkConstraintsToBeDetached == null)
-                    {
-                        checkConstraintsToBeDetached = new List<IConventionCheckConstraint>();
-                    }
+                    checkConstraintsToBeDetached ??= new List<IConventionCheckConstraint>();
 
                     checkConstraintsToBeDetached.Add(checkConstraint);
                 }
@@ -158,7 +152,7 @@ public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, I
         }
     }
 
-    private bool AreCompatible(IConventionCheckConstraint checkConstraint, IConventionCheckConstraint baseCheckConstraint)
+    private static bool AreCompatible(IConventionCheckConstraint checkConstraint, IConventionCheckConstraint baseCheckConstraint)
     {
         var baseTable = StoreObjectIdentifier.Create(baseCheckConstraint.EntityType, StoreObjectType.Table);
         if (baseTable == null)

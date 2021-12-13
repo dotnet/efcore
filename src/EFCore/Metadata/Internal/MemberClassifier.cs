@@ -100,7 +100,7 @@ public class MemberClassifier : IMemberClassifier
                 is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
             || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
         {
-            return new Type[0];
+            return Type.EmptyTypes;
         }
 
         return inverseCandidates;

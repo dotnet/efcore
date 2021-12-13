@@ -126,7 +126,7 @@ public class SqlServerMathTranslator : IMethodCallTranslator
                 sqlFunctionName,
                 newArguments,
                 nullable: true,
-                argumentsPropagateNullability: newArguments.Select(a => true).ToArray(),
+                argumentsPropagateNullability: newArguments.Select(_ => true).ToArray(),
                 method.ReturnType,
                 sqlFunctionName == "SIGN" ? null : typeMapping);
         }

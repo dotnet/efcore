@@ -86,7 +86,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         return created;
     }
 
-    private IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
+    private static IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
     {
         var containers = new Dictionary<string, List<IEntityType>>();
         foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
@@ -163,10 +163,9 @@ public class CosmosDatabaseCreator : IDatabaseCreator
         var updateAdapter = _updateAdapterFactory.CreateStandalone();
         foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
         {
-            IEntityType? targetEntityType = null;
             foreach (var targetSeed in entityType.GetSeedData())
             {
-                targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
+                updateAdapter.Model.FindEntityType(entityType.Name);
                 var entry = updateAdapter.CreateEntry(targetSeed, entityType);
                 entry.EntityState = EntityState.Added;
             }
@@ -219,11 +218,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
     private static string GetPartitionKeyStoreName(IEntityType entityType)
     {
         var name = entityType.GetPartitionKeyPropertyName();
-        if (name != null)
-        {
-            return entityType.FindProperty(name)!.GetJsonPropertyName();
-        }
-
-        return CosmosClientWrapper.DefaultPartitionKey;
+        return name != null
+            ? entityType.FindProperty(name)!.GetJsonPropertyName()
+            : CosmosClientWrapper.DefaultPartitionKey;
     }
 }

@@ -38,7 +38,7 @@ public class CosmosValueConverterCompensatingExpressionVisitor : ExpressionVisit
             ReadItemExpression readItemExpression => readItemExpression,
             SelectExpression selectExpression => VisitSelect(selectExpression),
             SqlConditionalExpression sqlConditionalExpression => VisitSqlConditional(sqlConditionalExpression),
-            _ => base.VisitExtension(extensionExpression),
+            _ => base.VisitExtension(extensionExpression)
         };
 
     private Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)

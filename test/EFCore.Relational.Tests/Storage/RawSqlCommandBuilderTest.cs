@@ -28,7 +28,10 @@ public class RawSqlCommandBuilderTest
             new RelationalSqlGenerationHelper(
                 new RelationalSqlGenerationHelperDependencies()),
             new ParameterNameGeneratorFactory(
-                new ParameterNameGeneratorDependencies()));
+                new ParameterNameGeneratorDependencies()),
+                new TestRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
 
     [ConditionalFact]
     public virtual void Builds_RelationalCommand_with_empty_parameter_list()

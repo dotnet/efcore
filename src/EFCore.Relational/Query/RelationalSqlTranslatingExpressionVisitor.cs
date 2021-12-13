@@ -358,9 +358,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityProjectionExpression _:
-            case EntityReferenceExpression _:
-            case SqlExpression _:
+            case EntityProjectionExpression:
+            case EntityReferenceExpression:
+            case SqlExpression:
                 return extensionExpression;
 
             case EntityShaperExpression entityShaperExpression:
@@ -530,7 +530,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && right is SqlExpression rightSql)
             {
                 sqlObject = leftSql;
-                arguments = new SqlExpression[1] { rightSql };
+                arguments = new[] { rightSql };
             }
             else
             {
@@ -565,7 +565,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (left is SqlExpression leftSql
                 && right is SqlExpression rightSql)
             {
-                arguments = new SqlExpression[2] { leftSql, rightSql };
+                arguments = new[] { leftSql, rightSql };
             }
             else
             {
@@ -588,7 +588,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (enumerable is SqlExpression sqlEnumerable
                 && item is SqlExpression sqlItem)
             {
-                arguments = new SqlExpression[2] { sqlEnumerable, sqlItem };
+                arguments = new[] { sqlEnumerable, sqlItem };
             }
             else
             {
@@ -612,7 +612,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && item is SqlExpression sqlItem)
             {
                 sqlObject = sqlEnumerable;
-                arguments = new SqlExpression[1] { sqlItem };
+                arguments = new[] { sqlItem };
             }
             else
             {
@@ -937,10 +937,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
             var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
 
-            SqlExpression innerProjection;
             var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
             var entityProjectionExpression = (EntityProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-            innerProjection = entityProjectionExpression.BindProperty(property);
+            var innerProjection = entityProjectionExpression.BindProperty(property);
             subSelectExpression.ReplaceProjection(new List<Expression>());
             subSelectExpression.AddToProjection(innerProjection);
 
@@ -1315,7 +1314,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         switch (expression)
 #pragma warning restore IDE0066 // Convert switch statement to expression
         {
-            case ConstantExpression constantExpression:
+            case ConstantExpression:
                 return true;
 
             case NewExpression newExpression:

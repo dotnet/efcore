@@ -53,7 +53,6 @@ public static class RelationalForeignKeyExtensions
     public static string GetDefaultName(this IReadOnlyForeignKey foreignKey)
     {
         var tableName = foreignKey.DeclaringEntityType.GetTableName();
-        var schema = foreignKey.DeclaringEntityType.GetSchema();
         var principalTableName = foreignKey.PrincipalEntityType.GetTableName();
 
         var name = new StringBuilder()

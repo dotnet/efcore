@@ -306,7 +306,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             builder.Append(field).Append(", ");
         }
 
-        builder.Append(ClrType.ShortDisplayName()).Append(")");
+        builder.Append(ClrType.ShortDisplayName()).Append(')');
 
         if (IsShadowProperty())
         {
@@ -366,7 +366,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
 
         if (GetMaxLength() != null)
         {
-            builder.Append(" MaxLength(").Append(GetMaxLength()).Append(")");
+            builder.Append(" MaxLength(").Append(GetMaxLength()).Append(')');
         }
 
         if (IsUnicode() == false)

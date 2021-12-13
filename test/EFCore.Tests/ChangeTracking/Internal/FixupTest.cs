@@ -2883,8 +2883,11 @@ public class FixupTest
 
     private sealed class FixupContext : DbContext
     {
-        public FixupContext()
+        private readonly string _databaseName;
+
+        public FixupContext(string databaseName = null)
         {
+            _databaseName = databaseName;
             ChangeTracker.AutoDetectChangesEnabled = false;
         }
 
@@ -2959,12 +2962,14 @@ public class FixupTest
                 .HasOne<ChildNN>()
                 .WithOne()
                 .HasForeignKey<ChildNN>(e => e.ParentId);
+
+            modelBuilder.Entity<FixupBlog>();
         }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                .UseInMemoryDatabase(nameof(FixupContext));
+                .UseInMemoryDatabase(_databaseName ?? nameof(FixupContext));
     }
 
     private void AssertFixup(DbContext context, Action asserts)
@@ -3067,7 +3072,7 @@ public class FixupTest
     }
 
     [ConditionalFact] // Issue #21949
-    public void Detatching_principal_tracks_unreferenced_foreign_keys()
+    public void Detaching_principal_tracks_unreferenced_foreign_keys()
     {
         using var context = new DetachingContext();
 
@@ -3089,6 +3094,7 @@ public class FixupTest
         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
 
         principal.Id = 0; // So it re-adds
+        dependent.Principal = principal;
 
         context.Add(principal);
         Assert.NotEqual(principalId, principal.Id);
@@ -3098,5 +3104,479 @@ public class FixupTest
 
         Assert.Equal(EntityState.Added, context.Entry(principal).State);
         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
+    }
+
+    public class FixupBlog
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public FixupSite FixupSite { get; set; }
+        public List<FixupPost> Posts { get; } = new();
+    }
+
+    public class FixupSite
+    {
+        public int Id { get; set; }
+
+        public int? FixupBlogId { get; set; }
+        public FixupBlog FixupBlog { get; set; }
+    }
+
+    public class FixupPost
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+
+        public int? FixupBlogId { get; set; }
+        public FixupBlog FixupBlog { get; set; }
+        public List<FixupTag> Tags { get; } = new();
+    }
+
+    public class FixupTag
+    {
+        public int Id { get; set; }
+        public string Content { get; set; }
+
+        public List<FixupPost> Posts { get; } = new();
+    }
+
+    [ConditionalFact]
+    public void Detaching_required_one_to_many_dependent_does_not_clear_navigation_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            var principal = context.Add(new Category()).Entity;
+            principal.AddProduct(new Product());
+            context.ChangeTracker.DetectChanges();
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<Category>().Include(e => e.Products).Single();
+            var dependent = principal.Products.First();
+
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.Products.FirstOrDefault());
+            Assert.Same(principal, dependent.Category);
+            Assert.Equal(principal.Id, dependent.CategoryId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Products.FirstOrDefault());
+            Assert.Same(principal, dependent.Category);
+            Assert.Equal(principal.Id, dependent.CategoryId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_required_one_to_many_principal_does_not_clear_navigation_to_deleted_dependent()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            var principal = context.Add(new Category()).Entity;
+            principal.AddProduct(new Product());
+            context.ChangeTracker.DetectChanges();
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<Category>().Include(e => e.Products).Single();
+            var dependent = principal.Products.First();
+
+            context.Remove(dependent);
+
+            Assert.Same(dependent, principal.Products.FirstOrDefault());
+            Assert.Same(principal, dependent.Category);
+            Assert.Equal(principal.Id, dependent.CategoryId);
+            Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(principal).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Products.FirstOrDefault());
+            Assert.Same(principal, dependent.Category);
+            Assert.Equal(principal.Id, dependent.CategoryId);
+            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_required_one_to_one_dependent_does_not_clear_navigation_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            var principal = context.Add(new Parent(1)).Entity;
+            principal.SetChild(new Child(2, 1));
+            context.ChangeTracker.DetectChanges();
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<Parent>().Include(e => e.Child).Single();
+            var dependent = principal.Child;
+
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.Child);
+            Assert.Same(principal, dependent.Parent);
+            Assert.Equal(principal.Id, dependent.ParentId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Child);
+            Assert.Same(principal, dependent.Parent);
+            Assert.Equal(principal.Id, dependent.ParentId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_required_one_to_one_principal_does_not_clear_navigation_to_deleted_dependent()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            var principal = context.Add(new Parent(1)).Entity;
+            principal.SetChild(new Child(2, 1));
+            context.ChangeTracker.DetectChanges();
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<Parent>().Include(e => e.Child).Single();
+            var dependent = principal.Child;
+
+            context.Remove(dependent);
+
+            Assert.Same(dependent, principal.Child);
+            Assert.Same(principal, dependent.Parent);
+            Assert.Equal(principal.Id, dependent.ParentId);
+            Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(principal).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Child);
+            Assert.Same(principal, dependent.Parent);
+            Assert.Equal(principal.Id, dependent.ParentId);
+            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_many_dependent_does_not_clear_navigation_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.Posts).Single();
+            var dependent = principal.Posts.First();
+
+            context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_many_dependent_does_not_unclear_navigation_fixup_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.Posts).Single();
+            var dependent = principal.Posts.First();
+
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Null(dependent.FixupBlog);
+            Assert.Null(dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Modified, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Null(dependent.FixupBlog);
+            Assert.Null(dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_many_principal_does_not_clear_navigation_to_deleted_dependent()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.Posts).Single();
+            var dependent = principal.Posts.First();
+
+            context.Remove(dependent);
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(principal).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.Posts.FirstOrDefault());
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_one_dependent_does_not_clear_navigation_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.FixupSite).Single();
+            var dependent = principal.FixupSite;
+
+            context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_one_dependent_does_not_unclear_navigation_fixup_to_deleted_principal()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.FixupSite).Single();
+            var dependent = principal.FixupSite;
+
+            context.Remove(principal);
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Null(dependent.FixupBlog);
+            Assert.Null(dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Modified, context.Entry(dependent).State);
+
+            context.Entry(dependent).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Null(dependent.FixupBlog);
+            Assert.Null(dependent.FixupBlogId);
+            Assert.Equal(EntityState.Deleted, context.Entry(principal).State);
+            Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_optional_one_to_one_principal_does_not_clear_navigation_to_deleted_dependent()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var principal = context.Set<FixupBlog>().Include(e => e.FixupSite).Single();
+            var dependent = principal.FixupSite;
+
+            context.Remove(dependent);
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Unchanged, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+            context.Entry(principal).State = EntityState.Detached;
+
+            Assert.Same(dependent, principal.FixupSite);
+            Assert.Same(principal, dependent.FixupBlog);
+            Assert.Equal(principal.Id, dependent.FixupBlogId);
+            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+        }
+    }
+
+    [ConditionalFact]
+    public void Detaching_other_side_of_deleted_many_to_many_does_not_clear_navigation()
+    {
+        var databaseName = Guid.NewGuid().ToString();
+        using (var context = new FixupContext(databaseName))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new FixupBlog
+                {
+                    FixupSite = new(),
+                    Posts = {new() { Tags = { new() }}}
+                });
+            context.SaveChanges();
+        }
+
+        using (var context = new FixupContext(databaseName))
+        {
+            var post = context.Set<FixupPost>().Include(e => e.Tags).Single();
+            var tag = post.Tags.Single();
+
+            context.Remove(tag);
+
+            Assert.Same(tag, post.Tags.FirstOrDefault());
+            Assert.Same(post, tag.Posts.FirstOrDefault());
+            Assert.Equal(EntityState.Deleted, context.Entry(tag).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(post).State);
+
+            context.Entry(post).State = EntityState.Detached;
+
+            Assert.Same(tag, post.Tags.FirstOrDefault());
+            Assert.Same(post, tag.Posts.FirstOrDefault());
+            Assert.Equal(EntityState.Deleted, context.Entry(tag).State);
+            Assert.Equal(EntityState.Detached, context.Entry(post).State);
+        }
     }
 }

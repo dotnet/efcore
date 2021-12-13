@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="System.Collections.Immutable" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="7.0.0-alpha.1.21562.1">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="7.0.0-alpha.1.21606.1">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>35704e44e5d1b158f21512b1c1081a0e025bde3f</Sha>
+      <Sha>8929153f16c841cfd6269f511d4c0b65ba5d1965</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
-    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="7.0.0-beta.21559.3">
+    <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="7.0.0-beta.21609.2">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>fecf65bedcee9036b8ba9d8d7feef5413f294914</Sha>
+      <Sha>05a63c6bae31f97583d35f5a16e1bd8f41a1d094</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="7.0.0-beta.21559.3">
+    <Dependency Name="Microsoft.DotNet.Helix.Sdk" Version="7.0.0-beta.21609.2">
       <Uri>https://github.com/dotnet/arcade</Uri>
-      <Sha>fecf65bedcee9036b8ba9d8d7feef5413f294914</Sha>
+      <Sha>05a63c6bae31f97583d35f5a16e1bd8f41a1d094</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>

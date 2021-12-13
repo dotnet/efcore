@@ -50,8 +50,8 @@ public partial class NavigationExpandingExpressionVisitor
         {
             switch (expression)
             {
-                case NavigationExpansionExpression _:
-                case NavigationTreeExpression _:
+                case NavigationExpansionExpression:
+                case NavigationTreeExpression:
                     return expression;
 
                 default:
@@ -197,7 +197,7 @@ public partial class NavigationExpandingExpressionVisitor
                 || navigation.IsOnDependent)
             {
                 // First pseudo-navigation is a reference
-                // ExpandFK handles both collection & reference navigation for second psuedo-navigation
+                // ExpandFK handles both collection & reference navigation for second pseudo-navigation
                 // Value known to be non-null
                 secondaryExpansion = ExpandForeignKey(
                     primaryExpansion, UnwrapEntityReference(primaryExpansion)!, inverseNavigation.ForeignKey,
@@ -206,11 +206,11 @@ public partial class NavigationExpandingExpressionVisitor
             else
             {
                 var secondaryForeignKey = inverseNavigation.ForeignKey;
-                // First psuedo-navigation is a collection
+                // First pseudo-navigation is a collection
                 if (secondaryForeignKey.IsUnique
                     || !inverseNavigation.IsOnDependent)
                 {
-                    // Second psuedo-navigation is a reference
+                    // Second pseudo-navigation is a reference
                     var secondTargetType = navigation.TargetEntityType;
                     // we can use the entity reference here. If the join entity wasn't temporal,
                     // the query root creator would have thrown the exception when it was being created
@@ -224,13 +224,13 @@ public partial class NavigationExpandingExpressionVisitor
                     }
 
                     var sourceElementType = primaryExpansion.Type.GetSequenceType();
-                    var outerKeyparameter = Expression.Parameter(sourceElementType);
-                    var outerKey = outerKeyparameter.CreateKeyValuesExpression(
+                    var outerKeyParameter = Expression.Parameter(sourceElementType);
+                    var outerKey = outerKeyParameter.CreateKeyValuesExpression(
                         !inverseNavigation.IsOnDependent
                             ? secondaryForeignKey.Properties
                             : secondaryForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
-                    var outerKeySelector = Expression.Lambda(outerKey, outerKeyparameter);
+                    var outerKeySelector = Expression.Lambda(outerKey, outerKeyParameter);
 
                     var innerSourceElementType = innerSource.Type.GetSequenceType();
                     var innerKeyParameter = Expression.Parameter(innerSourceElementType);
@@ -241,7 +241,7 @@ public partial class NavigationExpandingExpressionVisitor
                         makeNullable: true);
                     var innerKeySelector = Expression.Lambda(innerKey, innerKeyParameter);
 
-                    var resultSelector = Expression.Lambda(innerKeyParameter, outerKeyparameter, innerKeyParameter);
+                    var resultSelector = Expression.Lambda(innerKeyParameter, outerKeyParameter, innerKeyParameter);
 
                     var innerJoin = !inverseNavigation.IsOnDependent && secondaryForeignKey.IsRequired;
 
@@ -260,7 +260,7 @@ public partial class NavigationExpandingExpressionVisitor
                 }
                 else
                 {
-                    // Second psuedo-navigation is a collection
+                    // Second pseudo-navigation is a collection
                     var secondTargetType = navigation.TargetEntityType;
                     var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.QueryRootExpression);
                     var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
@@ -272,8 +272,8 @@ public partial class NavigationExpandingExpressionVisitor
                     }
 
                     var sourceElementType = primaryExpansion.Type.GetSequenceType();
-                    var outersourceParameter = Expression.Parameter(sourceElementType);
-                    var outerKey = outersourceParameter.CreateKeyValuesExpression(
+                    var outerSourceParameter = Expression.Parameter(sourceElementType);
+                    var outerKey = outerSourceParameter.CreateKeyValuesExpression(
                         !inverseNavigation.IsOnDependent
                             ? secondaryForeignKey.Properties
                             : secondaryForeignKey.PrincipalKey.Properties,
@@ -299,7 +299,7 @@ public partial class NavigationExpandingExpressionVisitor
                             QueryableMethods.Where.MakeGenericMethod(innerSourceElementType),
                             innerSource,
                             Expression.Quote(Expression.Lambda(Expression.Equal(outerKey, innerKey), innerSourceParameter))),
-                        outersourceParameter);
+                        outerSourceParameter);
 
                     secondaryExpansion = Expression.Call(
                         QueryableMethods.SelectManyWithoutCollectionSelector.MakeGenericMethod(
@@ -328,10 +328,7 @@ public partial class NavigationExpandingExpressionVisitor
                     && entityReference.IncludePaths.TryGetValue(navigation, out var pendingIncludeTree))
                 {
                     var cachedEntityReference = UnwrapEntityReference(expansion);
-                    if (cachedEntityReference != null)
-                    {
-                        cachedEntityReference.IncludePaths.Merge(pendingIncludeTree);
-                    }
+                    cachedEntityReference?.IncludePaths.Merge(pendingIncludeTree);
                 }
 
                 return expansion;
@@ -554,8 +551,8 @@ public partial class NavigationExpandingExpressionVisitor
                 case OwnedNavigationReference ownedNavigationReference:
                     return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
 
-                case MaterializeCollectionNavigationExpression _:
-                case IncludeExpression _:
+                case MaterializeCollectionNavigationExpression:
+                case IncludeExpression:
                     return extensionExpression;
             }
 
@@ -618,7 +615,7 @@ public partial class NavigationExpandingExpressionVisitor
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
             => typeBinaryExpression;
 
-        private IEntityType? TryGetEntityType(Expression expression)
+        private static IEntityType? TryGetEntityType(Expression expression)
         {
             var innerExpression = expression.UnwrapTypeConversion(out var convertedType);
             if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
@@ -699,7 +696,7 @@ public partial class NavigationExpandingExpressionVisitor
             return ExpandIncludesHelper(root, entityReference, previousNavigation: null);
         }
 
-        private void VerifyNoCycles(IncludeTreeNode includeTreeNode)
+        private static void VerifyNoCycles(IncludeTreeNode includeTreeNode)
         {
             foreach (var keyValuePair in includeTreeNode)
             {
@@ -747,7 +744,7 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     INavigation navigation => ExpandNavigation(convertedRoot, entityReference, navigation, converted),
                     ISkipNavigation skipNavigation => ExpandSkipNavigation(convertedRoot, entityReference, skipNavigation, converted),
-                    _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType())),
+                    _ => throw new InvalidOperationException(CoreStrings.UnhandledNavigationBase(navigationBase.GetType()))
                 };
 
                 _logger.NavigationBaseIncluded(navigationBase);
@@ -1299,7 +1296,7 @@ public partial class NavigationExpandingExpressionVisitor
             return false;
         }
 
-        private Expression ProcessNavigationPath(Expression expression)
+        private static Expression ProcessNavigationPath(Expression expression)
         {
             switch (expression)
             {
@@ -1319,7 +1316,7 @@ public partial class NavigationExpandingExpressionVisitor
                     return expression;
 
                 case MethodCallExpression methodCallExpression
-                    when methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName):
+                    when methodCallExpression.TryGetEFPropertyArguments(out _, out _):
                     return expression;
 
                 default:

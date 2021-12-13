@@ -217,7 +217,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeEntityType Create(IEntityType entityType, RuntimeModel model)
+    private static RuntimeEntityType Create(IEntityType entityType, RuntimeModel model)
         => model.AddEntityType(
             entityType.Name,
             entityType.ClrType,
@@ -229,7 +229,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             entityType.IsPropertyBag,
             entityType.GetDiscriminatorValue());
 
-    private ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
+    private static ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
         => parameterBinding.With(
             parameterBinding.ConsumedProperties.Select(
                 property =>
@@ -238,7 +238,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                         ?? entityType.FindNavigation(property.Name)
                         ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
 
-    private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeEntityType entityType)
+    private static InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeEntityType entityType)
         => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
 
     /// <summary>
@@ -285,7 +285,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeTypeMappingConfiguration Create(ITypeMappingConfiguration typeConfiguration, RuntimeModel model)
+    private static RuntimeTypeMappingConfiguration Create(ITypeMappingConfiguration typeConfiguration, RuntimeModel model)
     {
         var valueConverterType = (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType];
         var valueConverter = valueConverterType == null
@@ -327,7 +327,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeProperty Create(IProperty property, RuntimeEntityType runtimeEntityType)
+    private static RuntimeProperty Create(IProperty property, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddProperty(
             property.Name,
             property.ClrType,
@@ -375,7 +375,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeServiceProperty Create(IServiceProperty property, RuntimeEntityType runtimeEntityType)
+    private static RuntimeServiceProperty Create(IServiceProperty property, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddServiceProperty(
             property.Name,
             property.PropertyInfo,
@@ -407,7 +407,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeKey Create(IKey key, RuntimeEntityType runtimeEntityType)
+    private static RuntimeKey Create(IKey key, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddKey(runtimeEntityType.FindProperties(key.Properties.Select(p => p.Name))!);
 
     /// <summary>
@@ -435,7 +435,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeIndex Create(IIndex index, RuntimeEntityType runtimeEntityType)
+    private static RuntimeIndex Create(IIndex index, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddIndex(
             runtimeEntityType.FindProperties(index.Properties.Select(p => p.Name))!,
             index.Name,
@@ -505,11 +505,11 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeNavigation Create(INavigation navigation, RuntimeForeignKey runtimeForeigKey)
-        => (navigation.IsOnDependent ? runtimeForeigKey.DeclaringEntityType : runtimeForeigKey.PrincipalEntityType)
+    private static RuntimeNavigation Create(INavigation navigation, RuntimeForeignKey runtimeForeignKey)
+        => (navigation.IsOnDependent ? runtimeForeignKey.DeclaringEntityType : runtimeForeignKey.PrincipalEntityType)
             .AddNavigation(
                 navigation.Name,
-                runtimeForeigKey,
+                runtimeForeignKey,
                 navigation.IsOnDependent,
                 navigation.ClrType,
                 navigation.PropertyInfo,

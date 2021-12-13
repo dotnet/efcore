@@ -157,7 +157,6 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
 
             var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
-            var mappingCount = mappings.Count;
             IModificationCommand? firstCommands = null;
             foreach (var mapping in mappings)
             {
@@ -167,10 +166,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var isMainEntry = true;
                 if (table.IsShared)
                 {
-                    if (sharedTablesCommandsMap == null)
-                    {
-                        sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
-                    }
+                    sharedTablesCommandsMap ??= new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
 
                     var tableKey = (table.Name, table.Schema);
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
@@ -218,7 +214,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         return commands;
     }
 
-    private void AddUnchangedSharingEntries(
+    private static void AddUnchangedSharingEntries(
         IEnumerable<SharedTableEntryMap<IModificationCommand>> sharedTablesCommands,
         IList<IUpdateEntry> entries)
     {

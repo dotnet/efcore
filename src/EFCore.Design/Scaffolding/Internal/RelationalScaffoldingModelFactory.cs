@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -32,7 +33,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     private readonly IPluralizer _pluralizer;
     private readonly ICSharpUtilities _cSharpUtilities;
     private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
-    private readonly LoggingDefinitions _loggingDefinitions;
     private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
     /// <summary>
@@ -47,7 +47,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         IPluralizer pluralizer,
         ICSharpUtilities cSharpUtilities,
         IScaffoldingTypeMapper scaffoldingTypeMapper,
-        LoggingDefinitions loggingDefinitions,
         IModelRuntimeInitializer modelRuntimeInitializer)
     {
         _reporter = reporter;
@@ -55,7 +54,6 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         _pluralizer = pluralizer;
         _cSharpUtilities = cSharpUtilities;
         _scaffoldingTypeMapper = scaffoldingTypeMapper;
-        _loggingDefinitions = loggingDefinitions;
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 
@@ -793,9 +791,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         var principalKey = principalEntityType.FindKey(principalProperties);
         if (principalKey == null)
         {
-            var index = principalEntityType.GetIndexes()
-                .Where(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique)
-                .FirstOrDefault();
+            var index = principalEntityType
+                .GetIndexes()
+                .FirstOrDefault(i => i.Properties.SequenceEqual(principalProperties) && i.IsUnique);
             if (index != null)
             {
                 // ensure all principal properties are non-nullable even if the columns

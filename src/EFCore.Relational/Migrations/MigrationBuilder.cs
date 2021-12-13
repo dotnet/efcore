@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 /// <summary>
-///     A builder providing a fluentish API for building <see cref="MigrationOperation" />s.
+///     A builder providing a fluent-like API for building <see cref="MigrationOperation" />s.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
@@ -837,10 +837,7 @@ public class MigrationBuilder
         foreach (var property in typeof(TColumns).GetTypeInfo().DeclaredProperties)
         {
             var addColumnOperation = ((IInfrastructure<AddColumnOperation>)property.GetMethod!.Invoke(columnsObject, null)!).Instance;
-            if (addColumnOperation.Name == null)
-            {
-                addColumnOperation.Name = property.Name;
-            }
+            addColumnOperation.Name ??= property.Name;
             // TODO: addColumnOperation.Validate();
 
             columnMap.Add(property, addColumnOperation);

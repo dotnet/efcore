@@ -39,7 +39,7 @@ public class TableValuedFunctionToQueryRootConvertingExpressionVisitor : Express
             : base.VisitMethodCall(methodCallExpression);
     }
 
-    private Expression CreateTableValuedFunctionQueryRootExpression(
+    private static Expression CreateTableValuedFunctionQueryRootExpression(
             IStoreFunction function,
             IReadOnlyCollection<Expression> arguments)
         // See issue #19970

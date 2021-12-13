@@ -38,7 +38,7 @@ public class DateTimeToStringConverter : StringDateTimeConverter<DateTime, strin
         : base(
             ToString(),
             ToDateTime(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -46,5 +46,5 @@ public class DateTimeToStringConverter : StringDateTimeConverter<DateTime, strin
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(DateTime), typeof(string), i => new DateTimeToStringConverter(i.MappingHints), _defaultHints);
+        = new(typeof(DateTime), typeof(string), i => new DateTimeToStringConverter(i.MappingHints), DefaultHints);
 }

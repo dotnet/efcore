@@ -29,7 +29,7 @@ public interface ITable : ITableBase
     bool IsExcludedFromMigrations { get; }
 
     /// <summary>
-    ///     Gets the foreing key constraints for this table.
+    ///     Gets the foreign key constraints for this table.
     /// </summary>
     IEnumerable<IForeignKeyConstraint> ForeignKeyConstraints { get; }
 

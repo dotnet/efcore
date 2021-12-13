@@ -332,7 +332,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
                 Current = this;
                 var result = await operation(Dependencies.CurrentContext.Context, state, cancellationToken)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(true);
                 Current = null;
                 return result;
             }
@@ -346,7 +346,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
                     && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                 {
                     var result = await ExecuteImplementationAsync(verifySucceeded, null, state, cancellationToken)
-                        .ConfigureAwait(false);
+                        .ConfigureAwait(true);
                     if (result.IsSuccessful)
                     {
                         return result;
@@ -370,7 +370,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
 
                 OnRetry();
 
-                await Task.Delay(delay.Value, cancellationToken).ConfigureAwait(false);
+                await Task.Delay(delay.Value, cancellationToken).ConfigureAwait(true);
             }
         }
     }
@@ -490,8 +490,17 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     public static TResult CallOnWrappedException<TResult>(
         Exception exception,
         Func<Exception, TResult> exceptionHandler)
-        => exception is DbUpdateException dbUpdateException
-            && dbUpdateException.InnerException != null
-                ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
-                : exceptionHandler(exception);
+    {
+        while (true)
+        {
+            if (exception is DbUpdateException dbUpdateException
+                && dbUpdateException.InnerException != null)
+            {
+                exception = dbUpdateException.InnerException;
+                continue;
+            }
+
+            return exceptionHandler(exception);
+        }
+    }
 }

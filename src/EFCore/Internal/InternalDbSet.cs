@@ -558,7 +558,7 @@ public class InternalDbSet<TEntity> :
                 entityState,
                 entityState,
                 forceStateWhenUnknownKey: true,
-                cancellationToken: cancellationToken)
+                cancellationToken)
             : entry.SetEntityStateAsync(
                 entityState,
                 acceptChanges: true,

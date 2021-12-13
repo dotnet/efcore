@@ -54,6 +54,6 @@ public interface ISkipNavigation : IReadOnlySkipNavigation, INavigationBase
     new ISkipNavigation Inverse
     {
         [DebuggerStepThrough]
-        get => (ISkipNavigation)((IReadOnlySkipNavigation)this).Inverse!;
+        get => (ISkipNavigation)((IReadOnlySkipNavigation)this).Inverse;
     }
 }

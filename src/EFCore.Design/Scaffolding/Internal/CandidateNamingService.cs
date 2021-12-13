@@ -21,7 +21,7 @@ public class CandidateNamingService : ICandidateNamingService
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string GenerateCandidateIdentifier(DatabaseTable originalTable)
-        => GenerateCandidateIdentifier(originalTable.Name!);
+        => GenerateCandidateIdentifier(originalTable.Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,7 +30,7 @@ public class CandidateNamingService : ICandidateNamingService
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string GenerateCandidateIdentifier(DatabaseColumn originalColumn)
-        => GenerateCandidateIdentifier(originalColumn.Name!);
+        => GenerateCandidateIdentifier(originalColumn.Name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,23 +99,17 @@ public class CandidateNamingService : ICandidateNamingService
 
     private static string FindCandidateNavigationName(IEnumerable<IReadOnlyProperty> properties)
     {
-        if (!properties.Any())
+        var count = properties.Count();
+        if (count == 0)
         {
             return string.Empty;
         }
 
-        var candidateName = string.Empty;
         var firstProperty = properties.First();
-        if (properties.Count() == 1)
-        {
-            candidateName = firstProperty.Name;
-        }
-        else
-        {
-            candidateName = FindCommonPrefix(firstProperty.Name, properties.Select(p => p.Name));
-        }
-
-        return StripId(candidateName);
+        return StripId(
+            count == 1
+                ? firstProperty.Name
+                : FindCommonPrefix(firstProperty.Name, properties.Select(p => p.Name)));
     }
 
     private static string FindCommonPrefix(string firstName, IEnumerable<string> propertyNames)
@@ -128,14 +122,14 @@ public class CandidateNamingService : ICandidateNamingService
                 if (s.Length <= prefixLength
                     || s[prefixLength] != c)
                 {
-                    return firstName.Substring(0, prefixLength);
+                    return firstName[..prefixLength];
                 }
             }
 
             prefixLength++;
         }
 
-        return firstName.Substring(0, prefixLength);
+        return firstName[..prefixLength];
     }
 
     private static string StripId(string commonPrefix)
@@ -156,7 +150,7 @@ public class CandidateNamingService : ICandidateNamingService
         }
 
         return i != 0
-            ? commonPrefix.Substring(0, i + 1)
+            ? commonPrefix[..(i + 1)]
             : commonPrefix;
     }
 }

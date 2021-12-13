@@ -116,7 +116,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                     ? new[] { false }
                     : functionName == "STRelate"
                         ? new[] { true, false }
-                        : finalArguments.Select(a => true).ToArray();
+                        : finalArguments.Select(_ => true).ToArray();
 
                 return _sqlExpressionFactory.Function(
                     instance,
@@ -172,7 +172,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                         finalArguments,
                         nullable: true,
                         instancePropagatesNullability: true,
-                        argumentsPropagateNullability: finalArguments.Select(a => true),
+                        argumentsPropagateNullability: finalArguments.Select(_ => true),
                         typeof(double)),
                     typeMappedArguments[1]);
             }

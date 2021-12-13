@@ -54,6 +54,6 @@ public class ContainsTranslator : IMethodCallTranslator
         return null;
     }
 
-    private bool ValidateValues(SqlExpression values)
+    private static bool ValidateValues(SqlExpression values)
         => values is SqlConstantExpression || values is SqlParameterExpression;
 }

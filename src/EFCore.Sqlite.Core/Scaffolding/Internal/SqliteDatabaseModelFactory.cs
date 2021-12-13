@@ -326,7 +326,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
         {
             var columnName = reader.GetString(0);
             var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
             Check.DebugAssert(column != null, "column is null.");
 
             primaryKey.Columns.Add(column);
@@ -359,7 +359,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
         var columnName = reader.GetString(0);
         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-            ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+            ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
         Check.DebugAssert(column != null, "column is null.");
 
         Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
@@ -417,7 +417,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                     var columnName = reader2.GetString(0);
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     uniqueConstraint.Columns.Add(column);
@@ -473,7 +473,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                 {
                     var name = reader2.GetString(0);
                     var column = table.Columns.FirstOrDefault(c => c.Name == name)
-                        ?? table.Columns.FirstOrDefault(c => c.Name!.Equals(name, StringComparison.Ordinal));
+                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
                     Check.DebugAssert(column != null, "column is null.");
 
                     index.Columns.Add(column);
@@ -506,7 +506,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
             var onDelete = reader1.GetString(2);
             var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
                 ?? tables.FirstOrDefault(
-                    t => t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                    t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
             _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
 
@@ -551,7 +551,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                     var columnName = reader2.GetString(1);
                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                         ?? table.Columns.FirstOrDefault(
-                            c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Check.DebugAssert(column != null, "column is null.");
 
                     var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
@@ -561,7 +561,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                         principalColumn =
                             foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
                             ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
-                                c => c.Name!.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                     }
                     else if (principalTable?.PrimaryKey != null)
                     {

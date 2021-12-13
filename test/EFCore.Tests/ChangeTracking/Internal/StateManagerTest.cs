@@ -627,15 +627,14 @@ public class StateManagerTest
         public EntityState ChangingState;
         public EntityState ChangedState;
 
-        public void BeginAttachGraph()
+        public bool BeginDelayedFixup()
+            => false;
+
+        public void CompleteDelayedFixup()
         {
         }
 
-        public void CompleteAttachGraph()
-        {
-        }
-
-        public void AbortAttachGraph()
+        public void AbortDelayedFixup()
         {
         }
 

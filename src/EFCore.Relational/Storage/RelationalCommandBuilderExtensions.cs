@@ -93,47 +93,12 @@ public static class RelationalCommandBuilderExtensions
     ///     The name to be used for the parameter when the command is executed against the database.
     /// </param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete("Use overload which takes TypeMapping argument.")]
     public static IRelationalCommandBuilder AddParameter(
         this IRelationalCommandBuilder commandBuilder,
         string invariantName,
         string name)
-        => commandBuilder.AddParameter(
-            new DynamicRelationalParameter(
-                invariantName,
-                name,
-                commandBuilder.TypeMappingSource));
-
-    /// <summary>
-    ///     Adds a parameter.
-    /// </summary>
-    /// <param name="commandBuilder">The command builder.</param>
-    /// <param name="invariantName">
-    ///     The key that identifies this parameter. Note that <see cref="IRelationalParameter" /> just represents a
-    ///     placeholder for a parameter and not the actual value. This is because the same command can be
-    ///     reused multiple times with different parameter values.
-    /// </param>
-    /// <param name="name">
-    ///     The name to be used for the parameter when the command is executed against the database.
-    /// </param>
-    /// <param name="typeMapping">
-    ///     The type mapping for the property that values for this parameter will come from.
-    /// </param>
-    /// <param name="nullable">
-    ///     A value indicating whether the parameter can contain null values.
-    /// </param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static IRelationalCommandBuilder AddParameter(
-        this IRelationalCommandBuilder commandBuilder,
-        string invariantName,
-        string name,
-        RelationalTypeMapping typeMapping,
-        bool nullable)
-        => commandBuilder.AddParameter(
-            new TypeMappedRelationalParameter(
-                invariantName,
-                name,
-                typeMapping,
-                nullable));
+        => throw new InvalidOperationException("Use overload which takes TypeMapping argument.");
 
     /// <summary>
     ///     Adds a parameter.

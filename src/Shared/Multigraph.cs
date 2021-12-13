@@ -80,51 +80,6 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         predecessors.Add(from);
     }
 
-    public void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> newEdges)
-    {
-#if DEBUG
-        if (!_vertices.Contains(from))
-        {
-            throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(from));
-        }
-
-        if (!_vertices.Contains(to))
-        {
-            throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
-        }
-#endif
-
-        if (!_successorMap.TryGetValue(from, out var successorEdges))
-        {
-            successorEdges = new Dictionary<TVertex, object?>();
-            _successorMap.Add(from, successorEdges);
-        }
-
-        if (successorEdges.TryGetValue(to, out var edges))
-        {
-            if (edges is not List<TEdge> edgeList)
-            {
-                edgeList = new List<TEdge> { (TEdge)edges! };
-                successorEdges[to] = edgeList;
-            }
-
-            edgeList.AddRange(newEdges);
-        }
-        else
-        {
-            var edgeList = newEdges.ToList();
-            successorEdges.Add(to, edgeList);
-        }
-
-        if (!_predecessorMap.TryGetValue(to, out var predecessors))
-        {
-            predecessors = new HashSet<TVertex>();
-            _predecessorMap.Add(to, predecessors);
-        }
-
-        predecessors.Add(from);
-    }
-
     public override void Clear()
     {
         _vertices.Clear();

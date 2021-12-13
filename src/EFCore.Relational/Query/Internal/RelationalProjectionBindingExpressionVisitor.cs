@@ -82,7 +82,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         _selectExpression = null!;
         _projectionMembers.Clear();
 
-        result = MatchTypes(result!, expression.Type);
+        result = MatchTypes(result, expression.Type);
 
         return result;
     }
@@ -118,7 +118,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             {
                 switch (expression)
                 {
-                    case ConstantExpression _:
+                    case ConstantExpression:
                         return expression;
 
                     case ParameterExpression parameterExpression:
@@ -198,12 +198,9 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 }
 
                 var translation = _sqlTranslator.Translate(expression);
-                if (translation != null)
-                {
-                    return AddClientProjection(translation, expression.Type.MakeNullable());
-                }
-
-                return base.Visit(expression);
+                return translation != null
+                    ? AddClientProjection(translation, expression.Type.MakeNullable())
+                    : base.Visit(expression);
             }
             else
             {
@@ -309,7 +306,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
-            case IncludeExpression _:
+            case IncludeExpression:
                 return _indexBasedBinding ? base.VisitExtension(extensionExpression) : QueryCompilationContext.NotTranslatedExpression;
 
             case CollectionResultExpression collectionResultExpression:
@@ -344,7 +341,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override ElementInit VisitElementInit(ElementInit elementInit)
-        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e)!, e.Type)));
+        => elementInit.Update(elementInit.Arguments.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -457,7 +454,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
         {
             var argument = methodCallExpression.Arguments[i];
-            arguments[i] = MatchTypes(Visit(argument)!, argument.Type);
+            arguments[i] = MatchTypes(Visit(argument), argument.Type);
         }
 
         Expression updatedMethodCallExpression = methodCallExpression.Update(
@@ -524,7 +521,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 _projectionMembers.Pop();
             }
 
-            newArguments[i] = MatchTypes(visitedArgument!, argument.Type);
+            newArguments[i] = MatchTypes(visitedArgument, argument.Type);
         }
 
         return newExpression.Update(newArguments);
@@ -537,7 +534,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e)!, e.Type)));
+        => newArrayExpression.Update(newArrayExpression.Expressions.Select(e => MatchTypes(Visit(e), e.Type)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -547,7 +544,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
-        var operand = Visit(unaryExpression.Operand)!;
+        var operand = Visit(unaryExpression.Operand);
 
         return (unaryExpression.NodeType == ExpressionType.Convert
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked)

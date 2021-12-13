@@ -281,7 +281,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
 
         createTableOperations = (List<CreateTableOperation>)createTableGraph.TopologicalSort(
-            (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
+            (_, createTableOperation, cyclicAddForeignKeyOperations) =>
             {
                 foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                 {
@@ -317,7 +317,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         var newDiffContext = new DiffContext();
         dropTableOperations = (List<DropTableOperation>)dropTableGraph.TopologicalSort(
-            (dropTableOperation, principalDropTableOperation, foreignKeys) =>
+            (_, _, foreignKeys) =>
             {
                 dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
@@ -487,7 +487,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             Add,
             Remove,
-            (s, t, c) => s == t);
+            (s, t, _) => s == t);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -542,7 +542,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             Add,
             Remove,
-            (s, t, c) => string.Equals(
+            (s, t, _) => string.Equals(
                     s.Schema,
                     t.Schema,
                     StringComparison.OrdinalIgnoreCase)
@@ -550,12 +550,12 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     s.Name,
                     t.Name,
                     StringComparison.OrdinalIgnoreCase),
-            (s, t, c) => string.Equals(
+            (s, t, _) => string.Equals(
                 s.Name,
                 t.Name,
                 StringComparison.OrdinalIgnoreCase),
-            (s, t, c) => string.Equals(GetMainType(s).Name, GetMainType(t).Name, StringComparison.OrdinalIgnoreCase),
-            (s, t, c) => s.EntityTypeMappings.Any(
+            (s, t, _) => string.Equals(GetMainType(s).Name, GetMainType(t).Name, StringComparison.OrdinalIgnoreCase),
+            (s, t, _) => s.EntityTypeMappings.Any(
                 se => t.EntityTypeMappings.Any(
                     te => string.Equals(se.EntityType.Name, te.EntityType.Name, StringComparison.OrdinalIgnoreCase))));
 
@@ -884,14 +884,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             (t, c) => Add(t, c),
             Remove,
-            (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+            (s, t, _) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
             (s, t, c) => s.PropertyMappings.Any(
                 sm =>
                     t.PropertyMappings.Any(
                         tm =>
                             string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
                             && EntityTypePathEquals(sm.Property.DeclaringEntityType, tm.Property.DeclaringEntityType, c))),
-            (s, t, c) => s.PropertyMappings.Any(
+            (s, t, _) => s.PropertyMappings.Any(
                 sm =>
                     t.PropertyMappings.Any(
                         tm =>
@@ -903,9 +903,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             tm =>
                                 string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
                                 && EntityTypePathEquals(sm.Property.DeclaringEntityType, tm.Property.DeclaringEntityType, c))),
-            (s, t, c) => ColumnStructureEquals(s, t));
+            (s, t, _) => ColumnStructureEquals(s, t));
 
-    private bool ColumnStructureEquals(IColumn source, IColumn target)
+    private static bool ColumnStructureEquals(IColumn source, IColumn target)
     {
         if (!source.TryGetDefaultValue(out var sourceDefault))
         {
@@ -1553,10 +1553,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             Add,
             Remove,
-            (s, t, c) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
+            (s, t, _) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                 && s.Type == t.Type,
-            (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+            (s, t, _) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                 && s.Type == t.Type);
 
     /// <summary>
@@ -1863,14 +1863,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     }
 
                     var targetTable = diffContext.FindTarget(sourceTable);
-                    var removedMapping = true;
-                    if (targetTable != null
+                    var removedMapping = !(targetTable != null
                         && targetKeyMap.Keys.Any(
                             k => k.Item2 == targetTable
-                                && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable))
-                    {
-                        removedMapping = false;
-                    }
+                                && k.Item1.DeclaringEntityType.GetTableMappings().First().Table == firstTargetTable));
 
                     if (removedMapping
                         && diffContext.FindDrop(sourceTable) == null)
@@ -2320,7 +2316,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         }
     }
 
-    private object? GetValue(IColumnModification columnModification)
+    private static object? GetValue(IColumnModification columnModification)
     {
         var converter = GetValueConverter(columnModification.Property!);
         var value = columnModification.UseCurrentValue
@@ -2454,7 +2450,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 ? Array.CreateInstance(type.GetElementType()!, 0)
                 : type.UnwrapNullableType().GetDefaultValue();
 
-    private ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
+    private static ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
         => property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
     private static IEntityType GetMainType(ITable table)
@@ -2554,12 +2550,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             }
 
             var mainTable = entry.EntityType.GetTableMappings().First(m => m.IsSplitEntityTypePrincipal).Table;
-            if (mainTable != table)
-            {
-                return GetMainEntry(entry, mainTable);
-            }
 
-            return entry;
+            return mainTable != table
+                ? GetMainEntry(entry, mainTable)
+                : entry;
         }
     }
 

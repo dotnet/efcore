@@ -37,7 +37,8 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
 
     /// <summary>
     ///     A value indicating the <see cref="EntityFrameworkCore.QuerySplittingBehavior" /> configured for the query.
-    ///     If no value has been configured then <see cref="QuerySplittingBehavior.SingleQuery" /> will be used.
+    ///     If no value has been configured then <see cref="Microsoft.EntityFrameworkCore.QuerySplittingBehavior.SingleQuery" />
+    ///     will be used.
     /// </summary>
     public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
 }

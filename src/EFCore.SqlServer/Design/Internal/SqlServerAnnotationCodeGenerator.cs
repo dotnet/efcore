@@ -321,7 +321,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             _ => null
         };
 
-    private MethodCallCodeFragment? GenerateValueGenerationStrategy(
+    private static MethodCallCodeFragment? GenerateValueGenerationStrategy(
         IDictionary<string, IAnnotation> annotations,
         IModel model,
         bool onModel)
@@ -374,8 +374,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                     (name, schema) switch
                     {
                         (null, null) => Array.Empty<object>(),
-                        (_, null) => new object[] { name! },
-                        _ => new object[] { name!, schema! }
+                        (_, null) => new object[] { name },
+                        _ => new object[] { name!, schema }
                     });
 
             case SqlServerValueGenerationStrategy.None:

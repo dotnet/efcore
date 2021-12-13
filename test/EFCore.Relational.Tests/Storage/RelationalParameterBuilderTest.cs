@@ -8,30 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalParameterBuilderTest
 {
-    [ConditionalFact]
-    public void Can_add_dynamic_parameter()
-    {
-        var typeMapper = new TestRelationalTypeMappingSource(
-            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
-        var parameterBuilder = new RelationalCommandBuilder(
-            new RelationalCommandBuilderDependencies(
-                typeMapper));
-
-        parameterBuilder.AddParameter(
-            "InvariantName",
-            "Name");
-
-        Assert.Equal(1, parameterBuilder.Parameters.Count);
-
-        var parameter = parameterBuilder.Parameters[0] as DynamicRelationalParameter;
-
-        Assert.NotNull(parameter);
-        Assert.Equal("InvariantName", parameter.InvariantName);
-        Assert.Equal("Name", parameter.Name);
-    }
-
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]

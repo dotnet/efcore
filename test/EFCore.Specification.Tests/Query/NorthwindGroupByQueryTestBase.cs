@@ -57,6 +57,20 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_Count_with_nulls(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(o => o.City).Select(g => new { City = g.Key, Faxes = g.Select(g2 => g2.Fax).Count() }));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_Property_Select_LongCount_with_nulls(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().GroupBy(o => o.City).Select(g => new { City = g.Key, Faxes = g.Select(g2 => g2.Fax).LongCount() }));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupBy_Property_Select_Max(bool async)
         => AssertQueryScalar(
             async,

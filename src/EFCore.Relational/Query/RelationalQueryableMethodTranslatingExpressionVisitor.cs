@@ -1244,7 +1244,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 ProjectionBindingExpression projectionBindingExpression
                     => (EntityProjectionExpression)_selectExpression.GetProjection(projectionBindingExpression),
                 EntityProjectionExpression entityProjectionExpression => entityProjectionExpression,
-                _ => throw new InvalidOperationException(),
+                _ => throw new InvalidOperationException()
             };
 
         private sealed class DeferredOwnedExpansionExpression : Expression
@@ -1308,8 +1308,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 {
                     DeferredOwnedExpansionExpression doee => UnwrapDeferredEntityProjectionExpression(doee),
                     // For the source entity shaper or owned collection expansion
-                    EntityShaperExpression _ or ShapedQueryExpression _ => expression,
-                    _ => base.Visit(expression),
+                    EntityShaperExpression or ShapedQueryExpression => expression,
+                    _ => base.Visit(expression)
                 };
 
             public EntityShaperExpression UnwrapDeferredEntityProjectionExpression(DeferredOwnedExpansionExpression doee)
@@ -1365,7 +1365,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
     }
 
-    private Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
+    private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
     {
         switch (shaper1)
         {

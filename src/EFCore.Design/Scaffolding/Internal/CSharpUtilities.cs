@@ -136,7 +136,7 @@ public class CSharpUtilities : ICSharpUtilities
     {
         var proposedIdentifier =
             identifier.Length > 1 && identifier[0] == '@'
-                ? "@" + _invalidCharsRegex.Replace(identifier.Substring(1), "_")
+                ? "@" + _invalidCharsRegex.Replace(identifier[1..], "_")
                 : _invalidCharsRegex.Replace(identifier, "_");
         if (string.IsNullOrEmpty(proposedIdentifier))
         {
@@ -223,10 +223,8 @@ public class CSharpUtilities : ICSharpUtilities
     {
         if (ch < 'a')
         {
-            return ch < 'A'
-                ? false
-                : ch <= 'Z'
-                || ch == '_';
+            return ch >= 'A' && (ch <= 'Z'
+                || ch == '_');
         }
 
         if (ch <= 'z')
@@ -234,7 +232,7 @@ public class CSharpUtilities : ICSharpUtilities
             return true;
         }
 
-        return ch <= '\u007F' ? false : IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+        return ch > '\u007F' && IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
     }
 
     private static bool IsIdentifierPartCharacter(char ch)

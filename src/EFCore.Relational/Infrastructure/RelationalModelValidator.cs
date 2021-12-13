@@ -1268,7 +1268,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTPTMapping(IEntityType rootEntityType, bool forTables)
     {
         var derivedTypes = new Dictionary<(string, string?), IEntityType>();
         foreach (var entityType in rootEntityType.GetDerivedTypesInclusive())
@@ -1294,7 +1294,7 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
+    private static void ValidateTPHMapping(IEntityType rootEntityType, bool forTables)
     {
         string? firstName = null;
         string? firstSchema = null;
@@ -1383,7 +1383,7 @@ public class RelationalModelValidator : ModelValidator
 
                             break;
                         case StoreObjectType.SqlQuery:
-                            if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetDefaultSqlQueryName() == name))
+                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetDefaultSqlQueryName() != name))
                             {
                                 throw new InvalidOperationException(
                                     RelationalStrings.SqlQueryOverrideMismatch(
@@ -1392,7 +1392,7 @@ public class RelationalModelValidator : ModelValidator
 
                             break;
                         case StoreObjectType.Function:
-                            if (!entityType.GetDerivedTypesInclusive().Any(d => d.GetFunctionName() == name))
+                            if (entityType.GetDerivedTypesInclusive().All(d => d.GetFunctionName() != name))
                             {
                                 throw new InvalidOperationException(
                                     RelationalStrings.FunctionOverrideMismatch(

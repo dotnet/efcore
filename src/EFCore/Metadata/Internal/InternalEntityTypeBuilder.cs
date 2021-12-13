@@ -353,14 +353,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             ? keyToDetach.DeclaringEntityType.GetPrimaryKeyConfigurationSource()
             : null;
 
-        if (entityTypeBuilder == null)
-        {
-            keyToDetach.DeclaringEntityType.RemoveKey(keyToDetach.Properties);
-        }
-        else
-        {
-            entityTypeBuilder.HasNoKey(keyToDetach, keyToDetach.GetConfigurationSource());
-        }
+        entityTypeBuilder.HasNoKey(keyToDetach, keyToDetach.GetConfigurationSource());
 
         return (keyBuilder, primaryKeyConfigurationSource);
     }
@@ -418,10 +411,9 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     public virtual bool CanRemoveKey(ConfigurationSource configurationSource)
         => Metadata.IsKeyless
             || (configurationSource.Overrides(Metadata.GetIsKeylessConfigurationSource())
-                && !Metadata.GetKeys().Any(key => !configurationSource.Overrides(key.GetConfigurationSource()))
-                && !Metadata.GetReferencingForeignKeys().Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource()))
-                && !Metadata.GetForeignKeys()
-                    .Any(fk => !configurationSource.Overrides(fk.GetPrincipalToDependentConfigurationSource())));
+                && Metadata.GetKeys().All(key => configurationSource.Overrides(key.GetConfigurationSource()))
+                && Metadata.GetReferencingForeignKeys().All(fk => configurationSource.Overrides(fk.GetConfigurationSource()))
+                && Metadata.GetForeignKeys().All(fk => configurationSource.Overrides(fk.GetPrincipalToDependentConfigurationSource())));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -545,10 +537,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 return null;
             }
 
-            if (propertyType == null)
-            {
-                propertyType = existingProperty.ClrType;
-            }
+            propertyType ??= existingProperty.ClrType;
 
             propertiesToDetach = new List<Property> { existingProperty };
         }
@@ -581,10 +570,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var derivedProperty = derivedType.FindDeclaredProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    if (propertiesToDetach == null)
-                    {
-                        propertiesToDetach = new List<Property>();
-                    }
+                    propertiesToDetach ??= new List<Property>();
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -703,7 +689,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     m => configurationSource.Overrides(m.GetConfigurationSource())
                         && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
-    private bool IsCompatible(MemberInfo? newMemberInfo, Property existingProperty)
+    private static bool IsCompatible(MemberInfo? newMemberInfo, Property existingProperty)
     {
         if (newMemberInfo == null)
         {
@@ -882,10 +868,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var derivedProperty = derivedType.FindDeclaredServiceProperty(propertyName);
                 if (derivedProperty != null)
                 {
-                    if (propertiesToDetach == null)
-                    {
-                        propertiesToDetach = new List<ServiceProperty>();
-                    }
+                    propertiesToDetach ??= new List<ServiceProperty>();
 
                     propertiesToDetach.Add(derivedProperty);
                 }
@@ -1055,21 +1038,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
-    {
-        if (configurationSource == ConfigurationSource.Explicit)
-        {
-            return true;
-        }
-
-        if (ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() == false
-            || (type?.TryGetSequenceType() is Type sequenceType
-                && ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() == false))
-        {
-            return false;
-        }
-
-        return true;
-    }
+        => configurationSource == ConfigurationSource.Explicit
+            || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
+            && (type?.TryGetSequenceType() is not Type sequenceType
+                || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1577,10 +1549,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             }
                         }
 
-                        if (relationshipsToBeDetached == null)
-                        {
-                            relationshipsToBeDetached = new HashSet<ForeignKey>();
-                        }
+                        relationshipsToBeDetached ??= new HashSet<ForeignKey>();
 
                         relationshipsToBeDetached.Add(referencingForeignKey);
                     }
@@ -1698,10 +1667,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             continue;
                         }
 
-                        if (relationshipsToBeDetached == null)
-                        {
-                            relationshipsToBeDetached = new List<ForeignKey>();
-                        }
+                        relationshipsToBeDetached ??= new List<ForeignKey>();
 
                         relationshipsToBeDetached.Add(foreignKey);
                     }
@@ -1719,10 +1685,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         {
                             if (Metadata.IsAssignableFrom(referencingForeignKey.PrincipalEntityType))
                             {
-                                if (relationshipsToBeDetached == null)
-                                {
-                                    relationshipsToBeDetached = new List<ForeignKey>();
-                                }
+                                relationshipsToBeDetached ??= new List<ForeignKey>();
 
                                 relationshipsToBeDetached.Add(referencingForeignKey);
                             }
@@ -1756,10 +1719,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                             continue;
                         }
 
-                        if (indexesToBeDetached == null)
-                        {
-                            indexesToBeDetached = new List<Index>();
-                        }
+                        indexesToBeDetached ??= new List<Index>();
 
                         indexesToBeDetached.Add(index);
                     }
@@ -1871,10 +1831,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                                 member.Name));
                     }
 
-                    if (membersToBeRemoved == null)
-                    {
-                        membersToBeRemoved = new List<T>();
-                    }
+                    membersToBeRemoved ??= new List<T>();
 
                     membersToBeRemoved.Add(member);
                     continue;
@@ -1882,10 +1839,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                 if (baseConfigurationSource != null)
                 {
-                    if (membersToBeDetached == null)
-                    {
-                        membersToBeDetached = new List<T>();
-                    }
+                    membersToBeDetached ??= new List<T>();
 
                     membersToBeDetached.Add(member);
                 }
@@ -1953,26 +1907,18 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             if (derivedMember.GetConfigurationSource() == ConfigurationSource.Explicit
                 && baseMembers.TryGetValue(derivedMember.Name, out var baseMember))
             {
-                if (derivedMember is IReadOnlyProperty)
+                switch (derivedMember)
                 {
-                    return baseMember is IReadOnlyProperty;
-                }
-
-                if (derivedMember is IReadOnlyNavigation derivedNavigation)
-                {
-                    return baseMember is IReadOnlyNavigation baseNavigation
-                        && derivedNavigation.TargetEntityType == baseNavigation.TargetEntityType;
-                }
-
-                if (derivedMember is IReadOnlyServiceProperty)
-                {
-                    return baseMember is IReadOnlyServiceProperty;
-                }
-
-                if (derivedMember is IReadOnlySkipNavigation derivedSkipNavigation)
-                {
-                    return baseMember is IReadOnlySkipNavigation baseSkipNavigation
-                        && derivedSkipNavigation.TargetEntityType == baseSkipNavigation.TargetEntityType;
+                    case IReadOnlyProperty:
+                        return baseMember is IReadOnlyProperty;
+                    case IReadOnlyNavigation derivedNavigation:
+                        return baseMember is IReadOnlyNavigation baseNavigation
+                            && derivedNavigation.TargetEntityType == baseNavigation.TargetEntityType;
+                    case IReadOnlyServiceProperty:
+                        return baseMember is IReadOnlyServiceProperty;
+                    case IReadOnlySkipNavigation derivedSkipNavigation:
+                        return baseMember is IReadOnlySkipNavigation baseSkipNavigation
+                            && derivedSkipNavigation.TargetEntityType == baseSkipNavigation.TargetEntityType;
                 }
             }
         }
@@ -1998,10 +1944,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         {
             foreach (var relationship in propertyToDetach.GetContainingForeignKeys().ToList())
             {
-                if (detachedRelationships == null)
-                {
-                    detachedRelationships = new List<RelationshipSnapshot>();
-                }
+                detachedRelationships ??= new List<RelationshipSnapshot>();
 
                 detachedRelationships.Add(DetachRelationship(relationship));
             }
@@ -2014,10 +1957,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         {
             foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
             {
-                if (detachedRelationships == null)
-                {
-                    detachedRelationships = new List<RelationshipSnapshot>();
-                }
+                detachedRelationships ??= new List<RelationshipSnapshot>();
 
                 detachedRelationships.Add(DetachRelationship(referencingForeignKey));
             }
@@ -2184,10 +2124,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<RelationshipSnapshot>? detachedRelationships = null;
         foreach (var relationshipToBeDetached in entityType.GetDeclaredForeignKeys().ToList())
         {
-            if (detachedRelationships == null)
-            {
-                detachedRelationships = new List<RelationshipSnapshot>();
-            }
+            detachedRelationships ??= new List<RelationshipSnapshot>();
 
             var detachedRelationship = DetachRelationship(relationshipToBeDetached, false);
             if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2200,10 +2137,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalSkipNavigationBuilder>? detachedSkipNavigations = null;
         foreach (var skipNavigationsToBeDetached in entityType.GetDeclaredSkipNavigations().ToList())
         {
-            if (detachedSkipNavigations == null)
-            {
-                detachedSkipNavigations = new List<InternalSkipNavigationBuilder>();
-            }
+            detachedSkipNavigations ??= new List<InternalSkipNavigationBuilder>();
 
             detachedSkipNavigations.Add(DetachSkipNavigation(skipNavigationsToBeDetached)!);
         }
@@ -2220,10 +2154,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     continue;
                 }
 
-                if (detachedRelationships == null)
-                {
-                    detachedRelationships = new List<RelationshipSnapshot>();
-                }
+                detachedRelationships ??= new List<RelationshipSnapshot>();
 
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached, true);
                 if (detachedRelationship.Relationship.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation)
@@ -2238,10 +2169,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 continue;
             }
 
-            if (detachedKeys == null)
-            {
-                detachedKeys = new List<(InternalKeyBuilder, ConfigurationSource?)>();
-            }
+            detachedKeys ??= new List<(InternalKeyBuilder, ConfigurationSource?)>();
 
             var detachedKey = DetachKey(keyToDetach);
             if (detachedKey.Item1.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2253,10 +2181,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalIndexBuilder>? detachedIndexes = null;
         foreach (var index in entityType.GetDeclaredIndexes().ToList())
         {
-            if (detachedIndexes == null)
-            {
-                detachedIndexes = new List<InternalIndexBuilder>();
-            }
+            detachedIndexes ??= new List<InternalIndexBuilder>();
 
             var detachedIndex = DetachIndex(index);
             if (detachedIndex.Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit))
@@ -2270,10 +2195,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         List<InternalServicePropertyBuilder>? detachedServiceProperties = null;
         foreach (var servicePropertiesToBeDetached in entityType.GetDeclaredServiceProperties().ToList())
         {
-            if (detachedServiceProperties == null)
-            {
-                detachedServiceProperties = new List<InternalServicePropertyBuilder>();
-            }
+            detachedServiceProperties ??= new List<InternalServicePropertyBuilder>();
 
             detachedServiceProperties.Add(DetachServiceProperty(servicePropertiesToBeDetached)!);
         }
@@ -2477,14 +2399,9 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         if (index == null)
         {
-            if (name == null)
-            {
-                index = Metadata.AddIndex(properties, configurationSource);
-            }
-            else
-            {
-                index = Metadata.AddIndex(properties, name, configurationSource);
-            }
+            index = name == null
+                ? Metadata.AddIndex(properties, configurationSource)
+                : Metadata.AddIndex(properties, name, configurationSource);
         }
         else
         {
@@ -2816,7 +2733,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             && !Metadata.IsPropertyBag)
         {
             navigationProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
-                navigationToTarget!.Value.Name!, Metadata, targetEntityType,
+                navigationToTarget.Value.Name!, Metadata, targetEntityType,
                 shouldThrow: configurationSource == ConfigurationSource.Explicit);
             if (navigationProperty != null)
             {
@@ -3018,11 +2935,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             else
             {
                 if (navigationToTarget?.Name != null
-                    && navigationToTarget!.Value.MemberInfo == null
+                    && navigationToTarget.Value.MemberInfo == null
                     && Metadata.ClrType != Model.DefaultPropertyBagType)
                 {
                     navigationProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
-                        navigationToTarget!.Value.Name!, Metadata, targetEntityType,
+                        navigationToTarget.Value.Name!, Metadata, targetEntityType,
                         shouldThrow: configurationSource == ConfigurationSource.Explicit);
                     if (navigationProperty != null)
                     {
@@ -3031,11 +2948,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 }
 
                 if (inverseNavigation?.Name != null
-                    && inverseNavigation!.Value.MemberInfo == null
+                    && inverseNavigation.Value.MemberInfo == null
                     && targetEntityType.ClrType != Model.DefaultPropertyBagType)
                 {
                     inverseProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
-                        inverseNavigation!.Value.Name!, targetEntityType, Metadata,
+                        inverseNavigation.Value.Name!, targetEntityType, Metadata,
                         shouldThrow: configurationSource == ConfigurationSource.Explicit);
                     if (inverseProperty != null)
                     {
@@ -3050,7 +2967,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                         Metadata,
                         shouldThrow: configurationSource == ConfigurationSource.Explicit,
                         out var shouldInvert,
-                        out var shouldBeUnique))
+                        out _))
                 {
                     return null;
                 }
@@ -3497,25 +3414,24 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             }
         }
 
-        using (var batch = Metadata.Model.DelayConventions())
-        {
-            relationship = targetEntityType.Builder.HasRelationship(
-                    targetEntityType: Metadata,
-                    navigationToTarget: inverse,
-                    inverseNavigation: navigation,
-                    setTargetAsPrincipal: true,
-                    configurationSource,
-                    required: true)
-                ?.IsOwnership(true, configurationSource);
+        using var batch = Metadata.Model.DelayConventions();
 
-            if (relationship == null)
-            {
-                batch.Dispose();
-            }
-            else
-            {
-                relationship = batch.Run(relationship);
-            }
+        relationship = targetEntityType.Builder.HasRelationship(
+                targetEntityType: Metadata,
+                navigationToTarget: inverse,
+                inverseNavigation: navigation,
+                setTargetAsPrincipal: true,
+                configurationSource,
+                required: true)
+            ?.IsOwnership(true, configurationSource);
+
+        if (relationship == null)
+        {
+            batch.Dispose();
+        }
+        else
+        {
+            relationship = batch.Run(relationship);
         }
 
         return relationship;
@@ -3696,7 +3612,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         return true;
     }
 
-    private bool Contains(IReadOnlyForeignKey? inheritedFk, IReadOnlyForeignKey derivedFk)
+    private static bool Contains(IReadOnlyForeignKey? inheritedFk, IReadOnlyForeignKey derivedFk)
         => inheritedFk != null
             && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
             && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
@@ -3788,18 +3704,14 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             {
                 targetType = memberType.TryGetSequenceType() ?? memberType;
 
-                if (targetType != null
-                    && targetEntityType.Name == Metadata.Model.GetDisplayName(targetType))
+                if (targetEntityType.Name == Metadata.Model.GetDisplayName(targetType))
                 {
                     targetEntityType = new TypeIdentity(targetType, Metadata.Model);
                 }
             }
         }
 
-        if (targetType == null)
-        {
-            targetType = Model.DefaultPropertyBagType;
-        }
+        targetType ??= Model.DefaultPropertyBagType;
 
         switch (ModelBuilder.Metadata.Configuration?.GetConfigurationType(targetType))
         {
@@ -3942,9 +3854,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         else
         {
             targetEntityTypeBuilder = targetEntityType.IsNamed
-                ? targetType == null
-                    ? ModelBuilder.Entity(targetTypeName, configurationSource.Value, targetShouldBeOwned)
-                    : ModelBuilder.SharedTypeEntity(targetTypeName, targetType, configurationSource.Value, targetShouldBeOwned)
+                ? ModelBuilder.SharedTypeEntity(targetTypeName, targetType, configurationSource.Value, targetShouldBeOwned)
                 : ModelBuilder.Entity(targetType, configurationSource.Value, targetShouldBeOwned);
         }
 
@@ -4243,10 +4153,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             var conflictingNavigation = derivedType.FindDeclaredSkipNavigation(navigationName);
             if (conflictingNavigation != null)
             {
-                if (navigationsToDetach == null)
-                {
-                    navigationsToDetach = new List<SkipNavigation>();
-                }
+                navigationsToDetach ??= new List<SkipNavigation>();
 
                 navigationsToDetach.Add(conflictingNavigation);
             }
@@ -4878,7 +4785,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 configurationSource)
             : null;
 
-    private static readonly string _defaultDiscriminatorName = "Discriminator";
+    private const string DefaultDiscriminatorName = "Discriminator";
 
     private static readonly Type _defaultDiscriminatorType = typeof(string);
 
@@ -4893,7 +4800,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
         return Metadata.RootType().Builder.Property(
                 type ?? discriminatorProperty?.ClrType ?? _defaultDiscriminatorType,
-                name ?? discriminatorProperty?.Name ?? _defaultDiscriminatorName,
+                name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
                 typeConfigurationSource: type != null ? configurationSource : null,
                 configurationSource)
             ?.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
@@ -4999,7 +4906,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             && (discriminatorProperty != null
                 || Metadata.RootType().Builder.CanAddDiscriminatorProperty(
                     discriminatorType ?? _defaultDiscriminatorType,
-                    name ?? _defaultDiscriminatorName,
+                    name ?? DefaultDiscriminatorName,
                     typeConfigurationSource: discriminatorType != null
                         ? configurationSource
                         : null));
@@ -5025,14 +4932,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var memberInfo = Metadata.IsPropertyBag
             ? null
             : Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
-        if (memberInfo != null
-            && propertyType != memberInfo.GetMemberType()
-            && typeConfigurationSource != null)
-        {
-            return false;
-        }
 
-        return true;
+        return memberInfo == null
+            || propertyType == memberInfo.GetMemberType()
+            || typeConfigurationSource == null;
     }
 
     /// <summary>

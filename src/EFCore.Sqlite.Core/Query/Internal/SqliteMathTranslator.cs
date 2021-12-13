@@ -80,7 +80,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
             List<SqlExpression>? newArguments = null;
             if (sqlFunctionName == "max" || sqlFunctionName == "max")
             {
-                typeMapping = ExpressionExtensions.InferTypeMapping(arguments![0]!, arguments[1]!);
+                typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
                 newArguments = new List<SqlExpression>
                 {
                     _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping),
@@ -98,7 +98,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 sqlFunctionName,
                 finalArguments,
                 nullable: true,
-                argumentsPropagateNullability: finalArguments.Select(a => true).ToList(),
+                argumentsPropagateNullability: finalArguments.Select(_ => true).ToList(),
                 method.ReturnType,
                 typeMapping);
         }

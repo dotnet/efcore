@@ -35,17 +35,9 @@ public static class DatabaseColumnExtensions
     {
         var table = column.Table;
 
-        if (table.PrimaryKey?.Columns.Contains(column) == true)
-        {
-            return true;
-        }
-
-        if (table.UniqueConstraints.Any(uc => uc.Columns.Contains(column)))
-        {
-            return true;
-        }
-
-        return table.Indexes.Any(uc => uc.Columns.Contains(column));
+        return table.PrimaryKey?.Columns.Contains(column) == true
+            || (table.UniqueConstraints.Any(uc => uc.Columns.Contains(column))
+                || table.Indexes.Any(uc => uc.Columns.Contains(column)));
     }
 
     /// <summary>

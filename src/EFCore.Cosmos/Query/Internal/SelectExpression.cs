@@ -530,7 +530,7 @@ public class SelectExpression : Expression
             Predicate = predicate,
             Offset = offset,
             Limit = limit,
-            IsDistinct = IsDistinct,
+            IsDistinct = IsDistinct
         };
     }
 }

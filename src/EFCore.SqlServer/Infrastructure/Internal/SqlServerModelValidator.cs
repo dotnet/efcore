@@ -227,7 +227,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         }
     }
 
-    private void ValidateTemporalPeriodProperty(IEntityType temporalEntityType, bool periodStart)
+    private static void ValidateTemporalPeriodProperty(IEntityType temporalEntityType, bool periodStart)
     {
         var annotationPropertyName = periodStart
             ? temporalEntityType.GetPeriodStartPropertyName()
@@ -263,7 +263,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, nameof(DateTime)));
         }
 
-        var expectedPeriodColumnName = "datetime2";
+        const string expectedPeriodColumnName = "datetime2";
         if (periodProperty.GetColumnType() != expectedPeriodColumnName)
         {
             throw new InvalidOperationException(

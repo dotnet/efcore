@@ -34,7 +34,7 @@ internal class CommandLineApplication
         Commands = new List<CommandLineApplication>();
         RemainingArguments = new List<string>();
         ApplicationArguments = new List<string>();
-        Invoke = args => 0;
+        Invoke = _ => 0;
     }
 
     public CommandLineApplication? Parent { get; set; }
@@ -91,9 +91,7 @@ internal class CommandLineApplication
         var lastArg = Arguments.LastOrDefault();
         if (lastArg?.MultipleValues == true)
         {
-            var message = string.Format(
-                "The last argument '{0}' accepts multiple values. No more argument can be added.",
-                lastArg.Name);
+            var message = $"The last argument '{lastArg.Name}' accepts multiple values. No more argument can be added.";
             throw new InvalidOperationException(message);
         }
 
@@ -133,7 +131,7 @@ internal class CommandLineApplication
                 var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
                 if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
                 {
-                    var result = ParseOption(isLongOption, command, args, ref index, out var option);
+                    var result = ParseOption(isLongOption, command, args, ref index, out _);
                     if (result == ParseOptionResult.ShowHelp)
                     {
                         command.ShowHelp();
@@ -177,7 +175,7 @@ internal class CommandLineApplication
         return command.Invoke(command.ApplicationArguments.ToArray());
     }
 
-    private ParseOptionResult ParseOption(
+    private static ParseOptionResult ParseOption(
         bool isLongOption,
         CommandLineApplication command,
         string[] args,
@@ -200,13 +198,9 @@ internal class CommandLineApplication
         else
         {
             option = command.Options.SingleOrDefault(
-                opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal));
-
-            if (option == null)
-            {
-                option = command.Options.SingleOrDefault(
-                    opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
-            }
+                opt => string.Equals(opt.ShortName, optionName, StringComparison.Ordinal))
+                ?? command.Options.SingleOrDefault(
+                opt => string.Equals(opt.SymbolName, optionName, StringComparison.Ordinal));
         }
 
         if (option == null)
@@ -300,14 +294,9 @@ internal class CommandLineApplication
         string template,
         string shortFormVersion,
         string? longFormVersion = null)
-    {
-        if (longFormVersion == null)
-        {
-            return VersionOption(template, () => shortFormVersion);
-        }
-
-        return VersionOption(template, () => shortFormVersion, () => longFormVersion);
-    }
+        => longFormVersion == null
+            ? VersionOption(template, () => shortFormVersion)
+            : VersionOption(template, () => shortFormVersion, () => longFormVersion);
 
     // Helper method that adds a version option
     public CommandOption VersionOption(
@@ -404,7 +393,7 @@ internal class CommandLineApplication
         {
             if (cmd.Arguments.Count > 0)
             {
-                var outputFormat = "  {0}{1}";
+                const string outputFormat = "  {0}{1}";
                 foreach (var arg in cmd.Arguments)
                 {
                     argumentsBuilder.AppendFormat(
@@ -423,7 +412,7 @@ internal class CommandLineApplication
             optionsBuilder.AppendLine();
             optionsBuilder.AppendLine("Options:");
             var maxOptLen = MaxOptionTemplateLength(target.Options);
-            var outputFormat = string.Format("  {{0, -{0}}}{{1}}", maxOptLen + 2);
+            var outputFormat = $"  {{0, -{maxOptLen + 2}}}{{1}}";
             foreach (var opt in target.Options)
             {
                 optionsBuilder.AppendFormat(outputFormat, opt.Template, opt.Description);
@@ -438,7 +427,7 @@ internal class CommandLineApplication
             commandsBuilder.AppendLine();
             commandsBuilder.AppendLine("Commands:");
             var maxCmdLen = MaxCommandLength(target.Commands);
-            var outputFormat = string.Format("  {{0, -{0}}}{{1}}", maxCmdLen + 2);
+            var outputFormat = $"  {{0, -{maxCmdLen + 2}}}{{1}}";
             foreach (var cmd in target.Commands.OrderBy(c => c.Name))
             {
                 commandsBuilder.AppendFormat(outputFormat, cmd.Name, cmd.Description);
@@ -456,14 +445,7 @@ internal class CommandLineApplication
         if (target.AllowArgumentSeparator
             || target.HandleRemainingArguments)
         {
-            if (target.AllowArgumentSeparator)
-            {
-                headerBuilder.Append(" [[--] <arg>...]]");
-            }
-            else
-            {
-                headerBuilder.Append(" [args]");
-            }
+            headerBuilder.Append(target.AllowArgumentSeparator ? " [[--] <arg>...]]" : " [args]");
 
             if (!string.IsNullOrEmpty(target.ArgumentSeparatorHelpText))
             {
@@ -622,16 +604,10 @@ internal class CommandLineApplication
             => _enumerator.Dispose();
 
         public bool MoveNext()
-        {
-            if (Current?.MultipleValues != true)
-            {
-                return _enumerator.MoveNext();
-            }
-
             // If current argument allows multiple values, we don't move forward and
             // all later values will be added to current CommandArgument.Values
-            return true;
-        }
+            => Current?.MultipleValues == true
+                || _enumerator.MoveNext();
 
         public void Reset()
             => _enumerator.Reset();

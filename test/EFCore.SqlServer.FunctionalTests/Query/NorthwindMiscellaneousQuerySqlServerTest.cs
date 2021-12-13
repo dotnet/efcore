@@ -4212,10 +4212,11 @@ FROM (
 
         AssertSql(
             @"@__prefix_0='A' (Size = 4000)
+@__prefix_0_1='A' (Size = 5)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE @__prefix_0 = N'' OR LEFT([c].[CustomerID], LEN(@__prefix_0)) = @__prefix_0");
+WHERE @__prefix_0 = N'' OR LEFT([c].[CustomerID], LEN(@__prefix_0_1)) = @__prefix_0");
     }
 
     public override async Task Comparing_entities_using_Equals(bool async)

@@ -88,10 +88,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
             _reporter.WriteWarning(DesignStrings.SensitiveInformationWarning);
         }
 
-        if (codeOptions.ConnectionString == null)
-        {
-            codeOptions.ConnectionString = connectionString;
-        }
+        codeOptions.ConnectionString ??= connectionString;
 
         var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
         var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
@@ -137,7 +134,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
 
         Directory.CreateDirectory(outputDir);
 
-        var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile!.Path));
+        var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile.Path));
         Directory.CreateDirectory(Path.GetDirectoryName(contextPath)!);
         File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
 
@@ -158,7 +155,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
         bool overwriteFiles)
     {
         var paths = scaffoldedModel.AdditionalFiles.Select(f => f.Path).ToList();
-        paths.Insert(0, scaffoldedModel.ContextFile!.Path);
+        paths.Insert(0, scaffoldedModel.ContextFile.Path);
 
         var existingFiles = new List<string>();
         var readOnlyFiles = new List<string>();
@@ -168,11 +165,11 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
 
             if (File.Exists(fullPath))
             {
-                existingFiles.Add(path!);
+                existingFiles.Add(path);
 
                 if (File.GetAttributes(fullPath).HasFlag(FileAttributes.ReadOnly))
                 {
-                    readOnlyFiles.Add(path!);
+                    readOnlyFiles.Add(path);
                 }
             }
         }

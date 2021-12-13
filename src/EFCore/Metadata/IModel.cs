@@ -164,7 +164,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
             .Cast<IEntityType>();
 
     /// <summary>
-    ///     Gets a value indicating whether the given <see cref="MethodInfo" /> reprensents an indexer access.
+    ///     Gets a value indicating whether the given <see cref="MethodInfo" /> represents an indexer access.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.

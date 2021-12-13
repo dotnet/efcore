@@ -60,7 +60,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             var table = queryRootExpression.EntityType.GetTableMappings().Single().Table;
             var temporalTableExpression = queryRootExpression switch
             {
-                TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
+                TemporalAllQueryRootExpression => (TemporalTableExpression)new TemporalAllTableExpression(table),
                 TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
                 TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
                 TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(

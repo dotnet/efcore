@@ -311,7 +311,7 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
 
     /// <summary>
     ///     Configures an index on the specified property names.
-    ///     If there is an existing index on the given list of properyt names,
+    ///     If there is an existing index on the given list of property names,
     ///     then the existing index will be returned for configuration.
     /// </summary>
     /// <param name="propertyNames">The names of the properties that make up the index.</param>

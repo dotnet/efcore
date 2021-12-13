@@ -416,19 +416,19 @@ public class LocalView<TEntity> :
     /// <summary>
     ///     Occurs when a property of this collection (such as <see cref="Count" />) changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///     Occurs when a property of this collection (such as <see cref="Count" />) is changing.
     /// </summary>
-    public virtual event PropertyChangingEventHandler? PropertyChanging;
+    public event PropertyChangingEventHandler? PropertyChanging;
 
     /// <summary>
     ///     Occurs when the contents of the collection changes, either because an entity
     ///     has been directly added or removed from the collection, or because an entity
     ///     starts being tracked, or because an entity is marked as Deleted.
     /// </summary>
-    public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     /// <summary>
     ///     Raises the <see cref="PropertyChanged" /> event.
@@ -452,10 +452,10 @@ public class LocalView<TEntity> :
         => CollectionChanged?.Invoke(this, e);
 
     private void OnCountPropertyChanged()
-        => OnPropertyChanged(ObservableHashSetSingletons._countPropertyChanged);
+        => OnPropertyChanged(ObservableHashSetSingletons.CountPropertyChanged);
 
     private void OnCountPropertyChanging()
-        => OnPropertyChanging(ObservableHashSetSingletons._countPropertyChanging);
+        => OnPropertyChanging(ObservableHashSetSingletons.CountPropertyChanging);
 
     private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
         => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));

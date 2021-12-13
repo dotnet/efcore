@@ -98,7 +98,7 @@ public class RelationalValueGenerationConvention :
         }
     }
 
-    private void ProcessTableChanged(
+    private static void ProcessTableChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? oldTable,
         string? oldSchema,
@@ -139,12 +139,10 @@ public class RelationalValueGenerationConvention :
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
         var tableName = property.DeclaringEntityType.GetTableName();
-        if (tableName == null)
-        {
-            return null;
-        }
 
-        return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+        return tableName == null
+            ? null
+            : GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
     }
 
     /// <summary>

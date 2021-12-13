@@ -115,7 +115,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             serviceCollection,
             optionsAction == null
                 ? null
-                : (p, b) => optionsAction(b), contextLifetime, optionsLifetime);
+                : (_, b) => optionsAction(b), contextLifetime, optionsLifetime);
 
     /// <summary>
     ///     Registers the given <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />,
@@ -738,7 +738,7 @@ public static class EntityFrameworkServiceCollectionExtensions
             serviceCollection,
             optionsAction == null
                 ? null
-                : (p, b) => optionsAction(b),
+                : (_, b) => optionsAction(b),
             lifetime);
 
     /// <summary>

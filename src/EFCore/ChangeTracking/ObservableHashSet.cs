@@ -76,17 +76,17 @@ public class ObservableHashSet<T>
     /// <summary>
     ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.
     /// </summary>
-    public virtual event PropertyChangedEventHandler? PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     ///     Occurs when a property of this hash set (such as <see cref="Count" />) is changing.
     /// </summary>
-    public virtual event PropertyChangingEventHandler? PropertyChanging;
+    public event PropertyChangingEventHandler? PropertyChanging;
 
     /// <summary>
     ///     Occurs when the contents of the hash set changes.
     /// </summary>
-    public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
     void ICollection<T>.Add(T item)
         => Add(item);
@@ -107,7 +107,7 @@ public class ObservableHashSet<T>
 
         _set.Clear();
 
-        OnCollectionChanged(ObservableHashSetSingletons._noItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
 
         OnCountPropertyChanged();
     }
@@ -234,7 +234,7 @@ public class ObservableHashSet<T>
 
         _set = copy;
 
-        OnCollectionChanged(added, ObservableHashSetSingletons._noItems);
+        OnCollectionChanged(added, ObservableHashSetSingletons.NoItems);
 
         OnCountPropertyChanged();
     }
@@ -261,7 +261,7 @@ public class ObservableHashSet<T>
 
         _set = copy;
 
-        OnCollectionChanged(ObservableHashSetSingletons._noItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
 
         OnCountPropertyChanged();
     }
@@ -287,7 +287,7 @@ public class ObservableHashSet<T>
 
         _set = copy;
 
-        OnCollectionChanged(ObservableHashSetSingletons._noItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
 
         OnCountPropertyChanged();
     }
@@ -428,7 +428,7 @@ public class ObservableHashSet<T>
 
         _set = copy;
 
-        OnCollectionChanged(ObservableHashSetSingletons._noItems, removed);
+        OnCollectionChanged(ObservableHashSetSingletons.NoItems, removed);
 
         OnCountPropertyChanged();
 
@@ -463,10 +463,10 @@ public class ObservableHashSet<T>
         => PropertyChanging?.Invoke(this, e);
 
     private void OnCountPropertyChanged()
-        => OnPropertyChanged(ObservableHashSetSingletons._countPropertyChanged);
+        => OnPropertyChanged(ObservableHashSetSingletons.CountPropertyChanged);
 
     private void OnCountPropertyChanging()
-        => OnPropertyChanging(ObservableHashSetSingletons._countPropertyChanging);
+        => OnPropertyChanging(ObservableHashSetSingletons.CountPropertyChanging);
 
     private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item)
         => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
@@ -484,8 +484,8 @@ public class ObservableHashSet<T>
 
 internal static class ObservableHashSetSingletons
 {
-    public static readonly PropertyChangedEventArgs _countPropertyChanged = new("Count");
-    public static readonly PropertyChangingEventArgs _countPropertyChanging = new("Count");
+    public static readonly PropertyChangedEventArgs CountPropertyChanged = new("Count");
+    public static readonly PropertyChangingEventArgs CountPropertyChanging = new("Count");
 
-    public static readonly object[] _noItems = Array.Empty<object>();
+    public static readonly object[] NoItems = Array.Empty<object>();
 }

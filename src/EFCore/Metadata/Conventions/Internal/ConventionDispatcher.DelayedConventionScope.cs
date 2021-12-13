@@ -25,10 +25,7 @@ public partial class ConventionDispatcher
 
         private void Add(ConventionNode node)
         {
-            if (_children == null)
-            {
-                _children = new List<ConventionNode>();
-            }
+            _children ??= new List<ConventionNode>();
 
             _children.Add(node);
         }

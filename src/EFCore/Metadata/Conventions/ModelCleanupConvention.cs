@@ -30,13 +30,12 @@ public class ModelCleanupConvention : IModelFinalizingConvention
         IConventionModelBuilder modelBuilder,
         IConventionContext<IConventionModelBuilder> context)
     {
-        RemoveEntityTypesUnreachableByNavigations(modelBuilder, context);
+        RemoveEntityTypesUnreachableByNavigations(modelBuilder);
         RemoveNavigationlessForeignKeys(modelBuilder);
     }
 
-    private void RemoveEntityTypesUnreachableByNavigations(
-        IConventionModelBuilder modelBuilder,
-        IConventionContext<IConventionModelBuilder> context)
+    private static void RemoveEntityTypesUnreachableByNavigations(
+        IConventionModelBuilder modelBuilder)
     {
         var model = modelBuilder.Metadata;
         var rootEntityTypes = GetRoots(model, ConfigurationSource.DataAnnotation);
@@ -47,7 +46,7 @@ public class ModelCleanupConvention : IModelFinalizingConvention
         }
     }
 
-    private IReadOnlyList<IConventionEntityType> GetRoots(IConventionModel model, ConfigurationSource configurationSource)
+    private static IReadOnlyList<IConventionEntityType> GetRoots(IConventionModel model, ConfigurationSource configurationSource)
     {
         var roots = new List<IConventionEntityType>();
         // ReSharper disable once LoopCanBeConvertedToQuery
@@ -63,7 +62,7 @@ public class ModelCleanupConvention : IModelFinalizingConvention
         return roots;
     }
 
-    private void RemoveNavigationlessForeignKeys(IConventionModelBuilder modelBuilder)
+    private static void RemoveNavigationlessForeignKeys(IConventionModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {

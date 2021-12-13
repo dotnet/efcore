@@ -729,7 +729,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeFunction = (StoreFunction?)dbFunction.StoreFunction;
         if (storeFunction == null)
         {
-            var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType!).ToArray();
+            var parameterTypes = dbFunction.Parameters.Select(p => p.StoreType).ToArray();
             storeFunction = (StoreFunction?)model.FindFunction(dbFunction.Name, dbFunction.Schema, parameterTypes);
             if (storeFunction == null)
             {
@@ -1001,18 +1001,12 @@ public class RelationalModel : Annotatable, IRelationalModel
                     && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
                     && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
                 {
-                    if (rowInternalForeignKeys == null)
-                    {
-                        rowInternalForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
-                    }
+                    rowInternalForeignKeys ??= new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
 
                     rowInternalForeignKeys.Add(foreignKey);
 
-                    if (referencingInternalForeignKeyMap == null)
-                    {
-                        referencingInternalForeignKeyMap =
-                            new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
-                    }
+                    referencingInternalForeignKeyMap ??=
+                        new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
 
                     var principalEntityType = foreignKey.PrincipalEntityType;
                     if (!referencingInternalForeignKeyMap.TryGetValue(principalEntityType, out var internalReferencingForeignKeys))
@@ -1125,7 +1119,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction =>
                 ReferentialAction.NoAction,
             DeleteBehavior.Restrict => ReferentialAction.Restrict,
-            _ => throw new NotSupportedException(deleteBehavior.ToString()),
+            _ => throw new NotSupportedException(deleteBehavior.ToString())
         };
 
     /// <summary>

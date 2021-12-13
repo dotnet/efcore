@@ -852,7 +852,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return accessor;
                 }
 
-                case GroupByShaperExpression _:
+                case GroupByShaperExpression:
                     throw new InvalidOperationException(RelationalStrings.ClientGroupByNotSupported);
             }
 
@@ -1425,10 +1425,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(entity, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
 
@@ -1519,10 +1516,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(entity, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
 

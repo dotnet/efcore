@@ -79,11 +79,7 @@ public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMap
     {
         var builder = new StringBuilder();
         var geometry = (Geometry)value;
-        var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0);
-        if (geometry == Point.Empty)
-        {
-            defaultSrid = true;
-        }
+        var defaultSrid = geometry.SRID == (_isGeography ? 4326 : 0) || geometry == Point.Empty;
 
         builder
             .Append(_isGeography ? "geography" : "geometry")

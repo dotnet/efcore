@@ -86,7 +86,7 @@ public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
             builder.Append(" (");
         }
 
-        builder.Append(ClrType.ShortDisplayName()).Append(")");
+        builder.Append(ClrType.ShortDisplayName()).Append(')');
 
         if (IsCollection)
         {

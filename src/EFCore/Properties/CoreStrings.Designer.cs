@@ -1015,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("HiLoBadBlockSize");
 
         /// <summary>
-        ///     A relationship cycle involving the primary keys of the following enitity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
+        ///     A relationship cycle involving the primary keys of the following entity types was detected: '{entityType}'. This would prevent any entity to be inserted without violating the store constraints. Review the foreign keys defined on the primary keys and either remove or use other properties for at least one of them.
         /// </summary>
         public static string IdentifyingRelationshipCycle(object? entityType)
             => string.Format(
@@ -1148,6 +1148,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("InvalidAlternateKeyValue", nameof(entityType), nameof(keyProperty)),
                 entityType, keyProperty);
+
+        /// <summary>
+        ///     A previous error has left the DbContext in an invalid state. Applications should not continue to use a DbContext instance after an InvalidOperationException has been thrown.
+        /// </summary>
+        public static string InvalidDbContext
+            => GetString("InvalidDbContext");
 
         /// <summary>
         ///     The specified type '{type}' must be a non-interface reference type to be used as an entity type.
@@ -2682,7 +2688,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     Unhandled {entity} encounted.
+        ///     Unhandled {entity} encountered.
         /// </summary>
         public static string UnknownEntity(object? entity)
             => string.Format(

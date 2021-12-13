@@ -107,7 +107,8 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
 
         if (Precision.HasValue)
         {
-            parameter.Precision = unchecked((byte)Precision.Value);
+            // Workaround for inconsistent definition of precision/scale between EF and SQLClient for VarTime types
+            parameter.Scale = unchecked((byte)Precision.Value);
         }
     }
 }

@@ -328,7 +328,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
         // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
         // For StartsWith we also first run a LIKE to quickly filter out most non-matching results (sargable, but imprecise
-        // because of wildchars).
+        // because of wildcards).
         if (startsWith)
         {
             return _sqlExpressionFactory.OrElse(
@@ -388,10 +388,10 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
     }
 
     // See https://www.sqlite.org/lang_expr.html
-    private bool IsLikeWildChar(char c)
+    private static bool IsLikeWildChar(char c)
         => c == '%' || c == '_';
 
-    private string EscapeLikePattern(string pattern)
+    private static string EscapeLikePattern(string pattern)
     {
         var builder = new StringBuilder();
         for (var i = 0; i < pattern.Length; i++)
@@ -446,7 +446,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
             functionName,
             sqlArguments,
             nullable: true,
-            argumentsPropagateNullability: sqlArguments.Select(a => true).ToList(),
+            argumentsPropagateNullability: sqlArguments.Select(_ => true).ToList(),
             typeof(string),
             typeMapping);
     }

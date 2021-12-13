@@ -58,7 +58,10 @@ public class ServiceProviderCache
             return BuildServiceProvider(options, _configurations).ServiceProvider;
         }
 
-        return _configurations.GetOrAdd(options, BuildServiceProvider, _configurations).ServiceProvider;
+        return _configurations.GetOrAdd(
+                options,
+                static (contextOptions, tuples) => BuildServiceProvider(contextOptions, tuples), _configurations)
+            .ServiceProvider;
 
         static (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider(
             IDbContextOptions options,
@@ -73,7 +76,7 @@ public class ServiceProviderCache
                 optionsExtension.Info.PopulateDebugInfo(debugInfo);
             }
 
-            debugInfo = debugInfo.OrderBy(v => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
+            debugInfo = debugInfo.OrderBy(_ => debugInfo.Keys).ToDictionary(d => d.Key, v => v.Value);
 
             var services = new ServiceCollection();
             var hasProvider = ApplyServices(options, services);
@@ -128,7 +131,7 @@ public class ServiceProviderCache
                         loggingDefinitions,
                         new NullDbContextLogger());
 
-                    if (configurations.Count == 0)
+                    if (configurations.IsEmpty)
                     {
                         logger.ServiceProviderCreated(serviceProvider);
                     }

@@ -57,11 +57,8 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             _expressions.Add(result);
             result = Expression.Block(_variables, _expressions);
 
-            if (_valueBufferParameter == null)
-            {
-                // If parameter is null then the projection is not really server correlated so we can just put anything.
-                _valueBufferParameter = Expression.Parameter(typeof(ValueBuffer));
-            }
+            // If parameter is null then the projection is not really server correlated so we can just put anything.
+            _valueBufferParameter ??= Expression.Parameter(typeof(ValueBuffer));
 
             return Expression.Lambda(result, QueryCompilationContext.QueryContextParameter, _valueBufferParameter);
         }
@@ -95,10 +92,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                         variable = Expression.Parameter(projectionBindingExpression.Type);
                         _variables.Add(variable);
                         var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
-                        if (_valueBufferParameter == null)
-                        {
-                            _valueBufferParameter = queryExpression.CurrentParameter;
-                        }
+                        _valueBufferParameter ??= queryExpression.CurrentParameter;
 
                         var projectionIndex = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<int>();
 
@@ -215,10 +209,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
                 var projectionBindingExpression = (ProjectionBindingExpression)newExpression.Arguments[0];
                 var queryExpression = (InMemoryQueryExpression)projectionBindingExpression.QueryExpression;
-                if (_valueBufferParameter == null)
-                {
-                    _valueBufferParameter = queryExpression.CurrentParameter;
-                }
+                _valueBufferParameter ??= queryExpression.CurrentParameter;
 
                 _materializationContextBindings[parameterExpression]
                     = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<Dictionary<IProperty, int>>();
@@ -339,10 +330,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(includingEntity, relatedEntity);
-                        if (inverseNavigation != null)
-                        {
-                            inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
-                        }
+                        inverseNavigation?.SetIsLoadedWhenNoTracking(relatedEntity);
                     }
                 }
             }

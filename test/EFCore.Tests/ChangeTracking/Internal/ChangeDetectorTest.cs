@@ -909,8 +909,13 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
+        var productEntry = stateManager.GetOrCreateEntry(product3);
+        Assert.Same(productEntry, testListener.ReferenceChange.Item1);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Null(testListener.ReferenceChange.Item3);
+        Assert.Equal(category, testListener.ReferenceChange.Item4);
+
         Assert.Null(testListener.KeyChange);
-        Assert.Null(testListener.ReferenceChange);
     }
 
     [ConditionalFact]
@@ -1076,8 +1081,13 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
+        var productEntry = stateManager.GetOrCreateEntry(product3);
+        Assert.Same(productEntry, testListener.ReferenceChange.Item1);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Null(testListener.ReferenceChange.Item3);
+        Assert.Equal(category, testListener.ReferenceChange.Item4);
+
         Assert.Null(testListener.KeyChange);
-        Assert.Null(testListener.ReferenceChange);
     }
 
     [ConditionalFact]
@@ -1548,7 +1558,12 @@ public class ChangeDetectorTest
         Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
         Assert.Empty(testListener.CollectionChange.Item4);
 
-        Assert.Null(testListener.ReferenceChange);
+        var productEntry = stateManager.GetOrCreateEntry(product3);
+        Assert.Same(productEntry, testListener.ReferenceChange.Item1);
+        Assert.Same(productEntry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
+        Assert.Null(testListener.ReferenceChange.Item3);
+        Assert.Equal(category, testListener.ReferenceChange.Item4);
+
         Assert.Null(testListener.KeyChange);
     }
 
@@ -2112,8 +2127,8 @@ public class ChangeDetectorTest
 
     private class TestRelationshipListener : NavigationFixer
     {
-        public TestRelationshipListener(IChangeDetector changeDetector, IEntityGraphAttacher attacher)
-            : base(changeDetector, attacher)
+        public TestRelationshipListener(IEntityGraphAttacher attacher)
+            : base(attacher)
         {
         }
 

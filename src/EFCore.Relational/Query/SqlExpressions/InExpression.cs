@@ -171,8 +171,8 @@ public class InExpression : SqlExpression
         => base.Equals(inExpression)
             && Item.Equals(inExpression.Item)
             && IsNegated.Equals(inExpression.IsNegated)
-            && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values))
-            && (Subquery == null ? inExpression.Subquery == null : Subquery.Equals(inExpression.Subquery));
+            && (Values?.Equals(inExpression.Values) ?? inExpression.Values == null)
+            && (Subquery?.Equals(inExpression.Subquery) ?? inExpression.Subquery == null);
 
     /// <inheritdoc />
     public override int GetHashCode()

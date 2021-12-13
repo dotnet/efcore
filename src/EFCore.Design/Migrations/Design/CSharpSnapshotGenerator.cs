@@ -554,7 +554,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append(entityTypeBuilderName)
             .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
             .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
-            .Append(")")
+            .Append(')')
             .ToString();
 
         stringBuilder
@@ -990,7 +990,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             }
         }
 
-        foreignKeyBuilderNameStringBuilder.Append(")");
+        foreignKeyBuilderNameStringBuilder.Append(')');
 
         var foreignKeyBuilderName = foreignKeyBuilderNameStringBuilder.ToString();
 

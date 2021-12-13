@@ -724,7 +724,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         }
     }
 
-    private EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)
+    private static EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)
         => (EntityProjectionExpression)selectExpression.GetProjection(
             new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 

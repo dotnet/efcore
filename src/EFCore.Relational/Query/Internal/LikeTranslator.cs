@@ -51,11 +51,8 @@ public class LikeTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Like(arguments[1], arguments[2]);
         }
 
-        if (Equals(method, _methodInfoWithEscape))
-        {
-            return _sqlExpressionFactory.Like(arguments[1], arguments[2], arguments[3]);
-        }
-
-        return null;
+        return Equals(method, _methodInfoWithEscape)
+            ? _sqlExpressionFactory.Like(arguments[1], arguments[2], arguments[3])
+            : null;
     }
 }

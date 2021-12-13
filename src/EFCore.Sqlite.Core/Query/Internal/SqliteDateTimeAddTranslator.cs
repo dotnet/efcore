@@ -29,7 +29,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
         { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), typeof(double)), " seconds" },
         { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), typeof(int)), " years" },
         { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), typeof(int)), " months" },
-        { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), typeof(int)), " days" },
+        { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), typeof(int)), " days" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

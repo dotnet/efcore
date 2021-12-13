@@ -66,9 +66,9 @@ public abstract class NamedConnectionStringResolverBase
             return null;
         }
 
-        return connectionString.Substring(0, firstEquals).Trim().Equals(
+        return connectionString[..firstEquals].Trim().Equals(
             "name", StringComparison.OrdinalIgnoreCase)
-            ? connectionString.Substring(firstEquals + 1).Trim()
+            ? connectionString[(firstEquals + 1)..].Trim()
             : null;
     }
 }

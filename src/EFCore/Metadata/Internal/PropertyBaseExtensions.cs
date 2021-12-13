@@ -130,73 +130,59 @@ public static class PropertyBaseExtensions
 
         if (forConstruction)
         {
-            if (mode == PropertyAccessMode.Field
-                || mode == PropertyAccessMode.FieldDuringConstruction)
+            switch (mode)
             {
-                if (hasField)
+                case PropertyAccessMode.Field:
+                case PropertyAccessMode.FieldDuringConstruction:
                 {
-                    memberInfo = fieldInfo;
-                    return true;
+                    if (hasField)
+                    {
+                        memberInfo = fieldInfo;
+                        return true;
+                    }
+
+                    if (isCollectionNav)
+                    {
+                        return true;
+                    }
+
+                    errorMessage = GetNoFieldErrorMessage(propertyBase);
+                    return false;
                 }
-
-                if (isCollectionNav)
-                {
-                    return true;
-                }
-
-                errorMessage = GetNoFieldErrorMessage(propertyBase);
-                return false;
-            }
-
-            if (mode == PropertyAccessMode.Property)
-            {
-                if (hasSetter)
-                {
+                case PropertyAccessMode.Property when hasSetter:
                     memberInfo = setterProperty;
                     return true;
-                }
-
-                if (isCollectionNav)
-                {
+                case PropertyAccessMode.Property when isCollectionNav:
                     return true;
-                }
+                case PropertyAccessMode.Property:
+                    errorMessage = hasGetter
+                        ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
+                        : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
 
-                errorMessage = hasGetter
-                    ? CoreStrings.NoSetter(propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode))
-                    : CoreStrings.NoProperty(fieldInfo?.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
-
-                return false;
-            }
-
-            if (mode == PropertyAccessMode.PreferField
-                || mode == PropertyAccessMode.PreferFieldDuringConstruction)
-            {
-                if (hasField)
+                    return false;
+                case PropertyAccessMode.PreferField:
+                case PropertyAccessMode.PreferFieldDuringConstruction:
                 {
-                    memberInfo = fieldInfo;
-                    return true;
-                }
+                    if (hasField)
+                    {
+                        memberInfo = fieldInfo;
+                        return true;
+                    }
 
-                if (hasSetter)
-                {
+                    if (hasSetter)
+                    {
+                        memberInfo = setterProperty;
+                        return true;
+                    }
+
+                    break;
+                }
+                case PropertyAccessMode.PreferProperty when hasSetter:
                     memberInfo = setterProperty;
                     return true;
-                }
-            }
-
-            if (mode == PropertyAccessMode.PreferProperty)
-            {
-                if (hasSetter)
-                {
-                    memberInfo = setterProperty;
-                    return true;
-                }
-
-                if (hasField)
-                {
+                case PropertyAccessMode.PreferProperty when hasField:
                     memberInfo = fieldInfo;
                     return true;
-                }
             }
 
             if (isCollectionNav)

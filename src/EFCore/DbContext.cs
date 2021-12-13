@@ -515,9 +515,9 @@ public class DbContext :
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
-    ///         changes to entity instances before saving to the underlying database. This can be disabled via
-    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///         This method will automatically call <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+    ///         to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+    ///         <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
@@ -549,9 +549,9 @@ public class DbContext :
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
-    ///         changes to entity instances before saving to the underlying database. This can be disabled via
-    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///         This method will automatically call <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+    ///         to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+    ///         <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
@@ -565,8 +565,8 @@ public class DbContext :
     ///     </para>
     /// </remarks>
     /// <param name="acceptAllChangesOnSuccess">
-    ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
-    ///     been sent successfully to the database.
+    ///     Indicates whether <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AcceptAllChanges" />
+    ///     is called after the changes have been sent successfully to the database.
     /// </param>
     /// <returns>
     ///     The number of state entries written to the database.
@@ -642,16 +642,16 @@ public class DbContext :
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
-    ///         changes to entity instances before saving to the underlying database. This can be disabled via
-    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///         This method will automatically call <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+    ///         to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+    ///         <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
     ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
     ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
+    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more
+    ///         information and examples.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
@@ -672,31 +672,31 @@ public class DbContext :
     /// </exception>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
+        => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken);
 
     /// <summary>
     ///     Saves all changes made in this context to the database.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
-    ///         changes to entity instances before saving to the underlying database. This can be disabled via
-    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///         This method will automatically call <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.DetectChanges" />
+    ///         to discover any changes to entity instances before saving to the underlying database. This can be disabled via
+    ///         <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
     ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
     ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information
-    ///         and examples.
+    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more
+    ///         information and examples.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="acceptAllChangesOnSuccess">
-    ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
-    ///     been sent successfully to the database.
+    ///     Indicates whether <see cref="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after
+    ///     the changes have been sent successfully to the database.
     /// </param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -1106,7 +1106,7 @@ public class DbContext :
                 entityState,
                 entityState,
                 forceStateWhenUnknownKey: true,
-                cancellationToken: cancellationToken)
+                cancellationToken)
             : entry.SetEntityStateAsync(
                 entityState,
                 acceptChanges: true,

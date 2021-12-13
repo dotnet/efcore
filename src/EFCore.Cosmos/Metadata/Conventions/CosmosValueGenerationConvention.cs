@@ -87,11 +87,8 @@ public class CosmosValueGenerationConvention :
             }
         }
 
-        if (propertyType != typeof(Guid))
-        {
-            return null;
-        }
-
-        return base.GetValueGenerated(property);
+        return propertyType != typeof(Guid)
+            ? null
+            : base.GetValueGenerated(property);
     }
 }

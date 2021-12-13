@@ -141,26 +141,19 @@ public class InternalSkipNavigationBuilder : InternalPropertyBaseBuilder<SkipNav
             return null;
         }
 
-        if (inverse != null)
+        inverse?.UpdateConfigurationSource(configurationSource);
+
+        using var _ = Metadata.DeclaringEntityType.Model.DelayConventions();
+
+        if (Metadata.Inverse != null
+            && Metadata.Inverse != inverse)
         {
-            inverse.UpdateConfigurationSource(configurationSource);
+            Metadata.Inverse.SetInverse(null, configurationSource);
         }
 
-        using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
-        {
-            if (Metadata.Inverse != null
-                && Metadata.Inverse != inverse)
-            {
-                Metadata.Inverse.SetInverse(null, configurationSource);
-            }
+        Metadata.SetInverse(inverse, configurationSource);
 
-            Metadata.SetInverse(inverse, configurationSource);
-
-            if (inverse != null)
-            {
-                inverse.SetInverse(Metadata, configurationSource);
-            }
-        }
+        inverse?.SetInverse(Metadata, configurationSource);
 
         return this;
     }

@@ -144,7 +144,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
         var comparers = properties.Select(p => p.GetKeyValueComparer()).ToList();
 
         return comparers.All(c => c != null)
-            ? new CompositeCustomComparer(comparers!)
+            ? new CompositeCustomComparer(comparers)
             : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
                 ? new StructuralCompositeComparer()
                 : new CompositeComparer();

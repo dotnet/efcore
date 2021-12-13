@@ -143,7 +143,7 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
     /// <inheritdoc />
     public override EntityShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
-            // Marking nullable requires recomputation of Discriminator condition
+            // Marking nullable requires re-computation of Discriminator condition
             ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
             : this;
 

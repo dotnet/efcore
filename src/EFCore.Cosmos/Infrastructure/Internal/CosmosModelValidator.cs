@@ -128,10 +128,7 @@ public class CosmosModelValidator : ModelValidator
                 break;
             }
 
-            if (firstEntityType == null)
-            {
-                firstEntityType = entityType;
-            }
+            firstEntityType ??= entityType;
 
             if (entityType.ClrType.IsInstantiable()
                 && entityType.GetContainingPropertyName() == null)
