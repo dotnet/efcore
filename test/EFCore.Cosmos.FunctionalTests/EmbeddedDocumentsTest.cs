@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Newtonsoft.Json.Linq;
-using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos;

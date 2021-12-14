@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
-using Xunit.Abstractions;
 
 #nullable enable
 

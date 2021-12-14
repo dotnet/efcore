@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

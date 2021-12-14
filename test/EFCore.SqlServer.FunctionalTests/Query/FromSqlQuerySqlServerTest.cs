@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -63,7 +62,7 @@ WHERE [m].[ContactName] LIKE N'%z%'";
             @"SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
 
-        
+" + @"        " + @"
 
 
     SELECT

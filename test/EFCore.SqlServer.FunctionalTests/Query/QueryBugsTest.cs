@@ -15,7 +15,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
-using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
