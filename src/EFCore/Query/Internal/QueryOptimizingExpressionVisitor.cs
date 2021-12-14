@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> _singleResultMethodInfos = new()
+    private static readonly List<MethodInfo> SingleResultMethodInfos = new()
     {
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
@@ -32,19 +32,19 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
     };
 
-    private static readonly MethodInfo _stringCompareWithComparisonMethod =
+    private static readonly MethodInfo StringCompareWithComparisonMethod =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string), typeof(StringComparison));
 
-    private static readonly MethodInfo _stringCompareWithoutComparisonMethod =
+    private static readonly MethodInfo StringCompareWithoutComparisonMethod =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _startsWithMethodInfo =
+    private static readonly MethodInfo StartsWithMethodInfo =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
-    private static readonly MethodInfo _endsWithMethodInfo =
+    private static readonly MethodInfo EndsWithMethodInfo =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
-    private static readonly Expression _constantNullString = Expression.Constant(null, typeof(string));
+    private static readonly Expression ConstantNullString = Expression.Constant(null, typeof(string));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +83,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                     && methodCallExpression.Method.DeclaringType == typeof(Queryable)
                     && methodCallExpression.Method.IsGenericMethod
                     && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
-                    && _singleResultMethodInfos.Contains(genericMethod))
+                    && SingleResultMethodInfos.Contains(genericMethod))
                 {
                     var result = Expression.Call(
                         (methodCallExpression.Arguments.Count == 2
@@ -208,8 +208,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (Equals(_startsWithMethodInfo, methodCallExpression.Method)
-            || Equals(_endsWithMethodInfo, methodCallExpression.Method))
+        if (Equals(StartsWithMethodInfo, methodCallExpression.Method)
+            || Equals(EndsWithMethodInfo, methodCallExpression.Method))
         {
             if (methodCallExpression.Arguments[0] is ConstantExpression constantArgument
                 && constantArgument.Value is string stringValue
@@ -223,9 +223,9 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             var newArgument = Visit(methodCallExpression.Arguments[0]);
 
             var result = Expression.AndAlso(
-                Expression.NotEqual(newObject, _constantNullString),
+                Expression.NotEqual(newObject, ConstantNullString),
                 Expression.AndAlso(
-                    Expression.NotEqual(newArgument, _constantNullString),
+                    Expression.NotEqual(newArgument, ConstantNullString),
                     methodCallExpression.Update(newObject, new[] { newArgument })));
 
             return newArgument is ConstantExpression
@@ -308,12 +308,12 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             return textCompareConstantExpression.Value is bool boolValue
                 && boolValue
                     ? Expression.Call(
-                        _stringCompareWithComparisonMethod,
+                        StringCompareWithComparisonMethod,
                         visited.Arguments[0],
                         visited.Arguments[1],
                         Expression.Constant(StringComparison.OrdinalIgnoreCase))
                     : Expression.Call(
-                        _stringCompareWithoutComparisonMethod,
+                        StringCompareWithoutComparisonMethod,
                         visited.Arguments[0],
                         visited.Arguments[1]);
         }
@@ -374,8 +374,8 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     {
         if (unaryExpression.NodeType == ExpressionType.Not
             && unaryExpression.Operand is MethodCallExpression innerMethodCall
-            && (Equals(_startsWithMethodInfo, innerMethodCall.Method)
-                || Equals(_endsWithMethodInfo, innerMethodCall.Method)))
+            && (Equals(StartsWithMethodInfo, innerMethodCall.Method)
+                || Equals(EndsWithMethodInfo, innerMethodCall.Method)))
         {
             if (innerMethodCall.Arguments[0] is ConstantExpression constantArgument
                 && constantArgument.Value is string stringValue
@@ -389,9 +389,9 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             var newArgument = Visit(innerMethodCall.Arguments[0]);
 
             var result = Expression.AndAlso(
-                Expression.NotEqual(newObject, _constantNullString),
+                Expression.NotEqual(newObject, ConstantNullString),
                 Expression.AndAlso(
-                    Expression.NotEqual(newArgument, _constantNullString),
+                    Expression.NotEqual(newArgument, ConstantNullString),
                     Expression.Not(innerMethodCall.Update(newObject, new[] { newArgument }))));
 
             return newArgument is ConstantExpression

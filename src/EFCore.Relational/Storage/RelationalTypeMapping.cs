@@ -221,10 +221,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
                 Scale);
     }
 
-    private static readonly MethodInfo _getFieldValueMethod
+    private static readonly MethodInfo GetFieldValueMethod
         = GetDataReaderMethod(nameof(DbDataReader.GetFieldValue));
 
-    private static readonly IDictionary<Type, MethodInfo> _getXMethods
+    private static readonly IDictionary<Type, MethodInfo> GetXMethods
         = new Dictionary<Type, MethodInfo>
         {
             { typeof(bool), GetDataReaderMethod(nameof(DbDataReader.GetBoolean)) },
@@ -590,9 +590,9 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// </summary>
     /// <returns>The method to use to read the value.</returns>
     public static MethodInfo GetDataReaderMethod(Type type)
-        => _getXMethods.TryGetValue(type, out var method)
+        => GetXMethods.TryGetValue(type, out var method)
             ? method
-            : _getFieldValueMethod.MakeGenericMethod(type);
+            : GetFieldValueMethod.MakeGenericMethod(type);
 
     /// <summary>
     ///     Gets a custom expression tree for reading the value from the input data reader

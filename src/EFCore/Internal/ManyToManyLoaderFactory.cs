@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 /// </summary>
 public class ManyToManyLoaderFactory
 {
-    private static readonly MethodInfo _genericCreate
+    private static readonly MethodInfo GenericCreate
         = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateManyToMany));
 
     /// <summary>
@@ -23,7 +23,7 @@ public class ManyToManyLoaderFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ICollectionLoader Create(ISkipNavigation skipNavigation)
-        => (ICollectionLoader)_genericCreate.MakeGenericMethod(
+        => (ICollectionLoader)GenericCreate.MakeGenericMethod(
                 skipNavigation.TargetEntityType.ClrType,
                 skipNavigation.DeclaringEntityType.ClrType)
             .Invoke(null, new object[] { skipNavigation })!;

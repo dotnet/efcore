@@ -14,7 +14,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private class ExpandingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo _objectEqualsMethodInfo
+        private static readonly MethodInfo ObjectEqualsMethodInfo
             = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
         private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
@@ -410,7 +410,7 @@ public partial class NavigationExpandingExpressionVisitor
                                 })
                             .Aggregate((l, r) => Expression.AndAlso(l, r))
                         : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                    Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey)));
+                    Expression.Call(ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey)));
 
                 // Caller should take care of wrapping MaterializeCollectionNavigation
                 return Expression.Call(
@@ -486,7 +486,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
     {
-        private static readonly MethodInfo _fetchJoinEntityMethodInfo =
+        private static readonly MethodInfo FetchJoinEntityMethodInfo =
             typeof(IncludeExpandingExpressionVisitor).GetRequiredDeclaredMethod(nameof(FetchJoinEntity));
 
         private readonly bool _queryStateManager;
@@ -811,7 +811,7 @@ public partial class NavigationExpandingExpressionVisitor
                             var newResultSelector = Expression.Quote(
                                 Expression.Lambda(
                                     Expression.Call(
-                                        _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
+                                        FetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
                                         joinParameter,
                                         targetParameter),
                                     joinParameter,
@@ -857,7 +857,7 @@ public partial class NavigationExpandingExpressionVisitor
                             var selector = Expression.Quote(
                                 Expression.Lambda(
                                     Expression.Call(
-                                        _fetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
+                                        FetchJoinEntityMethodInfo.MakeGenericMethod(joinParameter.Type, targetParameter.Type),
                                         Expression.MakeMemberAccess(
                                             transparentIdentifierParameter, transparentIdentifierOuterMemberInfo),
                                         transparentIdentifierInnerAccessor),

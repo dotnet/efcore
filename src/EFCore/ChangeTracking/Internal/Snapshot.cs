@@ -129,7 +129,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24, T25, T26, T27, T28, T29>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24, T25, T26, T27, T28, T29>>();
@@ -243,7 +243,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24, T25, T26, T27, T28, T29>, T>)_valueReaders[index])(this);
+            T24, T25, T26, T27, T28, T29>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -398,7 +398,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24, T25, T26, T27, T28>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24, T25, T26, T27, T28>>();
@@ -509,7 +509,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24, T25, T26, T27, T28>, T>)_valueReaders[index])(this);
+            T24, T25, T26, T27, T28>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -660,7 +660,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24, T25, T26, T27>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24, T25, T26, T27>>();
@@ -768,7 +768,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24, T25, T26, T27>, T>)_valueReaders[index])(this);
+            T24, T25, T26, T27>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -915,7 +915,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24, T25, T26>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24, T25, T26>>();
@@ -1020,7 +1020,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24, T25, T26>, T>)_valueReaders[index])(this);
+            T24, T25, T26>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1163,7 +1163,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24, T25>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24, T25>>();
@@ -1265,7 +1265,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24, T25>, T>)_valueReaders[index])(this);
+            T24, T25>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1404,7 +1404,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23, T24>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23, T24>>();
@@ -1503,7 +1503,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23,
-            T24>, T>)_valueReaders[index])(this);
+            T24>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1638,7 +1638,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
         T23>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22, T23>>();
@@ -1734,7 +1734,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, T23>
-            , T>)_valueReaders[index])(this);
+            , T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1864,7 +1864,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                 T22>>();
@@ -1957,7 +1957,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22>, T>)
-            _valueReaders[index])(this);
+            ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2083,7 +2083,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
             >();
@@ -2173,7 +2173,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>, T>)
-            _valueReaders[index])(this);
+            ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2295,7 +2295,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot
             .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>>();
 
@@ -2381,7 +2381,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     /// </summary>
     public T GetValue<T>(int index)
         => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>, T>)
-            _valueReaders[index])(this);
+            ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2499,7 +2499,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>>();
 
     /// <summary>
@@ -2580,7 +2580,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>, T>)_valueReaders
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>, T>)ValueReaders
             [index])(this);
 
     /// <summary>
@@ -2695,7 +2695,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>>();
 
     /// <summary>
@@ -2773,7 +2773,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>, T>)_valueReaders[index]
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>, T>)ValueReaders[index]
             )(this);
 
     /// <summary>
@@ -2884,7 +2884,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>>();
 
     /// <summary>
@@ -2959,7 +2959,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>, T>)_valueReaders[index])(
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>, T>)ValueReaders[index])(
             this);
 
     /// <summary>
@@ -3066,7 +3066,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>>();
 
     /// <summary>
@@ -3138,7 +3138,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3240,7 +3240,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>();
 
     /// <summary>
@@ -3309,7 +3309,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3407,7 +3407,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>();
 
     /// <summary>
@@ -3473,7 +3473,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3567,7 +3567,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>();
 
     /// <summary>
@@ -3630,7 +3630,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3720,7 +3720,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>();
 
     /// <summary>
@@ -3780,7 +3780,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3866,7 +3866,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>();
 
     /// <summary>
@@ -3923,7 +3923,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4005,7 +4005,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>();
 
     /// <summary>
@@ -4059,7 +4059,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4137,7 +4137,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>();
 
     /// <summary>
@@ -4188,7 +4188,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4262,7 +4262,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>>();
 
     /// <summary>
@@ -4310,7 +4310,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4380,7 +4380,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>>();
 
     /// <summary>
@@ -4425,7 +4425,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4491,7 +4491,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6>>();
 
     /// <summary>
@@ -4533,7 +4533,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5, T6>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4595,7 +4595,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5, T6>
 public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5>>();
 
     /// <summary>
@@ -4634,7 +4634,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4, T5>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4692,7 +4692,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4, T5>
 public sealed class Snapshot<T0, T1, T2, T3, T4>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4>>();
 
     /// <summary>
@@ -4728,7 +4728,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3, T4>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3, T4>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4782,7 +4782,7 @@ public sealed class Snapshot<T0, T1, T2, T3, T4>
 public sealed class Snapshot<T0, T1, T2, T3>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3>>();
 
     /// <summary>
@@ -4815,7 +4815,7 @@ public sealed class Snapshot<T0, T1, T2, T3>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2, T3>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2, T3>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4865,7 +4865,7 @@ public sealed class Snapshot<T0, T1, T2, T3>
 public sealed class Snapshot<T0, T1, T2>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1, T2>>();
 
     /// <summary>
@@ -4895,7 +4895,7 @@ public sealed class Snapshot<T0, T1, T2>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1, T2>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1, T2>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4941,7 +4941,7 @@ public sealed class Snapshot<T0, T1, T2>
 public sealed class Snapshot<T0, T1>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0, T1>>();
 
     /// <summary>
@@ -4968,7 +4968,7 @@ public sealed class Snapshot<T0, T1>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0, T1>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0, T1>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5010,7 +5010,7 @@ public sealed class Snapshot<T0, T1>
 public sealed class Snapshot<T0>
     : ISnapshot
 {
-    private static readonly Delegate[] _valueReaders
+    private static readonly Delegate[] ValueReaders
         = Snapshot.CreateReaders<Snapshot<T0>>();
 
     /// <summary>
@@ -5034,7 +5034,7 @@ public sealed class Snapshot<T0>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public T GetValue<T>(int index)
-        => ((Func<Snapshot<T0>, T>)_valueReaders[index])(this);
+        => ((Func<Snapshot<T0>, T>)ValueReaders[index])(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

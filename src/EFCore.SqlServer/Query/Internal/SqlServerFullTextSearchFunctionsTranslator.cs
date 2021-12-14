@@ -17,29 +17,29 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
     private const string FreeTextFunctionName = "FREETEXT";
     private const string ContainsFunctionName = "CONTAINS";
 
-    private static readonly MethodInfo _freeTextMethodInfo
+    private static readonly MethodInfo FreeTextMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string));
 
-    private static readonly MethodInfo _freeTextMethodInfoWithLanguage
+    private static readonly MethodInfo FreeTextMethodInfoWithLanguage
         = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
 
-    private static readonly MethodInfo _containsMethodInfo
+    private static readonly MethodInfo ContainsMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string));
 
-    private static readonly MethodInfo _containsMethodInfoWithLanguage
+    private static readonly MethodInfo ContainsMethodInfoWithLanguage
         = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
 
-    private static readonly IDictionary<MethodInfo, string> _functionMapping
+    private static readonly IDictionary<MethodInfo, string> FunctionMapping
         = new Dictionary<MethodInfo, string>
         {
-            { _freeTextMethodInfo, FreeTextFunctionName },
-            { _freeTextMethodInfoWithLanguage, FreeTextFunctionName },
-            { _containsMethodInfo, ContainsFunctionName },
-            { _containsMethodInfoWithLanguage, ContainsFunctionName }
+            { FreeTextMethodInfo, FreeTextFunctionName },
+            { FreeTextMethodInfoWithLanguage, FreeTextFunctionName },
+            { ContainsMethodInfo, ContainsFunctionName },
+            { ContainsMethodInfoWithLanguage, ContainsFunctionName }
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -67,7 +67,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (_functionMapping.TryGetValue(method, out var functionName))
+        if (FunctionMapping.TryGetValue(method, out var functionName))
         {
             var propertyReference = arguments[1];
             if (!(propertyReference is ColumnExpression))

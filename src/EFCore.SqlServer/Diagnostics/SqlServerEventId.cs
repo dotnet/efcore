@@ -71,10 +71,10 @@ public static class SqlServerEventId
         MissingViewDefinitionRightsWarning,
     }
 
-    private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
+    private static readonly string ValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
     private static EventId MakeValidationId(Id id)
-        => new((int)id, _validationPrefix + id);
+        => new((int)id, ValidationPrefix + id);
 
     /// <summary>
     ///     Decimal column is part of the key.
@@ -130,10 +130,10 @@ public static class SqlServerEventId
     public static readonly EventId ConflictingValueGenerationStrategiesWarning =
         MakeValidationId(Id.ConflictingValueGenerationStrategiesWarning);
 
-    private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
+    private static readonly string TransactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
 
     private static EventId MakeTransactionId(Id id)
-        => new((int)id, _transactionPrefix + id);
+        => new((int)id, TransactionPrefix + id);
 
     /// <summary>
     ///     Savepoints have been disabled when saving changes with an external transaction, because Multiple Active Result Sets is
@@ -144,10 +144,10 @@ public static class SqlServerEventId
     /// </remarks>
     public static readonly EventId SavepointsDisabledBecauseOfMARS = MakeTransactionId(Id.SavepointsDisabledBecauseOfMARS);
 
-    private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
+    private static readonly string ScaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
 
     private static EventId MakeScaffoldingId(Id id)
-        => new((int)id, _scaffoldingPrefix + id);
+        => new((int)id, ScaffoldingPrefix + id);
 
     /// <summary>
     ///     A column was found.

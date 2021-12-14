@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> _datePartMappings = new()
+    private static readonly Dictionary<string, string> DatePartMappings = new()
     {
         { nameof(TimeSpan.Hours), "hour" },
         { nameof(TimeSpan.Minutes), "minute" },
@@ -46,7 +46,7 @@ public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
         Type returnType,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (member.DeclaringType == typeof(TimeSpan) && _datePartMappings.TryGetValue(member.Name, out var value))
+        if (member.DeclaringType == typeof(TimeSpan) && DatePartMappings.TryGetValue(member.Name, out var value))
         {
             return _sqlExpressionFactory.Function(
                 "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },

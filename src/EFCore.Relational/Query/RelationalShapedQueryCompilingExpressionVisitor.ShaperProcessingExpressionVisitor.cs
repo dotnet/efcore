@@ -14,60 +14,60 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     private sealed class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         // Reading database values
-        private static readonly MethodInfo _isDbNullMethod =
+        private static readonly MethodInfo IsDbNullMethod =
             typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), typeof(int));
 
-        private static readonly MethodInfo _getFieldValueMethod =
+        public static readonly MethodInfo GetFieldValueMethod =
             typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), typeof(int));
 
-        private static readonly MethodInfo _throwReadValueExceptionMethod =
+        private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ThrowReadValueException));
 
         // Coordinating results
-        private static readonly MemberInfo _resultContextValuesMemberInfo
+        private static readonly MemberInfo ResultContextValuesMemberInfo
             = typeof(ResultContext).GetMember(nameof(ResultContext.Values))[0];
 
-        private static readonly MemberInfo _singleQueryResultCoordinatorResultReadyMemberInfo
+        private static readonly MemberInfo SingleQueryResultCoordinatorResultReadyMemberInfo
             = typeof(SingleQueryResultCoordinator).GetMember(nameof(SingleQueryResultCoordinator.ResultReady))[0];
 
         // Performing collection materialization
-        private static readonly MethodInfo _includeReferenceMethodInfo
+        private static readonly MethodInfo IncludeReferenceMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
 
-        private static readonly MethodInfo _initializeIncludeCollectionMethodInfo
+        private static readonly MethodInfo InitializeIncludeCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeIncludeCollection));
 
-        private static readonly MethodInfo _populateIncludeCollectionMethodInfo
+        private static readonly MethodInfo PopulateIncludeCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateIncludeCollection));
 
-        private static readonly MethodInfo _initializeSplitIncludeCollectionMethodInfo
+        private static readonly MethodInfo InitializeSplitIncludeCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitIncludeCollection));
 
-        private static readonly MethodInfo _populateSplitIncludeCollectionMethodInfo
+        private static readonly MethodInfo PopulateSplitIncludeCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollection));
 
-        private static readonly MethodInfo _populateSplitIncludeCollectionAsyncMethodInfo
+        private static readonly MethodInfo PopulateSplitIncludeCollectionAsyncMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollectionAsync));
 
-        private static readonly MethodInfo _initializeCollectionMethodInfo
+        private static readonly MethodInfo InitializeCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeCollection));
 
-        private static readonly MethodInfo _populateCollectionMethodInfo
+        private static readonly MethodInfo PopulateCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateCollection));
 
-        private static readonly MethodInfo _initializeSplitCollectionMethodInfo
+        private static readonly MethodInfo InitializeSplitCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitCollection));
 
-        private static readonly MethodInfo _populateSplitCollectionMethodInfo
+        private static readonly MethodInfo PopulateSplitCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollection));
 
-        private static readonly MethodInfo _populateSplitCollectionAsyncMethodInfo
+        private static readonly MethodInfo PopulateSplitCollectionAsyncMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollectionAsync));
 
-        private static readonly MethodInfo _taskAwaiterMethodInfo
+        private static readonly MethodInfo TaskAwaiterMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(TaskAwaiter));
 
-        private static readonly MethodInfo _collectionAccessorAddMethodInfo
+        private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
@@ -113,7 +113,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
             = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
-        private readonly IDictionary<ParameterExpression, int> entityTypeIdentifyingExpressionOffsets
+        private readonly IDictionary<ParameterExpression, int> _entityTypeIdentifyingExpressionOffsets
             = new Dictionary<ParameterExpression, int>();
 
         public ShaperProcessingExpressionVisitor(
@@ -259,7 +259,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                _valuesArrayExpression = Expression.MakeMemberAccess(_resultContextParameter, _resultContextValuesMemberInfo);
+                _valuesArrayExpression = Expression.MakeMemberAccess(_resultContextParameter, ResultContextValuesMemberInfo);
                 _collectionPopulatingExpressions = new List<Expression>();
                 _valuesArrayInitializers = new List<Expression>();
 
@@ -288,7 +288,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 e => Expression.Lambda<Func<Task>>(e)));
                         relatedDataLoaders =
                             Expression.Lambda<Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>>(
-                                Expression.Call(_taskAwaiterMethodInfo, tasks),
+                                Expression.Call(TaskAwaiterMethodInfo, tasks),
                                 QueryCompilationContext.QueryContextParameter,
                                 _executionStrategyParameter!,
                                 _resultCoordinatorParameter);
@@ -320,7 +320,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Expression.Condition(
                             Expression.IsTrue(
                                 Expression.MakeMemberAccess(
-                                    _resultCoordinatorParameter, _singleQueryResultCoordinatorResultReadyMemberInfo)),
+                                    _resultCoordinatorParameter, SingleQueryResultCoordinatorResultReadyMemberInfo)),
                             result,
                             Expression.Default(result.Type)));
 
@@ -359,7 +359,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 var propertyMap = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
                 _materializationContextBindings[parameterExpression] = propertyMap;
-                entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
+                _entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
 
                 var updatedExpression = newExpression.Update(
                     new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
@@ -520,7 +520,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _includeExpressions.Add(
                             Expression.Call(
-                                _initializeIncludeCollectionMethodInfo.MakeGenericMethod(entityType, includingEntityType),
+                                InitializeIncludeCollectionMethodInfo.MakeGenericMethod(entityType, includingEntityType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
@@ -540,7 +540,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _collectionPopulatingExpressions!.Add(
                             Expression.Call(
-                                _populateIncludeCollectionMethodInfo.MakeGenericMethod(includingEntityType, relatedEntityType),
+                                PopulateIncludeCollectionMethodInfo.MakeGenericMethod(includingEntityType, relatedEntityType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
@@ -606,7 +606,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _includeExpressions.Add(
                             Expression.Call(
-                                _initializeSplitIncludeCollectionMethodInfo.MakeGenericMethod(entityType, includingEntityType),
+                                InitializeSplitIncludeCollectionMethodInfo.MakeGenericMethod(entityType, includingEntityType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
@@ -625,7 +625,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _collectionPopulatingExpressions!.Add(
                             Expression.Call(
-                                (_isAsync ? _populateSplitIncludeCollectionAsyncMethodInfo : _populateSplitIncludeCollectionMethodInfo)
+                                (_isAsync ? PopulateSplitIncludeCollectionAsyncMethodInfo : PopulateSplitIncludeCollectionMethodInfo)
                                 .MakeGenericMethod(includingEntityType, relatedEntityType),
                                 collectionIdConstant,
                                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
@@ -664,7 +664,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         }
 
                         var updatedExpression = Expression.Call(
-                            _includeReferenceMethodInfo.MakeGenericMethod(entityType, includingType, relatedEntityType),
+                            IncludeReferenceMethodInfo.MakeGenericMethod(entityType, includingType, relatedEntityType),
                             QueryCompilationContext.QueryContextParameter,
                             entity,
                             navigationExpression,
@@ -723,7 +723,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Expression.Assign(
                                 collectionParameter,
                                 Expression.Call(
-                                    _initializeCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
+                                    InitializeCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
                                     collectionIdConstant,
                                     QueryCompilationContext.QueryContextParameter,
                                     _dataReaderParameter,
@@ -741,7 +741,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _collectionPopulatingExpressions!.Add(
                             Expression.Call(
-                                _populateCollectionMethodInfo.MakeGenericMethod(collectionType, elementType, relatedElementType),
+                                PopulateCollectionMethodInfo.MakeGenericMethod(collectionType, elementType, relatedElementType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
@@ -810,7 +810,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Expression.Assign(
                                 collectionParameter,
                                 Expression.Call(
-                                    _initializeSplitCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
+                                    InitializeSplitCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
                                     collectionIdConstant,
                                     QueryCompilationContext.QueryContextParameter,
                                     _dataReaderParameter,
@@ -827,7 +827,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _collectionPopulatingExpressions!.Add(
                             Expression.Call(
-                                (_isAsync ? _populateSplitCollectionAsyncMethodInfo : _populateSplitCollectionMethodInfo)
+                                (_isAsync ? PopulateSplitCollectionAsyncMethodInfo : PopulateSplitCollectionMethodInfo)
                                 .MakeGenericMethod(collectionType, elementType, relatedElementType),
                                 collectionIdConstant,
                                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
@@ -868,7 +868,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
                 var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                 var projectionIndex = property == null
-                    ? entityTypeIdentifyingExpressionOffsets[mappingParameter]
+                    ? _entityTypeIdentifyingExpressionOffsets[mappingParameter]
                     + methodCallExpression.Arguments[1].GetConstantValue<int>()
                     : _materializationContextBindings[mappingParameter][property];
                 var projection = _selectExpression.Projection[projectionIndex];
@@ -929,7 +929,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase navigation)
             => Expression.Call(
                 Expression.Constant(navigation.GetCollectionAccessor()),
-                _collectionAccessorAddMethodInfo,
+                CollectionAccessorAddMethodInfo,
                 entity,
                 relatedEntity,
                 Expression.Constant(true));
@@ -1050,7 +1050,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
 
                 valueExpression = Expression.Condition(
-                    Expression.Call(dbDataReader, _isDbNullMethod, indexExpression),
+                    Expression.Call(dbDataReader, IsDbNullMethod, indexExpression),
                     replaceExpression,
                     valueExpression);
             }
@@ -1063,9 +1063,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 var catchBlock = Expression.Catch(
                     exceptionParameter,
                     Expression.Call(
-                        _throwReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
+                        ThrowReadValueExceptionMethod.MakeGenericMethod(valueExpression.Type),
                         exceptionParameter,
-                        Expression.Call(dbDataReader, _getFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
+                        Expression.Call(dbDataReader, GetFieldValueMethod.MakeGenericMethod(typeof(object)), indexExpression),
                         Expression.Constant(valueExpression.Type.MakeNullable(nullable), typeof(Type)),
                         Expression.Constant(property, typeof(IPropertyBase))));
 

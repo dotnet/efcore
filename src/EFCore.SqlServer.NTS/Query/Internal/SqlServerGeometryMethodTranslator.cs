@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
 {
-    private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
+    private static readonly IDictionary<MethodInfo, string> MethodToFunctionName = new Dictionary<MethodInfo, string>
     {
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes), "STAsBinary" },
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes), "AsTextZM" },
@@ -36,17 +36,17 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), typeof(Geometry)), "STWithin" }
     };
 
-    private static readonly IDictionary<MethodInfo, string> _geometryMethodToFunctionName = new Dictionary<MethodInfo, string>
+    private static readonly IDictionary<MethodInfo, string> GeometryMethodToFunctionName = new Dictionary<MethodInfo, string>
     {
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Crosses), typeof(Geometry)), "STCrosses" },
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Relate), typeof(Geometry), typeof(string)), "STRelate" },
         { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Touches), typeof(Geometry)), "STTouches" }
     };
 
-    private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo GetGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
         nameof(Geometry.GetGeometryN), typeof(int));
 
-    private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo IsWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
         nameof(Geometry.IsWithinDistance), typeof(Geometry), typeof(double));
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -89,8 +89,8 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
             var storeType = typeMapping.StoreType;
             var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
-            if (_methodToFunctionName.TryGetValue(method, out var functionName)
-                || (!isGeography && _geometryMethodToFunctionName.TryGetValue(method, out functionName)))
+            if (MethodToFunctionName.TryGetValue(method, out var functionName)
+                || (!isGeography && GeometryMethodToFunctionName.TryGetValue(method, out functionName)))
             {
                 instance = _sqlExpressionFactory.ApplyTypeMapping(
                     instance, _typeMappingSource.FindMapping(instance.Type, storeType));
@@ -129,7 +129,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                     resultTypeMapping);
             }
 
-            if (Equals(method, _getGeometryN))
+            if (Equals(method, GetGeometryN))
             {
                 return _sqlExpressionFactory.Function(
                     instance,
@@ -147,7 +147,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }
 
-            if (Equals(method, _isWithinDistance))
+            if (Equals(method, IsWithinDistance))
             {
                 instance = _sqlExpressionFactory.ApplyTypeMapping(
                     instance, _typeMappingSource.FindMapping(instance.Type, storeType));

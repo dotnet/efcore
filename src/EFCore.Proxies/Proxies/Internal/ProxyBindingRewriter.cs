@@ -14,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 /// </summary>
 public class ProxyBindingRewriter : IModelFinalizingConvention
 {
-    private static readonly MethodInfo _createLazyLoadingProxyMethod
+    private static readonly MethodInfo CreateLazyLoadingProxyMethod
         = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy))!;
 
-    private static readonly PropertyInfo _lazyLoaderProperty
+    private static readonly PropertyInfo LazyLoaderProperty
         = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
 
-    private static readonly MethodInfo _createProxyMethod
+    private static readonly MethodInfo CreateProxyMethod
         = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateProxy))!;
 
     private readonly ConstructorBindingConvention _directBindingConvention;
@@ -210,7 +210,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                 .FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
             if (serviceProperty == null)
             {
-                serviceProperty = entityType.AddServiceProperty(_lazyLoaderProperty);
+                serviceProperty = entityType.AddServiceProperty(LazyLoaderProperty);
                 serviceProperty.SetParameterBinding(
                     (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
                             LazyLoaderParameterBindingFactoryDependencies)
@@ -222,7 +222,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
 
             return new FactoryMethodBinding(
                 _proxyFactory,
-                _createLazyLoadingProxyMethod,
+                CreateLazyLoadingProxyMethod,
                 new List<ParameterBinding>
                 {
                     new ContextParameterBinding(typeof(DbContext)),
@@ -236,7 +236,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
 
         return new FactoryMethodBinding(
             _proxyFactory,
-            _createProxyMethod,
+            CreateProxyMethod,
             new List<ParameterBinding>
             {
                 new ContextParameterBinding(typeof(DbContext)),

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class SqlUnaryExpression : SqlExpression
 {
-    private static readonly ISet<ExpressionType> _allowedOperators = new HashSet<ExpressionType>
+    private static readonly ISet<ExpressionType> AllowedOperators = new HashSet<ExpressionType>
     {
         ExpressionType.Not,
         ExpressionType.Negate,
@@ -21,7 +21,7 @@ public class SqlUnaryExpression : SqlExpression
     };
 
     private static ExpressionType VerifyOperator(ExpressionType operatorType)
-        => _allowedOperators.Contains(operatorType)
+        => AllowedOperators.Contains(operatorType)
             ? operatorType
             : throw new InvalidOperationException(
                 CosmosStrings.UnsupportedOperatorForSqlExpression(

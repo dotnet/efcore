@@ -22,11 +22,11 @@ public class PropertyAccessorsFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual PropertyAccessors Create(IPropertyBase propertyBase)
-        => (PropertyAccessors)_genericCreate
+        => (PropertyAccessors)GenericCreate
             .MakeGenericMethod(propertyBase.ClrType)
             .Invoke(null, new object[] { propertyBase })!;
 
-    private static readonly MethodInfo _genericCreate
+    private static readonly MethodInfo GenericCreate
         = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric))!;
 
     [UsedImplicitly]

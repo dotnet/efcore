@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteDateTimeMemberTranslator : IMemberTranslator
 {
-    private static readonly Dictionary<string, string> _datePartMapping
+    private static readonly Dictionary<string, string> DatePartMapping
         = new()
         {
             { nameof(DateTime.Year), "%Y" },
@@ -55,7 +55,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
         {
             var memberName = member.Name;
 
-            if (_datePartMapping.TryGetValue(memberName, out var datePart))
+            if (DatePartMapping.TryGetValue(memberName, out var datePart))
             {
                 return _sqlExpressionFactory.Convert(
                     SqliteExpression.Strftime(

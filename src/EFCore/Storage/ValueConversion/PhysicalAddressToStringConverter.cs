@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?, string?>
 {
-    private static readonly ConverterMappingHints _defaultHints = new(size: 20);
+    private static readonly ConverterMappingHints DefaultHints = new(size: 20);
 
     /// <summary>
     ///     Creates a new instance of this converter.
@@ -40,7 +40,7 @@ public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?,
         : base(
             ToString(),
             ToPhysicalAddress(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -48,7 +48,7 @@ public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?,
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), _defaultHints);
+        = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), DefaultHints);
 
     private static new Expression<Func<PhysicalAddress?, string?>> ToString()
         => v => v!.ToString();

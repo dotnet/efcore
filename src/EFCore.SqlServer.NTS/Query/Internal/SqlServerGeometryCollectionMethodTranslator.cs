@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerGeometryCollectionMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _item = typeof(GeometryCollection).GetRequiredRuntimeProperty("Item").GetMethod!;
+    private static readonly MethodInfo Item = typeof(GeometryCollection).GetRequiredRuntimeProperty("Item").GetMethod!;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -44,7 +44,7 @@ public class SqlServerGeometryCollectionMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _item)
+        if (Equals(method, Item)
             && instance != null)
         {
             return _sqlExpressionFactory.Function(

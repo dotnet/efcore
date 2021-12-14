@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class ModelRuntimeInitializer : IModelRuntimeInitializer
 {
-    private static readonly object _syncObject = new();
+    private static readonly object SyncObject = new();
 
     /// <summary>
     ///     Creates a new <see cref="ModelRuntimeInitializer" /> instance.
@@ -58,7 +58,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
         if (model is Model mutableModel
             && !mutableModel.IsReadOnly)
         {
-            lock (_syncObject)
+            lock (SyncObject)
             {
                 if (!mutableModel.IsReadOnly)
                 {
@@ -70,7 +70,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
         if (model.ModelDependencies == null)
         {
             // Make sure InitializeModel really only gets called once, since it may not be thread safe or idempotent.
-            lock (_syncObject)
+            lock (SyncObject)
             {
                 if (model.ModelDependencies == null)
                 {

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 /// </summary>
 public class SqlServerCodeGenerator : ProviderCodeGenerator
 {
-    private static readonly MethodInfo _useSqlServerMethodInfo
+    private static readonly MethodInfo UseSqlServerMethodInfo
         = typeof(SqlServerDbContextOptionsExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
             typeof(DbContextOptionsBuilder),
@@ -37,7 +37,7 @@ public class SqlServerCodeGenerator : ProviderCodeGenerator
         string connectionString,
         MethodCallCodeFragment? providerOptions)
         => new(
-            _useSqlServerMethodInfo,
+            UseSqlServerMethodInfo,
             providerOptions == null
                 ? new object[] { connectionString }
                 : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });

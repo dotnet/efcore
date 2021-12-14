@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class ModelValidator : IModelValidator
 {
-    private static readonly IEnumerable<string> _dictionaryProperties =
+    private static readonly IEnumerable<string> DictionaryProperties =
         typeof(IDictionary<string, object>).GetRuntimeProperties().Select(e => e.Name);
 
     /// <summary>
@@ -179,7 +179,7 @@ public class ModelValidator : IModelValidator
 
             if (entityType.IsPropertyBag)
             {
-                clrProperties.ExceptWith(_dictionaryProperties);
+                clrProperties.ExceptWith(DictionaryProperties);
             }
 
             if (clrProperties.Count <= 0)

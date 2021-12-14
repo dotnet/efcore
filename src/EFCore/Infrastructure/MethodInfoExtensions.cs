@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public static class MethodInfoExtensions
 {
-    private static readonly string _efTypeName = typeof(EF).FullName!;
+    private static readonly string EFTypeName = typeof(EF).FullName!;
 
     /// <summary>
     ///     Returns <see langword="true" /> if the given method is <see cref="EF.Property{TProperty}" />.
@@ -31,5 +31,5 @@ public static class MethodInfoExtensions
             // always true in .NET Native even if methods are the same
             || methodInfo?.IsGenericMethod == true
             && methodInfo.Name == nameof(EF.Property)
-            && methodInfo.DeclaringType?.FullName == _efTypeName;
+            && methodInfo.DeclaringType?.FullName == EFTypeName;
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Newtonsoft.Json.Linq;
 
 #nullable disable
@@ -15,24 +16,24 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
     private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase : ExpressionVisitor
     {
-        private static readonly MethodInfo _getItemMethodInfo
+        private static readonly MethodInfo GetItemMethodInfo
             = typeof(JObject).GetRuntimeProperties()
                 .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                 .GetMethod;
 
-        private static readonly PropertyInfo _jTokenTypePropertyInfo
+        private static readonly PropertyInfo JTokenTypePropertyInfo
             = typeof(JToken).GetRuntimeProperties()
                 .Single(mi => mi.Name == nameof(JToken.Type));
 
-        private static readonly MethodInfo _jTokenToObjectWithSerializerMethodInfo
+        private static readonly MethodInfo JTokenToObjectWithSerializerMethodInfo
             = typeof(JToken).GetRuntimeMethods()
                 .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 1 && mi.IsGenericMethodDefinition);
 
-        private static readonly MethodInfo _collectionAccessorAddMethodInfo
+        private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
-        private static readonly MethodInfo _collectionAccessorGetOrCreateMethodInfo
+        private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
 
@@ -54,7 +55,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         private List<IncludeExpression> _pendingIncludes
             = new();
 
-        private static readonly MethodInfo _toObjectWithSerializerMethodInfo
+        private static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
                 .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObjectWithSerializer));
 
@@ -271,7 +272,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                     var navigation = collectionShaperExpression.Navigation;
                     return Expression.Call(
-                        _populateCollectionMethodInfo.MakeGenericMethod(navigation.TargetEntityType.ClrType, navigation.ClrType),
+                        PopulateCollectionMethodInfo.MakeGenericMethod(navigation.TargetEntityType.ClrType, navigation.ClrType),
                         Expression.Constant(navigation.GetCollectionAccessor()),
                         entities);
                 }
@@ -349,7 +350,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             // Cosmos does not support Includes for ISkipNavigation
             var navigation = (INavigation)includeExpression.Navigation;
-            var includeMethod = navigation.IsCollection ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
+            var includeMethod = navigation.IsCollection ? IncludeCollectionMethodInfo : IncludeReferenceMethodInfo;
             var includingClrType = navigation.DeclaringEntityType.ClrType;
             var relatedEntityClrType = navigation.TargetEntityType.ClrType;
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -382,7 +383,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
-        private static readonly MethodInfo _includeReferenceMethodInfo
+        private static readonly MethodInfo IncludeReferenceMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IncludeReference));
 
@@ -428,7 +429,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static readonly MethodInfo _includeCollectionMethodInfo
+        private static readonly MethodInfo IncludeCollectionMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IncludeCollection));
 
@@ -532,7 +533,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             var getOrCreateExpression = Expression.Call(
                 Expression.Constant(navigation.GetCollectionAccessor()),
-                _collectionAccessorGetOrCreateMethodInfo,
+                CollectionAccessorGetOrCreateMethodInfo,
                 entityParameter,
                 Expression.Constant(true));
 
@@ -552,12 +553,12 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             INavigation navigation)
             => Expression.Call(
                 Expression.Constant(navigation.GetCollectionAccessor()),
-                _collectionAccessorAddMethodInfo,
+                CollectionAccessorAddMethodInfo,
                 entity,
                 relatedEntity,
                 Expression.Constant(true));
 
-        private static readonly MethodInfo _populateCollectionMethodInfo
+        private static readonly MethodInfo PopulateCollectionMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(PopulateCollection));
 
@@ -578,7 +579,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         protected abstract ProjectionExpression GetProjection(ProjectionBindingExpression projectionBindingExpression);
 
         private static Expression CreateReadJTokenExpression(Expression jObjectExpression, string propertyName)
-            => Expression.Call(jObjectExpression, _getItemMethodInfo, Expression.Constant(propertyName));
+            => Expression.Call(jObjectExpression, GetItemMethodInfo, Expression.Constant(propertyName));
 
         private Expression CreateGetValueExpression(
             Expression jObjectExpression,
@@ -684,7 +685,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         converter.ConvertFromProviderExpression.Parameters.Single(),
                         Expression.Call(
                             jTokenParameter,
-                            _jTokenToObjectWithSerializerMethodInfo.MakeGenericMethod(converter.ProviderClrType),
+                            JTokenToObjectWithSerializerMethodInfo.MakeGenericMethod(converter.ProviderClrType),
                             Expression.Constant(CosmosClientWrapper.Serializer)),
                         converter.ConvertFromProviderExpression.Body);
 
@@ -715,7 +716,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     Expression.OrElse(
                         Expression.Equal(jTokenParameter, Expression.Default(typeof(JToken))),
                         Expression.Equal(
-                            Expression.MakeMemberAccess(jTokenParameter, _jTokenTypePropertyInfo),
+                            Expression.MakeMemberAccess(jTokenParameter, JTokenTypePropertyInfo),
                             Expression.Constant(JTokenType.Null))),
                     replaceExpression,
                     body);
@@ -739,7 +740,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             => type == typeof(JToken)
                 ? jTokenExpression
                 : Expression.Call(
-                    _toObjectWithSerializerMethodInfo.MakeGenericMethod(type),
+                    ToObjectWithSerializerMethodInfo.MakeGenericMethod(type),
                     jTokenExpression);
 
         private static T SafeToObject<T>(JToken token)

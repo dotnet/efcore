@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _item = typeof(GeometryCollection).GetRequiredRuntimeProperty("Item").GetMethod!;
+    private static readonly MethodInfo Item = typeof(GeometryCollection).GetRequiredRuntimeProperty("Item").GetMethod!;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -40,7 +40,7 @@ public class SqliteGeometryCollectionMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _item))
+        if (Equals(method, Item))
         {
             return _sqlExpressionFactory.Function(
                 "GeometryN",

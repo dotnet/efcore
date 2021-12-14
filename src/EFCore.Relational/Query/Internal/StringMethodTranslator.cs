@@ -13,16 +13,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class StringMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _isNullOrEmptyMethodInfo
+    private static readonly MethodInfo IsNullOrEmptyMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), typeof(string));
 
-    private static readonly MethodInfo _concatMethodInfoTwoArgs
+    private static readonly MethodInfo ConcatMethodInfoTwoArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _concatMethodInfoThreeArgs
+    private static readonly MethodInfo ConcatMethodInfoThreeArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _concatMethodInfoFourArgs
+    private static readonly MethodInfo ConcatMethodInfoFourArgs
         = typeof(string).GetRequiredRuntimeMethod(
             nameof(string.Concat), typeof(string), typeof(string), typeof(string), typeof(string));
 
@@ -51,7 +51,7 @@ public class StringMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _isNullOrEmptyMethodInfo))
+        if (Equals(method, IsNullOrEmptyMethodInfo))
         {
             var argument = arguments[0];
 
@@ -62,14 +62,14 @@ public class StringMethodTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Constant(string.Empty)));
         }
 
-        if (Equals(method, _concatMethodInfoTwoArgs))
+        if (Equals(method, ConcatMethodInfoTwoArgs))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],
                 arguments[1]);
         }
 
-        if (Equals(method, _concatMethodInfoThreeArgs))
+        if (Equals(method, ConcatMethodInfoThreeArgs))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],
@@ -78,7 +78,7 @@ public class StringMethodTranslator : IMethodCallTranslator
                     arguments[2]));
         }
 
-        if (Equals(method, _concatMethodInfoFourArgs))
+        if (Equals(method, ConcatMethodInfoFourArgs))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],

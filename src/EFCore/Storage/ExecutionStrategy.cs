@@ -49,7 +49,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     /// <summary>
     ///     The default coefficient for the exponential function used to compute the delay between retries, must be nonnegative.
     /// </summary>
-    private static readonly TimeSpan _defaultCoefficient = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan DefaultCoefficient = TimeSpan.FromSeconds(1);
 
     /// <summary>
     ///     Creates a new instance of <see cref="ExecutionStrategy" />.
@@ -139,7 +139,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     /// </summary>
     protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
-    private static readonly AsyncLocal<ExecutionStrategy?> _current = new();
+    private static readonly AsyncLocal<ExecutionStrategy?> CurrentExecutionStrategy = new();
 
     /// <summary>
     ///     Gets or sets the currently executing strategy. All nested calls will be handled by the outermost strategy.
@@ -150,8 +150,8 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     /// </remarks>
     public static ExecutionStrategy? Current
     {
-        get => _current.Value;
-        protected set => _current.Value = value;
+        get => CurrentExecutionStrategy.Value;
+        protected set => CurrentExecutionStrategy.Value = value;
     }
 
     /// <summary>
@@ -437,7 +437,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
                 * (1.0 + Random.NextDouble() * (DefaultRandomFactor - 1.0));
 
             var delay = Math.Min(
-                _defaultCoefficient.TotalMilliseconds * delta,
+                DefaultCoefficient.TotalMilliseconds * delta,
                 MaxRetryDelay.TotalMilliseconds);
 
             return TimeSpan.FromMilliseconds(delay);

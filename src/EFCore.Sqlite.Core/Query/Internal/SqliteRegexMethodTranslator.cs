@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteRegexMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _regexIsMatchMethodInfo
+    private static readonly MethodInfo RegexIsMatchMethodInfo
         = typeof(Regex).GetRequiredRuntimeMethod(nameof(Regex.IsMatch), typeof(string), typeof(string));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -43,7 +43,7 @@ public class SqliteRegexMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.Equals(_regexIsMatchMethodInfo))
+        if (method.Equals(RegexIsMatchMethodInfo))
         {
             var input = arguments[0];
             var pattern = arguments[1];

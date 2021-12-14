@@ -213,12 +213,12 @@ public class QueryCompilationContext
                         kv =>
                             Expression.Call(
                                 QueryContextParameter,
-                                _queryContextAddParameterMethodInfo,
+                                QueryContextAddParameterMethodInfo,
                                 Expression.Constant(kv.Key),
                                 Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
                     .Append(query));
 
-    private static readonly MethodInfo _queryContextAddParameterMethodInfo
+    private static readonly MethodInfo QueryContextAddParameterMethodInfo
         = typeof(QueryContext).GetRequiredDeclaredMethod(nameof(QueryContext.AddParameter));
 
     private sealed class NotTranslatedExpressionType : Expression

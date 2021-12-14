@@ -30,7 +30,7 @@ public class CSharpHelper : ICSharpHelper
         _typeMappingSource = typeMappingSource;
     }
 
-    private static readonly IReadOnlyCollection<string> _keywords = new[]
+    private static readonly IReadOnlyCollection<string> Keywords = new[]
     {
         "__arglist",
         "__makeref",
@@ -115,7 +115,7 @@ public class CSharpHelper : ICSharpHelper
         "while"
     };
 
-    private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
+    private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> LiteralFuncs =
         new Dictionary<Type, Func<CSharpHelper, object, string>>
         {
             { typeof(bool), (c, v) => c.Literal((bool)v) },
@@ -261,7 +261,7 @@ public class CSharpHelper : ICSharpHelper
             identifier = uniqueIdentifier;
         }
 
-        return _keywords.Contains(identifier) ? "@" + identifier : identifier;
+        return Keywords.Contains(identifier) ? "@" + identifier : identifier;
     }
 
     private static void ChangeFirstLetterCase(StringBuilder builder, bool capitalize)
@@ -824,7 +824,7 @@ public class CSharpHelper : ICSharpHelper
 
         var literalType = value.GetType();
 
-        if (_literalFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
+        if (LiteralFuncs.TryGetValue(literalType.UnwrapNullableType(), out var literalFunc))
         {
             return literalFunc(this, value);
         }

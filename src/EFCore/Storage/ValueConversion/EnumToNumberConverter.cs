@@ -14,7 +14,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
     where TNumber : struct
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
+    private static readonly ConverterMappingHints? DefaultHints = CreateDefaultHints();
 
     private static ConverterMappingHints? CreateDefaultHints()
     {
@@ -51,7 +51,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
         : base(
             ToNumber(),
             ToEnum(),
-            _defaultHints?.With(mappingHints) ?? mappingHints)
+            DefaultHints?.With(mappingHints) ?? mappingHints)
     {
     }
 
@@ -59,7 +59,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
+        = new(typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), DefaultHints);
 
     private static Expression<Func<TEnum, TNumber>> ToNumber()
     {

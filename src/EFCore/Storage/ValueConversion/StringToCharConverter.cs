@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 /// </remarks>
 public class StringToCharConverter : StringCharConverter<string, char>
 {
-    private static readonly ConverterMappingHints _defaultHints = new(size: 1);
+    private static readonly ConverterMappingHints DefaultHints = new(size: 1);
 
     /// <summary>
     ///     Creates a new instance of this converter. This converter preserves order.
@@ -40,7 +40,7 @@ public class StringToCharConverter : StringCharConverter<string, char>
         : base(
             ToChar(),
             ToString(),
-            _defaultHints.With(mappingHints))
+            DefaultHints.With(mappingHints))
     {
     }
 
@@ -48,5 +48,5 @@ public class StringToCharConverter : StringCharConverter<string, char>
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(string), typeof(char), i => new StringToCharConverter(i.MappingHints), _defaultHints);
+        = new(typeof(string), typeof(char), i => new StringToCharConverter(i.MappingHints), DefaultHints);
 }

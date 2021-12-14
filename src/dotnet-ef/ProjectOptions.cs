@@ -13,6 +13,7 @@ internal class ProjectOptions
     public CommandOption? Framework { get; private set; }
     public CommandOption? Configuration { get; private set; }
     public CommandOption? Runtime { get; private set; }
+    // ReSharper disable once InconsistentNaming
     public CommandOption? MSBuildProjectExtensionsPath { get; private set; }
     public CommandOption? NoBuild { get; private set; }
 

@@ -17,7 +17,7 @@ namespace System;
 [DebuggerStepThrough]
 internal static class SharedTypeExtensions
 {
-    private static readonly Dictionary<Type, string> _builtInTypeNames = new()
+    private static readonly Dictionary<Type, string> BuiltInTypeNames = new()
     {
         { typeof(bool), "bool" },
         { typeof(byte), "byte" },
@@ -393,7 +393,7 @@ internal static class SharedTypeExtensions
     public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
         => type.GetMembersInHierarchy().Where(m => m.Name == name);
 
-    private static readonly Dictionary<Type, object> _commonTypeDictionary = new()
+    private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
     {
 #pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
         { typeof(int), default(int) },
@@ -426,7 +426,7 @@ internal static class SharedTypeExtensions
         // A bit of perf code to avoid calling Activator.CreateInstance for common types and
         // to avoid boxing on every call. This is about 50% faster than just calling CreateInstance
         // for all value types.
-        return _commonTypeDictionary.TryGetValue(type, out var value)
+        return CommonTypeDictionary.TryGetValue(type, out var value)
             ? value
             : Activator.CreateInstance(type);
     }
@@ -472,7 +472,7 @@ internal static class SharedTypeExtensions
         {
             ProcessArrayType(builder, type, fullName, compilable);
         }
-        else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
+        else if (BuiltInTypeNames.TryGetValue(type, out var builtInName))
         {
             builder.Append(builtInName);
         }
@@ -596,7 +596,7 @@ internal static class SharedTypeExtensions
 
     public static IEnumerable<string> GetNamespaces(this Type type)
     {
-        if (_builtInTypeNames.ContainsKey(type))
+        if (BuiltInTypeNames.ContainsKey(type))
         {
             yield break;
         }
@@ -616,10 +616,10 @@ internal static class SharedTypeExtensions
     }
 
     public static ConstantExpression GetDefaultValueConstant(this Type type)
-        => (ConstantExpression)_generateDefaultValueConstantMethod
+        => (ConstantExpression)GenerateDefaultValueConstantMethod
             .MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
 
-    private static readonly MethodInfo _generateDefaultValueConstantMethod =
+    private static readonly MethodInfo GenerateDefaultValueConstantMethod =
         typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant))!;
 
     private static ConstantExpression GenerateDefaultValueConstant<TDefault>()

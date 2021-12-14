@@ -16,21 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
-    private const string _runtimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+    private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly MethodInfo _parameterValueExtractor =
+    private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor));
 
-    private static readonly MethodInfo _parameterListValueExtractor =
+    private static readonly MethodInfo ParameterListValueExtractorMethod =
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
-    private static readonly MethodInfo _concatMethodInfo
+    private static readonly MethodInfo ConcatMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
 
-    private static readonly MethodInfo _stringEqualsWithStringComparison
+    private static readonly MethodInfo StringEqualsWithStringComparison
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
 
-    private static readonly MethodInfo _stringEqualsWithStringComparisonStatic
+    private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
     private readonly QueryCompilationContext _queryCompilationContext;
@@ -177,7 +177,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             return result;
         }
 
-        if (binaryExpression.Method == _concatMethodInfo)
+        if (binaryExpression.Method == ConcatMethodInfo)
         {
             return null;
         }
@@ -482,8 +482,8 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         if (translation == null)
         {
-            if (methodCallExpression.Method == _stringEqualsWithStringComparison
-                || methodCallExpression.Method == _stringEqualsWithStringComparisonStatic)
+            if (methodCallExpression.Method == StringEqualsWithStringComparison
+                || methodCallExpression.Method == StringEqualsWithStringComparisonStatic)
             {
                 AddTranslationErrorDetails(CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
             }
@@ -729,7 +729,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
+                        ParameterListValueExtractorMethod.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
@@ -737,7 +737,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 );
 
                 var newParameterName =
-                    $"{_runtimeParameterPrefix}"
+                    $"{RuntimeParameterPrefix}"
                     + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                 rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
@@ -856,14 +856,14 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        _parameterValueExtractor.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
                 var newParameterName =
-                    $"{_runtimeParameterPrefix}"
+                    $"{RuntimeParameterPrefix}"
                     + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);

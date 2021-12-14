@@ -11,77 +11,77 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosStringMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _indexOfMethodInfo
+    private static readonly MethodInfo IndexOfMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
 
-    private static readonly MethodInfo _indexOfMethodInfoWithStartingPosition
+    private static readonly MethodInfo IndexOfMethodInfoWithStartingPosition
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string), typeof(int));
 
-    private static readonly MethodInfo _replaceMethodInfo
+    private static readonly MethodInfo ReplaceMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _containsMethodInfo
+    private static readonly MethodInfo ContainsMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), typeof(string));
 
-    private static readonly MethodInfo _startsWithMethodInfo
+    private static readonly MethodInfo StartsWithMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
-    private static readonly MethodInfo _endsWithMethodInfo
+    private static readonly MethodInfo EndsWithMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
-    private static readonly MethodInfo _toLowerMethodInfo
+    private static readonly MethodInfo ToLowerMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
 
-    private static readonly MethodInfo _toUpperMethodInfo
+    private static readonly MethodInfo ToUpperMethodInfo
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimMethodInfoWithoutArgs
+    private static readonly MethodInfo TrimMethodInfoWithoutArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
 
-    private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char[]));
 
-    private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char[]));
 
-    private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
+    private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char[]));
 
-    private static readonly MethodInfo _substringMethodInfoWithOneArg
+    private static readonly MethodInfo SubstringMethodInfoWithOneArg
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int));
 
-    private static readonly MethodInfo _substringMethodInfoWithTwoArgs
+    private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int), typeof(int));
 
-    private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
+    private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.FirstOrDefault)
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
-    private static readonly MethodInfo _lastOrDefaultMethodInfoWithoutArgs
+    private static readonly MethodInfo LastOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
             m => m.Name == nameof(Enumerable.LastOrDefault)
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
-    private static readonly MethodInfo _stringConcatWithTwoArguments =
+    private static readonly MethodInfo StringConcatWithTwoArguments =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _stringConcatWithThreeArguments =
+    private static readonly MethodInfo StringConcatWithThreeArguments =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _stringConcatWithFourArguments =
+    private static readonly MethodInfo StringConcatWithFourArguments =
         typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string), typeof(string));
 
-    private static readonly MethodInfo _stringComparisonWithComparisonTypeArgumentInstance
+    private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentInstance
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(StringComparison));
 
-    private static readonly MethodInfo _stringComparisonWithComparisonTypeArgumentStatic
+    private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentStatic
         = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(string), typeof(StringComparison));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -111,71 +111,71 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
     {
         if (instance != null)
         {
-            if (_indexOfMethodInfo.Equals(method))
+            if (IndexOfMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0]);
             }
 
-            if (_indexOfMethodInfoWithStartingPosition.Equals(method))
+            if (IndexOfMethodInfoWithStartingPosition.Equals(method))
             {
                 return TranslateSystemFunction("INDEX_OF", typeof(int), instance, arguments[0], arguments[1]);
             }
 
-            if (_replaceMethodInfo.Equals(method))
+            if (ReplaceMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("REPLACE", method.ReturnType, instance, arguments[0], arguments[1]);
             }
 
-            if (_containsMethodInfo.Equals(method))
+            if (ContainsMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("CONTAINS", typeof(bool), instance, arguments[0]);
             }
 
-            if (_startsWithMethodInfo.Equals(method))
+            if (StartsWithMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arguments[0]);
             }
 
-            if (_endsWithMethodInfo.Equals(method))
+            if (EndsWithMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
             }
 
-            if (_toLowerMethodInfo.Equals(method))
+            if (ToLowerMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("LOWER", method.ReturnType, instance);
             }
 
-            if (_toUpperMethodInfo.Equals(method))
+            if (ToUpperMethodInfo.Equals(method))
             {
                 return TranslateSystemFunction("UPPER", method.ReturnType, instance);
             }
 
-            if (_trimStartMethodInfoWithoutArgs?.Equals(method) == true
-                || (_trimStartMethodInfoWithCharArrayArg.Equals(method)
+            if (TrimStartMethodInfoWithoutArgs?.Equals(method) == true
+                || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB LTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
             {
                 return TranslateSystemFunction("LTRIM", method.ReturnType, instance);
             }
 
-            if (_trimEndMethodInfoWithoutArgs?.Equals(method) == true
-                || (_trimEndMethodInfoWithCharArrayArg.Equals(method)
+            if (TrimEndMethodInfoWithoutArgs?.Equals(method) == true
+                || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB RTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
             {
                 return TranslateSystemFunction("RTRIM", method.ReturnType, instance);
             }
 
-            if (_trimMethodInfoWithoutArgs?.Equals(method) == true
-                || (_trimMethodInfoWithCharArrayArg.Equals(method)
+            if (TrimMethodInfoWithoutArgs?.Equals(method) == true
+                || (TrimMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB TRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
             {
                 return TranslateSystemFunction("TRIM", method.ReturnType, instance);
             }
 
-            if (_substringMethodInfoWithOneArg.Equals(method))
+            if (SubstringMethodInfoWithOneArg.Equals(method))
             {
                 return TranslateSystemFunction(
                     "SUBSTRING",
@@ -185,7 +185,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                     TranslateSystemFunction("LENGTH", typeof(int), instance));
             }
 
-            if (_substringMethodInfoWithTwoArgs.Equals(method))
+            if (SubstringMethodInfoWithTwoArgs.Equals(method))
             {
                 return arguments[0] is SqlConstantExpression constant
                     && constant.Value is int intValue
@@ -195,24 +195,24 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
             }
         }
 
-        if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
+        if (FirstOrDefaultMethodInfoWithoutArgs.Equals(method))
         {
             return TranslateSystemFunction("LEFT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
         }
 
-        if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
+        if (LastOrDefaultMethodInfoWithoutArgs.Equals(method))
         {
             return TranslateSystemFunction("RIGHT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
         }
 
-        if (_stringConcatWithTwoArguments.Equals(method))
+        if (StringConcatWithTwoArguments.Equals(method))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],
                 arguments[1]);
         }
 
-        if (_stringConcatWithThreeArguments.Equals(method))
+        if (StringConcatWithThreeArguments.Equals(method))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],
@@ -221,7 +221,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                     arguments[2]));
         }
 
-        if (_stringConcatWithFourArguments.Equals(method))
+        if (StringConcatWithFourArguments.Equals(method))
         {
             return _sqlExpressionFactory.Add(
                 arguments[0],
@@ -232,8 +232,8 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                         arguments[3])));
         }
 
-        if (_stringComparisonWithComparisonTypeArgumentInstance.Equals(method)
-            || _stringComparisonWithComparisonTypeArgumentStatic.Equals(method))
+        if (StringComparisonWithComparisonTypeArgumentInstance.Equals(method)
+            || StringComparisonWithComparisonTypeArgumentStatic.Equals(method))
         {
             var comparisonTypeArgument = arguments[^1];
 
@@ -242,7 +242,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                 && (comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase
                     || comparisonTypeArgumentValue == StringComparison.Ordinal))
             {
-                return _stringComparisonWithComparisonTypeArgumentInstance.Equals(method)
+                return StringComparisonWithComparisonTypeArgumentInstance.Equals(method)
                     ? comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase
                         ? TranslateSystemFunction(
                             "STRINGEQUALS", typeof(bool), instance!, arguments[0], _sqlExpressionFactory.Constant(true))

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 /// </summary>
 public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
 {
-    private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
+    private static readonly string UserAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
     private readonly CosmosClientOptions _options;
     private readonly string? _endpoint;
     private readonly string? _key;
@@ -31,7 +31,7 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
         _endpoint = options.AccountEndpoint;
         _key = options.AccountKey;
         _connectionString = options.ConnectionString;
-        var configuration = new CosmosClientOptions { ApplicationName = _userAgent, Serializer = new JsonCosmosSerializer() };
+        var configuration = new CosmosClientOptions { ApplicationName = UserAgent, Serializer = new JsonCosmosSerializer() };
 
         if (options.Region != null)
         {

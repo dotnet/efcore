@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 /// </summary>
 public class SqlServerNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
 {
-    private static readonly MethodInfo _useNetTopologySuiteMethodInfo
+    private static readonly MethodInfo UseNetTopologySuiteMethodInfo
         = typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions).GetRequiredRuntimeMethod(
             nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
             typeof(SqlServerDbContextOptionsBuilder));
@@ -23,5 +23,5 @@ public class SqlServerNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGenerato
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override MethodCallCodeFragment GenerateProviderOptions()
-        => new(_useNetTopologySuiteMethodInfo);
+        => new(UseNetTopologySuiteMethodInfo);
 }

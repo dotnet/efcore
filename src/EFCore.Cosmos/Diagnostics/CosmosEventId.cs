@@ -36,7 +36,7 @@ public static class CosmosEventId
         ExecutedDeleteItem
     }
 
-    private static readonly string _commandPrefix = DbLoggerCategory.Database.Command.Name + ".";
+    private static readonly string CommandPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
     /// <summary>
     ///     A SQL query is going to be executed.
@@ -50,7 +50,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutingSqlQuery
-        = new((int)Id.ExecutingSqlQuery, _commandPrefix + Id.ExecutingSqlQuery);
+        = new((int)Id.ExecutingSqlQuery, CommandPrefix + Id.ExecutingSqlQuery);
 
     /// <summary>
     ///     ReadItem is going to be executed.
@@ -64,7 +64,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutingReadItem
-        = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
+        = new((int)Id.ExecutingReadItem, CommandPrefix + Id.ExecutingReadItem);
 
     /// <summary>
     ///     ReadNext was executed.
@@ -78,7 +78,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedReadNext
-        = new((int)Id.ExecutedReadNext, _commandPrefix + Id.ExecutedReadNext);
+        = new((int)Id.ExecutedReadNext, CommandPrefix + Id.ExecutedReadNext);
 
     /// <summary>
     ///     ReadItem was executed.
@@ -92,7 +92,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedReadItem
-        = new((int)Id.ExecutedReadItem, _commandPrefix + Id.ExecutedReadItem);
+        = new((int)Id.ExecutedReadItem, CommandPrefix + Id.ExecutedReadItem);
 
     /// <summary>
     ///     CreateItem was executed.
@@ -106,7 +106,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedCreateItem
-        = new((int)Id.ExecutedCreateItem, _commandPrefix + Id.ExecutedCreateItem);
+        = new((int)Id.ExecutedCreateItem, CommandPrefix + Id.ExecutedCreateItem);
 
     /// <summary>
     ///     ReplaceItem was executed.
@@ -120,7 +120,7 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedReplaceItem
-        = new((int)Id.ExecutedReplaceItem, _commandPrefix + Id.ExecutedReplaceItem);
+        = new((int)Id.ExecutedReplaceItem, CommandPrefix + Id.ExecutedReplaceItem);
 
     /// <summary>
     ///     DeleteItem was executed.
@@ -134,5 +134,5 @@ public static class CosmosEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ExecutedDeleteItem
-        = new((int)Id.ExecutedDeleteItem, _commandPrefix + Id.ExecutedDeleteItem);
+        = new((int)Id.ExecutedDeleteItem, CommandPrefix + Id.ExecutedDeleteItem);
 }

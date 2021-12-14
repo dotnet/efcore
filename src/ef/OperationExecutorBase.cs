@@ -15,7 +15,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     public const string DesignAssemblyName = "Microsoft.EntityFrameworkCore.Design";
     protected const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
 
-    private static readonly IDictionary _emptyArguments = new Dictionary<string, object>(0);
+    private static readonly IDictionary EmptyArguments = new Dictionary<string, object>(0);
     public string AppBasePath { get; }
 
     protected string AssemblyFileName { get; set; }
@@ -66,7 +66,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
     protected abstract void Execute(string operationName, object resultHandler, IDictionary arguments);
 
     private TResult InvokeOperation<TResult>(string operation)
-        => InvokeOperation<TResult>(operation, _emptyArguments);
+        => InvokeOperation<TResult>(operation, EmptyArguments);
 
     private TResult InvokeOperation<TResult>(string operation, IDictionary arguments)
         => (TResult)InvokeOperationImpl(operation, arguments);

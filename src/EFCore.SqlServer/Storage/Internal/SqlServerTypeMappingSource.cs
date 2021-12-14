@@ -339,7 +339,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         return null;
     }
 
-    private static readonly List<string> _nameBasesUsingPrecision = new()
+    private static readonly List<string> NameBasesUsingPrecision = new()
     {
         "decimal",
         "dec",
@@ -368,7 +368,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
         if (size.HasValue
             && storeTypeName != null
-            && _nameBasesUsingPrecision.Any(n => storeTypeName.StartsWith(n, StringComparison.OrdinalIgnoreCase)))
+            && NameBasesUsingPrecision.Any(n => storeTypeName.StartsWith(n, StringComparison.OrdinalIgnoreCase)))
         {
             precision = size;
             size = null;

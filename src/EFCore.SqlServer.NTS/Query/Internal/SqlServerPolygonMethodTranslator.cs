@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRequiredRuntimeMethod(
+    private static readonly MethodInfo GetInteriorRingN = typeof(Polygon).GetRequiredRuntimeMethod(
         nameof(Polygon.GetInteriorRingN), typeof(int));
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -46,7 +46,7 @@ public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (Equals(method, _getInteriorRingN))
+        if (Equals(method, GetInteriorRingN))
         {
             Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
             var storeType = instance.TypeMapping.StoreType;

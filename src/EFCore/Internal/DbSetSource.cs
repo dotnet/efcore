@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 /// </summary>
 public class DbSetSource : IDbSetSource
 {
-    private static readonly MethodInfo _genericCreateSet
+    private static readonly MethodInfo GenericCreateSet
         = typeof(DbSetSource).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateSetFactory));
 
     private readonly ConcurrentDictionary<(Type Type, string? Name), Func<DbContext, string?, object>> _cache = new();
@@ -26,7 +26,7 @@ public class DbSetSource : IDbSetSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object Create(DbContext context, Type type)
-        => CreateCore(context, type, null, _genericCreateSet);
+        => CreateCore(context, type, null, GenericCreateSet);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +35,7 @@ public class DbSetSource : IDbSetSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object Create(DbContext context, string name, Type type)
-        => CreateCore(context, type, name, _genericCreateSet);
+        => CreateCore(context, type, name, GenericCreateSet);
 
     private object CreateCore(DbContext context, Type type, string? name, MethodInfo createMethod)
         => _cache.GetOrAdd(

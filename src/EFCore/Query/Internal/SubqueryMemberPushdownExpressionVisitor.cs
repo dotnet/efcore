@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> _supportedMethods = new()
+    private static readonly List<MethodInfo> SupportedMethods = new()
     {
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
@@ -29,7 +29,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
     };
 
-    private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
+    private static readonly IDictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
     {
         { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
         { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
@@ -63,7 +63,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         var innerExpression = Visit(memberExpression.Expression);
         if (innerExpression is MethodCallExpression methodCallExpression
             && methodCallExpression.Method.IsGenericMethod
-            && _supportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
+            && SupportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
         {
             return PushdownMember(
                 methodCallExpression,
@@ -95,7 +95,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 
             if (source is MethodCallExpression innerMethodCall
                 && innerMethodCall.Method.IsGenericMethod
-                && _supportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
+                && SupportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
             {
                 return PushdownMember(
                     innerMethodCall,
@@ -122,7 +122,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 
             if (source is MethodCallExpression innerMethodCall
                 && innerMethodCall.Method.IsGenericMethod
-                && _supportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
+                && SupportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
             {
                 return PushdownMember(
                     innerMethodCall,
@@ -171,7 +171,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                 source,
                 methodCallExpression.Arguments[1]);
 
-            genericMethod = _predicateLessMethodInfo[genericMethod];
+            genericMethod = PredicateLessMethodInfo[genericMethod];
         }
 
         if (source is MethodCallExpression sourceMethodCallExpression

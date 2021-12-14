@@ -14,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 /// </summary>
 public class LazyLoadingInterceptor : IInterceptor
 {
-    private static readonly PropertyInfo _lazyLoaderProperty
+    private static readonly PropertyInfo LazyLoaderProperty
         = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
 
-    private static readonly MethodInfo _lazyLoaderGetter = _lazyLoaderProperty.GetMethod!;
-    private static readonly MethodInfo _lazyLoaderSetter = _lazyLoaderProperty.SetMethod!;
+    private static readonly MethodInfo LazyLoaderGetter = LazyLoaderProperty.GetMethod!;
+    private static readonly MethodInfo LazyLoaderSetter = LazyLoaderProperty.SetMethod!;
 
     private readonly IEntityType _entityType;
     private ILazyLoader? _loader;
@@ -47,11 +47,11 @@ public class LazyLoadingInterceptor : IInterceptor
     {
         var methodName = invocation.Method.Name;
 
-        if (_lazyLoaderGetter.Equals(invocation.Method))
+        if (LazyLoaderGetter.Equals(invocation.Method))
         {
             invocation.ReturnValue = _loader;
         }
-        else if (_lazyLoaderSetter.Equals(invocation.Method))
+        else if (LazyLoaderSetter.Equals(invocation.Method))
         {
             _loader = (ILazyLoader)invocation.Arguments[0];
         }

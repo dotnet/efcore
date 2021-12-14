@@ -22,31 +22,31 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     // This methods are non-deterministic and result varies based on time of running the query.
     // Hence we don't evaluate them. See issue#2069
 
-    private static readonly PropertyInfo _dateTimeNow
+    private static readonly PropertyInfo DateTimeNow
         = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Now));
 
-    private static readonly PropertyInfo _dateTimeUtcNow
+    private static readonly PropertyInfo DateTimeUtcNow
         = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.UtcNow));
 
-    private static readonly PropertyInfo _dateTimeToday
+    private static readonly PropertyInfo DateTimeToday
         = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Today));
 
-    private static readonly PropertyInfo _dateTimeOffsetNow
+    private static readonly PropertyInfo DateTimeOffsetNow
         = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.Now));
 
-    private static readonly PropertyInfo _dateTimeOffsetUtcNow
+    private static readonly PropertyInfo DateTimeOffsetUtcNow
         = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.UtcNow));
 
-    private static readonly MethodInfo _guidNewGuid
+    private static readonly MethodInfo GuidNewGuid
         = typeof(Guid).GetRequiredDeclaredMethod(nameof(Guid.NewGuid));
 
-    private static readonly MethodInfo _randomNextNoArgs
+    private static readonly MethodInfo RandomNextNoArgs
         = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
-    private static readonly MethodInfo _randomNextOneArg
+    private static readonly MethodInfo RandomNextOneArg
         = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int));
 
-    private static readonly MethodInfo _randomNextTwoArgs
+    private static readonly MethodInfo RandomNextTwoArgs
         = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int), typeof(int));
 
     /// <summary>
@@ -82,11 +82,11 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
         {
             case MemberExpression memberExpression:
                 var member = memberExpression.Member;
-                if (Equals(member, _dateTimeNow)
-                    || Equals(member, _dateTimeUtcNow)
-                    || Equals(member, _dateTimeToday)
-                    || Equals(member, _dateTimeOffsetNow)
-                    || Equals(member, _dateTimeOffsetUtcNow))
+                if (Equals(member, DateTimeNow)
+                    || Equals(member, DateTimeUtcNow)
+                    || Equals(member, DateTimeToday)
+                    || Equals(member, DateTimeOffsetNow)
+                    || Equals(member, DateTimeOffsetUtcNow))
                 {
                     return false;
                 }
@@ -96,10 +96,10 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
             case MethodCallExpression methodCallExpression:
                 var method = methodCallExpression.Method;
 
-                if (Equals(method, _guidNewGuid)
-                    || Equals(method, _randomNextNoArgs)
-                    || Equals(method, _randomNextOneArg)
-                    || Equals(method, _randomNextTwoArgs)
+                if (Equals(method, GuidNewGuid)
+                    || Equals(method, RandomNextNoArgs)
+                    || Equals(method, RandomNextOneArg)
+                    || Equals(method, RandomNextTwoArgs)
                     || method.DeclaringType == typeof(DbFunctionsExtensions))
                 {
                     return false;

@@ -17,7 +17,7 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     // Compensate for slow SQL Server database creation
     private const int DefaultMasterConnectionCommandTimeout = 60;
 
-    private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap = new();
+    private static readonly ConcurrentDictionary<string, bool> MultipleActiveResultSetsEnabledMap = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,7 +92,7 @@ public class SqlServerConnection : RelationalConnection, ISqlServerConnection
             var connectionString = ConnectionString;
 
             return connectionString != null
-                && _multipleActiveResultSetsEnabledMap.GetOrAdd(
+                && MultipleActiveResultSetsEnabledMap.GetOrAdd(
                     connectionString, cs => new SqlConnectionStringBuilder(cs).MultipleActiveResultSets);
         }
     }

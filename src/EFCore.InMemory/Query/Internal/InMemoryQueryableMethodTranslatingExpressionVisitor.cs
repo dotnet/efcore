@@ -1144,7 +1144,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
 
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo _objectEqualsMethodInfo
+        private static readonly MethodInfo ObjectEqualsMethodInfo
             = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
@@ -1253,7 +1253,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
                     makeNullable);
 
                 var keyComparison = Expression.Call(
-                    _objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
+                    ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
 
                 var predicate = makeNullable
                     ? Expression.AndAlso(

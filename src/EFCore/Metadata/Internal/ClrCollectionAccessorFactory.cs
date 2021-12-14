@@ -14,25 +14,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class ClrCollectionAccessorFactory
 {
-    private static readonly MethodInfo _genericCreate
+    private static readonly MethodInfo GenericCreate
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric))!;
 
-    private static readonly MethodInfo _createAndSet
+    private static readonly MethodInfo CreateAndSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSet))!;
 
-    private static readonly MethodInfo _create
+    private static readonly MethodInfo CreateMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateCollection))!;
 
-    private static readonly MethodInfo _createAndSetHashSet
+    private static readonly MethodInfo CreateAndSetHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSetHashSet))!;
 
-    private static readonly MethodInfo _createHashSet
+    private static readonly MethodInfo CreateHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateHashSet))!;
 
-    private static readonly MethodInfo _createAndSetObservableHashSet
+    private static readonly MethodInfo CreateAndSetObservableHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateAndSetObservableHashSet))!;
 
-    private static readonly MethodInfo _createObservableHashSet
+    private static readonly MethodInfo CreateObservableHashSetMethod
         = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateObservableHashSet))!;
 
     /// <summary>
@@ -80,7 +80,7 @@ public class ClrCollectionAccessorFactory
                     propertyType.ShortDisplayName()));
         }
 
-        var boundMethod = _genericCreate.MakeGenericMethod(
+        var boundMethod = GenericCreate.MakeGenericMethod(
             memberInfo.DeclaringType!, propertyType, elementType);
 
         try
@@ -159,19 +159,19 @@ public class ClrCollectionAccessorFactory
             {
                 if (isHashSet)
                 {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSetHashSet
+                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetHashSetMethod
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
                 }
                 else if (IsObservableHashSet(concreteType))
                 {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSetObservableHashSet
+                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetObservableHashSetMethod
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), typeof(TElement))
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
                 }
                 else
                 {
-                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSet
+                    createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)CreateAndSetMethod
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType)
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
                 }
@@ -179,19 +179,19 @@ public class ClrCollectionAccessorFactory
 
             if (isHashSet)
             {
-                createDelegate = (Func<TCollection>)_createHashSet
+                createDelegate = (Func<TCollection>)CreateHashSetMethod
                     .MakeGenericMethod(typeof(TCollection), typeof(TElement))
                     .CreateDelegate(typeof(Func<TCollection>));
             }
             else if (IsObservableHashSet(concreteType))
             {
-                createDelegate = (Func<TCollection>)_createObservableHashSet
+                createDelegate = (Func<TCollection>)CreateObservableHashSetMethod
                     .MakeGenericMethod(typeof(TCollection), typeof(TElement))
                     .CreateDelegate(typeof(Func<TCollection>));
             }
             else
             {
-                createDelegate = (Func<TCollection>)_create
+                createDelegate = (Func<TCollection>)CreateMethod
                     .MakeGenericMethod(typeof(TCollection), concreteType)
                     .CreateDelegate(typeof(Func<TCollection>));
             }

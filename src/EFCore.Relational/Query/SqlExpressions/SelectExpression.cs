@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
-    private static readonly IdentifierComparer _identifierComparer = new();
+    private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
-    private static readonly Dictionary<ExpressionType, ExpressionType> _mirroredOperationMap =
+    private static readonly Dictionary<ExpressionType, ExpressionType> MirroredOperationMap =
         new()
         {
             { ExpressionType.Equal, ExpressionType.Equal },
@@ -706,7 +706,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         }
                         else
                         {
-                            var parentIdentifierList = _identifier.Except(_childIdentifiers, _identifierComparer).ToList();
+                            var parentIdentifierList = _identifier.Except(_childIdentifiers, IdentifierComparerInstance).ToList();
                             var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(
                                 this, newClientProjections, parentIdentifierList);
                             var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(
@@ -779,7 +779,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 this,
                                 newClientProjections,
                                 innerSelectExpression._identifier
-                                    .Except(innerSelectExpression._childIdentifiers, _identifierComparer)
+                                    .Except(innerSelectExpression._childIdentifiers, IdentifierComparerInstance)
                                     .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
                             OrderingExpression? pendingOrdering = null;
@@ -2329,7 +2329,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         outerColumnExpressions.Add(sqlBinaryExpression.Right);
 
                         return new SqlBinaryExpression(
-                            _mirroredOperationMap[sqlBinaryExpression.OperatorType],
+                            MirroredOperationMap[sqlBinaryExpression.OperatorType],
                             sqlBinaryExpression.Right,
                             sqlBinaryExpression.Left,
                             sqlBinaryExpression.Type,

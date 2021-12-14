@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 /// </summary>
 public class InMemoryTransactionManager : IDbContextTransactionManager, ITransactionEnlistmentManager
 {
-    private static readonly InMemoryTransaction _stubTransaction = new();
+    private static readonly InMemoryTransaction StubTransaction = new();
 
     private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
 
@@ -40,7 +40,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     {
         _logger.TransactionIgnoredWarning();
 
-        return _stubTransaction;
+        return StubTransaction;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class InMemoryTransactionManager : IDbContextTransactionManager, ITransac
     {
         _logger.TransactionIgnoredWarning();
 
-        return Task.FromResult<IDbContextTransaction>(_stubTransaction);
+        return Task.FromResult<IDbContextTransaction>(StubTransaction);
     }
 
     /// <summary>

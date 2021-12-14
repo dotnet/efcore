@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
+    private static readonly ConverterMappingHints? DefaultHints = CreateDefaultHints();
 
     private static ConverterMappingHints? CreateDefaultHints()
     {
@@ -58,7 +58,7 @@ public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvi
         : base(
             Convert<TModel, TProvider>(),
             Convert<TProvider, TModel>(),
-            _defaultHints?.With(mappingHints) ?? mappingHints)
+            DefaultHints?.With(mappingHints) ?? mappingHints)
     {
     }
 
@@ -66,7 +66,7 @@ public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvi
     ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
     /// </summary>
     public static ValueConverterInfo DefaultInfo { get; }
-        = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
+        = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), DefaultHints);
 
     private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
     {

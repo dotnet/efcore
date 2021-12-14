@@ -29,7 +29,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 {
     private static readonly
         IReadOnlyDictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel?, MigrationCommandListBuilder>>
-        _generateActions =
+        GenerateActions =
             new Dictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel?, MigrationCommandListBuilder>>
             {
                 { typeof(AddColumnOperation), (g, o, m, b) => g.Generate((AddColumnOperation)o, m, b) },
@@ -151,7 +151,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         MigrationCommandListBuilder builder)
     {
         var operationType = operation.GetType();
-        if (!_generateActions.TryGetValue(operationType, out var generateAction))
+        if (!GenerateActions.TryGetValue(operationType, out var generateAction))
         {
             throw new InvalidOperationException(RelationalStrings.UnknownOperation(GetType().ShortDisplayName(), operationType));
         }

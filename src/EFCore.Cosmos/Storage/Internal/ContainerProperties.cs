@@ -60,14 +60,14 @@ public readonly record struct ContainerProperties
     public ContainerProperties(
         string containerId,
         string partitionKey,
-        int? analyticalTTL,
-        int? defaultTTL,
+        int? analyticalTtl,
+        int? defaultTtl,
         ThroughputProperties? throughput)
     {
         Id = containerId;
         PartitionKey = partitionKey;
-        AnalyticalStoreTimeToLiveInSeconds = analyticalTTL;
-        DefaultTimeToLive = defaultTTL;
+        AnalyticalStoreTimeToLiveInSeconds = analyticalTtl;
+        DefaultTimeToLive = defaultTtl;
         Throughput = throughput;
     }
 
@@ -80,14 +80,14 @@ public readonly record struct ContainerProperties
     public void Deconstruct(
         out string containerId,
         out string partitionKey,
-        out int? analyticalTTL,
-        out int? defaultTTL,
+        out int? analyticalTtl,
+        out int? defaultTtl,
         out ThroughputProperties? throughput)
     {
         containerId = Id;
         partitionKey = PartitionKey;
-        analyticalTTL = AnalyticalStoreTimeToLiveInSeconds;
-        defaultTTL = DefaultTimeToLive;
+        analyticalTtl = AnalyticalStoreTimeToLiveInSeconds;
+        defaultTtl = DefaultTimeToLive;
         throughput = Throughput;
     }
 }

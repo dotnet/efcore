@@ -11,14 +11,14 @@ namespace Microsoft.EntityFrameworkCore;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppressor
 {
-    private static readonly SuppressionDescriptor _suppressUninitializedDbSetRule = new(
+    private static readonly SuppressionDescriptor SuppressUninitializedDbSetRule = new(
         id: "SPR1001",
         suppressedDiagnosticId: "CS8618",
         justification: AnalyzerStrings.UninitializedDbSetWarningSuppressionJustification);
 
     /// <inheritdoc />
     public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions { get; }
-        = ImmutableArray.Create(_suppressUninitializedDbSetRule);
+        = ImmutableArray.Create(SuppressUninitializedDbSetRule);
 
     /// <inheritdoc />
     public override void ReportSuppressions(SuppressionAnalysisContext context)
