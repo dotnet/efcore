@@ -49,37 +49,14 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
 
         var nullabilityInfoContext = (NullabilityInfoContext)annotation.Value!;
 
-        if (memberInfo is PropertyInfo propertyInfo)
+        var nullabilityInfo = memberInfo switch
         {
-            var nullabilityInfo = nullabilityInfoContext.Create(propertyInfo);
+            PropertyInfo propertyInfo => nullabilityInfoContext.Create(propertyInfo),
+            FieldInfo fieldInfo => nullabilityInfoContext.Create(fieldInfo),
+            _ => null
+        };
 
-            if (nullabilityInfo.ReadState == NullabilityState.NotNull)
-            {
-                return true;
-            }
-
-            // In order for us to configure a property as non-nullable, it must be:
-            // 1. Non-nullable for both read and write, or
-            // 2. Non-nullable for read and read-only, or
-            // 3. Non-nullable for write and write-only
-            // if (nullabilityInfo.ReadState == NullabilityState.NotNull
-            //     && (nullabilityInfo.WriteState == NullabilityState.NotNull || !propertyInfo.CanWrite)
-            //     || nullabilityInfo.WriteState == NullabilityState.NotNull && !propertyInfo.CanRead)
-            // {
-            //     return true;
-            // }
-        }
-        else if (memberInfo is FieldInfo fieldInfo)
-        {
-            var nullabilityInfo = nullabilityInfoContext.Create(fieldInfo);
-
-            if (nullabilityInfo.ReadState == NullabilityState.NotNull /* && nullabilityInfo.WriteState == NullabilityState.NotNull */)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return nullabilityInfo?.ReadState == NullabilityState.NotNull;
     }
 
     /// <inheritdoc />

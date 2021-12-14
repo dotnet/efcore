@@ -15,8 +15,6 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     IPropertyAddedConvention,
     IPropertyFieldChangedConvention
 {
-    private readonly NullabilityInfoContext _nullabilityInfoContext = new();
-
     /// <summary>
     ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.
     /// </summary>
