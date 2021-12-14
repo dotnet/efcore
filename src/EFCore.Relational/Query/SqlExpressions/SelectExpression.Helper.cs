@@ -734,9 +734,9 @@ public sealed partial class SelectExpression
             if (expression is SelectExpression selectExpression)
             {
                 var newProjectionMappings = new Dictionary<ProjectionMember, Expression>(selectExpression._projectionMapping.Count);
-                foreach (var keyValuePair in selectExpression._projectionMapping)
+                foreach (var (projectionMember, value) in selectExpression._projectionMapping)
                 {
-                    newProjectionMappings[keyValuePair.Key] = Visit(keyValuePair.Value);
+                    newProjectionMappings[projectionMember] = Visit(value);
                 }
 
                 var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();

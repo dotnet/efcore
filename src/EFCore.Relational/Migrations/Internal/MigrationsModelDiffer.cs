@@ -774,9 +774,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             types.GetOrAddNew(clrType)[index] = clrProperty;
         }
 
-        foreach (var group in unorderedGroups)
+        foreach (var (propertyInfo, properties) in unorderedGroups)
         {
-            groups.Add(group.Key, group.Value.Values.ToList());
+            groups.Add(propertyInfo, properties.Values.ToList());
         }
 
         if (table.EntityTypeMappings.Any(m => m.EntityType == entityType))

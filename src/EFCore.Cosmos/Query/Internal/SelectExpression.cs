@@ -201,12 +201,12 @@ public class SelectExpression : Expression
         }
 
         var result = new Dictionary<ProjectionMember, Expression>();
-        foreach (var keyValuePair in _projectionMapping)
+        foreach (var (projectionMember, expression) in _projectionMapping)
         {
-            result[keyValuePair.Key] = Constant(
+            result[projectionMember] = Constant(
                 AddToProjection(
-                    keyValuePair.Value,
-                    keyValuePair.Key.Last?.Name));
+                    expression,
+                    projectionMember.Last?.Name));
         }
 
         _projectionMapping = result;
@@ -221,9 +221,9 @@ public class SelectExpression : Expression
     public virtual void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
     {
         _projectionMapping.Clear();
-        foreach (var kvp in projectionMapping)
+        foreach (var (projectionMember, expression) in projectionMapping)
         {
-            _projectionMapping[kvp.Key] = kvp.Value;
+            _projectionMapping[projectionMember] = expression;
         }
     }
 
@@ -458,12 +458,12 @@ public class SelectExpression : Expression
         else
         {
             projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var mapping in _projectionMapping)
+            foreach (var (projectionMember, expression) in _projectionMapping)
             {
-                var newProjection = visitor.Visit(mapping.Value);
-                changed |= newProjection != mapping.Value;
+                var newProjection = visitor.Visit(expression);
+                changed |= newProjection != expression;
 
-                projectionMapping[mapping.Key] = newProjection;
+                projectionMapping[projectionMember] = newProjection;
             }
         }
 
@@ -519,9 +519,9 @@ public class SelectExpression : Expression
         SqlExpression? offset)
     {
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        foreach (var kvp in _projectionMapping)
+        foreach (var (projectionMember, expression) in _projectionMapping)
         {
-            projectionMapping[kvp.Key] = kvp.Value;
+            projectionMapping[projectionMember] = expression;
         }
 
         return new SelectExpression(projections, fromExpression, orderings, Container)

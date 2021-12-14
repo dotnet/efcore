@@ -106,10 +106,8 @@ public class CosmosDatabaseCreator : IDatabaseCreator
             mappedTypes.Add(entityType);
         }
 
-        foreach (var containerMapping in containers)
+        foreach (var (containerName, mappedTypes) in containers)
         {
-            var mappedTypes = containerMapping.Value;
-            var containerName = containerMapping.Key;
             string? partitionKey = null;
             int? analyticalTtl = null;
             int? defaultTtl = null;

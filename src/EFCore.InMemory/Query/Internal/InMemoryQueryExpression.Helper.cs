@@ -211,9 +211,9 @@ public partial class InMemoryQueryExpression
                     inMemoryQueryExpression._clientProjections.Select(e => Visit(e)));
                 clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(
                     inMemoryQueryExpression._projectionMappingExpressions);
-                foreach (var item in inMemoryQueryExpression._projectionMapping)
+                foreach (var (projectionMember, value) in inMemoryQueryExpression._projectionMapping)
                 {
-                    clonedInMemoryQueryExpression._projectionMapping[item.Key] = Visit(item.Value);
+                    clonedInMemoryQueryExpression._projectionMapping[projectionMember] = Visit(value);
                 }
 
                 return clonedInMemoryQueryExpression;

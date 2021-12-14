@@ -138,10 +138,9 @@ public class RelationalCommandCache : IPrintableExpression
 
             if (_parameterValues.Count > 0)
             {
-                foreach (var parameterValue in _parameterValues)
+                foreach (var (key, value) in _parameterValues)
                 {
-                    var value = parameterValue.Value;
-                    if (!commandCacheKey._parameterValues.TryGetValue(parameterValue.Key, out var otherValue))
+                    if (!commandCacheKey._parameterValues.TryGetValue(key, out var otherValue))
                     {
                         return false;
                     }

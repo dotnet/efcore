@@ -365,9 +365,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 parameters.MainBuilder
                     .Append("var ").Append(overridesVariable).AppendLine(" = new SortedDictionary<StoreObjectIdentifier, object>();");
 
-                foreach (var overridePair in overrides)
+                foreach (var (key, value) in overrides)
                 {
-                    Create((IRelationalPropertyOverrides)overridePair.Value, overridePair.Key, overridesVariable, parameters);
+                    Create((IRelationalPropertyOverrides)value, key, overridesVariable, parameters);
                 }
 
                 GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalOverrides, overridesVariable, parameters);

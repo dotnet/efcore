@@ -206,15 +206,15 @@ public class Migrator : IMigrator
             _logger.MigrationsNotFound(this, _migrationsAssembly);
         }
 
-        foreach (var migration in _migrationsAssembly.Migrations)
+        foreach (var (key, typeInfo) in _migrationsAssembly.Migrations)
         {
-            if (appliedMigrationEntrySet.Contains(migration.Key))
+            if (appliedMigrationEntrySet.Contains(key))
             {
-                appliedMigrations.Add(migration.Key, migration.Value);
+                appliedMigrations.Add(key, typeInfo);
             }
             else
             {
-                unappliedMigrations.Add(migration.Key, migration.Value);
+                unappliedMigrations.Add(key, typeInfo);
             }
         }
 

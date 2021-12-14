@@ -53,14 +53,14 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
             return true;
         }
 
-        foreach (var aPair in aDict)
+        foreach (var (key, element) in aDict)
         {
-            if (!bDict.TryGetValue(aPair.Key, out var bValue))
+            if (!bDict.TryGetValue(key, out var bValue))
             {
                 return false;
             }
 
-            if (aPair.Value is null)
+            if (element is null)
             {
                 if (bValue is null)
                 {
@@ -70,7 +70,7 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
                 return false;
             }
 
-            if (bValue is null || !elementComparer.Equals(aPair.Value, bValue))
+            if (bValue is null || !elementComparer.Equals(element, bValue))
             {
                 return false;
             }
@@ -83,10 +83,10 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
     {
         var nullableEqualityComparer = new NullableEqualityComparer<TElement>(elementComparer);
         var hash = new HashCode();
-        foreach (var el in source)
+        foreach (var (key, element) in source)
         {
-            hash.Add(el.Key);
-            hash.Add(el.Value, nullableEqualityComparer);
+            hash.Add(key);
+            hash.Add(element, nullableEqualityComparer);
         }
 
         return hash.ToHashCode();
@@ -100,9 +100,9 @@ public sealed class NullableStringDictionaryComparer<TElement, TCollection> : Va
         }
 
         var snapshot = new Dictionary<string, TElement?>(((IReadOnlyDictionary<string, TElement?>)source).Count);
-        foreach (var e in source)
+        foreach (var (key, element) in source)
         {
-            snapshot.Add(e.Key, e.Value is null ? null : elementComparer.Snapshot(e.Value.Value));
+            snapshot.Add(key, element is null ? null : elementComparer.Snapshot(element.Value));
         }
 
         return (TCollection)(object)snapshot;

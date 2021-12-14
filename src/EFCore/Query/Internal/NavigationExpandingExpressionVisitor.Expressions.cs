@@ -71,10 +71,10 @@ public partial class NavigationExpandingExpressionVisitor
                 {
                     using (expressionPrinter.Indent())
                     {
-                        foreach (var child in currentNode)
+                        foreach (var (navigationBase, includeTreeNode) in currentNode)
                         {
-                            expressionPrinter.AppendLine(@"\-> " + child.Key.Name);
-                            PrintInclude(child.Value);
+                            expressionPrinter.AppendLine(@"\-> " + navigationBase.Name);
+                            PrintInclude(includeTreeNode);
                         }
                     }
                 }
@@ -150,9 +150,9 @@ public partial class NavigationExpandingExpressionVisitor
         {
             var result = new IncludeTreeNode(EntityType, entityReference, SetLoaded) { FilterExpression = FilterExpression };
 
-            foreach (var kvp in this)
+            foreach (var (navigationBase, includeTreeNode) in this)
             {
-                result[kvp.Key] = kvp.Value.Snapshot(null);
+                result[navigationBase] = includeTreeNode.Snapshot(null);
             }
 
             return result;
@@ -162,9 +162,9 @@ public partial class NavigationExpandingExpressionVisitor
         {
             // EntityReference is intentionally ignored
             FilterExpression = includeTreeNode.FilterExpression;
-            foreach (var item in includeTreeNode)
+            foreach (var (navigationBase, value) in includeTreeNode)
             {
-                AddNavigation(item.Key, item.Value.SetLoaded).Merge(item.Value);
+                AddNavigation(navigationBase, value.SetLoaded).Merge(value);
             }
         }
 
@@ -187,10 +187,10 @@ public partial class NavigationExpandingExpressionVisitor
                 return false;
             }
 
-            foreach (var kvp in this)
+            foreach (var (navigationBase, value) in this)
             {
-                if (!includeTreeNode.TryGetValue(kvp.Key, out var otherIncludeTreeNode)
-                    || !kvp.Value.Equals(otherIncludeTreeNode))
+                if (!includeTreeNode.TryGetValue(navigationBase, out var otherIncludeTreeNode)
+                    || !value.Equals(otherIncludeTreeNode))
                 {
                     return false;
                 }

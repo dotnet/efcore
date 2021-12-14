@@ -283,10 +283,8 @@ public class RelationalModelValidator : ModelValidator
             mappedTypes.Add(entityType);
         }
 
-        foreach (var tableMapping in tables)
+        foreach (var (table, mappedTypes) in tables)
         {
-            var mappedTypes = tableMapping.Value;
-            var table = tableMapping.Key;
             ValidateSharedTableCompatibility(mappedTypes, table.Name, table.Schema, logger);
             ValidateSharedColumnsCompatibility(mappedTypes, table, logger);
             ValidateSharedKeysCompatibility(mappedTypes, table, logger);
@@ -558,10 +556,8 @@ public class RelationalModelValidator : ModelValidator
             mappedTypes.Add(entityType);
         }
 
-        foreach (var tableMapping in views)
+        foreach (var (table, mappedTypes) in views)
         {
-            var mappedTypes = tableMapping.Value;
-            var table = tableMapping.Key;
             ValidateSharedViewCompatibility(mappedTypes, table.Name, table.Schema, logger);
             ValidateSharedColumnsCompatibility(mappedTypes, table, logger);
         }
@@ -702,11 +698,11 @@ public class RelationalModelValidator : ModelValidator
             if (missingConcurrencyTokens != null)
             {
                 missingConcurrencyTokens.Clear();
-                foreach (var tokenPair in concurrencyColumns!)
+                foreach (var (key, readOnlyProperties) in concurrencyColumns!)
                 {
-                    if (TableSharingConcurrencyTokenConvention.IsConcurrencyTokenMissing(tokenPair.Value, entityType, mappedTypes))
+                    if (TableSharingConcurrencyTokenConvention.IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes))
                     {
-                        missingConcurrencyTokens.Add(tokenPair.Key);
+                        missingConcurrencyTokens.Add(key);
                     }
                 }
             }

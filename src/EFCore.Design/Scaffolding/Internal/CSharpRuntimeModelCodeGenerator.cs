@@ -68,12 +68,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
 
-        foreach (var (entityType, namePair) in entityTypeIds)
+        foreach (var (entityType, (_, @class)) in entityTypeIds)
         {
             var generatedCode = GenerateEntityType(
-                entityType, options.ModelNamespace, namePair.Class, options.UseNullableReferenceTypes);
+                entityType, options.ModelNamespace, @class, options.UseNullableReferenceTypes);
 
-            var entityTypeFileName = namePair.Class + FileExtension;
+            var entityTypeFileName = @class + FileExtension;
             scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
         }
 

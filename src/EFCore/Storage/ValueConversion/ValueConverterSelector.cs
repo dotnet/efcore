@@ -392,14 +392,15 @@ public class ValueConverterSelector : IValueConverterSelector
                 (underlyingModelType, typeof(byte[])),
                 static k =>
                 {
+                    var (modelClrType, _) = k;
                     var toNumber = GetDefaultValueConverterInfo(
-                        typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
+                        typeof(EnumToNumberConverter<,>).MakeGenericType(modelClrType, modelClrType.GetEnumUnderlyingType()));
 
                     var toBytes = GetDefaultValueConverterInfo(
-                        typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
+                        typeof(NumberToBytesConverter<>).MakeGenericType(modelClrType.GetEnumUnderlyingType()));
 
                     return new ValueConverterInfo(
-                        k.ModelClrType,
+                        modelClrType,
                         typeof(byte[]),
                         _ => toNumber.Create().ComposeWith(toBytes.Create()),
                         toBytes.MappingHints);

@@ -106,9 +106,9 @@ public class PropertiesSnapshot
 
         if (Keys != null)
         {
-            foreach (var detachedKeyTuple in Keys)
+            foreach (var (internalKeyBuilder, configurationSource) in Keys)
             {
-                detachedKeyTuple.Item1.Attach(entityTypeBuilder.Metadata.RootType().Builder, detachedKeyTuple.Item2);
+                internalKeyBuilder.Attach(entityTypeBuilder.Metadata.RootType().Builder, configurationSource);
             }
         }
 

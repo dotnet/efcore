@@ -1690,14 +1690,14 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string?, string, string?, string?>)definition;
         var p = (TwoUnmappedPropertyCollectionsEventData)payload;
-        var navigation = p.FirstPropertyCollection.First();
-        var inverseNavigation = p.SecondPropertyCollection.First();
+        var (memberInfo1, type1) = p.FirstPropertyCollection.First();
+        var (memberInfo2, type2) = p.SecondPropertyCollection.First();
         var ownershipNavigation = p.SecondPropertyCollection.Last();
         return d.GenerateMessage(
-            inverseNavigation.Item2.ShortDisplayName(),
-            inverseNavigation.Item1?.Name,
-            navigation.Item2.ShortDisplayName(),
-            navigation.Item1?.Name,
+            type2.ShortDisplayName(),
+            memberInfo2?.Name,
+            type1.ShortDisplayName(),
+            memberInfo1?.Name,
             ownershipNavigation.Item1?.Name);
     }
 
@@ -1756,15 +1756,15 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string?, string, string?, string?, string?>)definition;
         var p = (TwoUnmappedPropertyCollectionsEventData)payload;
-        var firstNavigation = p.FirstPropertyCollection.First();
+        var (memberInfo1, type1) = p.FirstPropertyCollection.First();
         var firstProperty = p.FirstPropertyCollection.Last();
-        var secondNavigation = p.SecondPropertyCollection.First();
+        var (memberInfo2, type2) = p.SecondPropertyCollection.First();
         var secondProperty = p.SecondPropertyCollection.Last();
         return d.GenerateMessage(
-            firstNavigation.Item2.ShortDisplayName(),
-            firstNavigation.Item1?.Name,
-            secondNavigation.Item2.ShortDisplayName(),
-            secondNavigation.Item1?.Name,
+            type1.ShortDisplayName(),
+            memberInfo1?.Name,
+            type2.ShortDisplayName(),
+            memberInfo2?.Name,
             firstProperty.Item1?.Name,
             secondProperty.Item1?.Name);
     }
@@ -1858,13 +1858,13 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string?, string, string?>)definition;
         var p = (TwoUnmappedPropertyCollectionsEventData)payload;
-        var navigation = p.FirstPropertyCollection.First();
-        var property = p.SecondPropertyCollection.First();
+        var (memberInfo1, type1) = p.FirstPropertyCollection.First();
+        var (memberInfo2, type2) = p.SecondPropertyCollection.First();
         return d.GenerateMessage(
-            navigation.Item2.ShortDisplayName(),
-            navigation.Item1?.Name,
-            property.Item2.ShortDisplayName(),
-            property.Item1?.Name);
+            type1.ShortDisplayName(),
+            memberInfo1?.Name,
+            type2.ShortDisplayName(),
+            memberInfo2?.Name);
     }
 
     /// <summary>

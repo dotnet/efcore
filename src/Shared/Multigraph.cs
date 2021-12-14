@@ -105,9 +105,9 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
         var queue = new List<TVertex>();
         var predecessorCounts = new Dictionary<TVertex, int>(_predecessorMap.Count);
-        foreach (var predecessor in _predecessorMap)
+        foreach (var (vertex, vertices) in _predecessorMap)
         {
-            predecessorCounts[predecessor.Key] = predecessor.Value.Count;
+            predecessorCounts[vertex] = vertices.Count;
         }
 
         foreach (var vertex in _vertices)
@@ -263,9 +263,9 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
         var currentRootsQueue = new List<TVertex>();
         var predecessorCounts = new Dictionary<TVertex, int>(_predecessorMap.Count);
-        foreach (var predecessor in _predecessorMap)
+        foreach (var (vertex, vertices) in _predecessorMap)
         {
-            predecessorCounts[predecessor.Key] = predecessor.Value.Count;
+            predecessorCounts[vertex] = vertices.Count;
         }
 
         foreach (var vertex in _vertices)

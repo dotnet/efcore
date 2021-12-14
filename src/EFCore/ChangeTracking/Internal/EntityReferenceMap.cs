@@ -131,11 +131,11 @@ public class EntityReferenceMap
             else
             {
                 var type = entity.GetType();
-                foreach (var keyValue in _sharedTypeReferenceMap)
+                foreach (var (key, entityReferenceMap) in _sharedTypeReferenceMap)
                 {
                     // ReSharper disable once CheckForReferenceEqualityInstead.2
-                    if (keyValue.Key.ClrType.IsAssignableFrom(type)
-                        && keyValue.Value.TryGet(entity, entityType, out var foundEntry, throwOnNonUniqueness))
+                    if (key.ClrType.IsAssignableFrom(type)
+                        && entityReferenceMap.TryGet(entity, entityType, out var foundEntry, throwOnNonUniqueness))
                     {
                         if (found)
                         {

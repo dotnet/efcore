@@ -53,13 +53,12 @@ public class SequenceUniquificationConvention : IModelFinalizingConvention
             var toReplace = modelSequences
                 .Where(s => s.Key.Name.Length > maxLength).ToList();
 
-            foreach (var sequence in toReplace)
+            foreach (var ((name, schema), sequence) in toReplace)
             {
-                var schemaName = sequence.Key.Schema;
                 var newSequenceName = Uniquifier.Uniquify(
-                    sequence.Key.Name, modelSequences,
-                    sequenceName => (sequenceName, schemaName), maxLength);
-                Sequence.SetName((IMutableModel)model, (Sequence)sequence.Value, newSequenceName);
+                    name, modelSequences,
+                    sequenceName => (sequenceName, schema), maxLength);
+                Sequence.SetName((IMutableModel)model, (Sequence)sequence, newSequenceName);
             }
         }
     }
