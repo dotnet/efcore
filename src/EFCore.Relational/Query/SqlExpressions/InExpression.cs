@@ -56,6 +56,12 @@ public class InExpression : SqlExpression
         RelationalTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
+#if DEBUG
+        if (subquery?.IsMutable() == true)
+        {
+            throw new InvalidOperationException();
+        }
+#endif
         Item = item;
         Subquery = subquery;
         Values = values;

@@ -39,8 +39,13 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         query = base.Process(query);
         query = new SelectExpressionProjectionApplyingExpressionVisitor(
             ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query);
+
 #if DEBUG
-        query = new TableAliasVerifyingExpressionVisitor().Visit(query);
+        // Verifies that all SelectExpression are marked as immutable after this point.
+        new SelectExpressionMutableVerifyingExpressionVisitor().Visit(query);
+        // Verifies that all table aliases are uniquely assigned without skipping over
+        // Which points to possible mutation of a SelectExpression being used in multiple places.
+        new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
         query = new SelectExpressionPruningExpressionVisitor().Visit(query);
         query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls)
@@ -48,6 +53,31 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
         return query;
+    }
+
+#if DEBUG
+    private sealed class SelectExpressionMutableVerifyingExpressionVisitor : ExpressionVisitor
+    {
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
+        {
+            if (expression is SelectExpression selectExpression)
+            {
+                if (selectExpression.IsMutable())
+                {
+                    throw new InvalidDataException(selectExpression.Print());
+                }
+            }
+
+            if (expression is ShapedQueryExpression shapedQueryExpression)
+            {
+                Visit(shapedQueryExpression.QueryExpression);
+
+                return shapedQueryExpression;
+            }
+
+            return base.Visit(expression);
+        }
     }
 
     private sealed class TableAliasVerifyingExpressionVisitor : ExpressionVisitor
@@ -130,4 +160,5 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
             }
         }
     }
+#endif
 }

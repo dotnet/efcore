@@ -134,12 +134,6 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
                     Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
 
             case ConstantExpression constantExpression:
-                if (constantExpression.Value is not object?[]
-                    && new FromSqlInExistVerifyingExpressionVisitor(fromSql).Verify(_selectExpression))
-                {
-                    throw new InvalidOperationException(RelationalStrings.QueryFromSqlInsideExists);
-                }
-
                 var existingValues = constantExpression.GetConstantValue<object?[]>();
                 var constantValues = new object?[existingValues.Length];
                 for (var i = 0; i < existingValues.Length; i++)
@@ -171,45 +165,6 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
             default:
                 Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
                 return null;
-        }
-    }
-
-    private sealed class FromSqlInExistVerifyingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly FromSqlExpression _mutatedExpression;
-        private bool _faulty;
-
-        public FromSqlInExistVerifyingExpressionVisitor(FromSqlExpression mutatedExpression)
-        {
-            _mutatedExpression = mutatedExpression;
-        }
-
-        public bool Verify(SelectExpression selectExpression)
-        {
-            _faulty = false;
-
-            Visit(selectExpression);
-
-            return _faulty;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (_faulty)
-            {
-                return expression;
-            }
-
-            if (expression is ExistsExpression existsExpression
-                && existsExpression.Subquery.Tables.Contains(_mutatedExpression, ReferenceEqualityComparer.Instance))
-            {
-                _faulty = true;
-
-                return expression;
-            }
-
-            return base.Visit(expression);
         }
     }
 }

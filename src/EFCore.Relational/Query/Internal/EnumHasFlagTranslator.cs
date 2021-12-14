@@ -47,9 +47,7 @@ public class EnumHasFlagTranslator : IMethodCallTranslator
             var argument = arguments[0];
             return instance.Type != argument.Type
                 ? null
-                // TODO: If argument is SelectExpression, we need to clone it.
-                // See issue#26532
-                : (SqlExpression)_sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
+                : _sqlExpressionFactory.Equal(_sqlExpressionFactory.And(instance, argument), argument);
         }
 
         return null;

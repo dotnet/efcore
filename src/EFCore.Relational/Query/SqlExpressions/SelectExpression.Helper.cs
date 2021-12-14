@@ -775,6 +775,7 @@ public sealed partial class SelectExpression
                     _groupingCorrelationPredicate = groupingCorrelationPredicate,
                     _groupingParentSelectExpressionId = selectExpression._groupingParentSelectExpressionId
                 };
+                newSelectExpression._mutable = selectExpression._mutable;
 
                 newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
                 // Since identifiers are ColumnExpression, they are not visited since they don't contain SelectExpression inside it.
