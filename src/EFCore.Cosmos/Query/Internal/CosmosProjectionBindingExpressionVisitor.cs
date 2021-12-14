@@ -99,14 +99,6 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             return base.Visit(expression);
         }
 
-        // This skips the group parameter from GroupJoin
-        if (expression is ParameterExpression parameter
-            && parameter.Type.IsGenericType
-            && parameter.Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-        {
-            return parameter;
-        }
-
         if (_clientEval)
         {
             switch (expression)

@@ -318,80 +318,80 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
 
     public override void Select_nested_collection_multi_level()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override void Select_nested_collection_multi_level2()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level2();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level2();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override void Select_nested_collection_multi_level3()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level3();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level3();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override void Select_nested_collection_multi_level4()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level4();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level4();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override void Select_nested_collection_multi_level5()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level5();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level5();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override void Select_nested_collection_multi_level6()
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Select_nested_collection_multi_level6();
-                return Task.CompletedTask;
-            });
+        //// Cosmos client evaluation. Issue #17246.
+        //AssertTranslationFailed(
+        //    () =>
+        //    {
+        //        base.Select_nested_collection_multi_level6();
+        //        return Task.CompletedTask;
+        //    });
 
-        AssertSql();
+        //AssertSql();
     }
 
     public override async Task Select_nested_collection_count_using_anonymous_type(bool async)
@@ -1397,8 +1397,6 @@ ORDER BY c[""OrderID""]");
                 () => base.Reverse_in_join_inner_with_skip(async))).Message);
 
         AssertSql();
-
-        AssertSql();
     }
 
     public override async Task Reverse_in_SelectMany(bool async)
@@ -1469,9 +1467,13 @@ ORDER BY c[""EmployeeID""] DESC, c[""City""]");
         Assert.Equal(CosmosStrings.ReverseAfterSkipTakeNotSupported, message);
     }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task List_of_list_of_anonymous_type(bool async)
-        => base.List_of_list_of_anonymous_type(async);
+    public override async Task List_of_list_of_anonymous_type(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.List_of_list_of_anonymous_type(async));
+
+        AssertSql();
+    }
 
     public override async Task
         SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
@@ -1678,6 +1680,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             @"SELECT VALUE {""c"" : ((c[""CustomerID""] = ""1"") ? ""01"" : ((c[""CustomerID""] = ""2"") ? ""02"" : ((c[""CustomerID""] = ""3"") ? ""03"" : ((c[""CustomerID""] = ""4"") ? ""04"" : ((c[""CustomerID""] = ""5"") ? ""05"" : ((c[""CustomerID""] = ""6"") ? ""06"" : ((c[""CustomerID""] = ""7"") ? ""07"" : ((c[""CustomerID""] = ""8"") ? ""08"" : ((c[""CustomerID""] = ""9"") ? ""09"" : ((c[""CustomerID""] = ""10"") ? ""10"" : ((c[""CustomerID""] = ""11"") ? ""11"" : null)))))))))))}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Using_enumerable_parameter_in_projection(bool async)
+    {
+        await base.Using_enumerable_parameter_in_projection(async);
+
+        AssertSql(
+            @"SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""F"" != null) AND STARTSWITH(c[""CustomerID""], ""F""))))");
     }
 
     private void AssertSql(params string[] expected)

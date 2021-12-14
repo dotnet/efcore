@@ -2270,6 +2270,16 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0]");
     }
 
+    public override async Task Using_enumerable_parameter_in_projection(bool async)
+    {
+        await base.Using_enumerable_parameter_in_projection(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
