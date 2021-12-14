@@ -50,17 +50,6 @@ public class FakeRelationalCommandDiagnosticsLogger
         CommandSource commandSource)
         => default;
 
-    /// <summary>
-    ///     Logs for the <see cref="RelationalEventId.CommandExecuting" /> event.
-    /// </summary>
-    /// <param name="connection">The connection.</param>
-    /// <param name="command">The database command object.</param>
-    /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
-    /// <param name="commandId">The correlation ID associated with the given <see cref="System.Data.Common.DbCommand" />.</param>
-    /// <param name="connectionId">The correlation ID associated with the <see cref="System.Data.Common.DbConnection" /> being used.</param>
-    /// <param name="startTime">The time that execution began.</param>
-    /// <param name="commandSource">Source of the command.</param>
-    /// <returns>An intercepted result.</returns>
     public InterceptionResult<int> CommandNonQueryExecuting(
         IRelationalConnection connection,
         DbCommand command,
@@ -179,6 +168,34 @@ public class FakeRelationalCommandDiagnosticsLogger
         CancellationToken cancellationToken = default)
         => new(methodResult);
 
+    public void CommandException(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        Exception exception,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource)
+    {
+    }
+
+    public Task CommandExceptionAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        Exception exception,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
     public void CommandError(
         IRelationalConnection connection,
         DbCommand command,
@@ -201,6 +218,32 @@ public class FakeRelationalCommandDiagnosticsLogger
         Guid commandId,
         Guid connectionId,
         Exception exception,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    public void CommandCanceled(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource)
+    {
+    }
+
+    public Task CommandCanceledAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
         DateTimeOffset startTime,
         TimeSpan duration,
         CommandSource commandSource,

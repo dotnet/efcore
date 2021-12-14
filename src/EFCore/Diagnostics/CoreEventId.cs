@@ -56,6 +56,7 @@ public static class CoreEventId
         SaveChangesStarting,
         SaveChangesCompleted,
         OptimisticConcurrencyException,
+        SaveChangesCanceled,
 
         // Query events
         QueryIterationFailed = CoreBaseId + 100,
@@ -73,6 +74,7 @@ public static class CoreEventId
         NavigationBaseIncluded,
         NavigationBaseIncludeIgnored,
         DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+        QueryCanceled,
 
         // Infrastructure events
         SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -146,6 +148,19 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId SaveChangesFailed = MakeUpdateId(Id.SaveChangesFailed);
+
+    /// <summary>
+    ///     An error occurred while attempting to save changes to the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="DbContextErrorEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId SaveChangesCanceled = MakeUpdateId(Id.SaveChangesCanceled);
 
     /// <summary>
     ///     The same entity is being tracked as a different shared entity entity type.
@@ -297,6 +312,15 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId DistinctAfterOrderByWithoutRowLimitingOperatorWarning
         = MakeQueryId(Id.DistinctAfterOrderByWithoutRowLimitingOperatorWarning);
+
+    /// <summary>
+    ///     A query was canceled for context type '{contextType}'.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    /// </remarks>
+    public static readonly EventId QueryCanceled
+        = MakeQueryId(Id.QueryCanceled);
 
     private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 

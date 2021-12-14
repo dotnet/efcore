@@ -401,6 +401,56 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.CommandCanceled" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="command">The database command object.</param>
+    /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
+    /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
+    /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
+    /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
+    /// <param name="startTime">The time that execution began.</param>
+    /// <param name="duration">The amount of time that passed until the exception was raised.</param>
+    /// <param name="commandSource">Source of the command.</param>
+    void CommandCanceled(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource);
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.CommandCanceled" /> event.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="command">The database command object.</param>
+    /// <param name="context">The <see cref="DbContext" /> currently being used, to null if not known.</param>
+    /// <param name="executeMethod">Represents the method that will be called to execute the command.</param>
+    /// <param name="commandId">The correlation ID associated with the given <see cref="DbCommand" />.</param>
+    /// <param name="connectionId">The correlation ID associated with the <see cref="DbConnection" /> being used.</param>
+    /// <param name="startTime">The time that execution began.</param>
+    /// <param name="duration">The amount of time that passed until the exception was raised.</param>
+    /// <param name="commandSource">Source of the command.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the async operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    Task CommandCanceledAsync(
+        IRelationalConnection connection,
+        DbCommand command,
+        DbContext? context,
+        DbCommandMethod executeMethod,
+        Guid commandId,
+        Guid connectionId,
+        DateTimeOffset startTime,
+        TimeSpan duration,
+        CommandSource commandSource,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.DataReaderDisposing" /> event.
     /// </summary>
     /// <param name="connection">The connection.</param>

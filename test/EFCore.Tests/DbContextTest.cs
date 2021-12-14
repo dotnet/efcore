@@ -139,6 +139,24 @@ public partial class DbContextTest
     }
 
     [ConditionalFact]
+    public async Task SaveChangesAsync_with_canceled_token()
+    {
+        var loggerFactory = new ListLoggerFactory();
+
+        var provider =
+            InMemoryTestHelpers.Instance.CreateServiceProvider(
+                new ServiceCollection().AddSingleton<ILoggerFactory>(loggerFactory));
+
+        using var context = new ButTheHedgehogContext(provider);
+        context.Products.Add(new Product());
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.SaveChangesAsync(new CancellationToken(canceled: true)));
+
+        Assert.Contains(CoreEventId.SaveChangesCanceled, loggerFactory.Log.Select(l => l.Id));
+        Assert.DoesNotContain(CoreEventId.SaveChangesFailed, loggerFactory.Log.Select(l => l.Id));
+    }
+
+    [ConditionalFact]
     public void Entry_methods_check_arguments()
     {
         var services = new ServiceCollection()

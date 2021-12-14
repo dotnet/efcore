@@ -221,6 +221,26 @@ public class DbCommandInterceptorAggregator : InterceptorAggregator<IDbCommandIn
             return result;
         }
 
+        public void CommandCanceled(DbCommand command, CommandEndEventData eventData)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                _interceptors[i].CommandCanceled(command, eventData);
+            }
+        }
+
+        public async Task CommandCanceledAsync(
+            DbCommand command,
+            CommandEndEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                await _interceptors[i].CommandCanceledAsync(command, eventData, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
+
         public void CommandFailed(DbCommand command, CommandErrorEventData eventData)
         {
             for (var i = 0; i < _interceptors.Length; i++)

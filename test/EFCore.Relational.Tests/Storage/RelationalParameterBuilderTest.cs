@@ -20,7 +20,8 @@ public class RelationalParameterBuilderTest
 
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
-                typeMapper));
+                typeMapper,
+                new ExceptionDetector()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -57,7 +58,7 @@ public class RelationalParameterBuilderTest
         var property = model.GetEntityTypes().Single().FindProperty("MyProp");
 
         var parameterBuilder = new RelationalCommandBuilder(
-            new RelationalCommandBuilderDependencies(typeMapper));
+            new RelationalCommandBuilderDependencies(typeMapper, new ExceptionDetector()));
 
         parameterBuilder.AddParameter(
             "InvariantName",
@@ -85,7 +86,8 @@ public class RelationalParameterBuilderTest
 
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
-                typeMapper));
+                typeMapper,
+                new ExceptionDetector()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",
@@ -121,7 +123,8 @@ public class RelationalParameterBuilderTest
 
         var parameterBuilder = new RelationalCommandBuilder(
             new RelationalCommandBuilderDependencies(
-                typeMapper));
+                typeMapper,
+                new ExceptionDetector()));
 
         parameterBuilder.AddCompositeParameter(
             "CompositeInvariant",

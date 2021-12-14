@@ -27,7 +27,8 @@ public class SqlServerModificationCommandBatchFactoryTest
             new ModificationCommandBatchFactoryDependencies(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
-                        typeMapper)),
+                        typeMapper,
+                        new SqlServerExceptionDetector())),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
@@ -64,7 +65,8 @@ public class SqlServerModificationCommandBatchFactoryTest
             new ModificationCommandBatchFactoryDependencies(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
-                        typeMapper)),
+                        typeMapper,
+                        new SqlServerExceptionDetector())),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(

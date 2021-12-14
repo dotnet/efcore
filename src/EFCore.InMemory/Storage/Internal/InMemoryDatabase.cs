@@ -64,7 +64,9 @@ public class InMemoryDatabase : Database, IInMemoryDatabase
     public override Task<int> SaveChangesAsync(
         IList<IUpdateEntry> entries,
         CancellationToken cancellationToken = default)
-        => Task.FromResult(_store.ExecuteTransaction(entries, _updateLogger));
+        => cancellationToken.IsCancellationRequested
+            ? Task.FromCanceled<int>(cancellationToken)
+            : Task.FromResult(_store.ExecuteTransaction(entries, _updateLogger));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

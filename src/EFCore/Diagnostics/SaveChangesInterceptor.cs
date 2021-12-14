@@ -62,6 +62,14 @@ public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
     }
 
     /// <summary>
+    ///     Called when <see cref="O:DbContext.SaveChanges" /> was canceled.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the failure.</param>
+    public virtual void SaveChangesCanceled(DbContextEventData eventData)
+    {
+    }
+
+    /// <summary>
     ///     Called at the start of <see cref="O:DbContext.SaveChangesAsync" />.
     /// </summary>
     /// <param name="eventData">Contextual information about the <see cref="DbContext" /> being used.</param>
@@ -121,6 +129,18 @@ public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task SaveChangesFailedAsync(
         DbContextErrorEventData eventData,
+        CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    /// <summary>
+    ///     Called when <see cref="O:DbContext.SaveChanges" /> was canceled.
+    /// </summary>
+    /// <param name="eventData">Contextual information about the cancellation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A <see cref="Task" /> representing the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public virtual Task SaveChangesCanceledAsync(
+        DbContextEventData eventData,
         CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 }

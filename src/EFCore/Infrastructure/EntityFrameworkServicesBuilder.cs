@@ -81,6 +81,8 @@ public class EntityFrameworkServicesBuilder
             { typeof(IMemoryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(INavigationExpansionExtensibilityHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(IExceptionDetector), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+
             { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -295,6 +297,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
         TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
         TryAdd<INavigationExpansionExtensibilityHelper, NavigationExpansionExtensibilityHelper>();
+        TryAdd<IExceptionDetector, ExceptionDetector>();
 
         TryAdd(
             p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger

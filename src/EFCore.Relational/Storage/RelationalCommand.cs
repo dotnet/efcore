@@ -120,17 +120,33 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            logger?.CommandError(
-                connection,
-                command,
-                context,
-                DbCommandMethod.ExecuteNonQuery,
-                commandId,
-                connection.ConnectionId,
-                exception,
-                startTime,
-                _stopwatch.Elapsed,
-                parameterObject.CommandSource);
+            if (Dependencies.ExceptionDetector.IsCancellation(exception))
+            {
+                logger?.CommandCanceled(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteNonQuery,
+                    commandId,
+                    connection.ConnectionId,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
+            else
+            {
+                logger?.CommandError(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteNonQuery,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
 
             throw;
         }
@@ -217,19 +233,37 @@ public class RelationalCommand : IRelationalCommand
         {
             if (logger != null)
             {
-                await logger.CommandErrorAsync(
-                        connection,
-                        command,
-                        context,
-                        DbCommandMethod.ExecuteNonQuery,
-                        commandId,
-                        connection.ConnectionId,
-                        exception,
-                        startTime,
-                        _stopwatch.Elapsed,
-                        parameterObject.CommandSource,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+                {
+                    await logger.CommandCanceledAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteNonQuery,
+                            commandId,
+                            connection.ConnectionId,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await logger.CommandErrorAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteNonQuery,
+                            commandId,
+                            connection.ConnectionId,
+                            exception,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             throw;
@@ -300,17 +334,33 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            logger?.CommandError(
-                connection,
-                command,
-                context,
-                DbCommandMethod.ExecuteScalar,
-                commandId,
-                connection.ConnectionId,
-                exception,
-                startTime,
-                _stopwatch.Elapsed,
-                parameterObject.CommandSource);
+            if (Dependencies.ExceptionDetector.IsCancellation(exception))
+            {
+                logger?.CommandCanceled(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteScalar,
+                    commandId,
+                    connection.ConnectionId,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
+            else
+            {
+                logger?.CommandError(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteScalar,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
 
             throw;
         }
@@ -396,19 +446,37 @@ public class RelationalCommand : IRelationalCommand
         {
             if (logger != null)
             {
-                await logger.CommandErrorAsync(
-                        connection,
-                        command,
-                        context,
-                        DbCommandMethod.ExecuteScalar,
-                        commandId,
-                        connection.ConnectionId,
-                        exception,
-                        startTime,
-                        _stopwatch.Elapsed,
-                        parameterObject.CommandSource,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+                {
+                    await logger.CommandCanceledAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteScalar,
+                            commandId,
+                            connection.ConnectionId,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await logger.CommandErrorAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteScalar,
+                            commandId,
+                            connection.ConnectionId,
+                            exception,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             throw;
@@ -484,17 +552,33 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            logger?.CommandError(
-                connection,
-                command,
-                context,
-                DbCommandMethod.ExecuteReader,
-                commandId,
-                connection.ConnectionId,
-                exception,
-                startTime,
-                _stopwatch.Elapsed,
-                parameterObject.CommandSource);
+            if (Dependencies.ExceptionDetector.IsCancellation(exception))
+            {
+                logger?.CommandCanceled(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteReader,
+                    commandId,
+                    connection.ConnectionId,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
+            else
+            {
+                logger?.CommandError(
+                    connection,
+                    command,
+                    context,
+                    DbCommandMethod.ExecuteReader,
+                    commandId,
+                    connection.ConnectionId,
+                    exception,
+                    startTime,
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
+            }
 
             CleanupCommand(command, connection);
 
@@ -602,19 +686,37 @@ public class RelationalCommand : IRelationalCommand
         {
             if (logger != null)
             {
-                await logger.CommandErrorAsync(
-                        connection,
-                        command,
-                        context,
-                        DbCommandMethod.ExecuteReader,
-                        commandId,
-                        connection.ConnectionId,
-                        exception,
-                        startTime,
-                        DateTimeOffset.UtcNow - startTime,
-                        parameterObject.CommandSource,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+                {
+                    await logger.CommandCanceledAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteReader,
+                            commandId,
+                            connection.ConnectionId,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    await logger.CommandErrorAsync(
+                            connection,
+                            command,
+                            context,
+                            DbCommandMethod.ExecuteReader,
+                            commandId,
+                            connection.ConnectionId,
+                            exception,
+                            startTime,
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             await CleanupCommandAsync(command, connection).ConfigureAwait(false);

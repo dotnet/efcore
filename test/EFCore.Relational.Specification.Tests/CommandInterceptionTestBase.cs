@@ -1651,6 +1651,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         public bool ExecutingCalled { get; set; }
         public bool ExecutedCalled { get; set; }
         public bool FailedCalled { get; set; }
+        public bool CanceledCalled { get; set; }
         public bool CreatingCalled { get; set; }
         public bool CreatedCalled { get; set; }
 
@@ -1843,6 +1844,27 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return Task.CompletedTask;
         }
 
+        public void CommandCanceled(
+            DbCommand command,
+            CommandEndEventData eventData)
+        {
+            Assert.False(eventData.IsAsync);
+            SyncCalled = true;
+            AssertCanceled(command, eventData);
+        }
+
+        public Task CommandCanceledAsync(
+            DbCommand command,
+            CommandEndEventData eventData,
+            CancellationToken cancellationToken = default)
+        {
+            Assert.True(eventData.IsAsync);
+            AsyncCalled = true;
+            AssertCanceled(command, eventData);
+
+            return Task.CompletedTask;
+        }
+
         public InterceptionResult DataReaderDisposing(
             DbCommand command,
             DataReaderDisposingEventData eventData,
@@ -1926,6 +1948,19 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             CommandSource = eventData.CommandSource;
             Exception = eventData.Exception;
             FailedCalled = true;
+        }
+
+        protected virtual void AssertCanceled(DbCommand command, CommandEndEventData eventData)
+        {
+            Assert.Same(Context, eventData.Context);
+            Assert.Equal(CommandText, command.CommandText);
+            Assert.Equal(CommandId, eventData.CommandId);
+            Assert.Equal(ConnectionId, eventData.ConnectionId);
+            Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+            //Assert.Equal(_commandSource, eventData.CommandSource);
+
+            CommandSource = eventData.CommandSource;
+            CanceledCalled = true;
         }
     }
 

@@ -231,6 +231,16 @@ public class DbContext :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
+    IExceptionDetector IDbContextDependencies.ExceptionDetector
+        => DbContextDependencies.ExceptionDetector;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
     IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger
         => DbContextDependencies.UpdateLogger;
 
@@ -613,9 +623,16 @@ public class DbContext :
         }
         catch (Exception exception)
         {
-            DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
+            if (DbContextDependencies.ExceptionDetector.IsCancellation(exception))
+            {
+                DbContextDependencies.UpdateLogger.SaveChangesCanceled(this);
+            }
+            else
+            {
+                DbContextDependencies.UpdateLogger.SaveChangesFailed(this, exception);
 
-            SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+            }
 
             throw;
         }
@@ -754,9 +771,16 @@ public class DbContext :
         }
         catch (Exception exception)
         {
-            await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
+            if (DbContextDependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
+            {
+                await DbContextDependencies.UpdateLogger.SaveChangesCanceledAsync(this, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                await DbContextDependencies.UpdateLogger.SaveChangesFailedAsync(this, exception, cancellationToken).ConfigureAwait(false);
 
-            SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+                SaveChangesFailed?.Invoke(this, new SaveChangesFailedEventArgs(acceptAllChangesOnSuccess, exception));
+            }
 
             throw;
         }

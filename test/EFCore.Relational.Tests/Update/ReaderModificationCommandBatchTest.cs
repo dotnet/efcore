@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -608,7 +609,8 @@ public class ReaderModificationCommandBatchTest
             return new ModificationCommandBatchFactoryDependencies(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
-                        typeMappingSource)),
+                        typeMappingSource,
+                        new ExceptionDetector())),
                 new RelationalSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 sqlGenerator

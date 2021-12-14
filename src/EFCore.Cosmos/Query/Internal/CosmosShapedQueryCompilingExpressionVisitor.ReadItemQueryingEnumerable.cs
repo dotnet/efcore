@@ -169,6 +169,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly IConcurrencyDetector _concurrencyDetector;
+            private readonly IExceptionDetector _exceptionDetector;
             private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
             private readonly CancellationToken _cancellationToken;
 
@@ -183,6 +184,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 _contextType = readItemEnumerable._contextType;
                 _queryLogger = readItemEnumerable._queryLogger;
                 _standAloneStateManager = readItemEnumerable._standAloneStateManager;
+                _exceptionDetector = _cosmosQueryContext.ExceptionDetector;
                 _readItemEnumerable = readItemEnumerable;
                 _cancellationToken = cancellationToken;
 
@@ -235,7 +237,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
                 catch (Exception exception)
                 {
-                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                    if (_exceptionDetector.IsCancellation(exception))
+                    {
+                        _queryLogger.QueryCanceled(_contextType);
+                    }
+                    else
+                    {
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                    }
 
                     throw;
                 }
@@ -282,7 +291,14 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
                 catch (Exception exception)
                 {
-                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                    if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                    {
+                        _queryLogger.QueryCanceled(_contextType);
+                    }
+                    else
+                    {
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                    }
 
                     throw;
                 }

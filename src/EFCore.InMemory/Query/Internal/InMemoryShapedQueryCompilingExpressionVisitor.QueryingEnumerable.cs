@@ -63,6 +63,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
             private readonly bool _standAloneStateManager;
             private readonly CancellationToken _cancellationToken;
             private readonly IConcurrencyDetector? _concurrencyDetector;
+            private readonly IExceptionDetector _exceptionDetector;
 
             private IEnumerator<ValueBuffer>? _enumerator;
 
@@ -75,6 +76,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _cancellationToken = cancellationToken;
+                _exceptionDetector = _queryContext.ExceptionDetector;
                 Current = default!;
 
                 _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
@@ -104,7 +106,14 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 }
                 catch (Exception exception)
                 {
-                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                    if (_exceptionDetector.IsCancellation(exception))
+                    {
+                        _queryLogger.QueryCanceled(_contextType);
+                    }
+                    else
+                    {
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                    }
 
                     throw;
                 }
@@ -129,7 +138,14 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 }
                 catch (Exception exception)
                 {
-                    _queryLogger.QueryIterationFailed(_contextType, exception);
+                    if (_exceptionDetector.IsCancellation(exception, _cancellationToken))
+                    {
+                        _queryLogger.QueryCanceled(_contextType);
+                    }
+                    else
+                    {
+                        _queryLogger.QueryIterationFailed(_contextType, exception);
+                    }
 
                     throw;
                 }
