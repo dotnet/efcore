@@ -112,7 +112,7 @@ public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNa
     /// </summary>
     /// <param name="navigationExpression">
     ///     A lambda expression representing the reference navigation property on the other end of this
-    ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
+    ///     relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
     ///     configured without a navigation property on the other end of the relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>
