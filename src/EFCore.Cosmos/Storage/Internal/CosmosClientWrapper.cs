@@ -264,8 +264,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
             CancellationToken cancellationToken = default)
         {
-            await using var stream = new MemoryStream();
-            await using var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+            using var stream = new MemoryStream();
+            var writer = new StreamWriter(stream, new UTF8Encoding(), bufferSize: 1024, leaveOpen: false);
+            await using var __ = writer.ConfigureAwait(false);
             using var jsonWriter = new JsonTextWriter(writer);
             Serializer.Serialize(jsonWriter, parameters.Document);
             await jsonWriter.FlushAsync(cancellationToken).ConfigureAwait(false);

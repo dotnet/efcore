@@ -145,7 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            await using var _ = enumerator.ConfigureAwait(false);
+
             if (!await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
                 throw new InvalidOperationException(CoreStrings.SequenceContainsNoElements);
@@ -165,7 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            await using var _ = enumerator.ConfigureAwait(false);
+
             if (!(await enumerator.MoveNextAsync().ConfigureAwait(false)))
             {
                 // TODO: Convert return to Task<TSource?> when changing to C# 9
