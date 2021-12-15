@@ -6,7 +6,7 @@
     <IsPackable>True</IsPackable>
     <IncludeSymbols>True</IncludeSymbols>
     <Nullable>enable</Nullable>
-    <Feature>nullablePublicOnly</Feature>
+    <Features>nullablePublicOnly;strict</Features>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
