@@ -9053,6 +9053,10 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
         var origSynchronizationContext = SynchronizationContext.Current;
         SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
 
+        // Do a dispatch once to make sure we're in the new synchronization context. This is necessary in case the below happens
+        // to complete synchronously, which shouldn't happen in principle - but just to be safe.
+        await Task.Delay(1).ConfigureAwait(true);
+
         bool? isMySyncContext = null;
         Action callback = () => isMySyncContext =
             SynchronizationContext.Current == trackingSynchronizationContext

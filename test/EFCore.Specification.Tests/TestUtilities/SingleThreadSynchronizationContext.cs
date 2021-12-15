@@ -14,6 +14,7 @@ public class SingleThreadSynchronizationContext : SynchronizationContext, IDispo
     public SingleThreadSynchronizationContext()
     {
         Thread = new Thread(WorkLoop);
+        Thread.IsBackground = true;
         Thread.Start();
     }
 
