@@ -72,5 +72,33 @@ namespace Microsoft.EntityFrameworkCore.Query
             public virtual Bar? Bar { get; set; }
         }
 #nullable disable
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_references_on_same_level_expanded_at_different_times_around_take(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            await base.Owned_references_on_same_level_expanded_at_different_times_around_take_helper(context, async);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_references_on_same_level_nested_expanded_at_different_times_around_take(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext26592>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
+        }
+
+        protected class MyContext26592 : MyContext26592Base
+        {
+            public MyContext26592(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
     }
 }
