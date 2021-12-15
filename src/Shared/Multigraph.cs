@@ -12,9 +12,6 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _successorMap = new();
     private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
 
-    private readonly bool _useOldBehavior
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26750", out var enabled) && enabled;
-
     public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
     {
         if (_successorMap.TryGetValue(from, out var successorSet))
@@ -326,9 +323,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                        && tryBreakEdge != null)
                 {
                     var candidateVertex = candidateVertices[candidateIndex];
-                    if (_useOldBehavior
-                            ? predecessorCounts[candidateVertex] != 1
-                            : predecessorCounts[candidateVertex] == 0)
+                    if (predecessorCounts[candidateVertex] == 0)
                     {
                         candidateIndex++;
                         continue;
@@ -345,8 +340,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                         _successorMap[incomingNeighbor].Remove(candidateVertex);
                         _predecessorMap[candidateVertex].Remove(incomingNeighbor);
                         predecessorCounts[candidateVertex]--;
-                        if (_useOldBehavior
-                            || predecessorCounts[candidateVertex] == 0)
+                        if (predecessorCounts[candidateVertex] == 0)
                         {
                             currentRootsQueue.Add(candidateVertex);
                             nextRootsQueue = new List<TVertex>();
