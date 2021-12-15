@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             {
                 try
                 {
-                    await entry.LoadAsync(cancellationToken);
+                    await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {

@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         null,
                         null),
                     PaintActionAsync,
-                    cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
 
                 rootEntry.StateManager.CompleteAttachGraph();
             }
