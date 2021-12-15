@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
 
+            modelBuilder.Entity<Person>()
+                .HasOne(p => p.Parent)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();

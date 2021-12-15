@@ -342,6 +342,91 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Model_differ_breaks_multiple_foreign_key_cycles_in_create_table_operations()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<Book>(entity =>
+                    {
+                        entity.HasOne(d => d.Album)
+                            .WithMany(p => p.Books);
+                        entity.HasOne(d => d.User)
+                            .WithMany(p => p.Books);
+                    });
+                    modelBuilder.Entity<Album>(entity =>
+                    {
+                        entity.HasOne(d => d.OwnerUser)
+                            .WithMany(p => p.AlbumOwnerUsers);
+                        entity.HasOne(d => d.Book)
+                            .WithMany(p => p.Albums);
+                    });
+                    modelBuilder.Entity<User>(entity =>
+                    {
+                        entity.HasOne(d => d.Book)
+                            .WithMany(p => p.Users);
+                        entity.HasOne(d => d.ReaderGroup)
+                            .WithMany(p => p.UserReaderGroups);
+                    });
+                    modelBuilder.Entity<Group>(entity =>
+                    {
+                        entity.HasOne(d => d.OwnerAlbum)
+                            .WithMany(p => p.Groups);
+                        entity.HasOne(d => d.OwnerUser)
+                            .WithMany(p => p.Groups);
+                    });
+                },
+                result =>
+                {
+                    Assert.Equal(4, result.OfType<CreateTableOperation>().Count());
+                    Assert.Equal(8, result.OfType<CreateIndexOperation>().Count());
+                    Assert.Equal(8, result.OfType<CreateTableOperation>().SelectMany(t => t.ForeignKeys).Count()
+                        + result.OfType<AddForeignKeyOperation>().Count());
+                });
+        }
+
+        private class Book
+        {
+            public int Id { get; set; }
+
+            public Album Album { get; set; }
+            public User User { get; set; }
+            public ICollection<Album> Albums { get; set; }
+            public ICollection<User> Users { get; set; }
+        }
+
+        private class Album
+        {
+            public int Id { get; set; }
+
+            public User OwnerUser { get; set; }
+            public Book Book { get; set; }
+            public ICollection<Book> Books { get; set; }
+            public ICollection<Group> Groups { get; set; }
+        }
+
+        private class User
+        {
+            public int Id { get; set; }
+
+            public Book Book { get; set; }
+            public Group ReaderGroup { get; set; }
+            public ICollection<Album> AlbumOwnerUsers { get; set; }
+            public ICollection<Book> Books { get; set; }
+            public ICollection<Group> Groups { get; set; }
+        }
+
+        private class Group
+        {
+            public int Id { get; set; }
+
+            public Album OwnerAlbum { get; set; }
+            public User OwnerUser { get; set; }
+            public ICollection<User> UserReaderGroups { get; set; }
+        }
+
+        [ConditionalFact]
         public void Create_table()
         {
             Execute(
