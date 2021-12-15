@@ -272,6 +272,64 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
+    public virtual void Can_add_and_remove_self_refs()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var parent = new Person("1", null);
+                var child1 = new Person("2", parent);
+                var child2 = new Person("3", parent);
+                var grandchild1 = new Person("4", child1);
+                var grandchild2 = new Person("5", child1);
+                var grandchild3 = new Person("6", child2);
+                var grandchild4 = new Person("7", child2);
+
+                context.Add(parent);
+                context.Add(child1);
+                context.Add(child2);
+                context.Add(grandchild1);
+                context.Add(grandchild2);
+                context.Add(grandchild3);
+                context.Add(grandchild4);
+
+                context.SaveChanges();
+
+                context.Remove(parent);
+                context.Remove(child1);
+                context.Remove(child2);
+                context.Remove(grandchild1);
+                context.Remove(grandchild2);
+                context.Remove(grandchild3);
+                context.Remove(grandchild4);
+
+                parent = new Person("1", null);
+                child1 = new Person("2", parent);
+                child2 = new Person("3", parent);
+                grandchild1 = new Person("4", child1);
+                grandchild2 = new Person("5", child1);
+                grandchild3 = new Person("6", child2);
+                grandchild4 = new Person("7", child2);
+
+                context.Add(parent);
+                context.Add(child1);
+                context.Add(child2);
+                context.Add(grandchild1);
+                context.Add(grandchild2);
+                context.Add(grandchild3);
+                context.Add(grandchild4);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var people = context.Set<Person>()
+                    .Include(p => p.Parent).ThenInclude(c => c.Parent).ThenInclude(c => c.Parent)
+                    .ToList();
+                Assert.Equal(7, people.Count);
+                Assert.Equal("1", people.Single(p => p.Parent == null).Name);
+            });
+
+    [ConditionalFact]
     public virtual void Can_remove_partial()
     {
         var productId = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");

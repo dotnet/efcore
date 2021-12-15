@@ -311,6 +311,94 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void Model_differ_breaks_multiple_foreign_key_cycles_in_create_table_operations()
+        => Execute(
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Book>(
+                    entity =>
+                    {
+                        entity.HasOne(d => d.Album)
+                            .WithMany(p => p.Books);
+                        entity.HasOne(d => d.User)
+                            .WithMany(p => p.Books);
+                    });
+                modelBuilder.Entity<Album>(
+                    entity =>
+                    {
+                        entity.HasOne(d => d.OwnerUser)
+                            .WithMany(p => p.AlbumOwnerUsers);
+                        entity.HasOne(d => d.Book)
+                            .WithMany(p => p.Albums);
+                    });
+                modelBuilder.Entity<User>(
+                    entity =>
+                    {
+                        entity.HasOne(d => d.Book)
+                            .WithMany(p => p.Users);
+                        entity.HasOne(d => d.ReaderGroup)
+                            .WithMany(p => p.UserReaderGroups);
+                    });
+                modelBuilder.Entity<Group>(
+                    entity =>
+                    {
+                        entity.HasOne(d => d.OwnerAlbum)
+                            .WithMany(p => p.Groups);
+                        entity.HasOne(d => d.OwnerUser)
+                            .WithMany(p => p.Groups);
+                    });
+            },
+            result =>
+            {
+                Assert.Equal(4, result.OfType<CreateTableOperation>().Count());
+                Assert.Equal(8, result.OfType<CreateIndexOperation>().Count());
+                Assert.Equal(
+                    8, result.OfType<CreateTableOperation>().SelectMany(t => t.ForeignKeys).Count()
+                    + result.OfType<AddForeignKeyOperation>().Count());
+            });
+
+    private class Book
+    {
+        public int Id { get; set; }
+
+        public Album Album { get; set; }
+        public User User { get; set; }
+        public ICollection<Album> Albums { get; set; }
+        public ICollection<User> Users { get; set; }
+    }
+
+    private class Album
+    {
+        public int Id { get; set; }
+
+        public User OwnerUser { get; set; }
+        public Book Book { get; set; }
+        public ICollection<Book> Books { get; set; }
+        public ICollection<Group> Groups { get; set; }
+    }
+
+    private class User
+    {
+        public int Id { get; set; }
+
+        public Book Book { get; set; }
+        public Group ReaderGroup { get; set; }
+        public ICollection<Album> AlbumOwnerUsers { get; set; }
+        public ICollection<Book> Books { get; set; }
+        public ICollection<Group> Groups { get; set; }
+    }
+
+    private class Group
+    {
+        public int Id { get; set; }
+
+        public Album OwnerAlbum { get; set; }
+        public User OwnerUser { get; set; }
+        public ICollection<User> UserReaderGroups { get; set; }
+    }
+
+    [ConditionalFact]
     public void Create_table()
         => Execute(
             _ => { },
@@ -864,6 +952,144 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("Cats", operation.NewName);
                 Assert.Equal("dbo", operation.NewSchema);
             });
+
+    [ConditionalFact]
+    public void Rename_table_with_foreign_keys()
+        => Execute(
+            modelBuilder =>
+            {
+                modelBuilder
+                    .HasAnnotation("ProductVersion", "6.0.0");
+
+                modelBuilder.Entity(
+                    "TableRename.Entity1", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.Property<int>("Entity2Id");
+
+                        b.Property<int>("Entity3Id");
+
+                        b.HasKey("Id");
+
+                        b.HasIndex("Entity2Id");
+
+                        b.HasIndex("Entity3Id");
+
+                        b.ToTable("Entity1");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity2", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Entity2");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity3", b =>
+                    {
+                        b.Property<int>("Id")
+                            .ValueGeneratedOnAdd();
+
+                        b.HasKey("Id");
+
+                        b.ToTable("Entity3");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity1", b =>
+                    {
+                        b.HasOne("TableRename.Entity2", "Entity2Navigation")
+                            .WithMany("Entity1s")
+                            .HasForeignKey("Entity2Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b.HasOne("TableRename.Entity3", "Entity3Navigation")
+                            .WithMany("Entity1s")
+                            .HasForeignKey("Entity3Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+                    });
+            },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "TableRename.Entity4", b =>
+                    {
+                        b.Property<int>("Id");
+
+                        b.Property<int>("Entity2Id");
+
+                        b.Property<int>("Entity3Id");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity2", b =>
+                    {
+                        b.Property<int>("Id");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity3", b =>
+                    {
+                        b.Property<int>("Id");
+                    });
+
+                modelBuilder.Entity(
+                    "TableRename.Entity4", b =>
+                    {
+                        b.HasOne("TableRename.Entity2", "Entity2Navigation")
+                            .WithMany("Entity4s")
+                            .HasForeignKey("Entity2Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+
+                        b.HasOne("TableRename.Entity3", "Entity3Navigation")
+                            .WithMany("Entity4s")
+                            .HasForeignKey("Entity3Id")
+                            .OnDelete(DeleteBehavior.Cascade)
+                            .IsRequired();
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Entity1", m.Name);
+                    Assert.Null(m.Schema);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Entity4", m.Name);
+                    Assert.Null(m.Schema);
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("Entity4", m.Table);
+                    Assert.Equal("IX_Entity4_Entity2Id", m.Name);
+                    Assert.Collection(
+                        m.Columns,
+                        v => Assert.Equal("Entity2Id", v));
+                },
+                o =>
+                {
+                    var m = Assert.IsType<CreateIndexOperation>(o);
+                    Assert.Equal("Entity4", m.Table);
+                    Assert.Equal("IX_Entity4_Entity3Id", m.Name);
+                    Assert.Collection(
+                        m.Columns,
+                        v => Assert.Equal("Entity3Id", v));
+                }), skipSourceConventions: true);
 
     [ConditionalFact]
     public void Move_table()

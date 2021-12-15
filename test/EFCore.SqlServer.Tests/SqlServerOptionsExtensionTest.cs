@@ -14,7 +14,7 @@ public class SqlServerOptionsExtensionTest
         var tasks = new Task[Environment.ProcessorCount];
         for (var i = 0; i < tasks.Length; i++)
         {
-            tasks[i] = Task.Factory.StartNew(
+            tasks[i] = Task.Run(
                 () =>
                 {
                     using var ctx = new EmptyContext();

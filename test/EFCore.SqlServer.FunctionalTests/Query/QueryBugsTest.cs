@@ -1,11 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -9055,7 +9055,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 
         bool? isMySyncContext = null;
         Action callback = () => isMySyncContext =
-            SynchronizationContext.Current ==  trackingSynchronizationContext
+            SynchronizationContext.Current == trackingSynchronizationContext
             && Thread.CurrentThread == trackingSynchronizationContext.Thread;
         observableThing.Event += callback;
 
@@ -10113,8 +10113,8 @@ ORDER BY [t].[Id]");
     public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
     {
         var contextFactory = await CreateContext25225Async();
-        var task1 = Task.Factory.StartNew(() => Query(MyContext25225.Parent1Id, MyContext25225.Collection1Id));
-        var task2 = Task.Factory.StartNew(() => Query(MyContext25225.Parent2Id, MyContext25225.Collection2Id));
+        var task1 = Task.Run(() => Query(MyContext25225.Parent1Id, MyContext25225.Collection1Id));
+        var task2 = Task.Run(() => Query(MyContext25225.Parent2Id, MyContext25225.Collection2Id));
         await Task.WhenAll(task1, task2);
 
         void Query(Guid parentId, Guid collectionId)
@@ -10230,13 +10230,14 @@ ORDER BY [t].[Id]");
     [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetime2_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
-        {
-            if (fractionalSeconds.HasValue)
+        var contextFactory = await InitializeAsync<MyContext_26742>(
+            onModelCreating: modelBuilder =>
             {
-                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTime).HasPrecision(fractionalSeconds.Value);
-            }
-        });
+                if (fractionalSeconds.HasValue)
+                {
+                    modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTime).HasPrecision(fractionalSeconds.Value);
+                }
+            });
 
         var parameter = new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567);
 
@@ -10265,13 +10266,14 @@ WHERE [e].[DateTime] = @__parameter_0");
     [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_datetimeoffset_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
-        {
-            if (fractionalSeconds.HasValue)
+        var contextFactory = await InitializeAsync<MyContext_26742>(
+            onModelCreating: modelBuilder =>
             {
-                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTimeOffset).HasPrecision(fractionalSeconds.Value);
-            }
-        });
+                if (fractionalSeconds.HasValue)
+                {
+                    modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.DateTimeOffset).HasPrecision(fractionalSeconds.Value);
+                }
+            });
 
         var parameter = new DateTimeOffset(new DateTime(2021, 11, 12, 13, 14, 15).AddTicks(1234567), TimeSpan.FromHours(10));
 
@@ -10300,15 +10302,16 @@ WHERE [e].[DateTimeOffset] = @__parameter_0");
     [InlineData(7, " (Scale = 7)")]
     public virtual async Task Query_generates_correct_timespan_parameter_definition(int? fractionalSeconds, string postfix)
     {
-        var contextFactory = await InitializeAsync<MyContext_26742>(onModelCreating: modelBuilder =>
-        {
-            if (fractionalSeconds.HasValue)
+        var contextFactory = await InitializeAsync<MyContext_26742>(
+            onModelCreating: modelBuilder =>
             {
-                modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.TimeSpan).HasPrecision(fractionalSeconds.Value);
-            }
-        });
+                if (fractionalSeconds.HasValue)
+                {
+                    modelBuilder.Entity<MyContext_26742.Entity>().Property(p => p.TimeSpan).HasPrecision(fractionalSeconds.Value);
+                }
+            });
 
-        var parameter = TimeSpan.Parse("12:34:56.7890123", System.Globalization.CultureInfo.InvariantCulture);
+        var parameter = TimeSpan.Parse("12:34:56.7890123", CultureInfo.InvariantCulture);
 
         using (var context = contextFactory.CreateContext())
         {
@@ -10322,6 +10325,7 @@ FROM [Entities] AS [e]
 WHERE [e].[TimeSpan] = @__parameter_0");
         }
     }
+
     protected class MyContext_26742 : DbContext
     {
         public DbSet<Entity> Entities { get; set; }
@@ -10342,7 +10346,9 @@ WHERE [e].[TimeSpan] = @__parameter_0");
 
     #endregion
 
-    protected override string StoreName => "QueryBugsTest";
+    protected override string StoreName
+        => "QueryBugsTest";
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 

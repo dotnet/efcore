@@ -1,11 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
 #nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Utilities;
@@ -16,6 +11,9 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     private readonly HashSet<TVertex> _vertices = new();
     private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _successorMap = new();
     private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
+
+    private readonly bool _useOldBehavior
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26750", out var enabled) && enabled;
 
     public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
     {
@@ -149,7 +147,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                        && tryBreakEdge != null)
                 {
                     var candidateVertex = candidateVertices[candidateIndex];
-                    if (predecessorCounts[candidateVertex] != 1)
+                    if (predecessorCounts[candidateVertex] == 0)
                     {
                         candidateIndex++;
                         continue;
@@ -166,9 +164,13 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                         _successorMap[incomingNeighbor].Remove(candidateVertex);
                         _predecessorMap[candidateVertex].Remove(incomingNeighbor);
                         predecessorCounts[candidateVertex]--;
-                        queue.Add(candidateVertex);
-                        broken = true;
-                        break;
+                        if (predecessorCounts[candidateVertex] == 0)
+                        {
+                            queue.Add(candidateVertex);
+                            broken = true;
+                        }
+
+                        continue;
                     }
 
                     candidateIndex++;
@@ -324,7 +326,9 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                        && tryBreakEdge != null)
                 {
                     var candidateVertex = candidateVertices[candidateIndex];
-                    if (predecessorCounts[candidateVertex] != 1)
+                    if (_useOldBehavior
+                            ? predecessorCounts[candidateVertex] != 1
+                            : predecessorCounts[candidateVertex] == 0)
                     {
                         candidateIndex++;
                         continue;
@@ -341,10 +345,15 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                         _successorMap[incomingNeighbor].Remove(candidateVertex);
                         _predecessorMap[candidateVertex].Remove(incomingNeighbor);
                         predecessorCounts[candidateVertex]--;
-                        currentRootsQueue.Add(candidateVertex);
-                        nextRootsQueue = new List<TVertex>();
-                        broken = true;
-                        break;
+                        if (_useOldBehavior
+                            || predecessorCounts[candidateVertex] == 0)
+                        {
+                            currentRootsQueue.Add(candidateVertex);
+                            nextRootsQueue = new List<TVertex>();
+                            broken = true;
+                        }
+
+                        continue;
                     }
 
                     candidateIndex++;

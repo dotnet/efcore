@@ -179,16 +179,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader());
         }
 
-        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+        public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<DbDataReader> result,
             CancellationToken cancellationToken = default)
         {
-            base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+            await base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
-            return new ValueTask<InterceptionResult<DbDataReader>>(
-                InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
+            return InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader());
         }
     }
 
@@ -311,15 +310,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return InterceptionResult<object>.SuppressWithResult(InterceptedResult);
         }
 
-        public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
+        public override async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<object> result,
             CancellationToken cancellationToken = default)
         {
-            base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
+            await base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
-            return new ValueTask<InterceptionResult<object>>(InterceptionResult<object>.SuppressWithResult(InterceptedResult));
+            return InterceptionResult<object>.SuppressWithResult(InterceptedResult);
         }
     }
 
@@ -371,15 +370,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return InterceptionResult<int>.SuppressWithResult(2);
         }
 
-        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
+        public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
             DbCommand command,
             CommandEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default)
         {
-            base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
+            await base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
 
-            return new ValueTask<InterceptionResult<int>>(InterceptionResult<int>.SuppressWithResult(2));
+            return InterceptionResult<int>.SuppressWithResult(2);
         }
     }
 
@@ -841,15 +840,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return new CompositeFakeDbDataReader(result, new FakeDbDataReader());
         }
 
-        public override ValueTask<DbDataReader> ReaderExecutedAsync(
+        public override async ValueTask<DbDataReader> ReaderExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
             DbDataReader result,
             CancellationToken cancellationToken = default)
         {
-            base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
+            await base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
 
-            return new ValueTask<DbDataReader>(new CompositeFakeDbDataReader(result, new FakeDbDataReader()));
+            return new CompositeFakeDbDataReader(result, new FakeDbDataReader());
         }
     }
 
@@ -988,15 +987,15 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             return InterceptedResult;
         }
 
-        public override ValueTask<object> ScalarExecutedAsync(
+        public override async ValueTask<object> ScalarExecutedAsync(
             DbCommand command,
             CommandExecutedEventData eventData,
             object result,
             CancellationToken cancellationToken = default)
         {
-            base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
+            await base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
 
-            return new ValueTask<object>(InterceptedResult);
+            return InterceptedResult;
         }
     }
 

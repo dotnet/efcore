@@ -62,6 +62,68 @@ VALUES (@p0, @p1, @p2);
 SELECT [i].[Id] FROM @inserted0 i;");
     }
 
+    [ConditionalFact]
+    public override void Can_add_and_remove_self_refs()
+    {
+        base.Can_add_and_remove_self_refs();
+
+        AssertContainsSql(
+            @"@p0='1' (Size = 4000)
+@p1=NULL (DbType = Int32)
+
+SET NOCOUNT ON;
+INSERT INTO [Person] ([Name], [ParentId])
+VALUES (@p0, @p1);
+SELECT [PersonId]
+FROM [Person]
+WHERE @@ROWCOUNT = 1 AND [PersonId] = scope_identity();",
+            //
+            @"@p0='2' (Size = 4000)
+@p1='1' (Nullable = true)
+
+SET NOCOUNT ON;
+INSERT INTO [Person] ([Name], [ParentId])
+VALUES (@p0, @p1);
+SELECT [PersonId]
+FROM [Person]
+WHERE @@ROWCOUNT = 1 AND [PersonId] = scope_identity();",
+            //
+            @"@p0='3' (Size = 4000)
+@p1='1' (Nullable = true)
+
+SET NOCOUNT ON;
+INSERT INTO [Person] ([Name], [ParentId])
+VALUES (@p0, @p1);
+SELECT [PersonId]
+FROM [Person]
+WHERE @@ROWCOUNT = 1 AND [PersonId] = scope_identity();",
+            //
+            @"@p2='4' (Size = 4000)
+@p3='2' (Nullable = true)
+@p4='5' (Size = 4000)
+@p5='2' (Nullable = true)
+@p6='6' (Size = 4000)
+@p7='3' (Nullable = true)
+@p8='7' (Size = 4000)
+@p9='3' (Nullable = true)
+
+SET NOCOUNT ON;
+DECLARE @inserted0 TABLE ([PersonId] int, [_Position] [int]);
+MERGE [Person] USING (
+VALUES (@p2, @p3, 0),
+(@p4, @p5, 1),
+(@p6, @p7, 2),
+(@p8, @p9, 3)) AS i ([Name], [ParentId], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([Name], [ParentId])
+VALUES (i.[Name], i.[ParentId])
+OUTPUT INSERTED.[PersonId], i._Position
+INTO @inserted0;
+
+SELECT [i].[PersonId] FROM @inserted0 i
+ORDER BY [i].[_Position];");
+    }
+
     public override void Save_replaced_principal()
     {
         base.Save_replaced_principal();

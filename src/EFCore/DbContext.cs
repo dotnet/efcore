@@ -1000,10 +1000,10 @@ public class DbContext :
 
         if (DisposeSync(lease.IsActive, contextShouldBeDisposed))
         {
-            await _serviceScope.DisposeAsyncIfAvailable();
+            await _serviceScope.DisposeAsyncIfAvailable().ConfigureAwait(false);
         }
 
-        await lease.ContextDisposedAsync();
+        await lease.ContextDisposedAsync().ConfigureAwait(false);
     }
 
     private bool DisposeSync(bool leaseActive, bool contextShouldBeDisposed)

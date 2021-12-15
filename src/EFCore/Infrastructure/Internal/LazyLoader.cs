@@ -107,7 +107,7 @@ public class LazyLoader : ILazyLoader
         {
             try
             {
-                await entry.LoadAsync(cancellationToken);
+                await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
             }
             catch
             {

@@ -987,6 +987,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         private static readonly MethodInfo ObjectEqualsMethodInfo
             = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
+        private static readonly bool _useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26592", out var enabled)
+            && enabled;
+
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -1006,6 +1009,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
         {
             _selectExpression = selectExpression;
+            _deferredOwnedExpansionRemover = new DeferredOwnedExpansionRemovingVisitor(_selectExpression);
+
+            if (_useOldBehavior)
+            {
+                return _deferredOwnedExpansionRemover.Visit(Visit(lambdaBody));
+            }
+
             _deferredOwnedExpansionRemover = new DeferredOwnedExpansionRemovingVisitor(_selectExpression);
 
             return _deferredOwnedExpansionRemover.Visit(Visit(lambdaBody));
@@ -1040,197 +1050,394 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {
-            source = source.UnwrapTypeConversion(out var convertedType);
-            var doee = source as DeferredOwnedExpansionExpression;
-            if (doee is not null)
+            if (_useOldBehavior)
             {
-                source = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
-            }
+                source = source.UnwrapTypeConversion(out var convertedType);
+                var doee = source as DeferredOwnedExpansionExpression;
+                if (doee is not null)
+                {
+                    source = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
+                }
 
-            if (source is not EntityShaperExpression entityShaperExpression)
-            {
-                return null;
-            }
-
-            var entityType = entityShaperExpression.EntityType;
-            if (convertedType != null)
-            {
-                entityType = entityType.GetRootType().GetDerivedTypesInclusive()
-                    .FirstOrDefault(et => et.ClrType == convertedType);
-
-                if (entityType == null)
+                if (source is not EntityShaperExpression entityShaperExpression)
                 {
                     return null;
                 }
-            }
 
-            var navigation = member.MemberInfo != null
-                ? entityType.FindNavigation(member.MemberInfo)
-                : entityType.FindNavigation(member.Name!);
-
-            if (navigation == null)
-            {
-                return null;
-            }
-
-            var targetEntityType = navigation.TargetEntityType;
-            if (targetEntityType == null
-                || !targetEntityType.IsOwned())
-            {
-                return null;
-            }
-
-            var foreignKey = navigation.ForeignKey;
-            if (navigation.IsCollection)
-            {
-                var innerShapedQuery = CreateShapedQueryExpression(
-                    targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
-
-                var makeNullable = foreignKey.PrincipalKey.Properties
-                    .Concat(foreignKey.Properties)
-                    .Select(p => p.ClrType)
-                    .Any(t => t.IsNullableType());
-
-                var innerSequenceType = innerShapedQuery.Type.GetSequenceType();
-                var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
-
-                var outerKey = entityShaperExpression.CreateKeyValuesExpression(
-                    navigation.IsOnDependent
-                        ? foreignKey.Properties
-                        : foreignKey.PrincipalKey.Properties,
-                    makeNullable);
-                var innerKey = correlationPredicateParameter.CreateKeyValuesExpression(
-                    navigation.IsOnDependent
-                        ? foreignKey.PrincipalKey.Properties
-                        : foreignKey.Properties,
-                    makeNullable);
-
-                var keyComparison = Expression.Call(
-                    ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
-
-                var predicate = makeNullable
-                    ? Expression.AndAlso(
-                        outerKey is NewArrayExpression newArrayExpression
-                            ? newArrayExpression.Expressions
-                                .Select(
-                                    e =>
-                                    {
-                                        var left = (e as UnaryExpression)?.Operand ?? e;
-
-                                        return Expression.NotEqual(left, Expression.Constant(null, left.Type));
-                                    })
-                                .Aggregate((l, r) => Expression.AndAlso(l, r))
-                            : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
-                        keyComparison)
-                    : (Expression)keyComparison;
-
-                var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
-
-                return Expression.Call(
-                    QueryableMethods.Where.MakeGenericMethod(innerSequenceType),
-                    innerShapedQuery,
-                    Expression.Quote(correlationPredicate));
-            }
-
-            var entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
-            var innerShaper = entityProjectionExpression.BindNavigation(navigation);
-            if (innerShaper == null)
-            {
-                // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
-                // So there is no handling for dependent having TPT
-                // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
-                // TODO: The following code should also handle Function and SqlQuery mappings
-                var table = navigation.DeclaringEntityType.BaseType == null
-                    || entityType.FindDiscriminatorProperty() != null
-                        ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
-                        : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
-                            .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
-                            .Single();
-                if (table.GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                var entityType = entityShaperExpression.EntityType;
+                if (convertedType != null)
                 {
-                    // Mapped to same table
-                    // We get identifying column to figure out tableExpression to pull columns from and nullability of most principal side
-                    var identifyingColumn = entityProjectionExpression.BindProperty(entityType.FindPrimaryKey()!.Properties.First());
-                    var principalNullable = identifyingColumn.IsNullable
-                        // Also make nullable if navigation is on derived type and and principal is TPT
-                        // Since identifying PK would be non-nullable but principal can still be null
-                        // Derived owned navigation does not de-dupe the PK column which for principal is from base table
-                        // and for dependent on derived table
-                        || (entityType.FindDiscriminatorProperty() == null
-                            && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
+                    entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                        .FirstOrDefault(et => et.ClrType == convertedType);
 
-                    var entityProjection = _selectExpression.GenerateWeakEntityProjectionExpression(
-                        targetEntityType, table, identifyingColumn.Name, identifyingColumn.Table, principalNullable);
-
-                    if (entityProjection != null)
+                    if (entityType == null)
                     {
-                        innerShaper = new RelationalEntityShaperExpression(targetEntityType, entityProjection, principalNullable);
+                        return null;
                     }
                 }
 
-                if (innerShaper == null)
+                var navigation = member.MemberInfo != null
+                    ? entityType.FindNavigation(member.MemberInfo)
+                    : entityType.FindNavigation(member.Name!);
+
+                if (navigation == null)
                 {
-                    // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
-                    // So we find the table it is mapped to and generate join with it.
-                    // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
-                    // So there is no handling for dependent having TPT
-                    table = targetEntityType.GetViewOrTableMappings().Single().Table;
-                    var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+                    return null;
+                }
+
+                var targetEntityType = navigation.TargetEntityType;
+                if (targetEntityType == null
+                    || !targetEntityType.IsOwned())
+                {
+                    return null;
+                }
+
+                var foreignKey = navigation.ForeignKey;
+                if (navigation.IsCollection)
+                {
+                    var innerShapedQuery = CreateShapedQueryExpression(
+                        targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
 
                     var makeNullable = foreignKey.PrincipalKey.Properties
                         .Concat(foreignKey.Properties)
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
+                    var innerSequenceType = innerShapedQuery.Type.GetSequenceType();
+                    var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
+
                     var outerKey = entityShaperExpression.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
+                    var innerKey = correlationPredicateParameter.CreateKeyValuesExpression(
                         navigation.IsOnDependent
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
                         makeNullable);
 
-                    var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey))!;
-                    // Following conditions should match conditions for pushdown on outer during SelectExpression.AddJoin method
-                    var pushdownRequired = _selectExpression.Limit != null
-                        || _selectExpression.Offset != null
-                        || _selectExpression.IsDistinct
-                        || _selectExpression.GroupBy.Count > 0;
-                    _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
+                    var keyComparison = Expression.Call(
+                        ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
 
-                    // If pushdown was required on SelectExpression then we need to fetch the updated entity projection
-                    if (pushdownRequired)
-                    {
-                        if (doee is not null)
-                        {
-                            entityShaperExpression = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
-                        }
+                    var predicate = makeNullable
+                        ? Expression.AndAlso(
+                            outerKey is NewArrayExpression newArrayExpression
+                                ? newArrayExpression.Expressions
+                                    .Select(
+                                        e =>
+                                        {
+                                            var left = (e as UnaryExpression)?.Operand ?? e;
 
-                        entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
-                    }
+                                            return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                        })
+                                    .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                            keyComparison)
+                        : (Expression)keyComparison;
 
-                    var leftJoinTable = _selectExpression.Tables.Last();
+                    var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
 
-                    innerShaper = new RelationalEntityShaperExpression(
-                        targetEntityType,
-                        _selectExpression.GenerateWeakEntityProjectionExpression(
-                            targetEntityType, table, null, leftJoinTable, nullable: true)!,
-                        nullable: true);
+                    return Expression.Call(
+                        QueryableMethods.Where.MakeGenericMethod(innerSequenceType),
+                        innerShapedQuery,
+                        Expression.Quote(correlationPredicate));
                 }
 
-                entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
-            }
+                var entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
+                var innerShaper = entityProjectionExpression.BindNavigation(navigation);
+                if (innerShaper == null)
+                {
+                    // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+                    // So there is no handling for dependent having TPT
+                    // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
+                    // TODO: The following code should also handle Function and SqlQuery mappings
+                    var table = navigation.DeclaringEntityType.BaseType == null
+                        || entityType.FindDiscriminatorProperty() != null
+                            ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
+                            : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
+                                .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
+                                .Single();
+                    if (table.GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                    {
+                        // Mapped to same table
+                        // We get identifying column to figure out tableExpression to pull columns from and nullability of most principal side
+                        var identifyingColumn = entityProjectionExpression.BindProperty(entityType.FindPrimaryKey()!.Properties.First());
+                        var principalNullable = identifyingColumn.IsNullable
+                            // Also make nullable if navigation is on derived type and and principal is TPT
+                            // Since identifying PK would be non-nullable but principal can still be null
+                            // Derived owned navigation does not de-dupe the PK column which for principal is from base table
+                            // and for dependent on derived table
+                            || (entityType.FindDiscriminatorProperty() == null
+                                && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
-            return doee is not null
-                ? doee.AddNavigation(targetEntityType, navigation)
-                : new DeferredOwnedExpansionExpression(
-                    targetEntityType,
-                    (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression,
-                    navigation);
+                        var entityProjection = _selectExpression.GenerateWeakEntityProjectionExpression(
+                            targetEntityType, table, identifyingColumn.Name, identifyingColumn.Table, principalNullable);
+
+                        if (entityProjection != null)
+                        {
+                            innerShaper = new RelationalEntityShaperExpression(targetEntityType, entityProjection, principalNullable);
+                        }
+                    }
+
+                    if (innerShaper == null)
+                    {
+                        // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
+                        // So we find the table it is mapped to and generate join with it.
+                        // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+                        // So there is no handling for dependent having TPT
+                        table = targetEntityType.GetViewOrTableMappings().Single().Table;
+                        var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                        var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+
+                        var makeNullable = foreignKey.PrincipalKey.Properties
+                            .Concat(foreignKey.Properties)
+                            .Select(p => p.ClrType)
+                            .Any(t => t.IsNullableType());
+
+                        var outerKey = entityShaperExpression.CreateKeyValuesExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.Properties
+                                : foreignKey.PrincipalKey.Properties,
+                            makeNullable);
+                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.PrincipalKey.Properties
+                                : foreignKey.Properties,
+                            makeNullable);
+
+                        var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey))!;
+                        // Following conditions should match conditions for pushdown on outer during SelectExpression.AddJoin method
+                        var pushdownRequired = _selectExpression.Limit != null
+                            || _selectExpression.Offset != null
+                            || _selectExpression.IsDistinct
+                            || _selectExpression.GroupBy.Count > 0;
+                        _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
+
+                        // If pushdown was required on SelectExpression then we need to fetch the updated entity projection
+                        if (pushdownRequired)
+                        {
+                            if (doee is not null)
+                            {
+                                entityShaperExpression = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
+                            }
+
+                            entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
+                        }
+
+                        var leftJoinTable = _selectExpression.Tables.Last();
+
+                        innerShaper = new RelationalEntityShaperExpression(
+                            targetEntityType,
+                            _selectExpression.GenerateWeakEntityProjectionExpression(
+                                targetEntityType, table, null, leftJoinTable, nullable: true)!,
+                            nullable: true);
+                    }
+
+                    entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
+                }
+
+                return doee is not null
+                    ? doee.AddNavigation(targetEntityType, navigation)
+                    : new DeferredOwnedExpansionExpression(
+                        targetEntityType,
+                        (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression,
+                        navigation);
+            }
+            else
+            {
+                source = source.UnwrapTypeConversion(out var convertedType);
+                var doee = source as DeferredOwnedExpansionExpression;
+                if (doee is not null)
+                {
+                    source = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
+                }
+
+                if (source is not EntityShaperExpression entityShaperExpression)
+                {
+                    return null;
+                }
+
+                var entityType = entityShaperExpression.EntityType;
+                if (convertedType != null)
+                {
+                    entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                        .FirstOrDefault(et => et.ClrType == convertedType);
+
+                    if (entityType == null)
+                    {
+                        return null;
+                    }
+                }
+
+                var navigation = member.MemberInfo != null
+                    ? entityType.FindNavigation(member.MemberInfo)
+                    : entityType.FindNavigation(member.Name!);
+
+                if (navigation == null)
+                {
+                    return null;
+                }
+
+                var targetEntityType = navigation.TargetEntityType;
+                if (targetEntityType == null
+                    || !targetEntityType.IsOwned())
+                {
+                    return null;
+                }
+
+                var foreignKey = navigation.ForeignKey;
+                if (navigation.IsCollection)
+                {
+                    var innerShapedQuery = CreateShapedQueryExpression(
+                        targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
+
+                    var makeNullable = foreignKey.PrincipalKey.Properties
+                        .Concat(foreignKey.Properties)
+                        .Select(p => p.ClrType)
+                        .Any(t => t.IsNullableType());
+
+                    var innerSequenceType = innerShapedQuery.Type.GetSequenceType();
+                    var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
+
+                    var outerKey = entityShaperExpression.CreateKeyValuesExpression(
+                        navigation.IsOnDependent
+                            ? foreignKey.Properties
+                            : foreignKey.PrincipalKey.Properties,
+                        makeNullable);
+                    var innerKey = correlationPredicateParameter.CreateKeyValuesExpression(
+                        navigation.IsOnDependent
+                            ? foreignKey.PrincipalKey.Properties
+                            : foreignKey.Properties,
+                        makeNullable);
+
+                    var keyComparison = Expression.Call(
+                        ObjectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey));
+
+                    var predicate = makeNullable
+                        ? Expression.AndAlso(
+                            outerKey is NewArrayExpression newArrayExpression
+                                ? newArrayExpression.Expressions
+                                    .Select(
+                                        e =>
+                                        {
+                                            var left = (e as UnaryExpression)?.Operand ?? e;
+
+                                            return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                        })
+                                    .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
+                            keyComparison)
+                        : (Expression)keyComparison;
+
+                    var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
+
+                    return Expression.Call(
+                        QueryableMethods.Where.MakeGenericMethod(innerSequenceType),
+                        innerShapedQuery,
+                        Expression.Quote(correlationPredicate));
+                }
+
+                var entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
+                var innerShaper = entityProjectionExpression.BindNavigation(navigation);
+                if (innerShaper == null)
+                {
+                    // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+                    // So there is no handling for dependent having TPT
+                    // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
+                    // TODO: The following code should also handle Function and SqlQuery mappings
+                    var table = navigation.DeclaringEntityType.BaseType == null
+                        || entityType.FindDiscriminatorProperty() != null
+                            ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
+                            : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
+                                .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
+                                .Single();
+                    if (table.GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                    {
+                        // Mapped to same table
+                        // We get identifying column to figure out tableExpression to pull columns from and nullability of most principal side
+                        var identifyingColumn = entityProjectionExpression.BindProperty(entityType.FindPrimaryKey()!.Properties.First());
+                        var principalNullable = identifyingColumn.IsNullable
+                            // Also make nullable if navigation is on derived type and and principal is TPT
+                            // Since identifying PK would be non-nullable but principal can still be null
+                            // Derived owned navigation does not de-dupe the PK column which for principal is from base table
+                            // and for dependent on derived table
+                            || (entityType.FindDiscriminatorProperty() == null
+                                && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
+
+                        var entityProjection = _selectExpression.GenerateWeakEntityProjectionExpression(
+                            targetEntityType, table, identifyingColumn.Name, identifyingColumn.Table, principalNullable);
+
+                        if (entityProjection != null)
+                        {
+                            innerShaper = new RelationalEntityShaperExpression(targetEntityType, entityProjection, principalNullable);
+                        }
+                    }
+
+                    if (innerShaper == null)
+                    {
+                        // InnerShaper is still null if either it is not table sharing or we failed to find table to pick data from
+                        // So we find the table it is mapped to and generate join with it.
+                        // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+                        // So there is no handling for dependent having TPT
+                        table = targetEntityType.GetViewOrTableMappings().Single().Table;
+                        var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                        var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+
+                        var makeNullable = foreignKey.PrincipalKey.Properties
+                            .Concat(foreignKey.Properties)
+                            .Select(p => p.ClrType)
+                            .Any(t => t.IsNullableType());
+
+                        var outerKey = entityShaperExpression.CreateKeyValuesExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.Properties
+                                : foreignKey.PrincipalKey.Properties,
+                            makeNullable);
+                        var innerKey = innerShapedQuery.ShaperExpression.CreateKeyValuesExpression(
+                            navigation.IsOnDependent
+                                ? foreignKey.PrincipalKey.Properties
+                                : foreignKey.Properties,
+                            makeNullable);
+
+                        var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey))!;
+                        // Following conditions should match conditions for pushdown on outer during SelectExpression.AddJoin method
+                        var pushdownRequired = _selectExpression.Limit != null
+                            || _selectExpression.Offset != null
+                            || _selectExpression.IsDistinct
+                            || _selectExpression.GroupBy.Count > 0;
+                        _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
+
+                        // If pushdown was required on SelectExpression then we need to fetch the updated entity projection
+                        if (pushdownRequired)
+                        {
+                            if (doee is not null)
+                            {
+                                entityShaperExpression = _deferredOwnedExpansionRemover.UnwrapDeferredEntityProjectionExpression(doee);
+                            }
+
+                            entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
+                        }
+
+                        var leftJoinTable = _selectExpression.Tables.Last();
+
+                        innerShaper = new RelationalEntityShaperExpression(
+                            targetEntityType,
+                            _selectExpression.GenerateWeakEntityProjectionExpression(
+                                targetEntityType, table, null, leftJoinTable, nullable: true)!,
+                            nullable: true);
+                    }
+
+                    entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
+                }
+
+                return doee is not null
+                    ? doee.AddNavigation(targetEntityType, navigation)
+                    : new DeferredOwnedExpansionExpression(
+                        targetEntityType,
+                        (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression,
+                        navigation);
+            }
         }
 
         private static Expression AddConvertToObject(Expression expression)

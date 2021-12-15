@@ -67,7 +67,7 @@ public class PooledDbContextFactory<TContext> : IDbContextFactory<TContext>
     public virtual async Task<TContext> CreateDbContextAsync(CancellationToken cancellationToken = default)
     {
         var lease = new DbContextLease(_pool, standalone: true);
-        await lease.Context.SetLeaseAsync(lease, cancellationToken);
+        await lease.Context.SetLeaseAsync(lease, cancellationToken).ConfigureAwait(false);
 
         return (TContext)lease.Context;
     }

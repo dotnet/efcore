@@ -242,7 +242,7 @@ public abstract class HistoryRepository : IHistoryRepository
         {
             var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-            await using var reader = await command.ExecuteReaderAsync(
+            var reader = await command.ExecuteReaderAsync(
                 new RelationalCommandParameterObject(
                     Dependencies.Connection,
                     null,
@@ -250,6 +250,9 @@ public abstract class HistoryRepository : IHistoryRepository
                     Dependencies.CurrentContext.Context,
                     Dependencies.CommandLogger, CommandSource.Migrations),
                 cancellationToken).ConfigureAwait(false);
+
+            await using var _ = reader.ConfigureAwait(false);
+
             while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));

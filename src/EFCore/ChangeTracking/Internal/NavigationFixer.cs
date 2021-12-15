@@ -15,15 +15,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 public class NavigationFixer : INavigationFixer
 {
     private IList<(
-            InternalEntityEntry Entry,
-            InternalEntityEntry OtherEntry,
-            ISkipNavigation SkipNavigation,
-            bool FromQuery,
-            bool SetModified)>? _danglingJoinEntities;
+        InternalEntityEntry Entry,
+        InternalEntityEntry OtherEntry,
+        ISkipNavigation SkipNavigation,
+        bool FromQuery,
+        bool SetModified)>? _danglingJoinEntities;
 
     private readonly IEntityGraphAttacher _attacher;
     private bool _inFixup;
     private bool _inAttachGraph;
+
+    private readonly bool _useOldBehavior26779
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26779", out var enabled) && enabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
