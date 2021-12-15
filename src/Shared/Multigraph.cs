@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         && tryBreakEdge != null)
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
-                        if (predecessorCounts[candidateVertex] != 1)
+                        if (predecessorCounts[candidateVertex] == 0)
                         {
                             candidateIndex++;
                             continue;
@@ -211,9 +211,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                             _successorMap[incomingNeighbor].Remove(candidateVertex);
                             _predecessorMap[candidateVertex].Remove(incomingNeighbor);
                             predecessorCounts[candidateVertex]--;
-                            queue.Add(candidateVertex);
-                            broken = true;
-                            break;
+                            if (predecessorCounts[candidateVertex] == 0)
+                            {
+                                queue.Add(candidateVertex);
+                                broken = true;
+                            }
+                            continue;
                         }
 
                         candidateIndex++;
