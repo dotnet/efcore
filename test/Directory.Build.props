@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);CA1707;1591;xUnit1000;xUnit1003;xUnit1004;xUnit1010;xUnit1013;xUnit1026</NoWarn>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.test.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
 </Project>
