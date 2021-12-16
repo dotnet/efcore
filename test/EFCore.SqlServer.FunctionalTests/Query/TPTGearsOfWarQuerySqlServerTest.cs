@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

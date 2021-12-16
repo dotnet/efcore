@@ -12,6 +12,7 @@
     <Using Include="System.Reflection" />
     <Using Include="System.Text" />
     <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

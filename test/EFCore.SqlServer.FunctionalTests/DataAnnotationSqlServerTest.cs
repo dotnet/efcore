@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
-using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;

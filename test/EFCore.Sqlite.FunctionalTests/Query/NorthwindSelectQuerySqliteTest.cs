@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 

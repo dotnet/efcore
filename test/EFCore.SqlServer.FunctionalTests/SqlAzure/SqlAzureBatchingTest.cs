@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
-using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
