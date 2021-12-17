@@ -340,7 +340,6 @@ public sealed partial class SelectExpression
 
     private sealed class TableReferenceExpression : Expression
     {
-        private int? _hashCode;
         private SelectExpression _selectExpression;
 
         public TableReferenceExpression(SelectExpression selectExpression, string alias)
@@ -393,15 +392,7 @@ public sealed partial class SelectExpression
 
         /// <inheritdoc />
         public override int GetHashCode()
-        {
-            // ReSharper disable NonReadonlyMemberInGetHashCode
-            // Ensure hashcode does not change after it has been created for this object.
-            Check.DebugAssert(
-                _hashCode == null || _hashCode == HashCode.Combine(Alias),
-                "Hashed value has mutated.");
-
-            return _hashCode ??= HashCode.Combine(Alias);
-        }
+            => 0;
     }
 
     private sealed class ConcreteColumnExpression : ColumnExpression
