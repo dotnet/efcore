@@ -392,7 +392,7 @@ public sealed partial class SelectExpression
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => Alias.GetHashCode();
+            => 0;
     }
 
     private sealed class ConcreteColumnExpression : ColumnExpression

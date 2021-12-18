@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -3499,54 +3500,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <inheritdoc />
     public override int GetHashCode()
-    {
-        var hash = new HashCode();
-        hash.Add(base.GetHashCode());
-
-        foreach (var projection in _projection)
-        {
-            hash.Add(projection);
-        }
-
-        foreach (var projection in _clientProjections)
-        {
-            hash.Add(projection);
-        }
-
-        foreach (var (projectionMember, expression) in _projectionMapping)
-        {
-            hash.Add(projectionMember);
-            hash.Add(expression);
-        }
-
-        foreach (var tag in Tags)
-        {
-            hash.Add(tag);
-        }
-
-        foreach (var table in _tables)
-        {
-            hash.Add(table);
-        }
-
-        hash.Add(Predicate);
-
-        foreach (var groupingKey in _groupBy)
-        {
-            hash.Add(groupingKey);
-        }
-
-        hash.Add(Having);
-
-        foreach (var ordering in _orderings)
-        {
-            hash.Add(ordering);
-        }
-
-        hash.Add(Offset);
-        hash.Add(Limit);
-        hash.Add(IsDistinct);
-
-        return hash.ToHashCode();
-    }
+        // Since equality above is reference equality, hash code can also be based on reference.
+        => RuntimeHelpers.GetHashCode(this);
 }

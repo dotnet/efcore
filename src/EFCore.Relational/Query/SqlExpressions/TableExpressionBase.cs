@@ -62,5 +62,5 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(Alias);
+        => 0;
 }
