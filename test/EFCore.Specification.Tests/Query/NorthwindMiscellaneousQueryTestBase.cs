@@ -5640,7 +5640,6 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             {
                 Assert.Null(result);
                 Assert.Contains(CoreEventId.QueryCanceled, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
-                Assert.DoesNotContain(CoreEventId.QueryIterationFailed, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
             }
             else
             {
@@ -5657,7 +5656,6 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         await Assert.ThrowsAsync<OperationCanceledException>(() => context.Employees.ToListAsync(new CancellationToken(true)));
 
         Assert.Contains(CoreEventId.QueryCanceled, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
-        Assert.DoesNotContain(CoreEventId.QueryIterationFailed, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
     }
 
     [ConditionalFact(Skip = "Issue #17019")]
