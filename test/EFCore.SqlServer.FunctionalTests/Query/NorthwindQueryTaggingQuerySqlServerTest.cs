@@ -17,6 +17,10 @@ public class NorthwindQueryTaggingQuerySqlServerTest : NorthwindQueryTaggingQuer
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override void Single_query_tag()
     {
         base.Single_query_tag();

@@ -26,7 +26,7 @@ public class NorthwindWhereQueryInMemoryTest : NorthwindWhereQueryTestBase<North
         return null;
     }
 
-    // Casting int to object to string is invalid for InMemory
     public override Task Like_with_non_string_column_using_double_cast(bool async)
-        => Task.CompletedTask;
+        // Casting int to object to string is invalid for InMemory
+        => Assert.ThrowsAsync<InvalidCastException>(() => base.Like_with_non_string_column_using_double_cast(async));
 }

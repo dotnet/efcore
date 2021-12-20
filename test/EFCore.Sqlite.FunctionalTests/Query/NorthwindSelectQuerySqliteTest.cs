@@ -127,6 +127,18 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
     }
 
+    public override async Task
+        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+            bool async)
+    {
+        await AssertUnableToTranslateEFProperty(
+            () => base
+                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                    async));
+
+        AssertSql();
+    }
+
     public override async Task SelectMany_correlated_with_outer_1(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -199,10 +211,9 @@ FROM ""Orders"" AS ""o""");
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_after_distinct_not_containing_original_identifier(async))).Message);
 
-    public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(
-        bool async)
+    public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
         => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
+            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async)))
             .Message);
@@ -238,16 +249,20 @@ FROM ""Orders"" AS ""o""");
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Reverse_in_SelectMany_with_Take(async))).Message);
 
-    [ConditionalTheory(Skip = "Issue#17324")]
-    public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)
-        => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async);
+    public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async))).Message);
 
     public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
         => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
 
-    [ConditionalTheory(Skip = "Issue#17230")]
-    public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
-        => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
+    public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async))).Message);
 
     public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
         => Assert.Equal(

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -15,6 +16,10 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
         ClearLog();
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 
     public override async Task String_StartsWith_Literal(bool async)
     {
@@ -155,136 +160,100 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""M""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_simple_zero(bool async)
     {
-        await base.String_Compare_simple_zero(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_simple_zero(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_simple_one(bool async)
     {
-        await base.String_Compare_simple_one(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_simple_one(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_compare_with_parameter(bool async)
     {
-        await base.String_compare_with_parameter(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_compare_with_parameter(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_simple_more_than_one(bool async)
     {
-        await base.String_Compare_simple_more_than_one(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_simple_more_than_one(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_nested(bool async)
     {
-        await base.String_Compare_nested(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_nested(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_multi_predicate(bool async)
     {
-        await base.String_Compare_multi_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_multi_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_to_simple_zero(bool async)
     {
-        await base.String_Compare_to_simple_zero(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_to_simple_zero(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_to_simple_one(bool async)
     {
-        await base.String_Compare_to_simple_one(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_to_simple_one(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_compare_to_with_parameter(bool async)
     {
-        await base.String_compare_to_with_parameter(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_compare_to_with_parameter(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_to_simple_more_than_one(bool async)
     {
-        await base.String_Compare_to_simple_more_than_one(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_to_simple_more_than_one(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_to_nested(bool async)
     {
-        await base.String_Compare_to_nested(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_to_nested(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task String_Compare_to_multi_predicate(bool async)
     {
-        await base.String_Compare_to_multi_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.String_Compare_to_multi_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task Where_math_abs1(bool async)
@@ -327,18 +296,14 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""UnitPrice""] < 7.0)) AND (10 < c[""ProductID""]))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_ceiling1(bool async)
     {
-        await base.Where_math_ceiling1(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_ceiling1(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_ceiling2(bool async)
     {
         await base.Where_math_ceiling2(async);
@@ -346,7 +311,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
         AssertSql(
             @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5)) AND (CEILING(c[""UnitPrice""]) > 10.0))");
     }
 
     public override async Task Where_math_floor(bool async)
@@ -359,26 +324,20 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5)) AND (FLOOR(c[""UnitPrice""]) > 10.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #25120")]
     public override async Task Where_math_power(bool async)
     {
-        await base.Where_math_power(async);
+        // Convert node. Issue #25120.
+        await AssertTranslationFailed(() => base.Where_math_power(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #25120")]
     public override async Task Where_math_square(bool async)
     {
-        await base.Where_math_square(async);
+        // Convert node. Issue #25120.
+        await AssertTranslationFailed(() => base.Where_math_square(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        AssertSql();
     }
 
     public override async Task Where_math_round(bool async)
@@ -411,15 +370,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_round2(bool async)
     {
-        await base.Where_math_round2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_round2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (ROUND(c[""UnitPrice""]) > 100.0))");
+        AssertSql();
     }
 
     public override async Task Where_math_truncate(bool async)
@@ -432,136 +388,100 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5)) AND (TRUNC(c[""UnitPrice""]) > 10.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_exp(bool async)
     {
-        await base.Where_math_exp(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_exp(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_log10(bool async)
     {
-        await base.Where_math_log10(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_log10(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0)))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_log(bool async)
     {
-        await base.Where_math_log(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_log(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0)))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_log_new_base(bool async)
     {
-        await base.Where_math_log_new_base(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_log_new_base(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0)))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_sqrt(bool async)
     {
-        await base.Where_math_sqrt(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_sqrt(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_acos(bool async)
     {
-        await base.Where_math_acos(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_acos(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_asin(bool async)
     {
-        await base.Where_math_asin(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_asin(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_atan(bool async)
     {
-        await base.Where_math_atan(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_atan(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_atan2(bool async)
     {
-        await base.Where_math_atan2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_atan2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_cos(bool async)
     {
-        await base.Where_math_cos(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_cos(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_sin(bool async)
     {
-        await base.Where_math_sin(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_sin(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_tan(bool async)
     {
-        await base.Where_math_tan(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_tan(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
     public override async Task Where_math_sign(bool async)
@@ -574,62 +494,48 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (SIGN(c[""Discount""]) > 0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_min(bool async)
     {
-        await base.Where_math_min(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_min(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_math_max(bool async)
     {
-        await base.Where_math_max(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_max(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_abs1(bool async)
     {
-        await base.Where_mathf_abs1(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_mathf_abs1(async));
 
-        AssertSql(
-            @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]
-WHERE ABS(CAST([p].[ProductID] AS real)) > CAST(10 AS real)");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_ceiling1(bool async)
     {
         await base.Where_mathf_ceiling1(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[UnitPrice] < 7.0) AND (CEILING([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""UnitPrice""] < 7.0)) AND (CEILING(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_floor(bool async)
     {
-        await base.Where_mathf_floor(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_mathf_floor(async));
 
-        AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR(CAST([o].[UnitPrice] AS real)) > CAST(10 AS real))");
+        AssertSql();
     }
 
-    [ConditionalTheory]
     public override async Task Where_mathf_power(bool async)
     {
         await base.Where_mathf_power(async);
@@ -640,7 +546,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (POWER(c[""Discount""], 3.0) > 0.005))");
     }
 
-    [ConditionalTheory]
     public override async Task Where_mathf_square(bool async)
     {
         await base.Where_mathf_square(async);
@@ -651,180 +556,158 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (POWER(c[""Discount""], 2.0) > 0.05))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_round2(bool async)
     {
-        await base.Where_mathf_round2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_mathf_round2(async));
 
-        AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_truncate(bool async)
     {
-        await base.Where_mathf_truncate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_mathf_truncate(async));
 
-        AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND(CAST([o].[UnitPrice] AS real), 0, 1) > CAST(10 AS real))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_exp(bool async)
     {
         await base.Where_mathf_exp(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (EXP([o].[Discount]) > CAST(1 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (EXP(c[""Discount""]) > 1.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_log10(bool async)
     {
         await base.Where_mathf_log10(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG10([o].[Discount]) < CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0))) AND (LOG10(c[""Discount""]) < 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_log(bool async)
     {
         await base.Where_mathf_log(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount]) < CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0))) AND (LOG(c[""Discount""]) < 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_log_new_base(bool async)
     {
         await base.Where_mathf_log_new_base(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 11077) AND (c[""Discount""] > 0.0))) AND (LOG(c[""Discount""], 7.0) < 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_sqrt(bool async)
     {
         await base.Where_mathf_sqrt(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SQRT([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (SQRT(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_acos(bool async)
     {
         await base.Where_mathf_acos(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ACOS([o].[Discount]) > CAST(1 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (ACOS(c[""Discount""]) > 1.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_asin(bool async)
     {
         await base.Where_mathf_asin(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ASIN([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (ASIN(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_atan(bool async)
     {
         await base.Where_mathf_atan(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATAN([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (ATAN(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_atan2(bool async)
     {
         await base.Where_mathf_atan2(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (ATN2([o].[Discount], CAST(1 AS real)) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (ATN2(c[""Discount""], 1.0) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_cos(bool async)
     {
         await base.Where_mathf_cos(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (COS([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (COS(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_sin(bool async)
     {
         await base.Where_mathf_sin(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIN([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (SIN(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_tan(bool async)
     {
         await base.Where_mathf_tan(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (TAN([o].[Discount]) > CAST(0 AS real))");
+            @"SELECT c
+FROM root c
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (TAN(c[""Discount""]) > 0.0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_mathf_sign(bool async)
     {
         await base.Where_mathf_sign(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
-    }
-
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override async Task Where_guid_newguid(bool async)
-    {
-        await base.Where_guid_newguid(async);
-
-        AssertSql(
             @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077)) AND (SIGN(c[""Discount""]) > 0))");
+    }
+
+    public override async Task Where_guid_newguid(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_guid_newguid(async));
+
+        AssertSql();
     }
 
     public override async Task Where_string_to_upper(bool async)
@@ -847,103 +730,76 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (LOWER(c[""CustomerID""]) = ""alfki""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Where_functions_nested(bool async)
     {
-        await base.Where_functions_nested(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_functions_nested(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToBoolean(bool async)
     {
-        await base.Convert_ToBoolean(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToBoolean(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToByte(bool async)
     {
-        await base.Convert_ToByte(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToByte(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToDecimal(bool async)
     {
-        await base.Convert_ToDecimal(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToDecimal(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToDouble(bool async)
     {
-        await base.Convert_ToDouble(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToDouble(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToInt16(bool async)
     {
-        await base.Convert_ToInt16(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToInt16(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToInt32(bool async)
     {
-        await base.Convert_ToInt32(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToInt32(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToInt64(bool async)
     {
-        await base.Convert_ToInt64(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToInt64(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Convert_ToString(bool async)
     {
-        await base.Convert_ToString(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Convert_ToString(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
     public override async Task Indexof_with_emptystring(bool async)
@@ -1070,28 +926,29 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task IsNullOrEmpty_in_predicate(bool async)
     {
-        await base.IsNullOrEmpty_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.IsNullOrEmpty_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
     {
-        await base.IsNullOrEmpty_negated_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.IsNullOrEmpty_negated_in_predicate(async));
 
-        AssertSql(@"");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)
-        => base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(async);
+    public override async Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(async));
+
+        AssertSql();
+    }
 
     public override async Task IsNullOrEmpty_in_projection(bool async)
     {
@@ -1113,15 +970,12 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task IsNullOrWhiteSpace_in_predicate(bool async)
     {
-        await base.IsNullOrWhiteSpace_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.IsNullOrWhiteSpace_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task TrimStart_without_arguments_in_predicate(bool async)
@@ -1134,26 +988,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (LTRIM(c[""ContactTitle""]) = ""Owner""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task TrimStart_with_char_argument_in_predicate(bool async)
     {
-        await base.TrimStart_with_char_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
     {
-        await base.TrimStart_with_char_array_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
@@ -1166,26 +1014,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (RTRIM(c[""ContactTitle""]) = ""Owner""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
     {
-        await base.TrimEnd_with_char_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
     {
-        await base.TrimEnd_with_char_array_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task Trim_without_argument_in_predicate(bool async)
@@ -1198,48 +1040,40 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (TRIM(c[""ContactTitle""]) = ""Owner""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Trim_with_char_argument_in_predicate(bool async)
     {
-        await base.Trim_with_char_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Trim_with_char_array_argument_in_predicate(bool async)
     {
-        await base.Trim_with_char_array_argument_in_predicate(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Order_by_length_twice(bool async)
     {
-        await base.Order_by_length_twice(async);
+        // Unsupported ORDER BY clause. Issue #27037.
+        await Assert.ThrowsAsync<CosmosException>(() => base.Order_by_length_twice(async));
 
         AssertSql(
             @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY LENGTH(c[""CustomerID""]), c[""CustomerID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool async)
     {
-        await base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task Static_string_equals_in_predicate(bool async)
@@ -1252,18 +1086,18 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ANATR""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Static_equals_nullable_datetime_compared_to_non_nullable(bool async)
     {
         await base.Static_equals_nullable_datetime_compared_to_non_nullable(async);
 
         AssertSql(
-            @"SELECT c
+            @"@__arg_0='1996-07-04T00:00:00'
+
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] = @__arg_0))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Static_equals_int_compared_to_long(bool async)
     {
         await base.Static_equals_int_compared_to_long(async);
@@ -1271,59 +1105,72 @@ WHERE (c[""Discriminator""] = ""Order"")");
         AssertSql(
             @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+WHERE ((c[""Discriminator""] = ""Order"") AND false)");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
     {
-        await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
     {
-        await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
     {
-        await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
-        => base.DateTime_Compare_to_simple_zero(async, compareTo);
+    public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.DateTime_Compare_to_simple_zero(async, compareTo));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
-        => base.TimeSpan_Compare_to_simple_zero(async, compareTo);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Int_Compare_to_simple_zero(bool async)
-        => base.Int_Compare_to_simple_zero(async);
+    public override async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.TimeSpan_Compare_to_simple_zero(async, compareTo));
 
-    public override Task Regex_IsMatch_MethodCall(bool async)
-        => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+        AssertSql();
+    }
 
-    public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
-        => AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
+    public override async Task Int_Compare_to_simple_zero(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Int_Compare_to_simple_zero(async));
+
+        AssertSql();
+    }
+
+    public override async Task Regex_IsMatch_MethodCall(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+
+        AssertSql();
+    }
+
+    public override async Task Regex_IsMatch_MethodCall_constant_input(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
+
+        AssertSql();
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1385,9 +1232,75 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""], ""ALFKI""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Datetime_subtraction_TotalDays(bool async)
-        => base.Datetime_subtraction_TotalDays(async);
+    public override async Task Datetime_subtraction_TotalDays(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+
+        AssertSql();
+    }
+
+    public override async Task String_Contains_constant_with_whitespace(bool async)
+    {
+        await base.String_Contains_constant_with_whitespace(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""     ""))");
+    }
+
+    public override async Task String_Contains_parameter_with_whitespace(bool async)
+    {
+        await base.String_Contains_parameter_with_whitespace(async);
+
+        AssertSql(
+            @"@__pattern_0='     '
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], @__pattern_0))");
+    }
+
+    public override async Task Select_mathf_round(bool async)
+    {
+        await base.Select_mathf_round(async);
+
+        AssertSql(
+            @"SELECT c[""OrderID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+    }
+
+    public override async Task Select_mathf_round2(bool async)
+    {
+        await base.Select_mathf_round2(async);
+
+        AssertSql(
+            @"SELECT c[""UnitPrice""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5))");
+    }
+
+    public override async Task Select_mathf_truncate(bool async)
+    {
+        await base.Select_mathf_truncate(async);
+
+        AssertSql(
+            @"SELECT c[""UnitPrice""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5))");
+    }
+
+    public override async Task Indexof_with_one_arg(bool async)
+    {
+        await base.Indexof_with_one_arg(async);
+
+        AssertSql(
+            @"SELECT INDEX_OF(c[""ContactName""], ""a"") AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

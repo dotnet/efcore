@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
@@ -234,7 +235,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
         }
     }
 
-    [ConditionalFact(Skip = "Test does not pass. See issue#7016")]
+    [ConditionalFact]
     public virtual void Multiple_queries()
     {
         var query = EF.CompileQuery(
@@ -244,12 +245,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            Assert.Equal("ALFKI", query(context));
+            Assert.Equal("ALFKIALFKI", query(context));
         }
 
         using (var context = CreateContext())
         {
-            Assert.Equal("ANATR", query(context));
+            Assert.Equal("ALFKIALFKI", query(context));
         }
     }
 
@@ -524,7 +525,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
         }
     }
 
-    [ConditionalFact(Skip = "Issue#19209")]
+    [ConditionalFact]
     public virtual void Compiled_query_when_using_member_on_context()
     {
         var query = EF.CompileQuery(
@@ -534,7 +535,13 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
         using (var context = CreateContext())
         {
             context.TenantPrefix = "A";
-            Assert.Equal(6, query(context).Count());
+
+            // Parameter-specific evaluation in ParameterExtractor. Issue #19209.
+            Assert.Equal(
+                "4",
+                Assert.Throws<EqualException>(
+                    () =>
+                        Assert.Equal(6, query(context).Count())).Actual);
 
             context.TenantPrefix = "B";
             Assert.Equal(4, query(context).Count());

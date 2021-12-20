@@ -73,22 +73,24 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID),
             entryCount: 79);
 
-    [ConditionalTheory(Skip = "Issue #17328")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Client_Join_select_many(bool async)
-        => AssertQuery(
-            async,
-            ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
-                  join e2 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
-                  from e3 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(6).Take(2)
-                  select new
-                  {
-                      e1,
-                      e2,
-                      e3
-                  },
-            e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID),
-            entryCount: 4);
+        // Translation failed message. Issue #17328.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
+                      join e2 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
+                      from e3 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(6).Take(2)
+                      select new
+                      {
+                          e1,
+                          e2,
+                          e3
+                      },
+                e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID),
+                entryCount: 4));
 
     private static uint GetEmployeeID(Employee employee)
         => employee.EmployeeID;
@@ -223,63 +225,74 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>().Where(o => o.OrderID < 10250) on true equals true
                 select c.CustomerID);
 
-    [ConditionalTheory(Skip = "Issue #19016")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
     {
         var ids = new uint[] { 1, 2 };
-
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
 
         ids = new uint[] { 3 };
-
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
     }
 
-    [ConditionalTheory(Skip = "Issue #19016")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
         var ids = "12";
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
 
         ids = "3";
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
     }
 
-    [ConditionalTheory(Skip = "Issue #19016")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool async)
     {
         var ids = new byte[] { 1, 2 };
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
 
         ids = new byte[] { 3 };
-        await AssertQueryScalar(
-            async,
-            ss => from e in ss.Set<Employee>()
-                  join id in ids on e.EmployeeID equals id
-                  select e.EmployeeID);
+        // Join with local collection using TVP. Issue #19016.
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
     }
 
     [ConditionalTheory]
@@ -518,7 +531,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 select o,
             entryCount: 10);
 
-    [ConditionalTheory(Skip = "Issue#15638")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_DefaultIfEmpty_Where(bool async)
     {
@@ -535,11 +548,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             entryCount: 6);
     }
 
-    [ConditionalTheory(Skip = "Issue#15638")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Join_GroupJoin_DefaultIfEmpty_Where(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss =>
                 from c in ss.Set<Customer>()
@@ -551,7 +563,6 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
 #pragma warning restore RCS1146 // Use conditional access.
                 select o3,
             entryCount: 6);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -576,17 +587,19 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 select new { c.ContactName, o.OrderID },
             e => (e.ContactName, e.OrderID));
 
-    [ConditionalTheory(Skip = "Issue #19015")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby(bool async)
-        => AssertQuery(
-            async,
-            ss =>
-                from c in ss.Set<Customer>()
-                join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
-                from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate)
-                select new { c.ContactName, o.OrderID },
-            e => (e.ContactName, e.OrderID));
+        // SelectMany Skip/Take. Issue #19015.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from c in ss.Set<Customer>()
+                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
+                    from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate)
+                    select new { c.ContactName, o.OrderID },
+                e => (e.ContactName, e.OrderID)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -601,18 +614,20 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             e => (e.ContactName, e.o?.OrderID),
             entryCount: 63);
 
-    [ConditionalTheory(Skip = "Issue #19015")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool async)
-        => AssertQuery(
-            async,
-            ss =>
-                from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
-                from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
-                select new { c.ContactName, o },
-            e => (e.ContactName, e.o?.OrderID),
-            entryCount: 23);
+        // SelectMany Skip/Take. Issue #19015.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
+                    from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
+                    select new { c.ContactName, o },
+                e => (e.ContactName, e.o?.OrderID),
+                entryCount: 23));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

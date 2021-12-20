@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
@@ -16,6 +17,10 @@ public class NorthwindSelectQueryCosmosTest : NorthwindSelectQueryTestBase<North
         ClearLog();
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
+
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -52,26 +57,20 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Projection_when_arithmetic_mixed(bool async)
     {
-        await base.Projection_when_arithmetic_mixed(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_when_arithmetic_mixed(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Projection_when_arithmetic_mixed_subqueries(bool async)
     {
-        await base.Projection_when_arithmetic_mixed_subqueries(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_when_arithmetic_mixed_subqueries(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+        AssertSql();
     }
 
     public override async Task Projection_when_null_value(bool async)
@@ -84,15 +83,12 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Projection_when_client_evald_subquery(bool async)
     {
-        await base.Projection_when_client_evald_subquery(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_when_client_evald_subquery(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task Project_to_object_array(bool async)
@@ -105,27 +101,23 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Projection_of_entity_type_into_object_array(bool async)
     {
         await base.Projection_of_entity_type_into_object_array(async);
 
         AssertSql(
-            @"SELECT c[""CustomerID""], c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""], c[""Country""], c[""Fax""], c[""Phone""], c[""PostalCode""], c[""Region""]
+            @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Employee"") AND c[""CustomerID""] LIKE N'A%'
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))
 ORDER BY c[""CustomerID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Projection_of_multiple_entity_types_into_object_array(bool async)
     {
-        await base.Projection_of_multiple_entity_types_into_object_array(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_of_multiple_entity_types_into_object_array(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
     public override async Task Projection_of_entity_type_into_object_list(bool async)
@@ -149,26 +141,26 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool async)
     {
-        await base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Select_bool_closure_with_order_parameter_with_cast_to_nullable(bool async)
     {
-        await base.Select_bool_closure_with_order_parameter_with_cast_to_nullable(async);
+        await Assert.ThrowsAsync<CosmosException>(
+            () => base.Select_bool_closure_with_order_parameter_with_cast_to_nullable(async));
 
         AssertSql(
-            @"SELECT c
+            @"@__boolean_0='false'
+
+SELECT VALUE {""c"" : @__boolean_0}
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY @__boolean_0");
     }
 
     public override async Task Select_scalar(bool async)
@@ -316,123 +308,108 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
     }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
     public override async Task Select_nested_collection(bool async)
     {
-        await base.Select_nested_collection(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue #17246")]
     public override void Select_nested_collection_multi_level()
     {
-        base.Select_nested_collection_multi_level();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level();
+                return Task.CompletedTask;
+            });
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue#17246")]
     public override void Select_nested_collection_multi_level2()
     {
-        base.Select_nested_collection_multi_level2();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level2();
+                return Task.CompletedTask;
+            });
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue#17246")]
     public override void Select_nested_collection_multi_level3()
     {
-        base.Select_nested_collection_multi_level3();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level3();
+                return Task.CompletedTask;
+            });
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue#17246")]
     public override void Select_nested_collection_multi_level4()
     {
-        base.Select_nested_collection_multi_level4();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level4();
+                return Task.CompletedTask;
+            });
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue#17246")]
     public override void Select_nested_collection_multi_level5()
     {
-        using (var context = CreateContext())
-        {
-            var customers = context.Customers
-                .Where(c => c.CustomerID == "ALFKI")
-                .Select(
-                    c => new
-                    {
-                        Order = (int?)c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Select(
-                                o => o.OrderDetails
-                                    .Where(od => od.OrderID != c.Orders.Count)
-                                    .Select(od => od.ProductID)
-                                    .FirstOrDefault())
-                            .FirstOrDefault()
-                    })
-                .ToList();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level5();
+                return Task.CompletedTask;
+            });
 
-            Assert.Single(customers);
-            Assert.Equal(0, customers.Count(c => c.Order != null && c.Order != 0));
-        }
-
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalFact(Skip = "Issue#17246")]
     public override void Select_nested_collection_multi_level6()
     {
-        base.Select_nested_collection_multi_level6();
+        // Cosmos client evaluation. Issue #17246.
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Select_nested_collection_multi_level6();
+                return Task.CompletedTask;
+            });
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Select_nested_collection_count_using_anonymous_type(bool async)
     {
-        await base.Select_nested_collection_count_using_anonymous_type(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_count_using_anonymous_type(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task New_date_time_in_anonymous_type_works(bool async)
     {
         await base.New_date_time_in_anonymous_type_works(async);
 
         AssertSql(
-            @"SELECT c
+            @"SELECT 1
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))");
     }
 
     public override async Task Select_non_matching_value_types_int_to_long_introduces_explicit_cast(bool async)
@@ -557,15 +534,15 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task
-        Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
-            bool async)
+        Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(bool async)
     {
-        await base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(
-            async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base
+                .Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault_followed_by_projecting_length(async));
 
-        AssertSql("");
+        AssertSql();
     }
 
     public override async Task Select_conditional_with_null_comparison_in_test(bool async)
@@ -578,15 +555,14 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Projection_in_a_subquery_should_be_liftable(bool async)
     {
-        await base.Projection_in_a_subquery_should_be_liftable(async);
+        Assert.Equal(
+            CosmosStrings.OffsetRequiresLimit,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projection_in_a_subquery_should_be_liftable(async))).Message);
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Employee"")");
+        AssertSql();
     }
 
     public override async Task Projection_containing_DateTime_subtraction(bool async)
@@ -599,147 +575,95 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Skip(1).FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_single_element_from_collection_with_OrderBy_Skip_and_FirstOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(bool async)
     {
-        await base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_single_element_from_collection_with_OrderBy_Take_and_SingleOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Take(1).FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_OrderBy_Take_and_FirstOrDefault_with_parameter(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.OrderID)
-                    .ThenByDescending(o => o.OrderDate)
-                    .Select(o => o.CustomerID)
-                    .Take(2)
-                    .FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
     public override async Task
         Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
             bool async)
     {
-        await base
-            .Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
-                async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base
+                .Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
+                    async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(bool async)
     {
-        await AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(
-                c => c.Orders.OrderBy(o => o.CustomerID)
-                    .ThenByDescending(o => o.OrderDate)
-                    .Select(o => o.CustomerID)
-                    .Take(2)
-                    .FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(bool async)
     {
-        await AssertQueryScalar(
-            async,
-            ss => ss.Set<Order>().Where(o => o.OrderID < 10250)
-                .Select(o => o.OrderDetails.OrderBy(od => od.Product.ProductName).Select(od => od.OrderID).Take(1).FirstOrDefault()));
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+        AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(
         bool async)
     {
-        await base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
+        AssertSql();
     }
 
     public override async Task Select_datetime_year_component(bool async)
@@ -873,15 +797,12 @@ WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task Anonymous_projection_with_repeated_property_being_ordered_2(bool async)
     {
-        await base.Anonymous_projection_with_repeated_property_being_ordered_2(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Anonymous_projection_with_repeated_property_being_ordered_2(async));
 
-        AssertSql(
-            @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+        AssertSql();
     }
 
     public override async Task Select_GetValueOrDefault_on_DateTime(bool async)
@@ -894,95 +815,177 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
     public override async Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool async)
     {
-        await base.Select_GetValueOrDefault_on_DateTime_with_null_values(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_GetValueOrDefault_on_DateTime_with_null_values(async));
+
+        AssertSql();
+    }
+
+    public override async Task Client_method_in_projection_requiring_materialization_1(bool async)
+    {
+        await base.Client_method_in_projection_requiring_materialization_1(async);
 
         AssertSql(
             @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Client_method_in_projection_requiring_materialization_1(bool async)
-        => base.Client_method_in_projection_requiring_materialization_1(async);
+    public override async Task Client_method_in_projection_requiring_materialization_2(bool async)
+    {
+        await base.Client_method_in_projection_requiring_materialization_2(async);
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Client_method_in_projection_requiring_materialization_2(bool async)
-        => base.Client_method_in_projection_requiring_materialization_2(async);
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))");
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Multiple_select_many_with_predicate(bool async)
-        => base.Multiple_select_many_with_predicate(async);
+    public override async Task Multiple_select_many_with_predicate(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Multiple_select_many_with_predicate(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task SelectMany_without_result_selector_naked_collection_navigation(bool async)
-        => base.SelectMany_without_result_selector_naked_collection_navigation(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task SelectMany_without_result_selector_collection_navigation_composed(bool async)
-        => base.SelectMany_without_result_selector_collection_navigation_composed(async);
+    public override async Task SelectMany_without_result_selector_naked_collection_navigation(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_without_result_selector_naked_collection_navigation(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_1(bool async)
-        => base.SelectMany_correlated_with_outer_1(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_2(bool async)
-        => base.SelectMany_correlated_with_outer_2(async);
+    public override async Task SelectMany_without_result_selector_collection_navigation_composed(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_without_result_selector_collection_navigation_composed(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_3(bool async)
-        => base.SelectMany_correlated_with_outer_3(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_4(bool async)
-        => base.SelectMany_correlated_with_outer_4(async);
+    public override async Task SelectMany_correlated_with_outer_1(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_1(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_5(bool async)
-        => base.SelectMany_correlated_with_outer_5(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_6(bool async)
-        => base.SelectMany_correlated_with_outer_6(async);
+    public override async Task SelectMany_correlated_with_outer_2(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_2(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task SelectMany_correlated_with_outer_7(bool async)
-        => base.SelectMany_correlated_with_outer_7(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
-        => base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async);
+    public override async Task SelectMany_correlated_with_outer_3(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_3(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
-        => base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(async);
+        AssertSql();
+    }
 
-    public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
-        => AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
+    public override async Task SelectMany_correlated_with_outer_4(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_4(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Filtered_collection_projection_is_tracked(bool async)
-        => base.Filtered_collection_projection_is_tracked(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Filtered_collection_projection_with_to_list_is_tracked(bool async)
-        => base.Filtered_collection_projection_with_to_list_is_tracked(async);
+    public override async Task SelectMany_correlated_with_outer_5(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_5(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
-        => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool async)
-        => base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(async);
+    public override async Task SelectMany_correlated_with_outer_6(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_6(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Select_entity_compared_to_null(bool async)
-        => base.Select_entity_compared_to_null(async);
+        AssertSql();
+    }
+
+    public override async Task SelectMany_correlated_with_outer_7(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_correlated_with_outer_7(async));
+
+        AssertSql();
+    }
+
+    public override async Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(async));
+
+        AssertSql();
+    }
+
+    public override async Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(async));
+
+        AssertSql();
+    }
+
+    public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool async)
+    {
+        await AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
+
+        AssertSql();
+    }
+
+    public override async Task Filtered_collection_projection_is_tracked(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(async));
+
+        AssertSql();
+    }
+
+    public override async Task Filtered_collection_projection_with_to_list_is_tracked(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Filtered_collection_projection_with_to_list_is_tracked(async));
+
+        AssertSql();
+    }
+
+    public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_entity_compared_to_null(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_entity_compared_to_null(async));
+
+        AssertSql();
+    }
 
     public override async Task Explicit_cast_in_arithmetic_operation_is_preserved(bool async)
     {
@@ -994,29 +997,53 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task SelectMany_whose_selector_references_outer_source(bool async)
-        => base.SelectMany_whose_selector_references_outer_source(async);
+    public override async Task SelectMany_whose_selector_references_outer_source(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.SelectMany_whose_selector_references_outer_source(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool async)
-        => base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool async)
-        => base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(async);
+    public override async Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task ToList_Count_in_projection_works(bool async)
-        => base.ToList_Count_in_projection_works(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task LastOrDefault_member_access_in_projection_translates_to_server(bool async)
-        => base.LastOrDefault_member_access_in_projection_translates_to_server(async);
+    public override async Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Collection_projection_AsNoTracking_OrderBy(bool async)
-        => base.Collection_projection_AsNoTracking_OrderBy(async);
+        AssertSql();
+    }
+
+    public override async Task ToList_Count_in_projection_works(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.ToList_Count_in_projection_works(async));
+
+        AssertSql();
+    }
+
+    public override async Task LastOrDefault_member_access_in_projection_translates_to_server(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.LastOrDefault_member_access_in_projection_translates_to_server(async));
+
+        AssertSql();
+    }
+
+    public override async Task Collection_projection_AsNoTracking_OrderBy(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Collection_projection_AsNoTracking_OrderBy(async));
+
+        AssertSql();
+    }
 
     public override async Task Coalesce_over_nullable_uint(bool async)
     {
@@ -1028,13 +1055,21 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Project_uint_through_collection_FirstOrDefault(bool async)
-        => base.Project_uint_through_collection_FirstOrDefault(async);
+    public override async Task Project_uint_through_collection_FirstOrDefault(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_uint_through_collection_FirstOrDefault(async));
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
-        => base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
+        AssertSql();
+    }
+
+    public override async Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Project_keyless_entity_FirstOrDefault_without_orderby(async));
+
+        AssertSql();
+    }
 
     public override async Task Reverse_changes_asc_order_to_desc(bool async)
     {
@@ -1058,9 +1093,13 @@ WHERE (c[""Discriminator""] = ""Employee"")
 ORDER BY c[""EmployeeID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Projection_AsEnumerable_projection(bool async)
-        => base.Projection_AsEnumerable_projection(async);
+    public override async Task Projection_AsEnumerable_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_AsEnumerable_projection(async));
+
+        AssertSql();
+    }
 
     public override async Task Projection_custom_type_in_both_sides_of_ternary(bool async)
     {
@@ -1073,45 +1112,89 @@ WHERE (c[""Discriminator""] = ""Customer"")
 ORDER BY c[""CustomerID""]");
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Projecting_multiple_collection_with_same_constant_works(bool async)
-        => base.Projecting_multiple_collection_with_same_constant_works(async);
+    public override async Task Projecting_multiple_collection_with_same_constant_works(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_multiple_collection_with_same_constant_works(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Projecting_after_navigation_and_distinct(bool async)
-        => base.Projecting_after_navigation_and_distinct(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
-        => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async);
+    public override async Task Projecting_after_navigation_and_distinct(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_after_navigation_and_distinct(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
-        => base.Correlated_collection_after_distinct_not_containing_original_identifier(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
-        => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async);
+    public override async Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
-        => base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async);
+        AssertSql();
+    }
 
-    public override Task Reverse_without_explicit_ordering(bool async)
-        => AssertTranslationFailedWithDetails(
+    public override async Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Correlated_collection_after_distinct_not_containing_original_identifier(async));
+
+        AssertSql();
+    }
+
+    public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async));
+
+        AssertSql();
+    }
+
+    public override async Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_without_explicit_ordering(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
             () => base.Reverse_without_explicit_ordering(async), CosmosStrings.MissingOrderingInSelectExpression);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
-        => base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Select_nested_collection_deep(bool async)
-        => base.Select_nested_collection_deep(async);
+    public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Custom_projection_reference_navigation_PK_to_FK_optimization(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
-        => base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
+        AssertSql();
+    }
+
+    public override async Task Select_nested_collection_deep(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_deep(async));
+
+        AssertSql();
+    }
+
+    public override async Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async));
+
+        AssertSql();
+    }
 
     public override async Task Projection_take_predicate_projection(bool async)
     {
@@ -1149,29 +1232,59 @@ OFFSET 0 LIMIT @__p_0");
         Assert.Equal(CosmosStrings.OffsetRequiresLimit, message);
     }
 
-    [ConditionalTheory(Skip = "Issue#17246")]
-    public override Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
-        => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
+    public override async Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
-        => base.Projecting_count_of_navigation_which_is_generic_collection(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Projecting_count_of_navigation_which_is_generic_list(bool async)
-        => base.Projecting_count_of_navigation_which_is_generic_list(async);
+    public override async Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_collection(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
-        => base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
-        => base.Select_nested_collection_deep_distinct_no_identifiers(async);
+    public override async Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_list(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
-        => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async);
+        AssertSql();
+    }
+
+    public override async Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: Order.OrderDetails (ICollection<OrderDetail>) Collection ToDependent OrderDetail Inverse: Order"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Do_not_erase_projection_mapping_when_adding_single_projection(async)))
+            .Message);
+
+        AssertSql();
+    }
+
+    public override async Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_deep_distinct_no_identifiers(async));
+
+        AssertSql();
+    }
+
+    public override async Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(
+            () => base.Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(async));
+
+        AssertSql();
+    }
 
     public override async Task Ternary_in_client_eval_assigns_correct_types(bool async)
     {
@@ -1184,81 +1297,169 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))
 ORDER BY c[""OrderID""]");
     }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Collection_include_over_result_of_single_non_scalar(bool async)
-        => base.Collection_include_over_result_of_single_non_scalar(async);
+    public override async Task Collection_include_over_result_of_single_non_scalar(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                "Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_include_over_result_of_single_non_scalar(async)))
+            .Message);
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
-        => base.Collection_projection_selecting_outer_element_followed_by_take(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
-        => base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async);
+    public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Collection_projection_selecting_outer_element_followed_by_take(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Take_on_correlated_collection_in_first(bool async)
-        => base.Take_on_correlated_collection_in_first(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Client_projection_via_ctor_arguments(bool async)
-        => base.Client_projection_via_ctor_arguments(async);
+    public override async Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Client_projection_with_string_initialization_with_scalar_subquery(bool async)
-        => base.Client_projection_with_string_initialization_with_scalar_subquery(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
-        => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async);
+    public override async Task Take_on_correlated_collection_in_first(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Take_on_correlated_collection_in_first(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task MemberInit_in_projection_without_arguments(bool async)
-        => base.MemberInit_in_projection_without_arguments(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Reverse_in_join_outer(bool async)
-        => base.Reverse_in_join_outer(async);
+    public override async Task Client_projection_via_ctor_arguments(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Client_projection_via_ctor_arguments(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Reverse_in_join_outer_with_take(bool async)
-        => base.Reverse_in_join_outer_with_take(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Reverse_in_join_inner(bool async)
-        => base.Reverse_in_join_inner(async);
+    public override async Task Client_projection_with_string_initialization_with_scalar_subquery(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Client_projection_with_string_initialization_with_scalar_subquery(async));
 
-    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
-    public override Task Reverse_in_join_inner_with_skip(bool async)
-        => base.Reverse_in_join_inner_with_skip(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_SelectMany(bool async)
-        => base.Reverse_in_SelectMany(async);
+    public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_SelectMany_with_Take(bool async)
-        => base.Reverse_in_SelectMany_with_Take(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_projection_subquery(bool async)
-        => base.Reverse_in_projection_subquery(async);
+    public override async Task MemberInit_in_projection_without_arguments(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.MemberInit_in_projection_without_arguments(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_projection_subquery_single_result(bool async)
-        => base.Reverse_in_projection_subquery_single_result(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_subquery_via_pushdown(bool async)
-        => base.Reverse_in_subquery_via_pushdown(async);
+    public override async Task Reverse_in_join_outer(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_join_outer(async));
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_in_projection_scalar_subquery(bool async)
-        => base.Reverse_in_projection_scalar_subquery(async);
+        AssertSql();
+    }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task Reverse_after_orderby_thenby(bool async)
-        => base.Reverse_after_orderby_thenby(async);
+    public override async Task Reverse_in_join_outer_with_take(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_join_outer_with_take(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_join_inner(bool async)
+    {
+        // Cross collection join. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_join_inner(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_join_inner_with_skip(bool async)
+    {
+        Assert.Equal(
+            CosmosStrings.ReverseAfterSkipTakeNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Reverse_in_join_inner_with_skip(async))).Message);
+
+        AssertSql();
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_SelectMany(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_SelectMany(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_SelectMany_with_Take(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_SelectMany_with_Take(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_projection_subquery(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_projection_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_projection_subquery_single_result(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_projection_subquery_single_result(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_subquery_via_pushdown(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_subquery_via_pushdown(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_in_projection_scalar_subquery(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Reverse_in_projection_scalar_subquery(async));
+
+        AssertSql();
+    }
+
+    public override async Task Reverse_after_orderby_thenby(bool async)
+    {
+        await Assert.ThrowsAsync<CosmosException>(
+            () => base.Reverse_after_orderby_thenby(async));
+
+        AssertSql(
+            @"SELECT c[""EmployeeID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")
+ORDER BY c[""EmployeeID""] DESC, c[""City""]");
+    }
 
     public override async Task Reverse_after_orderBy_and_take(bool async)
     {
@@ -1271,6 +1472,213 @@ ORDER BY c[""OrderID""]");
     [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
     public override Task List_of_list_of_anonymous_type(bool async)
         => base.List_of_list_of_anonymous_type(async);
+
+    public override async Task
+        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+            bool async)
+    {
+        await AssertTranslationFailed(
+            () => base
+                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                    async));
+
+        AssertSql();
+    }
+
+    public override async Task Select_bool_closure(bool async)
+    {
+        await base.Select_bool_closure(async);
+
+        AssertSql(
+            @"SELECT 1
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")",
+            //
+            @"SELECT 1
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Select_datetime_DayOfWeek_component(bool async)
+    {
+        await base.Select_datetime_DayOfWeek_component(async);
+
+        AssertSql(
+            @"SELECT c[""OrderDate""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+    }
+
+    public override async Task Reverse_after_multiple_orderbys(bool async)
+    {
+        await base.Reverse_after_multiple_orderbys(async);
+
+        AssertSql(
+            @"SELECT c[""EmployeeID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")
+ORDER BY c[""EmployeeID""]");
+    }
+
+    public override async Task VisitLambda_should_not_be_visited_trivially(bool async)
+    {
+        await base.VisitLambda_should_not_be_visited_trivially(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""CustomerID""] != null) AND ((""A"" != null) AND STARTSWITH(c[""CustomerID""], ""A""))))");
+    }
+
+    public override async Task Projecting_nullable_struct(bool async)
+    {
+        await base.Projecting_nullable_struct(async);
+
+        AssertSql(
+            @"SELECT c[""CustomerID""], (c[""CustomerID""] = ""ALFKI"") AS c, c[""OrderID""], LENGTH(c[""CustomerID""]) AS c0
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+    }
+
+    public override async Task Select_customer_identity(bool async)
+    {
+        await base.Select_customer_identity(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Projection_with_parameterized_constructor(bool async)
+    {
+        await base.Projection_with_parameterized_constructor(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+    }
+
+    public override async Task Select_anonymous_nested(bool async)
+    {
+        await base.Select_anonymous_nested(async);
+
+        AssertSql(
+            @"SELECT c[""City""], c[""Country""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Cast_on_top_level_projection_brings_explicit_Cast(bool async)
+    {
+        await base.Cast_on_top_level_projection_brings_explicit_Cast(async);
+
+        AssertSql(
+            @"SELECT c[""OrderID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+    }
+
+    public override async Task Select_anonymous_empty(bool async)
+    {
+        await base.Select_anonymous_empty(async);
+
+        AssertSql(
+            @"SELECT 1
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Select_scalar_primitive(bool async)
+    {
+        await base.Select_scalar_primitive(async);
+
+        AssertSql(
+            @"SELECT c[""EmployeeID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")");
+    }
+
+    public override async Task Select_into(bool async)
+    {
+        await base.Select_into(async);
+
+        AssertSql(
+            @"SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+    }
+
+    public override async Task Projection_with_parameterized_constructor_with_member_assignment(bool async)
+    {
+        await base.Projection_with_parameterized_constructor_with_member_assignment(async);
+
+        AssertSql(
+            @"SELECT c, c[""City""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+    }
+
+    public override async Task Select_datetime_TimeOfDay_component(bool async)
+    {
+        await base.Select_datetime_TimeOfDay_component(async);
+
+        AssertSql(
+            @"SELECT c[""OrderDate""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+    }
+
+    public override async Task Select_with_complex_expression_that_can_be_funcletized(bool async)
+    {
+        await base.Select_with_complex_expression_that_can_be_funcletized(async);
+
+        AssertSql(
+            @"SELECT INDEX_OF(c[""ContactName""], """") AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+    }
+
+    public override async Task Select_datetime_Ticks_component(bool async)
+    {
+        await base.Select_datetime_Ticks_component(async);
+
+        AssertSql(
+            @"SELECT c[""OrderDate""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+    }
+
+    public override async Task Select_anonymous_literal(bool async)
+    {
+        await base.Select_anonymous_literal(async);
+
+        AssertSql(
+            @"SELECT VALUE {""X"" : 10}
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Select_customer_table(bool async)
+    {
+        await base.Select_customer_table(async);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
+
+    public override async Task Select_over_10_nested_ternary_condition(bool async)
+    {
+        await base.Select_over_10_nested_ternary_condition(async);
+
+        AssertSql(
+            @"SELECT VALUE {""c"" : ((c[""CustomerID""] = ""1"") ? ""01"" : ((c[""CustomerID""] = ""2"") ? ""02"" : ((c[""CustomerID""] = ""3"") ? ""03"" : ((c[""CustomerID""] = ""4"") ? ""04"" : ((c[""CustomerID""] = ""5"") ? ""05"" : ((c[""CustomerID""] = ""6"") ? ""06"" : ((c[""CustomerID""] = ""7"") ? ""07"" : ((c[""CustomerID""] = ""8"") ? ""08"" : ((c[""CustomerID""] = ""9"") ? ""09"" : ((c[""CustomerID""] = ""10"") ? ""10"" : ((c[""CustomerID""] = ""11"") ? ""11"" : null)))))))))))}
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

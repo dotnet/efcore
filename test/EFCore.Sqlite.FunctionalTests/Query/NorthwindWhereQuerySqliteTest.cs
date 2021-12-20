@@ -12,11 +12,26 @@ public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBa
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override Task Where_datetimeoffset_now_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
+    public override async Task Where_datetimeoffset_now_component(bool async)
+    {
+        await AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
 
-    public override Task Where_datetimeoffset_utcnow_component(bool async)
-        => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
+        AssertSql();
+    }
+
+    public override async Task Where_datetimeoffset_utcnow_component(bool async)
+    {
+        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_datetimeoffset_utcnow(bool async)
+    {
+        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
+
+        AssertSql();
+    }
 
     public override async Task<string> Where_simple_closure(bool async)
     {
@@ -62,9 +77,6 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0");
     }
-
-    public override Task Where_datetimeoffset_utcnow(bool async)
-        => Task.CompletedTask;
 
     public override async Task Where_datetime_today(bool async)
     {
@@ -158,7 +170,6 @@ FROM ""Orders"" AS ""o""
 WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
     }
 
-    [ConditionalTheory(Skip = "Issue#15586")]
     public override async Task Where_datetime_millisecond_component(bool async)
     {
         await base.Where_datetime_millisecond_component(async);
@@ -166,7 +177,7 @@ WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
         AssertSql(
             @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000) % 1000) = 88");
+WHERE ((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) = 88.0");
     }
 
     public override async Task Where_string_length(bool async)
@@ -227,6 +238,86 @@ WHERE CAST(""p"".""UnitPrice"" AS REAL) > 100.0");
             @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE CAST(""o"".""OrderID"" AS TEXT) LIKE '%20%'");
+    }
+
+    public override async Task Where_bitwise_xor(bool async)
+    {
+        // Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'. Issue #16645.
+        await AssertTranslationFailed(() => base.Where_bitwise_xor(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_constructed_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_constructed_multi_value_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_multi_value_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_constructed_multi_value_not_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_multi_value_not_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_constructed_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_constructed_multi_value_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_multi_value_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_multi_value_not_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_create_constructed_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_create_constructed_multi_value_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_multi_value_equal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
+    {
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_multi_value_not_equal(async));
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

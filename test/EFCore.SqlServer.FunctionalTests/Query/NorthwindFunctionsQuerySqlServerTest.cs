@@ -22,6 +22,52 @@ public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelat
     protected override bool CanExecuteQueryString
         => true;
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    public override async Task TimeSpan_Compare_to_simple_zero(bool async, bool compareTo)
+    {
+        await base.TimeSpan_Compare_to_simple_zero(async, compareTo);
+
+        AssertSql(
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] = @__myDatetime_0",
+            //
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL",
+            //
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > @__myDatetime_0",
+            //
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] <= @__myDatetime_0",
+            //
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > @__myDatetime_0",
+            //
+            @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] <= @__myDatetime_0");
+    }
+
     public override async Task String_StartsWith_Literal(bool async)
     {
         await base.String_StartsWith_Literal(async);
@@ -898,13 +944,21 @@ FROM [Order Details] AS [o]
 WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0");
     }
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task Where_math_min(bool async)
-        => base.Where_math_min(async);
+    public override async Task Where_math_min(bool async)
+    {
+        // Translate Math.Min. Issue #?????.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task Where_math_max(bool async)
-        => base.Where_math_max(async);
+        AssertSql();
+    }
+
+    public override async Task Where_math_max(bool async)
+    {
+        // Translate Math.Max. Issue #?????.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
+
+        AssertSql();
+    }
 
     public override async Task Where_mathf_abs1(bool async)
     {
@@ -1729,13 +1783,21 @@ FROM [Customers] AS [c]
 WHERE LTRIM([c].[ContactTitle]) = N'Owner'");
     }
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task TrimStart_with_char_argument_in_predicate(bool async)
-        => base.TrimStart_with_char_argument_in_predicate(async);
+    public override async Task TrimStart_with_char_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_argument_in_predicate(async));
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task TrimStart_with_char_array_argument_in_predicate(bool async)
-        => base.TrimStart_with_char_array_argument_in_predicate(async);
+        AssertSql();
+    }
+
+    public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
+
+        AssertSql();
+    }
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
     {
@@ -1747,13 +1809,21 @@ FROM [Customers] AS [c]
 WHERE RTRIM([c].[ContactTitle]) = N'Owner'");
     }
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task TrimEnd_with_char_argument_in_predicate(bool async)
-        => base.TrimEnd_with_char_argument_in_predicate(async);
+    public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_argument_in_predicate(async));
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task TrimEnd_with_char_array_argument_in_predicate(bool async)
-        => base.TrimEnd_with_char_array_argument_in_predicate(async);
+        AssertSql();
+    }
+
+    public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.TrimEnd_with_char_array_argument_in_predicate(async));
+
+        AssertSql();
+    }
 
     public override async Task Trim_without_argument_in_predicate(bool async)
     {
@@ -1765,13 +1835,21 @@ FROM [Customers] AS [c]
 WHERE LTRIM(RTRIM([c].[ContactTitle])) = N'Owner'");
     }
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task Trim_with_char_argument_in_predicate(bool async)
-        => base.Trim_with_char_argument_in_predicate(async);
+    public override async Task Trim_with_char_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.Trim_with_char_argument_in_predicate(async));
 
-    [ConditionalTheory(Skip = "Issue#17328")]
-    public override Task Trim_with_char_array_argument_in_predicate(bool async)
-        => base.Trim_with_char_array_argument_in_predicate(async);
+        AssertSql();
+    }
+
+    public override async Task Trim_with_char_array_argument_in_predicate(bool async)
+    {
+        // String.Trim with parameters. Issue #22927.
+        await AssertTranslationFailed(() => base.Trim_with_char_array_argument_in_predicate(async));
+
+        AssertSql();
+    }
 
     public override async Task Order_by_length_twice(bool async)
     {

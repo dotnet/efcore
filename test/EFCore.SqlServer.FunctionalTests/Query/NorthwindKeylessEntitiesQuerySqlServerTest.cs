@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntitiesQueryRelationalTestBase<
@@ -18,7 +20,10 @@ public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntiti
     protected override bool CanExecuteQueryString
         => true;
 
-    [ConditionalTheory]
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task KeylessEntity_simple(bool async)
     {
         await base.KeylessEntity_simple(async);
@@ -27,7 +32,6 @@ public class NorthwindKeylessEntitiesQuerySqlServerTest : NorthwindKeylessEntiti
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
     }
 
-    [ConditionalTheory]
     public override async Task KeylessEntity_where_simple(bool async)
     {
         await base.KeylessEntity_where_simple(async);
@@ -49,24 +53,16 @@ WHERE [m].[City] = N'London'");
 FROM [Alphabetical list of products] AS [a]");
     }
 
-    [ConditionalFact(Skip = "Issue#21627")]
     public override void KeylessEntity_with_nav_defining_query()
     {
-        base.KeylessEntity_with_nav_defining_query();
+        // FromSql mapping. Issue #21627.
+        Assert.Throws<SqlException>(
+            () => base.KeylessEntity_with_nav_defining_query());
 
         AssertSql(
-            @"@__ef_filter___searchTerm_0='A' (Size = 4000)
-@__ef_filter___searchTerm_1='A' (Size = 4000)
-
-SELECT [c].[CompanyName], (
-    SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
-FROM [Customers] AS [c]
-WHERE ((@__ef_filter___searchTerm_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1))) AND ((
-    SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) > 0)");
+            @"SELECT [c].[CompanyName], [c].[OrderCount], [c].[SearchTerm]
+FROM [CustomerQueryWithQueryFilter] AS [c]
+WHERE [c].[OrderCount] > 0");
     }
 
     public override async Task KeylessEntity_with_mixed_tracking(bool async)
@@ -122,7 +118,6 @@ WHERE EXISTS (
     WHERE [c].[CustomerID] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID])");
     }
 
-    [ConditionalFact]
     public override void Auto_initialized_view_set()
     {
         base.Auto_initialized_view_set();
@@ -169,6 +164,47 @@ WHERE EXISTS (
     FROM [Customers] AS [c]
     WHERE [c].[City] = [m].[City] OR ([c].[City] IS NULL AND [m].[City] IS NULL))
 ORDER BY [m].[ContactName]");
+    }
+
+    public override async Task Projecting_collection_correlated_with_keyless_entity_throws(bool async)
+    {
+        await base.Projecting_collection_correlated_with_keyless_entity_throws(async);
+
+        AssertSql();
+    }
+
+    public override async Task Collection_of_entities_projecting_correlated_collection_of_keyless_entities(bool async)
+    {
+        await base.Collection_of_entities_projecting_correlated_collection_of_keyless_entities(async);
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
+    {
+        await base.KeylessEntity_with_included_navs_multi_level(async);
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
+    {
+        await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_with_included_nav(bool async)
+    {
+        await base.KeylessEntity_with_included_nav(async);
+
+        AssertSql(
+            @"SELECT [m].[CustomerID], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    select * from ""Orders""
+) AS [m]
+LEFT JOIN [Customers] AS [c] ON [m].[CustomerID] = [c].[CustomerID]
+WHERE [m].[CustomerID] = N'ALFKI'");
     }
 
     private void AssertSql(params string[] expected)

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : NorthwindDbFunctionsQueryTestBase<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
-    public NorthwindDbFunctionsQueryRelationalTestBase(TFixture fixture)
+    protected NorthwindDbFunctionsQueryRelationalTestBase(TFixture fixture)
         : base(fixture)
     {
     }

@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -84,10 +85,13 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
     }
 
-    [ConditionalTheory(Skip = "issue #25851")]
     public override async Task Select_expression_datetime_add_month(bool async)
     {
-        await base.Select_expression_datetime_add_month(async);
+        // Add ticks. Issue #25851.
+        Assert.Equal(
+            "1996-12-01T00:00:00.0000000",
+            (await Assert.ThrowsAsync<EqualException>(
+                () => base.Select_expression_datetime_add_month(async))).Actual);
 
         AssertSql(
             @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' months'), '0'), '.') AS ""OrderDate""
@@ -125,10 +129,13 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
     }
 
-    [ConditionalTheory(Skip = "issue #25851")]
     public override async Task Select_expression_datetime_add_ticks(bool async)
     {
-        await base.Select_expression_datetime_add_ticks(async);
+        // Add ticks. Issue #25851.
+        Assert.Equal(
+            "1996-07-04T00:00:00.0000000",
+            (await Assert.ThrowsAsync<EqualException>(
+                () => base.Select_expression_datetime_add_ticks(async))).Actual);
 
         AssertSql(
             @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((10000 / 864000000000) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
@@ -297,6 +304,52 @@ FROM ""Orders"" AS ""o""");
 FROM ""Orders"" AS ""o""");
     }
 
+    public override async Task Client_code_using_instance_method_throws(bool async)
+    {
+        Assert.Equal(
+            CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
+                "InstanceMethod"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Client_code_using_instance_method_throws(async))).Message);
+
+        AssertSql();
+    }
+
+    public override async Task Client_code_using_instance_in_static_method(bool async)
+    {
+        Assert.Equal(
+            CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
+                "StaticMethod"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Client_code_using_instance_in_static_method(async))).Message);
+
+        AssertSql();
+    }
+
+    public override async Task Client_code_using_instance_in_anonymous_type(bool async)
+    {
+        Assert.Equal(
+            CoreStrings.ClientProjectionCapturingConstantInTree(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
+
+        AssertSql();
+    }
+
+    public override async Task Client_code_unknown_method(bool async)
+    {
+        await AssertTranslationFailedWithDetails(
+            () => base.Client_code_unknown_method(async),
+            CoreStrings.QueryUnableToTranslateMethod(
+                "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase<Microsoft.EntityFrameworkCore.Query.NorthwindQuerySqliteFixture<Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer>>",
+                nameof(UnknownMethod)));
+
+        AssertSql();
+    }
+
     public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -328,6 +381,9 @@ FROM ""Orders"" AS ""o""");
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
+
+    public override Task Max_on_empty_sequence_throws(bool async)
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
