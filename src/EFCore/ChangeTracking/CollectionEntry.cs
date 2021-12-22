@@ -47,8 +47,8 @@ public class CollectionEntry : NavigationEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public CollectionEntry(InternalEntityEntry internalEntry, INavigation navigation)
-        : base(internalEntry, navigation)
+    public CollectionEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase)
+        : base(internalEntry, navigationBase, collection: true)
     {
         LocalDetectChanges();
     }

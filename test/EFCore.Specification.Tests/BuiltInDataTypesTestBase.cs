@@ -467,7 +467,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             }
 
             Assert.Equal(
-                source.Property(propertyEntry.Metadata.Name).CurrentValue,
+                source.Property(propertyEntry.Metadata).CurrentValue,
                 propertyEntry.CurrentValue);
         }
     }
@@ -838,7 +838,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             }
 
             Assert.Equal(
-                source.Property(propertyEntry.Metadata.Name).CurrentValue,
+                source.Property(propertyEntry.Metadata).CurrentValue,
                 propertyEntry.CurrentValue);
         }
     }
