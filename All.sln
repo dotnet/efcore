@@ -120,6 +120,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.Sqlite.Functi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.InMemory.FunctionalTests", "test\EFCore.AspNet.InMemory.FunctionalTests\EFCore.AspNet.InMemory.FunctionalTests.csproj", "{F1B2E5A0-8C74-414A-B262-353FEE325E9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Trimming.Test", "test\EFCore.Trimming.Test\EFCore.Trimming.Test.csproj", "{933C8662-817C-4F45-B98B-6557E28F7BB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -318,6 +320,10 @@ Global
 		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1B2E5A0-8C74-414A-B262-353FEE325E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933C8662-817C-4F45-B98B-6557E28F7BB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -371,6 +377,7 @@ Global
 		{F956A344-5C8D-4015-A3BF-7A8304C58BE4} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{CC93C465-F5AC-4CB9-A064-3675955962F4} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{F1B2E5A0-8C74-414A-B262-353FEE325E9F} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{933C8662-817C-4F45-B98B-6557E28F7BB1} = {258D5057-81B9-40EC-A872-D21E27452749}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}
