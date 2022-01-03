@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class RandomTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo =
-        typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(nameof(DbFunctionsExtensions.Random), typeof(DbFunctions));
+        typeof(DbFunctionsExtensions).GetRuntimeMethod(nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

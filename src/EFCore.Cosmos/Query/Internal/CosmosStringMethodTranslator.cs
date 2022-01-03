@@ -12,52 +12,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 public class CosmosStringMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo IndexOfMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) })!;
 
     private static readonly MethodInfo IndexOfMethodInfoWithStartingPosition
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string), typeof(int));
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string), typeof(int) })!;
 
     private static readonly MethodInfo ReplaceMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo ContainsMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) })!;
 
     private static readonly MethodInfo StartsWithMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
 
     private static readonly MethodInfo EndsWithMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
 
     private static readonly MethodInfo ToLowerMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+        = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>())!;
 
     private static readonly MethodInfo ToUpperMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
+        = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>())!;
 
     private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>())!;
 
     private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>())!;
 
     private static readonly MethodInfo TrimMethodInfoWithoutArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
+        = typeof(string).GetRuntimeMethod(nameof(string.Trim), Array.Empty<Type>())!;
 
     private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char[]));
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) })!;
 
     private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char[]));
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) })!;
 
     private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char[]));
+        = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) })!;
 
     private static readonly MethodInfo SubstringMethodInfoWithOneArg
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int));
+        = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int) })!;
 
     private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int), typeof(int));
+        = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) })!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
@@ -70,19 +70,19 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private static readonly MethodInfo StringConcatWithTwoArguments =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo StringConcatWithThreeArguments =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo StringConcatWithFourArguments =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentInstance
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(StringComparison));
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) })!;
 
     private static readonly MethodInfo StringComparisonWithComparisonTypeArgumentStatic
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Equals), typeof(string), typeof(string), typeof(StringComparison));
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

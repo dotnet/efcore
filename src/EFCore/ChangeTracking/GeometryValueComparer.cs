@@ -49,7 +49,7 @@ public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
                             Expression.IsFalse(yNull),
                             Expression.Call(
                                 x,
-                                typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", typeof(TGeometry)),
+                                typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) })!,
                                 y))))),
             left,
             right);
@@ -61,7 +61,7 @@ public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
 
         Expression body = Expression.Call(
             instance,
-            typeof(TGeometry).GetRequiredRuntimeMethod("Copy", Type.EmptyTypes));
+            typeof(TGeometry).GetRuntimeMethod("Copy", Type.EmptyTypes)!);
 
         if (typeof(TGeometry).FullName != "NetTopologySuite.Geometries.Geometry")
         {

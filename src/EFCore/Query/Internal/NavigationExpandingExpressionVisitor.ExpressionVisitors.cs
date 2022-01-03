@@ -15,7 +15,7 @@ public partial class NavigationExpandingExpressionVisitor
     private class ExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
         private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
         private readonly NavigationExpansionExpression _source;

@@ -193,7 +193,7 @@ public static class ExpressionExtensions
     }
 
     private static readonly MethodInfo ObjectEqualsMethodInfo
-        = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
+        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 public class SqliteNetTopologySuiteCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
 {
     private static readonly MethodInfo UseNetTopologySuiteMethodInfo
-        = typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions).GetRequiredRuntimeMethod(
+        = typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions).GetRuntimeMethod(
             nameof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite),
-            typeof(SqliteDbContextOptionsBuilder));
+            new[] { typeof(SqliteDbContextOptionsBuilder) })!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

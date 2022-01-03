@@ -18,20 +18,22 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
     private const string ContainsFunctionName = "CONTAINS";
 
     private static readonly MethodInfo FreeTextMethodInfo
-        = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string));
+        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.FreeText), new[] { typeof(DbFunctions), typeof(object), typeof(string) })!;
 
     private static readonly MethodInfo FreeTextMethodInfoWithLanguage
-        = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
+        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.FreeText),
+            new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) })!;
 
     private static readonly MethodInfo ContainsMethodInfo
-        = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string));
+        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.Contains), new[] { typeof(DbFunctions), typeof(object), typeof(string) })!;
 
     private static readonly MethodInfo ContainsMethodInfoWithLanguage
-        = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
+        = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.Contains),
+            new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) })!;
 
     private static readonly IDictionary<MethodInfo, string> FunctionMapping
         = new Dictionary<MethodInfo, string>

@@ -41,13 +41,13 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
         = typeof(Guid).GetRequiredDeclaredMethod(nameof(Guid.NewGuid));
 
     private static readonly MethodInfo RandomNextNoArgs
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Type.EmptyTypes)!;
 
     private static readonly MethodInfo RandomNextOneArg
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int));
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) })!;
 
     private static readonly MethodInfo RandomNextTwoArgs
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int), typeof(int));
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) })!;
 
     /// <summary>
     ///     <para>

@@ -15,8 +15,8 @@ public class SqliteCharMethodTranslator : IMethodCallTranslator
 {
     private static readonly Dictionary<MethodInfo, string> SupportedMethods = new()
     {
-        { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), typeof(char)), "lower" },
-        { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), typeof(char)), "upper" }
+        { typeof(char).GetRuntimeMethod(nameof(char.ToLower), new[] { typeof(char) })!, "lower" },
+        { typeof(char).GetRuntimeMethod(nameof(char.ToUpper), new[] { typeof(char) })!, "upper" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

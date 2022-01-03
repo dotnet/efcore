@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 {
     private static readonly MethodInfo HasAnnotationMethodInfo
-        = typeof(ModelBuilder).GetRequiredRuntimeMethod(nameof(ModelBuilder.HasAnnotation), typeof(string), typeof(string));
+        = typeof(ModelBuilder).GetRuntimeMethod(nameof(ModelBuilder.HasAnnotation), new[] { typeof(string), typeof(string) })!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.

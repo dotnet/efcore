@@ -14,33 +14,58 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo DateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.DateFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.DateFromParts),
+            new[] {typeof(DbFunctions), typeof(int), typeof(int), typeof(int) })!;
 
     private static readonly MethodInfo DateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
-            typeof(int), typeof(int), typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
+            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
 
     private static readonly MethodInfo DateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
-            typeof(int), typeof(int), typeof(int), typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
+            new[]
+            {
+                typeof(DbFunctions),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int)
+            })!;
 
     private static readonly MethodInfo DateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
-            typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
+            new[]
+            {
+                typeof(DbFunctions),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int),
+                typeof(int)
+            })!;
 
     private static readonly MethodInfo SmallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
-            typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
+            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
 
     private static readonly MethodInfo TimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.TimeFromParts), typeof(DbFunctions), typeof(int), typeof(int), typeof(int),
-            typeof(int), typeof(int));
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
+            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
 
     private static readonly IDictionary<MethodInfo, (string FunctionName, string ReturnType)> MethodFunctionMapping
         = new Dictionary<MethodInfo, (string, string)>

@@ -36,76 +36,76 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     #region MethodInfos
 
     private static readonly MethodInfo ModelHasDefaultSchemaMethodInfo
-        = typeof(RelationalModelBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalModelBuilderExtensions.HasDefaultSchema), typeof(ModelBuilder), typeof(string));
+        = typeof(RelationalModelBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalModelBuilderExtensions.HasDefaultSchema), new[] { typeof(ModelBuilder), typeof(string) })!;
 
     private static readonly MethodInfo ModelUseCollationMethodInfo
-        = typeof(RelationalModelBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalModelBuilderExtensions.UseCollation), typeof(ModelBuilder), typeof(string));
+        = typeof(RelationalModelBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalModelBuilderExtensions.UseCollation), new[] { typeof(ModelBuilder), typeof(string) })!;
 
     private static readonly MethodInfo EntityTypeHasCommentMethodInfo
-        = typeof(RelationalEntityTypeBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalEntityTypeBuilderExtensions.HasComment), typeof(EntityTypeBuilder), typeof(string));
+        = typeof(RelationalEntityTypeBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalEntityTypeBuilderExtensions.HasComment), new[] { typeof(EntityTypeBuilder), typeof(string) })!;
 
     private static readonly MethodInfo PropertyHasColumnNameMethodInfo
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasColumnName), typeof(PropertyBuilder), typeof(string));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasColumnName), new[] { typeof(PropertyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo PropertyHasColumnOrderMethodInfo
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasColumnOrder), typeof(PropertyBuilder), typeof(int?));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasColumnOrder), new[] { typeof(PropertyBuilder), typeof(int?) })!;
 
     private static readonly MethodInfo PropertyHasDefaultValueSqlMethodInfo1
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), typeof(PropertyBuilder));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), new[] { typeof(PropertyBuilder) })!;
 
     private static readonly MethodInfo PropertyHasDefaultValueSqlMethodInfo2
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), typeof(PropertyBuilder), typeof(string));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), new[] { typeof(PropertyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo PropertyHasComputedColumnSqlMethodInfo1
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), typeof(PropertyBuilder));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), new[] { typeof(PropertyBuilder) })!;
 
     private static readonly MethodInfo PropertyHasComputedColumnSqlMethodInfo2
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), typeof(PropertyBuilder), typeof(string));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), new[] { typeof(PropertyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo HasComputedColumnSqlMethodInfo3
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), typeof(PropertyBuilder), typeof(string), typeof(bool));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), new[] { typeof(PropertyBuilder), typeof(string), typeof(bool) })!;
 
     private static readonly MethodInfo PropertyIsFixedLengthMethodInfo
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.IsFixedLength), typeof(PropertyBuilder), typeof(bool));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.IsFixedLength), new[] { typeof(PropertyBuilder), typeof(bool) })!;
 
     private static readonly MethodInfo PropertyHasCommentMethodInfo
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.HasComment), typeof(PropertyBuilder), typeof(string));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.HasComment), new[] { typeof(PropertyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo PropertyUseCollationMethodInfo
-        = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalPropertyBuilderExtensions.UseCollation), typeof(PropertyBuilder), typeof(string));
+        = typeof(RelationalPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalPropertyBuilderExtensions.UseCollation), new[] { typeof(PropertyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo KeyHasNameMethodInfo
-        = typeof(RelationalKeyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalKeyBuilderExtensions.HasName), typeof(KeyBuilder), typeof(string));
+        = typeof(RelationalKeyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalKeyBuilderExtensions.HasName), new[] { typeof(KeyBuilder), typeof(string) })!;
 
     private static readonly MethodInfo ReferenceReferenceHasConstraintNameMethodInfo
-        = typeof(RelationalForeignKeyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName), typeof(ReferenceReferenceBuilder), typeof(string));
+        = typeof(RelationalForeignKeyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName), new[] { typeof(ReferenceReferenceBuilder), typeof(string) })!;
 
     private static readonly MethodInfo ReferenceCollectionHasConstraintNameMethodInfo
-        = typeof(RelationalForeignKeyBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName), typeof(ReferenceCollectionBuilder), typeof(string));
+        = typeof(RelationalForeignKeyBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalForeignKeyBuilderExtensions.HasConstraintName), new[] { typeof(ReferenceCollectionBuilder), typeof(string) })!;
 
     private static readonly MethodInfo IndexHasDatabaseNameMethodInfo
-        = typeof(RelationalIndexBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalIndexBuilderExtensions.HasDatabaseName), typeof(IndexBuilder), typeof(string));
+        = typeof(RelationalIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalIndexBuilderExtensions.HasDatabaseName), new[] { typeof(IndexBuilder), typeof(string) })!;
 
     private static readonly MethodInfo IndexHasFilterNameMethodInfo
-        = typeof(RelationalIndexBuilderExtensions).GetRequiredRuntimeMethod(
-            nameof(RelationalIndexBuilderExtensions.HasFilter), typeof(IndexBuilder), typeof(string));
+        = typeof(RelationalIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(RelationalIndexBuilderExtensions.HasFilter), new[] { typeof(IndexBuilder), typeof(string) })!;
 
     #endregion MethodInfos
 

@@ -33,16 +33,16 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     };
 
     private static readonly MethodInfo StringCompareWithComparisonMethod =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string), typeof(StringComparison));
+        typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
 
     private static readonly MethodInfo StringCompareWithoutComparisonMethod =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo StartsWithMethodInfo =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
 
     private static readonly MethodInfo EndsWithMethodInfo =
-        typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
+        typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
 
     private static readonly Expression ConstantNullString = Expression.Constant(null, typeof(string));
 

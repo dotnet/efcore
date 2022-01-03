@@ -31,17 +31,17 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo GetParameterValueMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
 
-    private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string));
+    private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string), typeof(string));
+    private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Random), typeof(DbFunctions));
+    private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) })!;
 
-    private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
-        nameof(Random.NextDouble), Array.Empty<Type>());
+    private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRuntimeMethod(
+        nameof(Random.NextDouble), Type.EmptyTypes)!;
 
     private static readonly MethodInfo InMemoryLikeMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));

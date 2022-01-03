@@ -15,10 +15,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
         // Reading database values
         private static readonly MethodInfo IsDbNullMethod =
-            typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), typeof(int));
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
 
         public static readonly MethodInfo GetFieldValueMethod =
-            typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), typeof(int));
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ThrowReadValueException));

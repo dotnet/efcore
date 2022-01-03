@@ -12,11 +12,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 public class SqlServerCodeGenerator : ProviderCodeGenerator
 {
     private static readonly MethodInfo UseSqlServerMethodInfo
-        = typeof(SqlServerDbContextOptionsExtensions).GetRequiredRuntimeMethod(
+        = typeof(SqlServerDbContextOptionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
-            typeof(DbContextOptionsBuilder),
-            typeof(string),
-            typeof(Action<SqlServerDbContextOptionsBuilder>));
+            new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqlServerDbContextOptionsBuilder>) })!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
