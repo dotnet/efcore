@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -28,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="arguments">SQL representations of <see cref="MethodCallExpression.Arguments" />.</param>
         /// <param name="logger">The query logger to use.</param>
         /// <returns>A SQL translation of the <see cref="MethodCallExpression" />.</returns>
+        // This is a 6.0.x hack to make trimming work, since the linker doesn't see our GetRequiredRuntimeMethod invocations below
+        // (see #26288)
+        [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(Math))]
         SqlExpression? Translate(
             SqlExpression? instance,
             MethodInfo method,
