@@ -37,7 +37,8 @@ public static class ExpressionExtensions
             return Expression.Not(
                 Expression.Call(
                     currentValueExpression,
-                    currentValueExpression.Type.GetRequiredMethod("get_HasValue")));
+                    Check.NotNull(
+                        currentValueExpression.Type.GetMethod("get_HasValue"), $"get_HasValue on {currentValueExpression.Type.Name}")));
         }
 
         var property = propertyBase as IReadOnlyProperty;

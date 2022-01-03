@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 public class DbSetSource : IDbSetSource
 {
     private static readonly MethodInfo GenericCreateSet
-        = typeof(DbSetSource).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateSetFactory));
+        = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateSetFactory))!;
 
     private readonly ConcurrentDictionary<(Type Type, string? Name), Func<DbContext, string?, object>> _cache = new();
 

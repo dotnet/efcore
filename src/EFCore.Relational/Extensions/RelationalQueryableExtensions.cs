@@ -191,7 +191,7 @@ public static class RelationalQueryableExtensions
             : source;
 
     internal static readonly MethodInfo AsSingleQueryMethodInfo
-        = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSingleQuery));
+        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery))!;
 
     /// <summary>
     ///     Returns a new query which is configured to load the collections in the query results through separate database queries.
@@ -223,5 +223,5 @@ public static class RelationalQueryableExtensions
             : source;
 
     internal static readonly MethodInfo AsSplitQueryMethodInfo
-        = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSplitQuery));
+        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery))!;
 }

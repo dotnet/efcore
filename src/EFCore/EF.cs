@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore;
 public static partial class EF
 {
     internal static readonly MethodInfo PropertyMethod
-        = typeof(EF).GetRequiredDeclaredMethod(nameof(Property));
+        = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property))!;
 
     /// <summary>
     ///     References a given property or navigation on an entity instance. This is useful for shadow state properties, for

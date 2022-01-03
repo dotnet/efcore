@@ -21,11 +21,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly MethodInfo ParameterValueExtractorMethid =
-        typeof(RelationalSqlTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterValueExtractor));
+    private static readonly MethodInfo ParameterValueExtractorMethod =
+        typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     private static readonly MethodInfo ParameterListValueExtractorMethod =
-        typeof(RelationalSqlTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
+        typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
 
     private static readonly MethodInfo StringEqualsWithStringComparison
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) })!;
@@ -1266,7 +1266,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                 var lambda = Expression.Lambda(
                     Expression.Call(
-                        ParameterValueExtractorMethid.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                         Expression.Constant(property, typeof(IProperty))),

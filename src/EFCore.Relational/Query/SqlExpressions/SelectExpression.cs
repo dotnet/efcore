@@ -1913,8 +1913,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         AddJoin(joinType, ref innerSelectExpression, out _, joinPredicate);
 
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
-        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerSelectExpression._clientProjections.Count > 0;
         var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;

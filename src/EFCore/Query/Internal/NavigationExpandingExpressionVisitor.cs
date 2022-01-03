@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 {
     private static readonly PropertyInfo QueryContextContextPropertyInfo
-        = typeof(QueryContext).GetRequiredDeclaredProperty(nameof(QueryContext.Context));
+        = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
     private static readonly Dictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new()
     {
@@ -1135,8 +1135,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var transparentIdentifierType = TransparentIdentifierFactory.Create(
             outerSource.SourceElementType, innerSource.SourceElementType);
 
-        var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-        var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+        var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+        var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
 
         var newResultSelector = Expression.Lambda(
             Expression.New(
@@ -1184,8 +1184,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         var transparentIdentifierType = TransparentIdentifierFactory.Create(
             outerSource.SourceElementType, innerSource.SourceElementType);
 
-        var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-        var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+        var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+        var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
 
         var newResultSelector = Expression.Lambda(
             Expression.New(
@@ -1295,8 +1295,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 source.SourceElementType, collectionElementType);
-            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
             var collectionElementParameter = Expression.Parameter(collectionElementType, "c");
 
             var newResultSelector = Expression.Lambda(

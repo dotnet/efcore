@@ -21,7 +21,7 @@ public class IdentityMapFactoryFactory
     /// </summary>
     public virtual Func<bool, IIdentityMap> Create(IKey key)
         => (Func<bool, IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
-            .GetRequiredDeclaredMethod(nameof(CreateFactory))
+            .GetDeclaredMethod(nameof(CreateFactory))!
             .MakeGenericMethod(key.GetKeyType())
             .Invoke(null, new object[] { key })!;
 

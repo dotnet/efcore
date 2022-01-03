@@ -299,7 +299,7 @@ public static class ExpressionExtensions
     ///     </para>
     /// </summary>
     public static readonly MethodInfo ValueBufferTryReadValueMethod
-        = typeof(ExpressionExtensions).GetRequiredDeclaredMethod(nameof(ValueBufferTryReadValue));
+        = typeof(ExpressionExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ValueBufferTryReadValue))!;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static TValue ValueBufferTryReadValue<TValue>(

@@ -1352,7 +1352,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         Type transparentIdentifierType,
         Expression targetExpression,
         string fieldName)
-        => Expression.Field(targetExpression, transparentIdentifierType.GetRequiredDeclaredField(fieldName));
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
 
     private ShapedQueryExpression? TranslateScalarAggregate(
         ShapedQueryExpression source,

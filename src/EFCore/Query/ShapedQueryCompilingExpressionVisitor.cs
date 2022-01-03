@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 {
     private static readonly PropertyInfo CancellationTokenMemberInfo
-        = typeof(QueryContext).GetRequiredProperty(nameof(QueryContext.CancellationToken));
+        = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.CancellationToken))!;
 
     private readonly Expression _cancellationTokenParameter;
     private readonly EntityMaterializerInjectingExpressionVisitor _entityMaterializerInjectingExpressionVisitor;
@@ -278,25 +278,25 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             = typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1);
 
         private static readonly PropertyInfo DbContextMemberInfo
-            = typeof(QueryContext).GetRequiredProperty(nameof(QueryContext.Context));
+            = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.Context))!;
 
         private static readonly PropertyInfo EntityMemberInfo
-            = typeof(InternalEntityEntry).GetRequiredProperty(nameof(InternalEntityEntry.Entity));
+            = typeof(InternalEntityEntry).GetTypeInfo().GetProperty(nameof(InternalEntityEntry.Entity))!;
 
         private static readonly PropertyInfo EntityTypeMemberInfo
-            = typeof(InternalEntityEntry).GetRequiredProperty(nameof(InternalEntityEntry.EntityType));
+            = typeof(InternalEntityEntry).GetTypeInfo().GetProperty(nameof(InternalEntityEntry.EntityType))!;
 
         private static readonly MethodInfo TryGetEntryMethodInfo
             = typeof(QueryContext).GetTypeInfo().GetDeclaredMethods(nameof(QueryContext.TryGetEntry))
                 .Single(mi => mi.GetParameters().Length == 4);
 
         private static readonly MethodInfo StartTrackingMethodInfo
-            = typeof(QueryContext).GetRequiredMethod(
-                nameof(QueryContext.StartTracking), typeof(IEntityType), typeof(object), typeof(ValueBuffer));
+            = typeof(QueryContext).GetMethod(
+                nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) })!;
 
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
-            = typeof(EntityMaterializerInjectingExpressionVisitor).GetRequiredDeclaredMethod(
-                nameof(CreateNullKeyValueInNoTrackingQuery));
+            = typeof(EntityMaterializerInjectingExpressionVisitor)
+                .GetTypeInfo().GetDeclaredMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
 
         private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly QueryTrackingBehavior _queryTrackingBehavior;

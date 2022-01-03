@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore;
 public static class CosmosQueryableExtensions
 {
     internal static readonly MethodInfo WithPartitionKeyMethodInfo
-        = typeof(CosmosQueryableExtensions).GetRequiredDeclaredMethod(nameof(WithPartitionKey));
+        = typeof(CosmosQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(WithPartitionKey))!;
 
     /// <summary>
     ///     Specify the partition key for partition used for the query. Required when using

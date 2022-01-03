@@ -14,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteSubstrMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetRequiredMethod(nameof(SqliteDbFunctionsExtensions.Substr), typeof(DbFunctions), typeof(byte[]), typeof(int));
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Substr), new[] { typeof(DbFunctions), typeof(byte[]), typeof(int) })!;
 
     private static readonly MethodInfo MethodInfoWithLength = typeof(SqliteDbFunctionsExtensions)
-        .GetRequiredMethod(
-            nameof(SqliteDbFunctionsExtensions.Substr), typeof(DbFunctions), typeof(byte[]), typeof(int), typeof(int));
+        .GetMethod(
+            nameof(SqliteDbFunctionsExtensions.Substr), new[] { typeof(DbFunctions), typeof(byte[]), typeof(int), typeof(int) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

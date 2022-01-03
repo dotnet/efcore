@@ -1350,7 +1350,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         Type transparentIdentifierType,
         Expression targetExpression,
         string fieldName)
-        => Expression.Field(targetExpression, transparentIdentifierType.GetRequiredDeclaredField(fieldName));
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
 
     private static void HandleGroupByForAggregate(SelectExpression selectExpression, bool eraseProjection = false)
     {

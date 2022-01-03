@@ -766,7 +766,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
     internal static readonly MethodInfo ReadShadowValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetRequiredDeclaredMethod(nameof(ReadShadowValue));
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -778,28 +778,28 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _shadowValues.GetValue<T>(shadowIndex);
 
     internal static readonly MethodInfo ReadOriginalValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetRequiredDeclaredMethod(nameof(ReadOriginalValue));
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue))!;
 
     [UsedImplicitly]
     private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
         => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
     internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetRequiredDeclaredMethod(nameof(ReadRelationshipSnapshotValue));
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue))!;
 
     [UsedImplicitly]
     private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
         => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
     internal static readonly MethodInfo ReadStoreGeneratedValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetRequiredDeclaredMethod(nameof(ReadStoreGeneratedValue));
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue))!;
 
     [UsedImplicitly]
     private T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
         => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
 
     internal static readonly MethodInfo ReadTemporaryValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetRequiredDeclaredMethod(nameof(ReadTemporaryValue));
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue))!;
 
     [UsedImplicitly]
     private T ReadTemporaryValue<T>(int storeGeneratedIndex)

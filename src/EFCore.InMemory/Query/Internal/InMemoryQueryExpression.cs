@@ -18,7 +18,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         = typeof(ValueBuffer).GetConstructors().Single(ci => ci.GetParameters().Length == 1);
 
     private static readonly PropertyInfo ValueBufferCountMemberInfo
-        = typeof(ValueBuffer).GetRequiredProperty(nameof(ValueBuffer.Count));
+        = typeof(ValueBuffer).GetTypeInfo().GetProperty(nameof(ValueBuffer.Count))!;
 
     private static readonly MethodInfo LeftJoinMethodInfo = typeof(InMemoryQueryExpression).GetTypeInfo()
         .GetDeclaredMethods(nameof(LeftJoin)).Single(mi => mi.GetParameters().Length == 6);
@@ -889,8 +889,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         bool innerNullable)
     {
         var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaperExpression.Type, innerShaperExpression.Type);
-        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+        var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer")!;
+        var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerQueryExpression._clientProjections.Count > 0;
         var resultSelectorExpressions = new List<Expression>();
