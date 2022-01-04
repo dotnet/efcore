@@ -75,12 +75,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[]
-            {
+            elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<CogTag>(t => t.Gear),
                 new ExpectedInclude<Gear>(g => g.Weapons, "Gear"),
-                new ExpectedInclude<Officer>(o => o.Weapons, "Gear")
-            }));
+                new ExpectedInclude<Officer>(o => o.Weapons, "Gear")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -122,12 +120,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear.Squad),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[]
-            {
+            elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<CogTag>(t => t.Gear),
                 new ExpectedInclude<Gear>(g => g.Squad, "Gear"),
-                new ExpectedInclude<Officer>(o => o.Squad, "Gear")
-            }));
+                new ExpectedInclude<Officer>(o => o.Squad, "Gear")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -141,12 +137,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth.StationedGears),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[]
-            {
+            elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth),
-                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
-            }));
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -154,12 +148,10 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth.StationedGears).Where(g => g.Nickname == "Marcus"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[]
-            {
+            elementAsserter: (e, a) => AssertInclude(e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth),
-                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
-            }));
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -167,10 +159,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.Weapons).Where(g => g.Nickname == "Marcus"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[]
-            {
-                new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
-            }));
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(o => o.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -191,7 +182,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OfType<Officer>().Include(o => o.Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.Reports) }));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -199,97 +190,73 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().OfType<Officer>().Include("Reports"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.Reports) }));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_Where_Navigation_Included(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<CogTag>(t => t.Gear) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from t in ss.Set<CogTag>().Include(o => o.Gear)
                   where t.Gear.Nickname == "Marcus"
                   select t,
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<CogTag>(t => t.Gear)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_reference1(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.CityOfBirth), new ExpectedInclude<Officer>(o => o.CityOfBirth)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.CityOfBirth),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_reference2(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.CityOfBirth), new ExpectedInclude<Officer>(o => o.CityOfBirth)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>(),
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.CityOfBirth),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_collection1(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(o => o.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_collection2(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(o => o.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>(),
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(o => o.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -359,47 +326,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_multi_level(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.CityOfBirth),
-            new ExpectedInclude<Officer>(o => o.CityOfBirth),
-            new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Join(
                 ss.Set<CogTag>(),
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.CityOfBirth.StationedGears),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.CityOfBirth),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth),
+                new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_and_inheritance1(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.CityOfBirth) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>().OfType<Officer>(),
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 o => new { SquadId = (int?)o.SquadId, o.Nickname },
                 (t, o) => o).Include(o => o.CityOfBirth),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.CityOfBirth)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_and_inheritance_with_orderby_before_and_after_include(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.Reports) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Join(
                     ss.Set<Gear>().OfType<Officer>().OrderBy(ee => ee.SquadId),
@@ -407,57 +361,44 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                     o => new { SquadId = (int?)o.SquadId, o.Nickname },
                     (t, o) => o).OrderBy(ee => ee.FullName).Include(o => o.Reports).OrderBy(oo => oo.HasSoulPatch)
                 .ThenByDescending(oo => oo.Nickname),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)),
             assertOrder: true);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_and_inheritance2(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.Weapons) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().OfType<Officer>().Join(
                 ss.Set<CogTag>(),
                 o => new { SquadId = (int?)o.SquadId, o.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (o, t) => o).Include(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_join_and_inheritance3(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Officer>(o => o.Reports) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Join(
                 ss.Set<Gear>().OfType<Officer>(),
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, o) => o).Include(o => o.Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Officer>(o => o.Reports)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_nested_navigation_in_order_by(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Weapon>(w => w.Owner) };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Weapon>()
                 .Include(w => w.Owner)
                 .Where(w => w.Owner.Nickname != "Paduk")
                 .OrderBy(e => e.Owner.CityOfBirth.Name).ThenBy(e => e.Id),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Weapon>(w => w.Owner)),
             assertOrder: true);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1702,21 +1643,16 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from g1 in ss.Set<Gear>().Include(g => g.Weapons)
                   join g2 in ss.Set<Gear>().Include(g => g.Weapons)
                       on g1.LeaderNickname equals g2.Nickname into grouping
                   from g2 in grouping.DefaultIfEmpty()
                   select g2 ?? g1,
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(g => g.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1751,32 +1687,21 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_inheritance_and_coalesce_result(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from g1 in ss.Set<Gear>().Include(g => g.Weapons)
                   join g2 in ss.Set<Gear>().OfType<Officer>().Include(g => g.Weapons)
                       on g1.LeaderNickname equals g2.Nickname into grouping
                   from g2 in grouping.DefaultIfEmpty()
                   select g2 ?? g1,
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(g => g.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Weapons), new ExpectedInclude<Officer>(g => g.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from g1 in ss.Set<Gear>().Include(g => g.Weapons)
                   join g2 in ss.Set<Gear>().Include(g => g.Weapons)
@@ -1785,8 +1710,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 #pragma warning disable IDE0029 // Use coalesce expression
                   select g2 != null ? g2 : g1,
 #pragma warning restore IDE0029 // Use coalesce expression
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(g => g.Weapons),
+                new ExpectedInclude<Officer>(g => g.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2821,37 +2747,28 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_entity_using_OfType(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustHorde>(e => e.Commander), new ExpectedInclude<LocustHorde>(e => e.Leaders)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from lh in ss.Set<Faction>().OfType<LocustHorde>().Include(h => h.Commander).Include(h => h.Leaders)
                   orderby lh.Name
                   select lh,
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
+                new ExpectedInclude<LocustHorde>(e2 => e2.Leaders)),
             assertOrder: true);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_entity_with_cast(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[] { new ExpectedInclude<Faction>(e => e.Capital) };
-
         // TODO: should we disable this scenario? see #14671
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => (from f in ss.Set<Faction>()
                    where f is LocustHorde
                    orderby f.Id
                    select f).Include(f => f.Capital),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes),
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Faction>(e1 => e1.Capital)),
             assertOrder: true);
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3002,34 +2919,23 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_string_nested1(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy), new ExpectedInclude<Gear>(g => g.Squad, "DefeatedBy")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Squad"),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<Gear>(g => g.Squad, "DefeatedBy")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_reference_on_derived_type_using_string_nested2(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
-            new ExpectedInclude<Officer>(o => o.Reports, "DefeatedBy"),
-            new ExpectedInclude<Gear>(g => g.CityOfBirth, "DefeatedBy.Reports")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Reports.CityOfBirth"),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
+                new ExpectedInclude<Officer>(o => o.Reports, "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "DefeatedBy.Reports")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3083,113 +2989,75 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_base_navigation_on_derived_entity(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Officer>(e => e.Tag), new ExpectedInclude<Officer>(e => e.Weapons)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Tag).Include(g => ((Officer)g).Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Officer>(e1 => e1.Tag),
+                new ExpectedInclude<Officer>(e2 => e2.Weapons)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ThenInclude_collection_on_derived_after_base_reference(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<CogTag>(e => e.Gear), new ExpectedInclude<Officer>(e => e.Weapons, "Gear")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<CogTag>(e1 => e1.Gear),
+                new ExpectedInclude<Officer>(e2 => e2.Weapons, "Gear")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ThenInclude_collection_on_derived_after_derived_reference(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustHorde>(e => e.Commander),
-            new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Commander"),
-            new ExpectedInclude<Officer>(e => e.Reports, "Commander.DefeatedBy")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
+                new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ThenInclude_collection_on_derived_after_derived_collection(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Officer>(e => e.Reports), new ExpectedInclude<Officer>(e => e.Reports, "Reports")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Reports).ThenInclude(g => ((Officer)g).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Officer>(e1 => e1.Reports),
+                new ExpectedInclude<Officer>(e2 => e2.Reports, "Reports")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task ThenInclude_reference_on_derived_after_derived_collection(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustHorde>(e => e.Leaders), new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Leaders")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => ((LocustHorde)f).Leaders).ThenInclude(l => ((LocustCommander)l).DefeatedBy),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustHorde>(e1 => e1.Leaders),
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Leaders")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Multiple_derived_included_on_one_method(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustHorde>(e => e.Commander),
-            new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "Commander"),
-            new ExpectedInclude<Officer>(e => e.Reports, "Commander.DefeatedBy")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
+                new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
+                new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_multi_level(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Officer>(e => e.Reports),
-            new ExpectedInclude<Gear>(e => e.Squad, "Reports"),
-            new ExpectedInclude<Squad>(e => e.Missions, "Reports.Squad")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Reports).ThenInclude(g => g.Squad.Missions),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Officer>(e1 => e1.Reports),
+                new ExpectedInclude<Gear>(e2 => e2.Squad, "Reports"),
+                new ExpectedInclude<Squad>(e3 => e3.Missions, "Reports.Squad")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -4248,19 +4116,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_on_derived_type_with_order_by_and_paging(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustCommander>(e => e.DefeatedBy), new ExpectedInclude<Gear>(e => e.Weapons, "DefeatedBy")
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons)
                 .OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
             ss => ss.Set<LocustLeader>().Take(10),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustCommander>(e1 => e1.DefeatedBy),
+                new ExpectedInclude<Gear>(e2 => e2.Weapons, "DefeatedBy")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -4341,22 +4204,15 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Include_with_concat(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(g => g.Squad), new ExpectedInclude<Officer>(o => o.Squad)
-        };
-
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Gear>().Include(g => g.Squad).Concat(ss.Set<Gear>()),
-                elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes)))).Message;
-
-        Assert.Equal(
+        => Assert.Equal(
             CoreStrings.SetOperationWithDifferentIncludesInOperands,
-            message);
-    }
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Gear>().Include(g => g.Squad).Concat(ss.Set<Gear>()),
+                    elementAsserter: (e, a) => AssertInclude(e, a,
+                        new ExpectedInclude<Gear>(g => g.Squad),
+                        new ExpectedInclude<Officer>(o => o.Squad))))).Message);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -5145,17 +5001,12 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_with_group_by_and_FirstOrDefault_gets_properly_applied(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<Gear>(e => e.CityOfBirth), new ExpectedInclude<Officer>(e => e.CityOfBirth)
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.FirstOrDefault(gg => gg.HasSoulPatch)),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<Gear>(e1 => e1.CityOfBirth),
+                new ExpectedInclude<Officer>(e2 => e2.CityOfBirth)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -6943,18 +6794,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Cast_to_derived_followed_by_multiple_includes(bool async)
-    {
-        var expectedIncludes = new IExpectedInclude[]
-        {
-            new ExpectedInclude<LocustCommander>(x => x.DefeatedBy), new ExpectedInclude<Gear>(x => x.Weapons, "DefeatedBy"),
-        };
-
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy)
                 .ThenInclude(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
-    }
+            elementAsserter: (e, a) => AssertInclude(e, a,
+                new ExpectedInclude<LocustCommander>(x => x.DefeatedBy),
+                new ExpectedInclude<Gear>(x => x.Weapons, "DefeatedBy")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
