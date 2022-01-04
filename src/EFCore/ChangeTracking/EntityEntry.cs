@@ -130,14 +130,38 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         => InternalEntry.EntityType;
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given
-    ///     property or navigation property of this entity.
+    ///     Provides access to change tracking information and operations for a given property or navigation of this entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.
     /// </remarks>
-    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <param name="propertyBase">The property or navigation to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual MemberEntry Member(IPropertyBase propertyBase)
+    {
+        Check.NotNull(propertyBase, nameof(propertyBase));
+
+        return propertyBase switch
+        {
+            IProperty property => new PropertyEntry(InternalEntry, property),
+            INavigationBase navigation => navigation.IsCollection
+                ? new CollectionEntry(InternalEntry, navigation)
+                : new ReferenceEntry(InternalEntry, (INavigation)navigation),
+            _ => throw new InvalidOperationException(
+                CoreStrings.PropertyNotFound(propertyBase.Name, InternalEntry.EntityType.DisplayName()))
+        };
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given
+    ///     property or navigation of this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="propertyName">The property or navigation to access information and operations for.</param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual MemberEntry Member(string propertyName)
     {
@@ -163,9 +187,8 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for all
-    ///     properties and navigation properties of this entity.
-    /// </summary>
+    ///     Provides access to change tracking information and operations for all properties and navigations of this entity.
+    /// </summary>-
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.
@@ -174,15 +197,33 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
         => Properties.Cast<MemberEntry>().Concat(Navigations);
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given
-    ///     navigation property of this entity.
+    ///     Provides access to change tracking information and operations for a given navigation of this entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="propertyName">The property to access information and operations for.</param>
+    /// <param name="navigationBase">The navigation to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual NavigationEntry Navigation(INavigationBase navigationBase)
+    {
+        Check.NotNull(navigationBase, nameof(navigationBase));
+
+        return navigationBase.IsCollection
+            ? new CollectionEntry(InternalEntry, navigationBase)
+            : new ReferenceEntry(InternalEntry, (INavigation)navigationBase);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given navigation of this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyName">The navigation to access information and operations for.</param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual NavigationEntry Navigation(string propertyName)
     {
@@ -234,8 +275,23 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given
-    ///     property of this entity.
+    ///     Provides access to change tracking information and operations for a given property of this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual PropertyEntry Property(IProperty property)
+    {
+        Check.NotNull(property, nameof(property));
+
+        return new PropertyEntry(InternalEntry, property);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking information and operations for a given property of this entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
@@ -263,17 +319,36 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
     /// <summary>
     ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
-    ///     navigation property that associates this entity to another entity.
+    ///     navigation that associates this entity to another entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="propertyName">The name of the navigation property.</param>
+    /// <param name="navigation">The reference navigation.</param>
     /// <returns>
-    ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     An object that exposes change tracking information and operations for the given navigation.
+    /// </returns>
+    public virtual ReferenceEntry Reference(INavigationBase navigation)
+    {
+        Check.NotNull(navigation, nameof(navigation));
+
+        return new ReferenceEntry(InternalEntry, (INavigation)navigation);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
+    ///     navigation that associates this entity to another entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyName">The name of the navigation.</param>
+    /// <returns>
+    ///     An object that exposes change tracking information and operations for the given navigation.
     /// </returns>
     public virtual ReferenceEntry Reference(string propertyName)
     {
@@ -297,17 +372,37 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
     /// <summary>
     ///     Provides access to change tracking and loading information for a collection
-    ///     navigation property that associates this entity to a collection of another entities.
+    ///     navigation that associates this entity to a collection of another entities.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
     ///     for more information and examples.
     /// </remarks>
-    /// <param name="propertyName">The name of the navigation property.</param>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <returns>
+    ///     An object that exposes change tracking information and operations for the given navigation.
+    /// </returns>
+    public virtual CollectionEntry Collection(INavigationBase navigation)
+    {
+        Check.NotNull(navigation, nameof(navigation));
+
+        return new CollectionEntry(InternalEntry, navigation);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking and loading information for a collection
+    ///     navigation that associates this entity to a collection of another entities.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="propertyName">The name of the navigation.</param>
     /// <returns>
     ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     given navigation.
     /// </returns>
     public virtual CollectionEntry Collection(string propertyName)
     {

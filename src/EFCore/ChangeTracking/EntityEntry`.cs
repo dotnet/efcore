@@ -41,16 +41,14 @@ public class EntityEntry<TEntity> : EntityEntry
         => (TEntity)base.Entity;
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given
-    ///     property of this entity.
+    ///     Provides access to change tracking information and operations for a given property of this entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.
     /// </remarks>
     /// <param name="propertyExpression">
-    ///     A lambda expression representing the property to access information and operations for
-    ///     (<c>t => t.Property1</c>).
+    ///     A lambda expression representing the property to access information and operations for.
     /// </param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
     public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
@@ -71,12 +69,10 @@ public class EntityEntry<TEntity> : EntityEntry
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyExpression">
-    ///     A lambda expression representing the property to access information and operations for
-    ///     (<c>t => t.Property1</c>).
+    ///     A lambda expression representing the reference navigation to access information and operations for.
     /// </param>
     /// <returns>
-    ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     An object that exposes change tracking information and operations for the given navigation property.
     /// </returns>
     public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
         Expression<Func<TEntity, TProperty?>> propertyExpression)
@@ -97,12 +93,10 @@ public class EntityEntry<TEntity> : EntityEntry
     ///     for more information and examples.
     /// </remarks>
     /// <param name="propertyExpression">
-    ///     A lambda expression representing the property to access information and operations for
-    ///     (<c>t => t.Property1</c>).
+    ///     A lambda expression representing the collection navigation to access information and operations for.
     /// </param>
     /// <returns>
-    ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     An object that exposes change tracking information and operations for the given navigation property.
     /// </returns>
     public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
         Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
@@ -114,8 +108,69 @@ public class EntityEntry<TEntity> : EntityEntry
     }
 
     /// <summary>
+    ///     Provides access to change tracking information and operations for a given property of this entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property.</typeparam>
+    /// <param name="property">The property to access information and operations for.</param>
+    /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
+    public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(IProperty property)
+    {
+        Check.NotNull(property, nameof(property));
+
+        ValidateType<TProperty>(property);
+
+        return new PropertyEntry<TEntity, TProperty>(InternalEntry, property);
+    }
+
+    /// <summary>
     ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
-    ///     navigation property that associates this entity to another entity.
+    ///     navigation that associates this entity to another entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="navigation">The reference navigation.</param>
+    /// <returns>
+    ///     An object that exposes change tracking information and operations for the given navigation property.
+    /// </returns>
+    public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(INavigationBase navigation)
+        where TProperty : class
+    {
+        Check.NotNull(navigation, nameof(navigation));
+
+        return new ReferenceEntry<TEntity, TProperty>(InternalEntry, (INavigation)navigation);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking and loading information for a collection
+    ///     navigation property that associates this entity to a collection of another entities.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="navigation">The collection navigation.</param>
+    /// <returns>
+    ///     An object that exposes change tracking information and operations for the given navigation property.
+    /// </returns>
+    public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(INavigationBase navigation)
+        where TProperty : class
+    {
+        Check.NotNull(navigation, nameof(navigation));
+
+        return new CollectionEntry<TEntity, TProperty>(InternalEntry, navigation);
+    }
+
+    /// <summary>
+    ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
+    ///     navigation that associates this entity to another entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
@@ -124,8 +179,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// </remarks>
     /// <param name="propertyName">The name of the navigation property.</param>
     /// <returns>
-    ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     An object that exposes change tracking information and operations for the given navigation property.
     /// </returns>
     public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(string propertyName)
         where TProperty : class
@@ -146,8 +200,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// </remarks>
     /// <param name="propertyName">The name of the navigation property.</param>
     /// <returns>
-    ///     An object that exposes change tracking information and operations for the
-    ///     given navigation property.
+    ///     An object that exposes change tracking information and operations for the given navigation property.
     /// </returns>
     public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(string propertyName)
         where TProperty : class
@@ -158,8 +211,7 @@ public class EntityEntry<TEntity> : EntityEntry
     }
 
     /// <summary>
-    ///     Provides access to change tracking information and operations for a given
-    ///     property of this entity.
+    ///     Provides access to change tracking information and operations for a given property of this entity.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
@@ -168,8 +220,7 @@ public class EntityEntry<TEntity> : EntityEntry
     /// <typeparam name="TProperty">The type of the property.</typeparam>
     /// <param name="propertyName">The property to access information and operations for.</param>
     /// <returns>An object that exposes change tracking information and operations for the given property.</returns>
-    public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
-        string propertyName)
+    public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(string propertyName)
     {
         Check.NotEmpty(propertyName, nameof(propertyName));
 

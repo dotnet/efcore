@@ -29,7 +29,7 @@ public abstract class NavigationEntry : MemberEntry
     /// </summary>
     [EntityFrameworkInternal]
     protected NavigationEntry(InternalEntityEntry internalEntry, string name, bool collection)
-        : this(internalEntry, GetNavigation(internalEntry, name, collection))
+        : this(internalEntry, GetNavigation(internalEntry, name), collection)
     {
     }
 
@@ -40,12 +40,29 @@ public abstract class NavigationEntry : MemberEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected NavigationEntry(InternalEntityEntry internalEntry, INavigationBase navigation)
-        : base(internalEntry, navigation)
+    protected NavigationEntry(InternalEntityEntry internalEntry, INavigationBase navigationBase, bool collection)
+        : base(internalEntry, navigationBase)
     {
+        if (collection
+            && !navigationBase.IsCollection)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.CollectionIsReference(
+                    navigationBase.Name, internalEntry.EntityType.DisplayName(),
+                    nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Reference)));
+        }
+
+        if (!collection
+            && navigationBase.IsCollection)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.ReferenceIsCollection(
+                    navigationBase.Name, internalEntry.EntityType.DisplayName(),
+                    nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection)));
+        }
     }
 
-    private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
+    private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name)
     {
         var navigation = (INavigationBase?)internalEntry.EntityType.FindNavigation(name)
             ?? internalEntry.EntityType.FindSkipNavigation(name);
@@ -62,24 +79,6 @@ public abstract class NavigationEntry : MemberEntry
             }
 
             throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
-        }
-
-        if (collection
-            && !navigation.IsCollection)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.CollectionIsReference(
-                    name, internalEntry.EntityType.DisplayName(),
-                    nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Reference)));
-        }
-
-        if (!collection
-            && navigation.IsCollection)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.ReferenceIsCollection(
-                    name, internalEntry.EntityType.DisplayName(),
-                    nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection)));
         }
 
         return navigation;

@@ -49,7 +49,7 @@ public class ReferenceEntry : NavigationEntry
     /// </summary>
     [EntityFrameworkInternal]
     public ReferenceEntry(InternalEntityEntry internalEntry, INavigation navigation)
-        : base(internalEntry, navigation)
+        : base(internalEntry, navigation, collection: false)
     {
         LocalDetectChanges();
 

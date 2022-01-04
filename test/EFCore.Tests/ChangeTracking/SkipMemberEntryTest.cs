@@ -12,9 +12,8 @@ public class SkipMemberEntryTest
     {
         using var context = new FreezerContext();
         var entity = new Cherry();
-        context.Add(entity);
 
-        var entityEntry = context.Entry(entity);
+        var entityEntry = context.Add(entity);
         Assert.Same(entityEntry.Entity, entityEntry.Member("Chunkies").EntityEntry.Entity);
     }
 
@@ -23,9 +22,9 @@ public class SkipMemberEntryTest
     {
         using var context = new FreezerContext();
         var entity = new Cherry();
-        context.Add(entity);
 
-        Assert.Equal("Chunkies", context.Entry(entity).Member("Chunkies").Metadata.Name);
+        var entityEntry = context.Add(entity);
+        Assert.Equal("Chunkies", entityEntry.Member("Chunkies").Metadata.Name);
     }
 
     [ConditionalFact]
@@ -56,6 +55,69 @@ public class SkipMemberEntryTest
         Assert.Null(cherry.Chunkies);
         Assert.Empty((IEnumerable)inverseCollection.CurrentValue);
         Assert.Null(collection.CurrentValue);
+    }
+
+    [ConditionalFact]
+    public void Can_get_skip_collection_entry_by_name_using_Member()
+    {
+        using var context = new FreezerContext();
+        var entity = context.Add(new Cherry()).Entity;
+
+        var entry = context.Entry(entity).Member("Chunkies");
+        Assert.Equal("Chunkies", entry.Metadata.Name);
+        Assert.IsType<CollectionEntry>(entry);
+
+        entry = context.Entry((object)entity).Member("Chunkies");
+        Assert.Equal("Chunkies", entry.Metadata.Name);
+        Assert.IsType<CollectionEntry>(entry);
+    }
+
+    [ConditionalFact]
+    public void Can_get_skip_collection_entry_by_IPropertyBase_using_Member()
+    {
+        using var context = new FreezerContext();
+        var entity = context.Add(new Cherry()).Entity;
+        var propertyBase = (IPropertyBase)context.Entry(entity).Metadata.FindSkipNavigation("Chunkies")!;
+
+        var entry = context.Entry(entity).Member(propertyBase);
+        Assert.Same(propertyBase, entry.Metadata);
+        Assert.IsType<CollectionEntry>(entry);
+
+        entry = context.Entry((object)entity).Member(propertyBase);
+        Assert.Same(propertyBase, entry.Metadata);
+        Assert.IsType<CollectionEntry>(entry);
+    }
+
+
+    [ConditionalFact]
+    public void Can_get_skip_collection_entry_by_name_using_Collection()
+    {
+        using var context = new FreezerContext();
+        var entity = context.Add(new Cherry()).Entity;
+
+        var entry = context.Entry(entity).Collection("Chunkies");
+        Assert.Equal("Chunkies", entry.Metadata.Name);
+        Assert.IsType<CollectionEntry>(entry);
+
+        entry = context.Entry((object)entity).Collection("Chunkies");
+        Assert.Equal("Chunkies", entry.Metadata.Name);
+        Assert.IsType<CollectionEntry>(entry);
+    }
+
+    [ConditionalFact]
+    public void Can_get_skip_collection_entry_by_INavigationBase_using_Collection()
+    {
+        using var context = new FreezerContext();
+        var entity = context.Add(new Cherry()).Entity;
+        var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindSkipNavigation("Chunkies")!;
+
+        var entry = context.Entry(entity).Collection(navigationBase);
+        Assert.Same(navigationBase, entry.Metadata);
+        Assert.IsType<CollectionEntry>(entry);
+
+        entry = context.Entry((object)entity).Collection(navigationBase);
+        Assert.Same(navigationBase, entry.Metadata);
+        Assert.IsType<CollectionEntry>(entry);
     }
 
     private class Chunky

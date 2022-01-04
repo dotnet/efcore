@@ -36,7 +36,7 @@ public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
                 continue;
             }
 
-            var value = entry.Property(property.Name).CurrentValue;
+            var value = entry.Property(property).CurrentValue;
 
             var converter = property.GetTypeMapping().Converter;
             if (converter != null)

@@ -217,7 +217,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                 testValues[3] = null;
             }
 
-            var propertyEntry = entry.Property(property.Name);
+            var propertyEntry = entry.Property(property);
 
             if (previousValueIndex >= 0
                 && property.FindAnnotation("Relational:DefaultValue") == null)

@@ -253,9 +253,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
     [ConditionalTheory]
@@ -318,9 +318,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, dreams.Sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
     [ConditionalFact]
@@ -695,9 +695,9 @@ public abstract class TrackGraphTestBase
         Assert.Equal(expectedDependentState, dependentEntry2b.State);
 
         Assert.Equal(1, dreams.Sweet.Id);
-        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
-        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue);
+        Assert.Equal(1, dependentEntry.Property(dependentEntry.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2a.Property(dependentEntry2a.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
+        Assert.Equal(1, dependentEntry2b.Property(dependentEntry2b.Metadata.FindPrimaryKey().Properties[0]).CurrentValue);
     }
 
     [ConditionalTheory] // Issue #12590
