@@ -28,7 +28,7 @@ public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTes
 
         AssertSql(
             @"CREATE TABLE [People] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );");
@@ -42,19 +42,21 @@ public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTes
             @"IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');",
             //
             @"CREATE TABLE [dbo2].[People] (
-    [CustomId] int NOT NULL,
+    [CustomId] int NOT NULL IDENTITY,
     [EmployerId] int NOT NULL,
     [SSN] nvarchar(11) COLLATE German_PhoneBook_CI_AS NOT NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
     CONSTRAINT [CK_People_EmployerId] CHECK ([EmployerId] > 0),
-    CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id])
+    CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id]) ON DELETE CASCADE
 );
 DECLARE @description AS sql_variant;
 SET @description = N'Table comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People';
 SET @description = N'Employer ID comment';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People', 'COLUMN', N'EmployerId';");
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People', 'COLUMN', N'EmployerId';",
+            //
+            @"CREATE INDEX [IX_People_EmployerId] ON [dbo2].[People] ([EmployerId]);");
     }
 
     public override async Task Create_table_no_key()
@@ -73,8 +75,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', '
 
         AssertSql(
             @"CREATE TABLE [People] (
-    [Id] int NOT NULL,
-    [Name] nvarchar(max) NULL
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
@@ -91,8 +94,9 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
         AssertSql(
             @"CREATE TABLE [People] (
-    [Id] int NOT NULL,
-    [Name] nvarchar(max) NULL
+    [Id] int NOT NULL IDENTITY,
+    [Name] nvarchar(max) NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
@@ -111,10 +115,11 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
         AssertSql(
             $@"CREATE TABLE [People] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Sum] AS [X] + [Y]{storedSql},
     [X] int NOT NULL,
-    [Y] int NOT NULL
+    [Y] int NOT NULL,
+    CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );");
     }
 
@@ -216,7 +221,11 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
         await base.Rename_table();
 
         AssertSql(
-            @"EXEC sp_rename N'[People]', N'Persons';");
+            @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];",
+            //
+            @"EXEC sp_rename N'[People]', N'Persons';",
+            //
+            @"ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);");
     }
 
     public override async Task Rename_table_with_primary_key()
@@ -270,7 +279,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
             @"IF SCHEMA_ID(N'SomeOtherSchema') IS NULL EXEC(N'CREATE SCHEMA [SomeOtherSchema];');",
             //
             @"CREATE TABLE [SomeOtherSchema].[People] (
-    [Id] int NOT NULL
+    [Id] int NOT NULL IDENTITY,
+    CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );");
     }
 
@@ -286,7 +296,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
 
         AssertSql(
             @"CREATE TABLE [dbo].[People] (
-    [Id] int NOT NULL
+    [Id] int NOT NULL IDENTITY,
+    CONSTRAINT [PK_People] PRIMARY KEY ([Id])
 );");
     }
 
@@ -1232,7 +1243,7 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FirstN
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
             //
-            @"CREATE UNIQUE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]);");
+            @"CREATE UNIQUE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;");
     }
 
     public override async Task Create_index_with_filter()
@@ -1642,7 +1653,7 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name')
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             //
-            @"ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);");
+            @"ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);");
     }
 
     [ConditionalFact]
@@ -1677,7 +1688,7 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name')
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             //
-            @"ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);");
+            @"ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);");
     }
 
     [ConditionalFact]
@@ -1721,11 +1732,26 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"EXEC sp_rename N'[People].[Foo]', N'foo', N'INDEX';");
     }
 
-    public override async Task Add_primary_key()
+    public override async Task Add_primary_key_int()
     {
-        await base.Add_primary_key();
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Add_primary_key_int());
+
+        Assert.Equal(SqlServerStrings.AlterIdentityColumn, exception.Message);
+    }
+
+    public override async Task Add_primary_key_string()
+    {
+        await base.Add_primary_key_string();
 
         AssertSql(
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;",
+            //
             @"ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]);");
     }
 
@@ -1734,6 +1760,15 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
         await base.Add_primary_key_with_name();
 
         AssertSql(
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
+ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeField];",
+            //
             @"ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField]);");
     }
 
@@ -1764,12 +1799,27 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeField]);");
     }
 
-    public override async Task Drop_primary_key()
+    public override async Task Drop_primary_key_int()
     {
-        await base.Drop_primary_key();
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Drop_primary_key_int());
+
+        Assert.Equal(SqlServerStrings.AlterIdentityColumn, exception.Message);
+    }
+
+    public override async Task Drop_primary_key_string()
+    {
+        await base.Drop_primary_key_string();
 
         AssertSql(
-            @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];");
+            @"ALTER TABLE [People] DROP CONSTRAINT [PK_People];",
+            //
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeField');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;");
     }
 
     public override async Task Add_foreign_key()
@@ -1777,15 +1827,24 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
         await base.Add_foreign_key();
 
         AssertSql(
-            @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]);");
+            @"CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);",
+            //
+            @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE CASCADE;");
     }
 
     public override async Task Add_foreign_key_with_name()
     {
         await base.Add_foreign_key_with_name();
 
+        // AssertSql(
+        //     @"ALTER TABLE [Orders] DROP CONSTRAINT [FK_Orders_Customers_CustomerId];",
+        //     //
+        //     @"DROP INDEX [IX_Orders_CustomerId] ON [Orders];");
+
         AssertSql(
-            @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]);");
+            @"CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);",
+            //
+            @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE CASCADE;");
     }
 
     public override async Task Drop_foreign_key()
@@ -1793,7 +1852,9 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
         await base.Drop_foreign_key();
 
         AssertSql(
-            @"ALTER TABLE [Orders] DROP CONSTRAINT [FK_Orders_Customers_CustomerId];");
+            @"ALTER TABLE [Orders] DROP CONSTRAINT [FK_Orders_Customers_CustomerId];",
+            //
+            @"DROP INDEX [IX_Orders_CustomerId] ON [Orders];");
     }
 
     public override async Task Add_unique_constraint()
@@ -2088,7 +2149,7 @@ SELECT @@ROWCOUNT;");
         AssertSql(
             @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2140,7 +2201,7 @@ EXEC(N'CREATE TABLE [Customer] (
         AssertSql(
             @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [End] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [Start] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2193,7 +2254,7 @@ EXEC(N'CREATE TABLE [Customer] (
         AssertSql(
             @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2247,7 +2308,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');",
             //
             @"CREATE TABLE [mySchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2305,7 +2366,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');",
             //
             @"CREATE TABLE [myDefaultSchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2363,7 +2424,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');",
             //
             @"CREATE TABLE [mySchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2423,7 +2484,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');",
             //
             @"CREATE TABLE [myDefaultSchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2484,7 +2545,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');",
             //
             @"CREATE TABLE [myDefaultSchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -2542,7 +2603,7 @@ EXEC(N'CREATE TABLE [Customer] (
             @"IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');",
             //
             @"CREATE TABLE [Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -3784,7 +3845,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
         AssertSql(
             @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4114,7 +4175,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');",
             //
             @"CREATE TABLE [mySchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4177,7 +4238,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');",
             //
             @"CREATE TABLE [mySchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4186,7 +4247,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomersHistory]));",
             //
             @"CREATE TABLE [mySchema].[Orders] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4253,7 +4314,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');",
             //
             @"CREATE TABLE [mySchema].[Customers] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4262,7 +4323,7 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[CustomersHistoryTable]));",
             //
             @"CREATE TABLE [mySchema].[Orders] (
-    [Id] int NOT NULL,
+    [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
     [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
     [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
@@ -4399,7 +4460,7 @@ WHERE name = '{connection.Database}';";
 
     public class MigrationsSqlServerFixture : MigrationsFixtureBase
     {
-        protected override string StoreName { get; } = nameof(MigrationsSqlServerTest);
+        protected override string StoreName => nameof(MigrationsSqlServerTest);
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;

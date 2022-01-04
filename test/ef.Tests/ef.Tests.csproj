@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildFileResult.cs" />
-    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildReference.cs" />
-    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildSource.cs" />
+    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildFileResult.cs" />
+    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildReference.cs" />
+    <Compile Include="..\EFCore.Relational.Specification.Tests\TestUtilities\BuildSource.cs" />
   </ItemGroup>
 
   <ItemGroup>

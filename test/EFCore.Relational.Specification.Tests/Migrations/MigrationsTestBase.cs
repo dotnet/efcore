@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations;
@@ -1141,7 +1141,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual Task Add_primary_key()
+    public virtual Task Add_primary_key_int()
         => Test(
             builder => builder.Entity("People").Property<int>("SomeField"),
             builder => { },
@@ -1160,9 +1160,28 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual Task Add_primary_key_string()
+        => Test(
+            builder => builder.Entity("People").Property<string>("SomeField").IsRequired(),
+            builder => { },
+            builder => builder.Entity("People").HasKey("SomeField"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Same(table, primaryKey!.Table);
+                Assert.Same(table.Columns.Single(), Assert.Single(primaryKey.Columns));
+                if (AssertConstraintNames)
+                {
+                    Assert.Equal("PK_People", primaryKey.Name);
+                }
+            });
+
+    [ConditionalFact]
     public virtual Task Add_primary_key_with_name()
         => Test(
-            builder => builder.Entity("People").Property<int>("SomeField"),
+            builder => builder.Entity("People").Property<string>("SomeField"),
             builder => { },
             builder => builder.Entity("People").HasKey("SomeField").HasName("PK_Foo"),
             model =>
@@ -1206,9 +1225,17 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual Task Drop_primary_key()
+    public virtual Task Drop_primary_key_int()
         => Test(
             builder => builder.Entity("People").Property<int>("SomeField"),
+            builder => builder.Entity("People").HasKey("SomeField"),
+            builder => { },
+            model => Assert.Null(Assert.Single(model.Tables).PrimaryKey));
+
+    [ConditionalFact]
+    public virtual Task Drop_primary_key_string()
+        => Test(
+            builder => builder.Entity("People").Property<string>("SomeField").IsRequired(),
             builder => builder.Entity("People").HasKey("SomeField"),
             builder => { },
             model => Assert.Null(Assert.Single(model.Tables).PrimaryKey));
@@ -1244,7 +1271,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
                 }
 
-                Assert.Equal(ReferentialAction.NoAction, foreignKey.OnDelete);
+                Assert.Equal(ReferentialAction.Cascade, foreignKey.OnDelete);
                 Assert.Same(customersTable, foreignKey.PrincipalTable);
                 Assert.Same(customersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
                 Assert.Equal("CustomerId", Assert.Single(foreignKey.Columns).Name);
@@ -1745,62 +1772,62 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter)
-        => Test(b => { }, buildSourceAction, buildTargetAction, asserter);
+        Action<DatabaseModel> asserter,
+        bool withConventions = true)
+        => Test(_ => { }, buildSourceAction, buildTargetAction, asserter, withConventions);
 
     protected virtual Task Test(
         Action<ModelBuilder> buildCommonAction,
         Action<ModelBuilder> buildSourceAction,
         Action<ModelBuilder> buildTargetAction,
-        Action<DatabaseModel> asserter)
+        Action<DatabaseModel> asserter,
+        bool withConventions = true)
     {
         var context = CreateContext();
         var modelDiffer = context.GetService<IMigrationsModelDiffer>();
         var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
 
-        // Build the source and target models. Add current/latest product version if one wasn't set.
-        var sourceModelBuilder = CreateConventionlessModelBuilder();
+        // Build the source model, possibly with conventions
+        var sourceModelBuilder = CreateModelBuilder(withConventions);
         buildCommonAction(sourceModelBuilder);
         buildSourceAction(sourceModelBuilder);
-        var sourceModel = modelRuntimeInitializer.Initialize(
+        var preSnapshotSourceModel = modelRuntimeInitializer.Initialize(
             (IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
 
-        var targetModelBuilder = CreateConventionlessModelBuilder();
+        // Round-trip the source model through a snapshot, compiling it and then extracting it back again.
+        // This simulates the real-world migration flow and can expose errors in snapshot generation
+        var migrationsCodeGenerator = Fixture.TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>();
+        var sourceModelSnapshot = migrationsCodeGenerator.GenerateSnapshot(
+            modelSnapshotNamespace: null, typeof(DbContext), "MigrationsTestSnapshot", preSnapshotSourceModel);
+        var sourceModel = BuildModelFromSnapshotSource(sourceModelSnapshot);
+
+        // Build the target model, possibly with conventions
+        var targetModelBuilder = CreateModelBuilder(withConventions);
         buildCommonAction(targetModelBuilder);
         buildTargetAction(targetModelBuilder);
-
         var targetModel = modelRuntimeInitializer.Initialize(
             (IModel)targetModelBuilder.Model, designTime: true, validationLogger: null);
 
+        // Get the migration operations between the two models and test
         var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
         return Test(sourceModel, targetModel, operations, asserter);
     }
 
-    protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
-    {
-        var options = new LoggingOptions();
-        options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
-        return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-            Fixture.TestSqlLoggerFactory,
-            options,
-            new DiagnosticListener("Fake"),
-            Fixture.TestHelpers.LoggingDefinitions,
-            new NullDbContextLogger());
-    }
-
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,
         MigrationOperation operation,
-        Action<DatabaseModel> asserter)
-        => Test(buildSourceAction, new[] { operation }, asserter);
+        Action<DatabaseModel> asserter,
+        bool withConventions = true)
+        => Test(buildSourceAction, new[] { operation }, asserter, withConventions);
 
     protected virtual Task Test(
         Action<ModelBuilder> buildSourceAction,
         IReadOnlyList<MigrationOperation> operations,
-        Action<DatabaseModel> asserter)
+        Action<DatabaseModel> asserter,
+        bool withConventions = true)
     {
-        var sourceModelBuilder = CreateConventionlessModelBuilder();
+        var sourceModelBuilder = CreateModelBuilder(withConventions);
         buildSourceAction(sourceModelBuilder);
         if (sourceModelBuilder.Model.GetProductVersion() is null)
         {
@@ -1809,8 +1836,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
         var context = CreateContext();
         var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-        var sourceModel = modelRuntimeInitializer.Initialize(
+        var preSnapshotSourceModel = modelRuntimeInitializer.Initialize(
             (IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
+
+        // Round-trip the source model through a snapshot, compiling it and then extracting it back again.
+        // This simulates the real-world migration flow and can expose errors in snapshot generation
+        var migrationsCodeGenerator = Fixture.TestHelpers.CreateDesignServiceProvider().GetRequiredService<IMigrationsCodeGenerator>();
+        var sourceModelSnapshot = migrationsCodeGenerator.GenerateSnapshot(
+            modelSnapshotNamespace: null, typeof(DbContext), "MigrationsTestSnapshot", preSnapshotSourceModel);
+        var sourceModel = BuildModelFromSnapshotSource(sourceModelSnapshot);
 
         return Test(sourceModel, targetModel: null, operations, asserter);
     }
@@ -1860,16 +1894,18 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     protected virtual Task<T> TestThrows<T>(
         Action<ModelBuilder> buildSourceAction,
-        Action<ModelBuilder> buildTargetAction)
+        Action<ModelBuilder> buildTargetAction,
+        bool withConventions = true)
         where T : Exception
-        => TestThrows<T>(b => { }, buildSourceAction, buildTargetAction);
+        => TestThrows<T>(b => { }, buildSourceAction, buildTargetAction, withConventions);
 
     protected virtual Task<T> TestThrows<T>(
         Action<ModelBuilder> buildCommonAction,
         Action<ModelBuilder> buildSourceAction,
-        Action<ModelBuilder> buildTargetAction)
+        Action<ModelBuilder> buildTargetAction,
+        bool withConventions = true)
         where T : Exception
-        => Assert.ThrowsAsync<T>(() => Test(buildCommonAction, buildSourceAction, buildTargetAction, asserter: null));
+        => Assert.ThrowsAsync<T>(() => Test(buildCommonAction, buildSourceAction, buildTargetAction, asserter: null, withConventions));
 
     protected virtual void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
@@ -1882,6 +1918,47 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 
-    protected virtual ModelBuilder CreateConventionlessModelBuilder()
-        => new(new ConventionSet());
+    private ModelBuilder CreateModelBuilder(bool withConventions)
+        => withConventions ? Fixture.TestHelpers.CreateConventionBuilder() : new ModelBuilder(new ConventionSet());
+
+    protected IModel BuildModelFromSnapshotSource(string code)
+    {
+        var build = new BuildSource { Sources = { { "Snapshot.cs", code } } };
+
+        // Add standard EF references, a reference to the provider's assembly, and any extra references added by the provider's test suite
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore"));
+        build.References.Add(BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"));
+
+        var databaseProvider = Fixture.TestHelpers.CreateContextServices().GetRequiredService<IDatabaseProvider>();
+        build.References.Add(BuildReference.ByName(databaseProvider.Name));
+
+        foreach (var buildReference in GetAdditionalReferences())
+        {
+            build.References.Add(buildReference);
+        }
+
+        var assembly = build.BuildInMemory();
+        var factoryType = assembly.GetType("MigrationsTestSnapshot");
+
+        var buildModelMethod = factoryType.GetMethod(
+            "BuildModel",
+            BindingFlags.Instance | BindingFlags.NonPublic,
+            null,
+            new[] { typeof(ModelBuilder) },
+            null);
+
+        var builder = new ModelBuilder();
+        builder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
+
+        buildModelMethod.Invoke(
+            Activator.CreateInstance(factoryType),
+            new object[] { builder });
+
+        var services = Fixture.TestHelpers.CreateContextServices();
+        var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
+        return processor.Process(builder.Model);
+    }
+
+    protected virtual ICollection<BuildReference> GetAdditionalReferences()
+        => Array.Empty<BuildReference>();
 }

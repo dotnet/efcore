@@ -30,7 +30,8 @@ public class BuildReference
         if (references.Count == 0)
         {
             throw new InvalidOperationException(
-                $"Assembly '{name}' not found.");
+                $"Assembly '{name}' not found. " +
+                "You may be missing '<PreserveCompilationContext>true</PreserveCompilationContext>' in your test project's csproj.");
         }
 
         return new BuildReference(
