@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -13,28 +14,34 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
     {
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)
+    {
+        var place = "Seattle";
+        return AssertQuery(
+            async,
+            ss => ss.Set<City>().Where(e => e.Nation == place || e.Location == place));
+    }
+
     public override async Task
         Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
             bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base
-                .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
-                    async))).Message;
-
-        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-    }
+        => Assert.Equal(
+            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base
+                    .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                        async))).Message);
 
     public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(
         bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+        => Assert.Equal(
+            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(
                     async)))
-            .Message;
-
-        Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
-    }
+            .Message);
 
     public override async Task Client_eval_followed_by_aggregate_operation(bool async)
     {
@@ -117,62 +124,56 @@ public abstract class GearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWarQu
     }
 
     public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message;
-
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
-    }
+        => Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
-
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
-    }
+        => Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
-
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
-    }
+        => Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async))).Message;
-
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
-    }
+        => Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async))).Message);
 
     public override async Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async))).Message;
-
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async))).Message);
     }
 
     public override async Task Correlated_collection_with_distinct_3_levels(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Correlated_collection_with_distinct_3_levels(async))).Message;
+        => Assert.Equal(
+            RelationalStrings.DistinctOnCollectionNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_distinct_3_levels(async))).Message);
 
-        Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
-    }
+    public override Task Include_after_SelectMany_throws(bool async)
+        => Assert.ThrowsAsync<NullReferenceException>(() => base.Include_after_SelectMany_throws(async));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(bool async)
-    {
-        var place = "Seattle";
-        return AssertQuery(
-            async,
-            ss => ss.Set<City>().Where(e => e.Nation == place || e.Location == place));
-    }
+    public override Task String_concat_on_various_types(bool async)
+        => Assert.ThrowsAsync<EqualException>(() => base.String_concat_on_various_types(async));
+
+    public override Task Where_compare_anonymous_types(bool async)
+        // Anonymous objects comparison Issue #8421.
+        => AssertTranslationFailed(() => base.Where_compare_anonymous_types(async));
+
+    public override async Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
+        => Assert.Equal(
+            RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
 
     protected virtual bool CanExecuteQueryString
         => false;

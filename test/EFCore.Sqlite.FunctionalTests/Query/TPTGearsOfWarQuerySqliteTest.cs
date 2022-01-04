@@ -182,12 +182,6 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
                 () => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async)))
             .Message);
 
-    public override async Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
-        => Assert.Equal(
-            SqliteStrings.ApplyNotSupported,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
-
     public override async Task Correlated_collection_after_distinct_3_levels(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -307,126 +301,65 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
     }
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    public override Task TimeSpan_Hours(bool async)
-        => base.TimeSpan_Hours(async);
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    public override Task TimeSpan_Minutes(bool async)
-        => base.TimeSpan_Minutes(async);
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    public override Task TimeSpan_Seconds(bool async)
-        => base.TimeSpan_Seconds(async);
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    public override Task TimeSpan_Milliseconds(bool async)
-        => base.TimeSpan_Milliseconds(async);
-
-    [ConditionalTheory(Skip = "Issue#18844")]
     public override Task Where_TimeSpan_Hours(bool async)
-        => base.Where_TimeSpan_Hours(async);
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeSpan_Hours(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
     public override Task Where_TimeSpan_Minutes(bool async)
-        => base.Where_TimeSpan_Minutes(async);
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeSpan_Minutes(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
     public override Task Where_TimeSpan_Seconds(bool async)
-        => base.Where_TimeSpan_Seconds(async);
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeSpan_Seconds(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
     public override Task Where_TimeSpan_Milliseconds(bool async)
-        => base.Where_TimeSpan_Milliseconds(async);
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeSpan_Milliseconds(async));
 
-    [ConditionalTheory(Skip = "Issue#16428")]
     public override Task First_on_byte_array(bool async)
-        => base.First_on_byte_array(async);
+        // Array access. Issue #16428.
+        => AssertTranslationFailed(() => base.First_on_byte_array(async));
 
-    [ConditionalTheory(Skip = "Issue#16428")]
     public override Task Array_access_on_byte_array(bool async)
-        => base.Array_access_on_byte_array(async);
+        // Array access. Issue #16428.
+        => AssertTranslationFailed(() => base.Array_access_on_byte_array(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_Hour(bool async)
-    {
-        await base.Where_TimeOnly_Hour(async);
+    public override Task Where_TimeOnly_Hour(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_Hour(async));
 
-        AssertSql("");
-    }
+    public override Task Where_TimeOnly_Minute(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_Minute(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_Minute(bool async)
-    {
-        await base.Where_TimeOnly_Minute(async);
+    public override Task Where_TimeOnly_Second(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_Second(async));
 
-        AssertSql("");
-    }
+    public override Task Where_TimeOnly_Millisecond(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_Millisecond(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_Second(bool async)
-    {
-        await base.Where_TimeOnly_Second(async);
+    public override Task Where_TimeOnly_AddHours(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_AddHours(async));
 
-        AssertSql("");
-    }
+    public override Task Where_TimeOnly_AddMinutes(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_AddMinutes(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_Millisecond(bool async)
-    {
-        await base.Where_TimeOnly_Millisecond(async);
+    public override Task Where_TimeOnly_Add_TimeSpan(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_Add_TimeSpan(async));
 
-        AssertSql("");
-    }
+    public override Task Where_TimeOnly_IsBetween(bool async)
+        // TimeSpan. Issue #18844.
+        => AssertTranslationFailed(() => base.Where_TimeOnly_IsBetween(async));
 
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_AddHours(bool async)
-    {
-        await base.Where_TimeOnly_AddHours(async);
-
-        AssertSql("");
-    }
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_AddMinutes(bool async)
-    {
-        await base.Where_TimeOnly_AddMinutes(async);
-
-        AssertSql("");
-    }
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_Add_TimeSpan(bool async)
-    {
-        await base.Where_TimeOnly_Add_TimeSpan(async);
-
-        AssertSql("");
-    }
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_IsBetween(bool async)
-    {
-        await base.Where_TimeOnly_IsBetween(async);
-
-        AssertSql("");
-    }
-
-    [ConditionalTheory(Skip = "Issue#18844")]
-    [MemberData(nameof(IsAsyncData))]
-    public override async Task Where_TimeOnly_subtract_TimeOnly(bool async)
-    {
-        await base.Where_TimeOnly_subtract_TimeOnly(async);
-
-        AssertSql("");
-    }
+    public override Task Where_TimeOnly_subtract_TimeOnly(bool async)
+        // TimeSpan. Issue #18844.
+        => Assert.ThrowsAsync<InvalidCastException>(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

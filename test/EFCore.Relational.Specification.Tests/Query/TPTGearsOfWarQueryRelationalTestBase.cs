@@ -12,5 +12,5 @@ public abstract class TPTGearsOfWarQueryRelationalTestBase<TFixture> : GearsOfWa
     }
 
     public override Task Project_discriminator_columns(bool async)
-        => Task.CompletedTask;
+        => AssertUnableToTranslateEFProperty(() => base.Project_discriminator_columns(async));
 }
