@@ -4189,11 +4189,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition<Type?> LogSaveChangesCanceled(IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangedCanceled;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangesCanceled;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).LogSaveChangedCanceled,
+                    ref ((LoggingDefinitions)logger.Definitions).LogSaveChangesCanceled,
                     logger,
                     static logger => new EventDefinition<Type?>(
                         logger.Options,

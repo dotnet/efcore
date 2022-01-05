@@ -29,6 +29,15 @@ public sealed class NonRetryingExecutionStrategy : IExecutionStrategy
         Dependencies = dependencies;
     }
 
+    /// <summary>
+    ///     Constructs a new <see cref="NonRetryingExecutionStrategy" /> with the given context.
+    /// </summary>
+    /// <param name="context">The context on which the operations will be invoked.</param>
+    public NonRetryingExecutionStrategy(DbContext context)
+    {
+        Dependencies = context.GetService<ExecutionStrategyDependencies>();
+    }
+
     private ExecutionStrategyDependencies Dependencies { get; }
 
     /// <summary>
