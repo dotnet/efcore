@@ -726,5 +726,65 @@ namespace Microsoft.EntityFrameworkCore
             public int? OrderId { get; set; }
             public Order Order { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27094>();
+            using var context = contextFactory.CreateContext();
+
+            var query = from t in context.Table
+                        group t.Id by t.Value into tg
+                        select new
+                        {
+                            A = tg.Key,
+                            B = context.Table.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        };
+
+            var orders = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27094>();
+            using var context = contextFactory.CreateContext();
+
+            var query = from t in context.Table
+                        group t.Id by t.Value into tg
+                        select new
+                        {
+                            A = tg.Key,
+                            B = tg.Sum(),
+                            C = (from t in context.Table
+                                 group t.Id by t.Value into tg2
+                                 select tg.Sum() + tg2.Sum()
+                                 ).OrderBy(e => 1).FirstOrDefault()
+                        };
+
+            var orders = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class Context27094 : DbContext
+        {
+            public Context27094(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Table> Table { get; set; }
+        }
+
+        protected class Table
+        {
+            public int Id { get; set; }
+            public int? Value { get; set; }
+        }
     }
 }

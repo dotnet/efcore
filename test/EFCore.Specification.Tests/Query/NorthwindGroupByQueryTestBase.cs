@@ -3415,6 +3415,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                        .Select(g => new
+                        {
+                            g.Key,
+                            A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                    .Select(g2 => new { g2.Key, C = g2.Count() + g.Count() })
+                                    .OrderBy(e => 1)
+                                    .FirstOrDefault()
+                        }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                        .Select(g => new
+                        {
+                            g.Key,
+                            A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                    .Select(g2 => g2.Count() + g.Min(e => e.OrderID))
+                                    .OrderBy(e => 1)
+                                    .FirstOrDefault()
+                        }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                        .Select(g => new
+                        {
+                            g.Key,
+                            A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                    .Select(g2 => g2.Count() + g.Count() )
+                                    .OrderBy(e => e)
+                                    .FirstOrDefault()
+                        }),
+                elementSorter: e => e.Key);
+        }
+
         #endregion
 
         #region GroupByAndDistinctWithCorrelatedCollection
