@@ -810,9 +810,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     }
 
                     // Now that we have SelectExpression, we visit all components and update table references inside columns
-                    newSelectExpression =
-                        (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(selectExpression, newSelectExpression)
-                            .Visit(newSelectExpression);
+                    newSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
+                        selectExpression, newSelectExpression._tableReferences).Visit(newSelectExpression);
 
                     return newSelectExpression;
                 }
@@ -826,10 +825,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             private readonly SelectExpression _oldSelectExpression;
             private readonly Dictionary<string, TableReferenceExpression> _newTableReferences;
 
-            public ColumnExpressionReplacingExpressionVisitor(SelectExpression oldSelectExpression, SelectExpression newSelectExpression)
+            public ColumnExpressionReplacingExpressionVisitor(
+                SelectExpression oldSelectExpression, IEnumerable<TableReferenceExpression> newTableReferences)
             {
                 _oldSelectExpression = oldSelectExpression;
-                _newTableReferences = newSelectExpression._tableReferences.ToDictionary(e => e.Alias);
+                _newTableReferences = newTableReferences.ToDictionary(e => e.Alias);
             }
 
             [return: NotNullIfNotNull("expression")]
@@ -894,8 +894,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         if (initialTableCounts > 0)
                         {
                             // If there are no initial table then this is not correlated grouping subquery
+                            // We only replace columns from initial tables.
+                            // Additional tables may have been added to outer from other terms which may end up matching on table alias
                             var columnExpressionReplacingExpressionVisitor =
-                                new ColumnExpressionReplacingExpressionVisitor(subquery, _selectExpression);
+                                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27083", out var enabled2) && enabled2
+                                ? new ColumnExpressionReplacingExpressionVisitor(
+                                    subquery, _selectExpression._tableReferences)
+                                : new ColumnExpressionReplacingExpressionVisitor(
+                                    subquery, _selectExpression._tableReferences.Take(initialTableCounts));
                             if (subquery._tables.Count != initialTableCounts)
                             {
                                 // If subquery has more tables then we expanded join on it.
@@ -931,7 +937,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 if (target._projection.Count != source._projection.Count)
                 {
-                    var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(source, target);
+                    var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(
+                        source, target._tableReferences);
                     var minProjectionCount = Math.Min(target._projection.Count, source._projection.Count);
                     var initialProjectionCount = 0;
                     for (var i = 0; i < minProjectionCount; i++)

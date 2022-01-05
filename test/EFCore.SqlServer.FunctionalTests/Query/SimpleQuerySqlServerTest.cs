@@ -147,5 +147,35 @@ INNER JOIN (
 WHERE [o].[OrderId] = @__orderId_0
 ORDER BY [o].[OrderId]");
         }
+
+        public override async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
+        {
+            await base.GroupBy_Aggregate_over_navigations_repeated(async);
+
+            AssertSql(
+                @"SELECT MIN([o].[HourlyRate]) AS [HourlyRate], MIN([c].[Id]) AS [CustomerId], MIN([c0].[Name]) AS [CustomerName]
+FROM [TimeSheets] AS [t]
+LEFT JOIN [Order] AS [o] ON [t].[OrderId] = [o].[Id]
+INNER JOIN [Project] AS [p] ON [t].[ProjectId] = [p].[Id]
+INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
+INNER JOIN [Project] AS [p0] ON [t].[ProjectId] = [p0].[Id]
+INNER JOIN [Customers] AS [c0] ON [p0].[CustomerId] = [c0].[Id]
+WHERE [t].[OrderId] IS NOT NULL
+GROUP BY [t].[OrderId]");
+        }
+
+        public override async Task Aggregate_over_subquery_in_group_by_projection(bool async)
+        {
+            await base.Aggregate_over_subquery_in_group_by_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerId], (
+    SELECT MIN([o0].[HourlyRate])
+    FROM [Order] AS [o0]
+    WHERE [o0].[CustomerId] = [o].[CustomerId]) AS [CustomerMinHourlyRate], MIN([o].[HourlyRate]) AS [HourlyRate], COUNT(*) AS [Count]
+FROM [Order] AS [o]
+WHERE ([o].[Number] <> N'A1') OR [o].[Number] IS NULL
+GROUP BY [o].[CustomerId], [o].[Number]");
+        }
     }
 }
