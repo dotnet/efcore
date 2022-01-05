@@ -1,6 +1,8 @@
 variables:
   - name: _BuildConfig
     value: Release
+  - name: _BuildTargetFramework
+    value: net6.0
   - name: _TeamName
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
@@ -100,6 +102,10 @@ stages:
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
+              - script: |
+                    .dotnet\dotnet publish --configuration $(_BuildConfig) --runtime win-x64 --self-contained test\EFCore.Trimming.Tests
+                    artifacts\bin\EFCore.Trimming.Tests\$(_BuildConfig)\$(_BuildTargetFramework)\win-x64\publish\EFCore.Trimming.Tests.exe
+                displayName: Test trimming
               - task: PublishBuildArtifacts@1
                 displayName: Upload TestResults
                 condition: always()

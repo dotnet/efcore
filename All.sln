@@ -120,7 +120,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.Sqlite.Functi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.AspNet.InMemory.FunctionalTests", "test\EFCore.AspNet.InMemory.FunctionalTests\EFCore.AspNet.InMemory.FunctionalTests.csproj", "{F1B2E5A0-8C74-414A-B262-353FEE325E9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Trimming.Test", "test\EFCore.Trimming.Test\EFCore.Trimming.Test.csproj", "{933C8662-817C-4F45-B98B-6557E28F7BB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFCore.Trimming.Tests", "test\EFCore.Trimming.Tests\EFCore.Trimming.Tests.csproj", "{933C8662-817C-4F45-B98B-6557E28F7BB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
