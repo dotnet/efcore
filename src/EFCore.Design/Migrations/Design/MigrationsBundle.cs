@@ -40,11 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             _assembly = assembly;
             _startupAssembly = startupAssembly;
 
-            var app = new CommandLineApplication
-            {
-                Name = "bundle",
-                HandleResponseFiles = true
-            };
+            var app = new CommandLineApplication { Name = "efbundle" };
+
             Configure(app);
 
             try
@@ -73,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         internal static void Configure(CommandLineApplication app)
         {
             app.FullName = DesignStrings.BundleFullName;
+            app.AllowArgumentSeparator = true;
 
             _migration = app.Argument("<MIGRATION>", DesignStrings.MigrationDescription);
             _connection = app.Option("--connection <CONNECTION>", DesignStrings.ConnectionDescription);
@@ -82,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var verbose = app.Option("-v|--verbose", DesignStrings.VerboseDescription);
             var noColor = app.Option("--no-color", DesignStrings.NoColorDescription);
             var prefixOutput = app.Option("--prefix-output", DesignStrings.PrefixDescription);
+
+            app.HandleResponseFiles = true;
 
             app.OnExecute(
                 args =>
