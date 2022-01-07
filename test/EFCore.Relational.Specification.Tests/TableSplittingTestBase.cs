@@ -578,6 +578,22 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         var log = TestSqlLoggerFactory.Log.Single(l => l.Level == LogLevel.Warning);
 
         Assert.Equal(expected, log.Message);
+
+        TestSqlLoggerFactory.Clear();
+
+        meterReading.MeterReadingDetails = new MeterReadingDetail { CurrentRead = "100" };
+
+        context.SaveChanges();
+
+        Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+
+        meterReading.MeterReadingDetails = new MeterReadingDetail();
+
+        context.SaveChanges();
+
+        log = TestSqlLoggerFactory.Log.Single(l => l.Level == LogLevel.Warning);
+
+        Assert.Equal(expected, log.Message);
     }
 
     [ConditionalFact]
@@ -595,9 +611,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         context.SaveChanges();
 
-        var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == LogLevel.Warning);
+        meterReading.MeterReadingDetails = new MeterReadingDetail { CurrentRead = "100" };
 
-        Assert.Null(log.Message);
+        context.SaveChanges();
+
+        Assert.Empty(TestSqlLoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
     }
 
     protected override string StoreName { get; } = "TableSplittingTest";
@@ -684,8 +702,8 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         {
         }
 
-        protected DbSet<MeterReading> MeterReadings { get; set; }
-        protected DbSet<MeterReadingDetail> MeterReadingDetails { get; set; }
+        public DbSet<MeterReading> MeterReadings { get; set; }
+        public DbSet<MeterReadingDetail> MeterReadingDetails { get; set; }
     }
 
     protected class MeterReading
