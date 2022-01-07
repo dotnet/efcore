@@ -82,6 +82,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void CreateProxy_works_for_record_with_base_type_entity_types()
+        {
+            using var context = new NeweyContext();
+
+            Assert.Same(typeof(March86C), context.Set<March86C>().CreateProxy().GetType().BaseType);
+            Assert.Same(typeof(March86C), context.Set<March86C>().CreateProxy(_ => { }).GetType().BaseType);
+        }
+
+        [ConditionalFact]
         public void CreateProxy_throws_for_shared_type_entity_types_when_entity_type_name_not_known()
         {
             using var context = new NeweyContext();
@@ -345,6 +354,15 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public record March86C : IndyCar
+        {
+            public virtual int Id { get; init; }
+        }
+
+        public record IndyCar
+        {
+        }
+
         private class NeweyContext : DbContext
         {
             private readonly IServiceProvider _internalServiceProvider;
@@ -418,6 +436,8 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.SharedTypeEntity<SharedTypeEntityType>("STET2");
 
                 modelBuilder.Entity<WithWeak>();
+
+                modelBuilder.Entity<March86C>();
             }
         }
 
