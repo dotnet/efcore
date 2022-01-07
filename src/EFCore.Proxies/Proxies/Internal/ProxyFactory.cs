@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using Castle.DynamicProxy;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,6 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly Type _proxyLazyLoaderInterface = typeof(IProxyLazyLoader);
         private static readonly Type _notifyPropertyChangedInterface = typeof(INotifyPropertyChanged);
         private static readonly Type _notifyPropertyChangingInterface = typeof(INotifyPropertyChanging);
+
+        private static readonly ProxyGenerationOptions _generationOptions
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26602", out var enabled) && enabled
+                ? ProxyGenerationOptions.Default
+                : new(new ClonelessProxyGenerationHook());
 
         private readonly ProxyGenerator _generator = new();
 
@@ -64,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             => _generator.ProxyBuilder.CreateClassProxyType(
                 entityType.ClrType,
                 GetInterfacesToProxy(options, entityType.ClrType),
-                ProxyGenerationOptions.Default);
+                _generationOptions);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             => _generator.CreateClassProxy(
                 entityType.ClrType,
                 GetInterfacesToProxy(options, entityType.ClrType),
-                ProxyGenerationOptions.Default,
+                _generationOptions,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType, new LazyLoadingInterceptor(entityType, loader)));
 
@@ -142,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             => _generator.CreateClassProxy(
                 entityType.ClrType,
                 GetInterfacesToProxy(options, entityType.ClrType),
-                ProxyGenerationOptions.Default,
+                _generationOptions,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType));
 
@@ -199,6 +205,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
 
             return interceptors.ToArray();
+        }
+
+        private sealed class ClonelessProxyGenerationHook : AllMethodsHook
+        {
+            public override bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
+                => methodInfo.Name != "<Clone>$"
+                    && base.ShouldInterceptMethod(type, methodInfo);
         }
     }
 }
