@@ -338,10 +338,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Child>()
                     .HasBaseType(null)
-                    .HasCheckConstraint("LargeId", "Id > 1000", c => c.HasName("CK_LargeId"));
+                    .HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000", c => c.HasName("CK_LargeId"));
                 modelBuilder.Entity<ChildBase>()
                     .HasCheckConstraint("PositiveId", "Id > 0")
-                    .HasCheckConstraint("LargeId", "Id > 1000");
+                    .HasCheckConstraint("CK_ChildBase_LargeId", "Id > 1000");
                 modelBuilder.Entity<Child>()
                     .HasBaseType<ChildBase>();
                 modelBuilder.Entity<DisjointChildSubclass1>();
@@ -354,10 +354,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var firstCheckConstraint = @base.FindCheckConstraint("PositiveId");
                 Assert.Equal("PositiveId", firstCheckConstraint.ModelName);
                 Assert.Equal("Id > 0", firstCheckConstraint.Sql);
-                Assert.Equal("CK_ChildBase_PositiveId", firstCheckConstraint.Name);
+                Assert.Equal("PositiveId", firstCheckConstraint.Name);
 
-                var secondCheckConstraint = @base.FindCheckConstraint("LargeId");
-                Assert.Equal("LargeId", secondCheckConstraint.ModelName);
+                var secondCheckConstraint = @base.FindCheckConstraint("CK_ChildBase_LargeId");
+                Assert.Equal("CK_ChildBase_LargeId", secondCheckConstraint.ModelName);
                 Assert.Equal("Id > 1000", secondCheckConstraint.Sql);
                 Assert.Equal("CK_LargeId", secondCheckConstraint.Name);
 

@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
-                        .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id", ck => ck.HasName("CK_Customer_AlternateId"));
+                        .HasCheckConstraint("AlternateId", "AlternateId > Id", ck => ck.HasName("CK_Customer_AlternateId"));
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""EntityWithTwoProperties"");
 
-                    b.HasCheckConstraint(""CK_Customer_AlternateId"", ""AlternateId > Id"", c => c.HasName(""CK_Customer_AlternateId""));
+                    b.HasCheckConstraint(""AlternateId"", ""AlternateId > Id"", c => c.HasName(""CK_Customer_AlternateId""));
                 });"),
                 o =>
                 {
