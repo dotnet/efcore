@@ -282,7 +282,7 @@ public class ModificationCommand : IModificationCommand
             }
 
             var optionalDependentWithAllNull =
-                (entry.EntityState == EntityState.Deleted
+                (entry.EntityState == EntityState.Modified
                     || entry.EntityState == EntityState.Added)
                 && tableMapping.Table.IsOptional(entry.EntityType)
                 && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
@@ -352,11 +352,18 @@ public class ModificationCommand : IModificationCommand
                     columnModifications.Add(columnModification);
 
                     if (optionalDependentWithAllNull
-                        && columnModification.IsWrite
-                        && (entry.EntityState != EntityState.Added || columnModification.Value is not null))
+                        && (columnModification.IsWrite
+                            || (columnModification.IsCondition && !isKey))
+                        && columnModification.Value is not null)
                     {
                         optionalDependentWithAllNull = false;
                     }
+                }
+                else if (optionalDependentWithAllNull
+                    && state == EntityState.Modified
+                    && entry.GetCurrentValue(property) is not null)
+                {
+                    optionalDependentWithAllNull = false;
                 }
             }
 
