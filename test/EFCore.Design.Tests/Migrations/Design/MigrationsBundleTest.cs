@@ -44,9 +44,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
+        [Fact]
+        public void HandleResponseFiles_is_true()
+        {
+            var app = new CommandLineApplication { Name = "efbundle" };
+            MigrationsBundle.Configure(app);
+
+            Assert.True(app.HandleResponseFiles);
+        }
+
+        [Fact]
+        public void AllowArgumentSeparator_is_true()
+        {
+            var app = new CommandLineApplication { Name = "efbundle" };
+            MigrationsBundle.Configure(app);
+
+            Assert.True(app.AllowArgumentSeparator);
+        }
+
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
-            var app = new CommandLineApplication { Name = "bundle" };
+            var app = new CommandLineApplication { Name = "efbundle" };
 
             MigrationsBundle.Configure(app);
 
