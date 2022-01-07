@@ -59,6 +59,58 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalFact]
+    public virtual void Can_use_record_proxies_with_base_types_to_load_reference()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                context.AddRange(
+                    context.CreateProxy<RecordCar>(
+                        car =>
+                        {
+                            car.Owner = context.CreateProxy<RecordPerson>();
+                        }));
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var car = context.Set<RecordCar>().Single();
+                if (!DoesLazyLoading)
+                {
+                    context.Entry(car).Reference(e => e.Owner).Load();
+                }
+
+                Assert.Equal(car.Owner.Id, car.OwnerId);
+                Assert.Same(car, car.Owner.Vehicles.Single());
+            });
+
+    [ConditionalFact]
+    public virtual void Can_use_record_proxies_with_base_types_to_load_collection()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                context.AddRange(
+                    context.CreateProxy<RecordCar>(
+                        car =>
+                        {
+                            car.Owner = context.CreateProxy<RecordPerson>();
+                        }));
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var owner = context.Set<RecordPerson>().Single();
+                if (!DoesLazyLoading)
+                {
+                    context.Entry(owner).Collection(e => e.Vehicles).Load();
+                }
+
+                Assert.Equal(owner.Id, owner.Vehicles.Single().Id);
+                Assert.Same(owner, owner.Vehicles.Single().Owner);
+            });
+
+    [ConditionalFact]
     public virtual void Avoid_nulling_shared_FK_property_when_deleting()
         => ExecuteWithStrategyInTransaction(
             context =>

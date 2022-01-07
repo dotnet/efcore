@@ -20,6 +20,11 @@ public class ProxyFactory : IProxyFactory
     private static readonly Type NotifyPropertyChangedInterface = typeof(INotifyPropertyChanged);
     private static readonly Type NotifyPropertyChangingInterface = typeof(INotifyPropertyChanging);
 
+    private static readonly ProxyGenerationOptions GenerationOptions
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26602", out var enabled) && enabled
+            ? ProxyGenerationOptions.Default
+            : new(new ClonelessProxyGenerationHook());
+
     private readonly ProxyGenerator _generator = new();
 
     /// <summary>
@@ -59,7 +64,7 @@ public class ProxyFactory : IProxyFactory
         => _generator.ProxyBuilder.CreateClassProxyType(
             entityType.ClrType,
             GetInterfacesToProxy(options, entityType.ClrType),
-            ProxyGenerationOptions.Default);
+                GenerationOptions);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,7 +99,7 @@ public class ProxyFactory : IProxyFactory
         => _generator.CreateClassProxy(
             entityType.ClrType,
             GetInterfacesToProxy(options, entityType.ClrType),
-            ProxyGenerationOptions.Default,
+                GenerationOptions,
             constructorArguments,
             GetNotifyChangeInterceptors(options, entityType, new LazyLoadingInterceptor(entityType, loader)));
 
@@ -137,7 +142,7 @@ public class ProxyFactory : IProxyFactory
         => _generator.CreateClassProxy(
             entityType.ClrType,
             GetInterfacesToProxy(options, entityType.ClrType),
-            ProxyGenerationOptions.Default,
+                GenerationOptions,
             constructorArguments,
             GetNotifyChangeInterceptors(options, entityType));
 
@@ -194,5 +199,12 @@ public class ProxyFactory : IProxyFactory
         }
 
         return interceptors.ToArray();
+    }
+
+    private sealed class ClonelessProxyGenerationHook : AllMethodsHook
+    {
+        public override bool ShouldInterceptMethod(Type type, MethodInfo methodInfo)
+            => methodInfo.Name != "<Clone>$"
+                && base.ShouldInterceptMethod(type, methodInfo);
     }
 }

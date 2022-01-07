@@ -383,6 +383,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                         .HasForeignKey<Car>("fk_PersonId")
                         .IsRequired();
                 });
+
+            modelBuilder.Entity<RecordCar>();
         }
 
         protected virtual object CreateFullGraph(DbContext context)
@@ -1895,6 +1897,23 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     {
         public virtual Guid Id { get; set; }
         public virtual Car Vehicle { get; set; }
+    }
+
+    public record RecordBase
+    {
+        public virtual int Id { get; set; }
+    }
+
+    public record RecordCar : RecordBase
+    {
+        public virtual RecordPerson Owner { get; set; }
+        public virtual int? OwnerId { get; set; }
+    }
+
+    public record RecordPerson : RecordBase
+    {
+        public virtual ICollection<RecordCar> Vehicles { get; }
+            = new ObservableHashSet<RecordCar>(LegacyReferenceEqualityComparer.Instance);
     }
 
     protected DbContext CreateContext()
