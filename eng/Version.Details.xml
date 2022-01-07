@@ -3,7 +3,7 @@
   <ProductDependencies>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>72fb99ca39e0c8eeb9bbfc22930e38d6137a802b</Sha>
+      <Sha>84d8fd3fa63218cef80887167718338c97a0bcdf</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0">
       <Uri>https://github.com/dotnet/runtime</Uri>
