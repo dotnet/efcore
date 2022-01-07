@@ -1374,7 +1374,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         MigrationCommandListBuilder builder,
         bool terminate = true)
     {
-        GenerateIdentityInsert(builder, operation, on: true);
+        GenerateIdentityInsert(builder, operation, on: true, model);
 
         var sqlBuilder = new StringBuilder();
         ((SqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
@@ -1395,7 +1395,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             builder.Append(sqlBuilder.ToString());
         }
 
-        GenerateIdentityInsert(builder, operation, on: false);
+        GenerateIdentityInsert(builder, operation, on: false, model);
 
         if (terminate)
         {
@@ -1403,7 +1403,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
     }
 
-    private void GenerateIdentityInsert(MigrationCommandListBuilder builder, InsertDataOperation operation, bool on)
+    private void GenerateIdentityInsert(MigrationCommandListBuilder builder, InsertDataOperation operation, bool on, IModel? model)
     {
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
@@ -1414,14 +1414,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Append(") AND [object_id] = OBJECT_ID(")
             .Append(
                 stringTypeMapping.GenerateSqlLiteral(
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema ?? model?.GetDefaultSchema())))
             .AppendLine("))");
 
         using (builder.Indent())
         {
             builder
                 .Append("SET IDENTITY_INSERT ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema ?? model?.GetDefaultSchema()))
                 .Append(on ? " ON" : " OFF")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }

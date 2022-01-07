@@ -303,7 +303,7 @@ public abstract class MigrationsSqlGeneratorTestBase
     [ConditionalFact]
     public void InsertDataOperation_throws_for_values_count_mismatch()
         => Assert.Equal(
-            RelationalStrings.InsertDataOperationValuesCountMismatch(1, 2, "People"),
+            RelationalStrings.InsertDataOperationValuesCountMismatch(1, 2, "dbo.People"),
             Assert.Throws<InvalidOperationException>(
                 () =>
                     Generate(
@@ -333,7 +333,7 @@ public abstract class MigrationsSqlGeneratorTestBase
     [ConditionalFact]
     public void InsertDataOperation_throws_for_missing_entity_type()
         => Assert.Equal(
-            RelationalStrings.DataOperationNoTable("dbo.People"),
+            RelationalStrings.DataOperationNoTable("dbo1.People"),
             Assert.Throws<InvalidOperationException>(
                 () =>
                     Generate(
@@ -341,7 +341,7 @@ public abstract class MigrationsSqlGeneratorTestBase
                         new InsertDataOperation
                         {
                             Table = "People",
-                            Schema = "dbo",
+                            Schema = "dbo1",
                             Columns = new[] { "First Name" },
                             Values = new object[,] { { "John" } }
                         })).Message);
@@ -695,7 +695,7 @@ public abstract class MigrationsSqlGeneratorTestBase
             });
 
     private static void CreateGotModel(ModelBuilder b)
-        => b.Entity(
+        => b.HasDefaultSchema("dbo").Entity(
             "Person", pb =>
             {
                 pb.ToTable("People");
