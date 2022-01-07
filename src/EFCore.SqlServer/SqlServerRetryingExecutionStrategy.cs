@@ -89,6 +89,21 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
     /// </summary>
+    /// <remarks>
+    ///     Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+    /// </remarks>
+    /// <param name="dependencies">Parameter object containing service dependencies.</param>
+    /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
+    public SqlServerRetryingExecutionStrategy(
+        ExecutionStrategyDependencies dependencies,
+        ICollection<int> errorNumbersToAdd)
+        : this(dependencies, DefaultMaxRetryCount, DefaultMaxDelay, errorNumbersToAdd)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+    /// </summary>
     /// <param name="context">The context on which the operations will be invoked.</param>
     /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
     /// <param name="maxRetryDelay">The maximum delay between retries.</param>
