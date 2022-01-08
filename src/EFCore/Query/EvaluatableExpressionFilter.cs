@@ -23,31 +23,31 @@ public class EvaluatableExpressionFilter : IEvaluatableExpressionFilter
     // Hence we don't evaluate them. See issue#2069
 
     private static readonly PropertyInfo DateTimeNow
-        = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Now));
+        = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now))!;
 
     private static readonly PropertyInfo DateTimeUtcNow
-        = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.UtcNow));
+        = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow))!;
 
     private static readonly PropertyInfo DateTimeToday
-        = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Today));
+        = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Today))!;
 
     private static readonly PropertyInfo DateTimeOffsetNow
-        = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.Now));
+        = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.Now))!;
 
     private static readonly PropertyInfo DateTimeOffsetUtcNow
-        = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.UtcNow));
+        = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.UtcNow))!;
 
     private static readonly MethodInfo GuidNewGuid
-        = typeof(Guid).GetRequiredDeclaredMethod(nameof(Guid.NewGuid));
+        = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid))!;
 
     private static readonly MethodInfo RandomNextNoArgs
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Type.EmptyTypes)!;
 
     private static readonly MethodInfo RandomNextOneArg
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int));
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) })!;
 
     private static readonly MethodInfo RandomNextTwoArgs
-        = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), typeof(int), typeof(int));
+        = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) })!;
 
     /// <summary>
     ///     <para>

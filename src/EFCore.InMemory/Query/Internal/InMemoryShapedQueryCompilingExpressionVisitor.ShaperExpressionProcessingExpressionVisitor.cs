@@ -10,19 +10,19 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
     private sealed class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo IncludeReferenceMethodInfo
-            = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
+            = typeof(ShaperExpressionProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(IncludeReference))!;
 
         private static readonly MethodInfo IncludeCollectionMethodInfo
-            = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeCollection));
+            = typeof(ShaperExpressionProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(IncludeCollection))!;
 
         private static readonly MethodInfo MaterializeCollectionMethodInfo
-            = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeCollection));
+            = typeof(ShaperExpressionProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeCollection))!;
 
         private static readonly MethodInfo MaterializeSingleResultMethodInfo
-            = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeSingleResult));
+            = typeof(ShaperExpressionProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeSingleResult))!;
 
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
-            = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
         private readonly InMemoryShapedQueryCompilingExpressionVisitor _inMemoryShapedQueryCompilingExpressionVisitor;
         private readonly bool _tracking;

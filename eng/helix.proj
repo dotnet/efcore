@@ -50,6 +50,11 @@
     <XUnitProject Remove="$(SqlServerTests)"/>
   </ItemGroup>
 
+  <!-- The trimming test project is a console program -->
+  <ItemGroup>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
+  </ItemGroup>
+
   <PropertyGroup>
     <XUnitPublishTargetFramework>net6.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>

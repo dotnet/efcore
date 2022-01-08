@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteGlobMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetRequiredMethod(nameof(SqliteDbFunctionsExtensions.Glob), typeof(DbFunctions), typeof(string), typeof(string));
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Glob), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

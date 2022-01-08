@@ -23,28 +23,28 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MemberInfo ValueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
     private static readonly MethodInfo ParameterValueExtractorMethod =
-        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterValueExtractor));
+        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
     private static readonly MethodInfo ParameterListValueExtractorMethod =
-        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ParameterListValueExtractor));
+        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
 
     private static readonly MethodInfo GetParameterValueMethodInfo =
-        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
+        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
-    private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string));
+    private static readonly MethodInfo LikeMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string), typeof(string));
+    private static readonly MethodInfo LikeMethodInfoWithEscape = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-        nameof(DbFunctionsExtensions.Random), typeof(DbFunctions));
+    private static readonly MethodInfo RandomMethodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+        nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) })!;
 
-    private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRequiredRuntimeMethod(
-        nameof(Random.NextDouble), Array.Empty<Type>());
+    private static readonly MethodInfo RandomNextDoubleMethodInfo = typeof(Random).GetRuntimeMethod(
+        nameof(Random.NextDouble), Type.EmptyTypes)!;
 
     private static readonly MethodInfo InMemoryLikeMethodInfo =
-        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InMemoryLike));
+        typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InMemoryLike))!;
 
     // Regex special chars defined here:
     // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx

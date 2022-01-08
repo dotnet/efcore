@@ -1145,7 +1145,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
 
@@ -1352,7 +1352,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         Type transparentIdentifierType,
         Expression targetExpression,
         string fieldName)
-        => Expression.Field(targetExpression, transparentIdentifierType.GetRequiredDeclaredField(fieldName));
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
 
     private ShapedQueryExpression? TranslateScalarAggregate(
         ShapedQueryExpression source,

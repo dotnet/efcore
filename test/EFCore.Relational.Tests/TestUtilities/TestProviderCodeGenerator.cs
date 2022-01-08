@@ -20,8 +20,8 @@ public class TestProviderCodeGenerator : ProviderCodeGenerator
                 : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
 
     private static readonly MethodInfo _useTestProviderMethodInfo
-        = typeof(TestProviderCodeGenerator).GetRequiredRuntimeMethod(
-            nameof(UseTestProvider), typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>));
+        = typeof(TestProviderCodeGenerator).GetRuntimeMethod(
+            nameof(UseTestProvider), new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>) })!;
 
     public static void UseTestProvider(
         DbContextOptionsBuilder optionsBuilder,

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 public class ManyToManyLoaderFactory
 {
     private static readonly MethodInfo GenericCreate
-        = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateManyToMany));
+        = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateManyToMany))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

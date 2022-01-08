@@ -16,7 +16,7 @@ public class SqlServerIsDateFunctionTranslator : IMethodCallTranslator
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     private static readonly MethodInfo MethodInfo = typeof(SqlServerDbFunctionsExtensions)
-        .GetRequiredRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsDate), typeof(DbFunctions), typeof(string));
+        .GetRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsDate), new[] { typeof(DbFunctions), typeof(string) })!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

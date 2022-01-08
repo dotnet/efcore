@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerMultiLineStringMemberTranslator : IMemberTranslator
 {
-    private static readonly MemberInfo IsClosed = typeof(MultiLineString).GetRequiredRuntimeProperty(nameof(MultiLineString.IsClosed));
+    private static readonly MemberInfo IsClosed
+        = typeof(MultiLineString).GetTypeInfo().GetRuntimeProperty(nameof(MultiLineString.IsClosed))!;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>

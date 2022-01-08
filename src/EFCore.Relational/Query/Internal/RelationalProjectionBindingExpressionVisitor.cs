@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 {
     private static readonly MethodInfo GetParameterValueMethodInfo
-        = typeof(RelationalProjectionBindingExpressionVisitor).GetRequiredDeclaredMethod(nameof(GetParameterValue));
+        = typeof(RelationalProjectionBindingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue))!;
 
     private readonly RelationalQueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;

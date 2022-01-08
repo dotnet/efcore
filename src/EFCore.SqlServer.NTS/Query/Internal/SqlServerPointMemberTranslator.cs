@@ -10,20 +10,20 @@ internal class SqlServerPointMemberTranslator : IMemberTranslator
 {
     private static readonly IDictionary<MemberInfo, string> MemberToPropertyName = new Dictionary<MemberInfo, string>
     {
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.M)), "M" },
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Z)), "Z" }
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.M))!, "M" },
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.Z))!, "Z" }
     };
 
     private static readonly IDictionary<MemberInfo, string> GeographyMemberToPropertyName = new Dictionary<MemberInfo, string>
     {
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "Long" },
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "Lat" }
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.X))!, "Long" },
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.Y))!, "Lat" }
     };
 
     private static readonly IDictionary<MemberInfo, string> GeometryMemberToPropertyName = new Dictionary<MemberInfo, string>
     {
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "STX" },
-        { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "STY" }
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.X))!, "STX" },
+        { typeof(Point).GetTypeInfo().GetRuntimeProperty(nameof(Point.Y))!, "STY" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

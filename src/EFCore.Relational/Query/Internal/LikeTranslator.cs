@@ -14,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class LikeTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo
-        = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string));
+        = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo MethodInfoWithEscape
-        = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string), typeof(string));
+        = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

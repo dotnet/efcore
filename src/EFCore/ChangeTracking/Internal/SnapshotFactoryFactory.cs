@@ -262,7 +262,7 @@ public abstract class SnapshotFactoryFactory
         => true;
 
     private static readonly MethodInfo SnapshotCollectionMethod
-        = typeof(SnapshotFactoryFactory).GetTypeInfo().GetRequiredDeclaredMethod(nameof(SnapshotCollection));
+        = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotCollection))!;
 
     [UsedImplicitly]
     private static HashSet<object>? SnapshotCollection(IEnumerable<object>? collection)

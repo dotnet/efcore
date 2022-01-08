@@ -985,7 +985,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -1350,7 +1350,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         Type transparentIdentifierType,
         Expression targetExpression,
         string fieldName)
-        => Expression.Field(targetExpression, transparentIdentifierType.GetRequiredDeclaredField(fieldName));
+        => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
 
     private static void HandleGroupByForAggregate(SelectExpression selectExpression, bool eraseProjection = false)
     {

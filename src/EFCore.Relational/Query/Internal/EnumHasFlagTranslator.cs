@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class EnumHasFlagTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo
-        = typeof(Enum).GetRequiredRuntimeMethod(nameof(Enum.HasFlag), typeof(Enum));
+        = typeof(Enum).GetRuntimeMethod(nameof(Enum.HasFlag), new[] { typeof(Enum) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

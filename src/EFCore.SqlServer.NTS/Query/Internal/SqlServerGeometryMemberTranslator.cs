@@ -16,28 +16,30 @@ public class SqlServerGeometryMemberTranslator : IMemberTranslator
 {
     private static readonly IDictionary<MemberInfo, string> MemberToFunctionName = new Dictionary<MemberInfo, string>
     {
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Area)), "STArea" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Dimension)), "STDimension" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.GeometryType)), "STGeometryType" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsEmpty)), "STIsEmpty" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsValid)), "STIsValid" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Length)), "STLength" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumGeometries)), "STNumGeometries" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.NumPoints)), "STNumPoints" }
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Area))!, "STArea" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Dimension))!, "STDimension" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.GeometryType))!, "STGeometryType" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsEmpty))!, "STIsEmpty" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsValid))!, "STIsValid" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Length))!, "STLength" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.NumGeometries))!, "STNumGeometries" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.NumPoints))!, "STNumPoints" }
     };
 
     private static readonly IDictionary<MemberInfo, string> GeometryMemberToFunctionName = new Dictionary<MemberInfo, string>
     {
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Boundary)), "STBoundary" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Centroid)), "STCentroid" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.Envelope)), "STEnvelope" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.InteriorPoint)), "STPointOnSurface" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.IsSimple)), "STIsSimple" },
-        { typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.PointOnSurface)), "STPointOnSurface" }
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Boundary))!, "STBoundary" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Centroid))!, "STCentroid" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.Envelope))!, "STEnvelope" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.InteriorPoint))!, "STPointOnSurface" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.IsSimple))!, "STIsSimple" },
+        { typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.PointOnSurface))!, "STPointOnSurface" }
     };
 
-    private static readonly MemberInfo OgcGeometryType = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.OgcGeometryType));
-    private static readonly MemberInfo Srid = typeof(Geometry).GetRequiredRuntimeProperty(nameof(Geometry.SRID));
+    private static readonly MemberInfo OgcGeometryType
+        = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.OgcGeometryType))!;
+    private static readonly MemberInfo Srid
+        = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.SRID))!;
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

@@ -15,13 +15,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
         // Reading database values
         private static readonly MethodInfo IsDbNullMethod =
-            typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), typeof(int));
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
 
         public static readonly MethodInfo GetFieldValueMethod =
-            typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), typeof(int));
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
-            typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ThrowReadValueException));
+            typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
         // Coordinating results
         private static readonly MemberInfo ResultContextValuesMemberInfo
@@ -32,43 +32,43 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         // Performing collection materialization
         private static readonly MethodInfo IncludeReferenceMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(IncludeReference))!;
 
         private static readonly MethodInfo InitializeIncludeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeIncludeCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeIncludeCollection))!;
 
         private static readonly MethodInfo PopulateIncludeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateIncludeCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateIncludeCollection))!;
 
         private static readonly MethodInfo InitializeSplitIncludeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitIncludeCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeSplitIncludeCollection))!;
 
         private static readonly MethodInfo PopulateSplitIncludeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitIncludeCollection))!;
 
         private static readonly MethodInfo PopulateSplitIncludeCollectionAsyncMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollectionAsync));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitIncludeCollectionAsync))!;
 
         private static readonly MethodInfo InitializeCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeCollection))!;
 
         private static readonly MethodInfo PopulateCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateCollection))!;
 
         private static readonly MethodInfo InitializeSplitCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeSplitCollection))!;
 
         private static readonly MethodInfo PopulateSplitCollectionMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollection));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollection))!;
 
         private static readonly MethodInfo PopulateSplitCollectionAsyncMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollectionAsync));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollectionAsync))!;
 
         private static readonly MethodInfo TaskAwaiterMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(TaskAwaiter));
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(TaskAwaiter))!;
 
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
-            = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;

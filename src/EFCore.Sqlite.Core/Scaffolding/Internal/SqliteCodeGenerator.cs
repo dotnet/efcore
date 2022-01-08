@@ -12,11 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 public class SqliteCodeGenerator : ProviderCodeGenerator
 {
     private static readonly MethodInfo UseSqliteMethodInfo
-        = typeof(SqliteDbContextOptionsBuilderExtensions).GetRequiredRuntimeMethod(
+        = typeof(SqliteDbContextOptionsBuilderExtensions).GetRuntimeMethod(
             nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite),
-            typeof(DbContextOptionsBuilder),
-            typeof(string),
-            typeof(Action<SqliteDbContextOptionsBuilder>));
+            new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<SqliteDbContextOptionsBuilder>) })!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteCodeGenerator" /> class.

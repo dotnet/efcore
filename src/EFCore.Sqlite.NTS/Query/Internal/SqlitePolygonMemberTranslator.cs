@@ -17,8 +17,8 @@ public class SqlitePolygonMemberTranslator : IMemberTranslator
     private static readonly IDictionary<MemberInfo, string> MemberToFunctionName
         = new Dictionary<MemberInfo, string>
         {
-            { typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.ExteriorRing)), "ExteriorRing" },
-            { typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.NumInteriorRings)), "NumInteriorRing" }
+            { typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.ExteriorRing))!, "ExteriorRing" },
+            { typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.NumInteriorRings))!, "NumInteriorRing" }
         };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

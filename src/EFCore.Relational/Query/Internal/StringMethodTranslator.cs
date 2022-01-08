@@ -14,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class StringMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo IsNullOrEmptyMethodInfo
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) })!;
 
     private static readonly MethodInfo ConcatMethodInfoTwoArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo ConcatMethodInfoThreeArgs
-        = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), typeof(string), typeof(string), typeof(string));
+        = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo ConcatMethodInfoFourArgs
-        = typeof(string).GetRequiredRuntimeMethod(
-            nameof(string.Concat), typeof(string), typeof(string), typeof(string), typeof(string));
+        = typeof(string).GetRuntimeMethod(
+            nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string), typeof(string) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

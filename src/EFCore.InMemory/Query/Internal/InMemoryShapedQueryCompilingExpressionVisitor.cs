@@ -71,7 +71,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQuery
     }
 
     private static readonly MethodInfo TableMethodInfo
-        = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(Table));
+        = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(Table))!;
 
     private static IEnumerable<ValueBuffer> Table(
         QueryContext queryContext,

@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerPolygonMemberTranslator : IMemberTranslator
 {
-    private static readonly MemberInfo ExteriorRing = typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.ExteriorRing));
-    private static readonly MemberInfo NumInteriorRings = typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.NumInteriorRings));
+    private static readonly MemberInfo ExteriorRing
+        = typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.ExteriorRing))!;
+    private static readonly MemberInfo NumInteriorRings
+        = typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.NumInteriorRings))!;
 
     private static readonly IDictionary<MemberInfo, string> GeometryMemberToFunctionName = new Dictionary<MemberInfo, string>
     {

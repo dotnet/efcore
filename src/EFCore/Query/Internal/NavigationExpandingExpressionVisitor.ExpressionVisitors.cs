@@ -15,7 +15,7 @@ public partial class NavigationExpandingExpressionVisitor
     private class ExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ObjectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
+            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
 
         private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
         private readonly NavigationExpansionExpression _source;
@@ -430,8 +430,8 @@ public partial class NavigationExpandingExpressionVisitor
             var resultSelectorInnerParameter = Expression.Parameter(innerSource.SourceElementType, "i");
             var resultType = TransparentIdentifierFactory.Create(_source.SourceElementType, innerSource.SourceElementType);
 
-            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer")!;
+            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner")!;
 
             var resultSelector = Expression.Lambda(
                 Expression.New(
@@ -487,7 +487,7 @@ public partial class NavigationExpandingExpressionVisitor
     private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
     {
         private static readonly MethodInfo FetchJoinEntityMethodInfo =
-            typeof(IncludeExpandingExpressionVisitor).GetRequiredDeclaredMethod(nameof(FetchJoinEntity));
+            typeof(IncludeExpandingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(FetchJoinEntity))!;
 
         private readonly bool _queryStateManager;
         private readonly bool _ignoreAutoIncludes;
@@ -821,8 +821,8 @@ public partial class NavigationExpandingExpressionVisitor
                         {
                             var resultType = TransparentIdentifierFactory.Create(joinParameter.Type, targetParameter.Type);
 
-                            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-                            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+                            var transparentIdentifierOuterMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Outer")!;
+                            var transparentIdentifierInnerMemberInfo = resultType.GetTypeInfo().GetDeclaredField("Inner")!;
 
                             var newResultSelector = Expression.Quote(
                                 Expression.Lambda(
@@ -1135,9 +1135,9 @@ public partial class NavigationExpandingExpressionVisitor
             _navigationExpansionExpression = (NavigationExpansionExpression)groupByNavigationExpansionExpression.GroupingEnumerable;
             _keyAccessExpression = Expression.MakeMemberAccess(
                 groupByNavigationExpansionExpression.CurrentParameter,
-                groupByNavigationExpansionExpression.CurrentParameter.Type.GetRequiredDeclaredProperty(
-                    nameof(IGrouping<int, int>.Key)));
-            _keyMemberInfo = parameterExpression.Type.GetRequiredDeclaredProperty(nameof(IGrouping<int, int>.Key));
+                groupByNavigationExpansionExpression.CurrentParameter.Type.GetTypeInfo().GetDeclaredProperty(
+                    nameof(IGrouping<int, int>.Key))!);
+            _keyMemberInfo = parameterExpression.Type.GetTypeInfo().GetDeclaredProperty(nameof(IGrouping<int, int>.Key))!;
             _cloningExpressionVisitor = new CloningExpressionVisitor();
         }
 

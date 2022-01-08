@@ -219,7 +219,7 @@ public class QueryCompilationContext
                     .Append(query));
 
     private static readonly MethodInfo QueryContextAddParameterMethodInfo
-        = typeof(QueryContext).GetRequiredDeclaredMethod(nameof(QueryContext.AddParameter));
+        = typeof(QueryContext).GetTypeInfo().GetDeclaredMethod(nameof(QueryContext.AddParameter))!;
 
     private sealed class NotTranslatedExpressionType : Expression
     {

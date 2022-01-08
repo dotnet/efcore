@@ -2473,8 +2473,7 @@ public static class EntityFrameworkQueryableExtensions
     #region Auto included navigations
 
     internal static readonly MethodInfo IgnoreAutoIncludesMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(nameof(IgnoreAutoIncludes));
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(IgnoreAutoIncludes))!;
 
     /// <summary>
     ///     Specifies that the current Entity Framework LINQ query should not have any model-level eager loaded navigations applied.
@@ -2501,8 +2500,7 @@ public static class EntityFrameworkQueryableExtensions
     #region Query Filters
 
     internal static readonly MethodInfo IgnoreQueryFiltersMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(nameof(IgnoreQueryFilters));
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(IgnoreQueryFilters))!;
 
     /// <summary>
     ///     Specifies that the current Entity Framework LINQ query should not have any model-level entity query filters applied.
@@ -2530,8 +2528,7 @@ public static class EntityFrameworkQueryableExtensions
     #region Tracking
 
     internal static readonly MethodInfo AsNoTrackingMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(nameof(AsNoTracking));
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsNoTracking))!;
 
     /// <summary>
     ///     The change tracker will not track any of the entities that are returned from a LINQ query. If the
@@ -2572,8 +2569,7 @@ public static class EntityFrameworkQueryableExtensions
             : source;
 
     internal static readonly MethodInfo AsNoTrackingWithIdentityResolutionMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(nameof(AsNoTrackingWithIdentityResolution));
+        = typeof(EntityFrameworkQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsNoTrackingWithIdentityResolution))!;
 
     /// <summary>
     ///     The change tracker will not track any of the entities that are returned from a LINQ query. If the
@@ -2691,19 +2687,20 @@ public static class EntityFrameworkQueryableExtensions
     #region Tagging
 
     internal static readonly MethodInfo TagWithMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(
-                nameof(TagWith), mi => mi.GetParameters().Length == 2
-                    && mi.GetParameters().Select(p => p.ParameterType)
-                        .SequenceEqual(new[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string) }));
+        = typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(TagWith), new[]
+        {
+            typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
+            typeof(string)
+        })!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetRequiredDeclaredMethod(
-                nameof(TagWithCallSite), mi => mi.GetParameters().Length == 3
-                    && mi.GetParameters().Select(p => p.ParameterType)
-                        .SequenceEqual(
-                            new[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string), typeof(int) }));
+            .GetMethod(nameof(TagWithCallSite), new[]
+            {
+                typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
+                typeof(string),
+                typeof(int)
+            })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations

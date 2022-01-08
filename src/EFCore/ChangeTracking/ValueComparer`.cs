@@ -191,7 +191,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
                 new[] { lengthVariable, destinationVariable },
                 Expression.Assign(
                     lengthVariable,
-                    Expression.Property(sourceParameter, typeof(T).GetRequiredProperty(nameof(Array.Length)))),
+                    Expression.Property(sourceParameter, typeof(T).GetTypeInfo().GetProperty(nameof(Array.Length))!)),
                 Expression.Assign(
                     destinationVariable,
                     Expression.NewArrayBounds(typeof(T).GetSequenceType(), lengthVariable)),
