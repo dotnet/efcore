@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int?>("ParentAltId");
                         x.HasOne("Node").WithMany().HasForeignKey("ParentAltId");
                         x.HasIndex("ParentAltId");
-                        x.HasCheckConstraint("SomeCheckConstraint", "[Id] > 10");
+                        x.HasCheckConstraint("CK_Node_SomeCheckConstraint", "[Id] > 10");
                     }),
                 upOps =>
                 {

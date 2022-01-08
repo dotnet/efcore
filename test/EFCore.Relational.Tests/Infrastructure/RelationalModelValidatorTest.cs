@@ -475,9 +475,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().HasCheckConstraint("SomeCK", "Id > 0");
+            modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().HasCheckConstraint("SomeCK", "Id > 10");
+            modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 10");
             modelBuilder.Entity<B>().ToTable("Table");
 
             var model = Validate(modelBuilder);
@@ -492,9 +492,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().HasCheckConstraint("SomeCK", "Id > 0");
+            modelBuilder.Entity<A>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().HasCheckConstraint("SomeCK", "Id > 0");
+            modelBuilder.Entity<B>().HasCheckConstraint("CK_Table_SomeCK", "Id > 0");
             modelBuilder.Entity<B>().ToTable("Table");
 
             var model = Validate(modelBuilder);
