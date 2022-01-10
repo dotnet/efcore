@@ -622,9 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery)
                             {
                                 var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
-                                innerSelectExpression =
-                                    (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression)
-                                        .Visit(innerSelectExpression);
+                                innerSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
+                                    this, outerSelectExpression._tableReferences).Visit(innerSelectExpression);
 
                                 if (outerSelectExpression.Limit != null
                                     || outerSelectExpression.Offset != null

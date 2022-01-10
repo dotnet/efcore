@@ -598,5 +598,133 @@ namespace Microsoft.EntityFrameworkCore
             public DateTime? ShippingDate { get; set; }
             public DateTime? CancellationDate { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context
+                .Set<TimeSheet>()
+                .Where(x => x.OrderId != null)
+                .GroupBy(x => x.OrderId)
+                .Select(x => new
+                {
+                    HourlyRate = x.Min(f => f.Order.HourlyRate),
+                    CustomerId = x.Min(f => f.Project.Customer.Id),
+                    CustomerName = x.Min(f => f.Project.Customer.Name),
+                });
+
+            var timeSheets = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(2, timeSheets.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            Expression<Func<Order, bool>> someFilterFromOutside = x => x.Number != "A1";
+
+            var query = context
+                .Set<Order>()
+                .Where(someFilterFromOutside)
+                .GroupBy(x => new { x.CustomerId, x.Number })
+                .Select(x => new
+                {
+                    x.Key.CustomerId,
+                    CustomerMinHourlyRate = context.Set<Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
+                    HourlyRate = x.Min(f => f.HourlyRate),
+                    Count = x.Count()
+                });
+
+            var orders = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Collection(orders,
+                t => Assert.Equal(10, t.CustomerMinHourlyRate),
+                t => Assert.Equal(20, t.CustomerMinHourlyRate));
+        }
+
+        protected class Context27083 : DbContext
+        {
+            public Context27083(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<TimeSheet> TimeSheets { get; set; }
+            public DbSet<Customer> Customers { get; set; }
+
+            public void Seed()
+            {
+                var customerA = new Customer { Name = "Customer A" };
+                var customerB = new Customer { Name = "Customer B" };
+
+                var projectA = new Project { Customer = customerA };
+                var projectB = new Project { Customer = customerB };
+
+                var orderA1 = new Order { Number = "A1", Customer = customerA, HourlyRate = 10 };
+                var orderA2 = new Order { Number = "A2", Customer = customerA, HourlyRate = 11 };
+                var orderB1 = new Order { Number = "B1", Customer = customerB, HourlyRate = 20 };
+
+                var timeSheetA = new TimeSheet { Order = orderA1, Project = projectA };
+                var timeSheetB = new TimeSheet { Order = orderB1, Project = projectB };
+
+                AddRange(customerA, customerB);
+                AddRange(projectA, projectB);
+                AddRange(orderA1, orderA2, orderB1);
+                AddRange(timeSheetA, timeSheetB);
+                SaveChanges();
+            }
+        }
+
+        protected class Customer
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public List<Project> Projects { get; set; }
+            public List<Order> Orders { get; set; }
+        }
+
+        protected class Order
+        {
+            public int Id { get; set; }
+            public string Number { get; set; }
+
+            public int CustomerId { get; set; }
+            public Customer Customer { get; set; }
+
+            public int HourlyRate { get; set; }
+        }
+
+        protected class Project
+        {
+            public int Id { get; set; }
+            public int CustomerId { get; set; }
+
+            public Customer Customer { get; set; }
+        }
+
+        protected class TimeSheet
+        {
+            public int Id { get; set; }
+
+            public int ProjectId { get; set; }
+            public Project Project { get; set; }
+
+            public int? OrderId { get; set; }
+            public Order Order { get; set; }
+        }
     }
 }
