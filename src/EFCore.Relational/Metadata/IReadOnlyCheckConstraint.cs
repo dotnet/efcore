@@ -47,7 +47,8 @@ public interface IReadOnlyCheckConstraint : IReadOnlyAnnotatable
     {
         var prefix = $"CK_{storeObject.Name}_";
         return Uniquifier.Truncate(
-            ModelName.StartsWith(prefix, StringComparison.Ordinal)
+                !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27059", out var enabled) && enabled)
+                || ModelName.StartsWith(prefix, StringComparison.Ordinal)
                 ? ModelName
                 : prefix + ModelName,
             EntityType.Model.GetMaxIdentifierLength());

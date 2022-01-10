@@ -74,7 +74,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
                     e.HasKey("CustomId");
                     e.HasAlternateKey("SSN");
-                    e.HasCheckConstraint("EmployerId", $"{DelimitIdentifier("EmployerId")} > 0");
+                        e.HasCheckConstraint("CK_People_EmployerId", $"{DelimitIdentifier("EmployerId")} > 0");
                     e.HasOne("Employers").WithMany("People").HasForeignKey("EmployerId");
 
                     e.HasComment("Table comment");
@@ -652,7 +652,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 "People", e =>
                 {
                     e.Property<int>("DriverLicense");
-                    e.HasCheckConstraint("Foo", $"{DelimitIdentifier("DriverLicense")} > 0");
+                        e.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0");
                 }),
             model =>
             {
@@ -1410,7 +1410,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("DriverLicense");
                 }),
             builder => { },
-            builder => builder.Entity("People").HasCheckConstraint("Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
             model =>
             {
                 // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
@@ -1425,8 +1425,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("Id");
                     e.Property<int>("DriverLicense");
                 }),
-            builder => builder.Entity("People").HasCheckConstraint("Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
-            builder => builder.Entity("People").HasCheckConstraint("Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
             model =>
             {
                 // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
@@ -1441,7 +1441,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("Id");
                     e.Property<int>("DriverLicense");
                 }),
-            builder => builder.Entity("People").HasCheckConstraint("Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
             builder => { },
             model =>
             {
