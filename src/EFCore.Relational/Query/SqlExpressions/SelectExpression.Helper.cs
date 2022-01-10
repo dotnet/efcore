@@ -782,6 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var newOrderings = selectExpression._orderings.Select(Visit).ToList<OrderingExpression>();
                     var offset = (SqlExpression?)Visit(selectExpression.Offset);
                     var limit = (SqlExpression?)Visit(selectExpression.Limit);
+                    var groupingCorrelationPredicate = (SqlExpression?)Visit(selectExpression._groupingCorrelationPredicate);
 
                     var newSelectExpression = new SelectExpression(
                         selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
@@ -793,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         IsDistinct = selectExpression.IsDistinct,
                         Tags = selectExpression.Tags,
                         _usedAliases = selectExpression._usedAliases.ToHashSet(),
-                        _projectionMapping = newProjectionMappings
+                        _projectionMapping = newProjectionMappings,
+                        _groupingCorrelationPredicate = groupingCorrelationPredicate
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
@@ -865,7 +867,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     if (subquery.Limit == null
                         && subquery.Offset == null
                         && subquery._groupBy.Count == 0
-                        && subquery.Predicate != null)
+                        && subquery.Predicate != null
+                        && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled) && enabled)
+                            || subquery.Predicate.Equals(subquery._groupingCorrelationPredicate)))
                     {
                         var initialTableCounts = 0;
                         var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);

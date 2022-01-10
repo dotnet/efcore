@@ -447,6 +447,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.max);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from o in ss.Set<Order>()
+                      group o.OrderID by o.EmployeeID into tg
+                      select new
+                      {
+                          tg.Key,
+                          Max = ss.Set<Order>().Where(e => e.EmployeeID == tg.Max() * 6).Max(t => (int?)t.OrderID)
+                      },
+                elementSorter: e => e.Key);
+        }
+
         #endregion
 
         #region GroupByAnonymousAggregate
