@@ -28,6 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
 
+        private static readonly bool _isNullParenthesesQuirkMode;
+
         private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
         {
             { ExpressionType.Equal, " = " },
@@ -46,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             { ExpressionType.And, " & " },
             { ExpressionType.Or, " | " }
         };
+
+        static QuerySqlGenerator()
+            => _isNullParenthesesQuirkMode =
+                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26652", out var enabled) && enabled;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
@@ -563,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => expression is SqlBinaryExpression
                 || expression is LikeExpression
                 || (expression is SqlUnaryExpression unary
-                    && unary.Operand.Type == typeof(bool)
+                    && (!_isNullParenthesesQuirkMode || unary.Operand.Type == typeof(bool))
                     && (unary.OperatorType == ExpressionType.Equal
                         || unary.OperatorType == ExpressionType.NotEqual));
 

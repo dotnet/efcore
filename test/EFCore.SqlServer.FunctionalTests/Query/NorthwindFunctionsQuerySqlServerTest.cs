@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
+WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')");
         }
 
         public override async Task String_StartsWith_Identity(bool async)
@@ -44,7 +44,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE ([c].[ContactName] = N'') OR (([c].[ContactName] IS NOT NULL) AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_StartsWith_Column(bool async)
@@ -54,7 +54,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE ([c].[ContactName] = N'') OR (([c].[ContactName] IS NOT NULL) AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_StartsWith_MethodCall(bool async)
@@ -64,7 +64,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
+WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')");
         }
 
         public override async Task String_EndsWith_Literal(bool async)
@@ -74,7 +74,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%b')");
+WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'%b')");
         }
 
         public override async Task String_EndsWith_Identity(bool async)
@@ -84,7 +84,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%b')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE ([c].[ContactName] = N'') OR (([c].[ContactName] IS NOT NULL) AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_EndsWith_Column(bool async)
@@ -94,7 +94,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c]
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
+WHERE ([c].[ContactName] = N'') OR (([c].[ContactName] IS NOT NULL) AND (RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_EndsWith_MethodCall(bool async)
@@ -104,7 +104,7 @@ WHERE ([c].[ContactName] = N'') OR ([c].[ContactName] IS NOT NULL AND (RIGHT([c]
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%m')");
+WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'%m')");
         }
 
         public override async Task String_Contains_Literal(bool async)
@@ -370,7 +370,7 @@ WHERE ([c].[CustomerID] >= N'ALFKI') AND ([c].[CustomerID] < N'CACTU')",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR [c].[Country] IS NULL)");
+WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR ([c].[Country] IS NULL))");
         }
 
         public override async Task String_Compare_to_simple_zero(bool async)
@@ -546,7 +546,7 @@ WHERE ([c].[CustomerID] >= N'ALFKI') AND ([c].[CustomerID] < N'CACTU')",
                 //
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR [c].[Country] IS NULL)");
+WHERE ([c].[ContactTitle] = N'Owner') AND (([c].[Country] <> N'USA') OR ([c].[Country] IS NULL))");
         }
 
         public override async Task DateTime_Compare_to_simple_zero(bool async, bool compareTo)
@@ -564,7 +564,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0",
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderDate] <> @__myDatetime_0) OR [o].[OrderDate] IS NULL",
+WHERE ([o].[OrderDate] <> @__myDatetime_0) OR ([o].[OrderDate] IS NULL)",
                 //
                 @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
@@ -1653,7 +1653,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NULL OR ([c].[Region] LIKE N'')");
+WHERE ([c].[Region] IS NULL) OR ([c].[Region] LIKE N'')");
         }
 
         public override async Task IsNullOrEmpty_in_projection(bool async)
@@ -1662,7 +1662,7 @@ WHERE [c].[Region] IS NULL OR ([c].[Region] LIKE N'')");
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN [c].[Region] IS NULL OR ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
+    WHEN ([c].[Region] IS NULL) OR ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
@@ -1675,7 +1675,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')");
+WHERE ([c].[Region] IS NOT NULL) AND NOT ([c].[Region] LIKE N'')");
         }
 
         public override async Task IsNullOrEmpty_negated_in_projection(bool async)
@@ -1684,7 +1684,7 @@ WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')");
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
+    WHEN ([c].[Region] IS NOT NULL) AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");
@@ -1697,7 +1697,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NULL OR ([c].[Region] = N'')");
+WHERE ([c].[Region] IS NULL) OR ([c].[Region] = N'')");
         }
 
         public override async Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)

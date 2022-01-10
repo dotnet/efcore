@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Materialized_query(bool async)
@@ -42,7 +42,7 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Find(bool async)
@@ -55,7 +55,7 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__p_0)");
+WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__p_0)");
         }
 
         public override async Task Materialized_query_parameter(bool async)
@@ -67,7 +67,7 @@ WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AN
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Materialized_query_parameter_new_context(bool async)
@@ -79,13 +79,13 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))",
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))",
                 //
                 @"@__ef_filter__TenantPrefix_0='T' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Projection_query_parameter(bool async)
@@ -97,7 +97,7 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Projection_query(bool async)
@@ -109,7 +109,7 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         public override async Task Include_query(bool async)
@@ -127,11 +127,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
-        WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+        WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c0].[CompanyName] IS NOT NULL) AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CustomerID] IS NOT NULL
-) AS [t0] ON [t0].[CompanyName] IS NOT NULL AND ([c].[CustomerID] = [t0].[CustomerID])
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+) AS [t0] ON ([t0].[CompanyName] IS NOT NULL) AND ([c].[CustomerID] = [t0].[CustomerID])
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ORDER BY [c].[CustomerID], [t0].[OrderID]");
         }
 
@@ -158,9 +158,9 @@ FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
+WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)");
         }
 
         public override async Task Project_reference_that_itself_has_query_filter_with_another_reference(bool async)
@@ -179,9 +179,9 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [c].[CustomerID], [c].[CompanyName]
         FROM [Customers] AS [c]
-        WHERE (@__ef_filter__TenantPrefix_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1))
+        WHERE (@__ef_filter__TenantPrefix_1 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1))
     ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
-    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
+    WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
 ) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
 WHERE [o].[Quantity] > @__ef_filter___quantity_0");
         }
@@ -202,10 +202,10 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[CompanyName]
         FROM [Customers] AS [c0]
-        WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c0].[CompanyName] IS NOT NULL AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+        WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c0].[CompanyName] IS NOT NULL) AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CustomerID] IS NOT NULL
-) AS [t0] ON [t0].[CompanyName] IS NOT NULL AND ([c].[CustomerID] = [t0].[CustomerID])
+) AS [t0] ON ([t0].[CompanyName] IS NOT NULL) AND ([c].[CustomerID] = [t0].[CustomerID])
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[Discount]
     FROM [Order Details] AS [o0]
@@ -215,13 +215,13 @@ INNER JOIN (
         LEFT JOIN (
             SELECT [c1].[CustomerID], [c1].[CompanyName]
             FROM [Customers] AS [c1]
-            WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c1].[CompanyName] IS NOT NULL AND (LEFT([c1].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+            WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c1].[CompanyName] IS NOT NULL) AND (LEFT([c1].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
         ) AS [t3] ON [o1].[CustomerID] = [t3].[CustomerID]
-        WHERE [t3].[CustomerID] IS NOT NULL AND [t3].[CompanyName] IS NOT NULL
+        WHERE ([t3].[CustomerID] IS NOT NULL) AND ([t3].[CompanyName] IS NOT NULL)
     ) AS [t2] ON [o0].[OrderID] = [t2].[OrderID]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
 ) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
-WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([t1].[Discount] < CAST(10 AS real))");
+WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([t1].[Discount] < CAST(10 AS real))");
         }
 
         [ConditionalFact]
@@ -241,7 +241,7 @@ SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[Cont
 FROM (
     select * from Customers
 ) AS [m]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([m].[CompanyName] IS NOT NULL AND (LEFT([m].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([m].[CompanyName] IS NOT NULL) AND (LEFT([m].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         [ConditionalFact]
@@ -264,9 +264,9 @@ FROM (
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
-    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
+WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)");
         }
 
         public override void Compiled_query()
@@ -279,14 +279,14 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__customerID)",
+WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__customerID)",
                 //
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
 @__customerID='BLAUS' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__customerID)");
+WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))) AND ([c].[CustomerID] = @__customerID)");
         }
 
         public override async Task Entity_Equality(bool async)
@@ -301,9 +301,9 @@ FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
-    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
+    WHERE (@__ef_filter__TenantPrefix_0 = N'') OR (([c].[CompanyName] IS NOT NULL) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
+WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)");
         }
 
         private void AssertSql(params string[] expected)
