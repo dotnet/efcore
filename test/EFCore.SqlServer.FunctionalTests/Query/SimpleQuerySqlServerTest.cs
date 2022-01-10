@@ -177,5 +177,41 @@ FROM [Order] AS [o]
 WHERE ([o].[Number] <> N'A1') OR [o].[Number] IS NULL
 GROUP BY [o].[CustomerId], [o].[Number]");
         }
+
+        public override async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
+        {
+            await base.Aggregate_over_subquery_in_group_by_projection_2(async);
+
+            AssertSql(
+                @"SELECT [t].[Value] AS [A], (
+    SELECT MAX([t0].[Id])
+    FROM [Table] AS [t0]
+    WHERE ([t0].[Value] = ((
+        SELECT MAX([t1].[Id])
+        FROM [Table] AS [t1]
+        WHERE ([t].[Value] = [t1].[Value]) OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) * 6)) OR ([t0].[Value] IS NULL AND (
+        SELECT MAX([t1].[Id])
+        FROM [Table] AS [t1]
+        WHERE ([t].[Value] = [t1].[Value]) OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) IS NULL)) AS [B]
+FROM [Table] AS [t]
+GROUP BY [t].[Value]");
+        }
+
+        public override async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
+        {
+            await base.Group_by_aggregate_in_subquery_projection_after_group_by(async);
+
+            AssertSql(
+                @"SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
+    SELECT TOP(1) (
+        SELECT COALESCE(SUM([t1].[Id]), 0)
+        FROM [Table] AS [t1]
+        WHERE ([t].[Value] = [t1].[Value]) OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) + COALESCE(SUM([t0].[Id]), 0)
+    FROM [Table] AS [t0]
+    GROUP BY [t0].[Value]
+    ORDER BY (SELECT 1)), 0) AS [C]
+FROM [Table] AS [t]
+GROUP BY [t].[Value]");
+        }
     }
 }
