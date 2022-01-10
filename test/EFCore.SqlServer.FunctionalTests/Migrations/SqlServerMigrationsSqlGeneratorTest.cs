@@ -750,12 +750,12 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Full
         base.InsertDataOperation_required_args();
 
         AssertSql(
-            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] ON;
-INSERT INTO [People] ([First Name])
+            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] ON;
+INSERT INTO [dbo].[People] ([First Name])
 VALUES (N'John');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] OFF;
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] OFF;
 ");
     }
 
@@ -764,12 +764,12 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
         base.InsertDataOperation_required_args_composite();
 
         AssertSql(
-            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] ON;
-INSERT INTO [People] ([First Name], [Last Name])
+            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] ON;
+INSERT INTO [dbo].[People] ([First Name], [Last Name])
 VALUES (N'John', N'Snow');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] OFF;
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name', N'Last Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] OFF;
 ");
     }
 
@@ -778,13 +778,13 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
         base.InsertDataOperation_required_args_multiple_rows();
 
         AssertSql(
-            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] ON;
-INSERT INTO [People] ([First Name])
+            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] ON;
+INSERT INTO [dbo].[People] ([First Name])
 VALUES (N'John'),
 (N'Daenerys');
-IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[People]'))
-    SET IDENTITY_INSERT [People] OFF;
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] OFF;
 ");
     }
 
