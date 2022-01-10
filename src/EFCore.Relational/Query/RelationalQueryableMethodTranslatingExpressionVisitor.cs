@@ -1960,6 +1960,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selector = _sqlExpressionFactory.Case(
                     new List<CaseWhenClause> { new(predicate, selector) },
                     elseResult: null);
+                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled) && enabled))
+                {
+                    selectExpression.UpdatePredicate(_groupingElementCorrelationalPredicate!);
+                }
             }
 
             if (selectExpression.IsDistinct)

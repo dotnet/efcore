@@ -1884,6 +1884,25 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]");
         }
 
+        public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
+        {
+            await base.GroupBy_with_aggregate_containing_complex_where(async);
+
+            AssertSql(
+                @"SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX([o0].[OrderID])
+    FROM [Orders] AS [o0]
+    WHERE (CAST([o0].[EmployeeID] AS bigint) = CAST(((
+        SELECT MAX([o1].[OrderID])
+        FROM [Orders] AS [o1]
+        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) * 6) AS bigint)) OR ([o0].[EmployeeID] IS NULL AND (
+        SELECT MAX([o1].[OrderID])
+        FROM [Orders] AS [o1]
+        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) IS NULL)) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]");
+        }
+
         public override async Task GroupBy_Shadow(bool async)
         {
             await base.GroupBy_Shadow(async);

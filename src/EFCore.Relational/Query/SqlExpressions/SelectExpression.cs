@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private List<Expression> _clientProjections = new();
         private readonly List<string?> _aliasForClientProjections = new();
 
+        private SqlExpression? _groupingCorrelationPredicate;
         private CloningExpressionVisitor? _cloningExpressionVisitor;
 
         private SelectExpression(
@@ -528,6 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             || shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault:
                         {
                             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+                            innerSelectExpression._groupingCorrelationPredicate = null;
                             var innerShaperExpression = shapedQueryExpression.ShaperExpression;
                             if (innerSelectExpression._clientProjections.Count == 0)
                             {
@@ -599,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             when shapedQueryExpression.ResultCardinality == ResultCardinality.Enumerable:
                         {
                             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+                            innerSelectExpression._groupingCorrelationPredicate = null;
                             if (_identifier.Count == 0
                                 || innerSelectExpression._identifier.Count == 0)
                             {
@@ -1144,6 +1147,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
+        internal void UpdatePredicate(SqlExpression predicate)
+        {
+            Predicate = predicate;
+        }
+
         /// <summary>
         ///     Applies grouping from given key selector.
         /// </summary>
@@ -1254,6 +1262,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
             clonedSelectExpression._groupBy.Clear();
             clonedSelectExpression.ApplyPredicate(correlationPredicate);
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled) && enabled))
+            {
+                clonedSelectExpression._groupingCorrelationPredicate = clonedSelectExpression.Predicate;
+            }
 
             if (!_identifier.All(e => _groupBy.Contains(e.Column)))
             {
@@ -3354,6 +3366,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 Offset = (SqlExpression?)visitor.Visit(Offset);
                 Limit = (SqlExpression?)visitor.Visit(Limit);
+                _groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
 
                 var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: true, out _)
                     .Zip(_identifier, (a, b) => (a, b.Comparer))
@@ -3432,6 +3445,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var limit = (SqlExpression?)visitor.Visit(Limit);
                 changed |= limit != Limit;
 
+                var groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
+                changed |= groupingCorrelationPredicate != _groupingCorrelationPredicate;
+
                 var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: false, out var identifierChanged);
                 changed |= identifierChanged;
 
@@ -3453,7 +3469,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Limit = limit,
                         IsDistinct = IsDistinct,
                         Tags = Tags,
-                        _usedAliases = _usedAliases
+                        _usedAliases = _usedAliases,
+                        _groupingCorrelationPredicate = groupingCorrelationPredicate
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
