@@ -759,6 +759,7 @@ public sealed partial class SelectExpression
                 var newOrderings = selectExpression._orderings.Select(Visit).ToList<OrderingExpression>();
                 var offset = (SqlExpression?)Visit(selectExpression.Offset);
                 var limit = (SqlExpression?)Visit(selectExpression.Limit);
+                var groupingCorrelationPredicate = (SqlExpression?)Visit(selectExpression._groupingCorrelationPredicate);
 
                 var newSelectExpression = new SelectExpression(
                     selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
@@ -770,7 +771,9 @@ public sealed partial class SelectExpression
                     IsDistinct = selectExpression.IsDistinct,
                     Tags = selectExpression.Tags,
                     _usedAliases = selectExpression._usedAliases.ToHashSet(),
-                    _projectionMapping = newProjectionMappings
+                    _projectionMapping = newProjectionMappings,
+                    _groupingCorrelationPredicate = groupingCorrelationPredicate,
+                    _groupingParentSelectExpressionId = selectExpression._groupingParentSelectExpressionId
                 };
 
                 newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
@@ -785,9 +788,8 @@ public sealed partial class SelectExpression
                 }
 
                 // Now that we have SelectExpression, we visit all components and update table references inside columns
-                newSelectExpression =
-                    (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(selectExpression, newSelectExpression)
-                        .Visit(newSelectExpression);
+                newSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
+                    selectExpression, newSelectExpression._tableReferences).Visit(newSelectExpression);
 
                 return newSelectExpression;
             }
@@ -801,10 +803,11 @@ public sealed partial class SelectExpression
         private readonly SelectExpression _oldSelectExpression;
         private readonly Dictionary<string, TableReferenceExpression> _newTableReferences;
 
-        public ColumnExpressionReplacingExpressionVisitor(SelectExpression oldSelectExpression, SelectExpression newSelectExpression)
+        public ColumnExpressionReplacingExpressionVisitor(
+                SelectExpression oldSelectExpression, IEnumerable<TableReferenceExpression> newTableReferences)
         {
             _oldSelectExpression = oldSelectExpression;
-            _newTableReferences = newSelectExpression._tableReferences.ToDictionary(e => e.Alias);
+            _newTableReferences = newTableReferences.ToDictionary(e => e.Alias);
         }
 
         [return: NotNullIfNotNull("expression")]
@@ -840,15 +843,19 @@ public sealed partial class SelectExpression
                 if (subquery.Limit == null
                     && subquery.Offset == null
                     && subquery._groupBy.Count == 0
-                    && subquery.Predicate != null)
+                    && subquery.Predicate != null
+                    && subquery._groupingParentSelectExpressionId == _selectExpression._groupingParentSelectExpressionId
+                    && subquery.Predicate.Equals(subquery._groupingCorrelationPredicate))
+
                 {
                     var initialTableCounts = 0;
                     var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
                     for (var i = 0; i < potentialTableCount; i++)
                     {
                         if (!string.Equals(
-                                _selectExpression._tableReferences[i].Alias,
-                                subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                            _selectExpression._tableReferences[i].Alias,
+                            subquery._tableReferences[i].Alias,
+                            StringComparison.OrdinalIgnoreCase))
                         {
                             break;
                         }
@@ -865,8 +872,10 @@ public sealed partial class SelectExpression
                     if (initialTableCounts > 0)
                     {
                         // If there are no initial table then this is not correlated grouping subquery
-                        var columnExpressionReplacingExpressionVisitor =
-                            new ColumnExpressionReplacingExpressionVisitor(subquery, _selectExpression);
+                        // We only replace columns from initial tables.
+                        // Additional tables may have been added to outer from other terms which may end up matching on table alias
+                        var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(
+                                subquery, _selectExpression._tableReferences.Take(initialTableCounts));
                         if (subquery._tables.Count != initialTableCounts)
                         {
                             // If subquery has more tables then we expanded join on it.
@@ -889,12 +898,6 @@ public sealed partial class SelectExpression
                 }
             }
 
-            if (expression is SelectExpression innerSelectExpression
-                && innerSelectExpression.GroupBy.Count > 0)
-            {
-                expression = new GroupByAggregateLiftingExpressionVisitor(innerSelectExpression).Visit(innerSelectExpression);
-            }
-
             return base.Visit(expression);
         }
 
@@ -902,7 +905,8 @@ public sealed partial class SelectExpression
         {
             if (target._projection.Count != source._projection.Count)
             {
-                var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(source, target);
+                var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(
+                            source, target._tableReferences);
                 var minProjectionCount = Math.Min(target._projection.Count, source._projection.Count);
                 var initialProjectionCount = 0;
                 for (var i = 0; i < minProjectionCount; i++)

@@ -198,17 +198,83 @@ ORDER BY [o].[OrderId]");
 SELECT [o1].[Id], COALESCE((
     SELECT TOP(1) [o2].[Price]
     FROM [OrderItems] AS [o2]
-    WHERE [o1].[Id] = [o2].[OrderId] AND [o2].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
+    WHERE [o1].[Id] = [o2].[Order26472Id] AND [o2].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
 FROM (
     SELECT TOP(@__p_0) [o].[Id]
     FROM [Orders] AS [o]
     WHERE EXISTS (
         SELECT 1
         FROM [OrderItems] AS [o0]
-        WHERE [o].[Id] = [o0].[OrderId])
+        WHERE [o].[Id] = [o0].[Order26472Id])
     ORDER BY [o].[Id]
 ) AS [t]
 INNER JOIN [Orders] AS [o1] ON [t].[Id] = [o1].[Id]
 ORDER BY [t].[Id]");
+    }
+
+    public override async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
+    {
+        await base.GroupBy_Aggregate_over_navigations_repeated(async);
+
+        AssertSql(
+            @"SELECT MIN([o].[HourlyRate]) AS [HourlyRate], MIN([c].[Id]) AS [CustomerId], MIN([c0].[Name]) AS [CustomerName]
+FROM [TimeSheets] AS [t]
+LEFT JOIN [Order] AS [o] ON [t].[OrderId] = [o].[Id]
+INNER JOIN [Project] AS [p] ON [t].[ProjectId] = [p].[Id]
+INNER JOIN [Customers] AS [c] ON [p].[CustomerId] = [c].[Id]
+INNER JOIN [Project] AS [p0] ON [t].[ProjectId] = [p0].[Id]
+INNER JOIN [Customers] AS [c0] ON [p0].[CustomerId] = [c0].[Id]
+WHERE [t].[OrderId] IS NOT NULL
+GROUP BY [t].[OrderId]");
+    }
+
+    public override async Task Aggregate_over_subquery_in_group_by_projection(bool async)
+    {
+        await base.Aggregate_over_subquery_in_group_by_projection(async);
+
+        AssertSql(
+            @"SELECT [o].[CustomerId], (
+    SELECT MIN([o0].[HourlyRate])
+    FROM [Order] AS [o0]
+    WHERE [o0].[CustomerId] = [o].[CustomerId]) AS [CustomerMinHourlyRate], MIN([o].[HourlyRate]) AS [HourlyRate], COUNT(*) AS [Count]
+FROM [Order] AS [o]
+WHERE [o].[Number] <> N'A1' OR [o].[Number] IS NULL
+GROUP BY [o].[CustomerId], [o].[Number]");
+    }
+
+    public override async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
+    {
+        await base.Aggregate_over_subquery_in_group_by_projection_2(async);
+
+        AssertSql(
+            @"SELECT [t].[Value] AS [A], (
+    SELECT MAX([t0].[Id])
+    FROM [Table] AS [t0]
+    WHERE [t0].[Value] = ((
+        SELECT MAX([t1].[Id])
+        FROM [Table] AS [t1]
+        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) * 6) OR ([t0].[Value] IS NULL AND (
+        SELECT MAX([t1].[Id])
+        FROM [Table] AS [t1]
+        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) IS NULL)) AS [B]
+FROM [Table] AS [t]
+GROUP BY [t].[Value]");
+    }
+
+    public override async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
+    {
+        await base.Group_by_aggregate_in_subquery_projection_after_group_by(async);
+
+        AssertSql(
+            @"SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
+    SELECT TOP(1) (
+        SELECT COALESCE(SUM([t1].[Id]), 0)
+        FROM [Table] AS [t1]
+        WHERE [t].[Value] = [t1].[Value] OR ([t].[Value] IS NULL AND [t1].[Value] IS NULL)) + COALESCE(SUM([t0].[Id]), 0)
+    FROM [Table] AS [t0]
+    GROUP BY [t0].[Value]
+    ORDER BY (SELECT 1)), 0) AS [C]
+FROM [Table] AS [t]
+GROUP BY [t].[Value]");
     }
 }

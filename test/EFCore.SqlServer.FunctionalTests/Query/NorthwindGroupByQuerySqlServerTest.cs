@@ -1900,6 +1900,25 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 GROUP BY [o].[EmployeeID]");
     }
 
+    public override async Task GroupBy_with_aggregate_containing_complex_where(bool async)
+    {
+        await base.GroupBy_with_aggregate_containing_complex_where(async);
+
+        AssertSql(
+            @"SELECT [o].[EmployeeID] AS [Key], (
+    SELECT MAX([o0].[OrderID])
+    FROM [Orders] AS [o0]
+    WHERE CAST([o0].[EmployeeID] AS bigint) = CAST(((
+        SELECT MAX([o1].[OrderID])
+        FROM [Orders] AS [o1]
+        WHERE [o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) * 6) AS bigint) OR ([o0].[EmployeeID] IS NULL AND (
+        SELECT MAX([o1].[OrderID])
+        FROM [Orders] AS [o1]
+        WHERE [o].[EmployeeID] = [o1].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) IS NULL)) AS [Max]
+FROM [Orders] AS [o]
+GROUP BY [o].[EmployeeID]");
+    }
+
     public override async Task GroupBy_Shadow(bool async)
     {
         await base.GroupBy_Shadow(async);
@@ -2792,6 +2811,65 @@ OUTER APPLY (
 ) AS [t2]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t2].[CustomerID0]");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_same_projection(async);
+
+        AssertSql(
+            @"SELECT [t].[CustomerID], [t0].[Key], [t0].[C], [t0].[c0]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+OUTER APPLY (
+    SELECT TOP(1) [e].[City] AS [Key], COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [t].[CustomerID] = [o0].[CustomerID] OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [C], 1 AS [c0]
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (SELECT 1)
+) AS [t0]");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection_2(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_same_projection_2(async);
+
+        AssertSql(
+            @"SELECT [o].[CustomerID] AS [Key], COALESCE((
+    SELECT TOP(1) COUNT(*) + MIN([o].[OrderID])
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (SELECT 1)), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+    }
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+    {
+        await base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async);
+
+        AssertSql(
+            @"SELECT [o].[CustomerID] AS [Key], COALESCE((
+    SELECT TOP(1) COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
     }
 
     public override async Task GroupBy_scalar_aggregate_in_set_operation(bool async)

@@ -52,6 +52,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     private List<Expression> _clientProjections = new();
     private readonly List<string?> _aliasForClientProjections = new();
 
+    private SqlExpression? _groupingCorrelationPredicate;
+    private Guid? _groupingParentSelectExpressionId;
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
     private SelectExpression(
@@ -515,6 +517,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         || shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault:
                     {
                         var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+                        innerSelectExpression._groupingCorrelationPredicate = null;
                         var innerShaperExpression = shapedQueryExpression.ShaperExpression;
                         if (innerSelectExpression._clientProjections.Count == 0)
                         {
@@ -585,6 +588,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         when shapedQueryExpression.ResultCardinality == ResultCardinality.Enumerable:
                     {
                         var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+                        innerSelectExpression._groupingCorrelationPredicate = null;
                         if (_identifier.Count == 0
                             || innerSelectExpression._identifier.Count == 0)
                         {
@@ -606,7 +610,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
                             innerSelectExpression =
-                                (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression)
+                                (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression._tableReferences)
                                     .Visit(innerSelectExpression);
 
                             if (outerSelectExpression.Limit != null
@@ -1131,6 +1135,11 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
+    internal void UpdatePredicate(SqlExpression predicate)
+    {
+        Predicate = predicate;
+    }
+
     /// <summary>
     ///     Applies grouping from given key selector.
     /// </summary>
@@ -1229,12 +1238,14 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We generate the cloned expression before changing identifier for this SelectExpression
         // because we are going to erase grouping for cloned expression.
+        _groupingParentSelectExpressionId = Guid.NewGuid();
         var clonedSelectExpression = Clone();
         var correlationPredicate = groupByTerms.Zip(clonedSelectExpression._groupBy)
             .Select(e => sqlExpressionFactory.Equal(e.First, e.Second))
             .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
         clonedSelectExpression._groupBy.Clear();
         clonedSelectExpression.ApplyPredicate(correlationPredicate);
+        clonedSelectExpression._groupingCorrelationPredicate = clonedSelectExpression.Predicate;
 
         if (!_identifier.All(e => _groupBy.Contains(e.Column)))
         {
@@ -1433,13 +1444,17 @@ public sealed partial class SelectExpression : TableExpressionBase
             Predicate = Predicate,
             Having = Having,
             Offset = Offset,
-            Limit = Limit
+            Limit = Limit,
+            _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+            _groupingCorrelationPredicate = _groupingCorrelationPredicate
         };
         Offset = null;
         Limit = null;
         IsDistinct = false;
         Predicate = null;
         Having = null;
+        _groupingCorrelationPredicate = null;
+        _groupingParentSelectExpressionId = null;
         _groupBy.Clear();
         _orderings.Clear();
         _tables.Clear();
@@ -2583,7 +2598,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             Predicate = Predicate,
             Having = Having,
             Offset = Offset,
-            Limit = Limit
+            Limit = Limit,
+            _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
         };
         subquery._usedAliases = _usedAliases;
         _tables.Clear();
@@ -3127,6 +3143,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             Offset = (SqlExpression?)visitor.Visit(Offset);
             Limit = (SqlExpression?)visitor.Visit(Limit);
+            _groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
 
             var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: true, out _)
                 .Zip(_identifier, (a, b) => (a, b.Comparer))
@@ -3205,6 +3222,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             var limit = (SqlExpression?)visitor.Visit(Limit);
             changed |= limit != Limit;
 
+            var groupingCorrelationPredicate = (SqlExpression?)visitor.Visit(_groupingCorrelationPredicate);
+            changed |= groupingCorrelationPredicate != _groupingCorrelationPredicate;
+
             var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: false, out var identifierChanged);
             changed |= identifierChanged;
 
@@ -3226,7 +3246,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Limit = limit,
                     IsDistinct = IsDistinct,
                     Tags = Tags,
-                    _usedAliases = _usedAliases
+                    _usedAliases = _usedAliases,
+                    _groupingCorrelationPredicate = groupingCorrelationPredicate,
+                    _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
                 };
 
                 newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);

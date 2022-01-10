@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -71,4 +72,13 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
 
     public override async Task Odata_groupby_empty_key(bool async)
         => await Assert.ThrowsAsync<NotSupportedException>(() => base.Odata_groupby_empty_key(async));
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupBy_aggregate_from_multiple_query_in_same_projection(async))).Message);
+
+    public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+        => await Assert.ThrowsAsync<SqliteException>(() => base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async));
 }

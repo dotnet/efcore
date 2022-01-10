@@ -150,6 +150,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                 materializeCollectionNavigationExpression.Subquery)!);
                         return new CollectionResultExpression(
+                            // expression.Type will be CLR type of the navigation here so that is fine.
                             new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
                             materializeCollectionNavigationExpression.Navigation,
                             materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
@@ -166,6 +167,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                             if (subquery != null)
                             {
                                 _clientProjections!.Add(subquery);
+                                // expression.Type here will be List<T>
                                 return new CollectionResultExpression(
                                     new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
                                     navigation: null,
@@ -185,8 +187,14 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                                 }
 
                                 _clientProjections!.Add(subquery);
+                                var type = expression.Type;
+                                if (type.IsGenericType
+                                    && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                                {
+                                    type = typeof(IEnumerable<>).MakeGenericType(type.GetSequenceType());
+                                }
                                 var projectionBindingExpression = new ProjectionBindingExpression(
-                                    _selectExpression, _clientProjections.Count - 1, expression.Type);
+                                    _selectExpression, _clientProjections.Count - 1, type);
                                 return subquery.ResultCardinality == ResultCardinality.Enumerable
                                     ? new CollectionResultExpression(
                                         projectionBindingExpression, navigation: null, subquery.ShaperExpression.Type)

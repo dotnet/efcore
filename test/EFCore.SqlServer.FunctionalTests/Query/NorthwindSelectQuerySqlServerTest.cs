@@ -2053,6 +2053,22 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID]");
     }
 
+    public override async Task List_of_list_of_anonymous_type(bool async)
+    {
+        await base.List_of_list_of_anonymous_type(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -1268,6 +1268,10 @@ ORDER BY c[""OrderID""]");
         Assert.Equal(CosmosStrings.ReverseAfterSkipTakeNotSupported, message);
     }
 
+    [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+    public override Task List_of_list_of_anonymous_type(bool async)
+        => base.List_of_list_of_anonymous_type(async);
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

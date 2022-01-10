@@ -690,7 +690,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         {
         }
 
-        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<Order26472> Orders { get; set; }
         public virtual DbSet<OrderItem26472> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -699,7 +699,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Order
+    protected class Order26472
     {
         public int Id { get; set; }
 
@@ -719,5 +719,193 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         Undefined = 0,
         MyType1 = 1,
         MyType2 = 2
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var query = context
+            .Set<TimeSheet>()
+            .Where(x => x.OrderId != null)
+            .GroupBy(x => x.OrderId)
+            .Select(x => new
+            {
+                HourlyRate = x.Min(f => f.Order.HourlyRate),
+                CustomerId = x.Min(f => f.Project.Customer.Id),
+                CustomerName = x.Min(f => f.Project.Customer.Name),
+            });
+
+        var timeSheets = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Equal(2, timeSheets.Count);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Aggregate_over_subquery_in_group_by_projection(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27083>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        Expression<Func<Order, bool>> someFilterFromOutside = x => x.Number != "A1";
+
+        var query = context
+            .Set<Order>()
+            .Where(someFilterFromOutside)
+            .GroupBy(x => new { x.CustomerId, x.Number })
+            .Select(x => new
+            {
+                x.Key.CustomerId,
+                CustomerMinHourlyRate = context.Set<Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
+                HourlyRate = x.Min(f => f.HourlyRate),
+                Count = x.Count()
+            });
+
+        var orders = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Collection(orders,
+            t => Assert.Equal(10, t.CustomerMinHourlyRate),
+            t => Assert.Equal(20, t.CustomerMinHourlyRate));
+    }
+
+    protected class Context27083 : DbContext
+    {
+        public Context27083(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<TimeSheet> TimeSheets { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+
+        public void Seed()
+        {
+            var customerA = new Customer { Name = "Customer A" };
+            var customerB = new Customer { Name = "Customer B" };
+
+            var projectA = new Project { Customer = customerA };
+            var projectB = new Project { Customer = customerB };
+
+            var orderA1 = new Order { Number = "A1", Customer = customerA, HourlyRate = 10 };
+            var orderA2 = new Order { Number = "A2", Customer = customerA, HourlyRate = 11 };
+            var orderB1 = new Order { Number = "B1", Customer = customerB, HourlyRate = 20 };
+
+            var timeSheetA = new TimeSheet { Order = orderA1, Project = projectA };
+            var timeSheetB = new TimeSheet { Order = orderB1, Project = projectB };
+
+            AddRange(customerA, customerB);
+            AddRange(projectA, projectB);
+            AddRange(orderA1, orderA2, orderB1);
+            AddRange(timeSheetA, timeSheetB);
+            SaveChanges();
+        }
+    }
+
+    protected class Customer
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public List<Project> Projects { get; set; }
+        public List<Order> Orders { get; set; }
+    }
+
+    protected class Order
+    {
+        public int Id { get; set; }
+        public string Number { get; set; }
+
+        public int CustomerId { get; set; }
+        public Customer Customer { get; set; }
+
+        public int HourlyRate { get; set; }
+    }
+
+    protected class Project
+    {
+        public int Id { get; set; }
+        public int CustomerId { get; set; }
+
+        public Customer Customer { get; set; }
+    }
+
+    protected class TimeSheet
+    {
+        public int Id { get; set; }
+
+        public int ProjectId { get; set; }
+        public Project Project { get; set; }
+
+        public int? OrderId { get; set; }
+        public Order Order { get; set; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27094>();
+        using var context = contextFactory.CreateContext();
+
+        var query = from t in context.Table
+                    group t.Id by t.Value into tg
+                    select new
+                    {
+                        A = tg.Key,
+                        B = context.Table.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                    };
+
+        var orders = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27094>();
+        using var context = contextFactory.CreateContext();
+
+        var query = from t in context.Table
+                    group t.Id by t.Value into tg
+                    select new
+                    {
+                        A = tg.Key,
+                        B = tg.Sum(),
+                        C = (from t in context.Table
+                             group t.Id by t.Value into tg2
+                             select tg.Sum() + tg2.Sum()
+                             ).OrderBy(e => 1).FirstOrDefault()
+                    };
+
+        var orders = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
+
+    protected class Context27094 : DbContext
+    {
+        public Context27094(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Table> Table { get; set; }
+    }
+
+    protected class Table
+    {
+        public int Id { get; set; }
+        public int? Value { get; set; }
     }
 }

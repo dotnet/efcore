@@ -99,7 +99,9 @@ public class LikeExpression : SqlExpression
         => base.Equals(likeExpression)
             && Match.Equals(likeExpression.Match)
             && Pattern.Equals(likeExpression.Pattern)
-            && EscapeChar?.Equals(likeExpression.EscapeChar) == true;
+            && (EscapeChar == null
+                ? likeExpression.EscapeChar == null
+                : EscapeChar.Equals(likeExpression.EscapeChar));
 
     /// <inheritdoc />
     public override int GetHashCode()

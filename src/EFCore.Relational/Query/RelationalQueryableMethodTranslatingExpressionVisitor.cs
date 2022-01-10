@@ -1608,6 +1608,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selector = _sqlExpressionFactory.Case(
                 new List<CaseWhenClause> { new(predicate, selector) },
                 elseResult: null);
+            selectExpression.UpdatePredicate(_groupingElementCorrelationalPredicate!);
         }
 
         if (selectExpression.IsDistinct)

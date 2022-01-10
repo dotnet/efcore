@@ -2390,4 +2390,28 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                 AssertEqual(e.CustomerID, a.CustomerID);
                 AssertEqual(e.Orders.Count(), a.Orders.Count());
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task List_of_list_of_anonymous_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        ListWithSubList = c.Orders.OrderBy(e => e.OrderID).Select(o => o.OrderDetails.Select(e => new
+                        {
+                            e.OrderID,
+                            e.ProductID
+                        }))
+                    }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.CustomerID, a.CustomerID);
+                AssertCollection(e.ListWithSubList, a.ListWithSubList, ordered: true,
+                    elementAsserter: (ee, aa) => AssertCollection(ee, aa, elementSorter: i => (i.OrderID, i.ProductID)));
+            });
 }

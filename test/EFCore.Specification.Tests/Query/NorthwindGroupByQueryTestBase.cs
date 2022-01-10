@@ -397,6 +397,20 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 g => new { max = g.Max(i => i.Customer.Region) }),
             elementSorter: e => e.max);
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_with_aggregate_containing_complex_where(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>()
+                  group o.OrderID by o.EmployeeID into tg
+                  select new
+                  {
+                      tg.Key,
+                      Max = ss.Set<Order>().Where(e => e.EmployeeID == tg.Max() * 6).Max(t => (int?)t.OrderID)
+                  },
+            elementSorter: e => e.Key);
+
     #endregion
 
     #region GroupByAnonymousAggregate
@@ -2399,7 +2413,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key,
+                            Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2414,7 +2429,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key,
+                            Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2976,6 +2992,54 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 AssertCollection(e.Orders, a.Orders);
             },
             entryCount: 15);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                .Select(g2 => new { g2.Key, C = g2.Count() + g.Count() })
+                                .OrderBy(e => 1)
+                                .FirstOrDefault()
+                    }),
+            elementSorter: e => e.Key);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                .Select(g2 => g2.Count() + g.Min(e => e.OrderID))
+                                .OrderBy(e => 1)
+                                .FirstOrDefault()
+                    }),
+            elementSorter: e => e.Key);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        A = ss.Set<Employee>().Where(e => e.City == "Seattle").GroupBy(e => e.City)
+                                .Select(g2 => g2.Count() + g.Count())
+                                .OrderBy(e => e)
+                                .FirstOrDefault()
+                    }),
+            elementSorter: e => e.Key);
 
     #endregion
 
