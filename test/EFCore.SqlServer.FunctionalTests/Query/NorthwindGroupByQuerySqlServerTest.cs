@@ -2808,6 +2808,65 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t2].[CustomerID0]");
         }
 
+        public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+        {
+            await base.GroupBy_aggregate_from_multiple_query_in_same_projection(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t0].[Key], [t0].[C], [t0].[c0]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+OUTER APPLY (
+    SELECT TOP(1) [e].[City] AS [Key], COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [C], 1 AS [c0]
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (SELECT 1)
+) AS [t0]");
+        }
+
+        public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection_2(bool async)
+        {
+            await base.GroupBy_aggregate_from_multiple_query_in_same_projection_2(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE((
+    SELECT TOP(1) COUNT(*) + MIN([o].[OrderID])
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY (SELECT 1)), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+        {
+            await base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COALESCE((
+    SELECT TOP(1) COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Employees] AS [e]
+    WHERE [e].[City] = N'Seattle'
+    GROUP BY [e].[City]
+    ORDER BY COUNT(*) + (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), 0) AS [A]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task GroupBy_scalar_aggregate_in_set_operation(bool async)
         {
             await base.GroupBy_scalar_aggregate_in_set_operation(async);

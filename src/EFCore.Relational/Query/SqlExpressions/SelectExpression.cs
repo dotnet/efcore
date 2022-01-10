@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<string?> _aliasForClientProjections = new();
 
         private SqlExpression? _groupingCorrelationPredicate;
+        private Guid? _groupingParentSelectExpressionId;
         private CloningExpressionVisitor? _cloningExpressionVisitor;
 
         private SelectExpression(
@@ -1255,6 +1256,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             // We generate the cloned expression before changing identifier for this SelectExpression
             // because we are going to erase grouping for cloned expression.
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled2) && enabled2))
+            {
+                _groupingParentSelectExpressionId = Guid.NewGuid();
+
+            }
             var clonedSelectExpression = Clone();
             var correlationPredicate = groupByTerms.Zip(clonedSelectExpression._groupBy)
                 .Select(e => sqlExpressionFactory.Equal(e.First, e.Second))
@@ -1487,13 +1493,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Predicate = Predicate,
                 Having = Having,
                 Offset = Offset,
-                Limit = Limit
+                Limit = Limit,
+                _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+                _groupingCorrelationPredicate = _groupingCorrelationPredicate
             };
             Offset = null;
             Limit = null;
             IsDistinct = false;
             Predicate = null;
             Having = null;
+            _groupingCorrelationPredicate = null;
+            _groupingParentSelectExpressionId = null;
             _groupBy.Clear();
             _orderings.Clear();
             _tables.Clear();
@@ -2808,7 +2818,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Predicate = Predicate,
                 Having = Having,
                 Offset = Offset,
-                Limit = Limit
+                Limit = Limit,
+                _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
             };
             subquery._usedAliases = _usedAliases;
             _tables.Clear();
@@ -3273,6 +3284,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             tableReferenceExpression.Alias = uniqueAlias;
 
             tableExpressionBase = (TableExpressionBase)new AliasUniquefier(_usedAliases).Visit(tableExpressionBase);
+
             _tables.Add(tableExpressionBase);
             _tableReferences.Add(tableReferenceExpression);
         }
@@ -3469,7 +3481,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         IsDistinct = IsDistinct,
                         Tags = Tags,
                         _usedAliases = _usedAliases,
-                        _groupingCorrelationPredicate = groupingCorrelationPredicate
+                        _groupingCorrelationPredicate = groupingCorrelationPredicate,
+                        _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
