@@ -44,15 +44,7 @@ public interface IReadOnlyCheckConstraint : IReadOnlyAnnotatable
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The default name that would be used for this check constraint.</returns>
     string GetDefaultName(in StoreObjectIdentifier storeObject)
-    {
-        var prefix = $"CK_{storeObject.Name}_";
-        return Uniquifier.Truncate(
-                !(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27059", out var enabled) && enabled)
-                || ModelName.StartsWith(prefix, StringComparison.Ordinal)
-                ? ModelName
-                : prefix + ModelName,
-            EntityType.Model.GetMaxIdentifierLength());
-    }
+        => Uniquifier.Truncate(ModelName, EntityType.Model.GetMaxIdentifierLength());
 
     /// <summary>
     ///     Gets the entity type on which this check constraint is defined.
