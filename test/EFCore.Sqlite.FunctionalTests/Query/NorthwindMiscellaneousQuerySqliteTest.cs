@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT ""o"".""CustomerID""
 FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL AND (('10' = '') OR (instr(CAST(""o"".""EmployeeID"" AS TEXT), '10') > 0))");
+WHERE (""o"".""OrderDate"" IS NOT NULL) AND (('10' = '') OR (instr(CAST(""o"".""EmployeeID"" AS TEXT), '10') > 0))");
         }
 
         public override async Task Take_Skip(bool async)

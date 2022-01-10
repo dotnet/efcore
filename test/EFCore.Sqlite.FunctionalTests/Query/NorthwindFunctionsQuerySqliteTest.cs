@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
+WHERE (""c"".""ContactName"" IS NOT NULL) AND (""c"".""ContactName"" LIKE 'M%')");
         }
 
         public override async Task String_StartsWith_Identity(bool async)
@@ -194,7 +194,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
+WHERE (""c"".""ContactName"" = '') OR ((""c"".""ContactName"" IS NOT NULL) AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_StartsWith_Column(bool async)
@@ -204,7 +204,7 @@ WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (((
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
+WHERE (""c"".""ContactName"" = '') OR ((""c"".""ContactName"" IS NOT NULL) AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_StartsWith_MethodCall(bool async)
@@ -214,7 +214,7 @@ WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (((
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
+WHERE (""c"".""ContactName"" IS NOT NULL) AND (""c"".""ContactName"" LIKE 'M%')");
         }
 
         public override async Task String_EndsWith_Literal(bool async)
@@ -224,7 +224,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
+WHERE (""c"".""ContactName"" IS NOT NULL) AND (""c"".""ContactName"" LIKE '%b')");
         }
 
         public override async Task String_EndsWith_Identity(bool async)
@@ -234,7 +234,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
+WHERE (""c"".""ContactName"" = '') OR ((""c"".""ContactName"" IS NOT NULL) AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_EndsWith_Column(bool async)
@@ -244,7 +244,7 @@ WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND ((s
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
+WHERE (""c"".""ContactName"" = '') OR ((""c"".""ContactName"" IS NOT NULL) AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_EndsWith_MethodCall(bool async)
@@ -254,7 +254,7 @@ WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND ((s
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%m')");
+WHERE (""c"".""ContactName"" IS NOT NULL) AND (""c"".""ContactName"" LIKE '%m')");
         }
 
         public override async Task String_Contains_Literal(bool async)
@@ -322,7 +322,7 @@ WHERE ('M' = '') OR (instr(""c"".""ContactName"", 'M') > 0)");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NULL OR (trim(""c"".""Region"") = '')");
+WHERE (""c"".""Region"" IS NULL) OR (trim(""c"".""Region"") = '')");
         }
 
         public override async Task Indexof_with_emptystring(bool async)
@@ -624,7 +624,7 @@ WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NULL OR (""c"".""Region"" = '')");
+WHERE (""c"".""Region"" IS NULL) OR (""c"".""Region"" = '')");
         }
 
         public override async Task IsNullOrEmpty_in_projection(bool async)
@@ -632,7 +632,7 @@ WHERE ""c"".""Region"" IS NULL OR (""c"".""Region"" = '')");
             await base.IsNullOrEmpty_in_projection(async);
 
             AssertSql(
-                @"SELECT ""c"".""CustomerID"" AS ""Id"", ""c"".""Region"" IS NULL OR (""c"".""Region"" = '') AS ""Value""
+                @"SELECT ""c"".""CustomerID"" AS ""Id"", (""c"".""Region"" IS NULL) OR (""c"".""Region"" = '') AS ""Value""
 FROM ""Customers"" AS ""c""");
         }
 
@@ -643,7 +643,7 @@ FROM ""Customers"" AS ""c""");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NOT NULL AND (""c"".""Region"" <> '')");
+WHERE (""c"".""Region"" IS NOT NULL) AND (""c"".""Region"" <> '')");
         }
 
         public override Task Datetime_subtraction_TotalDays(bool async)

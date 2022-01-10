@@ -106,7 +106,7 @@ ORDER BY (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE ([e].[Id] = [j].[EntityOneId]) AND ([t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%'))), [e].[Id]");
+    WHERE ([e].[Id] = [j].[EntityOneId]) AND (([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%'))), [e].[Id]");
         }
 
         public override async Task Skip_navigation_long_count_without_predicate(bool async)
@@ -134,7 +134,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE ([e].[Id] = [e0].[SelfSkipSharedRightId]) AND ([e1].[Name] IS NOT NULL AND ([e1].[Name] LIKE N'L%'))) DESC, [e].[Id]");
+    WHERE ([e].[Id] = [e0].[SelfSkipSharedRightId]) AND (([e1].[Name] IS NOT NULL) AND ([e1].[Name] LIKE N'L%'))) DESC, [e].[Id]");
         }
 
         public override async Task Skip_navigation_select_many_average(bool async)

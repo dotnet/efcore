@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE ([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE ([o].[CustomerID] <> N'ALFKI') OR ([o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -464,7 +464,7 @@ WHERE [o].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] > 10) AND (([o].[CustomerID] <> N'ALFKI') OR [o].[CustomerID] IS NULL)");
+WHERE ([o].[OrderID] > 10) AND (([o].[CustomerID] <> N'ALFKI') OR ([o].[CustomerID] IS NULL))");
         }
 
         public override async Task Distinct(bool async)
@@ -1006,7 +1006,7 @@ ORDER BY [o].[OrderID]");
             AssertSql(
                 @"SELECT AVG(CAST(CAST([o].[OrderID] AS bigint) AS float))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
+WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Max_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
@@ -1016,7 +1016,7 @@ WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
             AssertSql(
                 @"SELECT MAX(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
+WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task Min_with_non_matching_types_in_projection_introduces_explicit_cast(bool async)
@@ -1026,7 +1026,7 @@ WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
             AssertSql(
                 @"SELECT MIN(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
+WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')");
         }
 
         public override async Task OrderBy_Take_Last_gives_correct_result(bool async)
@@ -1195,7 +1195,7 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL)");
+    WHERE ([o0].[CustomerID] = N'VINET') AND ([o0].[CustomerID] IS NULL))");
         }
 
         public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_negated(bool async)
@@ -1208,7 +1208,7 @@ FROM [Orders] AS [o]
 WHERE NOT (EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL))");
+    WHERE ([o0].[CustomerID] = N'VINET') AND ([o0].[CustomerID] IS NULL)))");
         }
 
         public override async Task Contains_over_entityType_with_null_should_rewrite_to_identity_equality_subquery_complex(bool async)
@@ -1222,13 +1222,13 @@ WHERE CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE ([o0].[CustomerID] = N'VINET') AND ([o0].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE (([o1].[CustomerID] <> N'VINET') OR [o1].[CustomerID] IS NULL) AND [o1].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE (([o1].[CustomerID] <> N'VINET') OR ([o1].[CustomerID] IS NULL)) AND ([o1].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1242,7 +1242,7 @@ END");
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE ([o0].[CustomerID] = N'VINET') AND ([o0].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]");

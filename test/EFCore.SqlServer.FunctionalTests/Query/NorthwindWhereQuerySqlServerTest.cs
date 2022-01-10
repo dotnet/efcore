@@ -483,10 +483,10 @@ FROM [Employees] AS [e]
 WHERE ([e].[Title] = (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title])) OR ([e].[Title] IS NULL AND (
+    ORDER BY [e0].[Title])) OR (([e].[Title] IS NULL) AND ((
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title]) IS NULL)");
+    ORDER BY [e0].[Title]) IS NULL))");
         }
 
         public override async Task Where_subquery_correlated(bool async)
@@ -680,10 +680,10 @@ FROM [Customers] AS [c]
 WHERE (CASE
     WHEN N'Sea' = N'' THEN 0
     ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
-END <> -1) OR CASE
+END <> -1) OR (CASE
     WHEN N'Sea' = N'' THEN 0
     ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
-END IS NULL");
+END IS NULL)");
         }
 
         public override async Task Where_string_replace(bool async)
@@ -949,7 +949,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = [c].[City]) OR [c].[City] IS NULL");
+WHERE ([c].[City] = [c].[City]) OR ([c].[City] IS NULL)");
         }
 
         public override async Task Where_in_optimization_multiple(bool async)
@@ -971,7 +971,7 @@ WHERE ([c].[City] IN (N'London', N'Berlin') OR ([c].[CustomerID] = N'ALFKI')) OR
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([e].[City] <> N'London') OR [e].[City] IS NULL)");
+WHERE (([c].[City] <> N'London') OR ([c].[City] IS NULL)) AND (([e].[City] <> N'London') OR ([e].[City] IS NULL))");
         }
 
         public override async Task Where_not_in_optimization2(bool async)
@@ -982,7 +982,7 @@ WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([e].[City] <> N'Lo
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin') OR [c].[City] IS NULL");
+WHERE [c].[City] NOT IN (N'London', N'Berlin') OR ([c].[City] IS NULL)");
         }
 
         public override async Task Where_not_in_optimization3(bool async)
@@ -993,7 +993,7 @@ WHERE [c].[City] NOT IN (N'London', N'Berlin') OR [c].[City] IS NULL");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR [c].[City] IS NULL");
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR ([c].[City] IS NULL)");
         }
 
         public override async Task Where_not_in_optimization4(bool async)
@@ -1004,7 +1004,7 @@ WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR [c].[City] IS NULL
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa') OR [c].[City] IS NULL");
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa') OR ([c].[City] IS NULL)");
         }
 
         public override async Task Where_select_many_and(bool async)
@@ -1547,7 +1547,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] IS NULL AND ([c].[Country] = N'UK')");
+WHERE ([c].[City] IS NULL) AND ([c].[Country] = N'UK')");
         }
 
         public override async Task Where_compare_null_with_cast_to_object(bool async)
@@ -2145,7 +2145,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IN (N'WA', N'OR', N'BC') OR [c].[Region] IS NULL");
+WHERE [c].[Region] IN (N'WA', N'OR', N'BC') OR ([c].[Region] IS NULL)");
         }
 
         public override async Task Constant_array_Contains_OrElse_comparison_with_constant_gets_combined_to_one_in(bool async)
@@ -2222,7 +2222,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR ([c].[CustomerID] = N'ANTON')"
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL) OR ([c].[Region] = N'BC')");
+WHERE ([c].[Region] IN (N'WA', N'OR') OR ([c].[Region] IS NULL)) OR ([c].[Region] = N'BC')");
         }
 
         public override async Task Parameter_array_Contains_OrElse_comparison_with_constant(bool async)
@@ -2265,7 +2265,7 @@ WHERE [c].[CustomerID] = N'ANATR'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Region] <> N'WA') AND [c].[Region] IS NOT NULL");
+WHERE ([c].[Region] <> N'WA') AND ([c].[Region] IS NOT NULL)");
         }
 
         public override async Task Filter_with_EF_Property_using_closure_for_property_name(bool async)
