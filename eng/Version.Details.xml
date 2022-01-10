@@ -3,11 +3,11 @@
   <ProductDependencies>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>2b2f8718a87e8f35e5a445d24e268c6ca54cdb31</Sha>
+      <Sha>b974f5c7600df75fa04fba610e0abae160aa4daf</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>2b2f8718a87e8f35e5a445d24e268c6ca54cdb31</Sha>
+      <Sha>b974f5c7600df75fa04fba610e0abae160aa4daf</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0">
       <Uri>https://github.com/dotnet/runtime</Uri>
