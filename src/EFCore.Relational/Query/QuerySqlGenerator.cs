@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class QuerySqlGenerator : SqlExpressionVisitor
 {
 
-    private static readonly bool _isNullParenthesesQuirkMode;
-
-        private static readonly Dictionary<ExpressionType, string> OperatorMap = new()
+    private static readonly Dictionary<ExpressionType, string> OperatorMap = new()
     {
         { ExpressionType.Equal, " = " },
         { ExpressionType.NotEqual, " <> " },
@@ -43,10 +41,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private IRelationalCommandBuilder _relationalCommandBuilder;
     private Dictionary<string, int>? _repeatedParameterCounts;
-
-        static QuerySqlGenerator()
-            => _isNullParenthesesQuirkMode =
-                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26652", out var enabled) && enabled;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
@@ -513,14 +507,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return sqlBinaryExpression;
     }
 
-        private static bool RequiresBrackets(SqlExpression expression)
-            => expression is SqlBinaryExpression
-                || expression is LikeExpression
-                || (expression is SqlUnaryExpression unary
-                    && (!_isNullParenthesesQuirkMode || unary.Operand.Type == typeof(bool))
-                    && (unary.OperatorType == ExpressionType.Equal
-                        || unary.OperatorType == ExpressionType.NotEqual));
-
     /// <inheritdoc />
     protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
     {
@@ -537,17 +523,19 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         var parameterName = sqlParameterExpression.Name;
 
         if (_relationalCommandBuilder.Parameters
-            .All(p => p.InvariantName != parameterName
-                || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                    && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
-                        || typeMappedRelationalParameter.RelationalTypeMapping.Converter != sqlParameterExpression.TypeMapping!.Converter))))
+            .All(
+                p => p.InvariantName != parameterName
+                    || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
+                        && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
+                            || typeMappedRelationalParameter.RelationalTypeMapping.Converter
+                            != sqlParameterExpression.TypeMapping!.Converter))))
         {
             parameterName = GetUniqueParameterName(parameterName);
             _relationalCommandBuilder.AddParameter(
                 invariantName,
                 _sqlGenerationHelper.GenerateParameterName(parameterName),
-                 sqlParameterExpression.TypeMapping!,
-                 sqlParameterExpression.IsNullable);
+                sqlParameterExpression.TypeMapping!,
+                sqlParameterExpression.IsNullable);
         }
 
         _relationalCommandBuilder

@@ -48,9 +48,9 @@ LEFT JOIN (
         FROM [Vehicles] AS [v6]
         WHERE [v6].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t3] ON [v5].[Name] = [t3].[Name]
-    WHERE ([v5].[Computed] IS NOT NULL) AND ([v5].[Engine_Discriminator] IS NOT NULL)
+    WHERE [v5].[Computed] IS NOT NULL AND [v5].[Engine_Discriminator] IS NOT NULL
 ) AS [t2] ON [v].[Name] = CASE
-    WHEN ([t2].[Computed] IS NOT NULL) AND ([t2].[Engine_Discriminator] IS NOT NULL) THEN [t2].[Name]
+    WHEN [t2].[Computed] IS NOT NULL AND [t2].[Engine_Discriminator] IS NOT NULL THEN [t2].[Name]
 END
 LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
@@ -60,7 +60,7 @@ LEFT JOIN (
         FROM [Vehicles] AS [v8]
         WHERE [v8].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t5] ON [v7].[Name] = [t5].[Name]
-    WHERE ([v7].[Capacity] IS NOT NULL) AND ([v7].[FuelTank_Discriminator] IS NOT NULL)
+    WHERE [v7].[Capacity] IS NOT NULL AND [v7].[FuelTank_Discriminator] IS NOT NULL
     UNION
     SELECT [v9].[Name], [v9].[Capacity], [v9].[FuelTank_Discriminator], [v9].[FuelType], [v9].[GrainGeometry]
     FROM [Vehicles] AS [v9]
@@ -74,11 +74,11 @@ LEFT JOIN (
         ) AS [t7] ON [v10].[Name] = [t7].[Name]
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
     ) AS [t6] ON [v9].[Name] = [t6].[Name]
-    WHERE ([v9].[Capacity] IS NOT NULL) AND ([v9].[FuelTank_Discriminator] IS NOT NULL)
+    WHERE [v9].[Capacity] IS NOT NULL AND [v9].[FuelTank_Discriminator] IS NOT NULL
 ) AS [t4] ON CASE
-    WHEN ([t2].[Computed] IS NOT NULL) AND ([t2].[Engine_Discriminator] IS NOT NULL) THEN [t2].[Name]
+    WHEN [t2].[Computed] IS NOT NULL AND [t2].[Engine_Discriminator] IS NOT NULL THEN [t2].[Name]
 END = CASE
-    WHEN ([t4].[Capacity] IS NOT NULL) AND ([t4].[FuelTank_Discriminator] IS NOT NULL) THEN [t4].[Name]
+    WHEN [t4].[Capacity] IS NOT NULL AND [t4].[FuelTank_Discriminator] IS NOT NULL THEN [t4].[Name]
 END
 ORDER BY [v].[Name]");
     }
@@ -125,7 +125,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE ([v].[Capacity] IS NOT NULL) AND ([v].[FuelTank_Discriminator] IS NOT NULL)
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelTank_Discriminator], [v1].[FuelType], [v1].[GrainGeometry]
 FROM [Vehicles] AS [v1]
@@ -139,7 +139,7 @@ INNER JOIN (
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t1] ON [v1].[Name] = [t1].[Name]
-WHERE ([v1].[Capacity] IS NOT NULL) AND ([v1].[FuelTank_Discriminator] IS NOT NULL)");
+WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelTank_Discriminator] IS NOT NULL");
     }
 
     public override async Task Can_query_shared_derived_nonhierarchy()
@@ -183,7 +183,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE ([v].[Capacity] IS NOT NULL) AND ([v].[FuelType] IS NOT NULL)
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelType] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelType]
 FROM [Vehicles] AS [v1]
@@ -197,7 +197,7 @@ INNER JOIN (
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t1] ON [v1].[Name] = [t1].[Name]
-WHERE ([v1].[Capacity] IS NOT NULL) AND ([v1].[FuelType] IS NOT NULL)");
+WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelType] IS NOT NULL");
     }
 
     public override async Task Can_change_dependent_instance_non_derived()

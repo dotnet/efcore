@@ -234,7 +234,7 @@ INNER JOIN [Customers] AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]");
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')");
+WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')");
     }
 
     public override async Task GroupJoin_simple(bool async)
@@ -329,7 +329,7 @@ FROM [Employees] AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+    WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
 ) AS [t] ON [e].[EmployeeID] = [t].[EmployeeID]");
     }
 
@@ -473,7 +473,7 @@ INNER JOIN (
         FROM [Orders] AS [o]
         ORDER BY [o].[OrderID]
     ) AS [t]
-    WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CustomerID] LIKE N'A%')
+    WHERE [t].[CustomerID] IS NOT NULL AND ([t].[CustomerID] LIKE N'A%')
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
     }
 
@@ -724,7 +724,7 @@ FROM (
 ) AS [t]
 OUTER APPLY (
     SELECT CASE
-        WHEN [t1].[CustomerID] = [c0].[City] OR (([t1].[CustomerID] IS NULL) AND ([c0].[City] IS NULL)) THEN N'A'
+        WHEN [t1].[CustomerID] = [c0].[City] OR ([t1].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
         ELSE N'B'
     END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
     FROM (

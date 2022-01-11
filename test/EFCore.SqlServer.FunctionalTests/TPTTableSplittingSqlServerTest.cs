@@ -177,7 +177,7 @@ INNER JOIN (
     FROM [PoweredVehicles] AS [p]
     INNER JOIN [CombustionEngines] AS [c0] ON [p].[Name] = [c0].[VehicleName]
 ) AS [t] ON [c].[VehicleName] = [t].[Name]
-WHERE ([c].[Capacity] IS NOT NULL) AND ([c].[FuelType] IS NOT NULL)");
+WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
     }
 
     public override async Task Can_change_dependent_instance_non_derived()
