@@ -287,7 +287,7 @@ WHERE SUBSTRING([c].[FirstName], 0 + 1, 1) IN (N'A', N'B', N'C')");
             @"SELECT [c].[Id], [c].[FirstName], [c].[LastName]
 FROM [Customers] AS [c]
 WHERE CASE
-    WHEN SUBSTRING([c].[FirstName], 0 + 1, 1) IN (N'A', N'B', N'C') AND SUBSTRING([c].[FirstName], 0 + 1, 1) IS NOT NULL THEN CAST(1 AS bit)
+    WHEN SUBSTRING([c].[FirstName], 0 + 1, 1) IN (N'A', N'B', N'C') AND (SUBSTRING([c].[FirstName], 0 + 1, 1) IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END IN (CAST(1 AS bit), CAST(0 AS bit))");
     }

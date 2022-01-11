@@ -260,7 +260,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)");
+WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR ([c].[Phone] IS NULL))");
     }
 
     public override async Task Select_Navigations_Where_Navigations(bool async)
@@ -271,7 +271,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)");
+WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR ([c].[Phone] IS NULL))");
     }
 
     public override async Task Select_Singleton_Navigation_With_Member_Access(bool async)
@@ -282,7 +282,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)");
+WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR ([c].[Phone] IS NULL))");
     }
 
     public override async Task Select_count_plus_sum(bool async)
@@ -308,7 +308,7 @@ FROM [Orders] AS [o]");
             @"SELECT [c].[City] AS [B]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)");
+WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR ([c].[Phone] IS NULL))");
     }
 
     public override async Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(bool async)
@@ -325,7 +325,7 @@ CROSS JOIN (
 ) AS [t]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [t].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[OrderID] < 10300 AND ([c].[City] = [c0].[City] OR ([c].[City] IS NULL AND [c0].[City] IS NULL))");
+WHERE [o].[OrderID] < 10300 AND ([c].[City] = [c0].[City] OR (([c].[City] IS NULL) AND ([c0].[City] IS NULL)))");
     }
 
     public override async Task Select_Where_Navigation_Equals_Navigation(bool async)
@@ -505,7 +505,7 @@ WHERE EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR ([o].[CustomerID] IS NULL))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [All]
 FROM [Customers] AS [c]");
@@ -521,7 +521,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL))");
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND ([o].[CustomerID] <> N'ALFKI' OR ([o].[CustomerID] IS NULL)))");
     }
 
     public override async Task Collection_select_nav_prop_count(bool async)
@@ -615,7 +615,7 @@ END AS [all], (
     FROM [Order Details] AS [o3]
     WHERE [o].[OrderID] = [o3].[OrderID]) AS [collection2]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')");
+WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')");
     }
 
     public override async Task Collection_select_nav_prop_sum(bool async)
@@ -853,7 +853,7 @@ WHERE (
     FROM [Order Details] AS [o0]
     INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
     LEFT JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
-    WHERE [c].[Country] = [c0].[Country] OR ([c].[Country] IS NULL AND [c0].[Country] IS NULL)) > 0 AND [o].[OrderID] IN (10643, 10692)");
+    WHERE [c].[Country] = [c0].[Country] OR (([c].[Country] IS NULL) AND ([c0].[Country] IS NULL))) > 0 AND [o].[OrderID] IN (10643, 10692)");
     }
 
     public override async Task Project_single_scalar_value_subquery_is_properly_inlined(bool async)

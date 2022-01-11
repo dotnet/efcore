@@ -368,7 +368,7 @@ WHERE ""s"".""Id"" = -""s"".""Id""");
         AssertSql(
             @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
-WHERE ""s"".""Name"" IS NOT NULL AND NOT (""s"".""Name"" LIKE 'us%')");
+WHERE (""s"".""Name"" IS NOT NULL) AND NOT (""s"".""Name"" LIKE 'us%')");
     }
 
     public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
