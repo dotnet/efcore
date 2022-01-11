@@ -1895,10 +1895,10 @@ GROUP BY [o].[EmployeeID]");
     WHERE (CAST([o0].[EmployeeID] AS bigint) = CAST(((
         SELECT MAX([o1].[OrderID])
         FROM [Orders] AS [o1]
-        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) * 6) AS bigint)) OR ([o0].[EmployeeID] IS NULL AND (
+        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR (([o].[EmployeeID] IS NULL) AND ([o1].[EmployeeID] IS NULL))) * 6) AS bigint)) OR (([o0].[EmployeeID] IS NULL) AND ((
         SELECT MAX([o1].[OrderID])
         FROM [Orders] AS [o1]
-        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR ([o].[EmployeeID] IS NULL AND [o1].[EmployeeID] IS NULL)) IS NULL)) AS [Max]
+        WHERE ([o].[EmployeeID] = [o1].[EmployeeID]) OR (([o].[EmployeeID] IS NULL) AND ([o1].[EmployeeID] IS NULL))) IS NULL))) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[EmployeeID]");
         }
@@ -2823,7 +2823,7 @@ OUTER APPLY (
     SELECT TOP(1) [e].[City] AS [Key], COUNT(*) + (
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
-        WHERE ([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) AS [C], 1 AS [c0]
+        WHERE ([t].[CustomerID] = [o0].[CustomerID]) OR (([t].[CustomerID] IS NULL) AND ([o0].[CustomerID] IS NULL))) AS [C], 1 AS [c0]
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
     GROUP BY [e].[City]
@@ -2855,14 +2855,14 @@ GROUP BY [o].[CustomerID]");
     SELECT TOP(1) COUNT(*) + (
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
-        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR (([o].[CustomerID] IS NULL) AND ([o0].[CustomerID] IS NULL)))
     FROM [Employees] AS [e]
     WHERE [e].[City] = N'Seattle'
     GROUP BY [e].[City]
     ORDER BY COUNT(*) + (
         SELECT COUNT(*)
         FROM [Orders] AS [o0]
-        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))), 0) AS [A]
+        WHERE ([o].[CustomerID] = [o0].[CustomerID]) OR (([o].[CustomerID] IS NULL) AND ([o0].[CustomerID] IS NULL)))), 0) AS [A]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
