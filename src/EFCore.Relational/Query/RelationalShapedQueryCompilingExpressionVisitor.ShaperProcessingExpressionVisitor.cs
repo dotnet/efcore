@@ -85,7 +85,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly ParameterExpression _dataReaderParameter;
         private readonly ParameterExpression _resultContextParameter;
         private readonly ParameterExpression? _indexMapParameter;
-        private readonly ReaderColumn[]? _readerColumns;
+        private readonly ReaderColumn?[]? _readerColumns;
 
         // States to materialize only once
         private readonly Dictionary<Expression, Expression> _variableShaperMapping = new(ReferenceEqualityComparer.Instance);
@@ -135,7 +135,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _indexMapParameter = indexMap ? Expression.Parameter(typeof(int[]), "indexMap") : null;
             if (parentVisitor.QueryCompilationContext.IsBuffering)
             {
-                _readerColumns = new ReaderColumn[_selectExpression.Projection.Count];
+                _readerColumns = new ReaderColumn?[_selectExpression.Projection.Count];
             }
 
             _generateCommandCache = true;
@@ -154,7 +154,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SelectExpression selectExpression,
             ParameterExpression dataReaderParameter,
             ParameterExpression resultContextParameter,
-            ReaderColumn[]? readerColumns)
+            ReaderColumn?[]? readerColumns)
         {
             _parentVisitor = parentVisitor;
             _resultCoordinatorParameter = resultCoordinatorParameter;
@@ -1078,7 +1078,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
             Exception exception,
-            object value,
+            object? value,
             Type expectedType,
             IPropertyBase? property = null)
         {
@@ -1531,7 +1531,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             SingleQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             Func<QueryContext, DbDataReader, object[]> outerIdentifier,
-            IClrCollectionAccessor clrCollectionAccessor)
+            IClrCollectionAccessor? clrCollectionAccessor)
             where TCollection : class, ICollection<TElement>
         {
             var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();
@@ -1665,7 +1665,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             DbDataReader parentDataReader,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
-            IClrCollectionAccessor clrCollectionAccessor)
+            IClrCollectionAccessor? clrCollectionAccessor)
             where TCollection : class, ICollection<TElement>
         {
             var collection = clrCollectionAccessor?.Create() ?? new List<TElement>();

@@ -105,7 +105,7 @@ public class DocumentSource
             }
 
             var embeddedValue = entry.GetCurrentValue(embeddedNavigation);
-            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName();
+            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
             if (embeddedValue == null)
             {
                 document[embeddedPropertyName] = null;
@@ -194,7 +194,7 @@ public class DocumentSource
 
             var embeddedDocumentSource = _database.GetDocumentSource(fk.DeclaringEntityType);
             var embeddedValue = entry.GetCurrentValue(ownedNavigation);
-            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName();
+            var embeddedPropertyName = fk.DeclaringEntityType.GetContainingPropertyName()!;
             if (embeddedValue == null)
             {
                 if (document[embeddedPropertyName] != null)

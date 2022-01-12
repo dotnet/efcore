@@ -56,8 +56,7 @@ public class CandidateNamingService : ICandidateNamingService
         string dependentEndNavigationPropertyName)
     {
         var allForeignKeysBetweenDependentAndPrincipal =
-            foreignKey.PrincipalEntityType?
-                .GetReferencingForeignKeys()
+            foreignKey.PrincipalEntityType.GetReferencingForeignKeys()
                 .Where(fk => foreignKey.DeclaringEntityType == fk.DeclaringEntityType);
 
         return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1

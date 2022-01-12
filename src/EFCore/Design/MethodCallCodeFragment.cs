@@ -58,14 +58,14 @@ public class MethodCallCodeFragment
     /// </summary>
     /// <value> The declaring type's name. </value>
     public virtual string? Namespace
-        => MethodInfo?.DeclaringType?.Namespace;
+        => MethodInfo.DeclaringType?.Namespace;
 
     /// <summary>
     ///     Gets the name of the method's declaring type.
     /// </summary>
     /// <value> The declaring type's name. </value>
     public virtual string? DeclaringType
-        => MethodInfo?.DeclaringType?.Name;
+        => MethodInfo.DeclaringType?.Name;
 
     /// <summary>
     ///     Gets the method's name.

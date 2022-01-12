@@ -169,7 +169,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             Metadata.UpdateConfigurationSource(configurationSource);
             if (navigationToPrincipal != null)
             {
-                Metadata.SetDependentToPrincipal(navigationToPrincipal?.Name, configurationSource);
+                Metadata.SetDependentToPrincipal(navigationToPrincipal.Value.Name, configurationSource);
                 if (navigationToPrincipalName != null)
                 {
                     dependentEntityType.RemoveIgnored(navigationToPrincipalName);
@@ -178,7 +178,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
             if (navigationToDependent != null)
             {
-                Metadata.SetPrincipalToDependent(navigationToDependent?.Name, configurationSource);
+                Metadata.SetPrincipalToDependent(navigationToDependent.Value.Name, configurationSource);
                 if (navigationToDependentName != null)
                 {
                     principalEntityType.RemoveIgnored(navigationToDependentName);

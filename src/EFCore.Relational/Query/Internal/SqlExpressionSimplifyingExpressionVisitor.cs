@@ -418,7 +418,6 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
 
     private static bool TryGetInExpressionCandidateInfo(
         SqlExpression sqlExpression,
-        [MaybeNullWhen(false)]
         out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType)
             candidateInfo)
     {

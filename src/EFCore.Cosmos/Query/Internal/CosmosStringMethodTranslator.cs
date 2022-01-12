@@ -151,7 +151,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                 return TranslateSystemFunction("UPPER", method.ReturnType, instance);
             }
 
-            if (TrimStartMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimStartMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB LTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
@@ -159,7 +159,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                 return TranslateSystemFunction("LTRIM", method.ReturnType, instance);
             }
 
-            if (TrimEndMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimEndMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB RTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
@@ -167,7 +167,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
                 return TranslateSystemFunction("RTRIM", method.ReturnType, instance);
             }
 
-            if (TrimMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimMethodInfoWithCharArrayArg.Equals(method)
                     // Cosmos DB TRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))

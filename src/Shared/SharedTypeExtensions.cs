@@ -292,7 +292,7 @@ internal static class SharedTypeExtensions
         return interfaces.Except(type.BaseType.GetInterfaces());
     }
 
-    public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[]? types)
+    public static ConstructorInfo? GetDeclaredConstructor(this Type type, Type[]? types)
     {
         types ??= Array.Empty<Type>();
 

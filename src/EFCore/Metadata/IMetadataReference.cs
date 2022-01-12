@@ -18,6 +18,5 @@ public interface IMetadataReference<out T> : IDisposable
     /// <summary>
     ///     The referenced object.
     /// </summary>
-    [MaybeNull]
-    T Object { get; }
+    T? Object { get; }
 }

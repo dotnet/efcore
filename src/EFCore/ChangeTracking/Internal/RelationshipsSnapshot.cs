@@ -64,7 +64,7 @@ public sealed partial class InternalEntityEntry
             var index = navigation.GetRelationshipIndex();
             if (index != -1)
             {
-                ((HashSet<object>)_values[index]!)?.Remove(removedEntity);
+                ((HashSet<object>)_values[index]!).Remove(removedEntity);
             }
         }
 

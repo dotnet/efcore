@@ -440,8 +440,7 @@ public static class RelationalLoggerExtensions
     {
         var d = (EventDefinition<string?>)definition;
         var p = (TransactionEventData)payload;
-        return d.GenerateMessage(
-            p.Transaction?.IsolationLevel.ToString("G"));
+        return d.GenerateMessage(p.Transaction.IsolationLevel.ToString("G"));
     }
 
     /// <summary>

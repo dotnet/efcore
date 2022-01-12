@@ -60,7 +60,7 @@ public interface IReadOnlyServiceProperty : IReadOnlyPropertyBase
             builder.Append(" (").Append(GetFieldName()).Append(", ");
         }
 
-        builder.Append(ClrType?.ShortDisplayName()).Append(')');
+        builder.Append(ClrType.ShortDisplayName()).Append(')');
 
         if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
         {

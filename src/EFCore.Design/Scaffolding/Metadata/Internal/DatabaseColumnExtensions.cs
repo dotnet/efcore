@@ -21,7 +21,7 @@ public static class DatabaseColumnExtensions
     /// </summary>
     public static string DisplayName(this DatabaseColumn column)
     {
-        var tablePrefix = column.Table?.DisplayName();
+        var tablePrefix = column.Table.DisplayName();
         return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + column.Name;
     }
 

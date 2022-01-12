@@ -695,7 +695,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 Expression replaceExpression;
-                if (converter?.ConvertsNulls == true)
+                if (converter.ConvertsNulls == true)
                 {
                     replaceExpression = ReplacingExpressionVisitor.Replace(
                         converter.ConvertFromProviderExpression.Parameters.Single(),

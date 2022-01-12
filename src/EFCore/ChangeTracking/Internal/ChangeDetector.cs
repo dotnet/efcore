@@ -252,8 +252,7 @@ public class ChangeDetector : IChangeDetector
 
         // Note that mutation of a byte[] key is not supported or detected, but two different instances
         // of byte[] with the same content must be detected as equal.
-        if (!(comparer?.Equals(currentValue, snapshotValue)
-                ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
+        if (!comparer.Equals(currentValue, snapshotValue))
         {
             var keys = property.GetContainingKeys();
             var foreignKeys = property.GetContainingForeignKeys()

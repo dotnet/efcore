@@ -150,7 +150,7 @@ public abstract class SnapshotFactoryFactory
 
         var constructorExpression = Expression.Convert(
             Expression.New(
-                Snapshot.CreateSnapshotType(types).GetDeclaredConstructor(types),
+                Snapshot.CreateSnapshotType(types).GetDeclaredConstructor(types)!,
                 arguments),
             typeof(ISnapshot));
 
