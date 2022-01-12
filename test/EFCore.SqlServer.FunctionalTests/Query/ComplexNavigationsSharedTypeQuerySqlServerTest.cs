@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -297,6 +298,18 @@ LEFT JOIN (
     END
     WHERE (([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL)) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]");
+        }
+
+        [ConditionalTheory(Skip = "Issue#26104")]
+        public override Task GroupBy_aggregate_where_required_relationship(bool async)
+        {
+            return base.GroupBy_aggregate_where_required_relationship(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#26104")]
+        public override Task GroupBy_aggregate_where_required_relationship_2(bool async)
+        {
+            return base.GroupBy_aggregate_where_required_relationship_2(async);
         }
 
         private void AssertSql(params string[] expected)

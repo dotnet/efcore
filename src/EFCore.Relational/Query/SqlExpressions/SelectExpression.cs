@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private SqlExpression? _groupingCorrelationPredicate;
         private Guid? _groupingParentSelectExpressionId;
+        private int? _groupingParentSelectExpressionTableCount;
         private CloningExpressionVisitor? _cloningExpressionVisitor;
 
         private SelectExpression(
@@ -1256,7 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             // We generate the cloned expression before changing identifier for this SelectExpression
             // because we are going to erase grouping for cloned expression.
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled2) && enabled2))
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled27094) && enabled27094))
             {
                 _groupingParentSelectExpressionId = Guid.NewGuid();
 
@@ -1267,9 +1268,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
             clonedSelectExpression._groupBy.Clear();
             clonedSelectExpression.ApplyPredicate(correlationPredicate);
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled) && enabled))
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled27102) && enabled27102))
             {
                 clonedSelectExpression._groupingCorrelationPredicate = clonedSelectExpression.Predicate;
+            }
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27163", out var enabled27163) && enabled27163))
+            {
+                _groupingParentSelectExpressionTableCount = _tables.Count;
+
             }
 
             if (!_identifier.All(e => _groupBy.Contains(e.Column)))
@@ -1495,6 +1501,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Offset = Offset,
                 Limit = Limit,
                 _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+                _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
                 _groupingCorrelationPredicate = _groupingCorrelationPredicate
             };
             Offset = null;
@@ -1504,6 +1511,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Having = null;
             _groupingCorrelationPredicate = null;
             _groupingParentSelectExpressionId = null;
+            _groupingParentSelectExpressionTableCount = null;
             _groupBy.Clear();
             _orderings.Clear();
             _tables.Clear();
@@ -2819,7 +2827,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Having = Having,
                 Offset = Offset,
                 Limit = Limit,
-                _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
+                _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+                _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount
             };
             subquery._usedAliases = _usedAliases;
             _tables.Clear();
@@ -3482,7 +3491,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Tags = Tags,
                         _usedAliases = _usedAliases,
                         _groupingCorrelationPredicate = groupingCorrelationPredicate,
-                        _groupingParentSelectExpressionId = _groupingParentSelectExpressionId
+                        _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+                        _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
