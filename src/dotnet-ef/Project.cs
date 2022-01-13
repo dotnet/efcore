@@ -94,10 +94,7 @@ internal class Project
                 "/nologo"
             };
 
-            if (file != null)
-            {
-                args.Add(file);
-            }
+            args.Add(file);
 
             var exitCode = Exe.Run("dotnet", args);
             if (exitCode != 0)

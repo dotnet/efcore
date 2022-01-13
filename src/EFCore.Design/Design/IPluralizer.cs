@@ -19,8 +19,7 @@ public interface IPluralizer
     /// </summary>
     /// <param name="identifier">The identifier to be pluralized.</param>
     /// <returns>The pluralized identifier.</returns>
-    [return: NotNullIfNotNull("identifier")]
-    string? Pluralize(string? identifier);
+    string Pluralize(string identifier);
 
     /// <summary>
     ///     Gets the singular version of the given identifier. Returns the same
@@ -28,6 +27,5 @@ public interface IPluralizer
     /// </summary>
     /// <param name="identifier">The identifier to be singularized.</param>
     /// <returns>The singularized identifier.</returns>
-    [return: NotNullIfNotNull("identifier")]
-    string? Singularize(string? identifier);
+    string Singularize(string identifier);
 }

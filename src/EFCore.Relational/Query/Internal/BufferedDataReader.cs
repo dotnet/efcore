@@ -156,7 +156,7 @@ public class BufferedDataReader : DbDataReader
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual BufferedDataReader Initialize(IReadOnlyList<ReaderColumn> columns)
+    public virtual BufferedDataReader Initialize(IReadOnlyList<ReaderColumn?> columns)
     {
         if (_underlyingReader == null)
         {
@@ -190,7 +190,7 @@ public class BufferedDataReader : DbDataReader
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task<BufferedDataReader> InitializeAsync(
-        IReadOnlyList<ReaderColumn> columns,
+        IReadOnlyList<ReaderColumn?> columns,
         CancellationToken cancellationToken)
     {
         if (_underlyingReader == null)
@@ -692,7 +692,7 @@ public class BufferedDataReader : DbDataReader
         private TypeCase[] _columnTypeCases;
 
         private DbDataReader _underlyingReader;
-        private IReadOnlyList<ReaderColumn> _columns;
+        private IReadOnlyList<ReaderColumn?> _columns;
         private int[] _indexMap;
         private readonly bool _detailedErrorsEnabled;
 
@@ -882,7 +882,7 @@ public class BufferedDataReader : DbDataReader
             => Task.FromResult(Read());
 #pragma warning restore IDE0060 // Remove unused parameter
 
-        public BufferedDataRecord Initialize(DbDataReader reader, IReadOnlyList<ReaderColumn> columns)
+        public BufferedDataRecord Initialize(DbDataReader reader, IReadOnlyList<ReaderColumn?> columns)
         {
             _underlyingReader = reader;
             _columns = columns;
@@ -909,7 +909,7 @@ public class BufferedDataReader : DbDataReader
 
         public async Task<BufferedDataRecord> InitializeAsync(
             DbDataReader reader,
-            IReadOnlyList<ReaderColumn> columns,
+            IReadOnlyList<ReaderColumn?> columns,
             CancellationToken cancellationToken)
         {
             _underlyingReader = reader;
@@ -947,6 +947,11 @@ public class BufferedDataReader : DbDataReader
             for (var i = 0; i < FieldCount; i++)
             {
                 var column = _columns[i];
+                if (column == null)
+                {
+                    continue;
+                }
+
                 var nullIndex = _nullOrdinalToIndexMap[i];
                 switch (_columnTypeCases[i])
                 {
@@ -1229,13 +1234,11 @@ public class BufferedDataReader : DbDataReader
             var fieldCount = FieldCount;
             if (FieldCount < _columns.Count)
             {
-                if (_columns.Count > 0
-                    && _columns[0].Name != null)
+                // Non-composed FromSql
+                var firstMissingColumn = _columns.Select(c => c?.Name).Where(c => c != null).Except(_columnNames).FirstOrDefault();
+                if (firstMissingColumn != null)
                 {
-                    // Non-composed FromSql
-                    var missingColumns = _columns.Select(c => c.Name).Except(_columnNames);
-
-                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(missingColumns.First()));
+                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(firstMissingColumn));
                 }
 
                 throw new InvalidOperationException(RelationalStrings.TooFewReaderFields(_columns.Count, FieldCount));
@@ -1244,16 +1247,21 @@ public class BufferedDataReader : DbDataReader
             _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();
             _ordinalToIndexMap = Enumerable.Repeat(-1, fieldCount).ToArray();
             if (_columns.Count > 0
-                && _columns[0].Name != null)
+                && _columns.Any(e => e?.Name != null))
             {
                 // Non-Composed FromSql
                 var readerColumns = _fieldNameLookup.Value;
 
                 _indexMap = new int[_columns.Count];
-                var newColumnMap = new ReaderColumn[fieldCount];
+                var newColumnMap = new ReaderColumn?[fieldCount];
                 for (var i = 0; i < _columns.Count; i++)
                 {
                     var column = _columns[i];
+                    if (column == null)
+                    {
+                        continue;
+                    }
+
                     if (!readerColumns.TryGetValue(column.Name!, out var ordinal))
                     {
                         throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
@@ -1268,7 +1276,7 @@ public class BufferedDataReader : DbDataReader
 
             if (FieldCount != _columns.Count)
             {
-                var newColumnMap = new ReaderColumn[fieldCount];
+                var newColumnMap = new ReaderColumn?[fieldCount];
                 for (var i = 0; i < _columns.Count; i++)
                 {
                     newColumnMap[i] = _columns[i];
@@ -1884,7 +1892,7 @@ public class BufferedDataReader : DbDataReader
             int ordinal,
             ReaderColumn column)
         {
-            var value = reader.GetFieldValue<object>(ordinal);
+            var value = reader.GetFieldValue<object?>(ordinal);
             var property = column.Property;
             var expectedType = column.Type.MakeNullable(column.IsNullable);
 

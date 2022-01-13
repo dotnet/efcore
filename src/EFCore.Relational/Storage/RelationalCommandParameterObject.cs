@@ -113,7 +113,7 @@ public readonly struct RelationalCommandParameterObject
     public RelationalCommandParameterObject(
         IRelationalConnection connection,
         IReadOnlyDictionary<string, object?>? parameterValues,
-        IReadOnlyList<ReaderColumn>? readerColumns,
+        IReadOnlyList<ReaderColumn?>? readerColumns,
         DbContext? context,
         IRelationalCommandDiagnosticsLogger? logger,
         bool detailedErrorsEnabled,
@@ -141,7 +141,7 @@ public readonly struct RelationalCommandParameterObject
     /// <summary>
     ///     The expected columns if the reader needs to be buffered, or <see langword="null" /> otherwise.
     /// </summary>
-    public IReadOnlyList<ReaderColumn>? ReaderColumns { get; }
+    public IReadOnlyList<ReaderColumn?>? ReaderColumns { get; }
 
     /// <summary>
     ///     The current <see cref="DbContext" /> instance, or <see langword="null" /> if it is not known.

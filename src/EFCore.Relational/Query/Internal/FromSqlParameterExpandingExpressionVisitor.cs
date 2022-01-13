@@ -97,8 +97,8 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
         switch (fromSql.Arguments)
         {
             case ParameterExpression parameterExpression:
-                // parameter value will never be null. It could be empty object[]
-                var parameterValues = (object[])_parametersValues[parameterExpression.Name!]!;
+                // parameter value will never be null. It could be empty object?[]
+                var parameterValues = (object?[])_parametersValues[parameterExpression.Name!]!;
                 _canCache = false;
 
                 var subParameters = new List<IRelationalParameter>(parameterValues.Length);

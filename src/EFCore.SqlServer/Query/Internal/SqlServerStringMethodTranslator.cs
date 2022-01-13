@@ -193,7 +193,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimStartMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimStartMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimStartMethodInfoWithCharArrayArg.Equals(method)
                     // SqlServer LTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
@@ -207,7 +207,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimEndMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimEndMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimEndMethodInfoWithCharArrayArg.Equals(method)
                     // SqlServer RTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
@@ -221,7 +221,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimMethodInfoWithoutArgs?.Equals(method) == true
+            if (TrimMethodInfoWithoutArgs.Equals(method) == true
                 || (TrimMethodInfoWithCharArrayArg.Equals(method)
                     // SqlServer LTRIM/RTRIM does not take arguments
                     && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))

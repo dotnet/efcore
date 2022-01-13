@@ -25,7 +25,7 @@ public readonly struct MultiSnapshot : ISnapshot
     }
 
     internal static readonly ConstructorInfo Constructor
-        = typeof(MultiSnapshot).GetDeclaredConstructor(new[] { typeof(ISnapshot[]) });
+        = typeof(MultiSnapshot).GetDeclaredConstructor(new[] { typeof(ISnapshot[]) })!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

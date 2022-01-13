@@ -1146,7 +1146,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
                             .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
                             .Single();
-                if (table.GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType)?.Contains(foreignKey) == true)
+                if (table.GetReferencingRowInternalForeignKeys(foreignKey.PrincipalEntityType).Contains(foreignKey) == true)
                 {
                     // Mapped to same table
                     // We get identifying column to figure out tableExpression to pull columns from and nullability of most principal side

@@ -50,7 +50,7 @@ public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValue
 
         return dbConnection.Database.ToUpperInvariant()
             + "::"
-            + dbConnection.DataSource?.ToUpperInvariant()
+            + dbConnection.DataSource.ToUpperInvariant()
             + "::"
             + (sequence.Schema == null ? "" : sequence.Schema + ".")
             + sequence.Name;

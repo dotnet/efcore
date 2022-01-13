@@ -360,7 +360,7 @@ public class IdentityMap<TKey> : IIdentityMap
     /// </summary>
     public virtual void Clear()
     {
-        _identityMap?.Clear();
+        _identityMap.Clear();
         _dependentMaps?.Clear();
     }
 

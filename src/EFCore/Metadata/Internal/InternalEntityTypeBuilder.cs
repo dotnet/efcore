@@ -1040,7 +1040,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     private bool CanBeNavigation(Type type, ConfigurationSource configurationSource)
         => configurationSource == ConfigurationSource.Explicit
             || ModelBuilder.Metadata.Configuration?.GetConfigurationType(type).IsEntityType() != false
-            && (type?.TryGetSequenceType() is not Type sequenceType
+            && (type.TryGetSequenceType() is not Type sequenceType
                 || ModelBuilder.Metadata.Configuration?.GetConfigurationType(sequenceType).IsEntityType() != false);
 
     /// <summary>
@@ -2232,7 +2232,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         foreach (var property in properties)
         {
-            if (property?.IsInModel == true && property.IsImplicitlyCreated())
+            if (property.IsInModel == true && property.IsImplicitlyCreated())
             {
                 RemovePropertyIfUnused((Property)(object)property, ConfigurationSource.Convention);
             }

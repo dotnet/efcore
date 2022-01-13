@@ -1115,7 +1115,7 @@ public class RelationshipDiscoveryConvention :
             IConventionEntityType sourceEntityType,
             string navigationName,
             MemberInfo memberInfo)
-            => sourceEntityType.Builder?.IsIgnored(navigationName) == false
+            => sourceEntityType.Builder.IsIgnored(navigationName) == false
                 && sourceEntityType.FindProperty(navigationName) == null
                 && sourceEntityType.FindServiceProperty(navigationName) == null
                 && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)

@@ -68,7 +68,7 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
             }
 
             var rootTypeBuilder = entityType.GetRootType().Builder;
-            discriminator = rootTypeBuilder?.HasDiscriminator(typeof(string));
+            discriminator = rootTypeBuilder.HasDiscriminator(typeof(string));
 
             if (newBaseType.BaseType == null)
             {

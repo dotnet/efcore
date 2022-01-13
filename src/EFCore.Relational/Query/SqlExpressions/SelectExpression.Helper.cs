@@ -304,7 +304,7 @@ public sealed partial class SelectExpression
         public bool Equals((ColumnExpression Column, ValueComparer Comparer) x, (ColumnExpression Column, ValueComparer Comparer) y)
             => x.Column.Equals(y.Column);
 
-        public int GetHashCode([DisallowNull] (ColumnExpression Column, ValueComparer Comparer) obj)
+        public int GetHashCode((ColumnExpression Column, ValueComparer Comparer) obj)
             => obj.Column.GetHashCode();
     }
 

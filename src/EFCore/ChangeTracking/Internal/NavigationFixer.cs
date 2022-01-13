@@ -1274,11 +1274,7 @@ public class NavigationFixer : INavigationFixer
         IProperty principalProperty,
         object? dependentValue,
         object? principalValue)
-        => (principalProperty.GetKeyValueComparer())
-            ?.Equals(dependentValue, principalValue)
-            ?? StructuralComparisons.StructuralEqualityComparer.Equals(
-                dependentValue,
-                principalValue);
+        => principalProperty.GetKeyValueComparer().Equals(dependentValue, principalValue);
 
     private void ConditionallyNullForeignKeyProperties(
         InternalEntityEntry dependentEntry,

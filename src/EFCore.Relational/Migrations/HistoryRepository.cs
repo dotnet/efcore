@@ -45,8 +45,8 @@ public abstract class HistoryRepository : IHistoryRepository
         Dependencies = dependencies;
 
         var relationalOptions = RelationalOptionsExtension.Extract(dependencies.Options);
-        TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
-        TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
+        TableName = relationalOptions.MigrationsHistoryTableName ?? DefaultTableName;
+        TableSchema = relationalOptions.MigrationsHistoryTableSchema;
     }
 
     /// <summary>

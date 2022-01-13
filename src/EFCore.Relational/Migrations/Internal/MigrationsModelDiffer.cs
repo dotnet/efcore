@@ -859,7 +859,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         public bool Equals(PropertyInfo? x, PropertyInfo? y)
             => x.IsSameAs(y);
 
-        public int GetHashCode([DisallowNull] PropertyInfo obj)
+        public int GetHashCode(PropertyInfo obj)
             => throw new NotSupportedException();
     }
 

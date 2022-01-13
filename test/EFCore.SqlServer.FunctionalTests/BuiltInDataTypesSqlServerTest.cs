@@ -2485,7 +2485,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             Assert.Equal(1, context.SaveChanges());
         }
 
-            var parameters = DumpParameters();
+        var parameters = DumpParameters();
         Assert.Equal(
             @"@p0='2017-01-02T12:11:12.1230000' (Scale = 3)
 @p1='2016-01-02T11:11:12.5670000+00:00' (Scale = 3)

@@ -68,7 +68,7 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.CurrentValueGetter)(entry);
+        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.CurrentValueGetter)(entry)!;
         return true;
     }
 
@@ -80,7 +80,7 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry);
+        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry)!;
         return true;
     }
 
@@ -92,7 +92,7 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter!)(entry);
+        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter!)(entry)!;
         return true;
     }
 
@@ -104,7 +104,7 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry);
+        key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry)!;
         return true;
     }
 }

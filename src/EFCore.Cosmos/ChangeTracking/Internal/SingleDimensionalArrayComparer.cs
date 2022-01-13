@@ -75,7 +75,6 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
         return hash.ToHashCode();
     }
 
-    [return: NotNullIfNotNull("source")]
     private static TElement[] Snapshot(TElement[] source, ValueComparer<TElement> elementComparer)
     {
         var snapshot = new TElement[source.Length];

@@ -45,7 +45,7 @@ public class LoggingOptions : ILoggingOptions
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
 
-        if (WarningsConfiguration.GetServiceProviderHashCode() != coreOptions.WarningsConfiguration?.GetServiceProviderHashCode())
+        if (WarningsConfiguration.GetServiceProviderHashCode() != coreOptions.WarningsConfiguration.GetServiceProviderHashCode())
         {
             Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
 
