@@ -457,6 +457,36 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_Blob_works_when_long_pk()
+        {
+            long pk = 9223372036854775800;
+
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);" +
+                    $"INSERT INTO DataTable VALUES ({pk}, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = $"SELECT Id, Data FROM DataTable WHERE Id = {pk}";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(1))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetStream_works_when_composite_pk()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
