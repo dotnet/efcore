@@ -2123,6 +2123,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                         {
+                            ttb.UseHistoryTable(""EntityWithStringPropertyHistory"");
                             ttb
                                 .HasPeriodStart(""PeriodStart"")
                                 .HasColumnName(""PeriodStart"");
@@ -2138,7 +2139,7 @@ public class ModelSnapshotSqlServerTest
                     "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
-                Assert.Equal(5, annotations.Count);
+                Assert.Equal(6, annotations.Count);
                 Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
                 Assert.Contains(
                     annotations,

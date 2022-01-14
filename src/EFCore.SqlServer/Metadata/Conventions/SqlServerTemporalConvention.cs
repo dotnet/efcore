@@ -13,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention, ISkipNavigationForeignKeyChangedConvention
+public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention, ISkipNavigationForeignKeyChangedConvention, IModelFinalizingConvention
 {
-    private const string PeriodStartDefaultName = "PeriodStart";
-    private const string PeriodEndDefaultName = "PeriodEnd";
+    private const string DefaultPeriodStartName = "PeriodStart";
+    private const string DefaultPeriodEndName = "PeriodEnd";
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerTemporalConvention" />.
@@ -56,12 +56,12 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             {
                 if (entityTypeBuilder.Metadata.GetPeriodStartPropertyName() == null)
                 {
-                    entityTypeBuilder.HasPeriodStart(PeriodStartDefaultName);
+                    entityTypeBuilder.HasPeriodStart(DefaultPeriodStartName);
                 }
 
                 if (entityTypeBuilder.Metadata.GetPeriodEndPropertyName() == null)
                 {
-                    entityTypeBuilder.HasPeriodEnd(PeriodEndDefaultName);
+                    entityTypeBuilder.HasPeriodEnd(DefaultPeriodEndName);
                 }
 
                 foreach (var skipLevelNavigation in entityTypeBuilder.Metadata.GetSkipNavigations())
@@ -136,6 +136,20 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             && inverse.DeclaringEntityType.IsTemporal())
         {
             joinEntityType.SetIsTemporal(true);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes().Where(e => e.IsTemporal()))
+        {
+            // Needed for the annotation to show up in the model snapshot - issue #9329
+            // history table name will always be non-null for temporal table case
+            entityType.Builder.UseHistoryTableName(entityType.GetHistoryTableName()!);
+            entityType.Builder.UseHistoryTableSchema(entityType.GetHistoryTableSchema());
         }
     }
 }

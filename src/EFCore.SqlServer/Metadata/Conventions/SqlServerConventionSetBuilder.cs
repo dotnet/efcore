@@ -118,6 +118,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
             conventionSet.ModelFinalizingConventions,
             (SharedTableConvention)new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
         conventionSet.ModelFinalizingConventions.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
+        conventionSet.ModelFinalizingConventions.Add(sqlServerTemporalConvention);
 
         ReplaceConvention(
             conventionSet.ModelFinalizedConventions,

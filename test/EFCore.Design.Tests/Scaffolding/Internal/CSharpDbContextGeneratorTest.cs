@@ -1062,6 +1062,7 @@ namespace TestNamespace
             {
                 entity.ToTable(tb => tb.IsTemporal(ttb =>
     {
+        ttb.UseHistoryTable(""CustomerHistory"");
         ttb
             .HasPeriodStart(""PeriodStart"")
             .HasColumnName(""PeriodStart"");

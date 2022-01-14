@@ -252,8 +252,7 @@ public static class SqlServerEntityTypeExtensions
     public static string? GetHistoryTableSchema(this IReadOnlyEntityType entityType)
         => (entityType is RuntimeEntityType)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : entityType[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
-            ?? entityType[RelationalAnnotationNames.Schema] as string;
+            : entityType[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? entityType.GetSchema();
 
     /// <summary>
     ///     Sets a value representing the schema of the history table associated with the entity mapped to a temporal table.
