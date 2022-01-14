@@ -17,32 +17,32 @@ public class NorthwindMiscellaneousQueryInMemoryTest : NorthwindMiscellaneousQue
     }
 
     public override Task Where_query_composition_entity_equality_one_element_Single(bool async)
-        // Sequence contains no elements. Issue #?????.
+        // Sequence contains no elements.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_one_element_Single(async));
 
     public override Task Where_query_composition_entity_equality_one_element_First(bool async)
-        // Sequence contains no elements. Issue #?????.
+        // Sequence contains no elements.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_one_element_First(async));
 
     public override Task Where_query_composition_entity_equality_no_elements_Single(bool async)
-        // Sequence contains no elements. Issue #?????.
+        // Sequence contains no elements.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_no_elements_Single(async));
 
     public override Task Where_query_composition_entity_equality_no_elements_First(bool async)
-        // Sequence contains no elements. Issue #?????.
+        // Sequence contains no elements.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_no_elements_First(async));
 
     public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool async)
-        // Sequence contains more than one element. Issue #?????.
+        // Sequence contains more than one element.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(async));
 
     public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool async)
-        // Sequence contains more than one element. Issue #?????.
+        // Sequence contains more than one element.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Where_query_composition_entity_equality_multiple_elements_Single(async));
 

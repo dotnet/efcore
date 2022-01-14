@@ -946,16 +946,16 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0");
 
     public override async Task Where_math_min(bool async)
     {
-        // Translate Math.Min. Issue #?????.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
+        // Translate Math.Min.
+        await AssertTranslationFailed(() => base.Where_math_min(async));
 
         AssertSql();
     }
 
     public override async Task Where_math_max(bool async)
     {
-        // Translate Math.Max. Issue #?????.
-        await AssertTranslationFailed(() => base.TrimStart_with_char_array_argument_in_predicate(async));
+        // Translate Math.Max.
+        await AssertTranslationFailed(() => base.Where_math_max(async));
 
         AssertSql();
     }

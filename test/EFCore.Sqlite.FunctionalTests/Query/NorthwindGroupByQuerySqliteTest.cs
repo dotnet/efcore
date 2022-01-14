@@ -43,6 +43,13 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
     public override Task Complex_query_with_group_by_in_subquery5(bool async)
         => AssertApplyNotSupported(() => base.Complex_query_with_group_by_in_subquery5(async));
 
+    public override Task GroupBy_aggregate_from_multiple_query_in_same_projection(bool async)
+        => AssertApplyNotSupported(() => base.GroupBy_aggregate_from_multiple_query_in_same_projection(async));
+
+    public override Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
+        => Assert.ThrowsAsync<SqliteException>(
+            () => base.GroupBy_aggregate_from_multiple_query_in_same_projection_3(async));
+
     public override async Task Odata_groupby_empty_key(bool async)
         => Assert.Equal(
             SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
