@@ -459,18 +459,16 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetStream_Blob_works_when_long_pk()
         {
-            long pk = 9223372036854775800;
-
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
                 connection.ExecuteNonQuery(
                     "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);" +
-                    $"INSERT INTO DataTable VALUES ({pk}, X'01020304');");
+                    $"INSERT INTO DataTable VALUES (2147483648, X'01020304');");
 
                 var selectCommand = connection.CreateCommand();
-                selectCommand.CommandText = $"SELECT Id, Data FROM DataTable WHERE Id = {pk}";
+                selectCommand.CommandText = $"SELECT Id, Data FROM DataTable WHERE Id = 2147483648";
                 using (var reader = selectCommand.ExecuteReader())
                 {
                     Assert.True(reader.Read());
