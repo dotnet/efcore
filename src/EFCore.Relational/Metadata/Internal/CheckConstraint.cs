@@ -296,15 +296,55 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
             return null;
         }
 
-        foreach (var containingType in EntityType.GetDerivedTypesInclusive())
+        if (EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
-            if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+            foreach (var containingType in EntityType.GetDerivedTypesInclusive())
             {
-                return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
+                if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
+                {
+                    return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
+                }
             }
+
+            return null;
         }
 
-        return null;
+        var declaringStoreObject = StoreObjectIdentifier.Create(EntityType, storeObject.StoreObjectType);
+        if (declaringStoreObject == null)
+        {
+            var tableFound = false;
+            var queue = new Queue<IReadOnlyEntityType>();
+            queue.Enqueue(EntityType);
+            while (queue.Count > 0 && !tableFound)
+            {
+                foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                {
+                    declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
+                    if (declaringStoreObject == null)
+                    {
+                        queue.Enqueue(containingType);
+                        continue;
+                    }
+
+                    if (declaringStoreObject == storeObject)
+                    {
+                        tableFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!tableFound)
+            {
+                return null;
+            }
+        }
+        else if (declaringStoreObject != storeObject)
+        {
+            return null;
+        }
+
+        return _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject);
     }
 
     /// <summary>

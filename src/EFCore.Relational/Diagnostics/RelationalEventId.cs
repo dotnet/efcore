@@ -89,6 +89,8 @@ public static class RelationalEventId
         ForeignKeyPropertiesMappedToUnrelatedTables,
         OptionalDependentWithoutIdentifyingPropertyWarning,
         DuplicateColumnOrders,
+        ForeignKeyTPCPrincipalWarning,
+        TpcStoreGeneratedIdentityWarning,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -738,6 +740,34 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables =
         MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
+
+    /// <summary>
+    ///     A foreign key specifies properties which don't map to the related tables.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId ForeignKeyTPCPrincipalWarning =
+        MakeValidationId(Id.ForeignKeyTPCPrincipalWarning);
+
+    /// <summary>
+    ///     The PK is using store-generated values in TPC.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId TpcStoreGeneratedIdentityWarning =
+        MakeValidationId(Id.TpcStoreGeneratedIdentityWarning);
 
     /// <summary>
     ///     The entity does not have any property with a non-default value to identify whether the entity exists.

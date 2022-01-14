@@ -34,17 +34,12 @@ public static class RelationalEntityTypeExtensions
             return (string?)nameAnnotation.Value;
         }
 
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetTableName();
-        }
-
         return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
-            && ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null
 #pragma warning disable CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
 #pragma warning restore CS0618 // Type or member is obsolete
-            && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
+            && (entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null
                 ? GetDefaultTableName(entityType)
                 : null;
     }
@@ -57,6 +52,12 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultTableName(this IReadOnlyEntityType entityType, bool truncate = true)
     {
+        if (entityType.GetDiscriminatorPropertyName() != null
+            && entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetTableName();
+        }
+
         var ownership = entityType.FindOwnership();
         if (ownership != null
             && ownership.IsUnique)
@@ -75,6 +76,12 @@ public static class RelationalEntityTypeExtensions
             name = ownerTypeTable != null
                 ? $"{ownerTypeTable}_{ownership.PrincipalToDependent.Name}"
                 : $"{ownership.PrincipalToDependent.Name}_{name}";
+        }
+
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && !entityType.ClrType.IsInstantiable())
+        {
+            return null;
         }
 
         return truncate
@@ -273,15 +280,10 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The name of the view to which the entity type is mapped.</returns>
     public static string? GetViewName(this IReadOnlyEntityType entityType)
     {
-        var nameAnnotation = (string?)entityType[RelationalAnnotationNames.ViewName];
+        var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.ViewName);
         if (nameAnnotation != null)
         {
-            return nameAnnotation;
-        }
-
-        if (entityType.BaseType != null)
-        {
-            return entityType.GetRootType().GetViewName();
+            return (string?)nameAnnotation.Value;
         }
 
         return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
@@ -300,6 +302,12 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultViewName(this IReadOnlyEntityType entityType)
     {
+        if (entityType.GetDiscriminatorPropertyName() != null
+            && entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetViewName();
+        }
+
         var ownership = entityType.FindOwnership();
         return ownership != null
             && ownership.IsUnique
@@ -956,5 +964,59 @@ public static class RelationalEntityTypeExtensions
     public static ConfigurationSource? GetIsTableExcludedFromMigrationsConfigurationSource(
         this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.IsTableExcludedFromMigrations)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the mapping strategy for the derived types.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The mapping strategy for the derived types.</returns>
+    public static string? GetMappingStrategy(this IReadOnlyEntityType entityType)
+    {
+        var mappingStrategy = (string?)entityType[RelationalAnnotationNames.MappingStrategy];
+        if (mappingStrategy != null)
+        {
+            return mappingStrategy;
+        }
+
+        if (entityType.BaseType != null)
+        {
+            return entityType.GetRootType().GetMappingStrategy();
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Sets the mapping strategy for the derived types.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="strategy">The mapping strategy for the derived types.</param>
+    public static void SetMappingStrategy(this IMutableEntityType entityType, string? strategy)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.MappingStrategy, strategy);
+
+    /// <summary>
+    ///     Sets the mapping strategy for the derived types.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="strategy">The mapping strategy for the derived types.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetMappingStrategy(
+        this IConventionEntityType entityType,
+        string? strategy,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetOrRemoveAnnotation(
+                RelationalAnnotationNames.MappingStrategy, strategy, fromDataAnnotation)
+            ?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="GetMappingStrategy" />.
+    /// </summary>
+    /// <param name="entityType">The entity type to find configuration source for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for <see cref="GetMappingStrategy" />.</returns>
+    public static ConfigurationSource? GetMappingStrategyConfigurationSource(
+        this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.MappingStrategy)
             ?.GetConfigurationSource();
 }
