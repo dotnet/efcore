@@ -31,8 +31,20 @@ public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTempo
     ///     for more information.
     /// </remarks>
     /// <param name="name">The name of the history table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name)
+        => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name);
+
+    /// <summary>
+    ///     Configures a history table for the entity mapped to a temporal table.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="name">The name of the history table.</param>
     /// <param name="schema">The schema of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
+    public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema)
         => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
 }

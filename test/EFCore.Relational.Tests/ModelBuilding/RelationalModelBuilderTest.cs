@@ -11,6 +11,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
     public abstract class TestTableBuilder<TEntity>
         where TEntity : class
     {
+        public abstract string? Name { get; }
+
+        public abstract string? Schema { get; }
+
         public abstract TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
     }
 
@@ -22,9 +26,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             TableBuilder = tableBuilder;
         }
 
-        protected TableBuilder<TEntity> TableBuilder { get; }
+        private TableBuilder<TEntity> TableBuilder { get; }
 
-        public TableBuilder<TEntity> Instance
+        public override string? Name
+            => TableBuilder.Name;
+
+        public override string? Schema
+            => TableBuilder.Schema;
+
+        TableBuilder<TEntity> IInfrastructure<TableBuilder<TEntity>>.Instance
             => TableBuilder;
 
         protected virtual TestTableBuilder<TEntity> Wrap(TableBuilder<TEntity> tableBuilder)
@@ -42,9 +52,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             TableBuilder = tableBuilder;
         }
 
-        protected TableBuilder TableBuilder { get; }
+        private TableBuilder TableBuilder { get; }
 
-        public TableBuilder Instance
+        public override string? Name
+            => TableBuilder.Name;
+
+        public override string? Schema
+            => TableBuilder.Schema;
+
+        TableBuilder IInfrastructure<TableBuilder>.Instance
             => TableBuilder;
 
         protected virtual TestTableBuilder<TEntity> Wrap(TableBuilder tableBuilder)
@@ -57,10 +73,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
     public abstract class TestOwnedNavigationTableBuilder<TEntity>
         where TEntity : class
     {
+        public abstract string? Name { get; }
+
+        public abstract string? Schema { get; }
+
         public abstract TestOwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
     }
 
-    public class GenericTestOwnedNavigationTableBuilder<TEntity> : TestOwnedNavigationTableBuilder<TEntity>, IInfrastructure<OwnedNavigationTableBuilder<TEntity>>
+    public class GenericTestOwnedNavigationTableBuilder<TEntity> :
+        TestOwnedNavigationTableBuilder<TEntity>,
+        IInfrastructure<OwnedNavigationTableBuilder<TEntity>>
         where TEntity : class
     {
         public GenericTestOwnedNavigationTableBuilder(OwnedNavigationTableBuilder<TEntity> tableBuilder)
@@ -68,9 +90,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             TableBuilder = tableBuilder;
         }
 
-        protected OwnedNavigationTableBuilder<TEntity> TableBuilder { get; }
+        private OwnedNavigationTableBuilder<TEntity> TableBuilder { get; }
 
-        public OwnedNavigationTableBuilder<TEntity> Instance => TableBuilder;
+        public override string? Name
+            => TableBuilder.Name;
+
+        public override string? Schema
+            => TableBuilder.Schema;
+
+        OwnedNavigationTableBuilder<TEntity> IInfrastructure<OwnedNavigationTableBuilder<TEntity>>.Instance
+            => TableBuilder;
 
         protected virtual TestOwnedNavigationTableBuilder<TEntity> Wrap(OwnedNavigationTableBuilder<TEntity> tableBuilder)
             => new GenericTestOwnedNavigationTableBuilder<TEntity>(tableBuilder);
@@ -87,9 +116,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             TableBuilder = tableBuilder;
         }
 
-        protected OwnedNavigationTableBuilder TableBuilder { get; }
+        private OwnedNavigationTableBuilder TableBuilder { get; }
 
-        public OwnedNavigationTableBuilder Instance => TableBuilder;
+        public override string? Name
+            => TableBuilder.Name;
+
+        public override string? Schema
+            => TableBuilder.Schema;
+
+        OwnedNavigationTableBuilder IInfrastructure<OwnedNavigationTableBuilder>.Instance
+            => TableBuilder;
 
         protected virtual TestOwnedNavigationTableBuilder<TEntity> Wrap(OwnedNavigationTableBuilder tableBuilder)
             => new NonGenericTestOwnedNavigationTableBuilder<TEntity>(tableBuilder);
@@ -110,9 +146,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             CheckConstraintBuilder = checkConstraintBuilder;
         }
 
-        protected CheckConstraintBuilder CheckConstraintBuilder { get; }
+        private CheckConstraintBuilder CheckConstraintBuilder { get; }
 
-        public CheckConstraintBuilder Instance
+        CheckConstraintBuilder IInfrastructure<CheckConstraintBuilder>.Instance
             => CheckConstraintBuilder;
 
         protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)

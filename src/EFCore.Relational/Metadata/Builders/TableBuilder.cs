@@ -18,10 +18,22 @@ public class TableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public TableBuilder(EntityTypeBuilder entityTypeBuilder)
+    public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
     {
+        Name = name;
+        Schema = schema;
         EntityTypeBuilder = entityTypeBuilder;
     }
+
+    /// <summary>
+    ///     The specified table name.
+    /// </summary>
+    public virtual string? Name { get; }
+
+    /// <summary>
+    ///     The specified table schema.
+    /// </summary>
+    public virtual string? Schema { get; }
 
     /// <summary>
     ///     The entity type being configured.
