@@ -13,20 +13,44 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
         ClearLog();
     }
 
-    public override Task Like_all_literals(bool async)
-        => AssertTranslationFailed(() => base.Like_all_literals(async));
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
 
-    public override Task Like_all_literals_with_escape(bool async)
-        => AssertTranslationFailed(() => base.Like_all_literals_with_escape(async));
+    public override async Task Like_all_literals(bool async)
+    {
+        await AssertTranslationFailed(() => base.Like_all_literals(async));
 
-    public override Task Like_literal(bool async)
-        => AssertTranslationFailed(() => base.Like_literal(async));
+        AssertSql();
+    }
 
-    public override Task Like_literal_with_escape(bool async)
-        => AssertTranslationFailed(() => base.Like_literal_with_escape(async));
+    public override async Task Like_all_literals_with_escape(bool async)
+    {
+        await AssertTranslationFailed(() => base.Like_all_literals_with_escape(async));
 
-    public override Task Like_identity(bool async)
-        => AssertTranslationFailed(() => base.Like_identity(async));
+        AssertSql();
+    }
+
+    public override async Task Like_literal(bool async)
+    {
+        await AssertTranslationFailed(() => base.Like_literal(async));
+
+        AssertSql();
+    }
+
+    public override async Task Like_literal_with_escape(bool async)
+    {
+        await AssertTranslationFailed(() => base.Like_literal_with_escape(async));
+
+        AssertSql();
+    }
+
+    public override async Task Like_identity(bool async)
+    {
+        await AssertTranslationFailed(() => base.Like_identity(async));
+
+        AssertSql();
+    }
 
     public override async Task Random_return_less_than_1(bool async)
     {

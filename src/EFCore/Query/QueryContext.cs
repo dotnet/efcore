@@ -113,15 +113,9 @@ public abstract class QueryContext : IParameterValues
     /// </summary>
     /// <param name="standAlone">Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution.</param>
     public virtual void InitializeStateManager(bool standAlone = false)
-    {
-        Check.DebugAssert(
-            _stateManager == null,
-            "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
-
-        _stateManager = standAlone
+        => _stateManager ??= standAlone
             ? new StateManager(Dependencies.StateManager.Dependencies)
             : Dependencies.StateManager;
-    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

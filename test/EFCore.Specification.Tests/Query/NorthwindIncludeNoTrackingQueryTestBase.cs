@@ -179,11 +179,17 @@ public abstract class NorthwindIncludeNoTrackingQueryTestBase<TFixture> : Northw
         Assert.Single(context.ChangeTracker.Entries());
     }
 
-    public override Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
-        => Task.CompletedTask;
+    public override async Task Include_with_cycle_does_not_throw_when_AsNoTrackingWithIdentityResolution(bool async)
+        => Assert.Equal(
+            CoreStrings.IncludeWithCycle("Customer", "Orders"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Include_multi_level_reference_then_include_collection_predicate(async))).Message);
 
-    public override Task Include_with_cycle_does_not_throw_when_AsTracking_NoTrackingWithIdentityResolution(bool async)
-        => Task.CompletedTask;
+    public override async Task Include_with_cycle_does_not_throw_when_AsTracking_NoTrackingWithIdentityResolution(bool async)
+        => Assert.Equal(
+            CoreStrings.IncludeWithCycle("Customer", "Orders"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Include_multi_level_reference_then_include_collection_predicate(async))).Message);
 
     protected override bool IgnoreEntryCount
         => true;

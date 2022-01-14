@@ -500,9 +500,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
 
-    [ConditionalTheory(Skip = "Issue #16645. Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'")]
-    [InlineData(false)]
-    public virtual Task Where_bitwise_xor(bool async)
+    [ConditionalTheory]
+    [InlineData(false)] public virtual Task Where_bitwise_xor(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => (c.CustomerID == "ALFKI") ^ true),
@@ -578,15 +577,14 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_subquery_correlated_client_eval(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
                     .OrderBy(c1 => c1.CustomerID)
                     .Take(5)
                     .Where(c1 => ss.Set<Customer>().Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
-                entryCount: 1),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                entryCount: 1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1559,7 +1557,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Product>().Where(p => flag ? p.UnitsInStock >= 20 : false));
     }
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_constructed_equal(bool async)
         => AssertQuery(
@@ -1567,7 +1565,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(
                 c => new { x = c.City } == new { x = "London" }));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_constructed_multi_value_equal(bool async)
         => AssertQuery(
@@ -1575,7 +1573,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(
                 c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_constructed_multi_value_not_equal(bool async)
         => AssertQuery(
@@ -1584,14 +1582,14 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 c => new { x = c.City, y = c.Country } != new { x = "London", y = "UK" }),
             entryCount: 91);
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_equal(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => new Tuple<string>(c.City) == new Tuple<string>("London")));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_multi_value_equal(bool async)
         => AssertQuery(
@@ -1599,7 +1597,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss => ss.Set<Customer>().Where(
                 c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
         => AssertQuery(
@@ -1608,21 +1606,21 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
             entryCount: 91);
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_create_constructed_equal(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => Tuple.Create(c.City) == Tuple.Create("London")));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_create_constructed_multi_value_equal(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => Tuple.Create(c.City, c.Country) == Tuple.Create("London", "UK")));
 
-    [ConditionalTheory(Skip = "Issue #14672")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
         => AssertQuery(

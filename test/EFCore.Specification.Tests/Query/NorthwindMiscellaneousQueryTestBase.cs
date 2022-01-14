@@ -199,7 +199,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => context.Customers.Where(c => ids.Contains(c.CustomerID));
 
     [ConditionalFact]
-    public void Query_composition_against_ienumerable_set()
+    public virtual void Query_composition_against_ienumerable_set()
     {
         using var context = CreateContext();
         IEnumerable<Order> orders = context.Orders;
@@ -995,32 +995,29 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task All_client(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertAll(
                 async,
                 ss => ss.Set<Customer>(),
-                predicate: c => c.IsLondon),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                predicate: c => c.IsLondon));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task All_client_and_server_top_level(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertAll(
                 async,
                 ss => ss.Set<Customer>(),
-                predicate: c => c.CustomerID != "Foo" && c.IsLondon),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                predicate: c => c.CustomerID != "Foo" && c.IsLondon));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task All_client_or_server_top_level(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertAll(
                 async,
                 ss => ss.Set<Customer>(),
-                predicate: c => c.CustomerID != "Foo" || c.IsLondon),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                predicate: c => c.CustomerID != "Foo" || c.IsLondon));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1269,7 +1266,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         }
     }
 
-    [ConditionalFact(Skip = "Issue#24478")]
+    [ConditionalFact]
     public virtual void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
     {
         using var context = CreateContext();
@@ -1823,19 +1820,18 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_query_composition3(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertQuery(
                 async,
                 ss => from c1 in ss.Set<Customer>()
                       where c1.City == ss.Set<Customer>().OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
                       select c1,
-                entryCount: 6),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                entryCount: 6));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_query_composition4(bool async)
-        => AssertTranslationFailedWithDetails(
+        => AssertTranslationFailed(
             () => AssertQuery(
                 async,
                 ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
@@ -1844,8 +1840,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                               from c3 in ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
                               select new { c3 }).First().c3.City
                       select c1,
-                entryCount: 1),
-            CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
+                entryCount: 1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2115,37 +2110,45 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>().Where(
                 c => c.CustomerID == "ALFKI" && c.Orders.Any(o => o.OrderDate == new DateTime(2008, 10, 24))));
 
-    [ConditionalTheory(Skip = "Issue#17762")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(
-                c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24))));
+        // Translate List.Exists. Issue #17762.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(
+                    c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24)))));
 
-    [ConditionalTheory(Skip = "Issue#17762")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists_Inequality(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(
-                c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate != new DateTime(2008, 10, 24))),
-            entryCount: 1);
+        // Translate List.Exists. Issue #17762.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(
+                    c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate != new DateTime(2008, 10, 24))),
+                entryCount: 1));
 
-    [ConditionalTheory(Skip = "Issue#17762")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Exists_Constant(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false)));
+        // Translate List.Exists. Issue #17762.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false))));
 
-    [ConditionalTheory(Skip = "Issue#17762")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Join_Not_Exists(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && !c.Orders.Exists(o => false)),
-            entryCount: 1);
+        // Translate List.Exists. Issue #17762.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" && !c.Orders.Exists(o => false)),
+                entryCount: 1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3038,7 +3041,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         Assert.Single(orders);
     }
 
-    [ConditionalTheory(Skip = "Issue#17019")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Throws_on_concurrent_query_list(bool async)
     {
@@ -3079,7 +3082,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         await blockingTask;
     }
 
-    [ConditionalTheory(Skip = "Issue#17019")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Throws_on_concurrent_query_first(bool async)
     {
@@ -3915,8 +3918,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task No_orderby_added_for_fully_translated_manually_constructed_LOJ(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => from e1 in ss.Set<Employee>()
                   join e2 in ss.Set<Employee>() on e1.EmployeeID equals e2.ReportsTo into grouping
@@ -3925,74 +3927,71 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                   select new { City1 = e1.City, City2 = e2 != null ? e2.City : null },
 #pragma warning restore IDE0031 // Use null propagation
             e => (e.City1, e.City2));
-    }
 
-    [ConditionalTheory(Skip = "Issue #17328")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ(bool async)
-    {
-        return AssertQuery(
-            async,
-            ss =>
-                from o in ss.Set<Order>()
-                join c in ss.Set<Customer>() on o.CustomerID equals c.CustomerID into grouping
-                from c in ClientDefaultIfEmpty(grouping)
+        // Translation failed message. Issue #17328.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from o in ss.Set<Order>()
+                    join c in ss.Set<Customer>() on o.CustomerID equals c.CustomerID into grouping
+                    from c in ClientDefaultIfEmpty(grouping)
 #pragma warning disable IDE0031 // Use null propagation
-                select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+                    select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
 #pragma warning restore IDE0031 // Use null propagation
-            e => (e.Id1, e.Id2));
-    }
+                e => (e.Id1, e.Id2)));
 
-    [ConditionalTheory(Skip = "Issue #17328")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
-        bool async)
-    {
-        return AssertQuery(
-            async,
-            ss =>
-                from o in ss.Set<Order>()
-                join c in ss.Set<Customer>() on new { o.CustomerID, o.OrderID } equals new { c.CustomerID, OrderID = 10000 } into
-                    grouping
-                from c in ClientDefaultIfEmpty(grouping)
+    public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(bool async)
+        // Translation failed message. Issue #17328.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from o in ss.Set<Order>()
+                    join c in ss.Set<Customer>() on new { o.CustomerID, o.OrderID } equals new { c.CustomerID, OrderID = 10000 } into
+                        grouping
+                    from c in ClientDefaultIfEmpty(grouping)
 #pragma warning disable IDE0031 // Use null propagation
-                select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+                    select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
 #pragma warning restore IDE0031 // Use null propagation
-            e => (e.Id1, e.Id2));
-    }
+                e => (e.Id1, e.Id2)));
 
-    [ConditionalTheory(Skip = "Issue #17328")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
-        bool async)
-    {
-        return AssertQuery(
-            async,
-            ss =>
-                from o in ss.Set<Order>()
-                join c in ss.Set<Customer>() on new { o.OrderID, o.CustomerID } equals new { OrderID = 10000, c.CustomerID } into
-                    grouping
-                from c in ClientDefaultIfEmpty(grouping)
+    public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(bool async)
+        // Translation failed message. Issue #17328.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss =>
+                    from o in ss.Set<Order>()
+                    join c in ss.Set<Customer>() on new { o.OrderID, o.CustomerID } equals new { OrderID = 10000, c.CustomerID } into
+                        grouping
+                    from c in ClientDefaultIfEmpty(grouping)
 #pragma warning disable IDE0031 // Use null propagation
-                select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+                    select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
 #pragma warning restore IDE0031 // Use null propagation
-            e => (e.Id1, e.Id2));
-    }
+                e => (e.Id1, e.Id2)));
 
-    [ConditionalTheory(Skip = "Issue #17328")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ(bool async)
-    {
-        return AssertQuery(
-            async,
-            ss => from e1 in ss.Set<Employee>()
-                  join e2 in ss.Set<Employee>() on e1.EmployeeID equals e2.ReportsTo into grouping
-                  from e2 in ClientDefaultIfEmpty(grouping)
+        // Translation failed message. Issue #17328.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => from e1 in ss.Set<Employee>()
+                      join e2 in ss.Set<Employee>() on e1.EmployeeID equals e2.ReportsTo into grouping
+                      from e2 in ClientDefaultIfEmpty(grouping)
 #pragma warning disable IDE0031 // Use null propagation
-                  select new { City1 = e1.City, City2 = e2 != null ? e2.City : null },
+                      select new { City1 = e1.City, City2 = e2 != null ? e2.City : null },
 #pragma warning restore IDE0031 // Use null propagation
-            e => (e.City1, e.City2));
-    }
+                e => (e.City1, e.City2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -4704,7 +4703,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                    select o)
                 .Take(5));
 
-    [ConditionalTheory(Skip = "Issue#15713")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_empty_list_contains(bool async)
     {
@@ -4716,7 +4715,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             entryCount: 91);
     }
 
-    [ConditionalTheory(Skip = "Issue#15713")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_empty_list_does_not_contains(bool async)
     {
@@ -4830,7 +4829,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     protected internal uint ClientEvalSelector(Order order)
         => order.EmployeeID % 10 ?? 0;
 
-    [ConditionalTheory(Skip = "Issue#20445")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_navigation_equal_to_null_for_subquery(bool async)
         => AssertQuery(
@@ -4848,15 +4847,17 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
             entryCount: 2);
 
-    [ConditionalTheory(Skip = "Issue#20445")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_navigation_equality_rewrite_for_subquery(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(
-                c => c.CustomerID.StartsWith("A")
-                    && ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
-                    == ss.Set<Order>().Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails));
+        // Dependency issues between visitors Issue #20445.
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(
+                    c => c.CustomerID.StartsWith("A")
+                        && ss.Set<Order>().Where(o => o.OrderID < 10300).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails
+                        == ss.Set<Order>().Where(o => o.OrderID > 10500).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -4880,60 +4881,41 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Select(o => $"CustomerCity:{o.Customer.City}"));
 
-    [ConditionalFact]
-    public virtual void Client_code_using_instance_method_throws()
-    {
-        using var context = CreateContext();
-        Assert.Equal(
-            CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
-                GetType().DisplayName(),
-                nameof(InstanceMethod)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Customers.Select(c => InstanceMethod(c)).ToList()).Message);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Client_code_using_instance_method_throws(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => InstanceMethod(c)),
+            entryCount: 91);
 
     private string InstanceMethod(Customer c)
         => c.City;
 
-    [ConditionalFact]
-    public virtual void Client_code_using_instance_in_static_method()
-    {
-        using var context = CreateContext();
-        Assert.Equal(
-            CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
-                GetType().DisplayName(),
-                nameof(StaticMethod)),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Customers.Select(c => StaticMethod(this, c)).ToList()).Message);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Client_code_using_instance_in_static_method(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => StaticMethod(this, c)),
+            entryCount: 91);
 
     private static string StaticMethod(NorthwindMiscellaneousQueryTestBase<TFixture> containingClass, Customer c)
         => c.City;
 
-    [ConditionalFact]
-    public virtual void Client_code_using_instance_in_anonymous_type()
-    {
-        using var context = CreateContext();
-        Assert.Equal(
-            CoreStrings.ClientProjectionCapturingConstantInTree(
-                GetType().DisplayName()),
-            Assert.Throws<InvalidOperationException>(
-                () => context.Customers.Select(c => new { A = this }).ToList()).Message);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Client_code_using_instance_in_anonymous_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(c => new { A = this }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Client_code_unknown_method(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => UnknownMethod(c.ContactName) == "foo")),
-            CoreStrings.QueryUnableToTranslateMethod(
-                GetType().GetMethod(
-                        nameof(UnknownMethod),
-                        BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                    ?.DeclaringType?.DisplayName(),
-                nameof(UnknownMethod)));
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => UnknownMethod(c.ContactName) == "foo"));
 
     public static string UnknownMethod(string foo)
         => foo;
@@ -5447,11 +5429,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         using var context = CreateContext();
         var query = context.Set<Customer>().Select(e => new { Max = e.Orders.Max(o => o.OrderID) });
 
-        var message = async
-            ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
-            : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
-
-        Assert.Equal("Nullable object must have a value.", message);
+        _ = async ? await query.ToListAsync() : query.ToList();
     }
 
     [ConditionalTheory]
@@ -5658,25 +5636,31 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         Assert.Contains(CoreEventId.QueryCanceled, Fixture.ListLoggerFactory.Log.Select(l => l.Id));
     }
 
-    [ConditionalFact(Skip = "Issue #17019")]
+    [ConditionalFact]
     public virtual async Task Mixed_sync_async_query()
     {
         using var context = CreateContext();
-        var results
-            = (await context.Customers
-                .Select(
-                    c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) })
-                .ToListAsync())
-            .Select(
-                x => new
-                {
-                    Orders = x.Orders
-                        .GroupJoin(
-                            new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
-                })
-            .ToList();
 
-        Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
+        // Bad test. Issue 17019.
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+            {
+                var results
+                    = (await context.Customers
+                        .Select(
+                            c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) })
+                        .ToListAsync())
+                    .Select(
+                        x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
+                        })
+                    .ToList();
+
+                Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
+            });
     }
 
     protected virtual async Task Single_Predicate_Cancellation_test(CancellationToken cancellationToken)

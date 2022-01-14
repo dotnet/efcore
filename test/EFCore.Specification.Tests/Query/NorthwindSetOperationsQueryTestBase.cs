@@ -432,7 +432,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                         .Select(c => new { Customer = c, Orders = c.Orders.Count })),
             entryCount: 91);
 
-    [ConditionalTheory(Skip = "#16243")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Client_eval_Union_FirstOrDefault(bool async)
         => AssertFirstOrDefault(

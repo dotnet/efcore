@@ -18,6 +18,10 @@ public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTes
     protected override bool CanExecuteQueryString
         => true;
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Where_simple(bool async)
     {
         await base.Where_simple(async);
@@ -440,11 +444,10 @@ END) = CAST(1 AS bit)");
 
     public override async Task Where_bitwise_xor(bool async)
     {
-        await base.Where_bitwise_xor(async);
+        // Cannot eval 'where (([c].CustomerID == \"ALFKI\") ^ True)'. Issue #16645.
+        await AssertTranslationFailed(() => base.Where_bitwise_xor(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_simple_shadow(bool async)
@@ -1455,83 +1458,74 @@ WHERE 0 = 1");
 
     public override async Task Where_compare_constructed_equal(bool async)
     {
-        await base.Where_compare_constructed_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_constructed_multi_value_equal(bool async)
     {
-        await base.Where_compare_constructed_multi_value_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_multi_value_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_constructed_multi_value_not_equal(bool async)
     {
-        await base.Where_compare_constructed_multi_value_not_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_constructed_multi_value_not_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_constructed_equal(bool async)
     {
-        await base.Where_compare_tuple_constructed_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_constructed_multi_value_equal(bool async)
     {
-        await base.Where_compare_tuple_constructed_multi_value_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_multi_value_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
     {
-        await base.Where_compare_tuple_constructed_multi_value_not_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_constructed_multi_value_not_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_create_constructed_equal(bool async)
     {
-        await base.Where_compare_tuple_create_constructed_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_create_constructed_multi_value_equal(bool async)
     {
-        await base.Where_compare_tuple_create_constructed_multi_value_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_multi_value_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
     {
-        await base.Where_compare_tuple_create_constructed_multi_value_not_equal(async);
+        //  Anonymous type to constant comparison. Issue #14672.
+        await AssertTranslationFailed(() => base.Where_compare_tuple_create_constructed_multi_value_not_equal(async));
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+        AssertSql();
     }
 
     public override async Task Where_compare_null(bool async)
@@ -2493,6 +2487,209 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND [c].[City] = N'Seattle'");
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE ([c].[CustomerID] LIKE N'F%') OR [c].[City] = N'Seattle'");
+    }
+
+    public override async Task Where_poco_closure(bool async)
+    {
+        await base.Where_poco_closure(async);
+
+        AssertSql(
+            @"@__entity_equality_customer_0_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__entity_equality_customer_0_CustomerID",
+            //
+            @"@__entity_equality_customer_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__entity_equality_customer_0_CustomerID");
+    }
+
+    public override async Task Filter_with_property_compared_to_null_wrapped_in_explicit_convert_to_object(bool async)
+    {
+        await base.Filter_with_property_compared_to_null_wrapped_in_explicit_convert_to_object(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NULL");
+    }
+
+    public override async Task Where_simple_shadow_subquery(bool async)
+    {
+        await base.Where_simple_shadow_subquery(async);
+
+        AssertSql(
+            @"@__p_0='5'
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [t]
+WHERE [t].[Title] = N'Sales Representative'
+ORDER BY [t].[EmployeeID]");
+    }
+
+    public override async Task Where_primitive_tracked2(bool async)
+    {
+        await base.Where_primitive_tracked2(async);
+
+        AssertSql(
+            @"@__p_0='9'
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t]
+WHERE [t].[EmployeeID] = 5");
+    }
+
+    public override async Task Where_projection(bool async)
+    {
+        await base.Where_projection(async);
+
+        AssertSql(
+            @"SELECT [c].[CompanyName]
+FROM [Customers] AS [c]
+WHERE [c].[City] = N'London'");
+    }
+
+    public override async Task Where_bool_closure(bool async)
+    {
+        await base.Where_bool_closure(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1",
+            //
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+    }
+
+    public override async Task Where_primitive_tracked(bool async)
+    {
+        await base.Where_primitive_tracked(async);
+
+        AssertSql(
+            @"@__p_0='9'
+
+SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
+FROM (
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+) AS [t]
+WHERE [t].[EmployeeID] = 5");
+    }
+
+    public override async Task Where_simple_shadow_projection_mixed(bool async)
+    {
+        await base.Where_simple_shadow_projection_mixed(async);
+
+        AssertSql(
+            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[Title] = N'Sales Representative'");
+    }
+
+    public override async Task Decimal_cast_to_double_works(bool async)
+    {
+        await base.Decimal_cast_to_double_works(async);
+
+        AssertSql(
+            @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE CAST([p].[UnitPrice] AS float) > 100.0E0");
+    }
+
+    public override async Task Where_bool_client_side_negated(bool async)
+    {
+        await base.Where_bool_client_side_negated(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_equals_method_string_with_ignore_case(bool async)
+    {
+        await base.Where_equals_method_string_with_ignore_case(async);
+
+        AssertSql();
+    }
+
+    public override void Where_nested_field_access_closure_via_query_cache_error_null()
+    {
+        base.Where_nested_field_access_closure_via_query_cache_error_null();
+
+        AssertSql();
+    }
+
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_null_async()
+    {
+        await base.Where_nested_field_access_closure_via_query_cache_error_null_async();
+
+        AssertSql();
+    }
+
+    public override void Where_nested_field_access_closure_via_query_cache_error_method_null()
+    {
+        base.Where_nested_field_access_closure_via_query_cache_error_method_null();
+
+        AssertSql();
+    }
+
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_method_null_async()
+    {
+        await base.Where_nested_field_access_closure_via_query_cache_error_method_null_async();
+
+        AssertSql();
+    }
+
+    public override async Task Where_client(bool async)
+    {
+        await base.Where_client(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_subquery_correlated_client_eval(bool async)
+    {
+        await base.Where_subquery_correlated_client_eval(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_client_and_server_top_level(bool async)
+    {
+        await base.Where_client_and_server_top_level(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_client_or_server_top_level(bool async)
+    {
+        await base.Where_client_or_server_top_level(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_client_and_server_non_top_level(bool async)
+    {
+        await base.Where_client_and_server_non_top_level(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_client_deep_inside_predicate_and_server_top_level(bool async)
+    {
+        await base.Where_client_deep_inside_predicate_and_server_top_level(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

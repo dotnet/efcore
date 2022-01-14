@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -17,7 +17,10 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    [ConditionalTheory]
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task KeylessEntity_simple(bool async)
     {
         await base.KeylessEntity_simple(async);
@@ -28,7 +31,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
     }
 
-    [ConditionalTheory]
     public override async Task KeylessEntity_where_simple(bool async)
     {
         await base.KeylessEntity_where_simple(async);
@@ -39,52 +41,60 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
     }
 
-    [ConditionalFact] // views are not supported
     public override void KeylessEntity_by_database_view()
     {
-    }
-
-    public override void Entity_mapped_to_view_on_right_side_of_join()
-    {
-    }
-
-    [ConditionalFact(Skip = "See issue#17246")]
-    public override void Auto_initialized_view_set()
-        => base.Auto_initialized_view_set();
-
-    [ConditionalFact(Skip = "issue #17246")] // collection support
-    public override void KeylessEntity_with_nav_defining_query()
-    {
-        base.KeylessEntity_with_nav_defining_query();
-
-        AssertSql(
-            @"");
-    }
-
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override async Task KeylessEntity_with_mixed_tracking(bool async)
-    {
-        await AssertQuery(
-            async,
-            ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
-                  from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
-                  select new { c, o },
-            elementSorter: e => (e.c.CustomerID, e.o.CustomerID),
-            elementAsserter: (e, a) =>
-            {
-                AssertEqual(e.c, a.c);
-                AssertEqual(e.o, a.o);
-            });
+        // Views are not supported.
+        Assert.Equal(
+            "0",
+            Assert.Throws<EqualException>(
+                () => base.KeylessEntity_by_database_view()).Actual);
 
         AssertSql(
             @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
+WHERE (c[""Discriminator""] = ""ProductView"")");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override Task KeylessEntity_with_included_nav(bool async)
-        => base.KeylessEntity_with_included_nav(async);
+    public override void Entity_mapped_to_view_on_right_side_of_join()
+    {
+        AssertTranslationFailed(
+            () =>
+            {
+                base.Entity_mapped_to_view_on_right_side_of_join();
+                return Task.CompletedTask;
+            });
+
+        AssertSql();
+    }
+
+    public override void KeylessEntity_with_nav_defining_query()
+    {
+        Assert.Equal(
+            "0",
+            Assert.Throws<EqualException>(
+                () => base.KeylessEntity_with_nav_defining_query()).Actual);
+
+        AssertSql(
+            @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""OrderCount""] > 0))");
+    }
+
+    public override async Task KeylessEntity_with_mixed_tracking(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.KeylessEntity_with_mixed_tracking(async));
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_with_included_nav(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.KeylessEntity_with_included_nav(async));
+
+        AssertSql();
+    }
 
     public override async Task KeylessEntity_with_defining_query(bool async)
     {
@@ -96,59 +106,62 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
     }
 
-    [ConditionalTheory(Skip = "Issue #17246")]
     public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
     {
-        await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.KeylessEntity_with_defining_query_and_correlated_collection(async));
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_select_where_navigation(bool async)
+    {
+        // Left join translation. Issue #17314.
+        await AssertTranslationFailed(() => base.KeylessEntity_select_where_navigation(async));
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
+    {
+        // Left join translation. Issue #17314.
+        await AssertTranslationFailed(() => base.KeylessEntity_select_where_navigation_multi_level(async));
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
+    {
+        // Left join translation. Issue #17314.
+        await AssertTranslationFailed(() => base.KeylessEntity_with_included_navs_multi_level(async));
+
+        AssertSql();
+    }
+
+    public override async Task KeylessEntity_groupby(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.KeylessEntity_groupby(async));
+
+        AssertSql();
+    }
+
+    public override async Task Collection_correlated_with_keyless_entity_in_predicate_works(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Collection_correlated_with_keyless_entity_in_predicate_works(async));
+
+        AssertSql();
+    }
+
+    public override void Auto_initialized_view_set()
+    {
+        base.Auto_initialized_view_set();
 
         AssertSql(
             @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
-    }
-
-    [ConditionalTheory(Skip = "issue#17314")] // left join translation
-    public override async Task KeylessEntity_select_where_navigation(bool async)
-    {
-        await base.KeylessEntity_select_where_navigation(async);
-
-        AssertSql(@"");
-    }
-
-    [ConditionalTheory(Skip = "issue#17314")] // left join translation
-    public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
-    {
-        await AssertQuery(
-            async,
-            ss => from ov in ss.Set<OrderQuery>().Where(o => o.CustomerID == "ALFKI")
-                  where ov.Customer.Orders.Any()
-                  select ov);
-
-        AssertSql(@"");
-    }
-
-    [ConditionalTheory(Skip = "issue#17314")] // left join translation
-    public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
-    {
-        await base.KeylessEntity_with_included_navs_multi_level(async);
-
-        AssertSql(@"");
-    }
-
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override async Task KeylessEntity_groupby(bool async)
-    {
-        await base.KeylessEntity_groupby(async);
-
-        AssertSql(@"");
-    }
-
-    [ConditionalTheory(Skip = "Issue #17246")]
-    public override async Task Collection_correlated_with_keyless_entity_in_predicate_works(bool async)
-    {
-        await base.Collection_correlated_with_keyless_entity_in_predicate_works(async);
-
-        AssertSql(@"");
     }
 
     private void AssertSql(params string[] expected)

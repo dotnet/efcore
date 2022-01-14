@@ -817,28 +817,36 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
                   select od,
             entryCount: 352);
 
-    [ConditionalTheory(Skip = "issue #15260")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_subquery_on_navigation(bool async)
-        => AssertQuery(
-            async,
-            ss => from p in ss.Set<Product>()
-                  where p.OrderDetails.Contains(
-                      ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID)
-                          .FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
-                  select p,
-            entryCount: 1);
+    public virtual async Task Where_subquery_on_navigation(bool async)
+        // Complex entity equality. Issue #15260.
+        => Assert.Equal(
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => from p in ss.Set<Product>()
+                          where p.OrderDetails.Contains(
+                              ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID)
+                                  .FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
+                          select p,
+                    entryCount: 1))).Message);
 
-    [ConditionalTheory(Skip = "issue #15260")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_subquery_on_navigation2(bool async)
-        => AssertQuery(
-            async,
-            ss => from p in ss.Set<Product>()
-                  where p.OrderDetails.Contains(
-                      ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
-                  select p,
-            entryCount: 1);
+    public virtual async Task Where_subquery_on_navigation2(bool async)
+        // Complex entity equality. Issue #15260.
+        => Assert.Equal(
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => from p in ss.Set<Product>()
+                          where p.OrderDetails.Contains(
+                              ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
+                          select p,
+                    entryCount: 1))).Message);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

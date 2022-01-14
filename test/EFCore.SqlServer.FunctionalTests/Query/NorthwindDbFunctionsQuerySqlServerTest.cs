@@ -19,6 +19,10 @@ public class NorthwindDbFunctionsQuerySqlServerTest : NorthwindDbFunctionsQueryR
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Like_literal(bool async)
     {
         await base.Like_literal(async);

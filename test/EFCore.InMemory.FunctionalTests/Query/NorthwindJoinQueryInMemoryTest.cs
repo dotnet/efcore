@@ -15,19 +15,19 @@ public class NorthwindJoinQueryInMemoryTest : NorthwindJoinQueryTestBase<Northwi
         //TestLoggerFactory.TestOutputHelper = testOutputHelper;
     }
 
-    [ConditionalTheory(Skip = "Issue#21200")]
     public override Task SelectMany_with_client_eval(bool async)
-        => base.SelectMany_with_client_eval(async);
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval(async));
 
-    [ConditionalTheory(Skip = "Issue#21200")]
     public override Task SelectMany_with_client_eval_with_collection_shaper(bool async)
-        => base.SelectMany_with_client_eval_with_collection_shaper(async);
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_collection_shaper(async));
 
-    [ConditionalTheory(Skip = "Issue#21200")]
     public override Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
-        => base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_collection_shaper_ignored(async));
 
-    [ConditionalTheory(Skip = "Issue#21200")]
     public override Task SelectMany_with_client_eval_with_constructor(bool async)
-        => base.SelectMany_with_client_eval_with_constructor(async);
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_constructor(async));
 }

@@ -51,13 +51,13 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindI
                     async,
                     ss => ss.Set<Order>().Include(o => o.Customer.CustomerID)))).Message);
 
-    // Property expression cannot be converted to string include
     public override Task Include_property_expression_invalid(bool async)
-        => Task.CompletedTask;
+        // Property expression cannot be converted to string include
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.Filtered_include_with_multiple_ordering(async));
 
-    // Property expression cannot be converted to string include
     public override Task Then_include_property_expression_invalid(bool async)
-        => Task.CompletedTask;
+        // Property expression cannot be converted to string include
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.Filtered_include_with_multiple_ordering(async));
 
     public override async Task Include_closes_reader(bool async)
     {
@@ -132,9 +132,9 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindI
         Assert.Equal(7, context.ChangeTracker.Entries().Count());
     }
 
-    // Filtered include does not work for string based API.
     public override Task Filtered_include_with_multiple_ordering(bool async)
-        => Task.CompletedTask;
+        // Filtered include does not work for string based API.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.Filtered_include_with_multiple_ordering(async));
 
     public override async Task Include_specified_on_non_entity_not_supported(bool async)
         => Assert.Equal(

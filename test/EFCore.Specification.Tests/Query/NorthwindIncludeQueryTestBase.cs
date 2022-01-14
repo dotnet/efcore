@@ -1273,7 +1273,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             assertOrder: true,
             entryCount: 7);
 
-    [ConditionalTheory(Skip = "Issue#15713")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_OrderBy_empty_list_contains(bool async)
     {
@@ -1285,10 +1285,11 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
+            entryCount: 27);
     }
 
-    [ConditionalTheory(Skip = "Issue#15713")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_OrderBy_empty_list_does_not_contains(bool async)
     {
@@ -1300,7 +1301,8 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => !list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
+            entryCount: 27);
     }
 
     [ConditionalTheory]

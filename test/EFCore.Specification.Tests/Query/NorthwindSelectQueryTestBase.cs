@@ -81,30 +81,27 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             elementSorter: e => e.OrderID + " " + e.EmployeeID,
             entryCount: 15);
 
-    [ConditionalTheory(Skip = "Issue#19247")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Projection_when_arithmetic_mixed_subqueries(bool async)
-        => Assert.Equal(
-            "Unsupported Binary operator type specified.",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss =>
-                        from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(3).Select(
-                            o2 => new { o2, Mod = o2.OrderID % 2 })
-                        from e in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2).Select(
-                            e2 => new { e2, Square = e2.EmployeeID ^ 2 })
-                        select new
-                        {
-                            Add = e.e2.EmployeeID + o.o2.OrderID,
-                            e.Square,
-                            e.e2,
-                            Literal = 42,
-                            o.o2,
-                            o.Mod
-                        },
-                    elementSorter: e => (e.e2.EmployeeID, e.o2.OrderID),
-                    entryCount: 3))).Message);
+    public virtual Task Projection_when_arithmetic_mixed_subqueries(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+                from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(3).Select(
+                    o2 => new { o2, Mod = o2.OrderID % 2 })
+                from e in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2).Select(
+                    e2 => new { e2, Square = e2.EmployeeID ^ 2 })
+                select new
+                {
+                    Add = e.e2.EmployeeID + o.o2.OrderID,
+                    e.Square,
+                    e.e2,
+                    Literal = 42,
+                    o.o2,
+                    o.Mod
+                },
+            elementSorter: e => (e.e2.EmployeeID, e.o2.OrderID),
+            entryCount: 5);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1050,7 +1047,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                     .Take(2)
                     .FirstOrDefault()));
 
-    [ConditionalTheory(Skip = "Issue#12597")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task
         Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
@@ -1058,11 +1055,17 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
         => AssertQueryScalar(
             async,
             ss => ss.Set<Customer>().Select(
+                c => (int?)c.Orders.OrderBy(o => o.OrderID)
+                    .ThenByDescending(o => o.OrderDate)
+                    .Select(o => o.CustomerID)
+                    .Take(2)
+                    .FirstOrDefault().Length),
+            ss => ss.Set<Customer>().Select(
                 c => c.Orders.OrderBy(o => o.OrderID)
                     .ThenByDescending(o => o.OrderDate)
                     .Select(o => o.CustomerID)
                     .Take(2)
-                    .FirstOrDefault().Length));
+                    .FirstOrDefault().MaybeScalar(x => x.Length)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1520,11 +1523,10 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             ss => ss.Set<Customer>().SelectMany(
                 c => c.Orders.Select(o => new { OrderProperty = o.CustomerID, CustomerProperty = c.CustomerID })));
 
-    [ConditionalTheory(Skip = "issue #17763")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task
-        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
-            bool async)
+        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().SelectMany(
@@ -1578,7 +1580,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                   select g,
             elementSorter: e => (e.OrderDate, e.CustomerCity));
 
-    [ConditionalTheory(Skip = "Issue#12148")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool async)
         => AssertQuery(
@@ -1841,7 +1843,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
             });
     }
 
-    [ConditionalTheory(Skip = "Issue#24440")]
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
     {

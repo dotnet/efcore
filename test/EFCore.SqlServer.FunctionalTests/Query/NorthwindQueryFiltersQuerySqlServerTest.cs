@@ -16,6 +16,10 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    [ConditionalFact]
+    public virtual void Check_all_tests_overridden()
+        => TestHelpers.AssertAllMethodsOverridden(GetType());
+
     public override async Task Count_query(bool async)
     {
         await base.Count_query(async);
@@ -299,6 +303,37 @@ LEFT JOIN (
     WHERE @__ef_filter__TenantPrefix_0 = N'' OR ([c].[CompanyName] IS NOT NULL AND LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
 WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
+    }
+
+    public override async Task Client_eval(bool async)
+    {
+        await base.Client_eval(async);
+
+        AssertSql();
+    }
+
+    public override async Task Included_many_to_one_query2(bool async)
+    {
+        await base.Included_many_to_one_query2(async);
+
+        AssertSql(
+            @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE @__ef_filter__TenantPrefix_0 = N'' OR ([c].[CompanyName] IS NOT NULL AND LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)
+) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
+WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
+    }
+
+    public override async Task Included_one_to_many_query_with_client_eval(bool async)
+    {
+        await base.Included_one_to_many_query_with_client_eval(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)
