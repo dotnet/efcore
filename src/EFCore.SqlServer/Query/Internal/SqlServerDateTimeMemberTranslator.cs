@@ -96,17 +96,17 @@ public class SqlServerDateTimeMemberTranslator : IMemberTranslator
                 case nameof(DateTime.Now):
                     return _sqlExpressionFactory.Function(
                         declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
-                        Array.Empty<SqlExpression>(),
+                        Enumerable.Empty<SqlExpression>(),
                         nullable: false,
-                        argumentsPropagateNullability: Array.Empty<bool>(),
+                        argumentsPropagateNullability: Enumerable.Empty<bool>(),
                         returnType);
 
                 case nameof(DateTime.UtcNow):
                     var serverTranslation = _sqlExpressionFactory.Function(
                         declaringType == typeof(DateTime) ? "GETUTCDATE" : "SYSUTCDATETIME",
-                        Array.Empty<SqlExpression>(),
+                        Enumerable.Empty<SqlExpression>(),
                         nullable: false,
-                        argumentsPropagateNullability: Array.Empty<bool>(),
+                        argumentsPropagateNullability: Enumerable.Empty<bool>(),
                         returnType);
 
                     return declaringType == typeof(DateTime)
@@ -121,9 +121,9 @@ public class SqlServerDateTimeMemberTranslator : IMemberTranslator
                             _sqlExpressionFactory.Fragment("date"),
                             _sqlExpressionFactory.Function(
                                 "GETDATE",
-                                Array.Empty<SqlExpression>(),
+                                Enumerable.Empty<SqlExpression>(),
                                 nullable: false,
-                                argumentsPropagateNullability: Array.Empty<bool>(),
+                                argumentsPropagateNullability: Enumerable.Empty<bool>(),
                                 typeof(DateTime))
                         },
                         nullable: true,

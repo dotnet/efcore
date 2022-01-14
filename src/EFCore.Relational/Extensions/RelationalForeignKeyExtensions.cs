@@ -21,6 +21,12 @@ public static class RelationalForeignKeyExtensions
     /// <returns>The foreign key constraint name.</returns>
     public static string? GetConstraintName(this IReadOnlyForeignKey foreignKey)
     {
+        var tableName = foreignKey.DeclaringEntityType.GetTableName();
+        if (tableName == null)
+        {
+            return null;
+        }
+
         var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
         return annotation != null
             ? (string?)annotation.Value
@@ -39,6 +45,12 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
         var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
         return annotation != null
             ? (string?)annotation.Value
@@ -50,10 +62,15 @@ public static class RelationalForeignKeyExtensions
     /// </summary>
     /// <param name="foreignKey">The foreign key.</param>
     /// <returns>The default constraint name that would be used for this foreign key.</returns>
-    public static string GetDefaultName(this IReadOnlyForeignKey foreignKey)
+    public static string? GetDefaultName(this IReadOnlyForeignKey foreignKey)
     {
         var tableName = foreignKey.DeclaringEntityType.GetTableName();
         var principalTableName = foreignKey.PrincipalEntityType.GetTableName();
+        if (tableName == null
+            || principalTableName == null)
+        {
+            return null;
+        }
 
         var name = new StringBuilder()
             .Append("FK_")
@@ -79,6 +96,12 @@ public static class RelationalForeignKeyExtensions
         in StoreObjectIdentifier storeObject,
         in StoreObjectIdentifier principalStoreObject)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || principalStoreObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
         var propertyNames = foreignKey.Properties.GetColumnNames(storeObject);
         var principalPropertyNames = foreignKey.PrincipalKey.Properties.GetColumnNames(principalStoreObject);
         if (propertyNames == null

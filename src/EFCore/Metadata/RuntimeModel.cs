@@ -126,7 +126,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {
         var entityType = FindEntityType(GetDisplayName(type));
         var result = entityType == null
-            ? Array.Empty<RuntimeEntityType>()
+            ? Enumerable.Empty<RuntimeEntityType>()
             : new[] { entityType };
 
         return _sharedTypes.TryGetValue(type, out var sharedTypes)

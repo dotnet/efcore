@@ -458,11 +458,11 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyCollection<EntityType> GetEntityTypes(string name)
+    public virtual IEnumerable<EntityType> GetEntityTypes(string name)
     {
         var entityType = FindEntityType(name);
         return entityType == null
-            ? Array.Empty<EntityType>()
+            ? Enumerable.Empty<EntityType>()
             : new[] { entityType };
     }
 

@@ -159,7 +159,17 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     {
         Check.NotNull(derivedType, nameof(derivedType));
 
-        var baseType = derivedType;
+        if (derivedType == this)
+        {
+            return true;
+        }
+
+        if (!GetDirectlyDerivedTypes().Any())
+        {
+            return false;
+        }
+
+        var baseType = derivedType.BaseType;
         while (baseType != null)
         {
             if (baseType == this)

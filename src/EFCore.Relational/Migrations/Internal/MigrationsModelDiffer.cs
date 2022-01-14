@@ -1527,7 +1527,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         var operation = new DropCheckConstraintOperation
         {
-            Name = source.Name,
+            Name = source.Name!,
             Schema = sourceEntityType.GetSchema(),
             Table = sourceEntityType.GetTableName()!
         };

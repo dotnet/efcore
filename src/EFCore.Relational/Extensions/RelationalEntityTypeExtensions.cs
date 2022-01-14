@@ -39,7 +39,7 @@ public static class RelationalEntityTypeExtensions
             return entityType.GetRootType().GetTableName();
         }
 
-        return (entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null
+        return ((entityType as IConventionEntityType)?.GetViewNameConfigurationSource() == null)
             && ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
 #pragma warning disable CS0618 // Type or member is obsolete
             && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
@@ -254,7 +254,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ITableMappingBase> GetDefaultMappings(this IEntityType entityType)
         => (IEnumerable<ITableMappingBase>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DefaultMappings)
-            ?? Array.Empty<ITableMappingBase>();
+            ?? Enumerable.Empty<ITableMappingBase>();
 
     /// <summary>
     ///     Returns the tables to which the entity type is mapped.
@@ -264,7 +264,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ITableMapping> GetTableMappings(this IEntityType entityType)
         => (IEnumerable<ITableMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableMappings)
-            ?? Array.Empty<ITableMapping>();
+            ?? Enumerable.Empty<ITableMapping>();
 
     /// <summary>
     ///     Returns the name of the view to which the entity type is mapped or <see langword="null" /> if not mapped to a view.
@@ -286,7 +286,7 @@ public static class RelationalEntityTypeExtensions
 
         return ((entityType as IConventionEntityType)?.GetFunctionNameConfigurationSource() == null)
 #pragma warning disable CS0618 // Type or member is obsolete
-            && (entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null
+            && ((entityType as IConventionEntityType)?.GetDefiningQueryConfigurationSource() == null)
 #pragma warning restore CS0618 // Type or member is obsolete
             && ((entityType as IConventionEntityType)?.GetSqlQueryConfigurationSource() == null)
                 ? GetDefaultViewName(entityType)
@@ -428,7 +428,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IViewMapping> GetViewMappings(this IEntityType entityType)
         => (IEnumerable<IViewMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.ViewMappings)
-            ?? Array.Empty<IViewMapping>();
+            ?? Enumerable.Empty<IViewMapping>();
 
     /// <summary>
     ///     Gets the default SQL query name that would be used for this entity type when mapped using
@@ -493,7 +493,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings(this IEntityType entityType)
         => (IEnumerable<ISqlQueryMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.SqlQueryMappings)
-            ?? Array.Empty<ISqlQueryMapping>();
+            ?? Enumerable.Empty<ISqlQueryMapping>();
 
     /// <summary>
     ///     Returns the name of the function to which the entity type is mapped or <see langword="null" /> if not mapped to a function.
@@ -549,7 +549,7 @@ public static class RelationalEntityTypeExtensions
     public static IEnumerable<IFunctionMapping> GetFunctionMappings(this IEntityType entityType)
         => (IEnumerable<IFunctionMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.FunctionMappings)
-            ?? Array.Empty<IFunctionMapping>();
+            ?? Enumerable.Empty<IFunctionMapping>();
 
     /// <summary>
     ///     Finds an <see cref="IReadOnlyCheckConstraint" /> with the given name.

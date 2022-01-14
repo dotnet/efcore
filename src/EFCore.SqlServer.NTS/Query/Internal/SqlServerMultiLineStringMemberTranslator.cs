@@ -46,10 +46,10 @@ public class SqlServerMultiLineStringMemberTranslator : IMemberTranslator
             return _sqlExpressionFactory.Function(
                 instance!,
                 "STIsClosed",
-                Array.Empty<SqlExpression>(),
+                Enumerable.Empty<SqlExpression>(),
                 nullable: true,
                 instancePropagatesNullability: true,
-                argumentsPropagateNullability: Array.Empty<bool>(),
+                argumentsPropagateNullability: Enumerable.Empty<bool>(),
                 returnType);
         }
 

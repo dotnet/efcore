@@ -19,8 +19,10 @@ public static class RelationalIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The name of the index in the database.</returns>
-    public static string GetDatabaseName(this IReadOnlyIndex index)
-        => (string?)index[RelationalAnnotationNames.Name]
+    public static string? GetDatabaseName(this IReadOnlyIndex index)
+        => index.DeclaringEntityType.GetTableName() == null
+        ? null
+        : (string?)index[RelationalAnnotationNames.Name]
             ?? index.Name
             ?? index.GetDefaultDatabaseName();
 
@@ -31,7 +33,9 @@ public static class RelationalIndexExtensions
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        => (string?)index[RelationalAnnotationNames.Name]
+        => storeObject.StoreObjectType != StoreObjectType.Table
+        ? null
+        : (string?)index[RelationalAnnotationNames.Name]
             ?? index.Name
             ?? index.GetDefaultDatabaseName(storeObject);
 
@@ -40,9 +44,14 @@ public static class RelationalIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The default name that would be used for this index.</returns>
-    public static string GetDefaultDatabaseName(this IReadOnlyIndex index)
+    public static string? GetDefaultDatabaseName(this IReadOnlyIndex index)
     {
         var tableName = index.DeclaringEntityType.GetTableName();
+        if (tableName == null)
+        {
+            return null;
+        }
+
         var baseName = new StringBuilder()
             .Append("IX_")
             .Append(tableName)
@@ -61,6 +70,11 @@ public static class RelationalIndexExtensions
     /// <returns>The default name that would be used for this index.</returns>
     public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
+        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        {
+            return null;
+        }
+
         var columnNames = index.Properties.GetColumnNames(storeObject);
         if (columnNames == null)
         {
