@@ -458,8 +458,9 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
             using (var command2 = connection.CreateCommand())
             {
                 command2.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\"")
-                    .AppendLine("FROM pragma_index_info(@index)")
+                    .AppendLine("SELECT \"name\", \"desc\"")
+                    .AppendLine("FROM pragma_index_xinfo(@index)")
+                    .AppendLine("WHERE key = 1")
                     .AppendLine("ORDER BY \"seqno\";")
                     .ToString();
 
@@ -477,6 +478,7 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                     Check.DebugAssert(column != null, "column is null.");
 
                     index.Columns.Add(column);
+                    index.IsDescending.Add(reader2.GetBoolean(1));
                 }
             }
 

@@ -15,10 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIndex
 {
     private bool? _isUnique;
+    private IReadOnlyList<bool>? _isDescending;
+
     private InternalIndexBuilder? _builder;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _isUniqueConfigurationSource;
+    private ConfigurationSource? _isDescendingConfigurationSource;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private object? _nullableValueFactory;
@@ -178,8 +181,8 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
             : oldIsUnique;
     }
 
-    private static bool DefaultIsUnique
-        => false;
+    private static readonly bool DefaultIsUnique
+        = false;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -192,6 +195,74 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
 
     private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
         => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<bool> IsDescending
+    {
+        get => _isDescending ?? DefaultIsDescending;
+        set => SetIsDescending(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<bool>? SetIsDescending(IReadOnlyList<bool>? descending, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        if (descending is not null && descending.Count > Properties.Count)
+        {
+            throw new ArgumentException(
+                CoreStrings.TooManyIndexSortOrderValues(descending.Count, Properties.Format(), Properties.Count), nameof(descending));
+        }
+
+        // Normalize all-false array to the simpler empty array representation
+        if (descending is not null && descending.All(d => d == false))
+        {
+            descending = DefaultIsDescending;
+        }
+
+        var oldIsDescending = IsDescending;
+        var isChanging = _isDescending is null != descending is null
+            || descending is not null && !oldIsDescending.SequenceEqual(descending);
+        _isDescending = descending;
+
+        if (descending == null)
+        {
+            _isDescendingConfigurationSource = null;
+        }
+        else
+        {
+            UpdateIsDescendingConfigurationSource(configurationSource);
+        }
+
+        return isChanging
+            ? DeclaringEntityType.Model.ConventionDispatcher.OnIndexSortOrderChanged(Builder)
+            : oldIsDescending;
+    }
+
+    private static readonly bool[] DefaultIsDescending
+        = Array.Empty<bool>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetIsDescendingConfigurationSource()
+        => _isDescendingConfigurationSource;
+
+    private void UpdateIsDescendingConfigurationSource(ConfigurationSource configurationSource)
+        => _isDescendingConfigurationSource = configurationSource.Max(_isDescendingConfigurationSource);
 
     /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
@@ -369,4 +440,15 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     [DebuggerStepThrough]
     bool? IConventionIndex.SetIsUnique(bool? unique, bool fromDataAnnotation)
         => SetIsUnique(unique, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IReadOnlyList<bool>? IConventionIndex.SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
+        => SetIsDescending(descending, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
 }

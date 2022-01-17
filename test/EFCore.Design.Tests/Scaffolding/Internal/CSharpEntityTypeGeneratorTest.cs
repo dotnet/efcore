@@ -247,7 +247,7 @@ namespace TestNamespace
             });
 
     [ConditionalFact]
-    public void IndexAttribute_is_generated_for_multiple_indexes_with_name_unique()
+    public void IndexAttribute_is_generated_for_multiple_indexes_with_name_unique_descending()
         => Test(
             modelBuilder => modelBuilder
                 .Entity(
@@ -260,7 +260,8 @@ namespace TestNamespace
                         x.Property<int>("C");
                         x.HasKey("Id");
                         x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-                            .IsUnique();
+                            .IsUnique()
+                            .IsDescending();
                         x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
                         x.HasIndex("C");
                     }),
@@ -277,7 +278,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TestNamespace
 {
     [Index(""C"")]
-    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true)]
+    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true, IsDescending = new[] { true, true })]
     [Index(""B"", ""C"", Name = ""IndexOnBAndC"")]
     public partial class EntityWithIndexes
     {

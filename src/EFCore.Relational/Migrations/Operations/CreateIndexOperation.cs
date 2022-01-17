@@ -13,11 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
 public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 {
     /// <summary>
-    ///     Indicates whether or not the index should enforce uniqueness.
-    /// </summary>
-    public virtual bool IsUnique { get; set; }
-
-    /// <summary>
     ///     The name of the index.
     /// </summary>
     public virtual string Name { get; set; } = null!;
@@ -38,6 +33,17 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     public virtual string[] Columns { get; set; } = null!;
 
     /// <summary>
+    ///     Indicates whether or not the index should enforce uniqueness.
+    /// </summary>
+    public virtual bool IsUnique { get; set; }
+
+    /// <summary>
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    /// </summary>
+    public virtual bool[] IsDescending { get; set; } = Array.Empty<bool>();
+
+    /// <summary>
     ///     An expression to use as the index filter.
     /// </summary>
     public virtual string? Filter { get; set; }
@@ -53,11 +59,12 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 
         var operation = new CreateIndexOperation
         {
-            IsUnique = index.IsUnique,
             Name = index.Name,
             Schema = index.Table.Schema,
             Table = index.Table.Name,
             Columns = index.Columns.Select(p => p.Name).ToArray(),
+            IsUnique = index.IsUnique,
+            IsDescending = index.IsDescending.ToArray(),
             Filter = index.Filter
         };
         operation.AddAnnotations(index.GetAnnotations());

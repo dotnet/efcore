@@ -601,6 +601,11 @@ public class MigrationBuilder
     /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
     /// <param name="unique">Indicates whether or not the index enforces uniqueness.</param>
     /// <param name="filter">The filter to apply to the index, or <see langword="null" /> for no filter.</param>
+    /// <param name="descending">
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    ///     If <see langword="null" />, all columns will have ascending order.
+    /// </param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
         string name,
@@ -608,14 +613,16 @@ public class MigrationBuilder
         string column,
         string? schema = null,
         bool unique = false,
-        string? filter = null)
+        string? filter = null,
+        bool[]? descending = null)
         => CreateIndex(
             name,
             table,
             new[] { Check.NotEmpty(column, nameof(column)) },
             schema,
             unique,
-            filter);
+            filter,
+            descending);
 
     /// <summary>
     ///     Builds a <see cref="CreateIndexOperation" /> to create a new composite (multi-column) index.
@@ -629,6 +636,11 @@ public class MigrationBuilder
     /// <param name="schema">The schema that contains the table, or <see langword="null" /> to use the default schema.</param>
     /// <param name="unique">Indicates whether or not the index enforces uniqueness.</param>
     /// <param name="filter">The filter to apply to the index, or <see langword="null" /> for no filter.</param>
+    /// <param name="descending">
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    ///     If <see langword="null" />, all columns will have ascending order.
+    /// </param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
         string name,
@@ -636,7 +648,8 @@ public class MigrationBuilder
         string[] columns,
         string? schema = null,
         bool unique = false,
-        string? filter = null)
+        string? filter = null,
+        bool[]? descending = null)
     {
         Check.NotEmpty(name, nameof(name));
         Check.NotEmpty(table, nameof(table));
@@ -651,6 +664,12 @@ public class MigrationBuilder
             IsUnique = unique,
             Filter = filter
         };
+
+        if (descending is not null)
+        {
+            operation.IsDescending = descending;
+        }
+
         Operations.Add(operation);
 
         return new OperationBuilder<CreateIndexOperation>(operation);

@@ -911,6 +911,14 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append("unique: true");
             }
 
+            if (operation.IsDescending.Length > 0)
+            {
+                builder
+                    .AppendLine(",")
+                    .Append("descending: ")
+                    .Append(Code.Literal(operation.IsDescending));
+            }
+
             if (operation.Filter != null)
             {
                 builder

@@ -567,6 +567,48 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
             lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
         }
 
+        // Ascending/descending:
+        // If all ascending (IsDescending.Count == 0), no need to scaffold IsDescending() call (default)
+        // If all descending (IsDescending is all true), scaffold parameterless IsDescending()
+        // Otherwise, scaffold IsDescending() with values up until the last true (unspecified values default to false)
+        if (index.IsDescending.Count > 0)
+        {
+            var descendingBuilder = new StringBuilder()
+                .Append('.')
+                .Append(nameof(IndexBuilder.IsDescending))
+                .Append('(');
+
+            var isAnyAscending = false;
+            var lastDescending = -1;
+            for (var i = 0; i < index.IsDescending.Count; i++)
+            {
+                if (index.IsDescending[i])
+                {
+                    lastDescending = i;
+                }
+                else
+                {
+                    isAnyAscending = true;
+                }
+            }
+
+            if (isAnyAscending)
+            {
+                for (var i = 0; i <= lastDescending; i++)
+                {
+                    if (i > 0)
+                    {
+                        descendingBuilder.Append(", ");
+                    }
+
+                    descendingBuilder.Append(_code.Literal(index.IsDescending[i]));
+                }
+            }
+
+            descendingBuilder.Append(')');
+            lines.Add(descendingBuilder.ToString());
+        }
+
         GenerateAnnotations(index, annotations, lines);
 
         AppendMultiLineFluentApi(index.DeclaringEntityType, lines);

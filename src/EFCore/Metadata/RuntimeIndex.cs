@@ -56,6 +56,15 @@ public class RuntimeIndex : AnnotatableBase, IIndex
     public virtual RuntimeEntityType DeclaringEntityType { get; }
 
     /// <summary>
+    ///     Always returns an empty array for <see cref="RuntimeIndex" />.
+    /// </summary>
+    IReadOnlyList<bool> IReadOnlyIndex.IsDescending
+    {
+        [DebuggerStepThrough]
+        get => Array.Empty<bool>();
+    }
+
+    /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>

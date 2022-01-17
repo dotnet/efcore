@@ -505,6 +505,7 @@ public abstract class TestHelpers
             Conventions.IndexAnnotationChangedConventions.Clear();
             Conventions.IndexRemovedConventions.Clear();
             Conventions.IndexUniquenessChangedConventions.Clear();
+            Conventions.IndexSortOrderChangedConventions.Clear();
             Conventions.KeyAddedConventions.Clear();
             Conventions.KeyAnnotationChangedConventions.Clear();
             Conventions.KeyRemovedConventions.Clear();

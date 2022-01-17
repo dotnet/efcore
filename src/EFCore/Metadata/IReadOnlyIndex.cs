@@ -29,6 +29,12 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     bool IsUnique { get; }
 
     /// <summary>
+    ///     Gets a set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    /// </summary>
+    IReadOnlyList<bool> IsDescending { get; }
+
+    /// <summary>
     ///     Gets the entity type the index is defined on. This may be different from the type that <see cref="Properties" />
     ///     are defined on when the index is defined a derived type in an inheritance hierarchy (since the properties
     ///     may be defined on a base type).

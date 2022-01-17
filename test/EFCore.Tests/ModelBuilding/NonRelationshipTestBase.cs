@@ -1722,6 +1722,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasIndex(ix => ix.Id).IsUnique();
             entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
             entityBuilder.HasIndex(ix => ix.Id, "Named");
+            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1729,7 +1730,7 @@ public abstract partial class ModelBuilderTest
             var idProperty = entityType.FindProperty(nameof(Customer.Id));
             var nameProperty = entityType.FindProperty(nameof(Customer.Name));
 
-            Assert.Equal(3, entityType.GetIndexes().Count());
+            Assert.Equal(4, entityType.GetIndexes().Count());
             var firstIndex = entityType.FindIndex(idProperty);
             Assert.True(firstIndex.IsUnique);
             var secondIndex = entityType.FindIndex(nameProperty);
@@ -1737,6 +1738,8 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("V1", secondIndex["A1"]);
             var namedIndex = entityType.FindIndex("Named");
             Assert.False(namedIndex.IsUnique);
+            var descendingIndex = entityType.FindIndex("Descending");
+            Assert.Equal(new[] { true }, descendingIndex.IsDescending);
         }
 
         [ConditionalFact]

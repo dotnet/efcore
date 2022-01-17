@@ -28,9 +28,15 @@ public class DatabaseIndex : Annotatable
     public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
 
     /// <summary>
-    ///     Indicates whether or not the index constrains uniqueness.
+    ///     Indicates whether or not the index enforces uniqueness.
     /// </summary>
     public virtual bool IsUnique { get; set; }
+
+    /// <summary>
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    /// </summary>
+    public virtual IList<bool> IsDescending { get; set; } = new List<bool>();
 
     /// <summary>
     ///     The filter expression, or <see langword="null" /> if the index has no filter.

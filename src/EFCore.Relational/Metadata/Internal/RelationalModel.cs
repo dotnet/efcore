@@ -952,7 +952,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                         continue;
                     }
 
-                    tableIndex = new TableIndex(name, table, columns, index.IsUnique);
+                    tableIndex = new TableIndex(name, table, columns, index.IsUnique, index.IsDescending);
 
                     table.Indexes.Add(name, tableIndex);
                 }

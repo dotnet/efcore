@@ -581,6 +581,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestIndexBuilder<TEntity> IsUnique(bool isUnique = true)
             => new GenericTestIndexBuilder<TEntity>(IndexBuilder.IsUnique(isUnique));
 
+        public override TestIndexBuilder<TEntity> IsDescending(params bool[] isDescending)
+            => new GenericTestIndexBuilder<TEntity>(IndexBuilder.IsDescending(isDescending));
+
         IndexBuilder<TEntity> IInfrastructure<IndexBuilder<TEntity>>.Instance
             => IndexBuilder;
     }

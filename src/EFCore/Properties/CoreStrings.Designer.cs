@@ -2586,6 +2586,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, state);
 
         /// <summary>
+        ///     Too many index sort order values ({numDescendingValues}) specified for index {indexProperties}, which has only {numProperties} properties.
+        /// </summary>
+        public static string TooManyIndexSortOrderValues(object? numDescendingValues, object? indexProperties, object? numProperties)
+            => string.Format(
+                GetString("TooManyIndexSortOrderValues", nameof(numDescendingValues), nameof(indexProperties), nameof(numProperties)),
+                numDescendingValues, indexProperties, numProperties);
+
+        /// <summary>
         ///     The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because the two types are not in the same hierarchy.
         /// </summary>
         public static string TrackingTypeMismatch(object? runtimeEntityType, object? entityType)

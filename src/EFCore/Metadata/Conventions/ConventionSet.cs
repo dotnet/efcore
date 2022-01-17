@@ -208,6 +208,12 @@ public class ConventionSet
         = new List<IIndexUniquenessChangedConvention>();
 
     /// <summary>
+    ///     Conventions to run when the sort order of an index is changed.
+    /// </summary>
+    public virtual IList<IIndexSortOrderChangedConvention> IndexSortOrderChangedConventions { get; }
+        = new List<IIndexSortOrderChangedConvention>();
+
+    /// <summary>
     ///     Conventions to run when an annotation is changed on an index.
     /// </summary>
     public virtual IList<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; }

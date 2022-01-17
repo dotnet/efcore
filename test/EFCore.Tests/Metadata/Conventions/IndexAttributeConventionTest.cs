@@ -28,6 +28,7 @@ public class IndexAttributeConventionTest
         var indexProperties = new List<string> { propABuilder.Metadata.Name, propBBuilder.Metadata.Name };
         var indexBuilder = entityBuilder.HasIndex(indexProperties, "IndexOnAAndB", ConfigurationSource.Convention);
         indexBuilder.IsUnique(false, ConfigurationSource.Convention);
+        indexBuilder.IsDescending(new[] { false, true }, ConfigurationSource.Convention);
 
         RunConvention(entityBuilder);
         RunConvention(modelBuilder);
@@ -35,8 +36,11 @@ public class IndexAttributeConventionTest
         var index = entityBuilder.Metadata.GetIndexes().Single();
         Assert.Equal(ConfigurationSource.DataAnnotation, index.GetConfigurationSource());
         Assert.Equal("IndexOnAAndB", index.Name);
+
         Assert.True(index.IsUnique);
         Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsUniqueConfigurationSource());
+        Assert.Equal(new[] { true, false }, index.IsDescending);
+        Assert.Equal(ConfigurationSource.DataAnnotation, index.GetIsDescendingConfigurationSource());
         Assert.Collection(
             index.Properties,
             prop0 => Assert.Equal("A", prop0.Name),
@@ -50,7 +54,8 @@ public class IndexAttributeConventionTest
         var entityBuilder = modelBuilder.Entity<EntityWithIndex>();
 
         entityBuilder.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-            .IsUnique(false);
+            .IsUnique(false)
+            .IsDescending(false, true);
 
         modelBuilder.Model.FinalizeModel();
 
@@ -59,6 +64,8 @@ public class IndexAttributeConventionTest
         Assert.Equal("IndexOnAAndB", index.Name);
         Assert.False(index.IsUnique);
         Assert.Equal(ConfigurationSource.Explicit, index.GetIsUniqueConfigurationSource());
+        Assert.Equal(new[] { false, true }, index.IsDescending);
+        Assert.Equal(ConfigurationSource.Explicit, index.GetIsDescendingConfigurationSource());
         Assert.Collection(
             index.Properties,
             prop0 => Assert.Equal("A", prop0.Name),
@@ -316,7 +323,7 @@ public class IndexAttributeConventionTest
     private ProviderConventionSetBuilderDependencies CreateDependencies()
         => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
-    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true)]
+    [Index(nameof(A), nameof(B), Name = "IndexOnAAndB", IsUnique = true, IsDescending = new[] { true, false })]
     private class EntityWithIndex
     {
         public int Id { get; set; }

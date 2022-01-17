@@ -428,9 +428,11 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
             .Append(" ON ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-            .Append(" (")
-            .Append(ColumnList(operation.Columns))
-            .Append(")");
+            .Append(" (");
+
+        GenerateIndexColumnList(operation, model, builder);
+
+        builder.Append(")");
 
         IndexOptions(operation, model, builder);
 
@@ -1659,11 +1661,32 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <param name="operation">The operation.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void IndexTraits(
-        MigrationOperation operation,
-        IModel? model,
-        MigrationCommandListBuilder builder)
+    protected virtual void IndexTraits(MigrationOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
+    }
+
+    /// <summary>
+    ///     Returns a SQL fragment for the column list of an index from a <see cref="CreateIndexOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected virtual void GenerateIndexColumnList(CreateIndexOperation operation, IModel? model, MigrationCommandListBuilder builder)
+    {
+        for (var i = 0; i < operation.Columns.Length; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append(", ");
+            }
+
+            builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]));
+
+            if (operation.IsDescending is not null && i < operation.IsDescending.Length && operation.IsDescending[i])
+            {
+                builder.Append(" DESC");
+            }
+        }
     }
 
     /// <summary>
@@ -1672,10 +1695,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     /// <param name="operation">The operation.</param>
     /// <param name="model">The target model which may be <see langword="null" /> if the operations exist without a model.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void IndexOptions(
-        CreateIndexOperation operation,
-        IModel? model,
-        MigrationCommandListBuilder builder)
+    protected virtual void IndexOptions(CreateIndexOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
         if (!string.IsNullOrEmpty(operation.Filter))
         {

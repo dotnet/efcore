@@ -362,6 +362,7 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestIndexBuilder<TEntity> HasAnnotation(string annotation, object? value);
         public abstract TestIndexBuilder<TEntity> IsUnique(bool isUnique = true);
+        public abstract TestIndexBuilder<TEntity> IsDescending(params bool[] isDescending);
     }
 
     public abstract class TestPropertyBuilder<TProperty>

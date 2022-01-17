@@ -55,6 +55,34 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalIndexBuilder? IsDescending(IReadOnlyList<bool>? descending, ConfigurationSource configurationSource)
+    {
+        if (!CanSetIsDescending(descending, configurationSource))
+        {
+            return null;
+        }
+
+        Metadata.SetIsDescending(descending, configurationSource);
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetIsDescending(IReadOnlyList<bool>? descending, ConfigurationSource? configurationSource)
+        => descending is null
+            || Metadata.IsDescending.SequenceEqual(descending)
+            || configurationSource.Overrides(Metadata.GetIsDescendingConfigurationSource());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalIndexBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
     {
         var properties = entityTypeBuilder.GetActualProperties(Metadata.Properties, null);
@@ -106,5 +134,27 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
     bool IConventionIndexBuilder.CanSetIsUnique(bool? unique, bool fromDataAnnotation)
         => CanSetIsUnique(
             unique,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionIndexBuilder? IConventionIndexBuilder.IsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
+        => IsDescending(
+            descending,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionIndexBuilder.CanSetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
+        => CanSetIsDescending(
+            descending,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

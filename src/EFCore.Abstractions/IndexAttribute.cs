@@ -55,6 +55,12 @@ public sealed class IndexAttribute : Attribute
     }
 
     /// <summary>
+    ///     Gets a set of values indicating whether each corresponding index column has descending sort order.
+    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    /// </summary>
+    public bool[]? IsDescending { get; set; }
+
+    /// <summary>
     ///     Checks whether <see cref="IsUnique" /> has been explicitly set to a value.
     /// </summary>
     public bool IsUniqueHasValue

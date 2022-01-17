@@ -21,12 +21,14 @@ public class TableIndex : Annotatable, ITableIndex
         string name,
         Table table,
         IReadOnlyList<Column> columns,
-        bool unique)
+        bool unique,
+        IReadOnlyList<bool> isDescending)
     {
         Name = name;
         Table = table;
         Columns = columns;
         IsUnique = unique;
+        IsDescending = isDescending;
     }
 
     /// <inheritdoc />
@@ -67,6 +69,9 @@ public class TableIndex : Annotatable, ITableIndex
 
     /// <inheritdoc />
     public virtual bool IsUnique { get; }
+
+    /// <inheritdoc />
+    public virtual IReadOnlyList<bool> IsDescending { get; }
 
     /// <inheritdoc />
     public virtual string? Filter

@@ -127,6 +127,8 @@ public partial class ConventionDispatcher
             IConventionIndex index);
 
         public abstract bool? OnIndexUniquenessChanged(IConventionIndexBuilder indexBuilder);
+        public abstract IReadOnlyList<bool>? OnIndexSortOrderChanged(IConventionIndexBuilder indexBuilder);
+
         public abstract IConventionKeyBuilder? OnKeyAdded(IConventionKeyBuilder keyBuilder);
 
         public abstract IConventionAnnotation? OnKeyAnnotationChanged(
