@@ -574,6 +574,9 @@
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The [InverseProperty] attribute on property '{1_entityType}.{0_property}' is not valid. The property '{referencedProperty}' is not a valid navigation on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation.</value>
   </data>
+  <data name="InvalidNumberOfIndexSortOrderValues" xml:space="preserve">
+    <value>Invalid number of index sort order values provided for {indexProperties}: {numValues} values were provided, but the index has {numProperties} properties.</value>
+  </data>
   <data name="InvalidPoolSize" xml:space="preserve">
     <value>The specified poolSize must be greater than 0.</value>
   </data>
@@ -1396,9 +1399,6 @@
   </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly, or ensure that the database is configured to generate values for this property.</value>
-  </data>
-  <data name="TooManyIndexSortOrderValues" xml:space="preserve">
-    <value>Too many index sort order values ({numDescendingValues}) specified for {indexProperties}, which has only {numProperties} properties.</value>
   </data>
   <data name="TrackingTypeMismatch" xml:space="preserve">
     <value>The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because the two types are not in the same hierarchy.</value>

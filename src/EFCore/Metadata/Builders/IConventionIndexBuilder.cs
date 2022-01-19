@@ -41,10 +41,7 @@ public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     /// <summary>
     ///     Configures the sort order(s) for the columns of this index (ascending or descending).
     /// </summary>
-    /// <param name="descending">
-    ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
-    /// </param>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The same builder instance if the uniqueness was configured, <see langword="null" /> otherwise.</returns>
     IConventionIndexBuilder? IsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);
@@ -52,10 +49,7 @@ public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     /// <summary>
     ///     Returns a value indicating whether this index sort order can be configured from the current configuration source.
     /// </summary>
-    /// <param name="descending">
-    ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
-    /// </param>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the index uniqueness can be configured.</returns>
     bool CanSetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);

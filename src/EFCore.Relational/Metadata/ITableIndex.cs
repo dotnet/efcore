@@ -41,9 +41,8 @@ public interface ITableIndex : IAnnotatable
 
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     /// </summary>
-    IReadOnlyList<bool> IsDescending { get; }
+    IReadOnlyList<bool>? IsDescending { get; }
 
     /// <summary>
     ///     Gets the expression used as the index filter.
@@ -80,7 +79,9 @@ public interface ITableIndex : IAnnotatable
             .AppendJoin(
                 ", ",
                 Enumerable.Range(0, Columns.Count)
-                    .Select(i => $"'{Columns[i].Name}'{(i < IsDescending.Count && IsDescending[i] ? " Desc" : "")}"))
+                    .Select(
+                        i =>
+                            $"'{Columns[i].Name}'{(IsDescending is not null && i < IsDescending.Count && IsDescending[i] ? " Desc" : "")}"))
             .Append('}');
 
         if (IsUnique)

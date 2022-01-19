@@ -212,7 +212,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
                     indexAttribute.AddParameter($"{nameof(IndexAttribute.IsUnique)} = {_code.Literal(index.IsUnique)}");
                 }
 
-                if (index.IsDescending.Count > 0)
+                if (index.IsDescending is not null)
                 {
                     indexAttribute.AddParameter($"{nameof(IndexAttribute.IsDescending)} = {_code.UnknownLiteral(index.IsDescending)}");
                 }

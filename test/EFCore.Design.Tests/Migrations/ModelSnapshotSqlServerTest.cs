@@ -4308,7 +4308,8 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_ascending"");
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_ascending"")
+                        .IsDescending(false, false, false);
 
                     b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_descending"")
                         .IsDescending(true, true, true);
@@ -4326,10 +4327,10 @@ namespace RootNamespace
                 Assert.Equal(4, entityType.GetIndexes().Count());
 
                 var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+                Assert.Null(emptyIndex.IsDescending);
 
                 var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
-                Assert.Equal(Array.Empty<bool>(), allAscendingIndex.IsDescending);
+                Assert.Equal(new[] { false, false, false}, allAscendingIndex.IsDescending);
 
                 var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
                 Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);

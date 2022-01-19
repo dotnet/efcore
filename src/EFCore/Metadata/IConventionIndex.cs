@@ -58,10 +58,7 @@ public interface IConventionIndex : IReadOnlyIndex, IConventionAnnotatable
     /// <summary>
     ///     Sets the sort order(s) for this index (ascending or descending).
     /// </summary>
-    /// <param name="descending">
-    ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
-    /// </param>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured sort order(s).</returns>
     IReadOnlyList<bool>? SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);

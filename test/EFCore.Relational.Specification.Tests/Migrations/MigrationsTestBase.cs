@@ -1080,7 +1080,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("X");
                 }),
             builder => { },
-            builder => builder.Entity("People").HasIndex("X").IsDescending(),
+            builder => builder.Entity("People").HasIndex("X").IsDescending(true),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -1102,7 +1102,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder => { },
             builder => builder.Entity("People")
                 .HasIndex("X", "Y", "Z")
-                .IsDescending(false, true),
+                .IsDescending(false, true, false),
             model =>
             {
                 var table = Assert.Single(model.Tables);

@@ -202,7 +202,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<bool> IsDescending
+    public virtual IReadOnlyList<bool>? IsDescending
     {
         get => _isDescending ?? DefaultIsDescending;
         set => SetIsDescending(value, ConfigurationSource.Explicit);
@@ -218,21 +218,16 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     {
         EnsureMutable();
 
-        if (descending is not null && descending.Count > Properties.Count)
+        if (descending is not null && descending.Count != Properties.Count)
         {
             throw new ArgumentException(
-                CoreStrings.TooManyIndexSortOrderValues(descending.Count, Properties.Format(), Properties.Count), nameof(descending));
-        }
-
-        // Normalize all-false array to the simpler empty array representation
-        if (descending is not null && descending.All(d => d == false))
-        {
-            descending = DefaultIsDescending;
+                CoreStrings.InvalidNumberOfIndexSortOrderValues(
+                    Properties.Format(), descending.Count, Properties.Count), nameof(descending));
         }
 
         var oldIsDescending = IsDescending;
         var isChanging = _isDescending is null != descending is null
-            || descending is not null && !oldIsDescending.SequenceEqual(descending);
+            || descending is not null && oldIsDescending is not null && !oldIsDescending.SequenceEqual(descending);
         _isDescending = descending;
 
         if (descending == null)
@@ -249,8 +244,8 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
             : oldIsDescending;
     }
 
-    private static readonly bool[] DefaultIsDescending
-        = Array.Empty<bool>();
+    private static readonly bool[]? DefaultIsDescending
+        = null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

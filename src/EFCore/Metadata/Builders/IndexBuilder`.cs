@@ -53,11 +53,7 @@ public class IndexBuilder<T> : IndexBuilder
     /// <summary>
     ///     Configures the sort order(s) for the columns of this index (ascending or descending).
     /// </summary>
-    /// <param name="descending">
-    ///     If empty, all index columns have descending sort order. Otherwise, each value determines whether the corresponding index
-    ///     column has descending sort order. If less sort order values are provided than there are columns, the remaining columns will have
-    ///     ascending order.
-    /// </param>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual IndexBuilder<T> IsDescending(params bool[] descending)
         => (IndexBuilder<T>)base.IsDescending(descending);

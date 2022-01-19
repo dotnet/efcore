@@ -34,7 +34,6 @@ public class DatabaseIndex : Annotatable
 
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     /// </summary>
     public virtual IList<bool> IsDescending { get; set; } = new List<bool>();
 

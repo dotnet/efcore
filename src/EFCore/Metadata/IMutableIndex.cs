@@ -25,9 +25,8 @@ public interface IMutableIndex : IReadOnlyIndex, IMutableAnnotatable
 
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     /// </summary>
-    new IReadOnlyList<bool> IsDescending { get; set; }
+    new IReadOnlyList<bool>? IsDescending { get; set; }
 
     /// <summary>
     ///     Gets the properties that this index is defined on.

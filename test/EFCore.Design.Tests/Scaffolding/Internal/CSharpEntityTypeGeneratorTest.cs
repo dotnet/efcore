@@ -261,7 +261,7 @@ namespace TestNamespace
                         x.HasKey("Id");
                         x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                             .IsUnique()
-                            .IsDescending();
+                            .IsDescending(true, false);
                         x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
                         x.HasIndex("C");
                     }),
@@ -278,7 +278,7 @@ using Microsoft.EntityFrameworkCore;
 namespace TestNamespace
 {
     [Index(""C"")]
-    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true, IsDescending = new[] { true, true })]
+    [Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true, IsDescending = new[] { true, false })]
     [Index(""B"", ""C"", Name = ""IndexOnBAndC"")]
     public partial class EntityWithIndexes
     {

@@ -39,9 +39,8 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     /// </summary>
-    public virtual bool[] IsDescending { get; set; } = Array.Empty<bool>();
+    public virtual bool[]? IsDescending { get; set; }
 
     /// <summary>
     ///     An expression to use as the index filter.
@@ -64,7 +63,7 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
             Table = index.Table.Name,
             Columns = index.Columns.Select(p => p.Name).ToArray(),
             IsUnique = index.IsUnique,
-            IsDescending = index.IsDescending.ToArray(),
+            IsDescending = index.IsDescending?.ToArray(),
             Filter = index.Filter
         };
         operation.AddAnnotations(index.GetAnnotations());

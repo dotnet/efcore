@@ -1448,10 +1448,10 @@ public class RelationalScaffoldingModelFactoryTest
         var entityType = model.FindEntityType("SomeTable")!;
 
         var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-        Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+        Assert.Null(emptyIndex.IsDescending);
 
         var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
-        Assert.Equal(Array.Empty<bool>(), allAscendingIndex.IsDescending);
+        Assert.Null(allAscendingIndex.IsDescending);
 
         var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
         Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);

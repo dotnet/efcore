@@ -1722,7 +1722,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasIndex(ix => ix.Id).IsUnique();
             entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
             entityBuilder.HasIndex(ix => ix.Id, "Named");
-            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending();
+            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending(true);
 
             var model = modelBuilder.FinalizeModel();
 

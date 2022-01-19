@@ -603,7 +603,6 @@ public class MigrationBuilder
     /// <param name="filter">The filter to apply to the index, or <see langword="null" /> for no filter.</param>
     /// <param name="descending">
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     ///     If <see langword="null" />, all columns will have ascending order.
     /// </param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -638,7 +637,6 @@ public class MigrationBuilder
     /// <param name="filter">The filter to apply to the index, or <see langword="null" /> for no filter.</param>
     /// <param name="descending">
     ///     A set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
     ///     If <see langword="null" />, all columns will have ascending order.
     /// </param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
@@ -662,13 +660,9 @@ public class MigrationBuilder
             Name = name,
             Columns = columns,
             IsUnique = unique,
+            IsDescending = descending,
             Filter = filter
         };
-
-        if (descending is not null)
-        {
-            operation.IsDescending = descending;
-        }
 
         Operations.Add(operation);
 

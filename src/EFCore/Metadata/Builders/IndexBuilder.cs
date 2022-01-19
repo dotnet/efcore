@@ -80,20 +80,10 @@ public class IndexBuilder : IInfrastructure<IConventionIndexBuilder>
     /// <summary>
     ///     Configures the sort order(s) for the columns of this index (ascending or descending).
     /// </summary>
-    /// <param name="descending">
-    ///     If empty, all index columns have descending sort order. Otherwise, each value determines whether the corresponding index
-    ///     column has descending sort order. If less sort order values are provided than there are columns, the remaining columns will have
-    ///     ascending order.
-    /// </param>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual IndexBuilder IsDescending(params bool[] descending)
     {
-        if (descending.Length == 0)
-        {
-            descending = new bool[Builder.Metadata.Properties.Count];
-            Array.Fill(descending, true);
-        }
-
         Builder.IsDescending(descending, ConfigurationSource.Explicit);
 
         return this;

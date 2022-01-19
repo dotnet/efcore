@@ -964,7 +964,7 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal("Post", o.Table);
                 Assert.Equal(new[] { "Title" }, o.Columns);
                 Assert.False(o.IsUnique);
-                Assert.Empty(o.IsDescending);
+                Assert.Null(o.IsDescending);
                 Assert.Null(o.Filter);
             });
 

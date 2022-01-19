@@ -55,8 +55,7 @@ public sealed class IndexAttribute : Attribute
     }
 
     /// <summary>
-    ///     Gets a set of values indicating whether each corresponding index column has descending sort order.
-    ///     If less sort order values are provided than there are columns, the remaining columns will have ascending order.
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
     /// </summary>
     public bool[]? IsDescending { get; set; }
 

@@ -73,8 +73,8 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetIsDescending(IReadOnlyList<bool>? descending, ConfigurationSource? configurationSource)
-        => descending is null
-            || Metadata.IsDescending.SequenceEqual(descending)
+        => descending is null && Metadata.IsDescending is null
+            || descending is not null && Metadata.IsDescending is not null && Metadata.IsDescending.SequenceEqual(descending)
             || configurationSource.Overrides(Metadata.GetIsDescendingConfigurationSource());
 
     /// <summary>

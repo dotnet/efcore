@@ -634,7 +634,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsUnique()");
         }
 
-        if (index.IsDescending.Count > 0)
+        if (index.IsDescending is not null)
         {
             stringBuilder
                 .AppendLine()

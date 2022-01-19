@@ -554,7 +554,7 @@ namespace TestNamespace
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique()
-                                .IsDescending();
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -600,7 +600,7 @@ namespace TestNamespace
             {
                 entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
                     .IsUnique()
-                    .IsDescending();
+                    .IsDescending(false, true);
 
                 entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
@@ -636,7 +636,7 @@ namespace TestNamespace
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
                                 .IsUnique()
-                                .IsDescending();
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -759,15 +759,16 @@ namespace TestNamespace
         {
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
-                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"");
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"")
+                    .IsDescending(false, false, false);
 
                 entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_descending"")
-                    .IsDescending();
+                    .IsDescending(true, true, true);
 
                 entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"");
 
                 entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_mixed"")
-                    .IsDescending(false, true);
+                    .IsDescending(false, true, false);
 
                 entity.Property(e => e.Id).UseIdentityColumn();
             });
@@ -787,16 +788,16 @@ namespace TestNamespace
                     Assert.Equal(4, entityType.GetIndexes().Count());
 
                     var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                    Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+                    Assert.Null(emptyIndex.IsDescending);
 
                     var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
-                    Assert.Equal(Array.Empty<bool>(), allAscendingIndex.IsDescending);
+                    Assert.Equal(new[] { false, false, false }, allAscendingIndex.IsDescending);
 
                     var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
                     Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
 
                     var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
-                    Assert.Equal(new[] { false, true }, mixedIndex.IsDescending);
+                    Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
                 });
 
         [ConditionalFact]
