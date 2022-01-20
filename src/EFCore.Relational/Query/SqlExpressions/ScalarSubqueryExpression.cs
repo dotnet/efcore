@@ -31,6 +31,13 @@ public class ScalarSubqueryExpression : SqlExpression
             throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
         }
 
+#if DEBUG
+        if (selectExpression.IsMutable() == true)
+        {
+            throw new InvalidOperationException();
+        }
+#endif
+
         return selectExpression;
     }
 

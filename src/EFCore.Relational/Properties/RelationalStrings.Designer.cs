@@ -978,12 +978,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, table);
 
         /// <summary>
-        ///     The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.
-        /// </summary>
-        public static string QueryFromSqlInsideExists
-            => GetString("QueryFromSqlInsideExists");
-
-        /// <summary>
         ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.
         /// </summary>
         public static string ReadonlyEntitySaved(object? entityType)
@@ -1162,7 +1156,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

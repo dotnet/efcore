@@ -184,7 +184,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var selectExpression = (SelectExpression)source.QueryExpression;
         selectExpression.ApplyPredicate(_sqlExpressionFactory.Not(translation));
-        selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+        selectExpression.ReplaceProjection(new List<Expression>());
+        selectExpression.ApplyProjection();
         if (selectExpression.Limit == null
             && selectExpression.Offset == null)
         {
@@ -215,7 +216,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>());
+        selectExpression.ReplaceProjection(new List<Expression>());
+        selectExpression.ApplyProjection();
         if (selectExpression.Limit == null
             && selectExpression.Offset == null)
         {
@@ -284,8 +286,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             var projection = selectExpression.GetProjection(projectionBindingExpression);
             if (projection is SqlExpression sqlExpression)
             {
-                selectExpression.ReplaceProjection(new List<Expression>());
-                selectExpression.AddToProjection(sqlExpression);
+                selectExpression.ReplaceProjection(new List<Expression> { sqlExpression });
+                selectExpression.ApplyProjection();
 
                 translation = _sqlExpressionFactory.In(translation, selectExpression, false);
 
