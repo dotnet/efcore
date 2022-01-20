@@ -28,5 +28,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Prune_does_not_throw_null_ref(async))).Message);
+
+        [ConditionalTheory(Skip = "Issue#26104")]
+        public override Task GroupBy_aggregate_where_required_relationship(bool async)
+        {
+            return base.GroupBy_aggregate_where_required_relationship(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#26104")]
+        public override Task GroupBy_aggregate_where_required_relationship_2(bool async)
+        {
+            return base.GroupBy_aggregate_where_required_relationship_2(async);
+        }
     }
 }
