@@ -2416,4 +2416,30 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                 AssertCollection(e.ListWithSubList, a.ListWithSubList, ordered: true,
                     elementAsserter: (ee, aa) => AssertCollection(ee, aa, elementSorter: i => (i.OrderID, i.ProductID)));
             });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Using_enumerable_parameter_in_projection(bool async)
+    {
+        var customersToLoad = new List<string> { "A" };
+        var results = new List<OrderDto>();
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("F"))
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    Orders = customersToLoad.Contains("FISSA")
+                        ? c.Orders.Select(e => new OrderDto())
+                        : results
+                }),
+            elementSorter: e => e.CustomerID,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.CustomerID, a.CustomerID);
+                AssertEqual(e.Orders.Count(), a.Orders.Count());
+            });
+    }
 }
