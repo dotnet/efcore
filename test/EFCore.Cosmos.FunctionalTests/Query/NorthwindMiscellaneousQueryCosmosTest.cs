@@ -1877,6 +1877,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
         AssertSql();
     }
 
+    [ConditionalTheory(Skip = "Issue#27222")]
     public override async Task Environment_newline_is_funcletized(bool async)
     {
         await base.Environment_newline_is_funcletized(async);
