@@ -796,7 +796,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         _usedAliases = selectExpression._usedAliases.ToHashSet(),
                         _projectionMapping = newProjectionMappings,
                         _groupingCorrelationPredicate = groupingCorrelationPredicate,
-                        _groupingParentSelectExpressionId = selectExpression._groupingParentSelectExpressionId
+                        _groupingParentSelectExpressionId = selectExpression._groupingParentSelectExpressionId,
+                        _groupingParentSelectExpressionTableCount = selectExpression._groupingParentSelectExpressionTableCount,
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
@@ -869,29 +870,122 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         && subquery.Offset == null
                         && subquery._groupBy.Count == 0
                         && subquery.Predicate != null
-                        && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled) && enabled)
+                        && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27102", out var enabled27102) && enabled27102)
                             || subquery.Predicate.Equals(subquery._groupingCorrelationPredicate))
-                        && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled2) && enabled2)
+                        && ((AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled27094) && enabled27094)
                             || subquery._groupingParentSelectExpressionId == _selectExpression._groupingParentSelectExpressionId))
                     {
                         var initialTableCounts = 0;
-                        var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
-                        for (var i = 0; i < potentialTableCount; i++)
+                        if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27163", out var enabled27163) && enabled27163)
                         {
-                            if (!string.Equals(
-                                _selectExpression._tableReferences[i].Alias,
-                                subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                            var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
+                            for (var i = 0; i < potentialTableCount; i++)
                             {
-                                break;
+                                if (!string.Equals(
+                                    _selectExpression._tableReferences[i].Alias,
+                                    subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    break;
+                                }
+
+                                if (_selectExpression._tables[i] is SelectExpression originalNestedSelectExpression
+                                    && subquery._tables[i] is SelectExpression subqueryNestedSelectExpression)
+                                {
+                                    CopyOverOwnedJoinInSameTable(originalNestedSelectExpression, subqueryNestedSelectExpression);
+                                }
+
+                                initialTableCounts++;
+                            }
+                        }
+                        else
+                        {
+                            initialTableCounts = _selectExpression._groupingParentSelectExpressionTableCount!.Value;
+                            var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
+                            // First verify that subquery has same structure for initial tables,
+                            // If not then subquery may have different root than grouping element.
+                            for (var i = 0; i < initialTableCounts; i++)
+                            {
+                                if (!string.Equals(
+                                    _selectExpression._tableReferences[i].Alias,
+                                    subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    initialTableCounts = 0;
+                                    break;
+                                }
                             }
 
-                            if (_selectExpression._tables[i] is SelectExpression originalNestedSelectExpression
-                                && subquery._tables[i] is SelectExpression subqueryNestedSelectExpression)
+                            if (initialTableCounts > 0)
                             {
-                                CopyOverOwnedJoinInSameTable(originalNestedSelectExpression, subqueryNestedSelectExpression);
+                                // If initial table structure matches and
+                                // Parent has additional joins lifted already one of them is a subquery join
+                                // Then we abort lifting if any of the joins from the subquery to lift are a subquery join
+                                if (_selectExpression._tables.Skip(initialTableCounts)
+                                    .Select(e => UnwrapJoinExpression(e))
+                                    .Any(e => e is SelectExpression))
+                                {
+                                    for (var i = initialTableCounts; i < subquery._tables.Count; i++)
+                                    {
+                                        if (UnwrapJoinExpression(subquery._tables[i]) is SelectExpression)
+                                        {
+                                            // If any of the join is to subquery then we abort the lifting group by term altogether.
+                                            initialTableCounts = 0;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
 
-                            initialTableCounts++;
+                            if (initialTableCounts > 0)
+                            {
+                                // We need to copy over owned join which are coming from same initial tables.
+                                for (var i = 0; i < initialTableCounts; i++)
+                                {
+                                    if (_selectExpression._tables[i] is SelectExpression originalNestedSelectExpression
+                                    && subquery._tables[i] is SelectExpression subqueryNestedSelectExpression)
+                                    {
+                                        CopyOverOwnedJoinInSameTable(originalNestedSelectExpression, subqueryNestedSelectExpression);
+                                    }
+                                }
+
+
+                                for (var i = initialTableCounts; i < potentialTableCount; i++)
+                                {
+                                    // Try to match additional tables for the cases where we can match exact so we can avoid lifting
+                                    // same joins to parent
+                                    if (!string.Equals(
+                                        _selectExpression._tableReferences[i].Alias,
+                                        subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        break;
+                                    }
+
+                                    var outerTableExpressionBase = _selectExpression._tables[i];
+                                    var innerTableExpressionBase = subquery._tables[i];
+
+                                    if (outerTableExpressionBase is InnerJoinExpression outerInnerJoin
+                                        && innerTableExpressionBase is InnerJoinExpression innerInnerJoin)
+                                    {
+                                        outerTableExpressionBase = outerInnerJoin.Table as TableExpression;
+                                        innerTableExpressionBase = innerInnerJoin.Table as TableExpression;
+                                    }
+                                    else if (outerTableExpressionBase is LeftJoinExpression outerLeftJoin
+                                        && innerTableExpressionBase is LeftJoinExpression innerLeftJoin)
+                                    {
+                                        outerTableExpressionBase = outerLeftJoin.Table as TableExpression;
+                                        innerTableExpressionBase = innerLeftJoin.Table as TableExpression;
+                                    }
+
+                                    if (outerTableExpressionBase is TableExpression outerTable
+                                        && innerTableExpressionBase is TableExpression innerTable
+                                        && !(string.Equals(outerTable.Name, innerTable.Name, StringComparison.OrdinalIgnoreCase)
+                                            && string.Equals(outerTable.Schema, innerTable.Schema, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        break;
+                                    }
+
+                                    initialTableCounts++;
+                                }
+                            }
                         }
 
                         if (initialTableCounts > 0)
@@ -900,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             // We only replace columns from initial tables.
                             // Additional tables may have been added to outer from other terms which may end up matching on table alias
                             var columnExpressionReplacingExpressionVisitor =
-                                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27083", out var enabled3) && enabled3
+                                AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27083", out var enabled27083) && enabled27083
                                 ? new ColumnExpressionReplacingExpressionVisitor(
                                     subquery, _selectExpression._tableReferences)
                                 : new ColumnExpressionReplacingExpressionVisitor(
