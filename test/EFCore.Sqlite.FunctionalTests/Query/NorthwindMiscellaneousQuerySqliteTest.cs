@@ -305,50 +305,40 @@ FROM ""Orders"" AS ""o""");
     }
 
     public override async Task Client_code_using_instance_method_throws(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "InstanceMethod"),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Client_code_using_instance_method_throws(async))).Message);
 
-        AssertSql();
-    }
-
     public override async Task Client_code_using_instance_in_static_method(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest",
                 "StaticMethod"),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Client_code_using_instance_in_static_method(async))).Message);
 
-        AssertSql();
-    }
-
     public override async Task Client_code_using_instance_in_anonymous_type(bool async)
-    {
-        Assert.Equal(
+        => Assert.Equal(
             CoreStrings.ClientProjectionCapturingConstantInTree(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQuerySqliteTest"),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Client_code_using_instance_in_anonymous_type(async))).Message);
 
-        AssertSql();
-    }
-
     public override async Task Client_code_unknown_method(bool async)
-    {
-        await AssertTranslationFailedWithDetails(
+        => await AssertTranslationFailedWithDetails(
             () => base.Client_code_unknown_method(async),
             CoreStrings.QueryUnableToTranslateMethod(
                 "Microsoft.EntityFrameworkCore.Query.NorthwindMiscellaneousQueryTestBase<Microsoft.EntityFrameworkCore.Query.NorthwindQuerySqliteFixture<Microsoft.EntityFrameworkCore.TestUtilities.NoopModelCustomizer>>",
                 nameof(UnknownMethod)));
 
-        AssertSql();
-    }
+    public override async Task Entity_equality_through_subquery_composite_key(bool async)
+        => Assert.Equal(
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Entity_equality_through_subquery_composite_key(async))).Message);
 
     public override async Task DefaultIfEmpty_in_subquery_nested_filter_order_comparison(bool async)
         => Assert.Equal(

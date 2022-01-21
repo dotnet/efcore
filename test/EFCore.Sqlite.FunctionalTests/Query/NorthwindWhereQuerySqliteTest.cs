@@ -12,26 +12,14 @@ public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBa
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task Where_datetimeoffset_now_component(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
+    public override Task Where_datetimeoffset_now_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
 
-        AssertSql();
-    }
+    public override Task Where_datetimeoffset_utcnow_component(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
 
-    public override async Task Where_datetimeoffset_utcnow_component(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
-
-        AssertSql();
-    }
-
-    public override async Task Where_datetimeoffset_utcnow(bool async)
-    {
-        await AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
-
-        AssertSql();
-    }
+    public override Task Where_datetimeoffset_utcnow(bool async)
+        => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
 
     public override async Task<string> Where_simple_closure(bool async)
     {

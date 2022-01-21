@@ -44,20 +44,19 @@ FROM (
 WHERE [m].[City] = N'London'");
     }
 
-    public override void KeylessEntity_by_database_view()
+    public override async Task KeylessEntity_by_database_view(bool async)
     {
-        base.KeylessEntity_by_database_view();
+        await base.KeylessEntity_by_database_view(async);
 
         AssertSql(
             @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
 FROM [Alphabetical list of products] AS [a]");
     }
 
-    public override void KeylessEntity_with_nav_defining_query()
+    public override async Task KeylessEntity_with_nav_defining_query(bool async)
     {
         // FromSql mapping. Issue #21627.
-        Assert.Throws<SqlException>(
-            () => base.KeylessEntity_with_nav_defining_query());
+        await Assert.ThrowsAsync<SqlException>(() => base.KeylessEntity_with_nav_defining_query(async));
 
         AssertSql(
             @"SELECT [c].[CompanyName], [c].[OrderCount], [c].[SearchTerm]
@@ -118,9 +117,9 @@ WHERE EXISTS (
     WHERE [c].[CustomerID] IS NOT NULL AND [c].[CustomerID] = [o].[CustomerID])");
     }
 
-    public override void Auto_initialized_view_set()
+    public override async Task Auto_initialized_view_set(bool async)
     {
-        base.Auto_initialized_view_set();
+        await base.Auto_initialized_view_set(async);
 
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
@@ -138,9 +137,9 @@ FROM (
 GROUP BY [m].[City]");
     }
 
-    public override void Entity_mapped_to_view_on_right_side_of_join()
+    public override async Task Entity_mapped_to_view_on_right_side_of_join(bool async)
     {
-        base.Entity_mapped_to_view_on_right_side_of_join();
+        await base.Entity_mapped_to_view_on_right_side_of_join(async);
 
         AssertSql(
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [a].[CategoryName], [a].[ProductID], [a].[ProductName]

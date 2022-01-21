@@ -17,8 +17,7 @@ public class NorthwindKeylessEntitiesQuerySqliteTest : NorthwindKeylessEntitiesQ
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override void KeylessEntity_with_nav_defining_query()
+    public override Task KeylessEntity_with_nav_defining_query(bool async)
         // FromSql mapping. Issue #21627.
-        => Assert.Throws<SqliteException>(
-            () => base.KeylessEntity_with_nav_defining_query());
+        => Assert.ThrowsAsync<SqliteException>(() => base.KeylessEntity_with_nav_defining_query(async));
 }

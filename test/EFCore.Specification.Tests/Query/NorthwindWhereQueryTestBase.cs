@@ -305,54 +305,28 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             entryCount: 1);
     }
 
-    [ConditionalFact]
-    public virtual void Where_nested_field_access_closure_via_query_cache_error_null()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_nested_field_access_closure_via_query_cache_error_null(bool async)
     {
         var city = new City();
 
-        using var context = CreateContext();
-        Assert.Throws<InvalidOperationException>(
-            () => context.Set<Customer>()
-                .Where(c => c.City == city.Nested.InstanceFieldValue)
-                .ToList());
+        return Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == city.Nested.InstanceFieldValue)));
     }
 
-    [ConditionalFact]
-    public virtual async Task Where_nested_field_access_closure_via_query_cache_error_null_async()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_nested_field_access_closure_via_query_cache_error_method_null(bool async)
     {
         var city = new City();
 
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-                await context.Set<Customer>()
-                    .Where(c => c.City == city.Nested.InstanceFieldValue)
-                    .ToListAsync());
-    }
-
-    [ConditionalFact]
-    public virtual void Where_nested_field_access_closure_via_query_cache_error_method_null()
-    {
-        var city = new City();
-
-        using var context = CreateContext();
-        Assert.Throws<InvalidOperationException>(
-            () => context.Set<Customer>()
-                .Where(c => c.City == city.Throw().InstanceFieldValue)
-                .ToList());
-    }
-
-    [ConditionalFact]
-    public virtual async Task Where_nested_field_access_closure_via_query_cache_error_method_null_async()
-    {
-        var city = new City();
-
-        using var context = CreateContext();
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            async () =>
-                await context.Set<Customer>()
-                    .Where(c => c.City == city.Throw().InstanceFieldValue)
-                    .ToListAsync());
+        return Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == city.Throw().InstanceFieldValue)));
     }
 
     [ConditionalTheory]
@@ -464,8 +438,9 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             entryCount: 5);
     }
 
-    [ConditionalFact]
-    public virtual void Where_subquery_closure_via_query_cache()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_subquery_closure_via_query_cache(bool async)
     {
         using var context = CreateContext();
         string customerID = null;
@@ -474,15 +449,17 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
         customerID = "ALFKI";
 
-        var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+        var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID));
+        var result = async ? await customers.ToListAsync() : customers.ToList();
 
-        Assert.Single(customers);
+        Assert.Single(result);
 
         customerID = "ANATR";
 
-        customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+        customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID));
+        result = async ? await customers.ToListAsync() : customers.ToList();
 
-        Assert.Equal("ANATR", customers.Single().CustomerID);
+        Assert.Equal("ANATR", result.Single().CustomerID);
     }
 
     [ConditionalTheory]
@@ -1676,14 +1653,17 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
                 .Where(o => o.OrderDate > new DateTime(1998, 1, 1)),
             entryCount: 8);
 
-    [ConditionalFact]
-    public virtual void Where_navigation_contains()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_navigation_contains(bool async)
     {
         using var context = CreateContext();
         var customer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
-        var orderDetails = context.OrderDetails.Where(od => customer.Orders.Contains(od.Order)).ToList();
+        var orderDetails = context.OrderDetails.Where(od => customer.Orders.Contains(od.Order));
 
-        Assert.Equal(12, orderDetails.Count);
+        var result = async ? await orderDetails.ToListAsync() : orderDetails.ToList();
+
+        Assert.Equal(12, result.Count);
     }
 
     [ConditionalTheory]

@@ -287,9 +287,9 @@ WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID], [t].[OrderID]");
     }
 
-    public override void Select_nested_collection_multi_level()
+    public override async Task Select_nested_collection_multi_level(bool async)
     {
-        base.Select_nested_collection_multi_level();
+        await base.Select_nested_collection_multi_level(async);
 
         AssertSql(
             @"SELECT [c].[CustomerID], [t0].[Date], [t0].[OrderID]
@@ -304,38 +304,42 @@ LEFT JOIN (
     WHERE [t].[row] <= 3
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t0].[CustomerID], [t0].[OrderID]");
+    }
+
+    public override async Task Select_nested_collection_multi_level2(bool async)
+    {
+        await base.Select_nested_collection_multi_level2(async);
+
+        AssertSql(
+            @"SELECT (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500
+    ORDER BY [o].[OrderID]) AS [OrderDates]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]");
     }
 
-    public override void Select_nested_collection_multi_level2()
+    public override async Task Select_nested_collection_multi_level3(bool async)
     {
-        base.Select_nested_collection_multi_level2();
+        await base.Select_nested_collection_multi_level3(async);
 
         AssertSql(
             @"SELECT (
     SELECT TOP(1) [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500) AS [OrderDates]
+    WHERE [o].[OrderID] < 10500 AND [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) AS [OrderDates]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'");
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]");
     }
 
-    public override void Select_nested_collection_multi_level3()
+    public override async Task Select_nested_collection_multi_level4(bool async)
     {
-        base.Select_nested_collection_multi_level3();
-
-        AssertSql(
-            @"SELECT (
-    SELECT TOP(1) [o].[OrderDate]
-    FROM [Orders] AS [o]
-    WHERE [o].[OrderID] < 10500 AND [c].[CustomerID] = [o].[CustomerID]) AS [OrderDates]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'");
-    }
-
-    public override void Select_nested_collection_multi_level4()
-    {
-        base.Select_nested_collection_multi_level4();
+        await base.Select_nested_collection_multi_level4(async);
 
         AssertSql(
             @"SELECT COALESCE((
@@ -344,14 +348,16 @@ WHERE [c].[CustomerID] LIKE N'A%'");
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] > 10)
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500
+    ORDER BY [o].[OrderID]), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'");
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]");
     }
 
-    public override void Select_nested_collection_multi_level5()
+    public override async Task Select_nested_collection_multi_level5(bool async)
     {
-        base.Select_nested_collection_multi_level5();
+        await base.Select_nested_collection_multi_level5(async);
 
         AssertSql(
             @"SELECT COALESCE((
@@ -364,27 +370,33 @@ WHERE [c].[CustomerID] LIKE N'A%'");
             WHERE [c].[CustomerID] = [o1].[CustomerID]) OR (
             SELECT COUNT(*)
             FROM [Orders] AS [o1]
-            WHERE [c].[CustomerID] = [o1].[CustomerID]) IS NULL)), 0)
+            WHERE [c].[CustomerID] = [o1].[CustomerID]) IS NULL)
+        ORDER BY [o0].[OrderID], [o0].[ProductID]), 0)
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500
+    ORDER BY [o].[OrderID]), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'");
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]");
     }
 
-    public override void Select_nested_collection_multi_level6()
+    public override async Task Select_nested_collection_multi_level6(bool async)
     {
-        base.Select_nested_collection_multi_level6();
+        await base.Select_nested_collection_multi_level6(async);
 
         AssertSql(
             @"SELECT COALESCE((
     SELECT TOP(1) COALESCE((
         SELECT TOP(1) [o0].[ProductID]
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)), 0)
+        WHERE [o].[OrderID] = [o0].[OrderID] AND [o0].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)
+        ORDER BY [o0].[OrderID], [o0].[ProductID]), 0)
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500), 0) AS [Order]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] < 10500
+    ORDER BY [o].[OrderID]), 0) AS [Order]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A%'");
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]");
     }
 
     public override async Task Select_nested_collection_count_using_anonymous_type(bool async)

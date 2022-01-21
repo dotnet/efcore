@@ -41,13 +41,13 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
     }
 
-    public override void KeylessEntity_by_database_view()
+    public override async Task KeylessEntity_by_database_view(bool async)
     {
         // Views are not supported.
         Assert.Equal(
             "0",
-            Assert.Throws<EqualException>(
-                () => base.KeylessEntity_by_database_view()).Actual);
+            (await Assert.ThrowsAsync<EqualException>(
+                () => base.KeylessEntity_by_database_view(async))).Actual);
 
         AssertSql(
             @"SELECT c
@@ -55,24 +55,19 @@ FROM root c
 WHERE (c[""Discriminator""] = ""ProductView"")");
     }
 
-    public override void Entity_mapped_to_view_on_right_side_of_join()
+    public override async Task Entity_mapped_to_view_on_right_side_of_join(bool async)
     {
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Entity_mapped_to_view_on_right_side_of_join();
-                return Task.CompletedTask;
-            });
+        await AssertTranslationFailed(() => base.Entity_mapped_to_view_on_right_side_of_join(async));
 
         AssertSql();
     }
 
-    public override void KeylessEntity_with_nav_defining_query()
+    public override async Task KeylessEntity_with_nav_defining_query(bool async)
     {
         Assert.Equal(
             "0",
-            Assert.Throws<EqualException>(
-                () => base.KeylessEntity_with_nav_defining_query()).Actual);
+            (await Assert.ThrowsAsync <EqualException>(
+                () => base.KeylessEntity_with_nav_defining_query(async))).Actual);
 
         AssertSql(
             @"SELECT c
@@ -154,9 +149,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))")
         AssertSql();
     }
 
-    public override void Auto_initialized_view_set()
+    public override async Task Auto_initialized_view_set(bool async)
     {
-        base.Auto_initialized_view_set();
+        await base.Auto_initialized_view_set(async);
 
         AssertSql(
             @"SELECT c

@@ -815,9 +815,9 @@ WHERE [c].[Country] IN (N'USA', N'Redania')");
         AssertSql();
     }
 
-    public override void Navigation_in_subquery_referencing_outer_query()
+    public override async Task Navigation_in_subquery_referencing_outer_query(bool async)
     {
-        base.Navigation_in_subquery_referencing_outer_query();
+        await base.Navigation_in_subquery_referencing_outer_query(async);
 
         AssertSql(
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -941,9 +941,9 @@ INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 WHERE [c].[City] = N'London'");
     }
 
-    public override void Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count()
+    public override async Task Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count(bool async)
     {
-        base.Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count();
+        await base.Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count(async);
 
         AssertSql(
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -975,41 +975,6 @@ CROSS JOIN (
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [t].[CustomerID] = [c0].[CustomerID]
 WHERE [o].[OrderID] < 10300 AND ([c].[City] = [c0].[City] OR ([c].[City] IS NULL AND [c0].[City] IS NULL))");
-    }
-
-    public override async Task Select_Where_Navigation_Async()
-    {
-        await base.Select_Where_Navigation_Async();
-
-        AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle'");
-    }
-
-    public override async Task Collection_where_nav_prop_sum_async()
-    {
-        await base.Collection_where_nav_prop_sum_async();
-
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE (
-    SELECT COALESCE(SUM([o].[OrderID]), 0)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) > 1000");
-    }
-
-    public override async Task Select_Singleton_Navigation_With_Member_Access_Async()
-    {
-        await base.Select_Singleton_Navigation_With_Member_Access_Async();
-
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Orders] AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone] IS NULL)");
     }
 
     public override async Task Where_subquery_on_navigation_client_eval(bool async)

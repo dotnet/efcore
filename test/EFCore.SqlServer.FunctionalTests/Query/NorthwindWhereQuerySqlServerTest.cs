@@ -386,9 +386,9 @@ FROM [Employees] AS [e]
 WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0");
     }
 
-    public override void Where_subquery_closure_via_query_cache()
+    public override async Task Where_subquery_closure_via_query_cache(bool async)
     {
-        base.Where_subquery_closure_via_query_cache();
+        await base.Where_subquery_closure_via_query_cache(async);
 
         AssertSql(
             @"@__customerID_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
@@ -1577,9 +1577,9 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'QUICK' AND [o].[OrderDate] > '1998-01-01T00:00:00.000'");
     }
 
-    public override void Where_navigation_contains()
+    public override async Task Where_navigation_contains(bool async)
     {
-        base.Where_navigation_contains();
+        await base.Where_navigation_contains(async);
 
         AssertSql(
             @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -2622,30 +2622,16 @@ WHERE CAST([p].[UnitPrice] AS float) > 100.0E0");
         AssertSql();
     }
 
-    public override void Where_nested_field_access_closure_via_query_cache_error_null()
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_null(bool async)
     {
-        base.Where_nested_field_access_closure_via_query_cache_error_null();
+        await base.Where_nested_field_access_closure_via_query_cache_error_null(async);
 
         AssertSql();
     }
 
-    public override async Task Where_nested_field_access_closure_via_query_cache_error_null_async()
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_method_null(bool async)
     {
-        await base.Where_nested_field_access_closure_via_query_cache_error_null_async();
-
-        AssertSql();
-    }
-
-    public override void Where_nested_field_access_closure_via_query_cache_error_method_null()
-    {
-        base.Where_nested_field_access_closure_via_query_cache_error_method_null();
-
-        AssertSql();
-    }
-
-    public override async Task Where_nested_field_access_closure_via_query_cache_error_method_null_async()
-    {
-        await base.Where_nested_field_access_closure_via_query_cache_error_method_null_async();
+        await base.Where_nested_field_access_closure_via_query_cache_error_method_null(async);
 
         AssertSql();
     }

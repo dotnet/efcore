@@ -380,44 +380,46 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                         .Select(o => o.Customer)),
             entryCount: 88);
 
-    [ConditionalFact]
-    public virtual void Include_Union_only_on_one_side_throws()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Include_Union_only_on_one_side_throws(bool async)
     {
-        using var ctx = CreateContext();
-        Assert.Throws<InvalidOperationException>(
-            () =>
-                ctx.Customers
+        var message1 = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
-                    .Union(ctx.Customers.Where(c => c.City == "London"))
-                    .ToList());
+                    .Union(ss.Set<Customer>().Where(c => c.City == "London"))))).Message;
 
-        Assert.Throws<InvalidOperationException>(
-            () =>
-                ctx.Customers
+        Assert.Equal(CoreStrings.SetOperationWithDifferentIncludesInOperands, message1);
+
+        var message2 = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
-                    .Union(
-                        ctx.Customers
-                            .Where(c => c.City == "London")
-                            .Include(c => c.Orders))
-                    .ToList());
+                    .Union(ss.Set<Customer>().Where(c => c.City == "London").Include(c => c.Orders))))).Message;
+
+        Assert.Equal(CoreStrings.SetOperationWithDifferentIncludesInOperands, message2);
     }
 
-    [ConditionalFact]
-    public virtual void Include_Union_different_includes_throws()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Include_Union_different_includes_throws(bool async)
     {
-        using var ctx = CreateContext();
-        Assert.Throws<InvalidOperationException>(
-            () =>
-                ctx.Customers
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
-                    .Union(
-                        ctx.Customers
-                            .Where(c => c.City == "London")
-                            .Include(c => c.Orders)
-                            .ThenInclude(o => o.OrderDetails))
-                    .ToList());
+                    .Union(ss.Set<Customer>()
+                        .Where(c => c.City == "London")
+                        .Include(c => c.Orders)
+                        .ThenInclude(o => o.OrderDetails))))).Message;
+
+        Assert.Equal(CoreStrings.SetOperationWithDifferentIncludesInOperands, message);
     }
 
     [ConditionalTheory]

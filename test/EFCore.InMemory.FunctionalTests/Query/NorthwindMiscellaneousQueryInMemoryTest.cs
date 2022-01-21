@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindMiscellaneousQueryInMemoryTest : NorthwindMiscellaneousQueryTestBase<
@@ -48,4 +50,10 @@ public class NorthwindMiscellaneousQueryInMemoryTest : NorthwindMiscellaneousQue
 
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
+
+    public override async Task Entity_equality_through_subquery_composite_key(bool async)
+        => Assert.Equal(
+            CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Entity_equality_through_subquery_composite_key(async))).Message);
 }

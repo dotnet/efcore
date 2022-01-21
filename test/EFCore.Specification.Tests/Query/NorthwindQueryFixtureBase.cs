@@ -76,11 +76,13 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
         {
             { typeof(Customer), e => ((Customer)e)?.CustomerID },
             { typeof(CustomerQuery), e => ((CustomerQuery)e)?.CompanyName },
+            { typeof(CustomerQueryWithQueryFilter), e => ((CustomerQueryWithQueryFilter)e)?.CompanyName },
             { typeof(Order), e => ((Order)e)?.OrderID },
             { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
             { typeof(Employee), e => ((Employee)e)?.EmployeeID },
             { typeof(Product), e => ((Product)e)?.ProductID },
             { typeof(ProductQuery), e => ((ProductQuery)e)?.ProductID },
+            { typeof(ProductView), e => ((ProductView)e)?.ProductID },
             { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
         }.ToDictionary(e => e.Key, e => (object)e.Value);
 
@@ -124,6 +126,22 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
                         Assert.Equal(ee.City, aa.City);
                         Assert.Equal(ee.ContactName, aa.ContactName);
                         Assert.Equal(ee.ContactTitle, aa.ContactTitle);
+                    }
+                }
+            },
+            {
+                typeof(CustomerQueryWithQueryFilter), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (CustomerQueryWithQueryFilter)e;
+                        var aa = (CustomerQueryWithQueryFilter)a;
+
+                        Assert.Equal(ee.CompanyName, aa.CompanyName);
+                        Assert.Equal(ee.SearchTerm, aa.SearchTerm);
+                        Assert.Equal(ee.OrderCount, aa.OrderCount);
                     }
                 }
             },
@@ -203,6 +221,22 @@ public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreF
                     {
                         var ee = (ProductQuery)e;
                         var aa = (ProductQuery)a;
+
+                        Assert.Equal(ee.ProductID, aa.ProductID);
+                        Assert.Equal(ee.CategoryName, aa.CategoryName);
+                        Assert.Equal(ee.ProductName, aa.ProductName);
+                    }
+                }
+            },
+            {
+                typeof(ProductView), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+
+                    if (a != null)
+                    {
+                        var ee = (ProductView)e;
+                        var aa = (ProductView)a;
 
                         Assert.Equal(ee.ProductID, aa.ProductID);
                         Assert.Equal(ee.CategoryName, aa.CategoryName);

@@ -89,18 +89,6 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
                   select o,
             entryCount: 14);
 
-    [ConditionalFact]
-    public virtual async Task Select_Where_Navigation_Async()
-    {
-        using var context = CreateContext();
-        var orders
-            = await (from o in context.Set<Order>()
-                     where o.Customer.City == "Seattle"
-                     select o).ToListAsync();
-
-        Assert.Equal(14, orders.Count);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_Where_Navigation_Scalar_Equals_Navigation_Scalar(bool async)
@@ -323,20 +311,6 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
                   select new { A = o.Customer, B = o.Customer.City },
             elementSorter: e => e.A + " " + e.B,
             entryCount: 1);
-
-    [ConditionalFact]
-    public virtual async Task Select_Singleton_Navigation_With_Member_Access_Async()
-    {
-        using var context = CreateContext();
-        var orders
-            = await (from o in context.Set<Order>()
-                     where o.Customer.City == "Seattle"
-                     where o.Customer.Phone != "555 555 5555"
-                     select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
-
-        Assert.Equal(14, orders.Count);
-        Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -681,18 +655,6 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
                   select c,
             entryCount: 89);
 
-    [ConditionalFact]
-    public virtual async Task Collection_where_nav_prop_sum_async()
-    {
-        using var context = CreateContext();
-        var customers
-            = await (from c in context.Set<Customer>()
-                     where c.Orders.Sum(o => o.OrderID) > 1000
-                     select c).ToListAsync();
-
-        Assert.Equal(89, customers.Count);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Collection_select_nav_prop_first_or_default(bool async)
@@ -864,41 +826,35 @@ public abstract class NorthwindNavigationsQueryTestBase<TFixture> : QueryTestBas
     private static int ClientMethod(int argument)
         => argument;
 
-    [ConditionalFact]
-    public virtual void Navigation_in_subquery_referencing_outer_query()
-    {
-        using var context = CreateContext();
-        var query = from o in context.Orders
-                    // ReSharper disable once UseMethodAny.0
-                    where (from od in context.OrderDetails
-                           where o.Customer.Country == od.Order.Customer.Country
-                           select od).Count()
-                        > 0
-                    where o.OrderID == 10643 || o.OrderID == 10692
-                    select o;
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Navigation_in_subquery_referencing_outer_query(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>()
+                  // ReSharper disable once UseMethodAny.0
+                  where (from od in ss.Set<OrderDetail>()
+                         where o.Customer.Country == od.Order.Customer.Country
+                         select od).Count()
+                      > 0
+                  where o.OrderID == 10643 || o.OrderID == 10692
+                  select o,
+            entryCount: 2);
 
-        var result = query.ToList();
-
-        Assert.Equal(2, result.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count()
-    {
-        using var context = CreateContext();
-        var query = from o in context.Orders
-                    where o.OrderID == 10643 || o.OrderID == 10692
-                    // ReSharper disable once UseMethodAny.0
-                    where (from od in context.OrderDetails
-                           where o.Customer.Country == od.Order.Customer.Country
-                           select od).Distinct().Count()
-                        > 0
-                    select o;
-
-        var result = query.ToList();
-
-        Assert.Equal(2, result.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>()
+                  where o.OrderID == 10643 || o.OrderID == 10692
+                  // ReSharper disable once UseMethodAny.0
+                  where (from od in ss.Set<OrderDetail>()
+                         where o.Customer.Country == od.Order.Customer.Country
+                         select od).Distinct().Count()
+                      > 0
+                  select o,
+            entryCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

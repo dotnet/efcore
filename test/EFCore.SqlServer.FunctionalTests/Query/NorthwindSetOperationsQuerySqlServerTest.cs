@@ -1157,16 +1157,16 @@ WHERE [c0].[ContactTitle] = N'Owner'");
         AssertSql();
     }
 
-    public override void Include_Union_only_on_one_side_throws()
+    public override async Task Include_Union_only_on_one_side_throws(bool async)
     {
-        base.Include_Union_only_on_one_side_throws();
+        await base.Include_Union_only_on_one_side_throws(async);
 
         AssertSql();
     }
 
-    public override void Include_Union_different_includes_throws()
+    public override async Task Include_Union_different_includes_throws(bool async)
     {
-        base.Include_Union_different_includes_throws();
+        await base.Include_Union_different_includes_throws(async);
 
         AssertSql();
     }

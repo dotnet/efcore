@@ -35,35 +35,26 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
             async,
             ss => ss.Set<CustomerQuery>().Where(c => c.City == "London"));
 
-    [ConditionalFact]
-    public virtual void KeylessEntity_by_database_view()
-    {
-        using var context = CreateContext();
-        var results = context.Set<ProductView>().ToArray();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task KeylessEntity_by_database_view(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<ProductView>());
 
-        Assert.Equal(69, results.Length);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Auto_initialized_view_set(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CustomerQuery>());
 
-    [ConditionalFact]
-    public virtual void Auto_initialized_view_set()
-    {
-        using var context = CreateContext();
-        var results = context.CustomerQueries.ToArray();
-
-        Assert.Equal(91, results.Length);
-    }
-
-    [ConditionalFact]
-    public virtual void KeylessEntity_with_nav_defining_query()
-    {
-        using var context = CreateContext();
-        var results
-            = context.Set<CustomerQueryWithQueryFilter>()
-                .Where(cq => cq.OrderCount > 0)
-                .ToArray();
-
-        Assert.Equal(89, results.Length);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task KeylessEntity_with_nav_defining_query(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<CustomerQueryWithQueryFilter>().Where(cq => cq.OrderCount > 0));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -154,18 +145,17 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
                     }),
             elementSorter: e => (e.Key, e.Count, e.Sum));
 
-    [ConditionalFact]
-    public virtual void Entity_mapped_to_view_on_right_side_of_join()
-    {
-        using var context = CreateContext();
-
-        var results = (from o in context.Set<Order>()
-                       join pv in context.Set<ProductView>() on o.CustomerID equals pv.CategoryName into grouping
-                       from pv in grouping.DefaultIfEmpty()
-                       select new { Order = o, ProductView = pv }).ToList();
-
-        Assert.Equal(830, results.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_mapped_to_view_on_right_side_of_join(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>()
+                  join pv in ss.Set<ProductView>() on o.CustomerID equals pv.CategoryName into grouping
+                  from pv in grouping.DefaultIfEmpty()
+                  select new { Order = o, ProductView = pv },
+            elementSorter: e => (e.Order.OrderID, e.ProductView?.ProductID),
+            entryCount: 830);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -23,68 +23,96 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     {
     }
 
-    [ConditionalFact]
-    public virtual void Multiple_context_instances()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Multiple_context_instances(bool async)
     {
         using var context1 = CreateContext();
         using var context2 = CreateContext();
-        Assert.Equal(
-            CoreStrings.ErrorInvalidQueryable,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    (from c in context1.Customers
-                     from o in context2.Orders
-                     select c).First()).Message);
+
+        var message = async ?
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => (from c in context1.Customers
+                       from o in context2.Orders
+                       select c).FirstAsync())).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => (from c in context1.Customers
+                       from o in context2.Orders
+                       select c).First()).Message;
+
+        Assert.Equal(CoreStrings.ErrorInvalidQueryable, message);
     }
 
-    [ConditionalFact]
-    public virtual void Multiple_context_instances_2()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Multiple_context_instances_2(bool async)
     {
         using var context1 = CreateContext();
         using var context2 = CreateContext();
-        Assert.Equal(
-            CoreStrings.ErrorInvalidQueryable,
-            Assert.Throws<InvalidOperationException>(
-                () =>
-                    (from c in context1.Customers
-                     from o in context2.Set<Order>()
-                     select c).First()).Message);
+
+        var message = async ?
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => (from c in context1.Customers
+                       from o in context2.Set<Order>()
+                       select c).FirstAsync())).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => (from c in context1.Customers
+                       from o in context2.Set<Order>()
+                       select c).First()).Message;
+
+        Assert.Equal(CoreStrings.ErrorInvalidQueryable, message);
     }
 
-    [ConditionalFact]
-    public virtual void Multiple_context_instances_set()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Multiple_context_instances_set(bool async)
     {
         using var context1 = CreateContext();
         using var context2 = CreateContext();
         var set = context2.Orders;
 
-        Assert.Equal(
-            CoreStrings.ErrorInvalidQueryable,
-            Assert.Throws<InvalidOperationException>(
+        var message = async ?
+            (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => (from c in context1.Customers
                        from o in set
-                       select c).First()).Message);
+                       select c).FirstAsync())).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => (from c in context1.Customers
+                       from o in set
+                       select c).First()).Message;
+
+        Assert.Equal(CoreStrings.ErrorInvalidQueryable, message);
     }
 
-    [ConditionalFact]
-    public virtual void Multiple_context_instances_parameter()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Multiple_context_instances_parameter(bool async)
     {
         using var context1 = CreateContext();
         using var context2 = CreateContext();
+
+        var message = async ?
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => queryAsync(context2))).Message
+            : Assert.Throws<InvalidOperationException>(
+                () => query(context2)).Message;
+
+        Assert.Equal(CoreStrings.ErrorInvalidQueryable, message);
 
         Customer query(NorthwindContext c2)
             => (from c in context1.Customers
                 from o in c2.Orders
                 select c).First();
 
-        Assert.Equal(
-            CoreStrings.ErrorInvalidQueryable,
-            Assert.Throws<InvalidOperationException>(
-                () => query(context2)).Message);
+        Task<Customer> queryAsync(NorthwindContext c2)
+            => (from c in context1.Customers
+                from o in c2.Orders
+                select c).FirstAsync();
     }
 
-    [ConditionalFact]
-    public virtual void Query_when_evaluatable_queryable_method_call_with_repository()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Query_when_evaluatable_queryable_method_call_with_repository(bool async)
     {
         using var context = CreateContext();
         context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -92,26 +120,27 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         var customerRepository = new Repository<Customer>(context);
         var orderRepository = new Repository<Order>(context);
 
-        var results
-            = customerRepository.Find()
-                .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
-                .ToList();
+        var query1 = customerRepository.Find()
+            .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID));
+
+        var results = async ? await query1.ToListAsync() : query1.ToList();
 
         Assert.Equal(89, results.Count);
 
-        results
-            = (from c in customerRepository.Find()
-               where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
-               select c)
-            .ToList();
+        var query2 = from c in customerRepository.Find()
+                     where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
+                     select c;
+
+        results = async ? await query2.ToListAsync() : query2.ToList();
 
         Assert.Equal(89, results.Count);
 
         var orderQuery = orderRepository.Find();
 
-        results = customerRepository.Find()
-            .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
-            .ToList();
+        var query3 = customerRepository.Find()
+            .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID));
+
+        results = async ? await query3.ToListAsync() : query3.ToList();
 
         Assert.Equal(89, results.Count);
 
@@ -132,49 +161,45 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             => _context.Set<T>();
     }
 
-    [ConditionalFact]
-    public virtual void Lifting_when_subquery_nested_order_by_simple()
-    {
-        using var context = CreateContext();
-        var results
-            = (from c1_Orders in context.Orders
-               join _c1 in
-                   (from c1 in
-                        (from c in context.Customers
-                         orderby c.CustomerID
-                         select c)
-                        .Take(2)
-                    from c2 in context.Customers
-                    select EF.Property<string>(c1, "CustomerID"))
-                   .Distinct()
-                   on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
-               orderby _c1
-               select c1_Orders).ToList();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Lifting_when_subquery_nested_order_by_simple(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1_Orders in ss.Set<Order>()
+                  join _c1 in
+                      (from c1 in
+                           (from c in ss.Set<Customer>()
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                       from c2 in ss.Set<Customer>()
+                       select EF.Property<string>(c1, "CustomerID"))
+                      .Distinct()
+                      on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
+                  orderby _c1
+                  select c1_Orders,
+            entryCount: 10);
 
-        Assert.Equal(10, results.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Lifting_when_subquery_nested_order_by_anonymous()
-    {
-        using var context = CreateContext();
-        var results
-            = (from c1_Orders in context.Orders
-               join _c1 in
-                   (from c1 in
-                        (from c in context.Customers
-                         orderby c.CustomerID
-                         select c)
-                        .Take(2)
-                    from c2 in context.Customers
-                    select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
-                   .Distinct()
-                   on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
-               orderby _c1.CustomerID
-               select c1_Orders).ToList();
-
-        Assert.Equal(10, results.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Lifting_when_subquery_nested_order_by_anonymous(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1_Orders in ss.Set<Order>()
+                  join _c1 in
+                      (from c1 in
+                           (from c in ss.Set<Customer>()
+                            orderby c.CustomerID
+                            select c)
+                           .Take(2)
+                       from c2 in ss.Set<Customer>()
+                       select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
+                      .Distinct()
+                      on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
+                  orderby _c1.CustomerID
+                  select c1_Orders,
+            entryCount: 10);
 
     private class Context
     {
@@ -214,24 +239,38 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         Assert.Single(results);
     }
 
-    [ConditionalFact]
-    public virtual void Shaper_command_caching_when_parameter_names_different()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Shaper_command_caching_when_parameter_names_different(bool async)
     {
         using var context = CreateContext();
         var variableName = "test";
         var differentVariableName = "test";
 
-        context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-            .Where(e2 => InMemoryCheck.Check(variableName, e2.CustomerID) || true).Count();
+        var query1 = context.Set<Customer>()
+            .Where(e => e.CustomerID == "ALFKI")
+            .Where(e2 => InMemoryCheck.Check(variableName, e2.CustomerID) || true);
 
-        context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-            .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true).Count();
+        var query2 = context.Set<Customer>()
+            .Where(e => e.CustomerID == "ALFKI")
+            .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true);
+
+        if (async)
+        {
+            await query1.CountAsync();
+            await query2.CountAsync();
+        }
+        else
+        {
+            query1.Count();
+            query2.Count();
+        }
     }
 
-    [ConditionalFact]
-    public virtual void Can_convert_manually_build_expression_with_default()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Can_convert_manually_build_expression_with_default(bool async)
     {
-        using var context = CreateContext();
         var parameter = Expression.Parameter(typeof(Customer));
         var defaultExpression =
             Expression.Lambda<Func<Customer, bool>>(
@@ -242,8 +281,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                     Expression.Default(typeof(string))),
                 parameter);
 
-        context.Set<Customer>().Where(defaultExpression).Count();
-        context.Set<Customer>().Count(defaultExpression);
+        await AssertCount(async, ss => ss.Set<Customer>().Where(defaultExpression));
+        await AssertCount(async, ss => ss.Set<Customer>(), predicate: defaultExpression);
     }
 
     private static class InMemoryCheck
@@ -418,13 +457,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                   where c.Orders.FirstOrDefault() != null
                   select c.CustomerID);
 
-    [ConditionalFact]
-    public virtual void Entity_equality_through_subquery_composite_key()
-        => Assert.Throws<InvalidOperationException>(
-            () =>
-                CreateContext().Orders
-                    .Where(o => o.OrderDetails.FirstOrDefault() == new OrderDetail { OrderID = 10248, ProductID = 11 })
-                    .ToList());
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_equality_through_subquery_composite_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderDetails.FirstOrDefault() == new OrderDetail { OrderID = 10248, ProductID = 11 }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -941,16 +980,13 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>().Where(c => ss.Set<Order>().Any(o => o.CustomerID.StartsWith("A")) && c.City != "London"),
             entryCount: 85);
 
-    [ConditionalFact]
-    public virtual void Any_with_multiple_conditions_still_uses_exists()
-    {
-        using var context = CreateContext();
-        var query = context.Customers
-            .Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1))
-            .ToList();
-
-        Assert.Equal(4, query.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Any_with_multiple_conditions_still_uses_exists(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1)),
+            entryCount: 4);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1200,82 +1236,86 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             },
             entryCount: 5);
 
-    [ConditionalFact]
-    public virtual void Select_DTO_distinct_translated_to_server()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_distinct_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO())
+                .Distinct(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_constructor_distinct_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.CustomerID))
+                .Distinct(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_constructor_distinct_with_navigation_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.Customer.City))
+                .Distinct(),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_constructor_distinct_with_collection_projection_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
+                .Distinct()
+                .Select(e => new { e.A, Orders = ss.Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList() }),
+            elementSorter: e => e.A.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.A.Id, a.A.Id);
+                AssertCollection(e.Orders, a.Orders);
+            },
+            entryCount: 413);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         using var context = CreateContext();
-        var actual = context.Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO())
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        var expected = Fixture.GetExpectedData().Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO())
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i].Id, actual[i].Id);
-            Assert.Equal(expected[i].Count, actual[i].Count);
-        }
-    }
-
-    [ConditionalFact]
-    public virtual void Select_DTO_constructor_distinct_translated_to_server()
-    {
-        using var context = CreateContext();
-        var actual = context.Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO(o.CustomerID))
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        var expected = Fixture.GetExpectedData().Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO(o.CustomerID))
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i].Id, actual[i].Id);
-            Assert.Equal(expected[i].Count, actual[i].Count);
-        }
-    }
-
-    [ConditionalFact]
-    public virtual void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
-    {
-        using var context = CreateContext();
-        var actual = context.Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO(o.Customer.City))
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        var expected = Fixture.GetExpectedData().Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(o => new OrderCountDTO(o.Customer.City))
-            .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i].Id, actual[i].Id);
-            Assert.Equal(expected[i].Count, actual[i].Count);
-        }
-    }
-
-    [ConditionalFact]
-    public virtual void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
-    {
-        using var context = CreateContext();
-        var actual = context.Set<Order>()
+        var actualQuery = context.Set<Order>()
             .Where(o => o.OrderID < 10300)
             .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
             .Distinct()
-            .Select(e => new { e.A, Orders = context.Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList() })
-            .ToList().OrderBy(e => e.A.Id).ToList();
+            .Select(e => new { e.A, Orders = context.Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList() });
+
+        var actual = async
+            ? (await actualQuery.ToListAsync()).OrderBy(e => e.A.Id).ToList()
+            : actualQuery.ToList().OrderBy(e => e.A.Id).ToList();
 
         var expected = Fixture.GetExpectedData().Set<Order>()
             .Where(o => o.OrderID < 10300)
@@ -1292,52 +1332,36 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         }
     }
 
-    [ConditionalFact]
-    public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
-    {
-        using var context = CreateContext();
-        var actual = context.Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(
-                o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-            .Distinct().ToList().OrderBy(e => e.Count).ToList();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_with_member_init_distinct_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                .Distinct(),
+            elementSorter: e => e.Count,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Count, a.Count);
+            });
 
-        var expected = Fixture.GetExpectedData().Set<Order>()
-            .Where(o => o.OrderID < 10300)
-            .Select(
-                o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-            .Distinct().ToList().OrderBy(e => e.Count).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i].Id, actual[i].Id);
-            Assert.Equal(expected[i].Count, actual[i].Count);
-        }
-    }
-
-    [ConditionalFact]
-    public virtual void Select_nested_collection_count_using_DTO()
-    {
-        using var context = CreateContext();
-        var actual = context.Set<Customer>()
-            .Where(c => c.CustomerID.StartsWith("A"))
-            .Select(
-                c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-            .ToList().OrderBy(e => e.Id).ToList();
-
-        var expected = Fixture.GetExpectedData().Set<Customer>()
-            .Where(c => c.CustomerID.StartsWith("A"))
-            .Select(
-                c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-            .ToList().OrderBy(e => e.Id).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i], actual[i]);
-        }
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_nested_collection_count_using_DTO(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.Count, a.Count);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1367,32 +1391,25 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 select c,
             entryCount: 35);
 
-    [ConditionalFact]
-    public virtual void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
-    {
-        using var context = CreateContext();
-        var actual = (from c in context.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                      from o in context.Set<Order>().Where(o => o.OrderID < 10300)
-                          .Select(
-                              o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                          .Distinct()
-                      select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
-
-        var expected = (from c in Fixture.GetExpectedData().Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                        from o in Fixture.GetExpectedData().Set<Order>().Where(o => o.OrderID < 10300)
-                            .Select(
-                                o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                            .Distinct()
-                        select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
-
-        Assert.Equal(expected.Count, actual.Count);
-        for (var i = 0; i < expected.Count; i++)
-        {
-            Assert.Equal(expected[i].c.CustomerID, actual[i].c.CustomerID);
-            Assert.Equal(expected[i].o.Id, actual[i].o.Id);
-            Assert.Equal(expected[i].o.Count, actual[i].o.Count);
-        }
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server(bool async)
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                  from o in ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .Select(o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                    .Distinct()
+                  select new { c, o },
+            elementSorter: e => (e.c.CustomerID, e.o.Count),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.c.CustomerID, a.c.CustomerID);
+                Assert.Equal(e.o.Id, a.o.Id);
+                Assert.Equal(e.o.Count, a.o.Count);
+            },
+            entryCount: 4);
 
     private class OrderCountDTO
     {
@@ -2622,14 +2639,14 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             assertOrder: true,
             entryCount: 77);
 
-    [ConditionalFact]
-    public virtual void OrderBy_any()
-    {
-        using var context = CreateContext();
-        var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
-
-        Assert.Equal(91, query.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task OrderBy_any(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID),
+            assertOrder: true,
+            entryCount: 91);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2928,17 +2945,15 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             entryCount: 1);
     }
 
-    [ConditionalFact]
-    public virtual void Selected_column_can_coalesce()
-    {
-        using var context = CreateContext();
-        var customers = (from c in context.Set<Customer>()
-                         orderby c.Region ?? "ZZ"
-                         select c)
-            .ToList();
-
-        Assert.Equal(91, customers.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Selected_column_can_coalesce(bool async)
+        => AssertQuery(
+            async,
+            ss => (from c in ss.Set<Customer>()
+                  orderby c.Region ?? "ZZ"
+                  select c).Select(x => x),
+            entryCount: 91);
 
     [ConditionalFact]
     public virtual void Can_cast_CreateQuery_result_to_IQueryable_T_bug_1730()
@@ -2950,96 +2965,85 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
     }
 
-    [ConditionalFact]
-    public virtual void Select_Subquery_Single()
-    {
-        using var context = CreateContext();
-        var orderDetails
-            = (from od in context.Set<OrderDetail>()
-               orderby od.ProductID, od.OrderID
-               select (from o in context.Set<Order>()
-                       where od.OrderID == o.OrderID
-                       orderby o.OrderID
-                       select o).First())
-            .Take(2)
-            .ToList();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Subquery_Single(bool async)
+        => AssertQuery(
+            async,
+            ss => (from od in ss.Set<OrderDetail>()
+                   orderby od.ProductID, od.OrderID
+                   select (from o in ss.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           orderby o.OrderID
+                           select o).First()).Take(2),
+            entryCount: 2);
 
-        Assert.Equal(2, orderDetails.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Select_Where_Subquery_Deep_Single()
-    {
-        using var context = CreateContext();
-        var orderDetails
-            = (from od in context.Set<OrderDetail>().Where(od => od.OrderID == 10344)
-               where (
-                       from o in context.Set<Order>()
-                       where od.OrderID == o.OrderID
-                       select (
-                           from c in context.Set<Customer>()
-                           where o.CustomerID == c.CustomerID
-                           select c
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Where_Subquery_Deep_Single(bool async)
+        => AssertQuery(
+            async,
+            ss => (from od in ss.Set<OrderDetail>().Where(od => od.OrderID == 10344)
+                   where (
+                           from o in ss.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in ss.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                           ).Single()
                        ).Single()
-                   ).Single()
-                   .City
-                   == "Seattle"
-               select od)
-            .Take(2)
-            .ToList();
+                       .City
+                       == "Seattle"
+                   select od)
+            .Take(2),
+            entryCount: 2);
 
-        Assert.Equal(2, orderDetails.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Select_Where_Subquery_Deep_First()
-    {
-        using var context = CreateContext();
-        var orderDetails
-            = (from od in context.Set<OrderDetail>()
-               where (
-                       from o in context.Set<Order>()
-                       where od.OrderID == o.OrderID
-                       select (
-                           from c in context.Set<Customer>()
-                           where o.CustomerID == c.CustomerID
-                           select c
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Where_Subquery_Deep_First(bool async)
+        => AssertQuery(
+            async,
+            ss => (from od in ss.Set<OrderDetail>()
+                   where (
+                           from o in ss.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in ss.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                           ).FirstOrDefault()
                        ).FirstOrDefault()
-                   ).FirstOrDefault()
-                   .City
-                   == "Seattle"
-               select od)
-            .Take(2)
-            .ToList();
+                       .City
+                       == "Seattle"
+                   select od)
+            .Take(2),
+            entryCount: 2);
 
-        Assert.Equal(2, orderDetails.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Select_Where_Subquery_Equality()
-    {
-        using var context = CreateContext();
-        var orders
-            = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-               // ReSharper disable once UseMethodAny.0
-               where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
-                      where (from c in context.Set<Customer>()
-                             where c.CustomerID == o.CustomerID
-                             orderby c.CustomerID
-                             select c).First().Country
-                          == (from o2 in context.Set<Order>()
-                              join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
-                              where o2.OrderID == od.OrderID
-                              orderby o2.OrderID, c.CustomerID
-                              select c).First().Country
-                      orderby od.ProductID, od.OrderID
-                      select od).Count()
-                   > 0
-               orderby o.OrderID
-               select o).ToList();
-
-        Assert.Single(orders);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Select_Where_Subquery_Equality(bool async)
+        => AssertQuery(
+            async,
+            ss => from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(1)
+                      // ReSharper disable once UseMethodAny.0
+                  where (from od in ss.Set<OrderDetail>().OrderBy(od => od.OrderID).Take(2)
+                         where (from c in ss.Set<Customer>()
+                                where c.CustomerID == o.CustomerID
+                                orderby c.CustomerID
+                                select c).First().Country
+                             == (from o2 in ss.Set<Order>()
+                                 join c in ss.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                 where o2.OrderID == od.OrderID
+                                 orderby o2.OrderID, c.CustomerID
+                                 select c).First().Country
+                         orderby od.ProductID, od.OrderID
+                         select od).Count()
+                      > 0
+                  orderby o.OrderID
+                  select o,
+            assertOrder: true,
+            entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3487,30 +3491,32 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             entryCount: 830);
     }
 
-    [ConditionalFact]
-    public virtual void Parameter_extraction_can_throw_exception_from_user_code()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_extraction_can_throw_exception_from_user_code(bool async)
     {
-        using var context = CreateContext();
         var customer = new Customer();
 
-        Assert.Throws<InvalidOperationException>(
-            () => context.Customers.Where(c => Equals(c.Orders.First(), customer.Orders.First())).ToList());
+        return Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => Equals(c.Orders.First(), customer.Orders.First()))));
     }
 
-    [ConditionalFact]
-    public virtual void Parameter_extraction_can_throw_exception_from_user_code_2()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_extraction_can_throw_exception_from_user_code_2(bool async)
     {
-        using var context = CreateContext();
         DateTime? dateFilter = null;
 
-        Assert.Throws<InvalidOperationException>(
-            () => context.Orders
-                .Where(
-                    o => (o.OrderID < 10400)
-                        && ((o.OrderDate.HasValue
-                            && o.OrderDate.Value.Month == dateFilter.Value.Month
-                            && o.OrderDate.Value.Year == dateFilter.Value.Year)))
-                .ToList());
+        return Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => (o.OrderID < 10400)
+                        && o.OrderDate.HasValue
+                        && o.OrderDate.Value.Month == dateFilter.Value.Month
+                        && o.OrderDate.Value.Year == dateFilter.Value.Year)));
     }
 
     [ConditionalTheory]
@@ -4671,27 +4677,6 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .Take(10),
             elementSorter: e => e.Id);
 
-    [ConditionalFact]
-    public virtual void Streaming_chained_sync_query()
-    {
-        using var context = CreateContext();
-        var results
-            = (context.Customers
-                .Select(
-                    c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID).ToList() })
-                .ToList())
-            .Select(
-                x => new
-                {
-                    Orders = x.Orders
-                        .GroupJoin(
-                            new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
-                })
-            .ToList();
-
-        Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Join_take_count_works(bool async)
@@ -4727,8 +4712,9 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             entryCount: 91);
     }
 
-    [ConditionalFact]
-    public virtual void Manual_expression_tree_typed_null_equality()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Manual_expression_tree_typed_null_equality(bool async)
     {
         using var context = CreateContext();
         var orderParameter = Expression.Parameter(typeof(Order), "o");
@@ -4746,11 +4732,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 Expression.Constant(null, typeof(string))),
             orderParameter);
 
-        var query = context.Orders
-            .Where(o => o.OrderID < 10300)
-            .Select(selector).ToList();
-
-        // No verification. Query Compilation check.
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(selector));
     }
 
     [ConditionalTheory]

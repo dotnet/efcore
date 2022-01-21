@@ -316,82 +316,52 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level()
+    public override async Task Select_nested_collection_multi_level(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level2()
+    public override async Task Select_nested_collection_multi_level2(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level2();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level2(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level3()
+    public override async Task Select_nested_collection_multi_level3(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level3();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level3(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level4()
+    public override async Task Select_nested_collection_multi_level4(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level4();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level4(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level5()
+    public override async Task Select_nested_collection_multi_level5(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level5();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level5(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
-    public override void Select_nested_collection_multi_level6()
+    public override async Task Select_nested_collection_multi_level6(bool async)
     {
-        //// Cosmos client evaluation. Issue #17246.
-        //AssertTranslationFailed(
-        //    () =>
-        //    {
-        //        base.Select_nested_collection_multi_level6();
-        //        return Task.CompletedTask;
-        //    });
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Select_nested_collection_multi_level6(async));
 
-        //AssertSql();
+        AssertSql();
     }
 
     public override async Task Select_nested_collection_count_using_anonymous_type(bool async)

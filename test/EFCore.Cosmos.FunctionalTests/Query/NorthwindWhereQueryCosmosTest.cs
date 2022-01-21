@@ -684,15 +684,10 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__InstanceField
         AssertSql();
     }
 
-    public override void Where_subquery_closure_via_query_cache()
+    public override async Task Where_subquery_closure_via_query_cache(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Where_subquery_closure_via_query_cache();
-                return Task.CompletedTask;
-            });
+        await AssertTranslationFailed(() => base.Where_subquery_closure_via_query_cache(async));
 
         AssertSql();
     }
@@ -1765,15 +1760,15 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""QUICK"")) AND (c[""OrderDate""] > ""1998-01-01T00:00:00""))");
     }
 
-    public override void Where_navigation_contains()
+    public override async Task Where_navigation_contains(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        AssertTranslationFailed(
-            () =>
-            {
-                base.Where_navigation_contains();
-                return Task.CompletedTask;
-            });
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Where_navigation_contains(async))).Message;
+
+        Assert.Equal(
+            CosmosStrings.NonEmbeddedIncludeNotSupported(
+                @"Navigation: Customer.Orders (List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field"),
+                message);
 
         AssertSql();
     }
@@ -2454,30 +2449,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Region""] = null))");
     }
 
-    public override void Where_nested_field_access_closure_via_query_cache_error_null()
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_null(bool async)
     {
-        base.Where_nested_field_access_closure_via_query_cache_error_null();
+        await base.Where_nested_field_access_closure_via_query_cache_error_null(async);
 
         AssertSql();
     }
 
-    public override async Task Where_nested_field_access_closure_via_query_cache_error_null_async()
+    public override async Task Where_nested_field_access_closure_via_query_cache_error_method_null(bool async)
     {
-        await base.Where_nested_field_access_closure_via_query_cache_error_null_async();
-
-        AssertSql();
-    }
-
-    public override void Where_nested_field_access_closure_via_query_cache_error_method_null()
-    {
-        base.Where_nested_field_access_closure_via_query_cache_error_method_null();
-
-        AssertSql();
-    }
-
-    public override async Task Where_nested_field_access_closure_via_query_cache_error_method_null_async()
-    {
-        await base.Where_nested_field_access_closure_via_query_cache_error_method_null_async();
+        await base.Where_nested_field_access_closure_via_query_cache_error_method_null(async);
 
         AssertSql();
     }

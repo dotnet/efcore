@@ -11,9 +11,22 @@ public partial class NorthwindData : ISetSource
     public Employee[] Employees { get; }
     public Product[] Products { get; }
     public ProductQuery[] ProductQueries { get; }
+    public ProductView[] ProductViews { get; }
     public Order[] Orders { get; }
     public OrderQuery[] OrderQueries { get; }
     public OrderDetail[] OrderDetails { get; }
+
+    private readonly Dictionary<int, string> _categoryNameMap = new Dictionary<int, string>
+    {
+        { 1, "Beverages" },
+        { 2, "Condiments" },
+        { 3, "Confections" },
+        { 4, "Dairy Products" },
+        { 5, "Grains/Cereals" },
+        { 6, "Meat/Poultry" },
+        { 7, "Produce" },
+        { 8, "Seafood" },
+    };
 
     public NorthwindData()
     {
@@ -24,7 +37,6 @@ public partial class NorthwindData : ISetSource
         OrderDetails = CreateOrderDetails();
 
         var customerQueries = new List<CustomerQuery>();
-        CustomerQueriesWithQueryFilter = new CustomerQueryWithQueryFilter[0];
 
         foreach (var customer in Customers)
         {
@@ -44,6 +56,7 @@ public partial class NorthwindData : ISetSource
         CustomerQueries = customerQueries.ToArray();
 
         var productQueries = new List<ProductQuery>();
+        var productViews = new List<ProductView>();
 
         foreach (var product in Products)
         {
@@ -58,10 +71,18 @@ public partial class NorthwindData : ISetSource
                         ProductID = product.ProductID,
                         ProductName = product.ProductName
                     });
+
+                productViews.Add(new ProductView
+                {
+                    CategoryName = _categoryNameMap[product.CategoryID.Value],
+                    ProductID = product.ProductID,
+                    ProductName = product.ProductName
+                });
             }
         }
 
         ProductQueries = productQueries.ToArray();
+        ProductViews = productViews.ToArray();
 
         var orderQueries = new List<OrderQuery>();
 
@@ -78,6 +99,20 @@ public partial class NorthwindData : ISetSource
         }
 
         OrderQueries = orderQueries.ToArray();
+
+        var customerQueriesWithQueryFilter = new List<CustomerQueryWithQueryFilter>();
+        foreach (var customer in Customers)
+        {
+            customerQueriesWithQueryFilter.Add(
+                new CustomerQueryWithQueryFilter
+                {
+                    CompanyName = customer.CompanyName,
+                    SearchTerm = "A",
+                    OrderCount = customer.Orders.Count
+                });
+        }
+
+        CustomerQueriesWithQueryFilter = customerQueriesWithQueryFilter.ToArray();
 
         foreach (var orderDetail in OrderDetails)
         {
@@ -158,6 +193,16 @@ public partial class NorthwindData : ISetSource
         if (typeof(TEntity) == typeof(ProductQuery))
         {
             return (IQueryable<TEntity>)ProductQueries.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(ProductView))
+        {
+            return (IQueryable<TEntity>)ProductViews.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(CustomerQueryWithQueryFilter))
+        {
+            return (IQueryable<TEntity>)CustomerQueriesWithQueryFilter.AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

@@ -7,186 +7,155 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class NorthwindAsNoTrackingQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
 {
     protected NorthwindAsNoTrackingQueryTestBase(TFixture fixture)
+        : base(fixture)
     {
-        Fixture = fixture;
     }
-
-    protected TFixture Fixture { get; }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Entity_not_added_to_state_manager(bool useParam)
-    {
-        using var context = CreateContext();
-        var customers = useParam
-            ? context.Set<Customer>().AsTracking(QueryTrackingBehavior.NoTracking).ToList()
-            : context.Set<Customer>().AsNoTracking().ToList();
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public virtual Task Entity_not_added_to_state_manager(bool useParam, bool async)
+        => useParam
+            ? AssertQuery(
+                async,
+                ss => ss.Set<Customer>().AsTracking(QueryTrackingBehavior.NoTracking),
+                entryCount: 0)
+            : AssertQuery(
+                async,
+                ss => ss.Set<Customer>().AsNoTracking(),
+                entryCount: 0);
 
-        Assert.Equal(91, customers.Count);
-        Assert.Empty(context.ChangeTracker.Entries());
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Applied_to_body_clause(bool async)
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<Customer>()
+                  join o in ss.Set<Order>().AsNoTracking()
+                      on c.CustomerID equals o.CustomerID
+                  where c.CustomerID == "ALFKI"
+                  select o,
+            entryCount: 0);
 
-    [ConditionalFact]
-    public virtual void Applied_to_body_clause()
-    {
-        using var context = CreateContext();
-        var customers
-            = (from c in context.Set<Customer>()
-               join o in context.Set<Order>().AsNoTracking()
-                   on c.CustomerID equals o.CustomerID
-               where c.CustomerID == "ALFKI"
-               select o)
-            .ToList();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Applied_to_multiple_body_clauses(bool async)
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<Customer>().AsNoTracking()
+                  from o in ss.Set<Order>().AsNoTracking()
+                  where c.CustomerID == o.CustomerID
+                  select new { c, o },
+            elementSorter: e => (e.c.CustomerID, e.o.OrderID),
+            entryCount: 0);
 
-        Assert.Equal(6, customers.Count);
-        Assert.Empty(context.ChangeTracker.Entries());
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Applied_to_body_clause_with_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => from c in ss.Set<Customer>()
+                  join o in ss.Set<Order>().AsNoTracking()
+                      on c.CustomerID equals o.CustomerID
+                  where c.CustomerID == "ALFKI"
+                  select new
+                  {
+                      c.CustomerID,
+                      c,
+                      ocid = o.CustomerID,
+                      o
+                  },
+            elementSorter: e => (e.CustomerID, e.o.OrderID),
+            entryCount: 0);
 
-    [ConditionalFact]
-    public virtual void Applied_to_multiple_body_clauses()
-    {
-        using var context = CreateContext();
-        var customers
-            = (from c in context.Set<Customer>().AsNoTracking()
-               from o in context.Set<Order>().AsNoTracking()
-               where c.CustomerID == o.CustomerID
-               select new { c, o })
-            .ToList();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Applied_to_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => (from c in ss.Set<Customer>()
+                   join o in ss.Set<Order>().AsNoTracking()
+                       on c.CustomerID equals o.CustomerID
+                   where c.CustomerID == "ALFKI"
+                   select new { c, o }).AsNoTracking(),
+            elementSorter: e => (e.c.CustomerID, e.o.OrderID),
+            entryCount: 0);
 
-        Assert.Equal(830, customers.Count);
-        Assert.Empty(context.ChangeTracker.Entries());
-    }
-
-    [ConditionalFact]
-    public virtual void Applied_to_body_clause_with_projection()
-    {
-        using var context = CreateContext();
-        var customers
-            = (from c in context.Set<Customer>()
-               join o in context.Set<Order>().AsNoTracking()
-                   on c.CustomerID equals o.CustomerID
-               where c.CustomerID == "ALFKI"
-               select new
-               {
-                   c.CustomerID,
-                   c,
-                   ocid = o.CustomerID,
-                   o
-               })
-            .ToList();
-
-        Assert.Equal(6, customers.Count);
-        Assert.Empty(context.ChangeTracker.Entries());
-    }
-
-    [ConditionalFact]
-    public virtual void Applied_to_projection()
-    {
-        using var context = CreateContext();
-        var customers
-            = (from c in context.Set<Customer>()
-               join o in context.Set<Order>().AsNoTracking()
-                   on c.CustomerID equals o.CustomerID
-               where c.CustomerID == "ALFKI"
-               select new { c, o })
-            .AsNoTracking()
-            .ToList();
-
-        Assert.Equal(6, customers.Count);
-        Assert.Empty(context.ChangeTracker.Entries());
-    }
-
-    [ConditionalFact]
-    public virtual void Can_get_current_values()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Can_get_current_values(bool async)
     {
         using var db = CreateContext();
-        var customer = db.Customers.First();
 
-        customer.CompanyName = "foo";
-
-        var dbCustomer = db.Customers.AsNoTracking().First();
-
-        Assert.NotEqual(customer.CompanyName, dbCustomer.CompanyName);
+        if (async)
+        {
+            var customer = await db.Customers.FirstAsync();
+            customer.CompanyName = "foo";
+            var dbCustomer = await db.Customers.AsNoTracking().FirstAsync();
+            Assert.NotEqual(customer.CompanyName, dbCustomer.CompanyName);
+        }
+        else
+        {
+            var customer = db.Customers.First();
+            customer.CompanyName = "foo";
+            var dbCustomer = db.Customers.AsNoTracking().First();
+            Assert.NotEqual(customer.CompanyName, dbCustomer.CompanyName);
+        }
     }
 
-    [ConditionalFact]
-    public virtual void Include_reference_and_collection()
-    {
-        using var context = CreateContext();
-        var orders
-            = context.Set<Order>()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Include_reference_and_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>()
                 .Include(o => o.Customer)
                 .Include(o => o.OrderDetails)
-                .AsNoTracking()
-                .ToList();
+                .AsNoTracking(),
+            entryCount: 0);
 
-        Assert.Equal(830, orders.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Applied_after_navigation_expansion(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.Customer.City != "London").AsNoTracking(),
+            entryCount: 0);
 
-    [ConditionalFact]
-    public virtual void Applied_after_navigation_expansion()
-    {
-        using var context = CreateContext();
-        var orders = context.Set<Order>().Where(o => o.Customer.City != "London").AsNoTracking().ToList();
-
-        Assert.Equal(784, orders.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void Where_simple_shadow()
-    {
-        using var context = CreateContext();
-        var employees
-            = context.Set<Employee>()
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_simple_shadow(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Employee>()
                 .Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
-                .AsNoTracking()
-                .ToList();
+                .AsNoTracking(),
+            entryCount: 0);
 
-        Assert.Equal(6, employees.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Query_fast_path_when_ctor_binding(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().AsNoTracking(),
+            entryCount: 0);
 
-    [ConditionalFact]
-    public virtual void Query_fast_path_when_ctor_binding()
-    {
-        using var context = CreateContext();
-        var employees
-            = context.Set<Customer>()
-                .AsNoTracking()
-                .ToList();
-
-        Assert.Equal(91, employees.Count);
-    }
-
-    [ConditionalFact]
-    public virtual async Task Query_fast_path_when_ctor_binding_async()
-    {
-        using var context = CreateContext();
-        var employees
-            = await context.Set<Customer>()
-                .AsNoTracking()
-                .ToListAsync();
-
-        Assert.Equal(91, employees.Count);
-    }
-
-    [ConditionalFact]
-    public virtual void SelectMany_simple()
-    {
-        using var context = CreateContext();
-        var results
-            = (from e in context.Set<Employee>()
-               from c in context.Set<Customer>()
-               select new { c, e })
-            .AsNoTracking()
-            .ToList();
-
-        Assert.Equal(819, results.Count);
-    }
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task SelectMany_simple(bool async)
+        => AssertQuery(
+            async,
+            ss => (from e in ss.Set<Employee>()
+                   from c in ss.Set<Customer>()
+                   select new { c, e }).AsNoTracking(),
+            elementSorter: e => (e.c.CustomerID, e.e.EmployeeID),
+            entryCount: 0);
 
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
