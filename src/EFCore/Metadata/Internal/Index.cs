@@ -315,7 +315,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     /// </summary>
     [DebuggerStepThrough]
     public virtual string DisplayName()
-        => Name ?? Properties.Format();
+        => Name is null ? Properties.Format() : $"'{Name}'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

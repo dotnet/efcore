@@ -1118,7 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties, entityType);
 
         /// <summary>
-        ///     The index '{index}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
         public static string IndexWrongType(object? index, object? entityType, object? otherEntityType)
             => string.Format(
@@ -2038,7 +2038,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, foreignKeyProperties, foreignKeyType);
 
         /// <summary>
-        ///     The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index '{index}' on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
+        ///     The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
         /// </summary>
         public static string PropertyInUseIndex(object? property, object? entityType, object? index, object? indexType)
             => string.Format(

@@ -47,7 +47,7 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     /// <returns>The display name.</returns>
     [DebuggerStepThrough]
     string DisplayName()
-        => Name ?? Properties.Format();
+        => Name is null ? Properties.Format() : $"'{Name}'";
 
     /// <summary>
     ///     <para>

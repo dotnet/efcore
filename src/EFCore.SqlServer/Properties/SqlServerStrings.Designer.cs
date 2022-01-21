@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
         /// </summary>
         public static string DuplicateIndexClusteredMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
         /// </summary>
         public static string DuplicateIndexFillFactorMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.
         /// </summary>
         public static string DuplicateIndexIncludedMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? includedColumns1, object? includedColumns2)
             => string.Format(
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName, includedColumns1, includedColumns2);
 
         /// <summary>
-        ///     The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.
         /// </summary>
         public static string DuplicateIndexOnlineMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The include property '{entityType}.{property}' was specified multiple times for the index '{index}'.
+        ///     The include property '{entityType}.{property}' was specified multiple times for the index {index}.
         /// </summary>
         public static string IncludePropertyDuplicated(object? entityType, object? property, object? index)
             => string.Format(
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, property, index);
 
         /// <summary>
-        ///     The include property '{entityType}.{property}' is already part of the index '{index}'.
+        ///     The include property '{entityType}.{property}' is already part of the index {index}.
         /// </summary>
         public static string IncludePropertyInIndex(object? entityType, object? property, object? index)
             => string.Format(
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, property, index);
 
         /// <summary>
-        ///     The include property '{property}' specified on the index '{index}' was not found on entity type '{entityType}'.
+        ///     The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.
         /// </summary>
         public static string IncludePropertyNotFound(object? property, object? index, object? entityType)
             => string.Format(
