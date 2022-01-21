@@ -154,7 +154,7 @@ stages:
                 demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
