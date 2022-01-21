@@ -1149,7 +1149,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var table = Assert.Single(model.Tables);
                 var index = Assert.Single(table.Indexes);
-                // Assert.Collection(index.IsDescending, Assert.False, Assert.True, Assert.False);
+                Assert.Collection(index.IsDescending, Assert.False, Assert.True, Assert.False);
             });
 
     [ConditionalFact]
