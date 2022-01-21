@@ -61,7 +61,7 @@ public class RuntimeIndex : AnnotatableBase, IIndex
     IReadOnlyList<bool> IReadOnlyIndex.IsDescending
     {
         [DebuggerStepThrough]
-        get => Array.Empty<bool>();
+        get => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
     }
 
     /// <summary>

@@ -80,18 +80,43 @@ public static class RelationalIndexExtensions
             return false;
         }
 
+        if (index.IsDescending is null != duplicateIndex.IsDescending is null
+            || (index.IsDescending is not null
+                && duplicateIndex.IsDescending is not null
+                && !index.IsDescending.SequenceEqual(duplicateIndex.IsDescending)))
+        {
+            if (shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateIndexSortOrdersMismatch(
+                        index.Properties.Format(),
+                        index.DeclaringEntityType.DisplayName(),
+                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DeclaringEntityType.DisplayName(),
+                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        index.GetDatabaseName(storeObject)));
+            }
+
+            return false;
+        }
+
         if (index.GetFilter(storeObject) != duplicateIndex.GetFilter(storeObject))
         {
-            throw new InvalidOperationException(
-                RelationalStrings.DuplicateIndexFiltersMismatch(
-                    index.Properties.Format(),
-                    index.DeclaringEntityType.DisplayName(),
-                    duplicateIndex.Properties.Format(),
-                    duplicateIndex.DeclaringEntityType.DisplayName(),
-                    index.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                    index.GetDatabaseName(storeObject),
-                    index.GetFilter(),
-                    duplicateIndex.GetFilter()));
+            if (shouldThrow)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateIndexFiltersMismatch(
+                        index.Properties.Format(),
+                        index.DeclaringEntityType.DisplayName(),
+                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DeclaringEntityType.DisplayName(),
+                        index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                        index.GetDatabaseName(storeObject),
+                        index.GetFilter(),
+                        duplicateIndex.GetFilter()));
+            }
+
+            return false;
         }
 
         return true;

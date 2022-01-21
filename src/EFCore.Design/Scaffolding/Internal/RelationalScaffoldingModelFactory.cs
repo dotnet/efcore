@@ -625,16 +625,16 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             ? builder.HasIndex(propertyNames)
             : builder.HasIndex(propertyNames, index.Name);
 
-        indexBuilder.IsUnique(index.IsUnique);
+        indexBuilder = indexBuilder.IsUnique(index.IsUnique);
 
         if (index.IsDescending.Any(desc => desc))
         {
-            indexBuilder.IsDescending(index.IsDescending.ToArray());
+            indexBuilder = indexBuilder.IsDescending(index.IsDescending.ToArray());
         }
 
         if (index.Filter != null)
         {
-            indexBuilder.HasFilter(index.Filter);
+            indexBuilder = indexBuilder.HasFilter(index.Filter);
         }
 
         indexBuilder.Metadata.AddAnnotations(index.GetAnnotations());

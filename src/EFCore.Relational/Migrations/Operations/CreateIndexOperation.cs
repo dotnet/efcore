@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
 [DebuggerDisplay("CREATE INDEX {Name} ON {Table}")]
 public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 {
+    private string[]? _columns;
+    private bool[]? _isDescending;
+
     /// <summary>
     ///     The name of the index.
     /// </summary>
@@ -30,7 +33,19 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     /// <summary>
     ///     The ordered list of column names for the column that make up the index.
     /// </summary>
-    public virtual string[] Columns { get; set; } = null!;
+    public virtual string[] Columns
+    {
+        get => _columns!;
+        set
+        {
+            if (_isDescending is not null && value.Length != _isDescending.Length)
+            {
+                throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(_isDescending.Length, value.Length));
+            }
+
+            _columns = value;
+        }
+    }
 
     /// <summary>
     ///     Indicates whether or not the index should enforce uniqueness.
@@ -40,7 +55,19 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
     /// </summary>
-    public virtual bool[]? IsDescending { get; set; }
+    public virtual bool[]? IsDescending
+    {
+        get => _isDescending;
+        set
+        {
+            if (value is not null && _columns is not null && value.Length != _columns.Length)
+            {
+                throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(value.Length, _columns.Length));
+            }
+
+            _isDescending = value;
+        }
+    }
 
     /// <summary>
     ///     An expression to use as the index filter.

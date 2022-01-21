@@ -152,6 +152,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
+        ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
+        /// </summary>
+        public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)
+            => string.Format(
+                GetString("CreateIndexOperationWithInvalidSortOrder", nameof(numSortOrderProperties), nameof(numColumns)),
+                numSortOrderProperties, numColumns);
+
+        /// <summary>
         ///     There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.
         /// </summary>
         public static string DataOperationNoProperty(object? table, object? column)
@@ -484,6 +492,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateIndexFiltersMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(filter1), nameof(filter2)),
                 indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, filter1, filter2);
+
+        /// <summary>
+        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different sort orders.
+        /// </summary>
+        public static string DuplicateIndexSortOrdersMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName)
+            => string.Format(
+                GetString("DuplicateIndexSortOrdersMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName)),
+                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName);
 
         /// <summary>
         ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').

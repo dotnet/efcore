@@ -114,12 +114,12 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
             {
                 if (indexAttribute.IsUniqueHasValue)
                 {
-                    indexBuilder.IsUnique(indexAttribute.IsUnique, fromDataAnnotation: true);
+                    indexBuilder = indexBuilder.IsUnique(indexAttribute.IsUnique, fromDataAnnotation: true);
                 }
 
-                if (indexAttribute.IsDescending is not null)
+                if (indexBuilder is not null && indexAttribute.IsDescending is not null)
                 {
-                    indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
+                    indexBuilder = indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
                 }
             }
         }

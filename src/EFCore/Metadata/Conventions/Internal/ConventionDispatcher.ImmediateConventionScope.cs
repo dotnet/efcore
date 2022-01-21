@@ -984,7 +984,7 @@ public partial class ConventionDispatcher
                     }
 
                     indexConvention.ProcessIndexSortOrderChanged(indexBuilder, _boolListConventionContext);
-                    if (_boolConventionContext.ShouldStopProcessing())
+                    if (_boolListConventionContext.ShouldStopProcessing())
                     {
                         return _boolListConventionContext.Result;
                     }

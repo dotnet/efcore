@@ -15,8 +15,9 @@ namespace Microsoft.EntityFrameworkCore;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class IndexAttribute : Attribute
 {
-    private bool? _isUnique;
     private string? _name;
+    private bool? _isUnique;
+    private bool[]? _isDescending;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
@@ -57,7 +58,20 @@ public sealed class IndexAttribute : Attribute
     /// <summary>
     ///     A set of values indicating whether each corresponding index column has descending sort order.
     /// </summary>
-    public bool[]? IsDescending { get; set; }
+    public bool[]? IsDescending
+    {
+        get => _isDescending;
+        set
+        {
+            if (value is not null && value.Length != PropertyNames.Count)
+            {
+                throw new ArgumentException(
+                    AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
+            }
+
+            _isDescending = value;
+        }
+    }
 
     /// <summary>
     ///     Checks whether <see cref="IsUnique" /> has been explicitly set to a value.

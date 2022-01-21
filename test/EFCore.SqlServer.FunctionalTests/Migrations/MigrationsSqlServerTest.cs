@@ -19,7 +19,7 @@ public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTes
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Create_table()
@@ -1259,6 +1259,26 @@ ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
         await base.Create_index_descending_mixed();
 
         AssertSql(
+            @"CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);");
+    }
+
+    public override async Task Alter_index_make_unique()
+    {
+        await base.Alter_index_make_unique();
+
+        AssertSql(
+            @"DROP INDEX [IX_People_X] ON [People];",
+            //
+            @"CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);");
+    }
+
+    public override async Task Alter_index_change_sort_order()
+    {
+        await base.Alter_index_change_sort_order();
+
+        AssertSql(
+            @"DROP INDEX [IX_People_X_Y_Z] ON [People];",
+            //
             @"CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);");
     }
 

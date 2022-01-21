@@ -226,8 +226,10 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         }
 
         var oldIsDescending = IsDescending;
-        var isChanging = _isDescending is null != descending is null
-            || descending is not null && oldIsDescending is not null && !oldIsDescending.SequenceEqual(descending);
+        var isChanging =
+            (_isDescending is null && descending is not null && descending.Any(desc => desc))
+            || (descending is null && _isDescending is not null && _isDescending.Any(desc => desc))
+            || (descending is not null && oldIsDescending is not null && !oldIsDescending.SequenceEqual(descending));
         _isDescending = descending;
 
         if (descending == null)

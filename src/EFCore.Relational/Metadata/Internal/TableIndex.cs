@@ -21,14 +21,12 @@ public class TableIndex : Annotatable, ITableIndex
         string name,
         Table table,
         IReadOnlyList<Column> columns,
-        bool unique,
-        IReadOnlyList<bool>? isDescending)
+        bool unique)
     {
         Name = name;
         Table = table;
         Columns = columns;
         IsUnique = unique;
-        IsDescending = isDescending;
     }
 
     /// <inheritdoc />
@@ -71,7 +69,8 @@ public class TableIndex : Annotatable, ITableIndex
     public virtual bool IsUnique { get; }
 
     /// <inheritdoc />
-    public virtual IReadOnlyList<bool>? IsDescending { get; }
+    public virtual IReadOnlyList<bool>? IsDescending
+        => MappedIndexes.First().IsDescending;
 
     /// <inheritdoc />
     public virtual string? Filter

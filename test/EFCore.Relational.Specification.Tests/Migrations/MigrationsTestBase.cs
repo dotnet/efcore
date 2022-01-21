@@ -1111,6 +1111,48 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual Task Alter_index_make_unique()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<int>("X");
+                }),
+            builder => builder.Entity("People").HasIndex("X"),
+            builder => builder.Entity("People").HasIndex("X").IsUnique(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.True(index.IsUnique);
+            });
+
+    [ConditionalFact]
+    public virtual Task Alter_index_change_sort_order()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<int>("X");
+                    e.Property<int>("Y");
+                    e.Property<int>("Z");
+                }),
+            builder => builder.Entity("People")
+                .HasIndex("X", "Y", "Z")
+                .IsDescending(true, false, true),
+            builder => builder.Entity("People")
+                .HasIndex("X", "Y", "Z")
+                .IsDescending(false, true, false),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                // Assert.Collection(index.IsDescending, Assert.False, Assert.True, Assert.False);
+            });
+
+    [ConditionalFact]
     public virtual Task Create_index_with_filter()
         => Test(
             builder => builder.Entity(
