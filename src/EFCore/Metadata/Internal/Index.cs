@@ -221,8 +221,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         if (descending is not null && descending.Count != Properties.Count)
         {
             throw new ArgumentException(
-                CoreStrings.InvalidNumberOfIndexSortOrderValues(
-                    Properties.Format(), descending.Count, Properties.Count), nameof(descending));
+                CoreStrings.InvalidNumberOfIndexSortOrderValues(DisplayName(), descending.Count, Properties.Count), nameof(descending));
         }
 
         var oldIsDescending = IsDescending;
@@ -307,6 +306,16 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
         => new(
             () => ((IIndex)this).ToDebugString(),
             () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual string DisplayName()
+        => Name ?? Properties.Format();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

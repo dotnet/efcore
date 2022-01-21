@@ -41,6 +41,15 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     IReadOnlyEntityType DeclaringEntityType { get; }
 
     /// <summary>
+    ///     Gets the friendly display name for the given <see cref="IReadOnlyIndex" />, returning its <see cref="Name" /> if one is defined,
+    ///     or a string representation of its <see cref="Properties" /> if this is an unnamed index.
+    /// </summary>
+    /// <returns>The display name.</returns>
+    [DebuggerStepThrough]
+    string DisplayName()
+        => Name ?? Properties.Format();
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>

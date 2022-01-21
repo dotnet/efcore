@@ -536,7 +536,7 @@
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
   </data>
   <data name="IndexWrongType" xml:space="preserve">
-    <value>The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
+    <value>The index '{index}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
   </data>
   <data name="InheritedPropertyCannotBeIgnored" xml:space="preserve">
     <value>The property '{property}' cannot be ignored on entity type '{entityType}' because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use the [NotMapped] attribute or 'Ignore' on the base type in 'OnModelCreating'.</value>
@@ -1182,7 +1182,7 @@
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKeyProperties} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="PropertyInUseIndex" xml:space="preserve">
-    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
+    <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index '{index}' on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="PropertyInUseKey" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the key {keyProperties}. All containing keys must be removed or redefined before the property can be removed.</value>

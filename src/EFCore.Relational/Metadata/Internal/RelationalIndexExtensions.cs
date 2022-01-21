@@ -32,9 +32,9 @@ public static class RelationalIndexExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexTableMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.GetDatabaseName(storeObject),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
@@ -50,9 +50,9 @@ public static class RelationalIndexExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexColumnMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject),
@@ -69,9 +69,9 @@ public static class RelationalIndexExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexUniquenessMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject)));
@@ -89,9 +89,9 @@ public static class RelationalIndexExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexSortOrdersMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject)));
@@ -106,9 +106,9 @@ public static class RelationalIndexExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexFiltersMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject),

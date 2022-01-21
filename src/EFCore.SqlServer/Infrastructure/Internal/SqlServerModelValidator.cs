@@ -163,7 +163,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                     throw new InvalidOperationException(
                         SqlServerStrings.IncludePropertyNotFound(
                             notFound,
-                            index.Name == null ? index.Properties.Format() : "'" + index.Name + "'",
+                            index.DisplayName(),
                             index.DeclaringEntityType.DisplayName()));
                 }
 
@@ -179,7 +179,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                         SqlServerStrings.IncludePropertyDuplicated(
                             index.DeclaringEntityType.DisplayName(),
                             duplicateProperty,
-                            index.Name == null ? index.Properties.Format() : "'" + index.Name + "'"));
+                            index.DisplayName()));
                 }
 
                 var coveredProperty = includeProperties
@@ -191,7 +191,7 @@ public class SqlServerModelValidator : RelationalModelValidator
                         SqlServerStrings.IncludePropertyInIndex(
                             index.DeclaringEntityType.DisplayName(),
                             coveredProperty,
-                            index.Name == null ? index.Properties.Format() : "'" + index.Name + "'"));
+                            index.DisplayName()));
                 }
             }
         }

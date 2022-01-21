@@ -142,16 +142,16 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different sparseness.</value>
   </data>
   <data name="DuplicateIndexClusteredMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
+    <value>The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.</value>
   </data>
   <data name="DuplicateIndexFillFactorMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.</value>
+    <value>The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.</value>
   </data>
   <data name="DuplicateIndexIncludedMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.</value>
+    <value>The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different included columns: {includedColumns1} and {includedColumns2}.</value>
   </data>
   <data name="DuplicateIndexOnlineMismatch" xml:space="preserve">
-    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.</value>
+    <value>The indexes '{index1}' on '{entityType1}' and '{index2}' on '{entityType2}' are both mapped to '{table}.{indexName}', but have different online configurations.</value>
   </data>
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
@@ -160,13 +160,13 @@
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>
   <data name="IncludePropertyDuplicated" xml:space="preserve">
-    <value>The include property '{entityType}.{property}' was specified multiple times for the index {index}.</value>
+    <value>The include property '{entityType}.{property}' was specified multiple times for the index '{index}'.</value>
   </data>
   <data name="IncludePropertyInIndex" xml:space="preserve">
-    <value>The include property '{entityType}.{property}' is already part of the index {index}.</value>
+    <value>The include property '{entityType}.{property}' is already part of the index '{index}'.</value>
   </data>
   <data name="IncludePropertyNotFound" xml:space="preserve">
-    <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
+    <value>The include property '{property}' specified on the index '{index}' was not found on entity type '{entityType}'.</value>
   </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>

@@ -1118,12 +1118,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties, entityType);
 
         /// <summary>
-        ///     The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        ///     The index '{index}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string IndexWrongType(object? indexProperties, object? entityType, object? otherEntityType)
+        public static string IndexWrongType(object? index, object? entityType, object? otherEntityType)
             => string.Format(
-                GetString("IndexWrongType", nameof(indexProperties), nameof(entityType), nameof(otherEntityType)),
-                indexProperties, entityType, otherEntityType);
+                GetString("IndexWrongType", nameof(index), nameof(entityType), nameof(otherEntityType)),
+                index, entityType, otherEntityType);
 
         /// <summary>
         ///     The property '{property}' cannot be ignored on entity type '{entityType}' because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use the [NotMapped] attribute or 'Ignore' on the base type in 'OnModelCreating'.
@@ -2038,7 +2038,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, foreignKeyProperties, foreignKeyType);
 
         /// <summary>
-        ///     The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
+        ///     The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index '{index}' on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.
         /// </summary>
         public static string PropertyInUseIndex(object? property, object? entityType, object? index, object? indexType)
             => string.Format(
