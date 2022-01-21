@@ -1393,8 +1393,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
     private bool IndexStructureEquals(ITableIndex source, ITableIndex target, DiffContext diffContext)
         => source.IsUnique == target.IsUnique
-            && (
-                (source.IsDescending is null && target.IsDescending is null)
+            && ((source.IsDescending is null && target.IsDescending is null)
                 || (source.IsDescending is not null
                     && target.IsDescending is not null
                     && source.IsDescending.SequenceEqual(target.IsDescending)))
