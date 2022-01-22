@@ -147,9 +147,9 @@ stages:
             timeoutInMinutes: 120
             enablePublishTestResults: true
             pool:
-              - ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+              ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                 vmImage: ubuntu-18.04
-              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+              ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                 name: NetCore1ESPool-Internal
                 demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
             variables:
