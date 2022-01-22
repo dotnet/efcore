@@ -963,6 +963,9 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal("IX_Post_Title", o.Name);
                 Assert.Equal("Post", o.Table);
                 Assert.Equal(new[] { "Title" }, o.Columns);
+                Assert.False(o.IsUnique);
+                Assert.Null(o.IsDescending);
+                Assert.Null(o.Filter);
             });
 
     [ConditionalFact]
@@ -973,8 +976,9 @@ public class CSharpMigrationOperationGeneratorTest
                 Name = "IX_Post_Title",
                 Schema = "dbo",
                 Table = "Post",
-                Columns = new[] { "Title" },
+                Columns = new[] { "Title", "Name" },
                 IsUnique = true,
+                IsDescending = new[] { true, false },
                 Filter = "[Title] IS NOT NULL"
             },
             "mb.CreateIndex("
@@ -985,9 +989,11 @@ public class CSharpMigrationOperationGeneratorTest
             + _eol
             + "    table: \"Post\","
             + _eol
-            + "    column: \"Title\","
+            + "    columns: new[] { \"Title\", \"Name\" },"
             + _eol
             + "    unique: true,"
+            + _eol
+            + "    descending: new[] { true, false },"
             + _eol
             + "    filter: \"[Title] IS NOT NULL\");",
             o =>
@@ -995,8 +1001,10 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal("IX_Post_Title", o.Name);
                 Assert.Equal("dbo", o.Schema);
                 Assert.Equal("Post", o.Table);
-                Assert.Equal(new[] { "Title" }, o.Columns);
+                Assert.Equal(new[] { "Title", "Name" }, o.Columns);
                 Assert.True(o.IsUnique);
+                Assert.Equal(new[] { true, false }, o.IsDescending);
+                Assert.Equal("[Title] IS NOT NULL", o.Filter);
             });
 
     [ConditionalFact]

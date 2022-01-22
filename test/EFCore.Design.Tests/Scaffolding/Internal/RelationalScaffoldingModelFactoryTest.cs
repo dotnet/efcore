@@ -1377,6 +1377,90 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Index_descending()
+    {
+        var table = new DatabaseTable
+        {
+            Database = Database,
+            Name = "SomeTable",
+            Columns =
+            {
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "X",
+                    StoreType = "int"
+                },
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "Y",
+                    StoreType = "int"
+                },
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "Z",
+                    StoreType = "int"
+                }
+            }
+        };
+
+        table.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = Table,
+                Name = "IX_empty",
+                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] }
+            });
+
+        table.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = Table,
+                Name = "IX_all_ascending",
+                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
+                IsDescending = { false, false, false }
+            });
+
+        table.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = Table,
+                Name = "IX_all_descending",
+                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
+                IsDescending = { true, true, true }
+            });
+
+        table.Indexes.Add(
+            new DatabaseIndex
+            {
+                Table = Table,
+                Name = "IX_mixed",
+                Columns = { table.Columns[0], table.Columns[1], table.Columns[2] },
+                IsDescending = { false, true, false }
+            });
+
+        var model = _factory.Create(
+            new DatabaseModel { Tables = { table } },
+            new ModelReverseEngineerOptions { NoPluralize = true });
+
+        var entityType = model.FindEntityType("SomeTable")!;
+
+        var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
+        Assert.Null(emptyIndex.IsDescending);
+
+        var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
+        Assert.Null(allAscendingIndex.IsDescending);
+
+        var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
+        Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+
+        var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
+        Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+    }
+
+    [ConditionalFact]
     public void Unique_names()
     {
         var info = new DatabaseModel

@@ -553,7 +553,8 @@ namespace TestNamespace
                             x.Property<int>("C");
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-                                .IsUnique();
+                                .IsUnique()
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -598,7 +599,8 @@ namespace TestNamespace
             modelBuilder.Entity<EntityWithIndexes>(entity =>
             {
                 entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
-                    .IsUnique();
+                    .IsUnique()
+                    .IsDescending(false, true);
 
                 entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
                     .HasFilter(""Filter SQL"")
@@ -633,7 +635,8 @@ namespace TestNamespace
                             x.Property<int>("C");
                             x.HasKey("Id");
                             x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
-                                .IsUnique();
+                                .IsUnique()
+                                .IsDescending(false, true);
                             x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
                                 .HasFilter("Filter SQL")
                                 .HasAnnotation("AnnotationName", "AnnotationValue");
@@ -695,6 +698,107 @@ namespace TestNamespace
                 },
                 model =>
                     Assert.Equal(2, model.FindEntityType("TestNamespace.EntityWithIndexes").GetIndexes().Count()));
+
+        [ConditionalFact]
+        public void Indexes_with_descending()
+            => Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithIndexes",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("X");
+                            x.Property<int>("Y");
+                            x.Property<int>("Z");
+                            x.HasKey("Id");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_empty");
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_ascending")
+                                .IsDescending(false, false, false);
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_all_descending")
+                                .IsDescending(true, true, true);
+                            x.HasIndex(new[] { "X", "Y", "Z" }, "IX_mixed")
+                                .IsDescending(false, true, false);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithIndexes>(entity =>
+            {
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"")
+                    .IsDescending(false, false, false);
+
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_descending"")
+                    .IsDescending(true, true, true);
+
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"");
+
+                entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_mixed"")
+                    .IsDescending(false, true, false);
+
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.EntityWithIndexes")!;
+                    Assert.Equal(4, entityType.GetIndexes().Count());
+
+                    var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
+                    Assert.Null(emptyIndex.IsDescending);
+
+                    var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
+                    Assert.Equal(new[] { false, false, false }, allAscendingIndex.IsDescending);
+
+                    var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
+                    Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+
+                    var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
+                    Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+                });
 
         [ConditionalFact]
         public void Entity_lambda_uses_correct_identifiers()

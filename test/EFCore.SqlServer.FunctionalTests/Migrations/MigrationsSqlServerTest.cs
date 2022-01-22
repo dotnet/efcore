@@ -19,7 +19,7 @@ public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTes
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Create_table()
@@ -1244,6 +1244,42 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var1 + ']
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;",
             //
             @"CREATE UNIQUE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;");
+    }
+
+    public override async Task Create_index_descending()
+    {
+        await base.Create_index_descending();
+
+        AssertSql(
+            @"CREATE INDEX [IX_People_X] ON [People] ([X] DESC);");
+    }
+
+    public override async Task Create_index_descending_mixed()
+    {
+        await base.Create_index_descending_mixed();
+
+        AssertSql(
+            @"CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);");
+    }
+
+    public override async Task Alter_index_make_unique()
+    {
+        await base.Alter_index_make_unique();
+
+        AssertSql(
+            @"DROP INDEX [IX_People_X] ON [People];",
+            //
+            @"CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);");
+    }
+
+    public override async Task Alter_index_change_sort_order()
+    {
+        await base.Alter_index_change_sort_order();
+
+        AssertSql(
+            @"DROP INDEX [IX_People_X_Y_Z] ON [People];",
+            //
+            @"CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);");
     }
 
     public override async Task Create_index_with_filter()

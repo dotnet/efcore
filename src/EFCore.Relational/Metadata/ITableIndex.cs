@@ -40,6 +40,11 @@ public interface ITableIndex : IAnnotatable
     bool IsUnique { get; }
 
     /// <summary>
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    /// </summary>
+    IReadOnlyList<bool>? IsDescending { get; }
+
+    /// <summary>
     ///     Gets the expression used as the index filter.
     /// </summary>
     string? Filter { get; }
@@ -70,8 +75,21 @@ public interface ITableIndex : IAnnotatable
 
         builder
             .Append(Name)
-            .Append(' ')
-            .Append(ColumnBase.Format(Columns));
+            .Append(" {")
+            .AppendJoin(
+                ", ",
+                Enumerable.Range(0, Columns.Count)
+                    .Select(
+                        i =>
+                            $@"'{Columns[i].Name}'{(
+                                MappedIndexes.First() is not RuntimeIndex
+                                && IsDescending is not null
+                                && i < IsDescending.Count
+                                && IsDescending[i]
+                                    ? " Desc"
+                                    : ""
+                                )}"))
+            .Append('}');
 
         if (IsUnique)
         {

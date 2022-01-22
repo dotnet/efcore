@@ -29,11 +29,25 @@ public interface IReadOnlyIndex : IReadOnlyAnnotatable
     bool IsUnique { get; }
 
     /// <summary>
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    /// </summary>
+    IReadOnlyList<bool>? IsDescending { get; }
+
+    /// <summary>
     ///     Gets the entity type the index is defined on. This may be different from the type that <see cref="Properties" />
     ///     are defined on when the index is defined a derived type in an inheritance hierarchy (since the properties
     ///     may be defined on a base type).
     /// </summary>
     IReadOnlyEntityType DeclaringEntityType { get; }
+
+    /// <summary>
+    ///     Gets the friendly display name for the given <see cref="IReadOnlyIndex" />, returning its <see cref="Name" /> if one is defined,
+    ///     or a string representation of its <see cref="Properties" /> if this is an unnamed index.
+    /// </summary>
+    /// <returns>The display name.</returns>
+    [DebuggerStepThrough]
+    string DisplayName()
+        => Name is null ? Properties.Format() : $"'{Name}'";
 
     /// <summary>
     ///     <para>

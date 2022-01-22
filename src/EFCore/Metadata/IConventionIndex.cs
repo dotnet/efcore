@@ -54,4 +54,18 @@ public interface IConventionIndex : IReadOnlyIndex, IConventionAnnotatable
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyIndex.IsUnique" />.</returns>
     ConfigurationSource? GetIsUniqueConfigurationSource();
+
+    /// <summary>
+    ///     Sets the sort order(s) for this index (ascending or descending).
+    /// </summary>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured sort order(s).</returns>
+    IReadOnlyList<bool>? SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyIndex.IsDescending" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyIndex.IsDescending" />.</returns>
+    ConfigurationSource? GetIsDescendingConfigurationSource();
 }

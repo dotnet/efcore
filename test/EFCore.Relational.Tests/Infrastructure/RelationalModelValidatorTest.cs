@@ -1309,6 +1309,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_sort_orders()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name")
+            .IsDescending(true);
+        modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name")
+            .IsDescending(false);
+
+        VerifyError(
+            RelationalStrings.DuplicateIndexSortOrdersMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "IX_Animal_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_filters()
     {
         var modelBuilder = CreateConventionalModelBuilder();

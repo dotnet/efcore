@@ -69,6 +69,10 @@ public class TableIndex : Annotatable, ITableIndex
     public virtual bool IsUnique { get; }
 
     /// <inheritdoc />
+    public virtual IReadOnlyList<bool>? IsDescending
+        => MappedIndexes.First().IsDescending;
+
+    /// <inheritdoc />
     public virtual string? Filter
         => MappedIndexes.First().GetFilter(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 

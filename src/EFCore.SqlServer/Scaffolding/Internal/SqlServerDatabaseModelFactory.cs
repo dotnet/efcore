@@ -932,6 +932,7 @@ SELECT
     [i].[filter_definition],
     [i].[fill_factor],
     COL_NAME([ic].[object_id], [ic].[column_id]) AS [column_name],
+    [ic].[is_descending_key],
     [ic].[is_included_column]
 FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
@@ -1136,6 +1137,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     {
                         return false;
                     }
+
+                    index.IsDescending.Add(dataRecord.GetValueOrDefault<bool>("is_descending_key"));
 
                     index.Columns.Add(column);
                 }

@@ -35,9 +35,9 @@ public static class SqlServerIndexExtensions
                 {
                     throw new InvalidOperationException(
                         SqlServerStrings.DuplicateIndexIncludedMismatch(
-                            index.Properties.Format(),
+                            index.DisplayName(),
                             index.DeclaringEntityType.DisplayName(),
-                            duplicateIndex.Properties.Format(),
+                            duplicateIndex.DisplayName(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
                             index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             index.GetDatabaseName(storeObject),
@@ -55,9 +55,9 @@ public static class SqlServerIndexExtensions
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexOnlineMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject)));
@@ -72,9 +72,9 @@ public static class SqlServerIndexExtensions
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexClusteredMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject)));
@@ -89,9 +89,9 @@ public static class SqlServerIndexExtensions
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.DuplicateIndexFillFactorMismatch(
-                        index.Properties.Format(),
+                        index.DisplayName(),
                         index.DeclaringEntityType.DisplayName(),
-                        duplicateIndex.Properties.Format(),
+                        duplicateIndex.DisplayName(),
                         duplicateIndex.DeclaringEntityType.DisplayName(),
                         index.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         index.GetDatabaseName(storeObject)));

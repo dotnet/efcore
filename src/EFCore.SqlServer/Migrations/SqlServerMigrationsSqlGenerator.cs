@@ -749,10 +749,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             IndexTraits(operation, model, builder);
 
-            builder
-                .Append("(")
-                .Append(ColumnList(operation.Columns))
-                .Append(")");
+            builder.Append("(");
+            GenerateIndexColumnList(operation, model, builder);
+            builder.Append(")");
         }
         else
         {

@@ -110,9 +110,17 @@ public class IndexAttributeConvention : IEntityTypeAddedConvention, IEntityTypeB
             {
                 CheckIgnoredProperties(indexAttribute, entityType);
             }
-            else if (indexAttribute.IsUniqueHasValue)
+            else
             {
-                indexBuilder.IsUnique(indexAttribute.IsUnique, fromDataAnnotation: true);
+                if (indexAttribute.IsUniqueHasValue)
+                {
+                    indexBuilder = indexBuilder.IsUnique(indexAttribute.IsUnique, fromDataAnnotation: true);
+                }
+
+                if (indexBuilder is not null && indexAttribute.IsDescending is not null)
+                {
+                    indexBuilder = indexBuilder.IsDescending(indexAttribute.IsDescending, fromDataAnnotation: true);
+                }
             }
         }
     }

@@ -164,6 +164,14 @@ public class ModelSnapshotSqlServerTest
         public TProperty Property { get; set; }
     }
 
+    private class EntityWithThreeProperties
+    {
+        public int Id { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+    }
+
     [Index(nameof(FirstName), nameof(LastName))]
     private class EntityWithIndexAttribute
     {
@@ -4232,7 +4240,7 @@ namespace RootNamespace
             o => Assert.True(o.GetEntityTypes().Single().GetIndexes().Single().IsClustered()));
 
     [ConditionalFact]
-    public virtual void Index_isUnique_is_stored_in_snapshot()
+    public virtual void Index_IsUnique_is_stored_in_snapshot()
         => Test(
             builder =>
             {
@@ -4261,6 +4269,76 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
             o => Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique));
+
+    [ConditionalFact]
+    public virtual void Index_IsDescending_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithThreeProperties>(
+                    e =>
+                    {
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_empty");
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_ascending")
+                            .IsDescending(false, false, false);
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_all_descending")
+                            .IsDescending(true, true, true);
+                        e.HasIndex(t => new { t.X, t.Y, t.Z }, "IX_mixed")
+                            .IsDescending(false, true, false);
+                    });
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithThreeProperties"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<int>(""X"")
+                        .HasColumnType(""int"");
+
+                    b.Property<int>(""Y"")
+                        .HasColumnType(""int"");
+
+                    b.Property<int>(""Z"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_ascending"")
+                        .IsDescending(false, false, false);
+
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_all_descending"")
+                        .IsDescending(true, true, true);
+
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_empty"");
+
+                    b.HasIndex(new[] { ""X"", ""Y"", ""Z"" }, ""IX_mixed"")
+                        .IsDescending(false, true, false);
+
+                    b.ToTable(""EntityWithThreeProperties"");
+                });"),
+            o =>
+            {
+                var entityType = o.GetEntityTypes().Single();
+                Assert.Equal(4, entityType.GetIndexes().Count());
+
+                var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
+                Assert.Null(emptyIndex.IsDescending);
+
+                var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
+                Assert.Equal(new[] { false, false, false}, allAscendingIndex.IsDescending);
+
+                var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
+                Assert.Equal(new[] { true, true, true }, allDescendingIndex.IsDescending);
+
+                var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
+                Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
+            });
 
     [ConditionalFact]
     public virtual void Index_database_name_annotation_is_stored_in_snapshot_as_fluent_api()

@@ -49,4 +49,12 @@ public class IndexBuilder<T> : IndexBuilder
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual IndexBuilder<T> IsUnique(bool unique = true)
         => (IndexBuilder<T>)base.IsUnique(unique);
+
+    /// <summary>
+    ///     Configures the sort order(s) for the columns of this index (ascending or descending).
+    /// </summary>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual IndexBuilder<T> IsDescending(params bool[] descending)
+        => (IndexBuilder<T>)base.IsDescending(descending);
 }

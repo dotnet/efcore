@@ -29,6 +29,7 @@ public partial class ConventionDispatcher
         private readonly ConventionContext<string> _stringConventionContext;
         private readonly ConventionContext<FieldInfo> _fieldInfoConventionContext;
         private readonly ConventionContext<bool?> _boolConventionContext;
+        private readonly ConventionContext<IReadOnlyList<bool>?> _boolListConventionContext;
 
         public ImmediateConventionScope(ConventionSet conventionSet, ConventionDispatcher dispatcher)
         {
@@ -54,6 +55,7 @@ public partial class ConventionDispatcher
             _stringConventionContext = new ConventionContext<string>(dispatcher);
             _fieldInfoConventionContext = new ConventionContext<FieldInfo>(dispatcher);
             _boolConventionContext = new ConventionContext<bool?>(dispatcher);
+            _boolListConventionContext = new ConventionContext<IReadOnlyList<bool>?>(dispatcher);
         }
 
         public override void Run(ConventionDispatcher dispatcher)
@@ -967,6 +969,29 @@ public partial class ConventionDispatcher
             }
 
             return !indexBuilder.Metadata.IsInModel ? null : _boolConventionContext.Result;
+        }
+
+        public override IReadOnlyList<bool>? OnIndexSortOrderChanged(IConventionIndexBuilder indexBuilder)
+        {
+            using (_dispatcher.DelayConventions())
+            {
+                _boolListConventionContext.ResetState(indexBuilder.Metadata.IsDescending);
+                foreach (var indexConvention in _conventionSet.IndexSortOrderChangedConventions)
+                {
+                    if (!indexBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    indexConvention.ProcessIndexSortOrderChanged(indexBuilder, _boolListConventionContext);
+                    if (_boolListConventionContext.ShouldStopProcessing())
+                    {
+                        return _boolListConventionContext.Result;
+                    }
+                }
+            }
+
+            return !indexBuilder.Metadata.IsInModel ? null : _boolListConventionContext.Result;
         }
 
         public override IConventionAnnotation? OnIndexAnnotationChanged(

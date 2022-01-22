@@ -2983,6 +2983,104 @@ public class ConventionDispatcherTest
         }
     }
 
+#nullable enable
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnIndexSortOrderChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new IndexSortOrderChangedConvention(terminate: false);
+        var convention2 = new IndexSortOrderChangedConvention(terminate: true);
+        var convention3 = new IndexSortOrderChangedConvention(terminate: false);
+        conventions.IndexSortOrderChangedConventions.Add(convention1);
+        conventions.IndexSortOrderChangedConventions.Add(convention2);
+        conventions.IndexSortOrderChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention)!;
+        var index = entityBuilder.HasIndex(new List<string> { "OrderId" }, ConfigurationSource.Convention)!.Metadata;
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            index.Builder.IsDescending(new[] { true }, ConfigurationSource.Convention);
+        }
+        else
+        {
+            index.IsDescending = new[] { true };
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope!.Dispose();
+        }
+
+        Assert.Equal(new[] { new[] { true } }, convention1.Calls);
+        Assert.Equal(new[] { new[] { true } }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            index.Builder.IsDescending(new[] { true }, ConfigurationSource.Convention);
+        }
+        else
+        {
+            index.IsDescending = new[] { true };
+        }
+
+        Assert.Equal(new[] { new[] { true } }, convention1.Calls);
+        Assert.Equal(new[] { new[] { true } }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            index.Builder.IsDescending(new[] { false }, ConfigurationSource.Convention);
+        }
+        else
+        {
+            index.IsDescending = new[] { false };
+        }
+
+        Assert.Equal(new[] { new[] { true }, new[] { false } }, convention1.Calls);
+        Assert.Equal(new[] { new[] { true }, new[] { false } }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
+    }
+
+    private class IndexSortOrderChangedConvention : IIndexSortOrderChangedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<IReadOnlyList<bool>?> Calls = new();
+
+        public IndexSortOrderChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessIndexSortOrderChanged(
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<IReadOnlyList<bool>?> context)
+        {
+            Assert.NotNull(indexBuilder.Metadata.Builder);
+
+            Calls.Add(indexBuilder.Metadata.IsDescending);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+#nullable restore
+
     [InlineData(false, false)]
     [InlineData(true, false)]
     [InlineData(false, true)]

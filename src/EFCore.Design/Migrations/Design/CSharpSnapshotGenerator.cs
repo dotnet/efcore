@@ -634,6 +634,15 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsUnique()");
         }
 
+        if (index.IsDescending is not null)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".IsDescending(")
+                .Append(string.Join(", ", index.IsDescending.Select(Code.Literal)))
+                .Append(')');
+        }
+
         GenerateIndexAnnotations(indexBuilderName, index, stringBuilder);
     }
 

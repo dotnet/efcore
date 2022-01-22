@@ -152,6 +152,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
+        ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
+        /// </summary>
+        public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)
+            => string.Format(
+                GetString("CreateIndexOperationWithInvalidSortOrder", nameof(numSortOrderProperties), nameof(numColumns)),
+                numSortOrderProperties, numColumns);
+
+        /// <summary>
         ///     There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.
         /// </summary>
         public static string DataOperationNoProperty(object? table, object? column)
@@ -470,36 +478,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).
         /// </summary>
-        public static string DuplicateIndexColumnMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName, object? columnNames1, object? columnNames2)
+        public static string DuplicateIndexColumnMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? columnNames1, object? columnNames2)
             => string.Format(
-                GetString("DuplicateIndexColumnMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, columnNames1, columnNames2);
+                GetString("DuplicateIndexColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
+                index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').
         /// </summary>
-        public static string DuplicateIndexFiltersMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName, object? filter1, object? filter2)
+        public static string DuplicateIndexFiltersMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? filter1, object? filter2)
             => string.Format(
-                GetString("DuplicateIndexFiltersMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(filter1), nameof(filter2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, filter1, filter2);
+                GetString("DuplicateIndexFiltersMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(filter1), nameof(filter2)),
+                index1, entityType1, index2, entityType2, table, indexName, filter1, filter2);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different sort orders.
         /// </summary>
-        public static string DuplicateIndexTableMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? indexName, object? table1, object? table2)
+        public static string DuplicateIndexSortOrdersMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
-                GetString("DuplicateIndexTableMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(indexName), nameof(table1), nameof(table2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, indexName, table1, table2);
+                GetString("DuplicateIndexSortOrdersMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').
         /// </summary>
-        public static string DuplicateIndexUniquenessMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName)
+        public static string DuplicateIndexTableMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? indexName, object? table1, object? table2)
             => string.Format(
-                GetString("DuplicateIndexUniquenessMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName);
+                GetString("DuplicateIndexTableMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(indexName), nameof(table1), nameof(table2)),
+                index1, entityType1, index2, entityType2, indexName, table1, table2);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.
+        /// </summary>
+        public static string DuplicateIndexUniquenessMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
+            => string.Format(
+                GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
         ///     The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).

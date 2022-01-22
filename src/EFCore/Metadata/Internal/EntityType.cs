@@ -2249,7 +2249,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             if (!_unnamedIndexes.Remove(index.Properties))
             {
                 throw new InvalidOperationException(
-                    CoreStrings.IndexWrongType(index.Properties.Format(), DisplayName(), index.DeclaringEntityType.DisplayName()));
+                    CoreStrings.IndexWrongType(index.DisplayName(), DisplayName(), index.DeclaringEntityType.DisplayName()));
             }
         }
         else
@@ -2618,7 +2618,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             throw new InvalidOperationException(
                 CoreStrings.PropertyInUseIndex(
                     property.Name, DisplayName(),
-                    containingIndex.Properties.Format(), containingIndex.DeclaringEntityType.DisplayName()));
+                    containingIndex.DisplayName(), containingIndex.DeclaringEntityType.DisplayName()));
         }
     }
 

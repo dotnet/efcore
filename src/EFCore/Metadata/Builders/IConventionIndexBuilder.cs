@@ -27,18 +27,30 @@ public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     /// </summary>
     /// <param name="unique">A value indicating whether the index is unique.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the uniqueness was configured,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
+    /// <returns>The same builder instance if the uniqueness was configured, <see langword="null" /> otherwise.</returns>
     IConventionIndexBuilder? IsUnique(bool? unique, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns a value indicating whether this index uniqueness can be configured
-    ///     from the current configuration source.
+    ///     Returns a value indicating whether this index uniqueness can be configured from the current configuration source.
     /// </summary>
     /// <param name="unique">A value indicating whether the index is unique.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the index uniqueness can be configured.</returns>
     bool CanSetIsUnique(bool? unique, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Configures the sort order(s) for the columns of this index (ascending or descending).
+    /// </summary>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the uniqueness was configured, <see langword="null" /> otherwise.</returns>
+    IConventionIndexBuilder? IsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether this index sort order can be configured from the current configuration source.
+    /// </summary>
+    /// <param name="descending">A set of values indicating whether each corresponding index column has descending sort order.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the index uniqueness can be configured.</returns>
+    bool CanSetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation = false);
 }

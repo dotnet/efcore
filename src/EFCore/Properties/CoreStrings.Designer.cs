@@ -1118,12 +1118,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 indexProperties, entityType);
 
         /// <summary>
-        ///     The index {indexProperties} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
+        ///     The index {index} cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
         /// </summary>
-        public static string IndexWrongType(object? indexProperties, object? entityType, object? otherEntityType)
+        public static string IndexWrongType(object? index, object? entityType, object? otherEntityType)
             => string.Format(
-                GetString("IndexWrongType", nameof(indexProperties), nameof(entityType), nameof(otherEntityType)),
-                indexProperties, entityType, otherEntityType);
+                GetString("IndexWrongType", nameof(index), nameof(entityType), nameof(otherEntityType)),
+                index, entityType, otherEntityType);
 
         /// <summary>
         ///     The property '{property}' cannot be ignored on entity type '{entityType}' because it's declared on the base entity type '{baseEntityType}'. To exclude this property from your model, use the [NotMapped] attribute or 'Ignore' on the base type in 'OnModelCreating'.
@@ -1218,6 +1218,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("InvalidNavigationWithInverseProperty", "0_property", "1_entityType", nameof(referencedProperty), nameof(referencedEntityType)),
                 property, entityType, referencedProperty, referencedEntityType);
+
+        /// <summary>
+        ///     Invalid number of index sort order values provided for {indexProperties}: {numValues} values were provided, but the index has {numProperties} properties.
+        /// </summary>
+        public static string InvalidNumberOfIndexSortOrderValues(object? indexProperties, object? numValues, object? numProperties)
+            => string.Format(
+                GetString("InvalidNumberOfIndexSortOrderValues", nameof(indexProperties), nameof(numValues), nameof(numProperties)),
+                indexProperties, numValues, numProperties);
 
         /// <summary>
         ///     The specified poolSize must be greater than 0.

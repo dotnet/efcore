@@ -183,6 +183,12 @@ public partial class ConventionDispatcher
             return indexBuilder.Metadata.IsUnique;
         }
 
+        public override IReadOnlyList<bool>? OnIndexSortOrderChanged(IConventionIndexBuilder indexBuilder)
+        {
+            Add(new OnIndexSortOrderChangedNode(indexBuilder));
+            return indexBuilder.Metadata.IsDescending;
+        }
+
         public override IConventionAnnotation? OnIndexAnnotationChanged(
             IConventionIndexBuilder indexBuilder,
             string name,
@@ -899,6 +905,19 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnIndexUniquenessChanged(IndexBuilder);
+    }
+
+    private sealed class OnIndexSortOrderChangedNode : ConventionNode
+    {
+        public OnIndexSortOrderChangedNode(IConventionIndexBuilder indexBuilder)
+        {
+            IndexBuilder = indexBuilder;
+        }
+
+        public IConventionIndexBuilder IndexBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnIndexSortOrderChanged(IndexBuilder);
     }
 
     private sealed class OnIndexAnnotationChangedNode : ConventionNode

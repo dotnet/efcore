@@ -12,10 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
 [DebuggerDisplay("CREATE INDEX {Name} ON {Table}")]
 public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 {
-    /// <summary>
-    ///     Indicates whether or not the index should enforce uniqueness.
-    /// </summary>
-    public virtual bool IsUnique { get; set; }
+    private string[]? _columns;
+    private bool[]? _isDescending;
 
     /// <summary>
     ///     The name of the index.
@@ -35,7 +33,41 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     /// <summary>
     ///     The ordered list of column names for the column that make up the index.
     /// </summary>
-    public virtual string[] Columns { get; set; } = null!;
+    public virtual string[] Columns
+    {
+        get => _columns!;
+        set
+        {
+            if (_isDescending is not null && value.Length != _isDescending.Length)
+            {
+                throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(_isDescending.Length, value.Length));
+            }
+
+            _columns = value;
+        }
+    }
+
+    /// <summary>
+    ///     Indicates whether or not the index should enforce uniqueness.
+    /// </summary>
+    public virtual bool IsUnique { get; set; }
+
+    /// <summary>
+    ///     A set of values indicating whether each corresponding index column has descending sort order.
+    /// </summary>
+    public virtual bool[]? IsDescending
+    {
+        get => _isDescending;
+        set
+        {
+            if (value is not null && _columns is not null && value.Length != _columns.Length)
+            {
+                throw new ArgumentException(RelationalStrings.CreateIndexOperationWithInvalidSortOrder(value.Length, _columns.Length));
+            }
+
+            _isDescending = value;
+        }
+    }
 
     /// <summary>
     ///     An expression to use as the index filter.
@@ -53,11 +85,12 @@ public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
 
         var operation = new CreateIndexOperation
         {
-            IsUnique = index.IsUnique,
             Name = index.Name,
             Schema = index.Table.Schema,
             Table = index.Table.Name,
             Columns = index.Columns.Select(p => p.Name).ToArray(),
+            IsUnique = index.IsUnique,
+            IsDescending = index.IsDescending?.ToArray(),
             Filter = index.Filter
         };
         operation.AddAnnotations(index.GetAnnotations());

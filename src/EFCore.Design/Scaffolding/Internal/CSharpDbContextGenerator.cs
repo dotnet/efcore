@@ -567,6 +567,11 @@ public class CSharpDbContextGenerator : ICSharpDbContextGenerator
             lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
         }
 
+        if (index.IsDescending is not null)
+        {
+            lines.Add($".{nameof(IndexBuilder.IsDescending)}({string.Join(", ", index.IsDescending.Select(d => _code.Literal(d)))})");
+        }
+
         GenerateAnnotations(index, annotations, lines);
 
         AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
