@@ -24,7 +24,7 @@ public class EntityEntryGraphNode<TState> : EntityEntryGraphNode
     [EntityFrameworkInternal]
     public EntityEntryGraphNode(
         InternalEntityEntry entry,
-        TState? state,
+        TState state,
         InternalEntityEntry? sourceEntry,
         INavigationBase? inboundNavigation)
         : base(entry, sourceEntry, inboundNavigation)
@@ -35,7 +35,7 @@ public class EntityEntryGraphNode<TState> : EntityEntryGraphNode
     /// <summary>
     ///     Gets or sets state that will be available to all nodes that are visited after this node.
     /// </summary>
-    public virtual TState? NodeState { get; set; }
+    public virtual TState NodeState { get; set; }
 
     /// <summary>
     ///     Creates a new node for the entity that is being traversed next in the graph.
