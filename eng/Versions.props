@@ -28,6 +28,6 @@
     <MicrosoftExtensionsLoggingVersion>7.0.0-alpha.1.22066.4</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
-    <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisVersion>4.0.1</MicrosoftCodeAnalysisVersion>
   </PropertyGroup>
 </Project>
