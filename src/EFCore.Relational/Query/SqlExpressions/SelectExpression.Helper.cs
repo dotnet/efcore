@@ -971,11 +971,10 @@ public sealed partial class SelectExpression
                         // Additional tables may have been added to outer from other terms which may end up matching on table alias
                         var columnExpressionReplacingExpressionVisitor =
                             AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27083", out var enabled27083) && enabled27083
-                            ? new ColumnExpressionReplacingExpressionVisitor(
-                                subquery, _selectExpression._tableReferences)
-                            : new ColumnExpressionReplacingExpressionVisitor(
-                            subquery, _selectExpression._tableReferences.Take(initialTableCounts));
-                        subquery._tables.Count != initialTableCounts)
+                                ? new ColumnExpressionReplacingExpressionVisitor(
+                                    subquery, _selectExpression._tableReferences)
+                                : new ColumnExpressionReplacingExpressionVisitor(
+                                    subquery, _selectExpression._tableReferences.Take(initialTableCounts));
                         {
                             // If subquery has more tables then we expanded join on it.
                             for (var i = initialTableCounts; i < subquery._tables.Count; i++)

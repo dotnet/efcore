@@ -1309,9 +1309,11 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We generate the cloned expression before changing identifier for this SelectExpression
         // because we are going to erase grouping for cloned expression.
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled27094) && enabled27094))
-            {
-        _groupingParentSelectExpressionId = Guid.NewGuid();
+        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27094", out var enabled27094) && enabled27094))
+        {
+            _groupingParentSelectExpressionId = Guid.NewGuid();
+        }
+
         var clonedSelectExpression = Clone();
         var correlationPredicate = groupByTerms.Zip(clonedSelectExpression._groupBy)
             .Select(e => sqlExpressionFactory.Equal(e.First, e.Second))
