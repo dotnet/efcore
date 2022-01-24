@@ -207,12 +207,12 @@ stages:
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64.Open;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220118141424-3069967
+                  value: OSX.1100.Amd64.Open;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220118141424-3069967
+                  value: OSX.1100.Amd64;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1604.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
                 - name: _HelixAccessToken
                   value: $(HelixApiAccessToken) # Needed for internal queues
             steps:
