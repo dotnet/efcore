@@ -277,4 +277,48 @@ GROUP BY [t].[Value]");
 FROM [Table] AS [t]
 GROUP BY [t].[Value]");
     }
+
+        public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
+        {
+            await base.Group_by_multiple_aggregate_joining_different_tables(async);
+
+            AssertSql(
+                @"SELECT COUNT(DISTINCT ([c].[Value1])) AS [Test1], COUNT(DISTINCT ([c0].[Value2])) AS [Test2]
+FROM (
+    SELECT [p].[Child1Id], [p].[Child2Id], 1 AS [Key]
+    FROM [Parents] AS [p]
+) AS [t]
+LEFT JOIN [Child1] AS [c] ON [t].[Child1Id] = [c].[Id]
+LEFT JOIN [Child2] AS [c0] ON [t].[Child2Id] = [c0].[Id]
+GROUP BY [t].[Key]");
+        }
+
+        public override async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
+        {
+            await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
+
+            AssertSql(
+                @"SELECT COUNT(DISTINCT ([t0].[Value1])) AS [Test1], (
+    SELECT DISTINCT COUNT(DISTINCT ([t2].[Value2]))
+    FROM (
+        SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
+        FROM [Parents] AS [p0]
+    ) AS [t1]
+    LEFT JOIN (
+        SELECT [c0].[Id], [c0].[Filter2], [c0].[Value2]
+        FROM [ChildFilter2] AS [c0]
+        WHERE [c0].[Filter2] = N'Filter2'
+    ) AS [t2] ON [t1].[ChildFilter2Id] = [t2].[Id]
+    WHERE [t].[Key] = [t1].[Key]) AS [Test2]
+FROM (
+    SELECT [p].[ChildFilter1Id], 1 AS [Key]
+    FROM [Parents] AS [p]
+) AS [t]
+LEFT JOIN (
+    SELECT [c].[Id], [c].[Value1]
+    FROM [ChildFilter1] AS [c]
+    WHERE [c].[Filter1] = N'Filter1'
+) AS [t0] ON [t].[ChildFilter1Id] = [t0].[Id]
+GROUP BY [t].[Key]");
+        }
 }

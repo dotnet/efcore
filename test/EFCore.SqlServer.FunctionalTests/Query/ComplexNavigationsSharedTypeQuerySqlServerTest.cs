@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Xunit;
 using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -2142,6 +2143,18 @@ LEFT JOIN (
     INNER JOIN [Level1] AS [l2] ON [t].[Level1_Required_Id] = [l2].[Id]
     WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]");
+    }
+
+    [ConditionalTheory(Skip = "Issue#26104")]
+    public override Task GroupBy_aggregate_where_required_relationship(bool async)
+    {
+        return base.GroupBy_aggregate_where_required_relationship(async);
+    }
+
+    [ConditionalTheory(Skip = "Issue#26104")]
+    public override Task GroupBy_aggregate_where_required_relationship_2(bool async)
+    {
+        return base.GroupBy_aggregate_where_required_relationship_2(async);
     }
 
     public override async Task SelectMany_with_nested_required_navigation_filter_and_explicit_DefaultIfEmpty(bool async)
