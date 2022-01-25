@@ -301,7 +301,7 @@ public class ChangeTracker : IResettableService
     /// <typeparam name="TState">The type of the state object.</typeparam>
     public virtual void TrackGraph<TState>(
         object rootEntity,
-        TState? state,
+        TState state,
         Func<EntityEntryGraphNode<TState>, bool> callback)
     {
         Check.NotNull(rootEntity, nameof(rootEntity));
