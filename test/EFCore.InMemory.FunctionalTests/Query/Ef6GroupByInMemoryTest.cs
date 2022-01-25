@@ -16,7 +16,8 @@ public class Ef6GroupByInMemoryTest : Ef6GroupByTestBase<Ef6GroupByInMemoryTest.
             ss => from p in ss.Set<ProductForLinq>()
                   group p by p.Category
                   into g
-                  select new { Category = g.Key, AveragePrice = g.Average(p => p.UnitPrice) });
+                  select new { Category = g.Key, AveragePrice = g.Average(p => p.UnitPrice) },
+            elementSorter: e => (e.Category, e.AveragePrice));
 
     public class Ef6GroupByInMemoryFixture : Ef6GroupByFixtureBase
     {
