@@ -11,6 +11,7 @@ updates:
       - dependency-name: Microsoft.AspNetCore.OData
       - dependency-name: Microsoft.Azure.Cosmos
       - dependency-name: Microsoft.CSharp
+      - dependency-name: Microsoft.Data.SqlClient
       - dependency-name: Microsoft.DotNet.PlatformAbstractions
       - dependency-name: mod_spatialite
       - dependency-name: NetTopologySuite*
