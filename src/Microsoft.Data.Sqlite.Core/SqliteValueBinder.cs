@@ -255,7 +255,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(long), SqliteType.Integer },
                 { typeof(sbyte), SqliteType.Integer },
                 { typeof(short), SqliteType.Integer },
-                { typeof(string), SqliteType.Integer },
+                { typeof(string), SqliteType.Text },
                 { typeof(TimeSpan), SqliteType.Text },
                 { typeof(uint), SqliteType.Integer },
                 { typeof(ulong), SqliteType.Integer },
