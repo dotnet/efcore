@@ -771,9 +771,21 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             ? await query.ToListAsync()
             : query.ToList();
 
-        Assert.Collection(orders,
-            t => Assert.Equal(10, t.CustomerMinHourlyRate),
-            t => Assert.Equal(20, t.CustomerMinHourlyRate));
+        Assert.Collection(orders.OrderBy(x => x.CustomerId),
+            t =>
+            {
+                Assert.Equal(1, t.CustomerId);
+                Assert.Equal(10, t.CustomerMinHourlyRate);
+                Assert.Equal(11, t.HourlyRate);
+                Assert.Equal(1, t.Count);
+            },
+            t =>
+            {
+                Assert.Equal(2, t.CustomerId);
+                Assert.Equal(20, t.CustomerMinHourlyRate);
+                Assert.Equal(20, t.HourlyRate);
+                Assert.Equal(1, t.Count);
+            });
     }
 
     protected class Context27083 : DbContext

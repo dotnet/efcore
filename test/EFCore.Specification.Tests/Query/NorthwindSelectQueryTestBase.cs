@@ -846,7 +846,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                 .Take(5)
                 .Distinct()
                 .Select(e => new { e.EmployeeID, e.City }),
-            assertOrder: true);
+            elementSorter: e => e.EmployeeID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -413,7 +413,8 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             ss => from p in ss.Set<ProductForLinq>()
                   group p by p.Category
                   into g
-                  select new { Category = g.Key, AveragePrice = Math.Round(g.Average(p => p.UnitPrice) - 0.0000005m, 6) });
+                  select new { Category = g.Key, AveragePrice = Math.Round(g.Average(p => p.UnitPrice) - 0.0000005m, 6) },
+            elementSorter: e => (e.Category, e.AveragePrice));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
