@@ -666,12 +666,12 @@ public partial class DbContextTest
         var gu1 = new TheGu { ShirtColor = "Red" };
         var gu2 = new TheGu { ShirtColor = "Still Red" };
 
-            if (attachFirst)
-            {
-                context.Entry(gu1).State = EntityState.Unchanged;
-                Assert.NotEqual(default, gu1.Id);
-                Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
-            }
+        if (attachFirst)
+        {
+            context.Entry(gu1).State = EntityState.Unchanged;
+            Assert.NotEqual(default, gu1.Id);
+            Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
+        }
 
         if (async)
         {

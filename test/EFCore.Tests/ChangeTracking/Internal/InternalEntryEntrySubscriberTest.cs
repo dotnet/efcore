@@ -578,12 +578,12 @@ public class InternalEntryEntrySubscriberTest
         private string _notMapped;
         private ICollection<ChangedOnlyNotificationEntity> _relatedCollection;
 
-            [DatabaseGenerated(DatabaseGeneratedOption.None)]
-            public int Id
-            {
-                get => _id;
-                set => SetWithNotify(value, ref _id);
-            }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
 
         public string Name
         {
