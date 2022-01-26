@@ -289,11 +289,12 @@ FROM [Parents] AS [p]
 INNER JOIN (
     SELECT [t].[ParentId], [t].[SomeNullableDateTime], [t].[SomeOtherNullableDateTime]
     FROM (
-        SELECT [c].[ParentId], [c].[SomeNullableDateTime], [c].[SomeOtherNullableDateTime], ROW_NUMBER() OVER(PARTITION BY [c].[ParentId], [c].[SomeNullableDateTime] ORDER BY [c].[SomeInteger]) AS [row]
-        FROM [Child] AS [c]
+        SELECT [c].[ParentId], [c].[SomeNullableDateTime], [c].[SomeOtherNullableDateTime], ROW_NUMBER() OVER(PARTITION BY [c].[ParentId] ORDER BY [c].[SomeInteger]) AS [row]
+        FROM [Child26744] AS [c]
+        WHERE [c].[SomeNullableDateTime] IS NULL
     ) AS [t]
     WHERE [t].[row] <= 1
-) AS [t0] ON ([p].[Id] = [t0].[ParentId]) AND [t0].[SomeNullableDateTime] IS NULL
+) AS [t0] ON [p].[Id] = [t0].[ParentId]
 WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
         }
     }

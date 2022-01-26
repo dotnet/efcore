@@ -913,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(result);
         }
 
-        [ConditionalTheory(Skip = "Issue#26756")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task SelectMany_where_Select(bool async)
         {
