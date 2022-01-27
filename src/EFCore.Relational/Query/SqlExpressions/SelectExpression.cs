@@ -2104,6 +2104,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     innerSelectExpression.Limit = null;
                     innerSelectExpression.Offset = null;
 
+                    var originalInnerSelectPredicate = innerSelectExpression.GroupBy.Count > 0
+                        ? innerSelectExpression.Having
+                        : innerSelectExpression.Predicate;
+
                     joinPredicate = TryExtractJoinKey(this, innerSelectExpression, allowNonEquality: limit == null && offset == null);
                     if (joinPredicate != null)
                     {
@@ -2171,7 +2175,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             return;
                         }
 
-                        innerSelectExpression.ApplyPredicate(joinPredicate);
+                        if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27072", out var enabled27072) || !enabled27072)
+                        {
+                            if (originalInnerSelectPredicate != null)
+                            {
+                                if (innerSelectExpression.GroupBy.Count > 0)
+                                {
+                                    innerSelectExpression.Having = originalInnerSelectPredicate;
+                                }
+                                else
+                                {
+                                    innerSelectExpression.Predicate = originalInnerSelectPredicate;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            innerSelectExpression.ApplyPredicate(joinPredicate);
+                        }
+
                         joinPredicate = null;
                     }
 
