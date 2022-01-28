@@ -23,6 +23,7 @@ public class BuildSource
     public string TargetDir { get; set; }
     public Dictionary<string, string> Sources { get; set; } = new();
     public bool NullableReferenceTypes { get; set; }
+    public bool EmitDocumentationDiagnostics { get; set; }
 
     public BuildFileResult Build()
     {
@@ -46,7 +47,13 @@ public class BuildSource
 
         var compilation = CSharpCompilation.Create(
             projectName,
-            Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s.Value).WithFilePath(s.Key)),
+            Sources.Select(
+                s => SyntaxFactory.ParseSyntaxTree(
+                    text: s.Value,
+                    path: s.Key,
+                    options: new CSharpParseOptions(
+                        LanguageVersion.Latest,
+                        EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
             references,
             CreateOptions());
 
@@ -78,9 +85,31 @@ public class BuildSource
 
         var compilation = CSharpCompilation.Create(
             projectName,
-            Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s.Value).WithFilePath(s.Key)),
+            Sources.Select(
+                s => SyntaxFactory.ParseSyntaxTree(
+                    text: s.Value,
+                    path: s.Key,
+                    options: new CSharpParseOptions(
+                        LanguageVersion.Latest,
+                        EmitDocumentationDiagnostics ? DocumentationMode.Diagnose : DocumentationMode.Parse))),
             references,
             CreateOptions());
+
+        var diagnostics = compilation.GetDiagnostics();
+        if (!diagnostics.IsEmpty)
+        {
+            throw new InvalidOperationException(
+                $@"Build failed.
+
+First diagnostic:
+{diagnostics[0]}
+
+Location:
+{diagnostics[0].Location.SourceTree?.GetRoot().FindNode(diagnostics[0].Location.SourceSpan)}
+
+All diagnostics:
+{string.Join(Environment.NewLine, diagnostics)}");
+        }
 
         Assembly assembly;
         using (var stream = new MemoryStream())
@@ -89,7 +118,7 @@ public class BuildSource
             if (!result.Success)
             {
                 throw new InvalidOperationException(
-                    $@"Build failed:
+                    $@"Failed to emit compilation:
 {string.Join(Environment.NewLine, result.Diagnostics)}");
             }
 
@@ -107,12 +136,19 @@ public class BuildSource
             generalDiagnosticOption: ReportDiagnostic.Error,
             specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
             {
+                // Displays the text of a warning defined with the #warning directive
                 { "CS1030", ReportDiagnostic.Suppress },
+
+                // Assuming assembly reference "Assembly Name #1" matches "Assembly Name #2", you may need to supply runtime policy
                 { "CS1701", ReportDiagnostic.Suppress },
-                { "CS1702", ReportDiagnostic.Suppress }, // Always thrown for .NET Core
-                {
-                    "CS1705", ReportDiagnostic.Suppress
-                }, // Assembly 'AssemblyName1' uses 'TypeName' which has a higher version than referenced assembly 'AssemblyName2'
-                { "CS8019", ReportDiagnostic.Suppress } // Unnecessary using directive.
+
+                // Assuming assembly reference "Assembly Name #1" matches "Assembly Name #2", you may need to supply runtime policy
+                { "CS1702", ReportDiagnostic.Suppress },
+
+                // Assembly 'AssemblyName1' uses 'TypeName' which has a higher version than referenced assembly 'AssemblyName2'
+                { "CS1705", ReportDiagnostic.Suppress },
+
+                // Unnecessary using directive.
+                { "CS8019", ReportDiagnostic.Suppress }
             });
 }

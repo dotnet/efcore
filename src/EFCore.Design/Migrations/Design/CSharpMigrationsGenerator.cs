@@ -78,6 +78,14 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
             .AppendLine()
             .AppendLine("#nullable disable");
 
+        // Suppress "Prefer jagged arrays over multidimensional" when we have a seeding operation with a multidimensional array
+        if (HasMultidimensionalArray(upOperations.Concat(downOperations)))
+        {
+            builder
+                .AppendLine()
+                .AppendLine("#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional");
+        }
+
         if (!string.IsNullOrEmpty(migrationNamespace))
         {
             builder
@@ -88,11 +96,13 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         }
 
         builder
+            .AppendLine("/// <inheritdoc />")
             .Append("public partial class ").Append(Code.Identifier(migrationName)).AppendLine(" : Migration")
             .AppendLine("{");
         using (builder.Indent())
         {
             builder
+                .AppendLine("/// <inheritdoc />")
                 .AppendLine("protected override void Up(MigrationBuilder migrationBuilder)")
                 .AppendLine("{");
             using (builder.Indent())
@@ -104,6 +114,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
                 .AppendLine()
                 .AppendLine("}")
                 .AppendLine()
+                .AppendLine("/// <inheritdoc />")
                 .AppendLine("protected override void Down(MigrationBuilder migrationBuilder)")
                 .AppendLine("{");
             using (builder.Indent())
@@ -191,6 +202,7 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         using (builder.Indent())
         {
             builder
+                .AppendLine("/// <inheritdoc />")
                 .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
                 .AppendLine("{")
                 .DecrementIndent()
@@ -312,5 +324,20 @@ public class CSharpMigrationsGenerator : MigrationsCodeGenerator
         }
 
         return builder.ToString();
+    }
+
+    private bool HasMultidimensionalArray(IEnumerable<MigrationOperation> operations)
+    {
+        return operations.Any(
+            o =>
+                (o is InsertDataOperation insertDataOperation
+                    && IsMultidimensional(insertDataOperation.Values))
+                || (o is UpdateDataOperation updateDataOperation
+                    && (IsMultidimensional(updateDataOperation.Values) || IsMultidimensional(updateDataOperation.KeyValues)))
+                || (o is DeleteDataOperation deleteDataOperation
+                    && IsMultidimensional(deleteDataOperation.KeyValues)));
+
+        static bool IsMultidimensional(Array array)
+            => array.GetLength(0) > 1 && array.GetLength(1) > 1;
     }
 }
