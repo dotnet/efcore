@@ -69,7 +69,11 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
                 AnalyzeMember(context, ((IMethodReferenceOperation)context.Operation).Method);
                 break;
             case OperationKind.ObjectCreation:
-                AnalyzeMember(context, ((IObjectCreationOperation)context.Operation).Constructor);
+                var constructor = ((IObjectCreationOperation)context.Operation).Constructor;
+                if (constructor is not null)
+                {
+                    AnalyzeMember(context, constructor);
+                }
                 break;
             case OperationKind.Invocation:
                 AnalyzeInvocation(context, (IInvocationOperation)context.Operation);

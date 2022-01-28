@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 #nullable enable
+#pragma warning disable RS1024
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
