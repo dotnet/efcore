@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///     assuming that all contexts of a given type have the same model.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information and examples.
+///     See <see href="https://aka.ms/efcore-docs-model-caching">EF Core model caching</see> for more information and examples.
 /// </remarks>
 public class ModelCacheKey
 {

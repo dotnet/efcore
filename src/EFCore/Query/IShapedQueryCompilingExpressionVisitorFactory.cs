@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-///         and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information and examples.
+///         and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 ///     </para>
 /// </remarks>
 public interface IShapedQueryCompilingExpressionVisitorFactory

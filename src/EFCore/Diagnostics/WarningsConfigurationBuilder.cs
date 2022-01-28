@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 ///     </para>
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+///     See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
 ///     examples.
 /// </remarks>
 public class WarningsConfigurationBuilder
@@ -40,7 +40,7 @@ public class WarningsConfigurationBuilder
     ///         The database provider being used may also define provider-specific event IDs in a similar class.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
@@ -59,7 +59,7 @@ public class WarningsConfigurationBuilder
     ///         The database provider being used may also define provider-specific event IDs in a similar class.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
@@ -85,7 +85,7 @@ public class WarningsConfigurationBuilder
     ///         The database provider being used may also define provider-specific event IDs in a similar class.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
@@ -111,7 +111,7 @@ public class WarningsConfigurationBuilder
     ///         The database provider being used may also define provider-specific event IDs in a similar class.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
@@ -137,7 +137,7 @@ public class WarningsConfigurationBuilder
     ///         The database provider being used may also define provider-specific event IDs in a similar class.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-warning-configuration">Configuration for specific messages</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
