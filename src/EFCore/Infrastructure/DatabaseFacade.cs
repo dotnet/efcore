@@ -66,8 +66,8 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         to ensure the database is created using migrations and that all migrations have been applied.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-manage-schemas">Managing database schemas with EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-ensure-created">Database creation APIs</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <returns><see langword="true" /> if the database is created, <see langword="false" /> if it already existed.</returns>
@@ -117,8 +117,8 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         for more information and examples.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-manage-schemas">Managing database schemas with EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-ensure-created">Database creation APIs</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -147,8 +147,8 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-manage-schemas">Managing database schemas with EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-ensure-created">Database creation APIs</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <returns><see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist.</returns>
@@ -179,8 +179,8 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         for more information and examples.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-manage-schemas">Managing database schemas with EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-ensure-created">Database creation APIs</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -208,7 +208,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         up-to-date with regard to schema creation, etc.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Database connections in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <returns><see langword="true" /> if the database is available; <see langword="false" /> otherwise.</returns>
@@ -238,7 +238,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         for more information and examples.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see> for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-connections">Database connections in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
