@@ -69,16 +69,16 @@ jobs:
     ${{ if ne(parameters.poolName, '') }}:
       name: ${{ parameters.poolName }}
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'macOS')) }}:
-      vmImage: macOS-10.14
+      vmImage: macOS-11
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
       vmImage: ubuntu-18.04
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
         name: NetCore1ESPool-Svc-Public
-        demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
+        demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
       ${{ if ne(variables['System.TeamProject'], 'public') }}:
         name: NetCore1ESPool-Svc-Internal
-        demands: ImageOverride -equals Build.Server.Amd64.VS2017
+        demands: ImageOverride -equals Build.Server.Amd64.VS2019
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
