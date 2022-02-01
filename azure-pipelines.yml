@@ -61,10 +61,10 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -141,10 +141,14 @@ stages:
             timeoutInMinutes: 120
             enablePublishTestResults: true
             pool:
-              vmImage: ubuntu-18.04
+              ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+                vmImage: ubuntu-18.04
+              ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+                name: NetCore1ESPool-Svc-Internal
+                demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
@@ -188,21 +192,21 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1100.Amd64.Open;Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
+                  value: Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1100.Amd64.Open;Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220118141424-3069967
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: Windows.10.Amd64;Ubuntu.1804.Amd64;OSX.1100.Amd64;Ubuntu.1604.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
+                  value: Windows.10.Amd64;Ubuntu.1804.Amd64;OSX.1100.Amd64;Ubuntu.1804.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220118141424-3069967
                 - name: _HelixAccessToken
                   value: $(HelixApiAccessToken) # Needed for internal queues
             steps:
