@@ -889,5 +889,102 @@ namespace Microsoft.EntityFrameworkCore
             public string Filter2 { get; set; }
             public string Value2 { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Subquery_first_member_compared_to_null(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Parents
+                .Where(p => p.Children.Any(c => c.SomeNullableDateTime == null)
+                           && p.Children.Where(c => c.SomeNullableDateTime == null)
+                            .OrderBy(c => c.SomeInteger)
+                            .First().SomeOtherNullableDateTime != null)
+                .Select(p => p.Children.Where(c => c.SomeNullableDateTime == null)
+                                .OrderBy(c => c.SomeInteger)
+                                .First().SomeOtherNullableDateTime);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Single(result);
+        }
+
+        [ConditionalTheory(Skip = "Issue#26756")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task SelectMany_where_Select(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Parents
+                .SelectMany(p => p.Children
+                .Where(c => c.SomeNullableDateTime == null)
+                .OrderBy(c => c.SomeInteger)
+                .Take(1))
+                .Where(c => c.SomeOtherNullableDateTime != null)
+                .Select(c => c.SomeNullableDateTime);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Single(result);
+        }
+
+        protected class Context26744 : DbContext
+        {
+            public Context26744(DbContextOptions options)
+            : base(options)
+            {
+            }
+
+            public DbSet<Parent26744> Parents { get; set; }
+            public void Seed()
+            {
+                Add(new Parent26744
+                {
+                    Children = new List<Child26744>
+                    {
+                        new Child26744
+                        {
+                            SomeInteger = 1,
+                            SomeOtherNullableDateTime = new DateTime(2000, 11, 18)
+                        }
+                    }
+                });
+
+                Add(new Parent26744
+                {
+                    Children = new List<Child26744>
+                    {
+                        new Child26744
+                        {
+                            SomeInteger = 1,
+                        }
+                    }
+                });
+
+                SaveChanges();
+            }
+        }
+
+        protected class Parent26744
+        {
+            public int Id { get; set; }
+            public List<Child26744> Children { get; set; }
+        }
+
+        protected class Child26744
+        {
+            public int Id { get; set; }
+            public int SomeInteger { get; set; }
+            public DateTime? SomeNullableDateTime { get; set; }
+            public DateTime? SomeOtherNullableDateTime { get; set; }
+            public Parent26744 Parent { get; set; }
+        }
     }
 }

@@ -385,6 +385,32 @@ WHERE [g0].[Discriminator] = N'Officer'");
             Assert.Equal(SqlServerStrings.TemporalSetOperationOnMismatchedSources(nameof(Gear)), message);
         }
 
+        public override async Task Where_subquery_equality_to_null_with_composite_key(bool async)
+        {
+            await base.Where_subquery_equality_to_null_with_composite_key(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart]
+FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+    WHERE [s].[Id] = [g].[SquadId]))");
+        }
+
+        public override async Task Where_subquery_equality_to_null_without_composite_key(bool async)
+        {
+            await base.Where_subquery_equality_to_null_without_composite_key(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

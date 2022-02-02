@@ -2584,5 +2584,63 @@ namespace Microsoft.EntityFrameworkCore.Query
                         });
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_collection_after_optional_reference_correlated_with_parent(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    Id = l1.Id,
+                    Collection = l1.OneToOne_Optional_FK1.OneToMany_Optional2.Select(l3 => new { ChildId = l3.Id, ParentName = l1.OneToOne_Optional_FK1.Name })
+                }),
+
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    Id = l1.Id,
+                    Collection = l1.Maybe(x => x.OneToOne_Optional_FK1.Maybe(xx => xx.OneToMany_Optional2.Select(l3 => new { ChildId = (int)l3.MaybeScalar(xxx => xxx.Id), ParentName = l1.OneToOne_Optional_FK1.Maybe(xxx => xxx.Name) })))
+                }),
+
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+
+                    if (!(e.Collection == null && a.Collection != null && a.Collection.Count() == 0))
+                    {
+                        AssertCollection(e.Collection, a.Collection, elementSorter: ee => ee.ChildId);
+                    }
+                });
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(bool async)
+            => AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    Id = l1.Id,
+                    Entity = l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2,
+                    Collection = l1.OneToOne_Optional_FK1.OneToMany_Optional2.GroupBy(x => x.Name).Select(g => new { g.Key, Count = g.Count() })
+                }),
+
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    Id = l1.Id,
+                    Entity = l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2,
+                    Collection = l1.Maybe(x => x.OneToOne_Optional_FK1.Maybe(xx => xx.OneToMany_Optional2.GroupBy(x => x.Name).Select(g => new { g.Key, Count = g.Count() })))
+                }),
+
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    AssertEqual(e.Entity, a.Entity);
+                    if (!(e.Collection == null && a.Collection != null && a.Collection.Count() == 0))
+                    {
+                        AssertCollection(e.Collection, a.Collection, elementSorter: ee => ee.Key);
+                    }
+                });
     }
 }

@@ -5348,10 +5348,10 @@ OUTER APPLY (
     SELECT [s].[ThingId], [t].[Id], [s].[Id] AS [Id0]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE ((
+        SELECT TOP(1) [v].[Id]
         FROM [Values] AS [v]
-        WHERE [e].[Id] = [v].[Entity11023Id]) AND (((
+        WHERE [e].[Id] = [v].[Entity11023Id]) IS NOT NULL) AND (((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR (((
@@ -5607,10 +5607,10 @@ OUTER APPLY (
     SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points], [c0].[Id] AS [Id0]
     FROM [ActivityTypePoints12456] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([c0].[Id] = (
+    WHERE ([a0].[Id] = [a1].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
+        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])))
 ) AS [t]
 ORDER BY [a].[Id], [a0].[Id], [t].[Id]");
             }

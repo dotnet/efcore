@@ -257,5 +257,44 @@ LEFT JOIN (
 ) AS [t0] ON [t].[ChildFilter1Id] = [t0].[Id]
 GROUP BY [t].[Key]");
         }
+
+        public override async Task Subquery_first_member_compared_to_null(bool async)
+        {
+            await base.Subquery_first_member_compared_to_null(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [c1].[SomeOtherNullableDateTime]
+    FROM [Child26744] AS [c1]
+    WHERE ([p].[Id] = [c1].[ParentId]) AND ([c1].[SomeNullableDateTime] IS NULL)
+    ORDER BY [c1].[SomeInteger])
+FROM [Parents] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Child26744] AS [c]
+    WHERE ([p].[Id] = [c].[ParentId]) AND ([c].[SomeNullableDateTime] IS NULL)) AND ((
+    SELECT TOP(1) [c0].[SomeOtherNullableDateTime]
+    FROM [Child26744] AS [c0]
+    WHERE ([p].[Id] = [c0].[ParentId]) AND ([c0].[SomeNullableDateTime] IS NULL)
+    ORDER BY [c0].[SomeInteger]) IS NOT NULL)");
+        }
+
+        public override async Task SelectMany_where_Select(bool async)
+        {
+            await base.SelectMany_where_Select(async);
+
+            AssertSql(
+                @"SELECT [t0].[SomeNullableDateTime]
+FROM [Parents] AS [p]
+INNER JOIN (
+    SELECT [t].[ParentId], [t].[SomeNullableDateTime], [t].[SomeOtherNullableDateTime]
+    FROM (
+        SELECT [c].[ParentId], [c].[SomeNullableDateTime], [c].[SomeOtherNullableDateTime], ROW_NUMBER() OVER(PARTITION BY [c].[ParentId], [c].[SomeNullableDateTime] ORDER BY [c].[SomeInteger]) AS [row]
+        FROM [Child] AS [c]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON ([p].[Id] = [t0].[ParentId]) AND [t0].[SomeNullableDateTime] IS NULL
+WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
+        }
     }
 }

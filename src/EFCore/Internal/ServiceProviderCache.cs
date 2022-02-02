@@ -62,16 +62,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
             {
-                return BuildServiceProvider(options, _configurations).ServiceProvider;
+                return BuildServiceProvider(options, (_configurations, options)).ServiceProvider;
             }
 
-            return _configurations.GetOrAdd(options, BuildServiceProvider, _configurations).ServiceProvider;
+            var cacheKey = options;
+            var extension = options.FindExtension<CoreOptionsExtension>();
+            if (extension?.ApplicationServiceProvider != null)
+            {
+                cacheKey = ((DbContextOptions)options).WithExtension(extension.WithApplicationServiceProvider(null));
+            }
+
+            return _configurations.GetOrAdd(cacheKey, BuildServiceProvider, (_configurations, options)).ServiceProvider;
 
             static (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider(
-                IDbContextOptions options,
-                ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
-                    configurations)
+                IDbContextOptions _,
+                (ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>,
+                IDbContextOptions) arguments)
             {
+                var (configurations, options) = arguments;
+
                 ValidateOptions(options);
 
                 var debugInfo = new Dictionary<string, string>();
