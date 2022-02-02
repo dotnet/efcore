@@ -38,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly bool _useOldBehavior26779
             = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26779", out var enabled) && enabled;
 
+        private readonly bool _useOldBehavior27174
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27174", out var enabled) && enabled;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -504,6 +507,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     if (newValue == null
+                        && (foreignKey.IsRequired
+                            || _useOldBehavior27174)
                         && (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
                             || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade))
                     {
