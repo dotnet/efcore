@@ -1,11 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -1604,7 +1601,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR (([t].[CustomerID] IS NULL) AND ([o0].[CustomerID] IS NULL)))
+    WHERE (([t].[CustomerID] IS NOT NULL) AND ([t].[CustomerID] = [o0].[CustomerID])) AND [o0].[OrderID] IN (10248, 10249, 10250)
 ) AS [t0]
 ORDER BY [t].[CustomerID], [t0].[OrderID]");
         }
@@ -1622,7 +1619,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
+    WHERE ([o0].[OrderID] = [t].[OrderID]) AND [o0].[OrderID] IN (10248, 10249, 10250)
 ) AS [t0]
 ORDER BY [t].[OrderID]");
         }
@@ -1640,7 +1637,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderDate] AS [Outer1], [t].[CustomerID] AS [Outer2], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR (([t].[CustomerID] IS NULL) AND ([o0].[CustomerID] IS NULL)))
+    WHERE (([o0].[CustomerID] = [t].[CustomerID]) OR (([o0].[CustomerID] IS NULL) AND ([t].[CustomerID] IS NULL))) AND [o0].[OrderID] IN (10248, 10249, 10250)
 ) AS [t0]
 ORDER BY [t].[OrderDate], [t].[CustomerID]");
         }
@@ -1677,7 +1674,7 @@ FROM (
 OUTER APPLY (
     SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
+    WHERE ([o0].[OrderID] = [t].[OrderID]) AND [o0].[OrderID] IN (10248, 10249, 10250)
 ) AS [t0]
 ORDER BY [t].[OrderID]");
         }
@@ -1697,7 +1694,7 @@ OUTER APPLY (
         FROM [Orders] AS [o0]
         WHERE [o].[CustomerID] = [c].[CustomerID]
     ) AS [t]
-    WHERE (DATEPART(year, [o].[OrderDate]) = 1997) AND ([c].[CustomerID] = [o].[CustomerID])
+    WHERE ([o].[CustomerID] = [c].[CustomerID]) AND (DATEPART(year, [o].[OrderDate]) = 1997)
 ) AS [t0]
 WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID], [t0].[OrderID], [t0].[OrderID00]");

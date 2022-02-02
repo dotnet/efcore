@@ -4920,7 +4920,7 @@ LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[Squad
 OUTER APPLY (
     SELECT [g0].[FullName] AS [ReportName], [g0].[Nickname], [g0].[SquadId]
     FROM [Gears] AS [g0]
-    WHERE ([g].[FullName] <> N'Foo') AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
+    WHERE (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])) AND ([g].[FullName] <> N'Foo')
 ) AS [t]
 WHERE [o].[Nickname] IS NOT NULL
 ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
@@ -4940,7 +4940,7 @@ LEFT JOIN (
     OUTER APPLY (
         SELECT [w].[Name], [g0].[Nickname], [w].[Id]
         FROM [Weapons] AS [w]
-        WHERE (([w].[Name] <> N'Bar') OR ([w].[Name] IS NULL)) AND ([g0].[FullName] = [w].[OwnerFullName])
+        WHERE ([g0].[FullName] = [w].[OwnerFullName]) AND (([w].[Name] <> N'Bar') OR ([w].[Name] IS NULL))
     ) AS [t]
     WHERE [g0].[FullName] <> N'Foo'
 ) AS [t0] ON ([g].[Nickname] = [t0].[LeaderNickname]) AND ([g].[SquadId] = [t0].[LeaderSquadId])
@@ -4964,7 +4964,7 @@ OUTER APPLY (
         FROM [Weapons] AS [w]
         WHERE ([w].[Name] <> N'Bar') OR ([w].[Name] IS NULL)
     ) AS [t] ON [g0].[FullName] = [t].[OwnerFullName]
-    WHERE ([g0].[FullName] <> N'Foo') AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
+    WHERE (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])) AND ([g0].[FullName] <> N'Foo')
 ) AS [t0]
 WHERE [o].[Nickname] IS NOT NULL
 ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId]");
