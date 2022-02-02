@@ -1376,7 +1376,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         var sequenceType = type.TryGetSequenceType();
-        if (sequenceType != null)
+        if (sequenceType != null && sequenceType.Namespace != null && !namespaces.Contains(sequenceType.Namespace))
         {
             AddNamespace(sequenceType, namespaces);
         }

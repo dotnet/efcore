@@ -41,6 +41,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpRuntimeModelCodeGeneratorTest
     {
+
+        [ConditionalFact]
+        public void Self_referential_property()
+            => Test(
+                new TestModel.Internal.SelfReferentialDbContext(),
+                new CompiledModelCodeGenerationOptions(),
+                assertModel: model =>
+                {
+                    Assert.Single(model.GetEntityTypes());
+                    Assert.Same(model, model.FindRuntimeAnnotationValue("ReadOnlyModel"));
+                }
+            );
+
+
         [ConditionalFact]
         public void Empty_model()
             => Test(
@@ -3648,6 +3662,18 @@ namespace TestNamespace
     public class IdentityUser : TestModels.AspNetIdentity.IdentityUser
     {
     }
+
+
+    public class SelfReferentialEntity
+    {
+        public long Id { get; set; }
+
+        public SelfReferentialProperty Collection { get; set; }
+    }
+
+    public class SelfReferentialProperty : List<SelfReferentialProperty>
+    {
+    }
 }
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal
@@ -3667,5 +3693,30 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal
                 });
             modelBuilder.Entity<Scaffolding.Internal.Internal>();
         }
+    }
+
+    public class SelfReferentialDbContext : ContextBase
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Scaffolding.Internal.SelfReferentialEntity>(
+                eb =>
+                {
+                    eb.Property(e => e.Collection).HasConversion(typeof(SelfReferentialPropertyValueConverter));
+                });
+        }
+    }
+
+    public class SelfReferentialPropertyValueConverter : ValueConverter<Scaffolding.Internal.SelfReferentialProperty, string>
+    {
+        public SelfReferentialPropertyValueConverter()
+          : this(null)
+        { }
+
+        public SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
+           : base(v => null, v => null, hints)
+        { }
     }
 }
