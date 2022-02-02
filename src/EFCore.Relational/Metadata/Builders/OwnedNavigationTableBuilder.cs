@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
@@ -7,12 +7,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
     /// </summary>
-    public class TableBuilder
+    public class OwnedNavigationTableBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,20 +19,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+        public OwnedNavigationTableBuilder(OwnedNavigationBuilder ownedNavigationBuilder)
         {
-            EntityTypeBuilder = entityTypeBuilder;
+            OwnedNavigationBuilder = ownedNavigationBuilder;
         }
 
         /// <summary>
         ///     The entity type being configured.
         /// </summary>
-        public virtual IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
+        public virtual IMutableEntityType Metadata => OwnedNavigationBuilder.OwnedEntityType;
 
         /// <summary>
         ///     The entity type builder.
         /// </summary>
-        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
+        public virtual OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
         /// <summary>
         ///     Configures the table to be ignored by migrations.
@@ -44,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </remarks>
         /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        public virtual TableBuilder ExcludeFromMigrations(bool excluded = true)
+        public virtual OwnedNavigationTableBuilder ExcludeFromMigrations(bool excluded = true)
         {
             Metadata.SetIsTableExcludedFromMigrations(excluded);
 

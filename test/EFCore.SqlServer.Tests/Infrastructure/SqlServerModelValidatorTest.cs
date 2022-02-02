@@ -782,14 +782,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Temporal_doesnt_work_on_table_splitting()
+        public void Temporal_doesnt_work_on_table_splitting_with_inconsistent_period_mappings()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Splitting1>().ToTable("Splitting", tb => tb.IsTemporal());
             modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
             modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
 
-            VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplitting("Splitting"), modelBuilder);
+            VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping("start", "Splitting2", "PeriodStart", "Splitting2_PeriodStart", "PeriodStart"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_doesnt_work_on_table_splitting_when_some_types_are_temporal_and_some_are_not()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Splitting1>().ToTable("Splitting");
+            modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
+            modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
+
+            VerifyError(SqlServerStrings.TemporalAllEntitiesMappedToSameTableMustBeTemporal("Splitting1"), modelBuilder);
         }
 
         public class Human

@@ -1435,11 +1435,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return null;
                     }
 
+                    var entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
                     var foreignKey = navigation.ForeignKey;
                     if (navigation.IsCollection)
                     {
+                        SelectExpression innerSelectExpression;
+                        if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469) || !enabled26469)
+                        {
+                            innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                                entityProjectionExpression,
+                                navigation);
+                        }
+                        else
+                        {
+                            innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                        }
+
                         var innerShapedQuery = CreateShapedQueryExpression(
-                            targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
+                             targetEntityType, innerSelectExpression);
 
                         var makeNullable = foreignKey.PrincipalKey.Properties
                             .Concat(foreignKey.Properties)
@@ -1487,7 +1500,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Quote(correlationPredicate));
                     }
 
-                    var entityProjectionExpression = GetEntityProjectionExpression(entityShaperExpression);
                     var innerShaper = entityProjectionExpression.BindNavigation(navigation);
                     if (innerShaper == null)
                     {
@@ -1530,7 +1542,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
                             // So there is no handling for dependent having TPT
                             table = targetEntityType.GetViewOrTableMappings().Single().Table;
-                            var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+
+                            SelectExpression innerSelectExpression;
+                            if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469) || !enabled26469)
+                            {
+                                innerSelectExpression = BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                                    entityProjectionExpression,
+                                    navigation);
+                            }
+                            else
+                            {
+                                innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
+                            }
+
                             var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
 
                             var makeNullable = foreignKey.PrincipalKey.Properties
@@ -1584,6 +1608,50 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : new DeferredOwnedExpansionExpression(targetEntityType,
                         (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression,
                         navigation);
+
+                    SelectExpression BuildInnerSelectExpressionForOwnedTypeMappedToDifferentTable(
+                        EntityProjectionExpression entityProjectionExpression,
+                        INavigation navigation)
+                    {
+                        // just need any column - we use it only to extract the table it originated from
+                        var sourceColumn = entityProjectionExpression
+                            .BindProperty(
+                                navigation.IsOnDependent
+                                    ? foreignKey.Properties[0]
+                                    : foreignKey.PrincipalKey.Properties[0]);
+
+                        var sourceTable = FindRootTableExpressionForColumn(sourceColumn);
+                        var ownedTable = new TableExpression(targetEntityType.GetTableMappings().Single().Table);
+
+                        foreach (var annotation in sourceTable.GetAnnotations())
+                        {
+                            ownedTable.SetAnnotation(annotation.Name, annotation.Value);
+                        }
+
+                        return _sqlExpressionFactory.Select(targetEntityType, ownedTable);
+                    }
+
+                    static TableExpressionBase FindRootTableExpressionForColumn(ColumnExpression column)
+                    {
+                        var table = column.Table;
+                        if (table is JoinExpressionBase joinExpressionBase)
+                        {
+                            table = joinExpressionBase.Table;
+                        }
+                        else if (table is SetOperationBase setOperationBase)
+                        {
+                            table = setOperationBase.Source1;
+                        }
+
+                        if (table is SelectExpression selectExpression)
+                        {
+                            var matchingProjection = (ColumnExpression)selectExpression.Projection.Where(p => p.Alias == column.Name).Single().Expression;
+
+                            return FindRootTableExpressionForColumn(matchingProjection);
+                        }
+
+                        return table;
+                    }
                 }
             }
 

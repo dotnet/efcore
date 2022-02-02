@@ -1,19 +1,20 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
     /// </summary>
-    public class TableBuilder
+    public class OwnedNavigationTemporalPeriodPropertyBuilder
     {
+        private readonly PropertyBuilder _propertyBuilder;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -21,32 +22,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+        public OwnedNavigationTemporalPeriodPropertyBuilder(
+            PropertyBuilder propertyBuilder)
         {
-            EntityTypeBuilder = entityTypeBuilder;
+            _propertyBuilder = propertyBuilder;
         }
 
         /// <summary>
-        ///     The entity type being configured.
-        /// </summary>
-        public virtual IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
-
-        /// <summary>
-        ///     The entity type builder.
-        /// </summary>
-        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
-
-        /// <summary>
-        ///     Configures the table to be ignored by migrations.
+        ///     Configures the column name the period property maps to.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
         /// </remarks>
-        /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
+        /// <param name="name">The name of the column.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        public virtual TableBuilder ExcludeFromMigrations(bool excluded = true)
+        public virtual OwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
         {
-            Metadata.SetIsTableExcludedFromMigrations(excluded);
+            _propertyBuilder.HasColumnName(name);
 
             return this;
         }

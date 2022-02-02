@@ -72,8 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             List<TableExpressionBase> tables,
             List<TableReferenceExpression> tableReferences,
             List<SqlExpression> groupBy,
-            List<OrderingExpression> orderings)
-            : base(alias)
+            List<OrderingExpression> orderings,
+            IEnumerable<IAnnotation> annotations)
+            : base(alias, annotations)
         {
             _projection = projections;
             _tables = tables;
@@ -1493,7 +1494,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             // TODO: Introduce clone method? See issue#24460
             var select1 = new SelectExpression(
-                null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList())
+                null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(), GetAnnotations())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
@@ -1799,7 +1800,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 new List<TableExpressionBase>(),
                 new List<TableReferenceExpression>(),
                 new List<SqlExpression>(),
-                new List<OrderingExpression>());
+                new List<OrderingExpression>(),
+                Enumerable.Empty<IAnnotation>());
 
             if (Orderings.Any()
                 || Limit != null
@@ -2883,7 +2885,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
             var subquery = new SelectExpression(
                 subqueryAlias, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
-                _orderings.ToList())
+                _orderings.ToList(), GetAnnotations())
             {
                 IsDistinct = IsDistinct,
                 Predicate = Predicate,
@@ -3542,7 +3544,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     var newTableReferences = _tableReferences.ToList();
                     var newSelectExpression = new SelectExpression(
-                        Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
+                        Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, GetAnnotations())
                     {
                         _clientProjections = _clientProjections,
                         _projectionMapping = _projectionMapping,
@@ -3664,7 +3666,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var newTableReferences = _tableReferences.ToList();
             var newSelectExpression = new SelectExpression(
-                alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
+                alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList(), GetAnnotations())
             {
                 _projectionMapping = projectionMapping,
                 _clientProjections = _clientProjections.ToList(),
@@ -3850,6 +3852,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     expressionPrinter.Append(" ROWS ONLY");
                 }
             }
+
+            PrintAnnotations(expressionPrinter);
 
             if (Alias != null)
             {

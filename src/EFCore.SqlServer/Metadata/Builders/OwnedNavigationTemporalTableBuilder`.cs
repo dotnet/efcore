@@ -2,17 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders
+namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
     /// </summary>
     /// <typeparam name="TEntity">The entity type being configured.</typeparam>
-    public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
+    public class OwnedNavigationTemporalTableBuilder<TEntity> : OwnedNavigationTemporalTableBuilder
         where TEntity : class
     {
         /// <summary>
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
-            : base(entityTypeBuilder)
+        public OwnedNavigationTemporalTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
+            : base(referenceOwnershipBuilder)
         {
         }
 
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name">The name of the history table.</param>
         /// <param name="schema">The schema of the history table.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        public new virtual TemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
-            => (TemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
+        public new virtual OwnedNavigationTemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
+            => (OwnedNavigationTemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
     }
 }

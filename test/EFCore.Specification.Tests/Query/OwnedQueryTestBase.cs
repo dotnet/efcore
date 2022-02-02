@@ -928,6 +928,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await myFunc(async, zipCode);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Simple_query_entity_with_owned_collection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Star>());
+        }
+
         protected virtual DbContext CreateContext()
             => Fixture.CreateContext();
 
@@ -1094,6 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 var aa = (Planet)a;
 
                                 Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Name, aa.Name);
                                 Assert.Equal(ee.StarId, aa.StarId);
                             }
                         }
@@ -1500,7 +1510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             });
                     });
 
-                modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1 }));
+                modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1, Name = "Earth" }));
 
                 modelBuilder.Entity<Moon>(
                     mb => mb.HasData(
@@ -1630,11 +1640,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return (IQueryable<TEntity>)_bartons.AsQueryable();
                 }
 
+                if (typeof(TEntity) == typeof(Star))
+                {
+                    return (IQueryable<TEntity>)_stars.AsQueryable();
+                }
+
                 throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
             }
 
             private static IReadOnlyList<Planet> CreatePlanets()
-                => new List<Planet> { new() { Id = 1, StarId = 1 } };
+                => new List<Planet> { new() { Id = 1, StarId = 1, Name = "Earth" } };
 
             private static IReadOnlyList<Star> CreateStars()
                 => new List<Star>
@@ -1977,6 +1992,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected class Planet
         {
             public int Id { get; set; }
+
+            public string Name { get; set; }
 
             public int StarId { get; set; }
             public Star Star { get; set; }

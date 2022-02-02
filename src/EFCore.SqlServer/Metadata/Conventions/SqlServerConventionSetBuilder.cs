@@ -66,8 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
+
             ReplaceConvention(
-                conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
+                conventionSet.ForeignKeyPropertiesChangedConventions,
+                (RelationalValueGenerationConvention)valueGenerationConvention);
+
+            ReplaceConvention(
+                conventionSet.ForeignKeyOwnershipChangedConventions,
+                (RelationalValueGenerationConvention)valueGenerationConvention);
+
+            ReplaceConvention(
+                conventionSet.EntityTypeAnnotationChangedConventions,
+                (RelationalValueGenerationConvention)valueGenerationConvention);
 
             var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(

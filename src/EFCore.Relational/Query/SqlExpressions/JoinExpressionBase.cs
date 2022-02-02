@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -22,7 +24,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table">A table source to join with.</param>
         protected JoinExpressionBase(TableExpressionBase table)
-            : base(null)
+            : this(table, annotations: null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of the <see cref="JoinExpressionBase" /> class.
+        /// </summary>
+        /// <param name="table">A table source to join with.</param>
+        /// <param name="annotations">A collection of annotations associated with this expression.</param>
+        protected JoinExpressionBase(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
+            : base(alias: null, annotations)
         {
             Check.NotNull(table, nameof(table));
 

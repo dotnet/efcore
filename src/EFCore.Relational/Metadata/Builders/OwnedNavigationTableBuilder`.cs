@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     <para>
-    ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
-    ///         and it is not designed to be directly constructed in your application code.
-    ///     </para>
+    ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
+    ///     and it is not designed to be directly constructed in your application code.
     /// </summary>
     /// <typeparam name="TEntity">The entity type being configured.</typeparam>
-    public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
+    public class OwnedNavigationTableBuilder<TEntity> : OwnedNavigationTableBuilder
         where TEntity : class
     {
         /// <summary>
@@ -22,22 +20,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
-            : base(entityTypeBuilder)
+        public OwnedNavigationTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
+            : base(referenceOwnershipBuilder)
         {
         }
 
         /// <summary>
-        ///     Configures a history table for the entity mapped to a temporal table.
+        ///     Configures the table to be ignored by migrations.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
-        ///     for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
         /// </remarks>
-        /// <param name="name">The name of the history table.</param>
-        /// <param name="schema">The schema of the history table.</param>
+        /// <param name="excluded">A value indicating whether the table should be managed by migrations.</param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-        public new virtual TemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
-            => (TemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
+        public new virtual OwnedNavigationTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
+            => (OwnedNavigationTableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
     }
 }

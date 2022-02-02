@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
-            : base(name, schema, entityType)
+        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+            : base(name, schema, entityTypeBuilder)
         {
         }
 

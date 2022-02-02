@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder(null, null, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder(null, null, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(null);
-            buildAction(new TableBuilder(name, null, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder(name, null, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(null);
-            buildAction(new TableBuilder<TEntity>(name, null, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder<TEntity>(name, null, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
-            buildAction(new TableBuilder(name, schema, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder(name, schema, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
 
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
-            buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder.Metadata));
+            buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder));
 
             return entityTypeBuilder;
         }
@@ -283,11 +283,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
-            Action<TableBuilder> buildAction)
+            Action<OwnedNavigationTableBuilder> buildAction)
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder(null, null, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }
@@ -303,13 +303,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
             this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
-            Action<TableBuilder<TRelatedEntity>> buildAction)
+            Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
             where TOwnerEntity : class
             where TRelatedEntity : class
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder<TRelatedEntity>(null, null, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }
@@ -360,14 +360,14 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
             string? name,
-            Action<TableBuilder> buildAction)
+            Action<OwnedNavigationTableBuilder> buildAction)
         {
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
-            buildAction(new TableBuilder(name, null, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
             this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string? name,
-            Action<TableBuilder<TRelatedEntity>> buildAction)
+            Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
             where TOwnerEntity : class
             where TRelatedEntity : class
         {
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
-            buildAction(new TableBuilder<TRelatedEntity>(name, null, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder referenceOwnershipBuilder,
             string name,
             string? schema,
-            Action<TableBuilder> buildAction)
+            Action<OwnedNavigationTableBuilder> buildAction)
         {
             Check.NotNull(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-            buildAction(new TableBuilder(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }
@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
             this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string name,
             string? schema,
-            Action<TableBuilder<TRelatedEntity>> buildAction)
+            Action<OwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
             where TOwnerEntity : class
             where TRelatedEntity : class
         {
@@ -562,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
             referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
-            buildAction(new TableBuilder<TRelatedEntity>(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+            buildAction(new OwnedNavigationTableBuilder<TRelatedEntity>(referenceOwnershipBuilder));
 
             return referenceOwnershipBuilder;
         }

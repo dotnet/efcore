@@ -1,10 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -13,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerSqlNullabilityProcessor : SqlNullabilityProcessor
+    public enum TemporalOperationType
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,12 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerSqlNullabilityProcessor(
-            RelationalParameterBasedSqlProcessorDependencies dependencies,
-            bool useRelationalNulls)
-            : base(dependencies, useRelationalNulls)
-        {
-        }
+        All,
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,18 +25,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override TableExpressionBase Visit(TableExpressionBase tableExpressionBase)
-        {
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469) && enabled26469)
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                return tableExpressionBase is TemporalTableExpression temporalTableExpression
-                    ? temporalTableExpression
-                    : base.Visit(tableExpressionBase);
-#pragma warning restore CS0618 // Type or member is obsolete
-            }
+        AsOf,
 
-            return base.Visit(tableExpressionBase);
-        }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        Between,
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        ContainedIn,
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        FromTo
     }
 }

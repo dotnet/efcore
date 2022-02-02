@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
             this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
             string? name,
-            Action<RelationalModelBuilderTest.TestTableBuilder<TRelatedEntity>> buildAction)
+            Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
             where TOwnerEntity : class
             where TRelatedEntity : class
         {
@@ -243,11 +243,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
                     genericBuilder.Instance.ToTable(name,
-                        b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TRelatedEntity>(b)));
+                        b => buildAction(new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
                     break;
                 case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
                     nongenericBuilder.Instance.ToTable(name,
-                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TRelatedEntity>(b)));
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
                     break;
             }
 
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> builder,
             string name,
             string? schema,
-            Action<RelationalModelBuilderTest.TestTableBuilder<TRelatedEntity>> buildAction)
+            Action<RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TRelatedEntity>> buildAction)
             where TOwnerEntity : class
             where TRelatedEntity : class
         {
@@ -266,11 +266,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>> genericBuilder:
                     genericBuilder.Instance.ToTable(name, schema,
-                        b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TRelatedEntity>(b)));
+                        b => buildAction(new RelationalModelBuilderTest.GenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
                     break;
                 case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
                     nongenericBuilder.Instance.ToTable(name, schema,
-                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TRelatedEntity>(b)));
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestOwnedNavigationTableBuilder<TRelatedEntity>(b)));
                     break;
             }
 

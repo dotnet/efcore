@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,7 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
     {
         internal TableExpression(ITableBase table)
-            : base(table.Name.Substring(0, 1).ToLowerInvariant())
+            : this(table, null)
+        {
+        }
+
+        private TableExpression(ITableBase table, IEnumerable<IAnnotation>? annotations)
+            : base(alias: table.Name.Substring(0, 1).ToLowerInvariant(), annotations)
         {
             Name = table.Name;
             Schema = table.Schema;
@@ -38,7 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Append(Schema).Append(".");
             }
 
-            expressionPrinter.Append(Name).Append(" AS ").Append(Alias);
+            expressionPrinter.Append(Name);
+            PrintAnnotations(expressionPrinter);
+
+            expressionPrinter.Append(" AS ").Append(Alias);
         }
 
         /// <summary>
@@ -68,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         public TableExpressionBase Clone()
-            => new TableExpression(Table) { Alias = Alias };
+            => new TableExpression(Table, GetAnnotations()) { Alias = Alias };
 
         /// <inheritdoc />
         public override bool Equals(object? obj)

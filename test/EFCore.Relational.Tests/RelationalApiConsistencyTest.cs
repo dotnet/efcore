@@ -212,13 +212,13 @@ namespace Microsoft.EntityFrameworkCore
                     new Type[] { typeof(EntityTypeBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(Action<TableBuilder>) }),
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(Action<OwnedNavigationTableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<OwnedNavigationTableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) })
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<OwnedNavigationTableBuilder>) })
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
