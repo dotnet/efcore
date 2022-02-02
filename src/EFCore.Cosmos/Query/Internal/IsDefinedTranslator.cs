@@ -38,7 +38,7 @@ public class IsDefinedTranslator : IMethodCallTranslator
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-        => MethodInfo.Equals(method.GetGenericMethodDefinition())
+        => method.IsGenericMethod && MethodInfo.Equals(method.GetGenericMethodDefinition())
             ? _sqlExpressionFactory.Function(
                 "IS_DEFINED",
                 new SqlExpression[] { arguments[1] },
