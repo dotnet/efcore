@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTestBase<NorthwindQueryCosmosFixture<NoopModelCustomizer>>
@@ -70,6 +73,23 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (RAND() < 1.0))");
             @"SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (RAND() >= 0.0))");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public async Task IsDefined(bool async)
+    {
+        await AssertCount(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            ss => EF.Functions.IsDefined(ss.Region),
+            c => true);
+
+        AssertSql(
+            @"SELECT COUNT(1) AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND IS_DEFINED(c[""Country""]))");
     }
 
     private void AssertSql(params string[] expected)
