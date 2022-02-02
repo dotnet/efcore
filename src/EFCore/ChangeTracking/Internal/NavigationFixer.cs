@@ -501,7 +501,7 @@ public class NavigationFixer : INavigationFixer
                 }
 
                 if (newValue == null
-                        && foreignKey.IsRequired
+                    && foreignKey.IsRequired
                     && (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
                         || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade))
                 {
