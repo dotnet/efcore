@@ -83,7 +83,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (RAND() >= 0.0))");
             async,
             ss => ss.Set<Customer>(),
             ss => ss.Set<Customer>(),
-            ss => EF.Functions.IsDefined(ss.Region),
+            ss => EF.Functions.IsDefined(ss.Country),
             c => true);
 
         AssertSql(
