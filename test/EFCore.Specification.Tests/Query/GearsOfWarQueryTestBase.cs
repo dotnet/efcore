@@ -9138,6 +9138,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>().Where(m => m.Rating.Equals(null)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_equality_to_null_with_composite_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(e => e.Nickname).FirstOrDefault() == null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_subquery_equality_to_null_without_composite_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(s => s.Weapons.OrderBy(e => e.Name).FirstOrDefault() == null));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

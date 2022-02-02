@@ -5348,10 +5348,10 @@ OUTER APPLY (
     SELECT [s].[ThingId], [t].[Id], [s].[Id] AS [Id0]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE ((
+        SELECT TOP(1) [v].[Id]
         FROM [Values] AS [v]
-        WHERE [e].[Id] = [v].[Entity11023Id]) AND (((
+        WHERE [e].[Id] = [v].[Entity11023Id]) IS NOT NULL) AND (((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR (((

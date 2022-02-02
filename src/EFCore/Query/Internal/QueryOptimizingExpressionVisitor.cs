@@ -77,30 +77,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            if (binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26744", out var enabled) && enabled)
             {
-                var leftNullConstant = IsNullConstant(left);
-                var rightNullConstant = IsNullConstant(right);
-                if (leftNullConstant || rightNullConstant)
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
                 {
-                    var nonNullExpression = leftNullConstant ? right : left;
-                    if (nonNullExpression is MethodCallExpression methodCallExpression
-                        && methodCallExpression.Method.DeclaringType == typeof(Queryable)
-                        && methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
-                        && _singleResultMethodInfos.Contains(genericMethod))
+                    var leftNullConstant = IsNullConstant(left);
+                    var rightNullConstant = IsNullConstant(right);
+                    if (leftNullConstant || rightNullConstant)
                     {
-                        var result = Expression.Call(
-                            (methodCallExpression.Arguments.Count == 2
-                                ? QueryableMethods.AnyWithPredicate
-                                : QueryableMethods.AnyWithoutPredicate)
-                            .MakeGenericMethod(methodCallExpression.Type),
-                            methodCallExpression.Arguments);
+                        var nonNullExpression = leftNullConstant ? right : left;
+                        if (nonNullExpression is MethodCallExpression methodCallExpression
+                            && methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                            && methodCallExpression.Method.IsGenericMethod
+                            && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
+                            && _singleResultMethodInfos.Contains(genericMethod))
+                        {
+                            var result = Expression.Call(
+                                (methodCallExpression.Arguments.Count == 2
+                                    ? QueryableMethods.AnyWithPredicate
+                                    : QueryableMethods.AnyWithoutPredicate)
+                                .MakeGenericMethod(methodCallExpression.Type),
+                                methodCallExpression.Arguments);
 
-                        return binaryExpression.NodeType == ExpressionType.Equal
-                            ? Expression.Not(result)
-                            : result;
+                            return binaryExpression.NodeType == ExpressionType.Equal
+                                ? Expression.Not(result)
+                                : result;
+                        }
                     }
                 }
             }

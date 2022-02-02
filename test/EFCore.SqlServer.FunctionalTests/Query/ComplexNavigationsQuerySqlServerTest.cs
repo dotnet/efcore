@@ -3213,10 +3213,11 @@ ORDER BY [l].[Id]");
                 @"SELECT (
     SELECT TOP(1) [l0].[Name]
     FROM [LevelThree] AS [l0]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE ((
+        SELECT TOP(1) [l1].[Id]
         FROM [LevelTwo] AS [l1]
-        WHERE [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND (((
+        WHERE [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
+        ORDER BY [l1].[Id]) IS NOT NULL) AND (((
         SELECT TOP(1) [l2].[Id]
         FROM [LevelTwo] AS [l2]
         WHERE [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
@@ -3699,10 +3700,10 @@ ORDER BY [l].[Id], [t0].[Id]");
                 @"SELECT [l].[Id], (
     SELECT TOP(1) [l0].[Name]
     FROM [LevelThree] AS [l0]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE ((
+        SELECT TOP(1) [l1].[Id]
         FROM [LevelTwo] AS [l1]
-        WHERE ([l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND ([l1].[Name] = N'L2 02')) AND (((
+        WHERE ([l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND ([l1].[Name] = N'L2 02')) IS NOT NULL) AND (((
         SELECT TOP(1) [l2].[Id]
         FROM [LevelTwo] AS [l2]
         WHERE ([l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]) AND ([l2].[Name] = N'L2 02')) = [l0].[OneToMany_Optional_Inverse3Id]) OR (((
