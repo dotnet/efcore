@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,12 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : this(
                 storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
                 Check.NotNull(storeFunction, nameof(storeFunction)),
-                Check.NotNull(arguments, nameof(arguments)))
+                Check.NotNull(arguments, nameof(arguments)),
+                annotations: null)
         {
         }
 
-        private TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
-            : base(alias)
+        private TableValuedFunctionExpression(
+            string alias,
+            IStoreFunction storeFunction,
+            IReadOnlyList<SqlExpression> arguments,
+            IEnumerable<IAnnotation>? annotations)
+            : base(alias, annotations)
         {
             StoreFunction = storeFunction;
             Arguments = arguments;
@@ -76,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return changed
-                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
                 : this;
         }
 
@@ -91,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(arguments, nameof(arguments));
 
             return !arguments.SequenceEqual(Arguments)
-                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments)
+                ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
                 : this;
         }
 
@@ -106,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Append(StoreFunction.Name);
             expressionPrinter.Append("(");
             expressionPrinter.VisitCollection(Arguments);
-            expressionPrinter.Append(") AS ");
+            expressionPrinter.Append(")");
+            PrintAnnotations(expressionPrinter);
+            expressionPrinter.Append(" AS ");
             expressionPrinter.Append(Alias);
         }
 

@@ -2,8 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -43,7 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="sql">A user-provided custom SQL for the table source.</param>
         /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
         public FromSqlExpression(string alias, string sql, Expression arguments)
-            : base(alias)
+            : this(alias, sql, arguments, annotations: null)
+        {
+        }
+
+        private FromSqlExpression(
+            string alias,
+            string sql,
+            Expression arguments,
+            IEnumerable<IAnnotation>? annotations)
+            : base(alias, annotations)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(arguments, nameof(arguments));
@@ -51,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Sql = sql;
             Arguments = arguments;
         }
+
 
         /// <summary>
         ///     The alias assigned to this table source.
@@ -83,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(arguments, nameof(arguments));
 
             return arguments != Arguments
-                ? new FromSqlExpression(Alias, Sql, arguments)
+                ? new FromSqlExpression(Alias, Sql, arguments, GetAnnotations())
                 : this;
         }
 
@@ -97,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         /// <inheritdoc />
         public virtual TableExpressionBase Clone()
-            => new FromSqlExpression(Alias, Sql, Arguments);
+            => new FromSqlExpression(Alias, Sql, Arguments, GetAnnotations());
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
@@ -105,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             expressionPrinter.Append(Sql);
+            PrintAnnotations(expressionPrinter);
         }
 
         /// <inheritdoc />

@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -23,7 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="table">A table source to INNER JOIN with.</param>
         /// <param name="joinPredicate">A predicate to use for the join.</param>
         public InnerJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
-            : base(table, joinPredicate)
+            : this(table, joinPredicate, annotations: null)
+        {
+        }
+
+        private InnerJoinExpression(
+            TableExpressionBase table,
+            SqlExpression joinPredicate,
+            IEnumerable<IAnnotation>? annotations)
+            : base(table, joinPredicate, annotations)
         {
         }
 
@@ -51,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(joinPredicate, nameof(joinPredicate));
 
             return table != Table || joinPredicate != JoinPredicate
-                ? new InnerJoinExpression(table, joinPredicate)
+                ? new InnerJoinExpression(table, joinPredicate, GetAnnotations())
                 : this;
         }
 
@@ -64,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Visit(Table);
             expressionPrinter.Append(" ON ");
             expressionPrinter.Visit(JoinPredicate);
+            PrintAnnotations(expressionPrinter);
         }
 
         /// <inheritdoc />

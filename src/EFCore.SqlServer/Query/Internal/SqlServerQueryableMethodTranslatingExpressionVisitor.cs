@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -63,22 +66,74 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
             {
-                // sql server model validator will throw if entity is mapped to multiple tables
-                var table = queryRootExpression.EntityType.GetTableMappings().Single().Table;
-                var temporalTableExpression = queryRootExpression switch
-                {
-                    TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
-                    TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
-                    TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
-                    TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(
-                        table, containedIn.From, containedIn.To),
-                    TemporalFromToQueryRootExpression fromTo => new TemporalFromToTableExpression(table, fromTo.From, fromTo.To),
-                    _ => throw new InvalidOperationException(queryRootExpression.Print())
-                };
+                SelectExpression? selectExpression;
 
-                var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(
-                    queryRootExpression.EntityType,
-                    temporalTableExpression);
+                var useOldBehavior26469 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469)
+                    && enabled26469;
+
+                if (useOldBehavior26469)
+                {
+                    // sql server model validator will throw if entity is mapped to multiple tables
+                    var table = queryRootExpression.EntityType.GetTableMappings().Single().Table;
+#pragma warning disable CS0618 // Type or member is obsolete
+                    var temporalTableExpression = queryRootExpression switch
+                    {
+                        TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
+                        TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
+                        TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
+                        TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(
+                            table, containedIn.From, containedIn.To),
+                        TemporalFromToQueryRootExpression fromTo => new TemporalFromToTableExpression(table, fromTo.From, fromTo.To),
+                        _ => throw new InvalidOperationException(queryRootExpression.Print())
+                    };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                    selectExpression = RelationalDependencies.SqlExpressionFactory.Select(
+                        queryRootExpression.EntityType,
+                        temporalTableExpression);
+                }
+                else
+                {
+                    selectExpression = RelationalDependencies.SqlExpressionFactory.Select(queryRootExpression.EntityType);
+
+                    var tableExpressions = ExtractTableExpressions(selectExpression);
+                    ValidateAllTablesHaveSameAnnotations(tableExpressions);
+                    foreach (var tableExpression in tableExpressions)
+                    {
+                        switch (queryRootExpression)
+                        {
+                            case TemporalAllQueryRootExpression:
+                                tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.All;
+                                break;
+
+                            case TemporalAsOfQueryRootExpression asOf:
+                                tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.AsOf;
+                                tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime] = asOf.PointInTime;
+                                break;
+
+                            case TemporalBetweenQueryRootExpression between:
+                                tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.Between;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = between.From;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = between.To;
+                                break;
+
+                            case TemporalContainedInQueryRootExpression containedIn:
+                                tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.ContainedIn;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = containedIn.From;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = containedIn.To;
+                                break;
+
+                            case TemporalFromToQueryRootExpression fromTo:
+                                tableExpression[SqlServerAnnotationNames.TemporalOperationType] = TemporalOperationType.FromTo;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom] = fromTo.From;
+                                tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo] = fromTo.To;
+                                break;
+
+                            default:
+                                throw new InvalidOperationException(queryRootExpression.Print());
+                        }
+                    }
+                }
 
                 return new ShapedQueryExpression(
                     selectExpression,
@@ -92,6 +147,62 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             return base.VisitExtension(extensionExpression);
+        }
+
+        private List<TableExpressionBase> ExtractTableExpressions(TableExpressionBase tableExpressionBase)
+        {
+            if (tableExpressionBase is JoinExpressionBase joinExpression)
+            {
+                tableExpressionBase = joinExpression.Table;
+            }
+
+            if (tableExpressionBase is TableExpression tableExpression)
+            {
+                return new List<TableExpressionBase> { tableExpression };
+            }
+
+            if (tableExpressionBase is SelectExpression selectExpression)
+            {
+                var result = new List<TableExpressionBase>();
+                foreach (var table in selectExpression.Tables)
+                {
+                    result.AddRange(ExtractTableExpressions(table));
+                }
+
+                return result;
+            }
+
+            if (tableExpressionBase is SetOperationBase setOperationBase)
+            {
+                var result = new List<TableExpressionBase>();
+                result.AddRange(ExtractTableExpressions(setOperationBase.Source1));
+                result.AddRange(ExtractTableExpressions(setOperationBase.Source2));
+
+                return result;
+            }
+
+            throw new InvalidOperationException("Unsupported table expression base type.");
+        }
+
+        private void ValidateAllTablesHaveSameAnnotations(List<TableExpressionBase> tableExpressions)
+        {
+            List<IAnnotation>? expectedAnnotations = null;
+            foreach (var tableExpression in tableExpressions)
+            {
+                if (expectedAnnotations == null)
+                {
+                    expectedAnnotations = new List<IAnnotation>(tableExpression.GetAnnotations().OrderBy(x => x.Name));
+                }
+                else
+                {
+                    var annotations = tableExpression.GetAnnotations().OrderBy(x => x.Name).ToList();
+                    if (expectedAnnotations.Count != annotations.Count
+                        || expectedAnnotations.Zip(annotations, (e, a) => e.Name != a.Name || e.Value != a.Value).Any())
+                    {
+                        throw new InvalidOperationException("Annotations for all tables representing an entity type must match.");
+                    }
+                }
+            }
         }
     }
 }

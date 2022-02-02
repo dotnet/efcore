@@ -159,6 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return ownedExpansion;
                     }
 
+                    // make sure that we can actually expand this navigation (later)
+                    _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.QueryRootExpression);
+
                     var ownedEntityReference = new EntityReference(targetType, entityReference.QueryRootExpression);
                     _navigationExpandingExpressionVisitor.PopulateEagerLoadedNavigations(ownedEntityReference.IncludePaths);
                     ownedEntityReference.MarkAsOptional();
@@ -229,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // Second psuedo-navigation is a reference
                         var secondTargetType = navigation.TargetEntityType;
                         // we can use the entity reference here. If the join entity wasn't temporal,
-                        // the query root creator would have thrown the exception when it was being created
+                        // the query root creation validator would have thrown the exception when it was being created
+                        _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.QueryRootExpression);
                         var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.QueryRootExpression);
                         var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
@@ -278,6 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         // Second psuedo-navigation is a collection
                         var secondTargetType = navigation.TargetEntityType;
+
+                        _extensibilityHelper.ValidateQueryRootCreation(secondTargetType, entityReference.QueryRootExpression);
                         var innerQueryable = _extensibilityHelper.CreateQueryRoot(secondTargetType, entityReference.QueryRootExpression);
                         var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
@@ -358,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 Check.DebugAssert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
+                _extensibilityHelper.ValidateQueryRootCreation(targetType, entityReference.QueryRootExpression);
                 var innerQueryable = _extensibilityHelper.CreateQueryRoot(targetType, entityReference.QueryRootExpression);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 

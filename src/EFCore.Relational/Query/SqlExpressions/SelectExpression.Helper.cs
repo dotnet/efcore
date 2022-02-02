@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var groupingCorrelationPredicate = (SqlExpression?)Visit(selectExpression._groupingCorrelationPredicate);
 
                     var newSelectExpression = new SelectExpression(
-                        selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
+                        selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, selectExpression.GetAnnotations())
                     {
                         Predicate = predicate,
                         Having = havingExpression,

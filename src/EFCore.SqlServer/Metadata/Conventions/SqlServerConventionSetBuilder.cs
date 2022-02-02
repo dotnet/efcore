@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -66,8 +67,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var sqlServerInMemoryTablesConvention = new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
+
+            var useOldBehavior26469 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469) && enabled26469;
+            if (!useOldBehavior26469)
+            {
+                ReplaceConvention(
+                    conventionSet.ForeignKeyPropertiesChangedConventions,
+                    (RelationalValueGenerationConvention)valueGenerationConvention);
+
+                ReplaceConvention(
+                    conventionSet.ForeignKeyOwnershipChangedConventions,
+                    (RelationalValueGenerationConvention)valueGenerationConvention);
+            }
+
             ReplaceConvention(
-                conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
+                conventionSet.EntityTypeAnnotationChangedConventions,
+                (RelationalValueGenerationConvention)valueGenerationConvention);
 
             var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(

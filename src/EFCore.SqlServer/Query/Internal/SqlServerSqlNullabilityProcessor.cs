@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -35,9 +36,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override TableExpressionBase Visit(TableExpressionBase tableExpressionBase)
         {
-            return tableExpressionBase is TemporalTableExpression temporalTableExpression
-                ? temporalTableExpression
-                : base.Visit(tableExpressionBase);
+            var useOldBehavior26469 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469)
+                && enabled26469;
+
+            if (useOldBehavior26469)
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                return tableExpressionBase is TemporalTableExpression temporalTableExpression
+                    ? temporalTableExpression
+                    : base.Visit(tableExpressionBase);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+
+            return base.Visit(tableExpressionBase);
         }
     }
 }

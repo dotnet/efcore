@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -22,7 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table">A table source to OUTER APPLY with.</param>
         public OuterApplyExpression(TableExpressionBase table)
-            : base(table)
+            : this(table, annotations: null)
+        {
+        }
+
+        private OuterApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
+            : base(table, annotations)
         {
         }
 
@@ -45,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(table, nameof(table));
 
             return table != Table
-                ? new OuterApplyExpression(table)
+                ? new OuterApplyExpression(table, GetAnnotations())
                 : this;
         }
 
@@ -56,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             expressionPrinter.Append("OUTER APPLY ");
             expressionPrinter.Visit(Table);
+            PrintAnnotations(expressionPrinter);
         }
 
         /// <inheritdoc />

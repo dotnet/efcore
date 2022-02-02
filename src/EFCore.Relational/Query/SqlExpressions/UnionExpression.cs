@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -30,7 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SelectExpression source1,
             SelectExpression source2,
             bool distinct)
-            : base(alias, source1, source2, distinct)
+            : this(alias, source1, source2, distinct, annotations: null)
+        {
+        }
+
+        private UnionExpression(
+            string alias,
+            SelectExpression source1,
+            SelectExpression source2,
+            bool distinct,
+            IEnumerable<IAnnotation>? annotations)
+            : base(alias, source1, source2, distinct, annotations)
         {
         }
 
@@ -58,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(source2, nameof(source2));
 
             return source1 != Source1 || source2 != Source2
-                ? new UnionExpression(Alias, source1, source2, IsDistinct)
+                ? new UnionExpression(Alias, source1, source2, IsDistinct, GetAnnotations())
                 : this;
         }
 
@@ -81,8 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Visit(Source2);
             }
 
-            expressionPrinter.AppendLine()
-                .AppendLine($") AS {Alias}");
+            expressionPrinter.AppendLine();
+            expressionPrinter.Append(")");
+            PrintAnnotations(expressionPrinter);
+            expressionPrinter.AppendLine($" AS {Alias}");
         }
 
         /// <inheritdoc />

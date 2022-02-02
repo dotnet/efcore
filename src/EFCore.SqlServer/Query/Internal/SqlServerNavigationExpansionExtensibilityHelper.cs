@@ -35,25 +35,47 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public override QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source)
         {
-            if (source is TemporalQueryRootExpression)
+            if (source is TemporalAsOfQueryRootExpression asOf)
             {
-                if (!entityType.GetRootType().IsTemporal())
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalNavigationExpansionBetweenTemporalAndNonTemporal(entityType.DisplayName()));
-                }
-
-                if (source is TemporalAsOfQueryRootExpression asOf)
-                {
-                    return source.QueryProvider != null
-                        ? new TemporalAsOfQueryRootExpression(source.QueryProvider, entityType, asOf.PointInTime)
-                        : new TemporalAsOfQueryRootExpression(entityType, asOf.PointInTime);
-                }
-
-                throw new InvalidOperationException(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"));
+                // AsOf is the only temporal operation that can pass the validation
+                return source.QueryProvider != null
+                    ? new TemporalAsOfQueryRootExpression(source.QueryProvider, entityType, asOf.PointInTime)
+                    : new TemporalAsOfQueryRootExpression(entityType, asOf.PointInTime);
             }
 
             return base.CreateQueryRoot(entityType, source);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override void ValidateQueryRootCreation(IEntityType entityType, QueryRootExpression? source)
+        {
+            var useOldBehavior26469 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26469", out var enabled26469)
+                && enabled26469;
+
+            if (!useOldBehavior26469)
+            {
+                if (source is TemporalQueryRootExpression)
+                {
+                    if (!entityType.GetRootType().IsTemporal())
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.TemporalNavigationExpansionBetweenTemporalAndNonTemporal(entityType.DisplayName()));
+                    }
+
+                    if (source is not TemporalAsOfQueryRootExpression)
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"));
+                    }
+                }
+            }
+
+            base.ValidateQueryRootCreation(entityType, source);
         }
 
         /// <summary>

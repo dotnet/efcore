@@ -811,7 +811,8 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
                             {
                                 Id = 1,
                                 id = Guid.NewGuid().ToString(),
-                                StarId = 1
+                                StarId = 1,
+                                Name = "Earth"
                             });
                     });
 
