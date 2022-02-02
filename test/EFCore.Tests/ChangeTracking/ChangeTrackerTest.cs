@@ -1943,7 +1943,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory] // Issues #16546 #25360
+        [ConditionalTheory] // Issues #16546 #25360; Change reverted in #27174.
         [InlineData(false, false, false, true, false)]
         [InlineData(true, false, false, true, false)]
         [InlineData(false, true, false, true, false)]
@@ -2043,7 +2043,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
 
-                if (delayCascade)
+                if (delayCascade
+                    || (useForeignKey && setProperty))
                 {
                     Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
                 }
@@ -2058,7 +2059,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
-                Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
+
+
+                Assert.Equal(
+                    useForeignKey && setProperty ? EntityState.Modified : EntityState.Deleted,
+                    context.Entry(attachedRoom).State);
 
                 context.SaveChanges();
             }
