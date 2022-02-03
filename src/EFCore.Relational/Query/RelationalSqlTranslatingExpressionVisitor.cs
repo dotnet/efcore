@@ -21,6 +21,24 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
+    private static readonly List<MethodInfo> SingleResultMethodInfos = new()
+    {
+        QueryableMethods.FirstWithPredicate,
+        QueryableMethods.FirstWithoutPredicate,
+        QueryableMethods.FirstOrDefaultWithPredicate,
+        QueryableMethods.FirstOrDefaultWithoutPredicate,
+        QueryableMethods.SingleWithPredicate,
+        QueryableMethods.SingleWithoutPredicate,
+        QueryableMethods.SingleOrDefaultWithPredicate,
+        QueryableMethods.SingleOrDefaultWithoutPredicate,
+        QueryableMethods.LastWithPredicate,
+        QueryableMethods.LastWithoutPredicate,
+        QueryableMethods.LastOrDefaultWithPredicate,
+        QueryableMethods.LastOrDefaultWithoutPredicate
+        //QueryableMethodProvider.ElementAtMethodInfo,
+        //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
+    };
+
     private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
@@ -282,6 +300,52 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         else if (isRightConvertToObject && left.IsNullConstantExpression())
         {
             right = rightOperand!;
+        }
+
+        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26744", out var enabled) && enabled))
+        {
+            if ((binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+                && (left.IsNullConstantExpression() || right.IsNullConstantExpression()))
+            {
+                var nonNullExpression = left.IsNullConstantExpression() ? right : left;
+                if (nonNullExpression is MethodCallExpression nonNullMethodCallExpression
+                    && nonNullMethodCallExpression.Method.DeclaringType == typeof(Queryable)
+                    && nonNullMethodCallExpression.Method.IsGenericMethod
+                    && SingleResultMethodInfos.Contains(nonNullMethodCallExpression.Method.GetGenericMethodDefinition()))
+                {
+                    var source = nonNullMethodCallExpression.Arguments[0];
+                    if (nonNullMethodCallExpression.Arguments.Count == 2)
+                    {
+                        source = Expression.Call(
+                            QueryableMethods.Where.MakeGenericMethod(source.Type.GetSequenceType()),
+                            source,
+                            nonNullMethodCallExpression.Arguments[1]);
+                    }
+
+                    var translatedSubquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(source);
+                    if (translatedSubquery != null)
+                    {
+                        var projection = translatedSubquery.ShaperExpression;
+                        if (projection is NewExpression
+                            || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false })
+                        {
+                            var anySubquery = Expression.Call(
+                                QueryableMethods.AnyWithoutPredicate.MakeGenericMethod(translatedSubquery.Type.GetSequenceType()),
+                                translatedSubquery);
+
+                            return Visit(
+                                binaryExpression.NodeType == ExpressionType.Equal
+                                    ? Expression.Not(anySubquery)
+                                    : anySubquery);
+                        }
+
+                        static Expression RemoveConvert(Expression e)
+                            => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
+                                ? RemoveConvert(unary.Operand)
+                                : e;
+                    }
+                }
+            }
         }
 
         var visitedLeft = Visit(left);

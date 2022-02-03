@@ -55,7 +55,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private SqlExpression? _groupingCorrelationPredicate;
     private Guid? _groupingParentSelectExpressionId;
-        private int? _groupingParentSelectExpressionTableCount;
+    private int? _groupingParentSelectExpressionTableCount;
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
     private SelectExpression(
@@ -404,7 +404,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             for (var i = 0; i < _clientProjections.Count; i++)
             {
-                switch(_clientProjections[i])
+                switch (_clientProjections[i])
                 {
                     case EntityProjectionExpression entityProjectionExpression:
                         AddEntityProjection(entityProjectionExpression);
@@ -415,7 +415,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                         break;
 
                     default:
-                        throw new InvalidOperationException("Invalid type of projection to add when not associated with shaper expression.");
+                        throw new InvalidOperationException(
+                            "Invalid type of projection to add when not associated with shaper expression.");
                 }
 
             }
@@ -435,6 +436,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     AddToProjection((SqlExpression)expression);
                 }
             }
+
             _projectionMapping.Clear();
         }
 
@@ -681,7 +683,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                         {
                             var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
                             innerSelectExpression =
-                                (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression._tableReferences)
+                                (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
+                                        this, outerSelectExpression._tableReferences)
                                     .Visit(innerSelectExpression);
 
                             if (outerSelectExpression.Limit != null
@@ -1511,7 +1514,8 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
-            null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(), GetAnnotations())
+            null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(),
+            GetAnnotations())
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -1519,7 +1523,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             Offset = Offset,
             Limit = Limit,
             _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-                _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
+            _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
             _groupingCorrelationPredicate = _groupingCorrelationPredicate
         };
         Offset = null;
@@ -1529,7 +1533,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         Having = null;
         _groupingCorrelationPredicate = null;
         _groupingParentSelectExpressionId = null;
-            _groupingParentSelectExpressionTableCount = null;
+        _groupingParentSelectExpressionTableCount = null;
         _groupBy.Clear();
         _orderings.Clear();
         _tables.Clear();
@@ -2128,6 +2132,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 innerSelectExpression.Limit = null;
                 innerSelectExpression.Offset = null;
 
+                var originalInnerSelectPredicate = innerSelectExpression.GroupBy.Count > 0
+                    ? innerSelectExpression.Having
+                    : innerSelectExpression.Predicate;
+
                 joinPredicate = TryExtractJoinKey(this, innerSelectExpression, allowNonEquality: limit == null && offset == null);
                 if (joinPredicate != null)
                 {
@@ -2197,7 +2205,25 @@ public sealed partial class SelectExpression : TableExpressionBase
                         return;
                     }
 
-                    innerSelectExpression.ApplyPredicate(joinPredicate);
+                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27072", out var enabled27072) || !enabled27072)
+                    {
+                        if (originalInnerSelectPredicate != null)
+                        {
+                            if (innerSelectExpression.GroupBy.Count > 0)
+                            {
+                                innerSelectExpression.Having = originalInnerSelectPredicate;
+                            }
+                            else
+                            {
+                                innerSelectExpression.Predicate = originalInnerSelectPredicate;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        innerSelectExpression.ApplyPredicate(joinPredicate);
+                    }
+
                     joinPredicate = null;
                 }
 
@@ -2411,16 +2437,16 @@ public sealed partial class SelectExpression : TableExpressionBase
                             || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
                             || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
                 {
-                    if (IsContainedColumn(outer, sqlBinaryExpression.Left)
-                        && IsContainedColumn(inner, sqlBinaryExpression.Right))
+                    if (IsContainedSql(outer, sqlBinaryExpression.Left)
+                        && IsContainedSql(inner, sqlBinaryExpression.Right))
                     {
                         outerColumnExpressions.Add(sqlBinaryExpression.Left);
 
                         return sqlBinaryExpression;
                     }
 
-                    if (IsContainedColumn(outer, sqlBinaryExpression.Right)
-                        && IsContainedColumn(inner, sqlBinaryExpression.Left))
+                    if (IsContainedSql(outer, sqlBinaryExpression.Right)
+                        && IsContainedSql(inner, sqlBinaryExpression.Left))
                     {
                         outerColumnExpressions.Add(sqlBinaryExpression.Right);
 
@@ -2436,14 +2462,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // null checks are considered part of join key
                 if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
                 {
-                    if (IsContainedColumn(outer, sqlBinaryExpression.Left)
+                    if (IsContainedSql(outer, sqlBinaryExpression.Left)
                         && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
                         && rightConstant.Value == null)
                     {
                         return sqlBinaryExpression;
                     }
 
-                    if (IsContainedColumn(outer, sqlBinaryExpression.Right)
+                    if (IsContainedSql(outer, sqlBinaryExpression.Right)
                         && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
                         && leftConstant.Value == null)
                     {
@@ -2456,8 +2482,29 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return null;
             }
 
-            static bool IsContainedColumn(SelectExpression selectExpression, SqlExpression sqlExpression)
+            static bool IsContainedSql(SelectExpression selectExpression, SqlExpression sqlExpression)
             {
+                if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26756", out var enabled) || !enabled)
+                {
+                    switch (sqlExpression)
+                    {
+                        case ColumnExpression columnExpression:
+                            return selectExpression.ContainsTableReference(columnExpression);
+
+                        case CaseExpression caseExpression
+                            when caseExpression.ElseResult == null
+                            && caseExpression.Operand == null
+                            && caseExpression.WhenClauses.Count == 1
+                            && caseExpression.WhenClauses[0].Result is ColumnExpression resultColumn:
+                            // We check condition in a separate function to avoid matching structure of condition outside of case block
+                            return IsContainedCondition(selectExpression, caseExpression.WhenClauses[0].Test)
+                                && selectExpression.ContainsTableReference(resultColumn);
+
+                        default:
+                            return false;
+                    }
+                }
+
                 switch (sqlExpression)
                 {
                     case ColumnExpression columnExpression:
@@ -2471,19 +2518,41 @@ public sealed partial class SelectExpression : TableExpressionBase
                         when sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                         || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
                         || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual:
-                        return IsContainedColumn(selectExpression, sqlBinaryExpression.Left)
-                            && IsContainedColumn(selectExpression, sqlBinaryExpression.Right);
+                        return IsContainedSql(selectExpression, sqlBinaryExpression.Left)
+                            && IsContainedSql(selectExpression, sqlBinaryExpression.Right);
 
                     case CaseExpression caseExpression
                         when caseExpression.ElseResult == null
                         && caseExpression.Operand == null
                         && caseExpression.WhenClauses.Count == 1:
-                        return IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Test)
-                            && IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Result);
+                        return IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Test)
+                            && IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Result);
 
                     default:
                         return false;
                 }
+            }
+
+            static bool IsContainedCondition(SelectExpression selectExpression, SqlExpression condition)
+            {
+                if (condition is not SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.NotEqual
+                    } sqlBinaryExpression)
+                {
+                    return false;
+                }
+
+                if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+                {
+                    // We don't check left/right inverted because we generate this.
+                    return sqlBinaryExpression.Right is SqlConstantExpression { Value: null }
+                        && sqlBinaryExpression.Left is ColumnExpression column
+                        && selectExpression.ContainsTableReference(column);
+                }
+
+                return IsContainedCondition(selectExpression, sqlBinaryExpression.Left)
+                    && IsContainedCondition(selectExpression, sqlBinaryExpression.Right);
             }
 
             static void PopulateInnerKeyColumns(
@@ -2681,8 +2750,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             Having = Having,
             Offset = Offset,
             Limit = Limit,
-                _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-                _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount
+            _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+            _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount
         };
         subquery._usedAliases = _usedAliases;
         subquery._mutable = false;
@@ -3332,8 +3401,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Tags = Tags,
                     _usedAliases = _usedAliases,
                     _groupingCorrelationPredicate = groupingCorrelationPredicate,
-                        _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
-                        _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
+                    _groupingParentSelectExpressionId = _groupingParentSelectExpressionId,
+                    _groupingParentSelectExpressionTableCount = _groupingParentSelectExpressionTableCount,
                 };
                 newSelectExpression._mutable = false;
                 newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
@@ -3617,6 +3686,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         => RuntimeHelpers.GetHashCode(this);
 
 #if DEBUG
-    internal bool IsMutable() => _mutable;
+    internal bool IsMutable()
+        => _mutable;
 #endif
 }

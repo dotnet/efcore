@@ -55,19 +55,28 @@ public class ServiceProviderCache
 
         if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
         {
-            return BuildServiceProvider(options, _configurations).ServiceProvider;
+            return BuildServiceProvider(options, (_configurations, options)).ServiceProvider;
+        }
+
+        var cacheKey = options;
+        var extension = options.FindExtension<CoreOptionsExtension>();
+        if (extension?.ApplicationServiceProvider != null)
+        {
+            cacheKey = ((DbContextOptions)options).WithExtension(extension.WithApplicationServiceProvider(null));
         }
 
         return _configurations.GetOrAdd(
-                options,
-                static (contextOptions, tuples) => BuildServiceProvider(contextOptions, tuples), _configurations)
+                cacheKey,
+                static (contextOptions, tuples) => BuildServiceProvider(contextOptions, tuples), (_configurations, options))
             .ServiceProvider;
 
         static (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider(
-            IDbContextOptions options,
-            ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
-                configurations)
+            IDbContextOptions _,
+            (ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>,
+                IDbContextOptions) arguments)
         {
+            var (configurations, options) = arguments;
+
             ValidateOptions(options);
 
             var debugInfo = new Dictionary<string, string>();

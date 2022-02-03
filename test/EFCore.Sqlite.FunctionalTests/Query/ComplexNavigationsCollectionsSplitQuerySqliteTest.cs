@@ -132,4 +132,16 @@ public class ComplexNavigationsCollectionsSplitQuerySqliteTest
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Complex_query_issue_21665(async))).Message);
+
+    public override async Task Projecting_collection_after_optional_reference_correlated_with_parent(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_collection_after_optional_reference_correlated_with_parent(async))).Message);
+
+    public override async Task Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(async))).Message);
 }

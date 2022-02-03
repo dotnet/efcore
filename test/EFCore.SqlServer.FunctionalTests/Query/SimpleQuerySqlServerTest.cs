@@ -278,12 +278,12 @@ FROM [Table] AS [t]
 GROUP BY [t].[Value]");
     }
 
-        public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
-        {
-            await base.Group_by_multiple_aggregate_joining_different_tables(async);
+    public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
+    {
+        await base.Group_by_multiple_aggregate_joining_different_tables(async);
 
-            AssertSql(
-                @"SELECT COUNT(DISTINCT ([c].[Value1])) AS [Test1], COUNT(DISTINCT ([c0].[Value2])) AS [Test2]
+        AssertSql(
+            @"SELECT COUNT(DISTINCT ([c].[Value1])) AS [Test1], COUNT(DISTINCT ([c0].[Value2])) AS [Test2]
 FROM (
     SELECT [p].[Child1Id], [p].[Child2Id], 1 AS [Key]
     FROM [Parents] AS [p]
@@ -291,14 +291,14 @@ FROM (
 LEFT JOIN [Child1] AS [c] ON [t].[Child1Id] = [c].[Id]
 LEFT JOIN [Child2] AS [c0] ON [t].[Child2Id] = [c0].[Id]
 GROUP BY [t].[Key]");
-        }
+    }
 
-        public override async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
-        {
-            await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
+    public override async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
+    {
+        await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
 
-            AssertSql(
-                @"SELECT COUNT(DISTINCT ([t0].[Value1])) AS [Test1], (
+        AssertSql(
+            @"SELECT COUNT(DISTINCT ([t0].[Value1])) AS [Test1], (
     SELECT DISTINCT COUNT(DISTINCT ([t2].[Value2]))
     FROM (
         SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
@@ -320,5 +320,45 @@ LEFT JOIN (
     WHERE [c].[Filter1] = N'Filter1'
 ) AS [t0] ON [t].[ChildFilter1Id] = [t0].[Id]
 GROUP BY [t].[Key]");
-        }
+    }
+
+    public override async Task Subquery_first_member_compared_to_null(bool async)
+    {
+        await base.Subquery_first_member_compared_to_null(async);
+
+        AssertSql(
+            @"SELECT (
+    SELECT TOP(1) [c1].[SomeOtherNullableDateTime]
+    FROM [Child26744] AS [c1]
+    WHERE [p].[Id] = [c1].[ParentId] AND [c1].[SomeNullableDateTime] IS NULL
+    ORDER BY [c1].[SomeInteger])
+FROM [Parents] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Child26744] AS [c]
+    WHERE [p].[Id] = [c].[ParentId] AND [c].[SomeNullableDateTime] IS NULL) AND (
+    SELECT TOP(1) [c0].[SomeOtherNullableDateTime]
+    FROM [Child26744] AS [c0]
+    WHERE [p].[Id] = [c0].[ParentId] AND [c0].[SomeNullableDateTime] IS NULL
+    ORDER BY [c0].[SomeInteger]) IS NOT NULL");
+    }
+
+    public override async Task SelectMany_where_Select(bool async)
+    {
+        await base.SelectMany_where_Select(async);
+
+        AssertSql(
+            @"SELECT [t0].[SomeNullableDateTime]
+FROM [Parents] AS [p]
+INNER JOIN (
+    SELECT [t].[ParentId], [t].[SomeNullableDateTime], [t].[SomeOtherNullableDateTime]
+    FROM (
+        SELECT [c].[ParentId], [c].[SomeNullableDateTime], [c].[SomeOtherNullableDateTime], ROW_NUMBER() OVER(PARTITION BY [c].[ParentId] ORDER BY [c].[SomeInteger]) AS [row]
+        FROM [Child26744] AS [c]
+        WHERE [c].[SomeNullableDateTime] IS NULL
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [p].[Id] = [t0].[ParentId]
+WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
+    }
 }

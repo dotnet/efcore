@@ -2015,7 +2015,7 @@ LEFT JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'A%'
-) AS [t0] ON [t].[City] = [t0].[City] OR ([t].[City] IS NULL AND [t0].[City] IS NULL)
+) AS [t0] ON [t].[City] = [t0].[City]
 ORDER BY [t].[City]");
     }
 

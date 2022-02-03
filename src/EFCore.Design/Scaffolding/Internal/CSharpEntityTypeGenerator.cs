@@ -199,6 +199,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
                 var indexAttribute = new AttributeWriter(nameof(IndexAttribute));
                 foreach (var property in index.Properties)
                 {
+                    // Do NOT use nameof for property.Name
                     indexAttribute.AddParameter(_code.Literal(property.Name));
                 }
 
@@ -533,6 +534,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
             {
                 var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
 
+                // Do NOT use nameof syntax
                 foreignKeyAttribute.AddParameter(
                     _code.Literal(
                         string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
@@ -552,6 +554,7 @@ public class CSharpEntityTypeGenerator : ICSharpEntityTypeGenerator
             {
                 var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
+                // Do NOT use nameof for inverseNavigation.Name
                 inversePropertyAttribute.AddParameter(_code.Literal(inverseNavigation.Name));
 
                 _sb.AppendLine(inversePropertyAttribute.ToString());

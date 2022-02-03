@@ -2279,11 +2279,13 @@ LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID]");
     }
 
-    public override async Task Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
+    public override async Task
+        Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(bool async)
     {
         // Allow binding of expressions after projection has turned to client eval. Issue #24478.
         await Assert.ThrowsAsync<TrueException>(
-            () => base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
+            () => base
+                .Select_DTO_constructor_distinct_with_collection_projection_translated_to_server_with_binding_after_client_eval(async));
 
         AssertSql(
             @"SELECT [t].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -3853,10 +3855,11 @@ WHERE [o].[OrderID] = 10300");
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
-    SELECT 1
+WHERE (
+    SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))");
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID] DESC) IS NULL");
     }
 
     public override async Task Subquery_is_not_null_translated_correctly(bool async)
@@ -3866,10 +3869,11 @@ WHERE NOT (EXISTS (
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE (
+    SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID])");
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID] DESC) IS NOT NULL");
     }
 
     public override async Task Select_take_average(bool async)
@@ -4534,13 +4538,7 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND ((
     {
         await base.Collection_navigation_equal_to_null_for_subquery(async);
 
-        AssertSql(
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))");
+        AssertSql();
     }
 
     public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool async)
@@ -4550,11 +4548,12 @@ WHERE NOT (EXISTS (
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
-    SELECT 1
+WHERE (
+    SELECT TOP(1) [c0].[CustomerID]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))");
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) IS NULL");
     }
 
     public override async Task Collection_navigation_equality_rewrite_for_subquery(bool async)
@@ -5058,11 +5057,12 @@ ORDER BY [c].[CustomerID]");
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE EXISTS (
-            SELECT 1
+        WHERE (
+            SELECT TOP(1) [c0].[CustomerID]
             FROM [Orders] AS [o0]
             LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-            WHERE [c].[CustomerID] = [o0].[CustomerID]) AND ((
+            WHERE [c].[CustomerID] = [o0].[CustomerID]
+            ORDER BY [o0].[OrderDate]) IS NOT NULL AND ((
             SELECT TOP(1) [c1].[CustomerID]
             FROM [Orders] AS [o1]
             LEFT JOIN [Customers] AS [c1] ON [o1].[CustomerID] = [c1].[CustomerID]

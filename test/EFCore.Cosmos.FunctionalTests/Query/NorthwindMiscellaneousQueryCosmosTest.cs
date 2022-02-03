@@ -3021,8 +3021,7 @@ ORDER BY NOT((true = false))");
 
     public override async Task Collection_navigation_equal_to_null_for_subquery(bool async)
     {
-        // Cosmos client evaluation. Issue #17246.
-        await AssertTranslationFailed(() => base.Collection_navigation_equal_to_null_for_subquery(async));
+        await base.Collection_navigation_equal_to_null_for_subquery(async);
 
         AssertSql();
     }

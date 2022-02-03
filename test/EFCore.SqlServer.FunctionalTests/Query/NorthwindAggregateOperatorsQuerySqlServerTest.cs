@@ -1210,10 +1210,11 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
     FROM [Order Details] AS [o]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE (
+        SELECT TOP(1) [o0].[OrderID]
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]) AND (
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND (
         SELECT TOP(1) [o1].[OrderID]
         FROM [Orders] AS [o1]
         WHERE [c].[CustomerID] = [o1].[CustomerID]
@@ -1232,10 +1233,11 @@ ORDER BY [c].[CustomerID]");
             @"SELECT (
     SELECT TOP(1) [o].[ProductID]
     FROM [Order Details] AS [o]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE (
+        SELECT TOP(1) [o0].[OrderID]
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID]) AND (
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND (
         SELECT TOP(1) [o1].[OrderID]
         FROM [Orders] AS [o1]
         WHERE [c].[CustomerID] = [o1].[CustomerID]

@@ -2274,10 +2274,10 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
-    SELECT 1
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))");
+    WHERE [c].[CustomerID] = [o].[CustomerID]) IS NULL");
     }
 
     public override async Task FirstOrDefault_over_scalar_projection_compared_to_not_null(bool async)
@@ -2287,10 +2287,10 @@ WHERE NOT (EXISTS (
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE (
+    SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID])");
+    WHERE [c].[CustomerID] = [o].[CustomerID]) IS NOT NULL");
     }
 
     public override async Task FirstOrDefault_over_custom_projection_compared_to_null(bool async)

@@ -137,7 +137,18 @@ public class ComplexNavigationsCollectionsSharedTypeQuerySqliteTest
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base
-                    .SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async)))
+                () => base.SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(async)))
             .Message);
+
+    public override async Task Projecting_collection_after_optional_reference_correlated_with_parent(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_collection_after_optional_reference_correlated_with_parent(async))).Message);
+
+    public override async Task Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(async))).Message);
 }

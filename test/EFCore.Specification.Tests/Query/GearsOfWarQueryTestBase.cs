@@ -75,7 +75,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<CogTag>(t => t.Gear),
                 new ExpectedInclude<Gear>(g => g.Weapons, "Gear"),
                 new ExpectedInclude<Officer>(o => o.Weapons, "Gear")));
@@ -120,7 +121,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear.Squad),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<CogTag>(t => t.Gear),
                 new ExpectedInclude<Gear>(g => g.Squad, "Gear"),
                 new ExpectedInclude<Officer>(o => o.Squad, "Gear")));
@@ -137,7 +139,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth.StationedGears),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth),
                 new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
@@ -148,7 +151,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth.StationedGears).Where(g => g.Nickname == "Marcus"),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth),
                 new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
@@ -159,7 +163,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.Weapons).Where(g => g.Nickname == "Marcus"),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(o => o.Weapons)));
 
@@ -212,7 +217,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.CityOfBirth),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth)));
 
@@ -226,7 +232,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.CityOfBirth),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth)));
 
@@ -240,7 +247,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(o => o.Weapons)));
 
@@ -254,7 +262,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 (t, g) => g).Include(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(o => o.Weapons)));
 
@@ -333,7 +342,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 g => new { SquadId = (int?)g.SquadId, g.Nickname },
                 t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
                 (g, t) => g).Include(g => g.CityOfBirth.StationedGears),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.CityOfBirth),
                 new ExpectedInclude<Officer>(o => o.CityOfBirth),
                 new ExpectedInclude<City>(c => c.StationedGears, "CityOfBirth")));
@@ -1650,7 +1660,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                       on g1.LeaderNickname equals g2.Nickname into grouping
                   from g2 in grouping.DefaultIfEmpty()
                   select g2 ?? g1,
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(g => g.Weapons)));
 
@@ -1694,7 +1705,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                       on g1.LeaderNickname equals g2.Nickname into grouping
                   from g2 in grouping.DefaultIfEmpty()
                   select g2 ?? g1,
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(g => g.Weapons)));
 
@@ -1710,7 +1722,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 #pragma warning disable IDE0029 // Use coalesce expression
                   select g2 != null ? g2 : g1,
 #pragma warning restore IDE0029 // Use coalesce expression
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(g => g.Weapons),
                 new ExpectedInclude<Officer>(g => g.Weapons)));
 
@@ -1930,11 +1943,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Optional_navigation_type_compensation_works_with_take(bool async)
         => AssertInvalidMaterializationType(
             () => AssertQuery(
-            async,
-            ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
-                .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Take(t.Gear.SquadId)),
-            assertOrder: true,
-            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)),
+                async,
+                ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
+                    .Select(t => ss.Set<Gear>().OrderBy(g => g.Nickname).Take(t.Gear.SquadId)),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)),
             "IEnumerable<T>");
 
     [ConditionalTheory]
@@ -2244,7 +2257,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     private static IEnumerable<TElement> ClientDefaultIfEmpty<TElement>(IEnumerable<TElement> source)
         // ReSharper disable PossibleMultipleEnumeration
         => source?.Count() == 0 ? new[] { default(TElement) } : source;
-        // ReSharper restore PossibleMultipleEnumeration
+    // ReSharper restore PossibleMultipleEnumeration
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2752,7 +2765,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => from lh in ss.Set<Faction>().OfType<LocustHorde>().Include(h => h.Commander).Include(h => h.Leaders)
                   orderby lh.Name
                   select lh,
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
                 new ExpectedInclude<LocustHorde>(e2 => e2.Leaders)),
             assertOrder: true);
@@ -2922,7 +2936,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Squad"),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
                 new ExpectedInclude<Gear>(g => g.Squad, "DefeatedBy")));
 
@@ -2932,7 +2947,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<LocustLeader>().Include("DefeatedBy.Reports.CityOfBirth"),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy),
                 new ExpectedInclude<Officer>(o => o.Reports, "DefeatedBy"),
                 new ExpectedInclude<Gear>(g => g.CityOfBirth, "DefeatedBy.Reports")));
@@ -2992,7 +3008,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Tag).Include(g => ((Officer)g).Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Officer>(e1 => e1.Tag),
                 new ExpectedInclude<Officer>(e2 => e2.Weapons)));
 
@@ -3002,7 +3019,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<CogTag>().Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<CogTag>(e1 => e1.Gear),
                 new ExpectedInclude<Officer>(e2 => e2.Weapons, "Gear")));
 
@@ -3012,7 +3030,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
                 new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
                 new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
@@ -3023,7 +3042,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Reports).ThenInclude(g => ((Officer)g).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Officer>(e1 => e1.Reports),
                 new ExpectedInclude<Officer>(e2 => e2.Reports, "Reports")));
 
@@ -3033,7 +3053,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => ((LocustHorde)f).Leaders).ThenInclude(l => ((LocustCommander)l).DefeatedBy),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustHorde>(e1 => e1.Leaders),
                 new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Leaders")));
 
@@ -3043,7 +3064,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Faction>().Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustHorde>(e1 => e1.Commander),
                 new ExpectedInclude<LocustCommander>(e2 => e2.DefeatedBy, "Commander"),
                 new ExpectedInclude<Officer>(e3 => e3.Reports, "Commander.DefeatedBy")));
@@ -3054,7 +3076,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => ((Officer)g).Reports).ThenInclude(g => g.Squad.Missions),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Officer>(e1 => e1.Reports),
                 new ExpectedInclude<Gear>(e2 => e2.Squad, "Reports"),
                 new ExpectedInclude<Squad>(e3 => e3.Missions, "Reports.Squad")));
@@ -4121,7 +4144,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons)
                 .OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
             ss => ss.Set<LocustLeader>().Take(10),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustCommander>(e1 => e1.DefeatedBy),
                 new ExpectedInclude<Gear>(e2 => e2.Weapons, "DefeatedBy")));
 
@@ -4210,7 +4234,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Gear>().Include(g => g.Squad).Concat(ss.Set<Gear>()),
-                    elementAsserter: (e, a) => AssertInclude(e, a,
+                    elementAsserter: (e, a) => AssertInclude(
+                        e, a,
                         new ExpectedInclude<Gear>(g => g.Squad),
                         new ExpectedInclude<Officer>(o => o.Squad))))).Message);
 
@@ -5004,7 +5029,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => AssertQuery(
             async,
             ss => ss.Set<Gear>().Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.FirstOrDefault(gg => gg.HasSoulPatch)),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<Gear>(e1 => e1.CityOfBirth),
                 new ExpectedInclude<Officer>(e2 => e2.CityOfBirth)));
 
@@ -6798,7 +6824,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<LocustLeader>().Where(ll => ll.Name.Contains("Queen")).Cast<LocustCommander>().Include(lc => lc.DefeatedBy)
                 .ThenInclude(g => g.Weapons),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<LocustCommander>(x => x.DefeatedBy),
                 new ExpectedInclude<Gear>(x => x.Weapons, "DefeatedBy")));
 
@@ -8094,9 +8121,27 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         return AssertQueryScalar(
             async,
             ss => ss.Set<Gear>()
-                    .OrderBy(g => g.Nickname)
-                    .Take(1)
-                    .Select(g => g.Rank & value));
+                .OrderBy(g => g.Nickname)
+                .Take(1)
+                .Select(g => g.Rank & value));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_subquery_equality_to_null_with_composite_key(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(e => e.Nickname).FirstOrDefault() == null));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_subquery_equality_to_null_without_composite_key(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Where(s => s.Weapons.OrderBy(e => e.Name).FirstOrDefault() == null));
     }
 
     protected GearsOfWarContext CreateContext()

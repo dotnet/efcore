@@ -670,13 +670,14 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         var query = context.Orders.Where(x => x.Items.Any()).OrderBy(e => e.Id).Take(1)
             .Select(e => e.Id)
             .Join(context.Orders, o => o, i => i.Id, (o, i) => i)
-            .Select(entity => new
-            {
-                entity.Id,
-                SpecialSum = entity.Items.Where(x => x.Type == orderItemType)
-                    .Select(x => x.Price)
-                    .FirstOrDefault()
-            });
+            .Select(
+                entity => new
+                {
+                    entity.Id,
+                    SpecialSum = entity.Items.Where(x => x.Type == orderItemType)
+                        .Select(x => x.Price)
+                        .FirstOrDefault()
+                });
 
         var result = async
             ? await query.ToListAsync()
@@ -686,7 +687,7 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     protected class Context26472 : DbContext
     {
         public Context26472(DbContextOptions options)
-               : base(options)
+            : base(options)
         {
         }
 
@@ -732,12 +733,13 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             .Set<TimeSheet>()
             .Where(x => x.OrderId != null)
             .GroupBy(x => x.OrderId)
-            .Select(x => new
-            {
-                HourlyRate = x.Min(f => f.Order.HourlyRate),
-                CustomerId = x.Min(f => f.Project.Customer.Id),
-                CustomerName = x.Min(f => f.Project.Customer.Name),
-            });
+            .Select(
+                x => new
+                {
+                    HourlyRate = x.Min(f => f.Order.HourlyRate),
+                    CustomerId = x.Min(f => f.Project.Customer.Id),
+                    CustomerName = x.Min(f => f.Project.Customer.Name),
+                });
 
         var timeSheets = async
             ? await query.ToListAsync()
@@ -759,19 +761,21 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             .Set<Order>()
             .Where(someFilterFromOutside)
             .GroupBy(x => new { x.CustomerId, x.Number })
-            .Select(x => new
-            {
-                x.Key.CustomerId,
-                CustomerMinHourlyRate = context.Set<Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
-                HourlyRate = x.Min(f => f.HourlyRate),
-                Count = x.Count()
-            });
+            .Select(
+                x => new
+                {
+                    x.Key.CustomerId,
+                    CustomerMinHourlyRate = context.Set<Order>().Where(n => n.CustomerId == x.Key.CustomerId).Min(h => h.HourlyRate),
+                    HourlyRate = x.Min(f => f.HourlyRate),
+                    Count = x.Count()
+                });
 
         var orders = async
             ? await query.ToListAsync()
             : query.ToList();
 
-        Assert.Collection(orders.OrderBy(x => x.CustomerId),
+        Assert.Collection(
+            orders.OrderBy(x => x.CustomerId),
             t =>
             {
                 Assert.Equal(1, t.CustomerId);
@@ -806,9 +810,24 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             var projectA = new Project { Customer = customerA };
             var projectB = new Project { Customer = customerB };
 
-            var orderA1 = new Order { Number = "A1", Customer = customerA, HourlyRate = 10 };
-            var orderA2 = new Order { Number = "A2", Customer = customerA, HourlyRate = 11 };
-            var orderB1 = new Order { Number = "B1", Customer = customerB, HourlyRate = 20 };
+            var orderA1 = new Order
+            {
+                Number = "A1",
+                Customer = customerA,
+                HourlyRate = 10
+            };
+            var orderA2 = new Order
+            {
+                Number = "A2",
+                Customer = customerA,
+                HourlyRate = 11
+            };
+            var orderB1 = new Order
+            {
+                Number = "B1",
+                Customer = customerB,
+                HourlyRate = 20
+            };
 
             var timeSheetA = new TimeSheet { Order = orderA1, Project = projectA };
             var timeSheetB = new TimeSheet { Order = orderB1, Project = projectB };
@@ -869,11 +888,11 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
 
         var query = from t in context.Table
-                    group t.Id by t.Value into tg
+                    group t.Id by t.Value
+                    into tg
                     select new
                     {
-                        A = tg.Key,
-                        B = context.Table.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
+                        A = tg.Key, B = context.Table.Where(t => t.Value == tg.Max() * 6).Max(t => (int?)t.Id),
                     };
 
         var orders = async
@@ -889,15 +908,17 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         using var context = contextFactory.CreateContext();
 
         var query = from t in context.Table
-                    group t.Id by t.Value into tg
+                    group t.Id by t.Value
+                    into tg
                     select new
                     {
                         A = tg.Key,
                         B = tg.Sum(),
                         C = (from t in context.Table
-                             group t.Id by t.Value into tg2
+                             group t.Id by t.Value
+                             into tg2
                              select tg.Sum() + tg2.Sum()
-                             ).OrderBy(e => 1).FirstOrDefault()
+                            ).OrderBy(e => 1).FirstOrDefault()
                     };
 
         var orders = async
@@ -921,16 +942,17 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int? Value { get; set; }
     }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
-        {
-            var contextFactory = await InitializeAsync<Context27163>();
-            using var context = contextFactory.CreateContext();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27163>();
+        using var context = contextFactory.CreateContext();
 
-            var query = context.Parents
-                .GroupBy(x => new { })
-                .Select(g => new
+        var query = context.Parents
+            .GroupBy(x => new { })
+            .Select(
+                g => new
                 {
                     Test1 = g
                         .Select(x => x.Child1.Value1)
@@ -942,21 +964,22 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
                         .Count()
                 });
 
-            var orders = async
-                ? await query.ToListAsync()
-                : query.ToList();
-        }
+        var orders = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
-        {
-            var contextFactory = await InitializeAsync<Context27163>();
-            using var context = contextFactory.CreateContext();
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27163>();
+        using var context = contextFactory.CreateContext();
 
-            var query = context.Parents
-                .GroupBy(x => new { })
-                .Select(g => new
+        var query = context.Parents
+            .GroupBy(x => new { })
+            .Select(
+                g => new
                 {
                     Test1 = g
                         .Select(x => x.ChildFilter1.Value1)
@@ -968,59 +991,149 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
                         .Count()
                 });
 
-            var orders = async
-                ? await query.ToListAsync()
-                : query.ToList();
-        }
+        var orders = async
+            ? await query.ToListAsync()
+            : query.ToList();
+    }
 
-        protected class Context27163 : DbContext
+    protected class Context27163 : DbContext
+    {
+        public Context27163(DbContextOptions options)
+            : base(options)
         {
-            public Context27163(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<Parent> Parents { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<ChildFilter1>().HasQueryFilter(e => e.Filter1 == "Filter1");
-                modelBuilder.Entity<ChildFilter2>().HasQueryFilter(e => e.Filter2 == "Filter2");
-            }
         }
 
-        public class Parent
+        public DbSet<Parent> Parents { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            public int Id { get; set; }
-            public Child1 Child1 { get; set; }
-            public Child2 Child2 { get; set; }
-            public ChildFilter1 ChildFilter1 { get; set; }
-            public ChildFilter2 ChildFilter2 { get; set; }
+            modelBuilder.Entity<ChildFilter1>().HasQueryFilter(e => e.Filter1 == "Filter1");
+            modelBuilder.Entity<ChildFilter2>().HasQueryFilter(e => e.Filter2 == "Filter2");
+        }
+    }
+
+    public class Parent
+    {
+        public int Id { get; set; }
+        public Child1 Child1 { get; set; }
+        public Child2 Child2 { get; set; }
+        public ChildFilter1 ChildFilter1 { get; set; }
+        public ChildFilter2 ChildFilter2 { get; set; }
+    }
+
+    public class Child1
+    {
+        public int Id { get; set; }
+        public string Value1 { get; set; }
+    }
+
+    public class Child2
+    {
+        public int Id { get; set; }
+        public string Value2 { get; set; }
+    }
+
+    public class ChildFilter1
+    {
+        public int Id { get; set; }
+        public string Filter1 { get; set; }
+        public string Value1 { get; set; }
+    }
+
+    public class ChildFilter2
+    {
+        public int Id { get; set; }
+        public string Filter2 { get; set; }
+        public string Value2 { get; set; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Subquery_first_member_compared_to_null(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Parents
+            .Where(
+                p => p.Children.Any(c => c.SomeNullableDateTime == null)
+                    && p.Children.Where(c => c.SomeNullableDateTime == null)
+                        .OrderBy(c => c.SomeInteger)
+                        .First().SomeOtherNullableDateTime
+                    != null)
+            .Select(
+                p => p.Children.Where(c => c.SomeNullableDateTime == null)
+                    .OrderBy(c => c.SomeInteger)
+                    .First().SomeOtherNullableDateTime);
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Single(result);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task SelectMany_where_Select(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context26744>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var query = context.Parents
+            .SelectMany(
+                p => p.Children
+                    .Where(c => c.SomeNullableDateTime == null)
+                    .OrderBy(c => c.SomeInteger)
+                    .Take(1))
+            .Where(c => c.SomeOtherNullableDateTime != null)
+            .Select(c => c.SomeNullableDateTime);
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Single(result);
+    }
+
+    protected class Context26744 : DbContext
+    {
+        public Context26744(DbContextOptions options)
+            : base(options)
+        {
         }
 
-        public class Child1
-        {
-            public int Id { get; set; }
-            public string Value1 { get; set; }
-        }
+        public DbSet<Parent26744> Parents { get; set; }
 
-        public class Child2
+        public void Seed()
         {
-            public int Id { get; set; }
-            public string Value2 { get; set; }
-        }
+            Add(
+                new Parent26744
+                {
+                    Children = new List<Child26744>
+                    {
+                        new Child26744 { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }
+                    }
+                });
 
-        public class ChildFilter1
-        {
-            public int Id { get; set; }
-            public string Filter1 { get; set; }
-            public string Value1 { get; set; }
-        }
+            Add(new Parent26744 { Children = new List<Child26744> { new Child26744 { SomeInteger = 1, } } });
 
-        public class ChildFilter2
-        {
-            public int Id { get; set; }
-            public string Filter2 { get; set; }
-            public string Value2 { get; set; }
+            SaveChanges();
         }
+    }
+
+    protected class Parent26744
+    {
+        public int Id { get; set; }
+        public List<Child26744> Children { get; set; }
+    }
+
+    protected class Child26744
+    {
+        public int Id { get; set; }
+        public int SomeInteger { get; set; }
+        public DateTime? SomeNullableDateTime { get; set; }
+        public DateTime? SomeOtherNullableDateTime { get; set; }
+        public Parent26744 Parent { get; set; }
+    }
 }

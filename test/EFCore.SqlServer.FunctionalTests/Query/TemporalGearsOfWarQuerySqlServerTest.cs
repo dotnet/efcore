@@ -1364,7 +1364,7 @@ OUTER APPLY (
         FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
         WHERE [w].[Name] <> N'Bar' OR [w].[Name] IS NULL
     ) AS [t] ON [g0].[FullName] = [t].[OwnerFullName]
-    WHERE [g0].[FullName] <> N'Foo' AND [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId]
+    WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId] AND [g0].[FullName] <> N'Foo'
 ) AS [t0]
 WHERE [g].[Discriminator] = N'Officer'
 ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId]");
@@ -3387,7 +3387,7 @@ OUTER APPLY (
     OUTER APPLY (
         SELECT [t].[Id], [t].[Name], [t0].[Nickname], [t0].[FullName], [t0].[HasSoulPatch], [w].[Id] AS [Id0]
         FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-        WHERE [t0].[FullName] = [w].[OwnerFullName]
+        WHERE [w].[OwnerFullName] = [t0].[FullName]
     ) AS [t2]
 ) AS [t1]
 ORDER BY [t].[Id], [t1].[Nickname], [t1].[FullName], [t1].[HasSoulPatch]");
@@ -6350,7 +6350,7 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 OUTER APPLY (
     SELECT [g0].[FullName] AS [ReportName], [g0].[Nickname], [g0].[SquadId]
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0]
-    WHERE [g].[FullName] <> N'Foo' AND [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId]
+    WHERE [g].[Nickname] = [g0].[LeaderNickname] AND [g].[SquadId] = [g0].[LeaderSquadId] AND [g].[FullName] <> N'Foo'
 ) AS [t]
 WHERE [g].[Discriminator] = N'Officer'
 ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
@@ -6588,7 +6588,7 @@ LEFT JOIN (
     OUTER APPLY (
         SELECT [w].[Name], [g0].[Nickname], [w].[Id]
         FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-        WHERE ([w].[Name] <> N'Bar' OR [w].[Name] IS NULL) AND [g0].[FullName] = [w].[OwnerFullName]
+        WHERE [g0].[FullName] = [w].[OwnerFullName] AND ([w].[Name] <> N'Bar' OR [w].[Name] IS NULL)
     ) AS [t]
     WHERE [g0].[FullName] <> N'Foo'
 ) AS [t0] ON [g].[Nickname] = [t0].[LeaderNickname] AND [g].[SquadId] = [t0].[LeaderSquadId]
@@ -7466,7 +7466,7 @@ LEFT JOIN (
         AssertSql(
             @"SELECT [t].[Id], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
-LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId]
+LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g] ON [t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId] AND [t].[Note] IS NOT NULL
 ORDER BY [t].[Id], [g].[Nickname]");
     }
 
@@ -8471,6 +8471,32 @@ WHERE [s].[Name] = N'Kilo' AND COALESCE((
         await base.Select_Where_Navigation_Client(async);
 
         AssertSql();
+    }
+
+    public override async Task Where_subquery_equality_to_null_with_composite_key(bool async)
+    {
+        await base.Where_subquery_equality_to_null_with_composite_key(async);
+
+        AssertSql(
+            @"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart]
+FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+    WHERE [s].[Id] = [g].[SquadId]))");
+    }
+
+    public override async Task Where_subquery_equality_to_null_without_composite_key(bool async)
+    {
+        await base.Where_subquery_equality_to_null_without_composite_key(async);
+
+        AssertSql(
+            @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]))");
     }
 
     private void AssertSql(params string[] expected)

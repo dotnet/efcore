@@ -2437,6 +2437,40 @@ ORDER BY [l].[Id], [t1].[Id], [t1].[Id0], [t1].[Id00]");
         AssertSql();
     }
 
+    public override async Task Projecting_collection_after_optional_reference_correlated_with_parent(bool async)
+    {
+        await base.Projecting_collection_after_optional_reference_correlated_with_parent(async);
+
+        AssertSql(
+            @"SELECT [l].[Id], [l0].[Id], [t].[ChildId], [t].[ParentName]
+FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
+LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+OUTER APPLY (
+    SELECT [l1].[Id] AS [ChildId], [l0].[Name] AS [ParentName]
+    FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
+    WHERE [l0].[Id] IS NOT NULL AND [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+) AS [t]
+ORDER BY [l].[Id], [l0].[Id]");
+    }
+
+    public override async Task Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(bool async)
+    {
+        await base.Projecting_collection_with_group_by_after_optional_reference_correlated_with_parent(async);
+
+        AssertSql(
+            @"SELECT [l].[Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l1].[PeriodEnd], [l1].[PeriodStart], [l0].[Id], [t].[Key], [t].[Count]
+FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
+LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
+OUTER APPLY (
+    SELECT [l2].[Name] AS [Key], COUNT(*) AS [Count]
+    FROM [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l2]
+    WHERE [l0].[Id] IS NOT NULL AND [l0].[Id] = [l2].[OneToMany_Optional_Inverse3Id]
+    GROUP BY [l2].[Name]
+) AS [t]
+ORDER BY [l].[Id], [l0].[Id], [l1].[Id]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

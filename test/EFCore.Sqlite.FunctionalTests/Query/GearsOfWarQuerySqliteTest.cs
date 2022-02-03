@@ -4852,7 +4852,7 @@ FROM ""Gears"" AS ""g""");
         AssertSql(
             @"SELECT ""t"".""Id"", ""g"".""Nickname"", ""g"".""SquadId"", ""g"".""AssignedCityName"", ""g"".""CityOfBirthName"", ""g"".""Discriminator"", ""g"".""FullName"", ""g"".""HasSoulPatch"", ""g"".""LeaderNickname"", ""g"".""LeaderSquadId"", ""g"".""Rank""
 FROM ""Tags"" AS ""t""
-LEFT JOIN ""Gears"" AS ""g"" ON ""t"".""GearNickName"" = ""g"".""Nickname"" AND ""t"".""GearSquadId"" = ""g"".""SquadId""
+LEFT JOIN ""Gears"" AS ""g"" ON ""t"".""GearNickName"" = ""g"".""Nickname"" AND ""t"".""GearSquadId"" = ""g"".""SquadId"" AND ""t"".""Note"" IS NOT NULL
 ORDER BY ""t"".""Id"", ""g"".""Nickname""");
     }
 
@@ -8065,6 +8065,20 @@ LEFT JOIN (
     public override async Task Select_Where_Navigation_Client(bool async)
     {
         await base.Select_Where_Navigation_Client(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_subquery_equality_to_null_with_composite_key(bool async)
+    {
+        await base.Where_subquery_equality_to_null_with_composite_key(async);
+
+        AssertSql();
+    }
+
+    public override async Task Where_subquery_equality_to_null_without_composite_key(bool async)
+    {
+        await base.Where_subquery_equality_to_null_without_composite_key(async);
 
         AssertSql();
     }
