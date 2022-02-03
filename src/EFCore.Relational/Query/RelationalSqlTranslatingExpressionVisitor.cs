@@ -302,48 +302,45 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             right = rightOperand!;
         }
 
-        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26744", out var enabled) && enabled))
+        if ((binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+            && (left.IsNullConstantExpression() || right.IsNullConstantExpression()))
         {
-            if ((binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
-                && (left.IsNullConstantExpression() || right.IsNullConstantExpression()))
+            var nonNullExpression = left.IsNullConstantExpression() ? right : left;
+            if (nonNullExpression is MethodCallExpression nonNullMethodCallExpression
+                && nonNullMethodCallExpression.Method.DeclaringType == typeof(Queryable)
+                && nonNullMethodCallExpression.Method.IsGenericMethod
+                && SingleResultMethodInfos.Contains(nonNullMethodCallExpression.Method.GetGenericMethodDefinition()))
             {
-                var nonNullExpression = left.IsNullConstantExpression() ? right : left;
-                if (nonNullExpression is MethodCallExpression nonNullMethodCallExpression
-                    && nonNullMethodCallExpression.Method.DeclaringType == typeof(Queryable)
-                    && nonNullMethodCallExpression.Method.IsGenericMethod
-                    && SingleResultMethodInfos.Contains(nonNullMethodCallExpression.Method.GetGenericMethodDefinition()))
+                var source = nonNullMethodCallExpression.Arguments[0];
+                if (nonNullMethodCallExpression.Arguments.Count == 2)
                 {
-                    var source = nonNullMethodCallExpression.Arguments[0];
-                    if (nonNullMethodCallExpression.Arguments.Count == 2)
+                    source = Expression.Call(
+                        QueryableMethods.Where.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source,
+                        nonNullMethodCallExpression.Arguments[1]);
+                }
+
+                var translatedSubquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(source);
+                if (translatedSubquery != null)
+                {
+                    var projection = translatedSubquery.ShaperExpression;
+                    if (projection is NewExpression
+                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false })
                     {
-                        source = Expression.Call(
-                            QueryableMethods.Where.MakeGenericMethod(source.Type.GetSequenceType()),
-                            source,
-                            nonNullMethodCallExpression.Arguments[1]);
+                        var anySubquery = Expression.Call(
+                            QueryableMethods.AnyWithoutPredicate.MakeGenericMethod(translatedSubquery.Type.GetSequenceType()),
+                            translatedSubquery);
+
+                        return Visit(
+                            binaryExpression.NodeType == ExpressionType.Equal
+                                ? Expression.Not(anySubquery)
+                                : anySubquery);
                     }
 
-                    var translatedSubquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(source);
-                    if (translatedSubquery != null)
-                    {
-                        var projection = translatedSubquery.ShaperExpression;
-                        if (projection is NewExpression
-                            || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false })
-                        {
-                            var anySubquery = Expression.Call(
-                                QueryableMethods.AnyWithoutPredicate.MakeGenericMethod(translatedSubquery.Type.GetSequenceType()),
-                                translatedSubquery);
-
-                            return Visit(
-                                binaryExpression.NodeType == ExpressionType.Equal
-                                    ? Expression.Not(anySubquery)
-                                    : anySubquery);
-                        }
-
-                        static Expression RemoveConvert(Expression e)
-                            => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
-                                ? RemoveConvert(unary.Operand)
-                                : e;
-                    }
+                    static Expression RemoveConvert(Expression e)
+                        => e is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary
+                            ? RemoveConvert(unary.Operand)
+                            : e;
                 }
             }
         }

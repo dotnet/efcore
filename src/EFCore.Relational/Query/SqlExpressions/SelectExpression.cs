@@ -2205,23 +2205,16 @@ public sealed partial class SelectExpression : TableExpressionBase
                         return;
                     }
 
-                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27072", out var enabled27072) || !enabled27072)
+                    if (originalInnerSelectPredicate != null)
                     {
-                        if (originalInnerSelectPredicate != null)
+                        if (innerSelectExpression.GroupBy.Count > 0)
                         {
-                            if (innerSelectExpression.GroupBy.Count > 0)
-                            {
-                                innerSelectExpression.Having = originalInnerSelectPredicate;
-                            }
-                            else
-                            {
-                                innerSelectExpression.Predicate = originalInnerSelectPredicate;
-                            }
+                            innerSelectExpression.Having = originalInnerSelectPredicate;
                         }
-                    }
-                    else
-                    {
-                        innerSelectExpression.ApplyPredicate(joinPredicate);
+                        else
+                        {
+                            innerSelectExpression.Predicate = originalInnerSelectPredicate;
+                        }
                     }
 
                     joinPredicate = null;
@@ -2484,49 +2477,19 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             static bool IsContainedSql(SelectExpression selectExpression, SqlExpression sqlExpression)
             {
-                if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26756", out var enabled) || !enabled)
-                {
-                    switch (sqlExpression)
-                    {
-                        case ColumnExpression columnExpression:
-                            return selectExpression.ContainsTableReference(columnExpression);
-
-                        case CaseExpression caseExpression
-                            when caseExpression.ElseResult == null
-                            && caseExpression.Operand == null
-                            && caseExpression.WhenClauses.Count == 1
-                            && caseExpression.WhenClauses[0].Result is ColumnExpression resultColumn:
-                            // We check condition in a separate function to avoid matching structure of condition outside of case block
-                            return IsContainedCondition(selectExpression, caseExpression.WhenClauses[0].Test)
-                                && selectExpression.ContainsTableReference(resultColumn);
-
-                        default:
-                            return false;
-                    }
-                }
-
                 switch (sqlExpression)
                 {
                     case ColumnExpression columnExpression:
                         return selectExpression.ContainsTableReference(columnExpression);
 
-                    case SqlConstantExpression sqlConstantExpression
-                        when sqlConstantExpression.Value == null:
-                        return true;
-
-                    case SqlBinaryExpression sqlBinaryExpression
-                        when sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                        || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
-                        || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual:
-                        return IsContainedSql(selectExpression, sqlBinaryExpression.Left)
-                            && IsContainedSql(selectExpression, sqlBinaryExpression.Right);
-
                     case CaseExpression caseExpression
                         when caseExpression.ElseResult == null
                         && caseExpression.Operand == null
-                        && caseExpression.WhenClauses.Count == 1:
-                        return IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Test)
-                            && IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Result);
+                        && caseExpression.WhenClauses.Count == 1
+                        && caseExpression.WhenClauses[0].Result is ColumnExpression resultColumn:
+                        // We check condition in a separate function to avoid matching structure of condition outside of case block
+                        return IsContainedCondition(selectExpression, caseExpression.WhenClauses[0].Test)
+                            && selectExpression.ContainsTableReference(resultColumn);
 
                     default:
                         return false;
