@@ -2407,16 +2407,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
                                 || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
                     {
-                        if (IsContainedColumn(outer, sqlBinaryExpression.Left)
-                            && IsContainedColumn(inner, sqlBinaryExpression.Right))
+                        if (IsContainedSql(outer, sqlBinaryExpression.Left)
+                            && IsContainedSql(inner, sqlBinaryExpression.Right))
                         {
                             outerColumnExpressions.Add(sqlBinaryExpression.Left);
 
                             return sqlBinaryExpression;
                         }
 
-                        if (IsContainedColumn(outer, sqlBinaryExpression.Right)
-                            && IsContainedColumn(inner, sqlBinaryExpression.Left))
+                        if (IsContainedSql(outer, sqlBinaryExpression.Right)
+                            && IsContainedSql(inner, sqlBinaryExpression.Left))
                         {
                             outerColumnExpressions.Add(sqlBinaryExpression.Right);
 
@@ -2432,14 +2432,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     // null checks are considered part of join key
                     if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
                     {
-                        if (IsContainedColumn(outer, sqlBinaryExpression.Left)
+                        if (IsContainedSql(outer, sqlBinaryExpression.Left)
                             && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
                             && rightConstant.Value == null)
                         {
                             return sqlBinaryExpression;
                         }
 
-                        if (IsContainedColumn(outer, sqlBinaryExpression.Right)
+                        if (IsContainedSql(outer, sqlBinaryExpression.Right)
                             && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
                             && leftConstant.Value == null)
                         {
@@ -2452,8 +2452,29 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     return null;
                 }
 
-                static bool IsContainedColumn(SelectExpression selectExpression, SqlExpression sqlExpression)
+                static bool IsContainedSql(SelectExpression selectExpression, SqlExpression sqlExpression)
                 {
+                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26756", out var enabled) || !enabled)
+                    {
+                        switch (sqlExpression)
+                        {
+                            case ColumnExpression columnExpression:
+                                return selectExpression.ContainsTableReference(columnExpression);
+
+                            case CaseExpression caseExpression
+                                when caseExpression.ElseResult == null
+                                && caseExpression.Operand == null
+                                && caseExpression.WhenClauses.Count == 1
+                                && caseExpression.WhenClauses[0].Result is ColumnExpression resultColumn:
+                                // We check condition in a separate function to avoid matching structure of condition outside of case block
+                                return IsContainedCondition(selectExpression, caseExpression.WhenClauses[0].Test)
+                                    && selectExpression.ContainsTableReference(resultColumn);
+
+                            default:
+                                return false;
+                        }
+                    }
+
                     switch (sqlExpression)
                     {
                         case ColumnExpression columnExpression:
@@ -2467,19 +2488,39 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             when sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                             || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
                             || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual:
-                            return IsContainedColumn(selectExpression, sqlBinaryExpression.Left)
-                                && IsContainedColumn(selectExpression, sqlBinaryExpression.Right);
+                            return IsContainedSql(selectExpression, sqlBinaryExpression.Left)
+                                && IsContainedSql(selectExpression, sqlBinaryExpression.Right);
 
                         case CaseExpression caseExpression
                             when caseExpression.ElseResult == null
                             && caseExpression.Operand == null
                             && caseExpression.WhenClauses.Count == 1:
-                            return IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Test)
-                                && IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Result);
+                            return IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Test)
+                                && IsContainedSql(selectExpression, caseExpression.WhenClauses[0].Result);
 
                         default:
                             return false;
                     }
+                }
+
+                static bool IsContainedCondition(SelectExpression selectExpression, SqlExpression condition)
+                {
+                    if (condition is not SqlBinaryExpression
+                        { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.NotEqual } sqlBinaryExpression)
+                    {
+                        return false;
+                    }
+
+                    if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+                    {
+                        // We don't check left/right inverted because we generate this.
+                        return sqlBinaryExpression.Right is SqlConstantExpression { Value: null }
+                            && sqlBinaryExpression.Left is ColumnExpression column
+                            && selectExpression.ContainsTableReference(column);
+                    }
+
+                    return IsContainedCondition(selectExpression, sqlBinaryExpression.Left)
+                        && IsContainedCondition(selectExpression, sqlBinaryExpression.Right);
                 }
 
                 static void PopulateInnerKeyColumns(
