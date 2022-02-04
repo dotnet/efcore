@@ -1400,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var sequenceType = type.TryGetSequenceType();
-            if (sequenceType != null)
+            if (sequenceType != null && sequenceType != type)
             {
                 AddNamespace(sequenceType, namespaces);
             }
