@@ -93,6 +93,68 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal(SqliteType.Text, new SqliteParameter().SqliteType);
         }
 
+        [Theory]
+        [InlineData(false, SqliteType.Integer)]
+        [InlineData((byte)0, SqliteType.Integer)]
+        [InlineData(new byte[0], SqliteType.Blob)]
+        [InlineData('A', SqliteType.Text)]
+        [InlineData(0.0, SqliteType.Real)]
+        [InlineData(0f, SqliteType.Real)]
+        [InlineData(0, SqliteType.Integer)]
+        [InlineData(0L, SqliteType.Integer)]
+        [InlineData((sbyte)0, SqliteType.Integer)]
+        [InlineData((short)0, SqliteType.Integer)]
+        [InlineData("", SqliteType.Text)]
+        [InlineData(0u, SqliteType.Integer)]
+        [InlineData(0ul, SqliteType.Integer)]
+        [InlineData((ushort)0, SqliteType.Integer)]
+        public void SqliteType_is_inferred_from_value(object value, SqliteType expected)
+        {
+            var parameter = new SqliteParameter { Value = value };
+            Assert.Equal(expected, parameter.SqliteType);
+        }
+
+        [Fact]
+        public void SqliteType_is_inferred_from_DateTime_value()
+            => SqliteType_is_inferred_from_value(default(DateTime), SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_is_inferred_from_DateTimeOffset_value()
+            => SqliteType_is_inferred_from_value(default(DateTimeOffset), SqliteType.Text);
+
+#if NET6_0_OR_GREATER
+        [Fact]
+        public void SqliteType_is_inferred_from_DateOnly_value()
+            => SqliteType_is_inferred_from_value(default(DateOnly), SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_is_inferred_from_TimeOnly_value()
+            => SqliteType_is_inferred_from_value(default(TimeOnly), SqliteType.Text);
+#endif
+
+        [Fact]
+        public void SqliteType_is_inferred_from_DBNull()
+            => SqliteType_is_inferred_from_value(DBNull.Value, SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_is_inferred_from_decimal_value()
+            => SqliteType_is_inferred_from_value(0m, SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_is_inferred_from_Guid_value()
+            => SqliteType_is_inferred_from_value(default(Guid), SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_is_inferred_from_TimeSpan_value()
+            => SqliteType_is_inferred_from_value(default(TimeSpan), SqliteType.Text);
+
+        [Fact]
+        public void SqliteType_overrides_inferred_value()
+        {
+            var parameter = new SqliteParameter { Value = 'A', SqliteType = SqliteType.Integer };
+            Assert.Equal(SqliteType.Integer, parameter.SqliteType);
+        }
+
         [Fact]
         public void Direction_input_by_default()
         {
@@ -126,6 +188,16 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Equal(DbType.String, parameter.DbType);
             Assert.Equal(SqliteType.Text, parameter.SqliteType);
+        }
+
+        [Fact]
+        public void ResetSqliteType_works_when_value()
+        {
+            var parameter = new SqliteParameter { Value = new byte[0], SqliteType = SqliteType.Text };
+
+            parameter.ResetSqliteType();
+
+            Assert.Equal(SqliteType.Blob, parameter.SqliteType);
         }
 
         [Fact]
