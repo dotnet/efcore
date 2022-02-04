@@ -71,37 +71,6 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue26744", out var enabled) && enabled)
-        {
-            if (binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
-            {
-                var leftNullConstant = IsNullConstant(left);
-                var rightNullConstant = IsNullConstant(right);
-                if (leftNullConstant || rightNullConstant)
-                {
-                    var nonNullExpression = leftNullConstant ? right : left;
-                    if (nonNullExpression is MethodCallExpression methodCallExpression
-                        && methodCallExpression.Method.DeclaringType == typeof(Queryable)
-                        && methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
-                        && SingleResultMethodInfos.Contains(genericMethod))
-                    {
-                        var result = Expression.Call(
-                            (methodCallExpression.Arguments.Count == 2
-                                ? QueryableMethods.AnyWithPredicate
-                                : QueryableMethods.AnyWithoutPredicate)
-                            .MakeGenericMethod(methodCallExpression.Type),
-                            methodCallExpression.Arguments);
-
-                        return binaryExpression.NodeType == ExpressionType.Equal
-                            ? Expression.Not(result)
-                            : result;
-                    }
-                }
-            }
-        }
-
         return binaryExpression.Update(left, binaryExpression.Conversion, right);
     }
 
