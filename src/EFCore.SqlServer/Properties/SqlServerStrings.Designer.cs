@@ -252,12 +252,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 operationName);
 
         /// <summary>
-        ///     Temporal tables are not supported for table splitting scenario. Table: '{table}'.
+        ///     When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. There is an issue with the entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.
         /// </summary>
-        public static string TemporalNotSupportedForTableSplitting(object? table)
+        public static string TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(
+            object? periodType,
+            object? entityType,
+            object? periodProperty,
+            object? periodColumn,
+            object? expectedColumnName)
             => string.Format(
-                GetString("TemporalNotSupportedForTableSplitting", nameof(table)),
-                table);
+                GetString(
+                    "TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping",
+                    nameof(periodType),
+                    nameof(entityType),
+                    nameof(periodProperty),
+                    nameof(periodColumn),
+                    nameof(expectedColumnName)),
+                periodType,
+                entityType,
+                periodProperty,
+                periodColumn,
+                expectedColumnName);
+
+        /// <summary>
+        ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
+        /// </summary>
+        public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalAllEntitiesMappedToSameTableMustBeTemporal", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
@@ -883,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
+        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
         /// </summary>
         public static EventDefinition LogSavepointsDisabledBecauseOfMARS(IDiagnosticsLogger logger)
         {
@@ -902,6 +925,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                             level,
                             SqlServerEventId.SavepointsDisabledBecauseOfMARS,
                             _resourceManager.GetString("LogSavepointsDisabledBecauseOfMARS")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
+        /// </summary>
+        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        SqlServerEventId.MissingViewDefinitionRightsWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            SqlServerEventId.MissingViewDefinitionRightsWarning,
+                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
             }
 
             return (EventDefinition)definition;

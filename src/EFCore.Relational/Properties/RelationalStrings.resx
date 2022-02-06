@@ -169,9 +169,8 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
-  <data name="DatabaseModelMissing" xml:space="preserve">
-    <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
-    <comment>Obsolete</comment>
+  <data name="CreateIndexOperationWithInvalidSortOrder" xml:space="preserve">
+    <value>{numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.</value>
   </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>
@@ -223,10 +222,6 @@
   </data>
   <data name="DeleteDataOperationValuesCountMismatch" xml:space="preserve">
     <value>The number of key values ({valuesCount}) doesn't match the number of key columns ({columnsCount}) for the data deletion operation on '{table}'. Provide the same number of key values and key columns.</value>
-  </data>
-  <data name="DerivedTypeTable" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
-    <comment>Obsolete</comment>
   </data>
   <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
     <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
@@ -298,16 +293,19 @@
     <value>The foreign keys {foreignKeyProperties1} on '{entityType1}' and {foreignKeyProperties2} on '{entityType2}' are both mapped to '{table}.{foreignKeyName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateIndexColumnMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).</value>
   </data>
   <data name="DuplicateIndexFiltersMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+  </data>
+  <data name="DuplicateIndexSortOrdersMismatch" xml:space="preserve">
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different sort orders.</value>
   </data>
   <data name="DuplicateIndexTableMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').</value>
   </data>
   <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
-    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
+    <value>The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
   </data>
   <data name="DuplicateKeyColumnMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).</value>
@@ -463,6 +461,10 @@
     <value>The order of column '{table}.{column}' was ignored. Column orders are only used when the table is first created.</value>
     <comment>Warning RelationalEventId.ColumnOrderIgnoredWarning string string</comment>
   </data>
+  <data name="LogCommandCanceled" xml:space="preserve">
+    <value>A DbCommand was canceled ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
+    <comment>Debug RelationalEventId.CommandCanceled string string System.Data.CommandType int string string</comment>
+  </data>
   <data name="LogCommandCreated" xml:space="preserve">
     <value>Created DbCommand for '{executionType}' ({elapsed}ms).</value>
     <comment>Debug RelationalEventId.CommandCreated string int</comment>
@@ -594,10 +596,6 @@
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
-  </data>
-  <data name="LogQueryPossibleExceptionWithAggregateOperatorWarning" xml:space="preserve">
-    <value>Possible unintended use of a potentially throwing aggregate operator ('Min', 'Max', 'Average') in a subquery. Client evaluation will be used and the operator will throw if no data exists. Changing the subquery result type to a nullable type will allow the operator to be translated.</value>
-    <comment>Obsolete Warning RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning</comment>
   </data>
   <data name="LogReleasedTransactionSavepoint" xml:space="preserve">
     <value>Released transaction savepoint.</value>
@@ -733,9 +731,6 @@
   </data>
   <data name="PropertyNotMappedToTable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is not mapped to '{table}'.</value>
-  </data>
-  <data name="QueryFromSqlInsideExists" xml:space="preserve">
-    <value>The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.</value>
   </data>
   <data name="ReadonlyEntitySaved" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.</value>

@@ -2,62 +2,57 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
 {
+    private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache = new();
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+    public SqlServerValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
+        : base(dependencies)
+    {
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
+    public virtual SqlServerSequenceValueGeneratorState GetOrAddSequenceState(
+        IProperty property,
+        IRelationalConnection connection)
     {
-        private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache = new();
+        var sequence = property.FindHiLoSequence(
+            StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table)!.Value);
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-        public SqlServerValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
-            : base(dependencies)
-        {
-        }
+        Check.DebugAssert(sequence != null, "sequence is null");
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SqlServerSequenceValueGeneratorState GetOrAddSequenceState(
-            IProperty property,
-            IRelationalConnection connection)
-        {
-            var sequence = property.FindHiLoSequence(
-                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table)!.Value);
+        return _sequenceGeneratorCache.GetOrAdd(
+            GetSequenceName(sequence, connection),
+            _ => new SqlServerSequenceValueGeneratorState(sequence));
+    }
 
-            Check.DebugAssert(sequence != null, "sequence is null");
+    private static string GetSequenceName(ISequence sequence, IRelationalConnection connection)
+    {
+        var dbConnection = connection.DbConnection;
 
-            return _sequenceGeneratorCache.GetOrAdd(
-                GetSequenceName(sequence, connection),
-                _ => new SqlServerSequenceValueGeneratorState(sequence));
-        }
-
-        private static string GetSequenceName(ISequence sequence, IRelationalConnection connection)
-        {
-            var dbConnection = connection.DbConnection;
-
-            return dbConnection.Database.ToUpperInvariant()
-                + "::"
-                + dbConnection.DataSource?.ToUpperInvariant()
-                + "::"
-                + (sequence.Schema == null ? "" : sequence.Schema + ".")
-                + sequence.Name;
-        }
+        return dbConnection.Database.ToUpperInvariant()
+            + "::"
+            + dbConnection.DataSource.ToUpperInvariant()
+            + "::"
+            + (sequence.Schema == null ? "" : sequence.Schema + ".")
+            + sequence.Name;
     }
 }

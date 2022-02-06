@@ -1,56 +1,51 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute" />
+///     specified on the other navigation property.
+///     All navigations are assumed to be targeting owned entity types for Cosmos.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+/// </remarks>
+public class CosmosInversePropertyAttributeConvention : InversePropertyAttributeConvention
 {
     /// <summary>
-    ///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute" />
-    ///     specified on the other navigation property.
-    ///     All navigations are assumed to be targeting owned entity types for Cosmos.
+    ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
-    /// </remarks>
-    public class CosmosInversePropertyAttributeConvention : InversePropertyAttributeConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    public CosmosInversePropertyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-        public CosmosInversePropertyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
-        /// <summary>
-        ///     Finds or tries to create an entity type target for the given navigation member.
-        /// </summary>
-        /// <param name="entityTypeBuilder">The builder for the referencing entity type.</param>
-        /// <param name="targetClrType">The CLR type of the target entity type.</param>
-        /// <param name="navigationMemberInfo">The navigation member.</param>
-        /// <param name="shouldCreate">Whether an entity type should be created if one doesn't currently exist.</param>
-        /// <returns>The builder for the target entity type or <see langword="null" /> if it can't be created.</returns>
-        protected override IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            Type targetClrType,
-            MemberInfo navigationMemberInfo,
-            bool shouldCreate = true)
-            => ((InternalEntityTypeBuilder)entityTypeBuilder)
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                .GetTargetEntityTypeBuilder(
-                    targetClrType,
-                    navigationMemberInfo,
-                    shouldCreate ? ConfigurationSource.DataAnnotation : null,
-                    CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model));
-#pragma warning restore EF1001 // Internal EF Core API usage.
     }
+
+    /// <summary>
+    ///     Finds or tries to create an entity type target for the given navigation member.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the referencing entity type.</param>
+    /// <param name="targetClrType">The CLR type of the target entity type.</param>
+    /// <param name="navigationMemberInfo">The navigation member.</param>
+    /// <param name="shouldCreate">Whether an entity type should be created if one doesn't currently exist.</param>
+    /// <returns>The builder for the target entity type or <see langword="null" /> if it can't be created.</returns>
+    protected override IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        Type targetClrType,
+        MemberInfo navigationMemberInfo,
+        bool shouldCreate = true)
+        => ((InternalEntityTypeBuilder)entityTypeBuilder)
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            .GetTargetEntityTypeBuilder(
+                targetClrType,
+                navigationMemberInfo,
+                shouldCreate ? ConfigurationSource.DataAnnotation : null,
+                CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 }

@@ -152,11 +152,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
-        ///     The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.
+        ///     {numSortOrderProperties} values were provided in CreateIndexOperations.IsDescending, but the operation has {numColumns} columns.
         /// </summary>
-        [Obsolete]
-        public static string DatabaseModelMissing
-            => GetString("DatabaseModelMissing");
+        public static string CreateIndexOperationWithInvalidSortOrder(object? numSortOrderProperties, object? numColumns)
+            => string.Format(
+                GetString("CreateIndexOperationWithInvalidSortOrder", nameof(numSortOrderProperties), nameof(numColumns)),
+                numSortOrderProperties, numColumns);
 
         /// <summary>
         ///     There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.
@@ -293,15 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DeleteDataOperationValuesCountMismatch", nameof(valuesCount), nameof(columnsCount), nameof(table)),
                 valuesCount, columnsCount, table);
-
-        /// <summary>
-        ///     The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.
-        /// </summary>
-        [Obsolete]
-        public static string DerivedTypeTable(object? entityType, object? baseType)
-            => string.Format(
-                GetString("DerivedTypeTable", nameof(entityType), nameof(baseType)),
-                entityType, baseType);
 
         /// <summary>
         ///     Using 'Distinct' operation on a projection containing a collection is not supported.
@@ -486,36 +478,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreignKeyProperties1, entityType1, foreignKeyProperties2, entityType2, table, foreignKeyName);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different columns ({columnNames1} and {columnNames2}).
         /// </summary>
-        public static string DuplicateIndexColumnMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName, object? columnNames1, object? columnNames2)
+        public static string DuplicateIndexColumnMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? columnNames1, object? columnNames2)
             => string.Format(
-                GetString("DuplicateIndexColumnMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, columnNames1, columnNames2);
+                GetString("DuplicateIndexColumnMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(columnNames1), nameof(columnNames2)),
+                index1, entityType1, index2, entityType2, table, indexName, columnNames1, columnNames2);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').
         /// </summary>
-        public static string DuplicateIndexFiltersMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName, object? filter1, object? filter2)
+        public static string DuplicateIndexFiltersMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName, object? filter1, object? filter2)
             => string.Format(
-                GetString("DuplicateIndexFiltersMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName), nameof(filter1), nameof(filter2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName, filter1, filter2);
+                GetString("DuplicateIndexFiltersMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName), nameof(filter1), nameof(filter2)),
+                index1, entityType1, index2, entityType2, table, indexName, filter1, filter2);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different sort orders.
         /// </summary>
-        public static string DuplicateIndexTableMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? indexName, object? table1, object? table2)
+        public static string DuplicateIndexSortOrdersMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
-                GetString("DuplicateIndexTableMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(indexName), nameof(table1), nameof(table2)),
-                indexProperties1, entityType1, indexProperties2, entityType2, indexName, table1, table2);
+                GetString("DuplicateIndexSortOrdersMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
-        ///     The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{indexName}', but are declared on different tables ('{table1}' and '{table2}').
         /// </summary>
-        public static string DuplicateIndexUniquenessMismatch(object? indexProperties1, object? entityType1, object? indexProperties2, object? entityType2, object? table, object? indexName)
+        public static string DuplicateIndexTableMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? indexName, object? table1, object? table2)
             => string.Format(
-                GetString("DuplicateIndexUniquenessMismatch", nameof(indexProperties1), nameof(entityType1), nameof(indexProperties2), nameof(entityType2), nameof(table), nameof(indexName)),
-                indexProperties1, entityType1, indexProperties2, entityType2, table, indexName);
+                GetString("DuplicateIndexTableMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(indexName), nameof(table1), nameof(table2)),
+                index1, entityType1, index2, entityType2, indexName, table1, table2);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.
+        /// </summary>
+        public static string DuplicateIndexUniquenessMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
+            => string.Format(
+                GetString("DuplicateIndexUniquenessMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
         ///     The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).
@@ -992,12 +992,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("PropertyNotMappedToTable", nameof(property), nameof(entityType), nameof(table)),
                 property, entityType, table);
-
-        /// <summary>
-        ///     The query contains usage of 'Any' or 'AnyAsync' operation after 'FromSqlRaw' or 'FromSqlInterpolated' method. Using this raw SQL query more than once isn't currently supported. Replace the use of 'Any' or 'AnyAsync' with 'Count' or 'CountAsync'. See https://go.microsoft.com/fwlink/?linkid=2174053 for more information.
-        /// </summary>
-        public static string QueryFromSqlInsideExists
-            => GetString("QueryFromSqlInsideExists");
 
         /// <summary>
         ///     The entity type '{entityType}' is not mapped to a table, therefore the entities cannot be persisted to the database. Call 'ToTable' in 'OnModelCreating' to map it to a table.
@@ -1626,6 +1620,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A DbCommand was canceled ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
+        /// </summary>
+        public static EventDefinition<string, string, System.Data.CommandType, int, string, string> LogCommandCanceled(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCanceled;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCanceled,
+                    logger,
+                    static logger => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                        logger.Options,
+                        RelationalEventId.CommandCanceled,
+                        LogLevel.Debug,
+                        "RelationalEventId.CommandCanceled",
+                        level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
+                            level,
+                            RelationalEventId.CommandCanceled,
+                            _resourceManager.GetString("LogCommandCanceled")!)));
+            }
+
+            return (EventDefinition<string, string, System.Data.CommandType, int, string, string>)definition;
         }
 
         /// <summary>
@@ -2445,32 +2464,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Possible unintended use of a potentially throwing aggregate operator ('Min', 'Max', 'Average') in a subquery. Client evaluation will be used and the operator will throw if no data exists. Changing the subquery result type to a nullable type will allow the operator to be translated.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition LogQueryPossibleExceptionWithAggregateOperatorWarning(IDiagnosticsLogger logger)
-        {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning,
-                    logger,
-                    static logger => new EventDefinition(
-                        logger.Options,
-                        RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
-                        LogLevel.Warning,
-                        "RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
-                            _resourceManager.GetString("LogQueryPossibleExceptionWithAggregateOperatorWarning")!)));
-            }
-
-            return (EventDefinition)definition;
         }
 
         /// <summary>

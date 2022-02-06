@@ -1,6 +1,8 @@
 variables:
   - name: _BuildConfig
     value: Release
+  - name: _BuildTargetFramework
+    value: net6.0
   - name: _TeamName
     value: AspNetCore
   - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
@@ -61,10 +63,10 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
@@ -100,6 +102,10 @@ stages:
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
+              - script: |
+                    .dotnet\dotnet publish --configuration $(_BuildConfig) --runtime win-x64 --self-contained test\EFCore.Trimming.Tests
+                    artifacts\bin\EFCore.Trimming.Tests\$(_BuildConfig)\$(_BuildTargetFramework)\win-x64\publish\EFCore.Trimming.Tests.exe
+                displayName: Test trimming
               - task: PublishBuildArtifacts@1
                 displayName: Upload TestResults
                 condition: always()
@@ -141,10 +147,14 @@ stages:
             timeoutInMinutes: 120
             enablePublishTestResults: true
             pool:
-              vmImage: ubuntu-18.04
+              ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+                vmImage: ubuntu-18.04
+              ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
+                name: NetCore1ESPool-Internal
+                demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
-              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
@@ -188,21 +198,21 @@ stages:
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCore1ESPool-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2017
+                demands: ImageOverride -equals Build.Server.Amd64.VS2019
             variables:
               - name: _HelixBuildConfig
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64.Open;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
+                  value: OSX.1100.Amd64.Open;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1604.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967
+                  value: OSX.1100.Amd64;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
                 - name: _HelixAccessToken
                   value: $(HelixApiAccessToken) # Needed for internal queues
             steps:

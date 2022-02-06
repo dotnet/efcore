@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class DatabindingSqlServerTest : DatabindingTestBase<F1SqlServerFixture>
 {
-    public class DatabindingSqlServerTest : DatabindingTestBase<F1SqlServerFixture>
+    public DatabindingSqlServerTest(F1SqlServerFixture fixture)
+        : base(fixture)
     {
-        public DatabindingSqlServerTest(F1SqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
     }
 }

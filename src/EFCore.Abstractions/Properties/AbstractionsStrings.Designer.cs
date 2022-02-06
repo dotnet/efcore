@@ -52,6 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
+        /// <summary>
+        ///     Invalid number of index sort order values: {numValues} values were provided, but the index has {numProperties} properties.
+        /// </summary>
+        public static string InvalidNumberOfIndexSortOrderValues(object? numValues, object? numProperties)
+            => string.Format(
+                GetString("CollectionArgumentIsEmpty", nameof(numValues), nameof(numProperties)),
+                numValues, numProperties);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;
