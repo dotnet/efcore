@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -306,8 +307,19 @@ namespace Microsoft.Data.Sqlite
 
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            _connection.Timer.Reset();
-            var dataReader = new SqliteDataReader(this, _connection.Timer, GetStatements(), closeConnection);
+            
+            Stopwatch timer;
+            if (_connection.HasMultipleCommands)
+            {
+                timer = new();
+            }
+            else
+            {
+                timer = _connection.Timer;
+                _connection.Timer.Reset();
+            }
+
+            var dataReader = new SqliteDataReader(this, timer, GetStatements(), closeConnection);
             dataReader.NextResult();
 
             return DataReader = dataReader;

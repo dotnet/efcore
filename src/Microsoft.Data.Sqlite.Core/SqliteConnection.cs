@@ -28,6 +28,8 @@ namespace Microsoft.Data.Sqlite
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new();
 
+        internal bool HasMultipleCommands => _commands.Count > 1;
+
         private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
 
         private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
