@@ -344,6 +344,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
 
         AssertSql($@"ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '2015-04-12T17:05:00{fractionalSeconds}';");
     }
+
     [ConditionalTheory]
     [InlineData(0, "", 1234567)]
     [InlineData(1, ".1", 1234567)]
@@ -496,6 +497,26 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
 
         AssertSql(
             @$"ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_column_generates_exec_when_computed_and_idempotent()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<int>("Id"),
+            builder => { },
+            builder => builder.Entity("People").Property<int>("IdPlusOne").HasComputedColumnSql("[Id] + 1"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal(2, table.Columns.Count);
+                var column = Assert.Single(table.Columns, c => c.Name == "IdPlusOne");
+                Assert.Equal("([Id]+(1))", column.ComputedColumnSql);
+            },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"EXEC(N'ALTER TABLE [People] ADD [IdPlusOne] AS [Id] + 1');");
     }
 
     public override async Task Add_column_with_required()
@@ -1298,6 +1319,39 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             @"CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;");
     }
 
+    [ConditionalFact]
+    public virtual async Task CreateIndex_generates_exec_when_filter_and_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasIndex("Name").HasFilter("[Name] IS NOT NULL"),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.Same(table.Columns.Single(c => c.Name == "Name"), Assert.Single(index.Columns));
+                Assert.Contains("Name", index.Filter);
+            },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
+            //
+            @"EXEC(N'CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL');");
+    }
+
     public override async Task Create_unique_index_with_filter()
     {
         await base.Create_unique_index_with_filter();
@@ -1925,6 +1979,28 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;");
             @"ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);");
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_check_constraint_generates_exec_when_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<int>("DriverLicense");
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", "[DriverLicense] > 0"),
+            model =>
+            {
+                // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
+            },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"EXEC(N'ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0)');");
+    }
+
     public override async Task Alter_check_constraint()
     {
         await base.Alter_check_constraint();
@@ -2140,6 +2216,87 @@ SELECT @@ROWCOUNT;");
             @"UPDATE [Person] SET [Age] = 21, [Name] = N'Another John Snow'
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;");
+    }
+
+    [ConditionalFact]
+    public virtual async Task InsertDataOperation_generates_exec_when_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Person", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                }),
+            builder => { },
+            builder => builder.Entity("Person")
+                .HasData(
+                    new Person { Id = 1, Name = "Daenerys Targaryen" },
+                    new Person { Id = 2, Name = "John Snow" },
+                    new Person { Id = 3, Name = "Arya Stark" },
+                    new Person { Id = 4, Name = "Harry Strickland" },
+                    new Person { Id = 5, Name = null }),
+            model => { },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name') AND [object_id] = OBJECT_ID(N'[Person]'))
+    SET IDENTITY_INSERT [Person] ON;
+EXEC(N'INSERT INTO [Person] ([Id], [Name])
+VALUES (1, N''Daenerys Targaryen''),
+(2, N''John Snow''),
+(3, N''Arya Stark''),
+(4, N''Harry Strickland''),
+(5, NULL)');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name') AND [object_id] = OBJECT_ID(N'[Person]'))
+    SET IDENTITY_INSERT [Person] OFF;");
+    }
+
+    [ConditionalFact]
+    public virtual async Task DeleteDataOperation_generates_exec_when_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Person", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                    e.HasData(new Person { Id = 1, Name = "Daenerys Targaryen" });
+                }),
+            builder => builder.Entity("Person").HasData(new Person { Id = 2, Name = "John Snow" }),
+            builder => { },
+            model => { },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"EXEC(N'DELETE FROM [Person]
+WHERE [Id] = 2;
+SELECT @@ROWCOUNT');");
+    }
+
+    [ConditionalFact]
+    public virtual async Task UpdateDataOperation_generates_exec_when_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Person", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                    e.HasData(new Person { Id = 1, Name = "Daenerys Targaryen" });
+                }),
+            builder => builder.Entity("Person").HasData(new Person { Id = 2, Name = "John Snow" }),
+            builder => builder.Entity("Person").HasData(new Person { Id = 2, Name = "Another John Snow" }),
+            model => { },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"EXEC(N'UPDATE [Person] SET [Name] = N''Another John Snow''
+WHERE [Id] = 2;
+SELECT @@ROWCOUNT');");
     }
 
     [ConditionalFact]
@@ -4433,6 +4590,62 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
             @"ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
             //
             @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])",
+            //
+            @"ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN",
+            //
+            @"ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN",
+            //
+            @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Convert_normal_table_to_temporal_generates_exec_when_idempotent()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.HasKey("Id");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("PeriodStart").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("PeriodEnd").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(tb => tb.IsTemporal());
+
+                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] = "PeriodStart";
+                    e.Metadata[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] = "PeriodEnd";
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            },
+            migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
+
+        AssertSql(
+            @"ALTER TABLE [Customer] ADD [PeriodEnd] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';",
+            //
+            @"ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
+            //
+            @"EXEC(N'ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])')",
             //
             @"ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN",
             //
