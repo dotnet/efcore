@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
             [Benchmark]
             public virtual void Add()
             {
-                System.Threading.Thread.Sleep(1);
+                System.Threading.Thread.Sleep(100);
                 
                 foreach (var customer in _customersWithoutPk)
                 {
