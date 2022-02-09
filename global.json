@@ -1,6 +1,6 @@
 {
   "tools": {
-    "dotnet": "5.0.404",
+    "dotnet": "5.0.405",
     "runtimes": {
       "dotnet": [
         "3.1.22"
@@ -11,7 +11,7 @@
     }
   },
   "sdk": {
-    "version": "5.0.404",
+    "version": "5.0.405",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
