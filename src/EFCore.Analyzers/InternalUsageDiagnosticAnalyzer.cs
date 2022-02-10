@@ -16,7 +16,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     private static readonly int EFLen = "EntityFrameworkCore".Length;
 
     private static readonly DiagnosticDescriptor Descriptor
-        = new(
+        = new DiagnosticDescriptor(
             Id,
             title: AnalyzerStrings.InternalUsageTitle,
             messageFormat: AnalyzerStrings.InternalUsageMessageFormat,
