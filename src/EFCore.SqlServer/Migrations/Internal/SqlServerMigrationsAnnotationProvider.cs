@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
     /// </summary>
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
+        private readonly bool _useOldBehavior27423
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27423", out var enabled27423) && enabled27423;
+
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
@@ -115,6 +119,40 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                 yield return new Annotation(
                     SqlServerAnnotationNames.TemporalHistoryTableSchema,
                     table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+            }
+        }
+
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRename(IColumn column)
+        {
+            if (!_useOldBehavior27423)
+            {
+                if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+                {
+                    yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.TemporalHistoryTableName,
+                        column.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                        column.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+
+                    if (column[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName)
+                    {
+                        yield return new Annotation(
+                            SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                            periodStartColumnName);
+                    }
+
+                    if (column[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
+                    {
+                        yield return new Annotation(
+                            SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                            periodEndColumnName);
+                    }
+                }
             }
         }
     }

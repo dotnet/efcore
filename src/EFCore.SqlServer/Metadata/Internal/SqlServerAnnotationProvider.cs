@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
     /// </summary>
     public class SqlServerAnnotationProvider : RelationalAnnotationProvider
     {
+        private readonly bool _useOldBehavior27423 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27423", out var enabled27423) && enabled27423;
+
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
@@ -276,10 +280,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                     ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                     : periodEndPropertyName;
 
-                if (column.Name == periodStartColumnName
-                    || column.Name == periodEndColumnName)
+                if (_useOldBehavior27423)
+                {
+                    if (column.Name == periodStartColumnName
+                        || column.Name == periodEndColumnName)
+                    {
+                        yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+                        yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
+                        yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
+                    }
+                }
+                else
                 {
                     yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetHistoryTableSchema());
                     yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
                     yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
                 }
