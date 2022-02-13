@@ -3674,18 +3674,6 @@ namespace TestNamespace
     public class SelfReferentialProperty : List<SelfReferentialProperty>
     {
     }
-
-
-    public class SelfReferentialEntity
-    {
-        public long Id { get; set; }
-
-        public SelfReferentialProperty Collection { get; set; }
-    }
-
-    public class SelfReferentialProperty : List<SelfReferentialProperty>
-    {
-    }
 }
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal
