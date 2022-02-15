@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.OData.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>

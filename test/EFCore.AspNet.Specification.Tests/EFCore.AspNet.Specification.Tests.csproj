@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Shared ASP.NET test suite for Entity Framework Core database providers.</Description>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.AspNet.Specification.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

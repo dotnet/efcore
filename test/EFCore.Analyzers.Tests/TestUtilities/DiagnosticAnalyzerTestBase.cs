@@ -61,7 +61,8 @@ public abstract class DiagnosticAnalyzerTestBase
             = compilation
                 .WithOptions(
                     compilation.Options.WithSpecificDiagnosticOptions(
-                        analyzer.SupportedDiagnostics.ToDictionary(d => d.Id, d => ReportDiagnostic.Default)))
+                        compilation.Options.SpecificDiagnosticOptions
+                            .AddRange(analyzer.SupportedDiagnostics.ToDictionary(d => d.Id, d => ReportDiagnostic.Default))))
                 .WithAnalyzers(ImmutableArray.Create(analyzer));
 
         var diagnostics = analyzerDiagnosticsOnly
@@ -98,6 +99,10 @@ public abstract class DiagnosticAnalyzerTestBase
             .WithCompilationOptions(
                 new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary,
+                    specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>
+                    {
+                        { "CS1701", ReportDiagnostic.Suppress }
+                    },
                     nullableContextOptions: NullableContextOptions.Enable));
     }
 }
