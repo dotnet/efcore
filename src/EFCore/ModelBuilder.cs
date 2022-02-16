@@ -583,7 +583,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     ///         for all properties in the model as described in the <see cref="PropertyAccessMode" /> enum.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see> for more information and
+    ///         See <see href="https://aka.ms/efcore-docs-property-access">Property versus field access in EF Core</see> for more information and
     ///         examples.
     ///     </para>
     /// </remarks>
