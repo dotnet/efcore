@@ -1785,7 +1785,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     stringBuilder.AppendLine();
                 }
 
-                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.CurrentIndent));
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.IndentCount));
             }
             else
             {
@@ -1795,7 +1795,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 }
 
                 stringBuilder.Append(builderName);
-                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.CurrentIndent + 1));
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.IndentCount + 1));
                 stringBuilder.AppendLine(";");
             }
 

@@ -5463,7 +5463,7 @@ namespace RootNamespace
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex(""Id""), new[] { ""Name"" });
 
                     b.ToTable(""EntityWithStringProperty"");
-                });", usingSystem: true),
+                });"),
             model =>
             {
                 var index = model.GetEntityTypes().First().GetIndexes().First();

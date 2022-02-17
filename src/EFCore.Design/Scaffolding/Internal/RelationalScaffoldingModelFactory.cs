@@ -320,12 +320,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
             if (keyBuilder == null)
             {
-                var errorMessage = DesignStrings.UnableToGenerateEntityType(table.DisplayName());
-                _reporter.WriteWarning(errorMessage);
+                _reporter.WriteWarning(DesignStrings.UnableToGenerateEntityType(table.DisplayName()));
 
-                var model = modelBuilder.Model;
-                model.RemoveEntityType(entityTypeName);
-                model.GetOrCreateReverseEngineeringErrors().Add(errorMessage);
+                modelBuilder.Model.RemoveEntityType(entityTypeName);
                 return null;
             }
         }

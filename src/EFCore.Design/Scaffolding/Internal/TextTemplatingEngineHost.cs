@@ -5,6 +5,7 @@ using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyModel;
 using Microsoft.VisualStudio.TextTemplating;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -17,6 +18,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplatingEngineHost, IServiceProvider
 {
+    private static readonly List<string> _noWarn = new()
+    {
+        "CS1701",
+        "CS1702"
+    };
+
     private readonly IServiceProvider? _serviceProvider;
     private ITextTemplatingSession? _session;
     private CompilerErrorCollection? _errors;
@@ -162,7 +169,7 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void LogErrors(CompilerErrorCollection errors)
-        => Errors.AddRange(errors);
+        => Errors.AddRange(errors.Cast<CompilerError>().Where(e => !_noWarn.Contains(e.ErrorNumber)).ToArray());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -181,6 +188,15 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     /// </summary>
     public virtual string ResolveAssemblyReference(string assemblyReference)
     {
+        var path = DependencyContext.Default?.CompileLibraries
+            .FirstOrDefault(l => l.Assemblies.Any(a => Path.GetFileNameWithoutExtension(a) == assemblyReference))
+            ?.ResolveReferencePaths()
+            .First(p => Path.GetFileNameWithoutExtension(p) == assemblyReference);
+        if (path is not null)
+        {
+            return path;
+        }
+
         try
         {
             return Assembly.Load(assemblyReference).Location;

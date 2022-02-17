@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public class IndentedStringBuilder
 {
     private const byte IndentSize = 4;
-    private byte _indent;
+    private int _indent;
     private bool _indentPending = true;
 
     private readonly StringBuilder _stringBuilder = new();
@@ -30,7 +30,7 @@ public class IndentedStringBuilder
     /// Gets the current indent level.
     /// </summary>
     /// <value>The current indent level.</value>
-    public virtual byte CurrentIndent
+    public virtual int IndentCount
         => _indent;
 
     /// <summary>
@@ -259,7 +259,7 @@ public class IndentedStringBuilder
     private sealed class IndentSuspender : IDisposable
     {
         private readonly IndentedStringBuilder _stringBuilder;
-        private readonly byte _indent;
+        private readonly int _indent;
 
         public IndentSuspender(IndentedStringBuilder stringBuilder)
         {

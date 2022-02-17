@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
 public class TextTemplatingModelGeneratorTest
 {
     [ConditionalFact]
@@ -132,7 +132,39 @@ public class TextTemplatingModelGeneratorTest
     }
 
     [ConditionalFact]
-    public void GenerateModel_throws_when_no_context_template()
+    public void GenerateModel_works_when_no_context_template_and_csharp()
+    {
+        using var projectDir = new TempDirectory();
+
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        File.WriteAllText(
+            template,
+            "My entity type template");
+
+        var generator = CreateGenerator();
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .FinalizeModel();
+
+        var result = generator.GenerateModel(
+            model,
+            new()
+            {
+                ContextName = "Context",
+                ConnectionString = @"Name=DefaultConnection",
+                ProjectDir = projectDir,
+                Language = "C#"
+            });
+
+        Assert.NotEmpty(result.ContextFile.Code);
+
+        var entityType = Assert.Single(result.AdditionalFiles);
+        Assert.Equal("My entity type template", entityType.Code);
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_throws_when_no_context_template_and_not_csharp()
     {
         using var projectDir = new TempDirectory();
 
@@ -152,7 +184,8 @@ public class TextTemplatingModelGeneratorTest
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",
-                    ProjectDir = projectDir
+                    ProjectDir = projectDir,
+                    Language = "VB"
                 }));
 
         Assert.Equal(DesignStrings.NoContextTemplate, ex.Message);

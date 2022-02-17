@@ -111,8 +111,29 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         }
         else
         {
-            // TODO: Use default generator when C#
-            throw new OperationException(DesignStrings.NoContextTemplate);
+            if (!string.Equals(options.Language, "C#", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new OperationException(DesignStrings.NoContextTemplate);
+            }
+
+            var defaultContextTemplate = new CSharpDbContextGenerator
+            {
+                Host = host,
+                Session = host.Session
+            };
+            defaultContextTemplate.Initialize();
+
+            generatedCode = defaultContextTemplate.TransformText();
+
+            foreach (CompilerError error in defaultContextTemplate.Errors)
+            {
+                _reporter.Write(error);
+            }
+
+            if (defaultContextTemplate.Errors.HasErrors)
+            {
+                throw new OperationException(DesignStrings.ErrorGeneratingOutput(defaultContextTemplate.GetType().Name));
+            }
         }
 
         var dbContextFileName = options.ContextName + host.Extension;

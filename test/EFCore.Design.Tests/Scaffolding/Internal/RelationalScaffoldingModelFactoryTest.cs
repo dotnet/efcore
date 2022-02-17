@@ -109,7 +109,6 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.NotNull(view.FindAnnotation(RelationalAnnotationNames.ViewDefinitionSql));
             }
         );
-        Assert.Empty(model.GetReverseEngineeringErrors());
     }
 
     [ConditionalFact]

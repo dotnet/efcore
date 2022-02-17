@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     for more information and examples.
 /// </remarks>
-public class MethodCallCodeFragment
+public class MethodCallCodeFragment : IMethodCallCodeFragment
 {
     private readonly List<object?> _arguments;
 
@@ -49,7 +49,7 @@ public class MethodCallCodeFragment
     ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
     /// </summary>
     /// <param name="method">The method's name.</param>
-    /// <param name="arguments">The method call's arguments. Can be <see cref="NestedClosureCodeFragment" />.</param>
+    /// <param name="arguments">The method call's arguments. Can be a fragment like <see cref="NestedClosureCodeFragment" /> or <see cref="PropertyAccessorCodeFragment"/>.</param>
     public MethodCallCodeFragment(string method, params object?[] arguments)
     {
         Method = method;
@@ -98,6 +98,9 @@ public class MethodCallCodeFragment
     /// <value> The method's name. </value>
     public virtual string Method { get; }
 
+    IEnumerable<string> IMethodCallCodeFragment.TypeArguments
+        => Enumerable.Empty<string>();
+
     /// <summary>
     ///     Gets the method call's arguments.
     /// </summary>
@@ -105,11 +108,17 @@ public class MethodCallCodeFragment
     public virtual IReadOnlyList<object?> Arguments
         => _arguments;
 
+    IEnumerable<object?> IMethodCallCodeFragment.Arguments
+        => Arguments;
+
     /// <summary>
     ///     Gets the next method call to chain after this.
     /// </summary>
     /// <value> The next method call. </value>
     public virtual MethodCallCodeFragment? ChainedCall { get; }
+
+    IMethodCallCodeFragment? IMethodCallCodeFragment.ChainedCall
+        => ChainedCall;
 
     /// <summary>
     ///     Creates a method chain from this method to another.
@@ -117,7 +126,7 @@ public class MethodCallCodeFragment
     /// <param name="methodInfo">The method's <see cref="MethodInfo" />.</param>
     /// <param name="arguments">The next method call's arguments.</param>
     /// <returns>A new fragment representing the method chain.</returns>
-    public virtual MethodCallCodeFragment Chain(MethodInfo methodInfo, params object[] arguments)
+    public virtual MethodCallCodeFragment Chain(MethodInfo methodInfo, params object?[] arguments)
         => Chain(new MethodCallCodeFragment(methodInfo, arguments));
 
     /// <summary>
@@ -126,7 +135,7 @@ public class MethodCallCodeFragment
     /// <param name="method">The next method's name.</param>
     /// <param name="arguments">The next method call's arguments.</param>
     /// <returns>A new fragment representing the method chain.</returns>
-    public virtual MethodCallCodeFragment Chain(string method, params object[] arguments)
+    public virtual MethodCallCodeFragment Chain(string method, params object?[] arguments)
         => Chain(new MethodCallCodeFragment(method, arguments));
 
     /// <summary>

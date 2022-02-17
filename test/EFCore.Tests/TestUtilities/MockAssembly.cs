@@ -6,7 +6,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class MockAssembly : Assembly
 {
     public static Assembly Create(params Type[] definedTypes)
-        => Create(definedTypes, new MockMethodInfo(definedTypes.First()));
+        => Create(
+            definedTypes,
+            definedTypes.Length == 0
+                ? null
+                : new MockMethodInfo(definedTypes.First()));
 
     public static Assembly Create(Type[] definedTypes, MethodInfo entryPoint)
     {
@@ -30,4 +34,7 @@ public class MockAssembly : Assembly
 
     public override string FullName
         => nameof(MockAssembly);
+
+    public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        => (Attribute[])Array.CreateInstance(attributeType, 0);
 }

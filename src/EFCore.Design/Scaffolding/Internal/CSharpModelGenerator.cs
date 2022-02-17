@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.CodeDom.Compiler;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 /// <summary>
@@ -11,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 /// </summary>
 public class CSharpModelGenerator : ModelCodeGenerator
 {
-    private readonly CSharpDbContextGenerator _cSharpDbContextGenerator;
-    private readonly CSharpEntityTypeGenerator _cSharpEntityTypeGenerator;
+    private readonly IOperationReporter _reporter;
+    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,16 +26,13 @@ public class CSharpModelGenerator : ModelCodeGenerator
     /// </summary>
     public CSharpModelGenerator(
         ModelCodeGeneratorDependencies dependencies,
-        IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
-        IAnnotationCodeGenerator annotationCodeGenerator,
-        ICSharpHelper cSharpHelper)
+        IOperationReporter reporter,
+        IServiceProvider serviceProvider)
         : base(dependencies)
     {
-        _cSharpDbContextGenerator = new CSharpDbContextGenerator(providerConfigurationCodeGenerator, annotationCodeGenerator, cSharpHelper);
-        _cSharpEntityTypeGenerator = new CSharpEntityTypeGenerator(annotationCodeGenerator, cSharpHelper);
+        _reporter = reporter;
+        _serviceProvider = serviceProvider;
     }
-
-    private const string FileExtension = ".cs";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,19 +65,22 @@ public class CSharpModelGenerator : ModelCodeGenerator
                 CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
         }
 
-        var generatedCode = _cSharpDbContextGenerator.WriteCode(
-            model,
-            options.ContextName,
-            options.ConnectionString,
-            options.ContextNamespace,
-            options.ModelNamespace,
-            options.UseDataAnnotations,
-            options.UseNullableReferenceTypes,
-            options.SuppressConnectionStringWarning,
-            options.SuppressOnConfiguring);
+        var host = new TextTemplatingEngineHost(_serviceProvider);
+        var contextTemplate = new CSharpDbContextGenerator
+        {
+            Host = host,
+            Session = host.CreateSession()
+        };
+        contextTemplate.Session.Add("Model", model);
+        contextTemplate.Session.Add("Options", options);
+        contextTemplate.Session.Add("NamespaceHint", options.ContextNamespace ?? options.ModelNamespace);
+        contextTemplate.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+        contextTemplate.Initialize();
+
+        var generatedCode = ProcessTemplate(contextTemplate);
 
         // output DbContext .cs file
-        var dbContextFileName = options.ContextName + FileExtension;
+        var dbContextFileName = options.ContextName + host.Extension;
         var resultingFiles = new ScaffoldedModel
         {
             ContextFile = new ScaffoldedFile
@@ -90,23 +94,47 @@ public class CSharpModelGenerator : ModelCodeGenerator
 
         foreach (var entityType in model.GetEntityTypes())
         {
-            if (entityType.IsSimpleManyToManyJoinEntityType())
+            host.Initialize();
+            var entityTypeTemplate = new CSharpEntityTypeGenerator
+            {
+                Host = host,
+                Session = host.CreateSession()
+            };
+            entityTypeTemplate.Session.Add("EntityType", entityType);
+            entityTypeTemplate.Session.Add("Options", options);
+            entityTypeTemplate.Session.Add("NamespaceHint", options.ModelNamespace);
+            entityTypeTemplate.Session.Add("ProjectDefaultNamespace", options.RootNamespace);
+            entityTypeTemplate.Initialize();
+
+            generatedCode = ProcessTemplate(entityTypeTemplate);
+            if (string.IsNullOrWhiteSpace(generatedCode))
             {
                 continue;
             }
 
-            generatedCode = _cSharpEntityTypeGenerator.WriteCode(
-                entityType,
-                options.ModelNamespace,
-                options.UseDataAnnotations,
-                options.UseNullableReferenceTypes);
-
             // output EntityType poco .cs file
-            var entityTypeFileName = entityType.Name + FileExtension;
+            var entityTypeFileName = entityType.Name + host.Extension;
             resultingFiles.AdditionalFiles.Add(
                 new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
         }
 
         return resultingFiles;
+    }
+
+    private string ProcessTemplate(ITextTransformation transformation)
+    {
+        var output = transformation.TransformText();
+
+        foreach (CompilerError error in transformation.Errors)
+        {
+            _reporter.Write(error);
+        }
+
+        if (transformation.Errors.HasErrors)
+        {
+            throw new OperationException(DesignStrings.ErrorGeneratingOutput(transformation.GetType().Name));
+        }
+
+        return output;
     }
 }

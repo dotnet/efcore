@@ -23,7 +23,7 @@ public interface ICSharpHelper
     ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
     /// </param>
     /// <returns>The fragment.</returns>
-    string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified);
+    string Fragment(IMethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified);
 
     /// <summary>
     ///     Generates a method call code fragment.
@@ -31,7 +31,7 @@ public interface ICSharpHelper
     /// <param name="fragment">The method call. If null, no code is generated.</param>
     /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
     /// <returns>The fragment.</returns>
-    string Fragment(MethodCallCodeFragment? fragment, int indent = 0);
+    string Fragment(IMethodCallCodeFragment? fragment, int indent = 0);
 
     /// <summary>
     /// Generates a lambda code fragment.
@@ -40,6 +40,13 @@ public interface ICSharpHelper
     /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
     /// <returns>The fragment.</returns>
     string Fragment(NestedClosureCodeFragment fragment, int indent = 0);
+
+    /// <summary>
+    /// Generates a property accessor lambda code fragment.
+    /// </summary>
+    /// <param name="fragment">The property accessor lambda.</param>
+    /// <returns>A code representation of the lambda.</returns>
+    string Fragment(PropertyAccessorCodeFragment fragment);
 
     /// <summary>
     ///     Generates a valid C# identifier from the specified string unique to the scope.
@@ -292,4 +299,18 @@ public interface ICSharpHelper
     /// <param name="fragment">The attribute code fragment.</param>
     /// <returns>The attribute specification code.</returns>
     string Fragment(AttributeCodeFragment fragment);
+
+    /// <summary>
+    /// Generates a comma-sepearated argument list of values.
+    /// </summary>
+    /// <param name="values">The values.</param>
+    /// <returns>The argument list.</returns>
+    string Arguments(IEnumerable<object> values);
+
+    /// <summary>
+    /// Gets the using statements required when referencing a type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The usings.</returns>
+    IEnumerable<string> GetRequiredUsings(Type type);
 }

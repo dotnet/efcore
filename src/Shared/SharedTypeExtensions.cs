@@ -556,6 +556,16 @@ internal static class SharedTypeExtensions
             yield break;
         }
 
+        if (type.IsArray)
+        {
+            foreach (var ns in type.GetElementType()!.GetNamespaces())
+            {
+                yield return ns;
+            }
+
+            yield break;
+        }
+
         yield return type.Namespace!;
 
         if (type.IsGenericType)
