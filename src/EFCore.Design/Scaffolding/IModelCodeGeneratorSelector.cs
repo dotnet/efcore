@@ -16,5 +16,16 @@ public interface IModelCodeGeneratorSelector
     /// </summary>
     /// <param name="language">The programming language.</param>
     /// <returns>The <see cref="IModelCodeGenerator" />.</returns>
+    [Obsolete("Use the overload that takes ModelCodeGenerationOptions instead.")]
     IModelCodeGenerator Select(string? language);
+
+    /// <summary>
+    ///     Selects an <see cref="IModelCodeGenerator" /> service for a given set of options.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    /// <returns>The <see cref="IModelCodeGenerator" />.</returns>
+    IModelCodeGenerator Select(ModelCodeGenerationOptions options)
+#pragma warning disable CS0618 // Type or member is obsolete
+        => Select(options.Language);
+#pragma warning restore CS0618
 }

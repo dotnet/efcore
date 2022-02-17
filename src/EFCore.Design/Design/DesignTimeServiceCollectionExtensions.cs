@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.TextTemplating;
+using Microsoft.EntityFrameworkCore.TextTemplating.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
@@ -52,7 +54,9 @@ public static class DesignTimeServiceCollectionExtensions
                     .TryAddSingleton(reporter)
                     .TryAddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
                     .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
-                    .TryAddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
+                    .TryAddSingleton<ITextTemplating, TextTemplatingService>()
+                    .TryAddSingletonEnumerable<IModelCodeGenerator, TextTemplatingModelGenerator>()
+                    .TryAddSingletonEnumerable<IModelCodeGenerator, CSharpModelGenerator>()
                     .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
                     .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
                     .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()

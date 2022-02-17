@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.TextTemplating;
+using Microsoft.EntityFrameworkCore.TextTemplating.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Design;
@@ -94,7 +96,11 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         Assert.Equal(typeof(CSharpMigrationsGenerator), serviceProvider.GetRequiredService<IMigrationsCodeGenerator>().GetType());
         Assert.Equal(
             typeof(MigrationsCodeGeneratorSelector), serviceProvider.GetRequiredService<IMigrationsCodeGeneratorSelector>().GetType());
-        Assert.Equal(typeof(CSharpModelGenerator), serviceProvider.GetRequiredService<IModelCodeGenerator>().GetType());
+        Assert.Equal(typeof(TextTemplatingService), serviceProvider.GetRequiredService<ITextTemplating>().GetType());
+        Assert.Collection(
+            serviceProvider.GetServices<IModelCodeGenerator>(),
+            s => Assert.Equal(typeof(TextTemplatingModelGenerator), s.GetType()),
+            s => Assert.Equal(typeof(CSharpModelGenerator), s.GetType()));
         Assert.Equal(typeof(ModelCodeGeneratorSelector), serviceProvider.GetRequiredService<IModelCodeGeneratorSelector>().GetType());
         Assert.Equal(
             typeof(CSharpRuntimeModelCodeGenerator), serviceProvider.GetRequiredService<ICompiledModelCodeGenerator>().GetType());

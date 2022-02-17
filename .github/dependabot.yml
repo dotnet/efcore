@@ -18,6 +18,7 @@ updates:
       - dependency-name: Microsoft.Data.SqlClient
       - dependency-name: Microsoft.DotNet.PlatformAbstractions
       - dependency-name: mod_spatialite
+      - dependency-name: Mono.TextTemplating
       - dependency-name: NetTopologySuite*
       - dependency-name: Newtonsoft.Json
       - dependency-name: SQLitePCLRaw*

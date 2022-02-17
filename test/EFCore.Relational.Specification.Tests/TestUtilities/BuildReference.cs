@@ -24,6 +24,7 @@ public class BuildReference
     public static BuildReference ByName(string name, bool copyLocal = false)
     {
         var references = (from l in DependencyContext.Default.CompileLibraries
+                          where l.Assemblies.Any(a => IOPath.GetFileNameWithoutExtension(a) == name)
                           from r in l.ResolveReferencePaths()
                           where IOPath.GetFileNameWithoutExtension(r) == name
                           select MetadataReference.CreateFromFile(r)).ToList();

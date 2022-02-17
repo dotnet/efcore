@@ -24,7 +24,7 @@ public abstract class ModelCodeGenerator : IModelCodeGenerator
     ///     Gets the programming language supported by this service.
     /// </summary>
     /// <value> The language. </value>
-    public abstract string Language { get; }
+    public abstract string? Language { get; }
 
     /// <summary>
     ///     Dependencies for this service.
