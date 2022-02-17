@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
+
 namespace Microsoft.EntityFrameworkCore.Design;
 
 /// <summary>
@@ -21,7 +23,23 @@ public interface ICSharpHelper
     ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
     /// </param>
     /// <returns>The fragment.</returns>
-    string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false);
+    string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified);
+
+    /// <summary>
+    ///     Generates a method call code fragment.
+    /// </summary>
+    /// <param name="fragment">The method call. If null, no code is generated.</param>
+    /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
+    /// <returns>The fragment.</returns>
+    string Fragment(MethodCallCodeFragment? fragment, int indent = 0);
+
+    /// <summary>
+    /// Generates a lambda code fragment.
+    /// </summary>
+    /// <param name="fragment">The lambda.</param>
+    /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
+    /// <returns>The fragment.</returns>
+    string Fragment(NestedClosureCodeFragment fragment, int indent = 0);
 
     /// <summary>
     ///     Generates a valid C# identifier from the specified string unique to the scope.
@@ -69,6 +87,13 @@ public interface ICSharpHelper
         where T : struct;
 
     /// <summary>
+    /// Generates a BigInteger literal.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The literal.</returns>
+    string Literal(BigInteger value);
+
+    /// <summary>
     ///     Generates a bool literal.
     /// </summary>
     /// <param name="value">The value.</param>
@@ -88,6 +113,13 @@ public interface ICSharpHelper
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
     string Literal(char value);
+
+    /// <summary>
+    /// Generates a DateOnly literal.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The literal.</returns>
+    string Literal(DateOnly value);
 
     /// <summary>
     ///     Generates a DateTime literal.
@@ -171,7 +203,14 @@ public interface ICSharpHelper
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
-    string Literal(string value);
+    string Literal(string? value);
+
+    /// <summary>
+    /// Generates a TimeOnly literal.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The literal.</returns>
+    string Literal(TimeOnly value);
 
     /// <summary>
     ///     Generates a TimeSpan literal.
@@ -238,4 +277,19 @@ public interface ICSharpHelper
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
     string UnknownLiteral(object? value);
+
+    /// <summary>
+    /// Generates an XML documentation comment. Handles escaping and newlines.
+    /// </summary>
+    /// <param name="comment">The comment.</param>
+    /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
+    /// <returns>The comment.</returns>
+    string XmlComment(string comment, int indent = 0);
+
+    /// <summary>
+    /// Generates an attribute specification.
+    /// </summary>
+    /// <param name="fragment">The attribute code fragment.</param>
+    /// <returns>The attribute specification code.</returns>
+    string Fragment(AttributeCodeFragment fragment);
 }

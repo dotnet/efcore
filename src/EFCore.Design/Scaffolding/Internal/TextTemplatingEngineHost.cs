@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.VisualStudio.TextTemplating;
-using Engine = Mono.TextTemplating.TemplatingEngine;
 
-namespace Microsoft.EntityFrameworkCore.TextTemplating.Internal;
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -15,11 +15,14 @@ namespace Microsoft.EntityFrameworkCore.TextTemplating.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost, IServiceProvider
+public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplatingEngineHost, IServiceProvider
 {
-    private readonly IServiceProvider _serviceProvider;
-    private ITextTemplatingCallback? _callback;
-    private string? _templateFile;
+    private readonly IServiceProvider? _serviceProvider;
+    private ITextTemplatingSession? _session;
+    private CompilerErrorCollection? _errors;
+    private string? _extension;
+    private Encoding? _outputEncoding;
+    private bool _fromOutputDirective;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +30,7 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public TextTemplatingService(IServiceProvider serviceProvider)
+    public TextTemplatingEngineHost(IServiceProvider? serviceProvider = null)
         => _serviceProvider = serviceProvider;
 
     /// <summary>
@@ -36,7 +39,12 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ITextTemplatingSession? Session { get; set; }
+    [AllowNull]
+    public virtual ITextTemplatingSession Session
+    {
+        get => _session ??= CreateSession();
+        set => _session = value;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,8 +75,7 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? TemplateFile
-        => _templateFile;
+    public virtual string? TemplateFile { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,32 +83,40 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string ProcessTemplate(string inputFile, string content, ITextTemplatingCallback? callback = null)
+    public virtual string Extension
+        => _extension ?? ".cs";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CompilerErrorCollection Errors
+        => _errors ??= new CompilerErrorCollection();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Encoding OutputEncoding
+        => _outputEncoding ?? Encoding.UTF8;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Initialize()
     {
-        _templateFile = inputFile;
-        _callback = callback;
-
-        var sessionCreated = false;
-        if (Session == null)
-        {
-            Session = CreateSession();
-            sessionCreated = true;
-        }
-
-        try
-        {
-            return new Engine().ProcessTemplate(content, this);
-        }
-        finally
-        {
-            _templateFile = null;
-            _callback = null;
-
-            if (sessionCreated)
-            {
-                Session = null;
-            }
-        }
+        _session = null;
+        _errors = null;
+        _extension = null;
+        _outputEncoding = null;
+        _fromOutputDirective = false;
     }
 
     /// <summary>
@@ -147,12 +162,7 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void LogErrors(CompilerErrorCollection errors)
-    {
-        foreach (CompilerError error in errors)
-        {
-            _callback?.ErrorCallback(error);
-        }
-    }
+        => Errors.AddRange(errors);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -208,7 +218,7 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string ResolvePath(string path)
-        => !Path.IsPathRooted(path)
+        => !Path.IsPathRooted(path) && Path.IsPathRooted(TemplateFile)
             ? Path.Combine(Path.GetDirectoryName(TemplateFile)!, path)
             : path;
 
@@ -219,7 +229,7 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetFileExtension(string extension)
-        => _callback?.SetFileExtension(extension);
+        => _extension = extension;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -228,7 +238,15 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetOutputEncoding(Encoding encoding, bool fromOutputDirective)
-        => _callback?.SetOutputEncoding(encoding, fromOutputDirective);
+    {
+        if (_fromOutputDirective)
+        {
+            return;
+        }
+
+        _outputEncoding = encoding;
+        _fromOutputDirective = fromOutputDirective;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -237,5 +255,5 @@ public class TextTemplatingService : ITextTemplating, ITextTemplatingEngineHost,
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object? GetService(Type serviceType)
-        => _serviceProvider.GetService(serviceType);
+        => _serviceProvider?.GetService(serviceType);
 }

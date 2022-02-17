@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
+
 namespace Microsoft.EntityFrameworkCore.Design;
 
 /// <summary>
@@ -21,13 +23,15 @@ public class MethodCallCodeFragment
     /// <param name="arguments">The method call's arguments. Can be <see cref="NestedClosureCodeFragment" />.</param>
     public MethodCallCodeFragment(MethodInfo methodInfo, params object?[] arguments)
     {
-        var parameterLength = methodInfo.GetParameters().Length;
-        if (methodInfo.IsStatic)
+        var parameters = methodInfo.GetParameters();
+        var parameterLength = parameters.Length;
+        if (methodInfo.IsDefined(typeof(ExtensionAttribute)))
         {
             parameterLength--;
         }
 
-        if (arguments.Length > parameterLength)
+        if (arguments.Length > parameterLength
+            && !parameters[^1].IsDefined(typeof(ParamArrayAttribute)))
         {
             throw new ArgumentException(
                 CoreStrings.IncorrectNumberOfArguments(methodInfo.Name, arguments.Length, parameterLength),
@@ -35,14 +39,37 @@ public class MethodCallCodeFragment
         }
 
         MethodInfo = methodInfo;
+        Namespace = methodInfo.DeclaringType?.Namespace;
+        DeclaringType = methodInfo.DeclaringType?.Name;
+        Method = methodInfo.Name;
+        _arguments = new List<object?>(arguments);
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
+    /// </summary>
+    /// <param name="method">The method's name.</param>
+    /// <param name="arguments">The method call's arguments. Can be <see cref="NestedClosureCodeFragment" />.</param>
+    public MethodCallCodeFragment(string method, params object?[] arguments)
+    {
+        Method = method;
         _arguments = new List<object?>(arguments);
     }
 
     private MethodCallCodeFragment(
         MethodInfo methodInfo,
-        MethodCallCodeFragment chainedCall,
-        object?[] arguments)
+        object?[] arguments,
+        MethodCallCodeFragment chainedCall)
         : this(methodInfo, arguments)
+    {
+        ChainedCall = chainedCall;
+    }
+
+    private MethodCallCodeFragment(
+        string method,
+        object?[] arguments,
+        MethodCallCodeFragment chainedCall)
+        : this(method, arguments)
     {
         ChainedCall = chainedCall;
     }
@@ -51,28 +78,25 @@ public class MethodCallCodeFragment
     ///     Gets the <see cref="MethodInfo" /> for this method call.
     /// </summary>
     /// <value> The <see cref="MethodInfo" />. </value>
-    public virtual MethodInfo MethodInfo { get; }
+    public virtual MethodInfo? MethodInfo { get; }
 
     /// <summary>
     ///     Gets the namespace of the method's declaring type.
     /// </summary>
     /// <value> The declaring type's name. </value>
-    public virtual string? Namespace
-        => MethodInfo.DeclaringType?.Namespace;
+    public virtual string? Namespace { get; }
 
     /// <summary>
     ///     Gets the name of the method's declaring type.
     /// </summary>
     /// <value> The declaring type's name. </value>
-    public virtual string? DeclaringType
-        => MethodInfo.DeclaringType?.Name;
+    public virtual string? DeclaringType { get; }
 
     /// <summary>
     ///     Gets the method's name.
     /// </summary>
     /// <value> The method's name. </value>
-    public virtual string Method
-        => MethodInfo.Name;
+    public virtual string Method { get; }
 
     /// <summary>
     ///     Gets the method call's arguments.
@@ -99,8 +123,19 @@ public class MethodCallCodeFragment
     /// <summary>
     ///     Creates a method chain from this method to another.
     /// </summary>
+    /// <param name="method">The next method's name.</param>
+    /// <param name="arguments">The next method call's arguments.</param>
+    /// <returns>A new fragment representing the method chain.</returns>
+    public virtual MethodCallCodeFragment Chain(string method, params object[] arguments)
+        => Chain(new MethodCallCodeFragment(method, arguments));
+
+    /// <summary>
+    ///     Creates a method chain from this method to another.
+    /// </summary>
     /// <param name="call">The next method.</param>
     /// <returns>A new fragment representing the method chain.</returns>
     public virtual MethodCallCodeFragment Chain(MethodCallCodeFragment call)
-        => new(MethodInfo, ChainedCall?.Chain(call) ?? call, _arguments.ToArray());
+        => MethodInfo is not null
+            ? new(MethodInfo, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call)
+            : new(Method, _arguments.ToArray(), ChainedCall?.Chain(call) ?? call);
 }

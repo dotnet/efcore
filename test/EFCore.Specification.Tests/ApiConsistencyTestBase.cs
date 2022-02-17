@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.CodeDom.Compiler;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable InconsistentNaming
@@ -841,6 +842,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             = (from type in GetAllTypes(TargetAssembly.GetTypes())
                where type.IsVisible
                    && !type.IsSealed
+                   && !type.GetCustomAttributes<GeneratedCodeAttribute>().Any()
                from method in type.GetMethods(AnyInstance)
                where method.DeclaringType == type
                    && !Fixture.NonVirtualMethods.Contains(method)

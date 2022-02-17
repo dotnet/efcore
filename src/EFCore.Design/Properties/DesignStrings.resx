@@ -198,6 +198,9 @@
   <data name="ErrorConnecting" xml:space="preserve">
     <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
   </data>
+  <data name="ErrorGeneratingOutput" xml:space="preserve">
+    <value>Processing '{inputFile}' failed.</value>
+  </data>
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.</value>
   </data>
@@ -292,6 +295,12 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
+  </data>
+  <data name="NoContextTemplate" xml:space="preserve">
+    <value>You must provide a DbContext.t4 file in order to scaffold using custom templates.</value>
+  </data>
+  <data name="NoContextTemplateButConfiguration" xml:space="preserve">
+    <value>You've provided an EntityTypeConfiguration.t4 file without a corresponding DbContext.t4 file. The generated DbContext code must be modified to work with your configuration classes. Provide a DbContext.t4 file and try again.</value>
   </data>
   <data name="NoContextWithName" xml:space="preserve">
     <value>No DbContext named '{name}' was found.</value>

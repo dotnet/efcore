@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -411,7 +412,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(sequence.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
-        
+
         GenerateAnnotations(sequenceBuilderName, sequence, stringBuilder, annotations, inChainedCall: true);
     }
 
@@ -505,17 +506,22 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
-        stringBuilder
-            .AppendLine()
-            .Append(".")
-            .Append(nameof(RelationalPropertyBuilderExtensions.HasColumnType))
-            .Append("(")
-            .Append(Code.Literal(property.GetColumnType()))
-            .Append(")");
-        annotations.Remove(RelationalAnnotationNames.ColumnType);
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType))
+        {
+            annotations[RelationalAnnotationNames.ColumnType] = new Annotation(
+                RelationalAnnotationNames.ColumnType,
+                property.GetColumnType());
+        }
 
-        GenerateFluentApiForDefaultValue(property, stringBuilder);
-        annotations.Remove(RelationalAnnotationNames.DefaultValue);
+        if (annotations.ContainsKey(RelationalAnnotationNames.DefaultValue)
+            && property.TryGetDefaultValue(out var defaultValue)
+            && defaultValue != DBNull.Value
+            && FindValueConverter(property) is ValueConverter valueConverter)
+        {
+            annotations[RelationalAnnotationNames.DefaultValue] = new Annotation(
+                RelationalAnnotationNames.DefaultValue,
+                valueConverter.ConvertToProvider(defaultValue));
+        }
 
         GenerateAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
     }
@@ -735,7 +741,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(entityTypeBuilderName)
                     .Append(".ToFunction(")
-                    .Append(Code.UnknownLiteral(functionName))
+                    .Append(Code.Literal(functionName))
                     .AppendLine(");");
                 if (functionNameAnnotation != null)
                 {
@@ -756,7 +762,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(entityTypeBuilderName)
                     .Append(".ToSqlQuery(")
-                    .Append(Code.UnknownLiteral(sqlQuery))
+                    .Append(Code.Literal(sqlQuery))
                     .AppendLine(");");
                 if (sqlQueryAnnotation != null)
                 {
@@ -797,13 +803,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             if (discriminatorMappingCompleteAnnotation?.Value != null)
             {
-                var value = discriminatorMappingCompleteAnnotation.Value;
+                var value = (bool)discriminatorMappingCompleteAnnotation.Value;
 
                 stringBuilder
                     .Append(".")
                     .Append("IsComplete")
                     .Append("(")
-                    .Append(Code.UnknownLiteral(value))
+                    .Append(Code.Literal(value))
                     .Append(")");
             }
 
@@ -863,7 +869,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             stringBuilder.Append("(string)");
         }
 
-        stringBuilder.Append(Code.UnknownLiteral(tableName));
+        stringBuilder.Append(Code.Literal(tableName));
 
         annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
         var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
@@ -890,7 +896,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder.Append("(string)");
             }
 
-            stringBuilder.Append(Code.UnknownLiteral(schema));
+            stringBuilder.Append(Code.Literal(schema));
         }
 
         if (requiresTableBuilder)
@@ -941,9 +947,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(entityTypeBuilderName)
                 .Append(".SplitToTable(")
-                .Append(Code.UnknownLiteral(table.Name))
+                .Append(Code.Literal(table.Name))
                 .Append(", ")
-                .Append(Code.UnknownLiteral(table.Schema))
+                .Append(Code.Literal(table.Schema))
                 .AppendLine(", t =>");
 
             using (stringBuilder.Indent())
@@ -983,7 +989,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .AppendLine()
             .Append(entityTypeBuilderName)
             .Append(".ToView(")
-            .Append(Code.UnknownLiteral(viewName));
+            .Append(Code.Literal(viewName));
         if (viewNameAnnotation != null)
         {
             annotations.Remove(viewNameAnnotation.Name);
@@ -1004,7 +1010,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder.Append("(string)");
             }
 
-            stringBuilder.Append(Code.UnknownLiteral(schema));
+            stringBuilder.Append(Code.Literal(schema));
         }
 
         if (hasOverrides)
@@ -1038,9 +1044,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(entityTypeBuilderName)
                 .Append(".SplitToView(")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Name))
+                .Append(Code.Literal(fragment.StoreObject.Name))
                 .Append(", ")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Schema))
+                .Append(Code.Literal(fragment.StoreObject.Schema))
                 .AppendLine(", v =>");
 
             using (stringBuilder.Indent())
@@ -1302,7 +1308,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".")
                 .Append(nameof(ColumnBuilder.HasColumnName))
                 .Append("(")
-                .Append(Code.UnknownLiteral(overrides.ColumnName))
+                .Append(Code.Literal(overrides.ColumnName))
                 .Append(")");
         }
 
@@ -1365,10 +1371,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".HasOne(")
                 .Append(Code.Literal(GetFullName(foreignKey.PrincipalEntityType)))
                 .Append(", ")
-                .Append(
-                    foreignKey.DependentToPrincipal == null
-                        ? Code.UnknownLiteral(null)
-                        : Code.Literal(foreignKey.DependentToPrincipal.Name));
+                .Append(Code.Literal(foreignKey.DependentToPrincipal?.Name));
         }
         else
         {
@@ -1704,7 +1707,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".")
                 .Append(nameof(PropertyBuilder.HasPrecision))
                 .Append("(")
-                .Append(Code.UnknownLiteral(precision));
+                .Append(Code.Literal(precision));
 
             if (property.GetScale() is int scale)
             {
@@ -1712,7 +1715,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 {
                     stringBuilder
                         .Append(", ")
-                        .Append(Code.UnknownLiteral(scale));
+                        .Append(Code.Literal(scale));
                 }
             }
 
@@ -1734,35 +1737,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(Code.Literal(unicode))
                 .Append(")");
         }
-    }
-
-    private void GenerateFluentApiForDefaultValue(
-        IProperty property,
-        IndentedStringBuilder stringBuilder)
-    {
-        if (!property.TryGetDefaultValue(out var defaultValue))
-        {
-            return;
-        }
-
-        stringBuilder
-            .AppendLine()
-            .Append(".")
-            .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
-            .Append("(");
-
-        if (defaultValue != DBNull.Value)
-        {
-            stringBuilder
-                .Append(
-                    Code.UnknownLiteral(
-                        FindValueConverter(property) is ValueConverter valueConverter
-                            ? valueConverter.ConvertToProvider(defaultValue)
-                            : defaultValue));
-        }
-
-        stringBuilder
-            .Append(")");
     }
 
     private void GenerateAnnotations(
@@ -1806,9 +1780,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         {
             if (inChainedCall)
             {
-                stringBuilder
-                    .AppendLine()
-                    .AppendLines(Code.Fragment(chainedCall), skipFinalNewline: true);
+                if (chainedCall.ChainedCall is null)
+                {
+                    stringBuilder.AppendLine();
+                }
+
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.CurrentIndent));
             }
             else
             {
@@ -1817,7 +1794,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     stringBuilder.AppendLine();
                 }
 
-                stringBuilder.AppendLines(Code.Fragment(chainedCall, builderName), skipFinalNewline: true);
+                stringBuilder.Append(builderName);
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.CurrentIndent + 1));
                 stringBuilder.AppendLine(";");
             }
 

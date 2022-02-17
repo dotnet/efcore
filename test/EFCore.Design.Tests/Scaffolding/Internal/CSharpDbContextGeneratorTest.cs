@@ -1167,16 +1167,15 @@ namespace TestNamespace
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable(tb => tb.IsTemporal(ttb =>
-    {
-        ttb.UseHistoryTable(""CustomerHistory"");
-        ttb
-            .HasPeriodStart(""PeriodStart"")
-            .HasColumnName(""PeriodStart"");
-        ttb
-            .HasPeriodEnd(""PeriodEnd"")
-            .HasColumnName(""PeriodEnd"");
-    }
-));
+                        {
+                            ttb.UseHistoryTable(""CustomerHistory"");
+                            ttb
+                                .HasPeriodStart(""PeriodStart"")
+                                .HasColumnName(""PeriodStart"");
+                            ttb
+                                .HasPeriodEnd(""PeriodEnd"")
+                                .HasColumnName(""PeriodEnd"");
+                        }));
 
                 entity.Property(e => e.Id).UseIdentityColumn();
             });
@@ -1194,6 +1193,37 @@ namespace TestNamespace
                             {
                                 // TODO
                             })).Message);
+
+        [ConditionalFact]
+        public void Sequences_work()
+            => Test(
+                modelBuilder => modelBuilder.HasSequence<int>("EvenNumbers", "dbo")
+                    .StartsAt(2)
+                    .IncrementsBy(2)
+                    .HasMin(2)
+                    .HasMax(100)
+                    .IsCyclic(true),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains(
+                    @".HasSequence<int>(""EvenNumbers"", ""dbo"")" + _nl +
+                    "                .StartsAt(2)" + _nl +
+                    "                .IncrementsBy(2)" + _nl +
+                    "                .HasMin(2)" + _nl +
+                    "                .HasMax(100)" + _nl +
+                    "                .IsCyclic();",
+                    code.ContextFile.Code),
+                model =>
+                {
+                    var sequence = model.FindSequence("EvenNumbers", "dbo");
+                    Assert.NotNull(sequence);
+
+                    Assert.Equal(typeof(int), sequence.Type);
+                    Assert.Equal(2, sequence.StartValue);
+                    Assert.Equal(2, sequence.IncrementBy);
+                    Assert.Equal(2, sequence.MinValue);
+                    Assert.Equal(100, sequence.MaxValue);
+                    Assert.True(sequence.IsCyclic);
+                });
 
         [ConditionalFact]
         public void Trigger_works()

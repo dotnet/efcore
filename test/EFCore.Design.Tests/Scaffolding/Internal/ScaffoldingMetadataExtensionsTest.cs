@@ -13,17 +13,17 @@ public class ScaffoldingMetadataExtensionsTest
     {
         IMutableModel model = new Model();
 
-        Assert.Empty(model.GetEntityTypeErrors().Values);
+        Assert.Empty(model.GetReverseEngineeringErrors());
 
-        model.GetOrCreateEntityTypeErrors().Add("ET", "FAIL!");
-        Assert.Equal("FAIL!", model.GetEntityTypeErrors()["ET"]);
+        model.GetOrCreateReverseEngineeringErrors().Add("FAIL!");
+        Assert.Equal("FAIL!", Assert.Single(model.GetReverseEngineeringErrors()));
 
-        model.SetEntityTypeErrors(new Dictionary<string, string>());
-        Assert.Empty(model.GetEntityTypeErrors().Values);
+        model.SetReverseEngineeringErrors(new List<string>());
+        Assert.Empty(model.GetReverseEngineeringErrors());
 
-        model.GetOrCreateEntityTypeErrors()["ET"] = "FAIL 2!";
-        model.GetOrCreateEntityTypeErrors().Clear();
-        Assert.Empty(model.GetEntityTypeErrors().Values);
+        model.GetOrCreateReverseEngineeringErrors().Add("FAIL 2!");
+        model.GetOrCreateReverseEngineeringErrors().Clear();
+        Assert.Empty(model.GetReverseEngineeringErrors());
     }
 
     [ConditionalFact]

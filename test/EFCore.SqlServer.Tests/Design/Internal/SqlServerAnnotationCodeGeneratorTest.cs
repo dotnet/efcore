@@ -205,10 +205,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("UseIdentityColumn", result.Method);
         Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
-        Assert.Collection(
-            result.Arguments,
-            seed => Assert.Equal(1L, seed),
-            increment => Assert.Equal(1, increment));
+        Assert.Empty(result.Arguments);
     }
 
     [ConditionalFact]

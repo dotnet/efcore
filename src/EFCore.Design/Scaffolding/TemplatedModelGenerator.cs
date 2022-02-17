@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 /// <summary>
 /// Base type for model code generators that use templates.
 /// </summary>
-internal abstract class TemplatedModelGenerator : ModelCodeGenerator
+public abstract class TemplatedModelGenerator : ModelCodeGenerator
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="TemplatedModelGenerator"/> class.

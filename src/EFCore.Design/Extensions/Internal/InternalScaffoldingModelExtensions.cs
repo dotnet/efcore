@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public static class ScaffoldingModelExtensions
+public static class InternalScaffoldingModelExtensions
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,22 +17,13 @@ public static class ScaffoldingModelExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IReadOnlyDictionary<string, string> GetEntityTypeErrors(this IReadOnlyModel model)
-        => (IReadOnlyDictionary<string, string>?)model[ScaffoldingAnnotationNames.EntityTypeErrors] ?? new Dictionary<string, string>();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static IDictionary<string, string> GetOrCreateEntityTypeErrors(this IReadOnlyModel model)
+    public static ICollection<string> GetOrCreateReverseEngineeringErrors(this IMutableModel model)
     {
-        var errors = (IDictionary<string, string>?)model[ScaffoldingAnnotationNames.EntityTypeErrors];
+        var errors = (ICollection<string>?)model[ScaffoldingAnnotationNames.ReverseEngineeringErrors];
         if (errors == null)
         {
-            errors = new Dictionary<string, string>();
-            (model as IMutableModel)?.SetEntityTypeErrors(errors);
+            errors = new List<string>();
+            model.SetReverseEngineeringErrors(errors);
         }
 
         return errors;
@@ -44,9 +35,9 @@ public static class ScaffoldingModelExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static void SetEntityTypeErrors(this IMutableModel model, IDictionary<string, string> value)
+    public static void SetReverseEngineeringErrors(this IMutableModel model, ICollection<string> value)
         => model.SetAnnotation(
-            ScaffoldingAnnotationNames.EntityTypeErrors,
+            ScaffoldingAnnotationNames.ReverseEngineeringErrors,
             value);
 
     /// <summary>
@@ -67,5 +58,16 @@ public static class ScaffoldingModelExtensions
     public static void SetDatabaseName(this IMutableModel model, string? value)
         => model.SetAnnotation(
             ScaffoldingAnnotationNames.DatabaseName,
+            value);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void SetDbSetName(this IMutableEntityType entityType, string? value)
+        => entityType.SetAnnotation(
+            ScaffoldingAnnotationNames.DbSetName,
             value);
 }

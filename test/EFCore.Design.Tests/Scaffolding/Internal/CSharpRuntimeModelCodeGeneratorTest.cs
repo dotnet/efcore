@@ -840,10 +840,10 @@ namespace Internal
             {
             }
 
-            public override bool ShouldUseFullName(Type type)
+            protected override bool ShouldUseFullName(Type type)
                 => base.ShouldUseFullName(type);
 
-            public override bool ShouldUseFullName(string shortTypeName)
+            protected override bool ShouldUseFullName(string shortTypeName)
                 => base.ShouldUseFullName(shortTypeName)
                     || shortTypeName == nameof(Index)
                     || shortTypeName == nameof(Internal);
