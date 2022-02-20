@@ -35,7 +35,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     public virtual ResultSetMapping AppendBulkInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
         if (modificationCommands.Count == 1)
@@ -45,13 +46,16 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                     !o.IsKey
                     || !o.IsRead
                     || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
-                ? AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition)
+                // Do a regular INSERT+SELECT for IDENTITY, but not if there are any non-IDENTITY generated columns
+                ? AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition, out requiresTransaction)
+                // If we have a non-identity generated column, do INSERT ... OUTPUT INTO @inserted; SELECT ... FROM @inserted
                 : AppendInsertOperationWithServerKeys(
                     commandStringBuilder,
                     modificationCommands[0],
                     modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList(),
                     modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList(),
-                    commandPosition);
+                    commandPosition,
+                    out requiresTransaction);
         }
 
         var readOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList();
@@ -59,18 +63,23 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         var keyOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList();
 
         var defaultValuesOnly = writeOperations.Count == 0;
-        var nonIdentityOperations = modificationCommands[0].ColumnModifications
-            .Where(o => o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn)
+        var writableOperations = modificationCommands[0].ColumnModifications
+            .Where(o =>
+                o.Property?.GetValueGenerationStrategy(table) != SqlServerValueGenerationStrategy.IdentityColumn
+                && o.Property?.GetComputedColumnSql() is null
+                && o.Property?.GetColumnType() is not "rowversion" and not "timestamp")
             .ToList();
 
         if (defaultValuesOnly)
         {
-            if (nonIdentityOperations.Count == 0
+            if (writableOperations.Count == 0
                 || readOperations.Count == 0)
             {
+                requiresTransaction = false;
                 foreach (var modification in modificationCommands)
                 {
-                    AppendInsertOperation(commandStringBuilder, modification, commandPosition);
+                    AppendInsertOperation(commandStringBuilder, modification, commandPosition, out var localRequiresTransaction);
+                    requiresTransaction = requiresTransaction || localRequiresTransaction;
                 }
 
                 return readOperations.Count == 0
@@ -78,31 +87,36 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                     : ResultSetMapping.LastInResultSet;
             }
 
-            if (nonIdentityOperations.Count > 1)
+            if (writableOperations.Count > 1)
             {
-                nonIdentityOperations.RemoveRange(1, nonIdentityOperations.Count - 1);
+                writableOperations.RemoveRange(1, writableOperations.Count - 1);
             }
         }
 
         if (readOperations.Count == 0)
         {
-            return AppendBulkInsertWithoutServerValues(commandStringBuilder, modificationCommands, writeOperations);
+            return AppendBulkInsertWithoutServerValues(
+                commandStringBuilder, modificationCommands, writeOperations, out requiresTransaction);
         }
 
         if (defaultValuesOnly)
         {
             return AppendBulkInsertWithServerValuesOnly(
-                commandStringBuilder, modificationCommands, commandPosition, nonIdentityOperations, keyOperations, readOperations);
+                commandStringBuilder, modificationCommands, commandPosition, writableOperations, keyOperations, readOperations,
+                out requiresTransaction);
         }
 
         if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
             .Any(e => e.IsMemoryOptimized()))
         {
-            if (!nonIdentityOperations.Any(o => o.IsRead && o.IsKey))
+            requiresTransaction = false;
+
+            if (!writableOperations.Any(o => o.IsRead && o.IsKey))
             {
                 foreach (var modification in modificationCommands)
                 {
-                    AppendInsertOperation(commandStringBuilder, modification, commandPosition++);
+                    AppendInsertOperation(commandStringBuilder, modification, commandPosition++, out var localRequiresTransaction);
+                    requiresTransaction = requiresTransaction || localRequiresTransaction;
                 }
             }
             else
@@ -110,7 +124,9 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                 foreach (var modification in modificationCommands)
                 {
                     AppendInsertOperationWithServerKeys(
-                        commandStringBuilder, modification, keyOperations, readOperations, commandPosition++);
+                        commandStringBuilder, modification, keyOperations, readOperations, commandPosition++,
+                        out var localRequiresTransaction);
+                    requiresTransaction = requiresTransaction || localRequiresTransaction;
                 }
             }
 
@@ -118,13 +134,15 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         }
 
         return AppendBulkInsertWithServerValues(
-            commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations);
+            commandStringBuilder, modificationCommands, commandPosition, writeOperations, keyOperations, readOperations,
+            out requiresTransaction);
     }
 
     private ResultSetMapping AppendBulkInsertWithoutServerValues(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
-        List<IColumnModification> writeOperations)
+        List<IColumnModification> writeOperations,
+        out bool requiresTransaction)
     {
         Check.DebugAssert(writeOperations.Count > 0, $"writeOperations.Count is {writeOperations.Count}");
 
@@ -143,6 +161,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
 
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
 
+        requiresTransaction = false;
+
         return ResultSetMapping.NoResultSet;
     }
 
@@ -158,7 +178,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         int commandPosition,
         List<IColumnModification> writeOperations,
         List<IColumnModification> keyOperations,
-        List<IColumnModification> readOperations)
+        List<IColumnModification> readOperations,
+        out bool requiresTransaction)
     {
         AppendDeclareTable(
             commandStringBuilder,
@@ -190,6 +211,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema,
             orderColumn: PositionColumnName);
 
+        requiresTransaction = true;
+
         return ResultSetMapping.NotLastInResultSet;
     }
 
@@ -197,27 +220,30 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
-        List<IColumnModification> nonIdentityOperations,
+        List<IColumnModification> writableOperations,
         List<IColumnModification> keyOperations,
-        List<IColumnModification> readOperations)
+        List<IColumnModification> readOperations,
+        out bool requiresTransaction)
     {
         AppendDeclareTable(commandStringBuilder, InsertedTableBaseName, commandPosition, keyOperations);
 
         var name = modificationCommands[0].TableName;
         var schema = modificationCommands[0].Schema;
-        AppendInsertCommandHeader(commandStringBuilder, name, schema, nonIdentityOperations);
+        AppendInsertCommandHeader(commandStringBuilder, name, schema, writableOperations);
         AppendOutputClause(commandStringBuilder, keyOperations, InsertedTableBaseName, commandPosition);
-        AppendValuesHeader(commandStringBuilder, nonIdentityOperations);
-        AppendValues(commandStringBuilder, name, schema, nonIdentityOperations);
+        AppendValuesHeader(commandStringBuilder, writableOperations);
+        AppendValues(commandStringBuilder, name, schema, writableOperations);
         for (var i = 1; i < modificationCommands.Count; i++)
         {
             commandStringBuilder.AppendLine(",");
-            AppendValues(commandStringBuilder, name, schema, nonIdentityOperations);
+            AppendValues(commandStringBuilder, name, schema, writableOperations);
         }
 
         commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);
 
         AppendSelectCommand(commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema);
+
+        requiresTransaction = true;
 
         return ResultSetMapping.NotLastInResultSet;
     }
@@ -399,7 +425,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         IReadOnlyModificationCommand command,
         IReadOnlyList<IColumnModification> keyOperations,
         IReadOnlyList<IColumnModification> readOperations,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         var name = command.TableName;
         var schema = command.Schema;
@@ -414,6 +441,8 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         AppendValuesHeader(commandStringBuilder, writeOperations);
         AppendValues(commandStringBuilder, name, schema, writeOperations);
         commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator);
+
+        requiresTransaction = true;
 
         return AppendSelectCommand(
             commandStringBuilder, readOperations, keyOperations, InsertedTableBaseName, commandPosition, name, schema);
@@ -514,6 +543,19 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         => commandStringBuilder
             .Append("SET NOCOUNT ON")
             .AppendLine(SqlGenerationHelper.StatementTerminator);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void PrependEnsureAutocommit(StringBuilder commandStringBuilder)
+    {
+        // SQL Server allows turning off autocommit via the IMPLICIT_TRANSACTIONS setting (see
+        // https://docs.microsoft.com/sql/t-sql/statements/set-implicit-transactions-transact-sql).
+        commandStringBuilder.Insert(0, $"SET IMPLICIT_TRANSACTIONS OFF{SqlGenerationHelper.StatementTerminator}{Environment.NewLine}");
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

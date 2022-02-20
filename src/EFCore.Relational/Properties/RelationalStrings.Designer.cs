@@ -844,6 +844,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 parameter);
 
         /// <summary>
+        ///     Cannot execute an ModificationCommandBatch which hasn't been completed.
+        /// </summary>
+        public static string ModificationCommandBatchAlreadyComplete
+            => GetString("ModificationCommandBatchAlreadyComplete");
+
+        /// <summary>
+        ///     Cannot execute an ModificationCommandBatch which hasn't been completed.
+        /// </summary>
+        public static string ModificationCommandBatchNotComplete
+            => GetString("ModificationCommandBatchNotCompleted");
+
+        /// <summary>
         ///     Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.
         /// </summary>
         public static string ModificationCommandInvalidEntityState(object? entityType, object? entityState)

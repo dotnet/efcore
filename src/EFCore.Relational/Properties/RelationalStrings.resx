@@ -669,6 +669,12 @@
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value was provided for the required parameter '{parameter}'.</value>
   </data>
+  <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
+    <value>Cannot add commands to a completed ModificationCommandBatch.</value>
+  </data>
+  <data name="ModificationCommandBatchNotComplete" xml:space="preserve">
+    <value>Cannot execute an ModificationCommandBatch which hasn't been completed.</value>
+  </data>
   <data name="ModificationCommandInvalidEntityState" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values of the entity.</value>
   </data>

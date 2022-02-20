@@ -187,6 +187,7 @@ WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
             @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='repairman' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Name] = @p0
 WHERE [Name] = @p1;
@@ -195,6 +196,7 @@ SELECT @@ROWCOUNT;",
             @"@p2='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p3='Repair' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [LicensedOperators] ([VehicleName], [LicenseType])
 VALUES (@p2, @p3);",
@@ -228,6 +230,7 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
             @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;

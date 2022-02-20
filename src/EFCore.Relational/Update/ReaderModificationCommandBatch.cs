@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 {
     private readonly List<IReadOnlyModificationCommand> _modificationCommands = new();
+    private string? _finalCommandText;
+    private bool _requiresTransaction = true;
 
     /// <summary>
     ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
@@ -74,6 +76,11 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// </returns>
     public override bool AddCommand(IReadOnlyModificationCommand modificationCommand)
     {
+        if (_finalCommandText is not null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchAlreadyComplete);
+        }
+
         if (ModificationCommands.Count == 0)
         {
             ResetCommandText();
@@ -103,14 +110,34 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// </summary>
     protected virtual void ResetCommandText()
     {
-        if (CachedCommandText.Length > 0)
-        {
-            CachedCommandText = new StringBuilder();
-        }
+        CachedCommandText.Clear();
 
         UpdateSqlGenerator.AppendBatchHeader(CachedCommandText);
+        _batchHeaderLength = CachedCommandText.Length;
+
+        SetRequiresTransaction(true);
+
         LastCachedCommandIndex = -1;
     }
+
+    private int _batchHeaderLength;
+
+    /// <summary>
+    ///     Whether any SQL has already been added to the batch command text.
+    /// </summary>
+    protected virtual bool IsCachedCommandTextEmpty
+        => CachedCommandText.Length == _batchHeaderLength;
+
+    /// <inheritdoc />
+    public override bool RequiresTransaction
+        => _requiresTransaction;
+
+    /// <summary>
+    ///     Sets whether the batch requires a transaction in order to execute correctly.
+    /// </summary>
+    /// <param name="requiresTransaction">Whether the batch requires a transaction in order to execute correctly.</param>
+    protected virtual void SetRequiresTransaction(bool requiresTransaction)
+        => _requiresTransaction = requiresTransaction;
 
     /// <summary>
     ///     Checks whether a new command can be added to the batch.
@@ -126,18 +153,15 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     protected abstract bool IsCommandTextValid();
 
     /// <summary>
-    ///     Gets the command text for all the commands in the current batch and also caches it
-    ///     on <see cref="CachedCommandText" />.
+    ///     Processes all unprocessed commands in the batch, making sure their corresponding SQL is populated in
+    ///     <see cref="CachedCommandText" />.
     /// </summary>
-    /// <returns>The command text.</returns>
-    protected virtual string GetCommandText()
+    protected virtual void UpdateCachedCommandText()
     {
         for (var i = LastCachedCommandIndex + 1; i < ModificationCommands.Count; i++)
         {
             UpdateCachedCommandText(i);
         }
-
-        return CachedCommandText.ToString();
     }
 
     /// <summary>
@@ -149,21 +173,34 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         var newModificationCommand = ModificationCommands[commandPosition];
 
+        bool requiresTransaction;
+
         switch (newModificationCommand.EntityState)
         {
             case EntityState.Added:
                 CommandResultSet[commandPosition] =
-                    UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    UpdateSqlGenerator.AppendInsertOperation(
+                        CachedCommandText, newModificationCommand, commandPosition, out requiresTransaction);
                 break;
             case EntityState.Modified:
                 CommandResultSet[commandPosition] =
-                    UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    UpdateSqlGenerator.AppendUpdateOperation(
+                        CachedCommandText, newModificationCommand, commandPosition, out requiresTransaction);
                 break;
             case EntityState.Deleted:
                 CommandResultSet[commandPosition] =
-                    UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    UpdateSqlGenerator.AppendDeleteOperation(
+                        CachedCommandText, newModificationCommand, commandPosition, out requiresTransaction);
                 break;
+
+            default:
+                throw new InvalidOperationException(
+                    RelationalStrings.ModificationCommandInvalidEntityState(
+                        newModificationCommand.Entries[0].EntityType,
+                        newModificationCommand.EntityState));
         }
+
+        _requiresTransaction = commandPosition > 0 || requiresTransaction;
 
         LastCachedCommandIndex = commandPosition;
     }
@@ -175,15 +212,33 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     protected virtual int GetParameterCount()
         => ModificationCommands.Sum(c => c.ColumnModifications.Count);
 
+    /// <inheritdoc />
+    public override void Complete()
+    {
+        UpdateCachedCommandText();
+
+        // Some database have a more where autocommit is off, and so executing a command outside of an explicit transaction implicitly
+        // creates a new transaction (which needs to be explicitly committed).
+        // The below is a hook for allowing providers to turn autocommit on, in case it's off.
+        if (!RequiresTransaction)
+        {
+            UpdateSqlGenerator.PrependEnsureAutocommit(CachedCommandText);
+        }
+
+        _finalCommandText = CachedCommandText.ToString();
+    }
+
     /// <summary>
     ///     Generates a <see cref="RawSqlCommand" /> for the batch.
     /// </summary>
     /// <returns>The command.</returns>
     protected virtual RawSqlCommand CreateStoreCommand()
     {
+        Check.DebugAssert(_finalCommandText is not null, "_finalCommandText is not null, checked in Execute");
+
         var commandBuilder = Dependencies.CommandBuilderFactory
             .Create()
-            .Append(GetCommandText());
+            .Append(_finalCommandText);
 
         var parameterValues = new Dictionary<string, object?>(GetParameterCount());
 
@@ -229,6 +284,11 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     /// <param name="connection">The connection to the database to update.</param>
     public override void Execute(IRelationalConnection connection)
     {
+        if (_finalCommandText is null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchNotComplete);
+        }
+
         var storeCommand = CreateStoreCommand();
 
         try
@@ -263,6 +323,11 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
     {
+        if (_finalCommandText is null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchNotComplete);
+        }
+
         var storeCommand = CreateStoreCommand();
 
         try

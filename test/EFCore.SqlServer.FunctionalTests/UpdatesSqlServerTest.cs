@@ -44,6 +44,7 @@ public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerFi
 @p1=NULL (Size = 4000)
 @p2='777'
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Categories] ([Id], [Name], [PrincipalId])
 VALUES (@p0, @p1, @p2);",
@@ -131,6 +132,7 @@ ORDER BY [i].[_Position];");
             @"@p1='78'
 @p0='New Category' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Categories] SET [Name] = @p0
 WHERE [Id] = @p1;

@@ -52,6 +52,16 @@ public class BatchExecutor : IBatchExecutor
         IEnumerable<ModificationCommandBatch> commandBatches,
         IRelationalConnection connection)
     {
+        using var batchEnumerator = commandBatches.GetEnumerator();
+
+        if (!batchEnumerator.MoveNext())
+        {
+            return 0;
+        }
+
+        var currentBatch = batchEnumerator.Current;
+        var nextBatch = batchEnumerator.MoveNext() ? batchEnumerator.Current : null;
+
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
         var beganTransaction = false;
@@ -62,7 +72,9 @@ public class BatchExecutor : IBatchExecutor
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                && CurrentContext.Context.Database.AutoTransactionsEnabled
+                // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
+                && (nextBatch is not null || currentBatch.RequiresTransaction))
             {
                 transaction = connection.BeginTransaction();
                 beganTransaction = true;
@@ -79,10 +91,13 @@ public class BatchExecutor : IBatchExecutor
                 }
             }
 
-            foreach (var batch in commandBatches)
+            while (currentBatch is not null)
             {
-                batch.Execute(connection);
-                rowsAffected += batch.ModificationCommands.Count;
+                currentBatch.Execute(connection);
+                rowsAffected += currentBatch.ModificationCommands.Count;
+
+                currentBatch = nextBatch;
+                nextBatch = batchEnumerator.MoveNext() ? batchEnumerator.Current : null;
             }
 
             if (beganTransaction)
@@ -147,6 +162,16 @@ public class BatchExecutor : IBatchExecutor
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
     {
+        using var batchEnumerator = commandBatches.GetEnumerator();
+
+        if (!batchEnumerator.MoveNext())
+        {
+            return 0;
+        }
+
+        var currentBatch = batchEnumerator.Current;
+        var nextBatch = batchEnumerator.MoveNext() ? batchEnumerator.Current : null;
+
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
         var beganTransaction = false;
@@ -157,7 +182,9 @@ public class BatchExecutor : IBatchExecutor
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                && CurrentContext.Context.Database.AutoTransactionsEnabled
+                // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
+                && (nextBatch is not null || currentBatch.RequiresTransaction))
             {
                 transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                 beganTransaction = true;
@@ -174,10 +201,13 @@ public class BatchExecutor : IBatchExecutor
                 }
             }
 
-            foreach (var batch in commandBatches)
+            while (currentBatch is not null)
             {
-                await batch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
-                rowsAffected += batch.ModificationCommands.Count;
+                await currentBatch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+                rowsAffected += currentBatch.ModificationCommands.Count;
+
+                currentBatch = nextBatch;
+                nextBatch = batchEnumerator.MoveNext() ? batchEnumerator.Current : null;
             }
 
             if (beganTransaction)

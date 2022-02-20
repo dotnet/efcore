@@ -102,6 +102,7 @@ WHERE [c].[Id] = 1",
 @p1='1'
 @p2='Little spotted kiwi' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Name])
 VALUES (@p0, @p1, @p2);",
@@ -110,6 +111,7 @@ VALUES (@p0, @p1, @p2);",
 @p4=NULL (Size = 100)
 @p5='True'
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Birds] ([Species], [EagleId], [IsFlightless])
 VALUES (@p3, @p4, @p5);",
@@ -117,6 +119,7 @@ VALUES (@p3, @p4, @p5);",
             @"@p6='Apteryx owenii' (Nullable = false) (Size = 100)
 @p7='0' (Size = 1)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Kiwi] ([Species], [FoundOn])
 VALUES (@p6, @p7);",
@@ -130,6 +133,7 @@ WHERE [a].[Species] LIKE N'%owenii'",
             @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 @p0='Aquila chrysaetos canadensis' (Size = 100)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Birds] SET [EagleId] = @p0
 WHERE [Species] = @p1;
@@ -143,6 +147,7 @@ WHERE [a].[Species] LIKE N'%owenii'",
             //
             @"@p0='Apteryx owenii' (Nullable = false) (Size = 100)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Kiwi]
 WHERE [Species] = @p0;
@@ -150,6 +155,7 @@ SELECT @@ROWCOUNT;",
             //
             @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Birds]
 WHERE [Species] = @p1;
@@ -157,6 +163,7 @@ SELECT @@ROWCOUNT;",
             //
             @"@p2='Apteryx owenii' (Nullable = false) (Size = 100)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Animals]
 WHERE [Species] = @p2;
@@ -527,6 +534,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]",
 @p1='0'
 @p2='Bald eagle' (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Animals] ([Species], [CountryId], [Name])
 VALUES (@p0, @p1, @p2);");

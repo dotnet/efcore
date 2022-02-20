@@ -83,6 +83,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                                 batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                         }
 
+                        batch.Complete();
+
                         yield return batch;
                     }
                     else
@@ -92,7 +94,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                         foreach (var command in batch.ModificationCommands)
                         {
-                            yield return StartNewBatch(parameterNameGenerator, command);
+                            batch = StartNewBatch(parameterNameGenerator, command);
+                            batch.Complete();
+
+                            yield return batch;
                         }
                     }
 
@@ -109,6 +114,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                 }
 
+                batch.Complete();
+
                 yield return batch;
             }
             else
@@ -118,7 +125,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                 foreach (var command in batch.ModificationCommands)
                 {
-                    yield return StartNewBatch(parameterNameGenerator, command);
+                    batch = StartNewBatch(parameterNameGenerator, command);
+                    batch.Complete();
+
+                    yield return batch;
                 }
             }
         }

@@ -13,28 +13,31 @@ public class FakeSqlGenerator : UpdateSqlGenerator
     public override ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         AppendInsertOperationCalls++;
-        return base.AppendInsertOperation(commandStringBuilder, command, commandPosition);
+        return base.AppendInsertOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
     }
 
     public override ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         AppendUpdateOperationCalls++;
-        return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition);
+        return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
     }
 
     public override ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         AppendDeleteOperationCalls++;
-        return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition);
+        return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
     }
 
     public int AppendBatchHeaderCalls { get; set; }

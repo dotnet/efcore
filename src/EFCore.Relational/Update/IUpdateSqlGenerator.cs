@@ -55,6 +55,26 @@ public interface IUpdateSqlGenerator
     void AppendBatchHeader(StringBuilder commandStringBuilder);
 
     /// <summary>
+    ///     Prepends a SQL command for turning on autocommit mode in the database, in case it is off.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be prepended.</param>
+    void PrependEnsureAutocommit(StringBuilder commandStringBuilder);
+
+    /// <summary>
+    ///     Appends a SQL command for deleting a row to the commands being built.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the delete operation.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendDeleteOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction);
+
+    /// <summary>
     ///     Appends a SQL command for deleting a row to the commands being built.
     /// </summary>
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
@@ -64,7 +84,22 @@ public interface IUpdateSqlGenerator
     ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition);
+        int commandPosition)
+        => AppendDeleteOperation(commandStringBuilder, command, commandPosition, out _);
+
+    /// <summary>
+    ///     Appends a SQL command for inserting a row to the commands being built.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the delete operation.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendInsertOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction);
 
     /// <summary>
     ///     Appends a SQL command for inserting a row to the commands being built.
@@ -76,7 +111,22 @@ public interface IUpdateSqlGenerator
     ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition);
+        int commandPosition)
+        => AppendInsertOperation(commandStringBuilder, command, commandPosition, out _);
+
+    /// <summary>
+    ///     Appends a SQL command for updating a row to the commands being built.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="command">The command that represents the delete operation.</param>
+    /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
+    /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
+    ResultSetMapping AppendUpdateOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction);
 
     /// <summary>
     ///     Appends a SQL command for updating a row to the commands being built.
@@ -88,5 +138,6 @@ public interface IUpdateSqlGenerator
     ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition);
+        int commandPosition)
+        => AppendUpdateOperation(commandStringBuilder, command, commandPosition, out _);
 }
