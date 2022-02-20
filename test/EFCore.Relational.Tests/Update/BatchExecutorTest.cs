@@ -15,8 +15,8 @@ public class BatchExecutorTest
         using var context = new TestContext();
         var connection = SetupConnection(context);
 
-        context.Add(
-            new Foo { Id = "1" });
+        context.Add(new Foo { Id = "1" });
+        context.Add(new Bar { Id = "1" });
 
         if (async)
         {
@@ -83,9 +83,15 @@ public class BatchExecutorTest
         }
 
         public DbSet<Foo> Foos { get; set; }
+        public DbSet<Bar> Bars { get; set; }
     }
 
     private class Foo
+    {
+        public string Id { get; set; }
+    }
+
+    private class Bar
     {
         public string Id { get; set; }
     }

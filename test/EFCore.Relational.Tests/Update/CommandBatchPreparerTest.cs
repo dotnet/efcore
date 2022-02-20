@@ -953,6 +953,7 @@ FakeEntity [Deleted]"
         bool sensitiveLogging = false)
         => CreateCommandBatchPreparer(updateAdapter: updateAdapter, sensitiveLogging: sensitiveLogging)
             .BatchCommands(entries, updateAdapter)
+            .Select(t => t.Batch)
             .ToList();
 
     public ICommandBatchPreparer CreateCommandBatchPreparer(
