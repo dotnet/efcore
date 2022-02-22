@@ -40,10 +40,10 @@ public class CompiledQueryCache : ICompiledQueryCache
         Func<Func<QueryContext, TResult>> compiler)
     {
         // ReSharper disable once InconsistentlySynchronizedField
-        if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult> compiledQuery))
+        if (_memoryCache.TryGetValue(cacheKey, out Func<QueryContext, TResult>? compiledQuery))
         {
             EntityFrameworkEventSource.Log.CompiledQueryCacheHit();
-            return compiledQuery;
+            return compiledQuery!;
         }
 
         // When multiple threads attempt to start processing the same query (program startup / thundering
@@ -67,7 +67,7 @@ public class CompiledQueryCache : ICompiledQueryCache
                     _memoryCache.Set(cacheKey, compiledQuery, new MemoryCacheEntryOptions { Size = 10 });
                 }
 
-                return compiledQuery;
+                return compiledQuery!;
             }
         }
         finally

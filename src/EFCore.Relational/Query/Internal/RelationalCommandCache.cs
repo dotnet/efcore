@@ -63,9 +63,9 @@ public class RelationalCommandCache : IPrintableExpression
     {
         var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
-        if (_memoryCache.TryGetValue(cacheKey, out IRelationalCommandTemplate relationalCommandTemplate))
+        if (_memoryCache.TryGetValue(cacheKey, out IRelationalCommandTemplate? relationalCommandTemplate))
         {
-            return relationalCommandTemplate;
+            return relationalCommandTemplate!;
         }
 
         // When multiple threads attempt to start processing the same query (program startup / thundering
@@ -89,7 +89,7 @@ public class RelationalCommandCache : IPrintableExpression
                     }
                 }
 
-                return relationalCommandTemplate;
+                return relationalCommandTemplate!;
             }
         }
         finally
