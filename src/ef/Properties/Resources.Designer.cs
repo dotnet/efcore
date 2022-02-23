@@ -635,12 +635,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("WritingFile", nameof(file)),
                 file);
 
-        /// <summary>
-        ///     You cannot add a migration with the name 'Migration'.
-        /// </summary>
-        public static string CircularBaseClassDependency
-            => GetString("CircularBaseClassDependency");
-
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

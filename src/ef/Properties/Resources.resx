@@ -402,7 +402,4 @@
   <data name="WritingFile" xml:space="preserve">
     <value>Writing '{file}'...</value>
   </data>
-  <data name="CircularBaseClassDependency" xml:space="preserve">
-    <value>You cannot add a migration with the name 'Migration'.</value>
-  </data>
 </root>

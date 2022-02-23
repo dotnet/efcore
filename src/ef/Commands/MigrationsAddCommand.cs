@@ -14,11 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (string.Equals(_name!.Value, "migration", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new CommandException(Resources.CircularBaseClassDependency);
-            }
-
             if (string.IsNullOrEmpty(_name!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
