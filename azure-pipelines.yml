@@ -104,7 +104,7 @@ stages:
                 name: Build
               - script: |
                     .dotnet\dotnet publish --configuration $(_BuildConfig) --runtime win-x64 --self-contained test\EFCore.Trimming.Tests
-                    artifacts\bin\EFCore.Trimming.Tests\$(_BuildConfig)\$(_BuildTargetFramework)\win-x64\publish\EFCore.Trimming.Tests.exe
+                    artifacts\bin\EFCore.Trimming.Tests\$(_BuildConfig)\net7.0\win-x64\publish\EFCore.Trimming.Tests.exe
                 displayName: Test trimming
               - task: PublishBuildArtifacts@1
                 displayName: Upload TestResults
