@@ -81,7 +81,8 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
 
                 context.SaveChanges();
             });
-        Assert.Equal("Current location is not a valid Azure region.", exception.Message);
+        
+        Assert.Equal("ApplicationRegion configuration 'FakeRegion' is not a valid Azure region or the current SDK version does not recognize it. If the value represents a valid region, make sure you are using the latest SDK version.", exception.Message);
     }
 
     [ConditionalFact]
