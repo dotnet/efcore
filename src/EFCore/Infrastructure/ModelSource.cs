@@ -59,7 +59,7 @@ public class ModelSource : IModelSource
     {
         var cache = Dependencies.MemoryCache;
         var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context, designTime);
-        if (!cache.TryGetValue(cacheKey, out IModel model))
+        if (!cache.TryGetValue(cacheKey, out IModel? model))
         {
             // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
             lock (_syncObject)
@@ -77,7 +77,7 @@ public class ModelSource : IModelSource
             }
         }
 
-        return model;
+        return model!;
     }
 
     /// <summary>
