@@ -5546,7 +5546,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected internal uint ClientEvalSelector(Order order)
             => order.EmployeeID % 10 ?? 0;
 
-        [ConditionalTheory(Skip = "Issue#20445")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_navigation_equal_to_null_for_subquery(bool async)
         {
