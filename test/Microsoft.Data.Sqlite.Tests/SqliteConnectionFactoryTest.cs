@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.IO;
+using System.Runtime.CompilerServices;
 using SQLitePCL;
 using Xunit;
 
@@ -216,6 +217,26 @@ namespace Microsoft.Data.Sqlite
             ex = Assert.Throws<SqliteException>(
                 () => connection2.ExecuteNonQuery("SELECT load_extension('unknown');"));
             Assert.Equal(disabledMessage, ex.Message);
+        }
+
+        [Fact]
+        public void Clear_works_when_connection_leaked()
+        {
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
+
+            LeakConnection();
+            GC.Collect();
+
+            SqliteConnection.ClearPool(connection);
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            static void LeakConnection()
+            {
+                // Don't add using!
+                var connection = new SqliteConnection(ConnectionString);
+                connection.Open();
+            }
         }
 
         public void Dispose()
