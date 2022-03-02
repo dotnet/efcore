@@ -329,22 +329,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
         EntityState? secondOperationType,
         GeneratedValues generatedValues,
         bool withSameEntityType)
-    {
-        // By default, two changes require a transaction
-        if (secondOperationType is not null)
-        {
-            return true;
-        }
-
-        // Deletes don't ever need to bring back database-generated values, and inserts use the RETURNING clause - no transaction needed
-        if (firstOperationType is EntityState.Deleted or EntityState.Added)
-        {
-            return false;
-        }
-
-        // Fetching back database-generated values from an update requires a transaction
-        return generatedValues != GeneratedValues.None;
-    }
+        => secondOperationType is not null;
 
     /// <summary>
     ///     Providers can override this to specify how many commands (batches) are used to execute the update.

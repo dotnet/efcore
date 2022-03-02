@@ -136,8 +136,8 @@ WHERE [a].[Species] LIKE N'%owenii'",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Birds] SET [EagleId] = @p0
-WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p1;",
             //
             @"SELECT TOP(2) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
@@ -150,24 +150,24 @@ WHERE [a].[Species] LIKE N'%owenii'",
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Kiwi]
-WHERE [Species] = @p0;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p0;",
             //
             @"@p1='Apteryx owenii' (Nullable = false) (Size = 100)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Birds]
-WHERE [Species] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p1;",
             //
             @"@p2='Apteryx owenii' (Nullable = false) (Size = 100)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [Animals]
-WHERE [Species] = @p2;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Species] = @p2;",
             //
             @"SELECT COUNT(*)
 FROM [Animals] AS [a]

@@ -5,8 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 /// <summary>
 ///     <para>
-///         A <see cref="ReaderModificationCommandBatch" /> for providers which append an SQL query to find out
-///         how many rows were affected (see <see cref="UpdateSqlGenerator.AppendSelectAffectedCountCommand" />).
+///         A <see cref="ReaderModificationCommandBatch" /> for providers which return values to find out how many rows were affected.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers; it is generally not used in application code.

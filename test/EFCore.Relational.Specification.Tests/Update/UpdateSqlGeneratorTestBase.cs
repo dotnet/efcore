@@ -17,27 +17,10 @@ public abstract class UpdateSqlGeneratorTestBase
 
         CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command, 0);
 
-        Assert.Equal(
-            "DELETE FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p0;"
-            + Environment.NewLine
-            + "SELECT "
-            + RowsAffected
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+        AppendDeleteOperation_creates_full_delete_command_text_verification(stringBuilder);
     }
+
+    protected abstract void AppendDeleteOperation_creates_full_delete_command_text_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check()
@@ -47,31 +30,11 @@ public abstract class UpdateSqlGeneratorTestBase
 
         CreateSqlGenerator().AppendDeleteOperation(stringBuilder, command, 0);
 
-        Assert.Equal(
-            "DELETE FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p0 AND "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " IS NULL;"
-            + Environment.NewLine
-            + "SELECT "
-            + RowsAffected
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+        AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(stringBuilder);
     }
+
+    protected abstract void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
+        StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void AppendInsertOperation_insert_if_store_generated_columns_exist()
@@ -177,113 +140,30 @@ public abstract class UpdateSqlGeneratorTestBase
     protected abstract void AppendInsertOperation_for_only_single_identity_columns_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist()
+    public virtual void AppendUpdateOperation_if_store_generated_columns_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateUpdateCommand();
 
         CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
-        AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(stringBuilder);
+        AppendUpdateOperation_if_store_generated_columns_exist_verification(stringBuilder);
     }
 
-    protected virtual void AppendUpdateOperation_appends_update_and_select_if_store_generated_columns_exist_verification(
-        StringBuilder stringBuilder)
-        => Assert.Equal(
-            "UPDATE "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " SET "
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + " = @p0, "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + " = @p1, "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " = @p2"
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3 AND "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " IS NULL;"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Computed"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3;"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendUpdateOperation_if_store_generated_columns_exist_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void AppendUpdateOperation_appends_update_and_select_rowcount_if_store_generated_columns_dont_exist()
+    public virtual void AppendUpdateOperation_if_store_generated_columns_dont_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateUpdateCommand(false, false);
 
         CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
-        Assert.Equal(
-            "UPDATE "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " SET "
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + " = @p0, "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + " = @p1, "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " = @p2"
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3;"
-            + Environment.NewLine
-            + "SELECT "
-            + RowsAffected
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+        AppendUpdateOperation_if_store_generated_columns_dont_exist_verification(stringBuilder);
     }
+
+    protected abstract void AppendUpdateOperation_if_store_generated_columns_dont_exist_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void AppendUpdateOperation_appends_where_for_concurrency_token()
@@ -293,105 +173,23 @@ public abstract class UpdateSqlGeneratorTestBase
 
         CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
-        Assert.Equal(
-            "UPDATE "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " SET "
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + " = @p0, "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + " = @p1, "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " = @p2"
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3 AND "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " IS NULL;"
-            + Environment.NewLine
-            + "SELECT "
-            + RowsAffected
-            + ";"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+        AppendUpdateOperation_appends_where_for_concurrency_token_verification(stringBuilder);
     }
 
+    protected abstract void AppendUpdateOperation_appends_where_for_concurrency_token_verification(StringBuilder stringBuilder);
+
     [ConditionalFact]
-    public virtual void AppendUpdateOperation_appends_select_for_computed_property()
+    public virtual void AppendUpdateOperation_for_computed_property()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateUpdateCommand(true, false);
 
         CreateSqlGenerator().AppendUpdateOperation(stringBuilder, command, 0);
 
-        AppendUpdateOperation_appends_select_for_computed_property_verification(stringBuilder);
+        AppendUpdateOperation_for_computed_property_verification(stringBuilder);
     }
 
-    protected virtual void AppendUpdateOperation_appends_select_for_computed_property_verification(StringBuilder stringBuilder)
-        => Assert.Equal(
-            "UPDATE "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + " SET "
-            + OpenDelimiter
-            + "Name"
-            + CloseDelimiter
-            + " = @p0, "
-            + OpenDelimiter
-            + "Quacks"
-            + CloseDelimiter
-            + " = @p1, "
-            + OpenDelimiter
-            + "ConcurrencyToken"
-            + CloseDelimiter
-            + " = @p2"
-            + Environment.NewLine
-            + "WHERE "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3;"
-            + Environment.NewLine
-            + "SELECT "
-            + OpenDelimiter
-            + "Computed"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "FROM "
-            + SchemaPrefix
-            + OpenDelimiter
-            + "Ducks"
-            + CloseDelimiter
-            + ""
-            + Environment.NewLine
-            + "WHERE "
-            + RowsAffected
-            + " = 1 AND "
-            + OpenDelimiter
-            + "Id"
-            + CloseDelimiter
-            + " = @p3;"
-            + Environment.NewLine
-            + Environment.NewLine,
-            stringBuilder.ToString());
+    protected abstract void AppendUpdateOperation_for_computed_property_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
     public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence()

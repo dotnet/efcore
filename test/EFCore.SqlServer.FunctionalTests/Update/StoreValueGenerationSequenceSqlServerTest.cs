@@ -25,12 +25,6 @@ public class StoreValueGenerationSequenceSqlServerTest : StoreValueGenerationTes
         GeneratedValues generatedValues,
         bool withSameEntityType)
     {
-        // Updates with generated values currently use SELECT to retrieve them, and so require transactions
-        if (firstOperationType == EntityState.Modified && generatedValues != GeneratedValues.None)
-        {
-            return true;
-        }
-
         // For multiple operations, we specifically optimize multiple insertions of the same entity type with a single command (e.g. MERGE)
         // (as long as there are writable columns)
         if (firstOperationType is EntityState.Added
@@ -96,12 +90,11 @@ DEFAULT VALUES;");
             @"@p1='5'
 @p0='1000'
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [WithSomeDatabaseGenerated] SET [Data2] = @p0
-WHERE [Id] = @p1;
-SELECT [Data1]
-FROM [WithSomeDatabaseGenerated]
-WHERE @@ROWCOUNT = 1 AND [Id] = @p1;");
+OUTPUT INSERTED.[Data1]
+WHERE [Id] = @p1;");
     }
 
     public override async Task Modify_with_no_generated_values(bool async)
@@ -116,8 +109,8 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p1;");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [WithNoDatabaseGenerated] SET [Data1] = @p0, [Data2] = @p1
-WHERE [Id] = @p2;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p2;");
     }
 
     public override async Task Delete(bool async)
@@ -130,8 +123,8 @@ SELECT @@ROWCOUNT;");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 DELETE FROM [WithSomeDatabaseGenerated]
-WHERE [Id] = @p0;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p0;");
     }
 
     #endregion Single operation
@@ -204,16 +197,11 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
 
 SET NOCOUNT ON;
 UPDATE [WithSomeDatabaseGenerated] SET [Data2] = @p0
+OUTPUT INSERTED.[Data1]
 WHERE [Id] = @p1;
-SELECT [Data1]
-FROM [WithSomeDatabaseGenerated]
-WHERE @@ROWCOUNT = 1 AND [Id] = @p1;
-
 UPDATE [WithSomeDatabaseGenerated] SET [Data2] = @p2
-WHERE [Id] = @p3;
-SELECT [Data1]
-FROM [WithSomeDatabaseGenerated]
-WHERE @@ROWCOUNT = 1 AND [Id] = @p3;");
+OUTPUT INSERTED.[Data1]
+WHERE [Id] = @p3;");
     }
 
     public override async Task Modify_Modify_with_same_entity_type_and_no_generated_values(bool async)
@@ -230,12 +218,11 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p3;");
 
 SET NOCOUNT ON;
 UPDATE [WithNoDatabaseGenerated] SET [Data1] = @p0, [Data2] = @p1
+OUTPUT 1
 WHERE [Id] = @p2;
-SELECT @@ROWCOUNT;
-
 UPDATE [WithNoDatabaseGenerated] SET [Data1] = @p3, [Data2] = @p4
-WHERE [Id] = @p5;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p5;");
     }
 
     public override async Task Delete_Delete_with_same_entity_type(bool async)
@@ -248,12 +235,11 @@ SELECT @@ROWCOUNT;");
 
 SET NOCOUNT ON;
 DELETE FROM [WithSomeDatabaseGenerated]
+OUTPUT 1
 WHERE [Id] = @p0;
-SELECT @@ROWCOUNT;
-
 DELETE FROM [WithSomeDatabaseGenerated]
-WHERE [Id] = @p1;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p1;");
     }
 
     #endregion Two operations with same entity type
@@ -322,16 +308,11 @@ DEFAULT VALUES;");
 
 SET NOCOUNT ON;
 UPDATE [WithSomeDatabaseGenerated] SET [Data2] = @p0
+OUTPUT INSERTED.[Data1]
 WHERE [Id] = @p1;
-SELECT [Data1]
-FROM [WithSomeDatabaseGenerated]
-WHERE @@ROWCOUNT = 1 AND [Id] = @p1;
-
 UPDATE [WithSomeDatabaseGenerated2] SET [Data2] = @p2
-WHERE [Id] = @p3;
-SELECT [Data1]
-FROM [WithSomeDatabaseGenerated2]
-WHERE @@ROWCOUNT = 1 AND [Id] = @p3;");
+OUTPUT INSERTED.[Data1]
+WHERE [Id] = @p3;");
     }
 
     public override async Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
@@ -347,12 +328,11 @@ AssertSql(
 
 SET NOCOUNT ON;
 UPDATE [WithNoDatabaseGenerated] SET [Data1] = @p0, [Data2] = @p1
+OUTPUT 1
 WHERE [Id] = @p2;
-SELECT @@ROWCOUNT;
-
 UPDATE [WithNoDatabaseGenerated2] SET [Data1] = @p3, [Data2] = @p4
-WHERE [Id] = @p5;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p5;");
     }
 
     public override async Task Delete_Delete_with_different_entity_types(bool async)
@@ -365,12 +345,11 @@ SELECT @@ROWCOUNT;");
 
 SET NOCOUNT ON;
 DELETE FROM [WithSomeDatabaseGenerated]
+OUTPUT 1
 WHERE [Id] = @p0;
-SELECT @@ROWCOUNT;
-
 DELETE FROM [WithSomeDatabaseGenerated2]
-WHERE [Id] = @p1;
-SELECT @@ROWCOUNT;");
+OUTPUT 1
+WHERE [Id] = @p1;");
     }
 
     #endregion Two operations with different entity types

@@ -213,8 +213,8 @@ WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelType] IS NOT NULL");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [LicenseType] = @p1, [Operator_Name] = @p2
-WHERE [Name] = @p3;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Name] = @p3;",
             //
             @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]
@@ -237,8 +237,8 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
-WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;",
+OUTPUT 1
+WHERE [Name] = @p1;",
             //
             @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType]
 FROM [Vehicles] AS [v]

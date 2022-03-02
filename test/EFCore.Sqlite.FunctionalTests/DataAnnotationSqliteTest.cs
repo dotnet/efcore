@@ -106,8 +106,8 @@ LIMIT 1",
 @p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();",
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;",
             //
             @"@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 11)
@@ -115,8 +115,8 @@ SELECT changes();",
 @p3='00000001-0000-0000-0000-000000000001'
 
 UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();");
+WHERE ""Unique_No"" = @p2 AND ""RowVersion"" = @p3
+RETURNING 1;");
     }
 
     public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()

@@ -47,8 +47,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         // If no database-generated columns need to be read back, just do a simple INSERT (default behavior).
         // If there are generated columns but there are no triggers defined on the table, we can do a simple INSERT ... OUTPUT
         // (without INTO), which is also the default behavior, doesn't require a transaction and is the most efficient.
-        if (command.ColumnModifications.All(o => !o.IsRead)
-            || !command.Entries[0].EntityType.Model.GetRelationalModel().FindTable(command.TableName, command.Schema)!.Triggers.Any())
+        if (command.ColumnModifications.All(o => !o.IsRead) || !HasAnyTriggers(command))
         {
             return base.AppendInsertOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
         }
@@ -91,6 +90,124 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         AppendOutputClause(commandStringBuilder, readOperations);
         AppendValuesHeader(commandStringBuilder, writeOperations);
         AppendValues(commandStringBuilder, name, schema, writeOperations);
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ResultSetMapping AppendUpdateOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        // We normally do a simple UPDATE with an OUTPUT clause (either for the generated columns, or for "1" for concurrency checking).
+        // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
+        if (!HasAnyTriggers(command))
+        {
+            return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+        }
+
+        var name = command.TableName;
+        var schema = command.Schema;
+        var operations = command.ColumnModifications;
+
+        var writeOperations = operations.Where(o => o.IsWrite).ToList();
+        var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+        var readOperations = operations.Where(o => o.IsRead).ToList();
+
+        AppendUpdateCommand(commandStringBuilder, name, schema, writeOperations, Array.Empty<IColumnModification>(), conditionOperations);
+
+        if (readOperations.Count > 0)
+        {
+            var keyOperations = operations.Where(o => o.IsKey).ToList();
+
+            requiresTransaction = true;
+
+            return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
+        }
+
+        requiresTransaction = false;
+
+        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void AppendUpdateCommand(
+        StringBuilder commandStringBuilder,
+        string name,
+        string? schema,
+        IReadOnlyList<IColumnModification> writeOperations,
+        IReadOnlyList<IColumnModification> readOperations,
+        IReadOnlyList<IColumnModification> conditionOperations,
+        string? additionalReadValues = null)
+    {
+        // In SQL Server the OUTPUT clause is placed differently (before the WHERE instead of at the end)
+        AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
+        AppendOutputClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendWhereClause(commandStringBuilder, conditionOperations);
+        commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ResultSetMapping AppendDeleteOperation(
+        StringBuilder commandStringBuilder,
+        IReadOnlyModificationCommand command,
+        int commandPosition,
+        out bool requiresTransaction)
+    {
+        // We normally do a simple DELETE, with an OUTPUT clause emitting "1" for concurrency checking.
+        // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
+        if (!HasAnyTriggers(command))
+        {
+            return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
+        }
+
+        var name = command.TableName;
+        var schema = command.Schema;
+        var operations = command.ColumnModifications;
+
+        var conditionOperations = operations.Where(o => o.IsCondition).ToList();
+
+        requiresTransaction = false;
+
+        AppendDeleteCommand(commandStringBuilder, name, schema, Array.Empty<IColumnModification>(), conditionOperations);
+
+        return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void AppendDeleteCommand(
+        StringBuilder commandStringBuilder,
+        string name,
+        string? schema,
+        IReadOnlyList<IColumnModification> readOperations,
+        IReadOnlyList<IColumnModification> conditionOperations,
+        string? additionalReadValues = null)
+    {
+        // In SQL Server the OUTPUT clause is placed differently (before the WHERE instead of at the end)
+        AppendDeleteCommandHeader(commandStringBuilder, name, schema);
+        AppendOutputClause(commandStringBuilder, readOperations, additionalReadValues);
+        AppendWhereClause(commandStringBuilder, conditionOperations);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
@@ -200,8 +317,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         // We default to using MERGE ... OUTPUT (without INTO), projecting back a synthetic _Position column to know the order back
         // at the client and propagate database-generated values correctly. However, if any triggers are defined, OUTPUT without INTO
         // doesn't work.
-        if (!firstCommand.Entries[0].EntityType.Model.GetRelationalModel().FindTable(firstCommand.TableName, firstCommand.Schema)!
-                .Triggers.Any())
+        if (!HasAnyTriggers(firstCommand))
         {
             // MERGE ... OUTPUT returns rows whose ordering isn't guaranteed. So this technique projects back a position int with each row,
             // to allow mapping the rows back for value propagation.
@@ -578,16 +694,17 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     /// </summary>
     protected override void AppendReturningClause(
         StringBuilder commandStringBuilder,
-        IReadOnlyList<IColumnModification> operations)
-        => AppendOutputClause(commandStringBuilder, operations);
+        IReadOnlyList<IColumnModification> operations,
+        string? additionalValues = null)
+        => AppendOutputClause(commandStringBuilder, operations, additionalValues);
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
     private void AppendOutputClause(
         StringBuilder commandStringBuilder,
         IReadOnlyList<IColumnModification> operations,
-        string? additionalColumns = null)
+        string? additionalReadValues = null)
     {
-        if (operations.Count > 0 || additionalColumns is not null)
+        if (operations.Count > 0 || additionalReadValues is not null)
         {
             commandStringBuilder
                 .AppendLine()
@@ -601,14 +718,14 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
                         helper.DelimitIdentifier(sb, o.ColumnName);
                     });
 
-            if (additionalColumns != null)
+            if (additionalReadValues is not null)
             {
                 if (operations.Count > 0)
                 {
                     commandStringBuilder.Append(", ");
                 }
 
-                commandStringBuilder.Append(additionalColumns);
+                commandStringBuilder.Append(additionalReadValues);
             }
         }
     }
@@ -728,7 +845,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ResultSetMapping AppendSelectAffectedCountCommand(
+    protected virtual ResultSetMapping AppendSelectAffectedCountCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,
@@ -790,4 +907,10 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         => commandStringBuilder
             .Append("@@ROWCOUNT = ")
             .Append(expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
+
+    private static bool HasAnyTriggers(IReadOnlyModificationCommand command)
+        // Data seeding doesn't provide any entries, so we we don't know if the table has triggers; assume it does to generate SQL
+        // that works everywhere.
+        => command.Entries.Count == 0
+            || command.Entries[0].EntityType.Model.GetRelationalModel().FindTable(command.TableName, command.Schema)!.Triggers.Any();
 }

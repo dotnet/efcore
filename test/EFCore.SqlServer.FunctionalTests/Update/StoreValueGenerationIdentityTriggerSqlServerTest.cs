@@ -24,7 +24,7 @@ public class StoreValueGenerationIdentityTriggerSqlServerTest : StoreValueGenera
         bool withSameEntityType)
     {
         // We have triggers, so any insert/update retrieving a database-generated value must be enclosed in a transaction
-        // (we use INSERT+SELECT or INSERT ... OUTPUT INTO+SELECT)
+        // (e.g. we use INSERT/UPDATE+SELECT or INSERT ... OUTPUT INTO+SELECT)
         if (generatedValues is GeneratedValues.Some or GeneratedValues.All
             && firstOperationType is EntityState.Added or EntityState.Modified)
         {
