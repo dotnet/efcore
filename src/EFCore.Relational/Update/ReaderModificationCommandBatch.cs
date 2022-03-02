@@ -217,7 +217,7 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         UpdateCachedCommandText();
 
-        // Some database have a more where autocommit is off, and so executing a command outside of an explicit transaction implicitly
+        // Some database have a mode where autocommit is off, and so executing a command outside of an explicit transaction implicitly
         // creates a new transaction (which needs to be explicitly committed).
         // The below is a hook for allowing providers to turn autocommit on, in case it's off.
         if (!RequiresTransaction)
