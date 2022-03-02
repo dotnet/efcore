@@ -3021,7 +3021,8 @@ ORDER BY NOT((true = false))");
 
     public override async Task Collection_navigation_equal_to_null_for_subquery(bool async)
     {
-        await base.Collection_navigation_equal_to_null_for_subquery(async);
+        await AssertTranslationFailed(
+            () => base.Collection_navigation_equal_to_null_for_subquery(async));
 
         AssertSql();
     }
