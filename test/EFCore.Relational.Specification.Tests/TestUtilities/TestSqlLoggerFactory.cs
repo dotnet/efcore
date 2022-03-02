@@ -21,7 +21,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     private static readonly object _queryBaselineFileLock = new();
     private static readonly HashSet<string> _overriddenMethods = new();
     private static readonly object _queryBaselineRewritingLock = new();
-    private static readonly ConcurrentDictionary<string, object> _queryBaselineRewritingLocks = new();
+    private static readonly ConcurrentDictionary<string, QueryBaselineRewritingFileInfo> _queryBaselineRewritingFileInfos = new();
 
     public TestSqlLoggerFactory()
         : this(_ => true)
@@ -167,9 +167,22 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
         void RewriteSourceWithNewBaseline(string fileName, int lineNumber)
         {
-            var fileLock = _queryBaselineRewritingLocks.GetOrAdd(fileName, _ => new object());
-            lock (fileLock)
+            var fileInfo = _queryBaselineRewritingFileInfos.GetOrAdd(fileName, _ => new());
+            lock (fileInfo.Lock)
             {
+                // First, adjust our lineNumber to take into account any baseline rewriting that already occured in this file
+                foreach (var displacement in fileInfo.LineDisplacements)
+                {
+                    if (displacement.Key < lineNumber)
+                    {
+                        lineNumber += displacement.Value;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
                 // Parse the file to find the line where the relevant AssertSql is
                 try
                 {
@@ -194,7 +207,11 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         using var reader = new StreamReader(inputStream);
                         using var writer = new StreamWriter(outputStream, new UTF8Encoding(hasUtf8ByteOrderMark));
 
-                        // First find the char position where our line starts
+                        // First find the char position where our line starts.
+
+                        // Note that we skip over lines manually (without using reader.ReadLine) since the Roslyn API below expects
+                        // absolute character positions; because StreamReader buffers internally, we can't know the precise character offset
+                        // in the file etc.
                         var pos = 0;
                         for (var i = 0; i < lineNumber - 1; i++)
                         {
@@ -265,13 +282,23 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                         // Skip over the invocation on the read side, and write the new baseline invocation
                         var tempBuf = new char[Math.Max(1024, invocation.Span.Length)];
                         reader.ReadBlock(tempBuf, 0, invocation.Span.Length);
+                        var numNewlinesInOrigin = tempBuf.Count(c => c is '\n' or '\r');
 
                         indentBuilder.Append("    ");
                         var indent = indentBuilder.ToString();
                         var newBaseLine = $@"AssertSql(
 {indent}{string.Join(",\n" + indent + "//\n" + indent, SqlStatements.Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))})";
+                        var numNewlinesInRewritten = newBaseLine.Count(c => c is '\n' or '\r');
 
                         writer.Write(newBaseLine);
+
+                        // If we've added or removed any lines, record that in the line displacements data structure for later rewritings
+                        // in the same file
+                        var lineDiff = numNewlinesInRewritten - numNewlinesInOrigin;
+                        if (lineDiff != 0)
+                        {
+                            fileInfo.LineDisplacements[lineNumber] = lineDiff;
+                        }
 
                         // Copy the rest of the file contents as-is
                         int count;
@@ -383,5 +410,19 @@ public class TestSqlLoggerFactory : ListLoggerFactory
                 base.UnsafeLog(logLevel, eventId, message, state, exception);
             }
         }
+    }
+
+    private struct QueryBaselineRewritingFileInfo
+    {
+        public QueryBaselineRewritingFileInfo() {}
+
+        public object Lock { get; set; } = new();
+
+        /// <summary>
+        ///     Contains information on where previous baseline rewriting caused line numbers to shift; this is used in adjusting line
+        ///     numbers for later errors. The keys are (pre-rewriting) line numbers, and the values are offsets that have been applied to
+        ///     them.
+        /// </summary>
+        public SortedDictionary<int, int> LineDisplacements = new();
     }
 }
