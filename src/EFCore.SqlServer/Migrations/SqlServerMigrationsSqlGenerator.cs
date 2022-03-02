@@ -706,10 +706,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? schema;
             if (operation[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName)
             {
-                var dropHistoryTableOperation = new DropTableOperation
-                {
-                    Name = historyTableName, Schema = historyTableSchema
-                };
+                var dropHistoryTableOperation = new DropTableOperation { Name = historyTableName, Schema = historyTableSchema };
 
                 Generate(dropHistoryTableOperation, model, builder, terminate);
             }
@@ -2446,22 +2443,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                     if (historyTableName != null)
                     {
-                            var useOldBehavior27375 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27375", out var enabled27375) && enabled27375;
-                            if (!useOldBehavior27375)
-                            {
-                                operations.Add(
-                                    new DropTableOperation
-                                    {
-                                        Name = historyTableName,
-                                        Schema = historyTableSchema
-                                    });
-                            }
-                            else
-                            {
-                        operations.Add(
-                            new DropTableOperation { Name = historyTableName, Schema = alterTableOperation.OldTable.Schema });
-                    }
+                        var useOldBehavior27375 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27375", out var enabled27375)
+                            && enabled27375;
+                        if (!useOldBehavior27375)
+                        {
+                            operations.Add(
+                                new DropTableOperation { Name = historyTableName, Schema = historyTableSchema });
                         }
+                        else
+                        {
+                            operations.Add(
+                                new DropTableOperation { Name = historyTableName, Schema = alterTableOperation.OldTable.Schema });
+                        }
+                    }
 
                     operations.Add(operation);
 

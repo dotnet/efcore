@@ -325,8 +325,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 {
                     var projection = translatedSubquery.ShaperExpression;
                     if (projection is NewExpression
-                                || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false }
-                                || RemoveConvert(projection) is CollectionResultExpression)
+                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false }
+                        || RemoveConvert(projection) is CollectionResultExpression)
                     {
                         var anySubquery = Expression.Call(
                             QueryableMethods.AnyWithoutPredicate.MakeGenericMethod(translatedSubquery.Type.GetSequenceType()),
