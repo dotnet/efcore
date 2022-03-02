@@ -4538,7 +4538,13 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND ((
     {
         await base.Collection_navigation_equal_to_null_for_subquery(async);
 
-        AssertSql();
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]))");
     }
 
     public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool async)

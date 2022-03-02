@@ -184,7 +184,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 {
                     var projection = translatedSubquery.ShaperExpression;
                     if (projection is NewExpression
-                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false })
+                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false }
+                        || RemoveConvert(projection) is CollectionResultShaperExpression)
                     {
                         var anySubquery = Expression.Call(
                             QueryableMethods.AnyWithoutPredicate.MakeGenericMethod(translatedSubquery.Type.GetSequenceType()),

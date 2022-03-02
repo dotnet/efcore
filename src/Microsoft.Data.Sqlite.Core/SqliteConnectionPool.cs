@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Microsoft.Data.Sqlite
@@ -157,17 +158,17 @@ namespace Microsoft.Data.Sqlite
         {
             var leakedConnectionsFound = false;
 
+            List<SqliteConnectionInternal> leakedConnections;
             lock (_connections)
             {
-                foreach (var connection in _connections)
-                {
-                    if (connection.Leaked)
-                    {
-                        Return(connection);
+                leakedConnections = _connections.Where(c => c.Leaked).ToList();
+            }
 
-                        leakedConnectionsFound = true;
-                    }
-                }
+            foreach (var connection in leakedConnections)
+            {
+                leakedConnectionsFound = true;
+
+                Return(connection);
             }
 
             return leakedConnectionsFound;
