@@ -151,7 +151,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         foreach (var table in databaseModel.Tables.Values)
         {
             PopulateRowInternalForeignKeys(table);
-            PopulateConstraints(table);
+            PopulateConstraints(table, designTime);
 
             if (relationalAnnotationProvider != null)
             {
@@ -177,9 +177,9 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 if (designTime)
                 {
-                    foreach (var checkConstraint in ((ITable)table).CheckConstraints)
+                    foreach (var checkConstraint in table.CheckConstraints.Values)
                     {
-                        ((AnnotatableBase)checkConstraint).AddAnnotations(
+                        checkConstraint.AddAnnotations(
                             relationalAnnotationProvider.For(checkConstraint, designTime));
                     }
                 }
@@ -751,7 +751,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         return storeFunction;
     }
 
-    private static void PopulateConstraints(Table table)
+    private static void PopulateConstraints(Table table, bool designTime)
     {
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
@@ -966,6 +966,23 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 tableIndexes.Add(tableIndex);
                 tableIndex.MappedIndexes.Add(index);
+            }
+
+            if (designTime)
+            {
+                foreach (var checkConstraint in entityType.GetCheckConstraints())
+                {
+                    var name = checkConstraint.GetName(storeObject);
+                    if (name == null)
+                    {
+                        continue;
+                    }
+
+                    if (!table.CheckConstraints.ContainsKey(name))
+                    {
+                        table.CheckConstraints.Add(name, (CheckConstraint)checkConstraint);
+                    }
+                }
             }
         }
     }

@@ -19,5 +19,5 @@ public interface IMutableCheckConstraint : IReadOnlyCheckConstraint, IMutableAnn
     /// <summary>
     ///     Gets or sets the name of the check constraint in the database.
     /// </summary>
-    new string Name { get; set; }
+    new string? Name { get; set; }
 }

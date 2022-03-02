@@ -156,7 +156,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
-            var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
+            var mappings = entry.EntityType.GetTableMappings();
             IModificationCommand? firstCommands = null;
             foreach (var mapping in mappings)
             {

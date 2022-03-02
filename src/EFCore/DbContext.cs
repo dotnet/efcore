@@ -482,7 +482,7 @@ public class DbContext :
     /// <remarks>
     ///     <para>
     ///         If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
-    ///         then this method will not be run.
+    ///         then this method will not be run. However, it will still run when creating a compiled model.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information and
@@ -504,7 +504,7 @@ public class DbContext :
     /// <remarks>
     ///     <para>
     ///         If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
-    ///         then this method will not be run.
+    ///         then this method will not be run. However, it will still run when creating a compiled model.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and

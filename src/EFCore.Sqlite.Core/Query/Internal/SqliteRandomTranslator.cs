@@ -49,14 +49,14 @@ public class SqliteRandomTranslator : IMethodCallTranslator
                     _sqlExpressionFactory.Divide(
                         _sqlExpressionFactory.Function(
                             "random",
-                            Array.Empty<SqlExpression>(),
+                            Enumerable.Empty<SqlExpression>(),
                             nullable: false,
-                            argumentsPropagateNullability: Array.Empty<bool>(),
+                            argumentsPropagateNullability: Enumerable.Empty<bool>(),
                             method.ReturnType),
                         _sqlExpressionFactory.Constant(9223372036854780000.0))
                 },
                 nullable: false,
-                argumentsPropagateNullability: Array.Empty<bool>(),
+                argumentsPropagateNullability: Enumerable.Empty<bool>(),
                 method.ReturnType)
             : null;
 }

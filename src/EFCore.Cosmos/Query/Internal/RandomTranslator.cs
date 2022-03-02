@@ -43,7 +43,7 @@ public class RandomTranslator : IMethodCallTranslator
         => MethodInfo.Equals(method)
             ? _sqlExpressionFactory.Function(
                 "RAND",
-                Array.Empty<SqlExpression>(),
+                Enumerable.Empty<SqlExpression>(),
                 method.ReturnType)
             : null;
 }

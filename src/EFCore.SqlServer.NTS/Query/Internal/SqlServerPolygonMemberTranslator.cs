@@ -80,10 +80,10 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
                         _sqlExpressionFactory.Function(
                             instance,
                             "NumRings",
-                            Array.Empty<SqlExpression>(),
+                            Enumerable.Empty<SqlExpression>(),
                             nullable: true,
                             instancePropagatesNullability: true,
-                            argumentsPropagateNullability: Array.Empty<bool>(),
+                            argumentsPropagateNullability: Enumerable.Empty<bool>(),
                             returnType),
                         _sqlExpressionFactory.Constant(1));
                 }
@@ -98,10 +98,10 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Function(
                     instance,
                     functionName,
-                    Array.Empty<SqlExpression>(),
+                    Enumerable.Empty<SqlExpression>(),
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: Array.Empty<bool>(),
+                    argumentsPropagateNullability: Enumerable.Empty<bool>(),
                     returnType,
                     resultTypeMapping);
             }

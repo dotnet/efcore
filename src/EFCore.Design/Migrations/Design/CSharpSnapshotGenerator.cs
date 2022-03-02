@@ -931,7 +931,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append(", ")
             .Append(Code.Literal(checkConstraint.Sql));
 
-        if (checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName))
+        if (checkConstraint.Name != null
+            && checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName))
         {
             stringBuilder
                 .Append(", c => c.HasName(")
