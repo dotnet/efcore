@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.SaveChangesScenariosModel;
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
@@ -425,9 +427,48 @@ SELECT @@ROWCOUNT;");
 
     public class SaveChangesScenariosIdentitySqlServerFixture : SaveChangesScenariosFixtureBase
     {
+        private string? _identityResetCommand;
+
         protected override string StoreName { get; } = "SaveChangesScenariosIdentityTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
+
+        public override void Reseed()
+        {
+            using var context = CreateContext();
+            Clean(context);
+            Seed(context);
+        }
+
+        protected override void Clean(DbContext context)
+        {
+            base.Clean(context);
+
+            // Reset the IDENTITY values since we assert on them
+            context.Database.ExecuteSqlRaw(GetIdentityResetCommand());
+        }
+
+        private string GetIdentityResetCommand()
+        {
+            if (_identityResetCommand is not null)
+            {
+                return _identityResetCommand;
+            }
+
+            var context = CreateContext();
+            var builder = new StringBuilder();
+
+            var tablesWithIdentity = context.Model.GetEntityTypes()
+                .Where(e => e.GetProperties().Any(p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                .Select(e => e.GetTableName());
+
+            foreach (var table in tablesWithIdentity)
+            {
+                builder.AppendLine($"DBCC CHECKIDENT ('{table}', RESEED, 0);");
+            }
+
+            return _identityResetCommand = builder.ToString();
+        }
     }
 }

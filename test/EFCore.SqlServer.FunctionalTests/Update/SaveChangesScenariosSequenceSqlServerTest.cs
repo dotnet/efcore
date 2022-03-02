@@ -472,5 +472,20 @@ SELECT @@ROWCOUNT;");
                     .HasDefaultValueSql("NEXT VALUE FOR [Ids]");
             }
         }
+
+        public override void Reseed()
+        {
+            using var context = CreateContext();
+            Clean(context);
+            Seed(context);
+        }
+
+        protected override void Clean(DbContext context)
+        {
+            base.Clean(context);
+
+            // Reset the sequence values since we assert on them
+            context.Database.ExecuteSqlRaw("ALTER SEQUENCE [Ids] RESTART WITH 1");
+        }
     }
 }

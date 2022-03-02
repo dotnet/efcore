@@ -66,6 +66,22 @@ public abstract class SaveChangesScenariosFixtureBase : SharedStoreFixtureBase<S
         context.SaveChanges();
     }
 
+    protected override void Clean(DbContext context)
+    {
+        var saveChangesScenariosContext = CreateContext();
+
+        saveChangesScenariosContext.WithSomeDatabaseGenerated.RemoveRange(saveChangesScenariosContext.WithSomeDatabaseGenerated);
+        saveChangesScenariosContext.WithSomeDatabaseGenerated2.RemoveRange(saveChangesScenariosContext.WithSomeDatabaseGenerated2);
+
+        saveChangesScenariosContext.WithNoDatabaseGenerated.RemoveRange(saveChangesScenariosContext.WithNoDatabaseGenerated);
+        saveChangesScenariosContext.WithNoDatabaseGenerated2.RemoveRange(saveChangesScenariosContext.WithNoDatabaseGenerated2);
+
+        saveChangesScenariosContext.WithAllDatabaseGenerated.RemoveRange(saveChangesScenariosContext.WithAllDatabaseGenerated);
+        saveChangesScenariosContext.WithAllDatabaseGenerated2.RemoveRange(saveChangesScenariosContext.WithAllDatabaseGenerated2);
+
+        saveChangesScenariosContext.SaveChanges();
+    }
+
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Database.Transaction.Name
             || logCategory == DbLoggerCategory.Database.Command.Name;
