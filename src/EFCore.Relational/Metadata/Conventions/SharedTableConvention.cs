@@ -51,6 +51,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         var foreignKeys = new Dictionary<string, IConventionForeignKey>();
         var indexes = new Dictionary<string, IConventionIndex>();
         var checkConstraints = new Dictionary<(string, string?), IConventionCheckConstraint>();
+        var triggers = new Dictionary<string, IConventionTrigger>();
         foreach (var ((tableName, schema), conventionEntityTypes) in tables)
         {
             columns.Clear();
@@ -67,6 +68,11 @@ public class SharedTableConvention : IModelFinalizingConvention
                 checkConstraints.Clear();
             }
 
+            if (!TriggersUniqueAcrossTables)
+            {
+                triggers.Clear();
+            }
+
             var storeObject = StoreObjectIdentifier.Table(tableName, schema);
             foreach (var entityType in conventionEntityTypes)
             {
@@ -75,20 +81,27 @@ public class SharedTableConvention : IModelFinalizingConvention
                 TryUniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
                 TryUniquifyIndexNames(entityType, indexes, storeObject, maxLength);
                 TryUniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
+                TryUniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
             }
         }
     }
 
     /// <summary>
-    ///     Gets a value indicating whether the index names should be unique across tables.
+    ///     Gets a value indicating whether index names should be unique across tables.
     /// </summary>
     protected virtual bool IndexesUniqueAcrossTables
         => true;
 
     /// <summary>
-    ///     Gets a value indicating whether the index names should be unique across tables.
+    ///     Gets a value indicating whether check constraint names should be unique across tables.
     /// </summary>
     protected virtual bool CheckConstraintsUniqueAcrossTables
+        => true;
+
+    /// <summary>
+    ///     Gets a value indicating whether trigger names should be unique across tables.
+    /// </summary>
+    protected virtual bool TriggersUniqueAcrossTables
         => true;
 
     private static void TryUniquifyTableNames(
@@ -545,8 +558,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var newOtherConstraintName = TryUniquify(
-                otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+            var newOtherConstraintName = TryUniquify(otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
             if (newOtherConstraintName != null)
             {
                 checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
@@ -580,6 +592,76 @@ public class SharedTableConvention : IModelFinalizingConvention
             checkConstraintName = Uniquifier.Uniquify(checkConstraintName, checkConstraints, n => (n, schema), maxLength);
             checkConstraint.Builder.HasName(checkConstraintName);
             return checkConstraintName;
+        }
+
+        return null;
+    }
+
+    private void TryUniquifyTriggerNames(
+        IConventionEntityType entityType,
+        Dictionary<string, IConventionTrigger> triggers,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var trigger in entityType.GetDeclaredTriggers())
+        {
+            var triggerName = trigger.GetName(storeObject);
+            if (triggerName == null)
+            {
+                continue;
+            }
+
+            if (!triggers.TryGetValue(triggerName, out var otherTrigger))
+            {
+                triggers[triggerName] = trigger;
+                continue;
+            }
+
+            if (AreCompatible(trigger, otherTrigger, storeObject))
+            {
+                continue;
+            }
+
+            var newTriggerName = TryUniquify(trigger, triggerName, triggers, maxLength);
+            if (newTriggerName != null)
+            {
+                triggers[newTriggerName] = trigger;
+                continue;
+            }
+
+            var newOtherTrigger = TryUniquify(otherTrigger, triggerName, triggers, maxLength);
+            if (newOtherTrigger != null)
+            {
+                triggers[triggerName] = trigger;
+                triggers[newOtherTrigger] = otherTrigger;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether two triggers with the same name are compatible.
+    /// </summary>
+    /// <param name="trigger">A trigger.</param>
+    /// <param name="duplicateTrigger">Another trigger.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyTrigger trigger,
+        IReadOnlyTrigger duplicateTrigger,
+        in StoreObjectIdentifier storeObject)
+        => true;
+
+    private static string? TryUniquify<T>(
+        IConventionTrigger trigger,
+        string triggerName,
+        Dictionary<string, T> triggers,
+        int maxLength)
+    {
+        if (trigger.Builder.CanSetName(null))
+        {
+            triggerName = Uniquifier.Uniquify(triggerName, triggers, n => n, maxLength);
+            trigger.Builder.HasName(triggerName);
+            return triggerName;
         }
 
         return null;

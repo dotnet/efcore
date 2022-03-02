@@ -68,20 +68,11 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         var writeOperations = operations.Where(o => o.IsWrite).ToList();
         var readOperations = operations.Where(o => o.IsRead).ToList();
 
-        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations);
-
-        if (readOperations.Count > 0)
-        {
-            var keyOperations = operations.Where(o => o.IsKey).ToList();
-
-            requiresTransaction = true;
-
-            return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
-        }
+        AppendInsertCommand(commandStringBuilder, name, schema, writeOperations, readOperations);
 
         requiresTransaction = false;
 
-        return ResultSetMapping.NoResultSet;
+        return readOperations.Count > 0 ? ResultSetMapping.LastInResultSet : ResultSetMapping.NoResultSet;
     }
 
     /// <summary>
@@ -153,16 +144,19 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="name">The name of the table.</param>
     /// <param name="schema">The table schema, or <see langword="null" /> to use the default schema.</param>
-    /// <param name="writeOperations">The operations for each column.</param>
+    /// <param name="writeOperations">The operations with the values to insert for each column.</param>
+    /// <param name="readOperations">The operations for column values to be read back.</param>
     protected virtual void AppendInsertCommand(
         StringBuilder commandStringBuilder,
         string name,
         string? schema,
-        IReadOnlyList<IColumnModification> writeOperations)
+        IReadOnlyList<IColumnModification> writeOperations,
+        IReadOnlyList<IColumnModification> readOperations)
     {
         AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
         AppendValuesHeader(commandStringBuilder, writeOperations);
         AppendValues(commandStringBuilder, name, schema, writeOperations);
+        AppendReturningClause(commandStringBuilder, readOperations);
         commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator);
     }
 
@@ -409,6 +403,27 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                         }
                     })
                 .Append(')');
+        }
+    }
+
+    /// <summary>
+    ///     Appends a clause used to return generated values from an INSERT or UPDATE statement.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
+    /// <param name="operations">The operations for column values to be read back.</param>
+    protected virtual void AppendReturningClause(
+        StringBuilder commandStringBuilder,
+        IReadOnlyList<IColumnModification> operations)
+    {
+        if (operations.Count > 0)
+        {
+            commandStringBuilder
+                .AppendLine()
+                .Append("RETURNING ")
+                .AppendJoin(
+                    operations,
+                    SqlGenerationHelper,
+                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName));
         }
     }
 

@@ -28,6 +28,7 @@ public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition,
+        out bool resultsContainPositionMapping,
         out bool requiresTransaction);
 
     /// <summary>
@@ -40,5 +41,5 @@ public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
         StringBuilder commandStringBuilder,
         IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
         int commandPosition)
-        => AppendBulkInsertOperation(commandStringBuilder, modificationCommands, commandPosition, out _);
+        => AppendBulkInsertOperation(commandStringBuilder, modificationCommands, commandPosition, out _, out _);
 }

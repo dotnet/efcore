@@ -715,14 +715,22 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 }
 
                 var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
+                var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
+                if (isExcludedAnnotation is not null)
+                {
+                    annotations.Remove(isExcludedAnnotation.Name);
+                }
+
+                var hasTriggers = entityType.GetTriggers().Any();
+                var requiresTableBuilder = isExcludedFromMigrations || hasTriggers;
+
                 if (schema != null
                     || (schemaAnnotation != null && tableName != null))
                 {
                     stringBuilder
                         .Append(", ");
 
-                    if (schema == null
-                        && ((bool?)isExcludedAnnotation?.Value) != true)
+                    if (schema == null && !requiresTableBuilder)
                     {
                         stringBuilder.Append("(string)");
                     }
@@ -730,15 +738,32 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     stringBuilder.Append(Code.UnknownLiteral(schema));
                 }
 
-                if (isExcludedAnnotation != null)
+                if (requiresTableBuilder)
                 {
-                    if (((bool?)isExcludedAnnotation.Value) == true)
+                    if (isExcludedFromMigrations && !hasTriggers)
+                    {
+                        stringBuilder.Append(", t => t.ExcludeFromMigrations()");
+                    }
+                    else
                     {
                         stringBuilder
-                            .Append(", t => t.ExcludeFromMigrations()");
-                    }
+                            .AppendLine(", t =>")
+                            .AppendLine("{");
 
-                    annotations.Remove(isExcludedAnnotation.Name);
+                        using (stringBuilder.Indent())
+                        {
+                            if (isExcludedFromMigrations)
+                            {
+                                stringBuilder
+                                    .AppendLine("t.ExcludeFromMigrations();")
+                                    .AppendLine();
+                            }
+
+                            GenerateTriggers("t", entityType, stringBuilder);
+                        }
+
+                        stringBuilder.Append("}");
+                    }
                 }
 
                 stringBuilder.AppendLine(");");
@@ -941,6 +966,64 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         stringBuilder.AppendLine(");");
+    }
+
+    /// <summary>
+    ///     Generates code for <see cref="ITrigger" /> objects.
+    /// </summary>
+    /// <param name="tableBuilderName">The name of the table builder variable.</param>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateTriggers(
+        string tableBuilderName,
+        IEntityType entityType,
+        IndentedStringBuilder stringBuilder)
+    {
+        foreach (var trigger in entityType.GetTriggers())
+        {
+            GenerateTrigger(tableBuilderName, trigger, stringBuilder);
+        }
+    }
+
+    /// <summary>
+    ///     Generates code for an <see cref="ITrigger" />.
+    /// </summary>
+    /// <param name="tableBuilderName">The name of the table builder variable.</param>
+    /// <param name="trigger">The check constraint.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateTrigger(
+        string tableBuilderName,
+        ITrigger trigger,
+        IndentedStringBuilder stringBuilder)
+    {
+        var triggerBuilderNameStringBuilder = new StringBuilder();
+        triggerBuilderNameStringBuilder
+            .Append(tableBuilderName)
+            .Append(".HasTrigger(")
+            .Append(Code.Literal(trigger.ModelName))
+            .Append(")");
+        var triggerBuilderName = triggerBuilderNameStringBuilder.ToString();
+
+        stringBuilder.Append(triggerBuilderName);
+
+        // Note that GenerateAnnotations below does the corresponding decrement
+        stringBuilder.IncrementIndent();
+
+        if (trigger.Name != null
+            && trigger.Name != (trigger.GetDefaultName() ?? trigger.ModelName))
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasName(")
+                .Append(Code.Literal(trigger.Name))
+                .Append(")");
+        }
+
+        var annotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(trigger.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        GenerateAnnotations(triggerBuilderName, trigger, stringBuilder, annotations, inChainedCall: true);
     }
 
     /// <summary>

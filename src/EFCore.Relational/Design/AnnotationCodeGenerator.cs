@@ -28,6 +28,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     private static readonly ISet<string> IgnoredRelationalAnnotations = new HashSet<string>
     {
         RelationalAnnotationNames.CheckConstraints,
+        RelationalAnnotationNames.Triggers,
         RelationalAnnotationNames.Sequences,
         RelationalAnnotationNames.DbFunctions,
         RelationalAnnotationNames.RelationalOverrides

@@ -130,6 +130,11 @@ public static class RelationalAnnotationNames
     public const string DbFunctions = Prefix + "DbFunctions";
 
     /// <summary>
+    ///     The name for trigger annotation.
+    /// </summary>
+    public const string Triggers = Prefix + "Triggers";
+
+    /// <summary>
     ///     The name for the annotation containing the maximum length for database identifiers.
     /// </summary>
     public const string MaxIdentifierLength = Prefix + "MaxIdentifierLength";

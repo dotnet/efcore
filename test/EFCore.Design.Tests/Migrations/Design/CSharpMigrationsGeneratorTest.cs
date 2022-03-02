@@ -79,7 +79,8 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
-            RelationalAnnotationNames.ModelDependencies
+            RelationalAnnotationNames.ModelDependencies,
+            RelationalAnnotationNames.Triggers // Appears on entity but requires provider-specific support
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -207,7 +208,8 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
-            RelationalAnnotationNames.ModelDependencies
+            RelationalAnnotationNames.ModelDependencies,
+            RelationalAnnotationNames.Triggers
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";

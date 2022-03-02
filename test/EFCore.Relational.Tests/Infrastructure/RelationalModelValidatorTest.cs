@@ -2446,6 +2446,20 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         VerifyWarning(definition.GenerateMessage("Animal", "'Id', 'Name'"), modelBuilder, LogLevel.Error);
     }
 
+    [ConditionalFact]
+    public virtual void Detects_triggers_on_unmapped_entity_types()
+    {
+        var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.Entity<Animal>(
+            x =>
+                {
+                    x.ToTable(tb => tb.HasTrigger("Animal_Trigger"));
+                    x.ToTable(name: null);
+                });
+
+        VerifyError(RelationalStrings.TriggerOnUnmappedEntityType("Animal_Trigger", "Animal"), modelBuilder);
+    }
+
     protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)
     {
         base.SetBaseType(entityType, baseEntityType);

@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalModelExtensions
 {
+    #region Default schema
+
     /// <summary>
     ///     Returns the default schema to use for the model, or <see langword="null" /> if none has been set.
     /// </summary>
@@ -58,6 +60,8 @@ public static class RelationalModelExtensions
     public static ConfigurationSource? GetDefaultSchemaConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(RelationalAnnotationNames.DefaultSchema)?.GetConfigurationSource();
 
+    #endregion Default schema
+
     /// <summary>
     ///     Returns the database model.
     /// </summary>
@@ -73,6 +77,8 @@ public static class RelationalModelExtensions
 
         return databaseModel;
     }
+
+    #region Max identifier length
 
     /// <summary>
     ///     Returns the maximum length allowed for store identifiers.
@@ -111,6 +117,10 @@ public static class RelationalModelExtensions
     /// <returns>The configuration source for <see cref="GetMaxIdentifierLength" />.</returns>
     public static ConfigurationSource? GetMaxIdentifierLengthConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(RelationalAnnotationNames.MaxIdentifierLength)?.GetConfigurationSource();
+
+    #endregion Max identifier length
+
+    #region Sequence
 
     /// <summary>
     ///     Finds a sequence with the given name.
@@ -268,6 +278,10 @@ public static class RelationalModelExtensions
     /// <param name="model">The model to get the sequences in.</param>
     public static IEnumerable<IReadOnlySequence> GetSequences(this IReadOnlyModel model)
         => Sequence.GetSequences(model);
+
+    #endregion Sequence
+
+    #region DbFunction
 
     /// <summary>
     ///     Finds a function that is mapped to the method represented by the given <see cref="MethodInfo" />.
@@ -467,6 +481,10 @@ public static class RelationalModelExtensions
     public static IEnumerable<IDbFunction> GetDbFunctions(this IModel model)
         => DbFunction.GetDbFunctions(model);
 
+    #endregion DbFunction
+
+    #region Collation
+
     /// <summary>
     ///     Returns the database collation.
     /// </summary>
@@ -509,4 +527,6 @@ public static class RelationalModelExtensions
     /// <returns>The configuration source for the collation.</returns>
     public static ConfigurationSource? GetCollationConfigurationSource(this IConventionModel model)
         => model.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
+
+    #endregion Collation
 }

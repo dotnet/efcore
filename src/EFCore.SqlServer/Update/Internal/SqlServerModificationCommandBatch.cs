@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Text;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -153,9 +156,27 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         var wasCachedCommandTextEmpty = IsCachedCommandTextEmpty;
 
         var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
-            CachedCommandText, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count, out var requiresTransaction);
+            CachedCommandText, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count, out var resultsContainPositionMapping,
+            out var requiresTransaction);
 
         SetRequiresTransaction(!wasCachedCommandTextEmpty || requiresTransaction);
+
+        if (resultsContainPositionMapping)
+        {
+            if (ResultsPositionalMappingEnabled is null)
+            {
+                ResultsPositionalMappingEnabled = new BitArray(CommandResultSet.Count);
+            }
+            else
+            {
+                ResultsPositionalMappingEnabled.Length = CommandResultSet.Count;
+            }
+
+            for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
+            {
+                ResultsPositionalMappingEnabled![i] = true;
+            }
+        }
 
         for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
         {
@@ -230,4 +251,76 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
                 secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
             && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
                 secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void Execute(IRelationalConnection connection)
+    {
+        try
+        {
+            base.Execute(connection);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 } )
+        {
+            // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
+            // OUTPUT clause without INTO clause.
+            // This occurs when the user hasn't declared in metadata that a table has triggers, but triggers do exist in the database.
+            // Throw a specialized exception to point the user in the right direction.
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfTriggers,
+                e.InnerException,
+                e.Entries);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 } )
+        {
+            // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
+            // subquery or references a function that performs user or system data access [...]
+            // See https://docs.microsoft.com/sql/relational-databases/errors-events/mssqlserver-4186-database-engine-error
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction,
+                e.InnerException,
+                e.Entries);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override async Task ExecuteAsync(
+        IRelationalConnection connection,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await base.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 } )
+        {
+            // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
+            // OUTPUT clause without INTO clause.
+            // This occurs when the user hasn't declared in metadata that a table has triggers, but triggers do exist in the database.
+            // Throw a specialized exception to point the user in the right direction.
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfTriggers,
+                e.InnerException,
+                e.Entries);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 } )
+        {
+            // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
+            // subquery or references a function that performs user or system data access [...]
+            // See https://docs.microsoft.com/sql/relational-databases/errors-events/mssqlserver-4186-database-engine-error
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction,
+                e.InnerException,
+                e.Entries);
+        }
+    }
 }

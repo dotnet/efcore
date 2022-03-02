@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -65,6 +66,13 @@ public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
     /// </summary>
     protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
+
+    /// <summary>
+    ///     When rows with database-generated values are returned in non-deterministic ordering, it is necessary to project out a synthetic
+    ///     position value, in order to look up the correct <see cref="ModificationCommand" /> and propagate the values. When this array
+    ///     isn't <see langword="null" />, it determines whether the current result row contains such a position value.
+    /// </summary>
+    protected virtual BitArray? ResultsPositionalMappingEnabled { get; set; }
 
     /// <summary>
     ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.

@@ -22,10 +22,7 @@ public interface IConventionCheckConstraintBuilder : IConventionAnnotatableBuild
     /// </summary>
     /// <param name="name">The database name of the check constraint.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
     IConventionCheckConstraintBuilder? HasName(string? name, bool fromDataAnnotation = false);
 
     /// <summary>

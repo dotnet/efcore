@@ -825,6 +825,87 @@ public class ModelSnapshotSqlServerTest
             });
 
     [ConditionalFact]
+    public virtual void Trigger_is_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>()
+                    .ToTable(tb => tb.HasTrigger("SomeTrigger").Metadata["foo"] = "bar");
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithOneProperty"", t =>
+                    {
+                        t.HasTrigger(""SomeTrigger"")
+                            .HasAnnotation(""foo"", ""bar"");
+                    });
+                });"),
+            o =>
+            {
+                var trigger = Assert.Single(o.GetEntityTypes().Single().GetTriggers());
+                Assert.Equal("SomeTrigger", trigger.Name);
+            });
+
+    [ConditionalFact]
+    public virtual void Triggers_and_ExcludeFromMigrations_are_stored_in_snapshot()
+        => Test(
+            builder =>
+            {
+                builder.Entity<EntityWithOneProperty>()
+                    .ToTable(tb =>
+                    {
+                        tb.HasTrigger("SomeTrigger1");
+                        tb.HasTrigger("SomeTrigger2");
+                        tb.ExcludeFromMigrations();
+                    });
+                builder.Ignore<EntityWithTwoProperties>();
+            },
+            AddBoilerPlate(
+                GetHeading()
+                + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithOneProperty"", t =>
+                    {
+                        t.ExcludeFromMigrations();
+
+                        t.HasTrigger(""SomeTrigger1"");
+                        t.HasTrigger(""SomeTrigger2"");
+                    });
+                });"),
+            o =>
+            {
+                var entityType = Assert.Single(o.GetEntityTypes());
+
+                Assert.True(entityType.IsTableExcludedFromMigrations());
+
+                Assert.Collection(
+                    entityType.GetTriggers().OrderBy(t => t.Name),
+                    t => Assert.Equal("SomeTrigger1", t.Name),
+                    t => Assert.Equal("SomeTrigger2", t.Name));
+            });
+
+    [ConditionalFact]
     public virtual void ProductVersion_is_stored_in_snapshot()
     {
         var modelBuilder = CreateConventionalModelBuilder();

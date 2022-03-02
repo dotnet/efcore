@@ -40,4 +40,49 @@ public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
             () => base.GenerateNextSequenceValueOperation_returns_statement_with_sanitized_sequence());
         Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
     }
+
+    protected override void AppendInsertOperation_insert_if_store_generated_columns_exist_verification(StringBuilder stringBuilder)
+        => AssertBaseline(
+            @"INSERT INTO ""Ducks"" (""Name"", ""Quacks"", ""ConcurrencyToken"")
+VALUES (@p0, @p1, @p2)
+RETURNING ""Id"", ""Computed"";
+",
+            stringBuilder.ToString());
+
+    protected override void AppendInsertOperation_for_store_generated_columns_but_no_identity_verification(
+        StringBuilder stringBuilder)
+        => AssertBaseline(
+            @"INSERT INTO ""Ducks"" (""Id"", ""Name"", ""Quacks"", ""ConcurrencyToken"")
+VALUES (@p0, @p1, @p2, @p3)
+RETURNING ""Computed"";
+",
+            stringBuilder.ToString());
+
+    protected override void AppendInsertOperation_for_only_identity_verification(StringBuilder stringBuilder)
+        => AssertBaseline(
+            @"INSERT INTO ""Ducks"" (""Name"", ""Quacks"", ""ConcurrencyToken"")
+VALUES (@p0, @p1, @p2)
+RETURNING ""Id"";
+",
+            stringBuilder.ToString());
+
+    protected override void AppendInsertOperation_for_all_store_generated_columns_verification(StringBuilder stringBuilder)
+        => AssertBaseline(
+            @"INSERT INTO ""Ducks""
+DEFAULT VALUES
+RETURNING ""Id"", ""Computed"";
+",
+            stringBuilder.ToString());
+
+    protected override void AppendInsertOperation_for_only_single_identity_columns_verification(
+        StringBuilder stringBuilder)
+        => AssertBaseline(
+            @"INSERT INTO ""Ducks""
+DEFAULT VALUES
+RETURNING ""Id"";
+",
+            stringBuilder.ToString());
+
+    private void AssertBaseline(string expected, string actual)
+        => Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
 }

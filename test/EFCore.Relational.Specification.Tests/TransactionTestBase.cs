@@ -40,7 +40,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             context.Add(
                 new TransactionCustomer { Id = -77, Name = "Bobble" });
 
-            context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
+            context.Entry(context.Set<TransactionOrder>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
             if (async)
             {
@@ -1290,7 +1290,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             }
 
             context.Add(new TransactionCustomer { Id = -78, Name = "Hobble" });
-            context.Add(new TransactionCustomer { Id = 1, Name = "Gobble" }); // Cause SaveChanges failure
+            context.Add(new TransactionOrder { Id = 100 }); // Cause SaveChanges failure
 
             if (async)
             {

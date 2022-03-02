@@ -131,4 +131,12 @@ public interface IRelationalAnnotationProvider
     /// <returns>The annotations.</returns>
     /// <param name="designTime">Whether the model should contain design-time configuration.</param>
     IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint, bool designTime);
+
+    /// <summary>
+    ///     Gets provider-specific annotations for the given <see cref="ITrigger" />.
+    /// </summary>
+    /// <param name="trigger">The trigger.</param>
+    /// <returns>The annotations.</returns>
+    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+    IEnumerable<IAnnotation> For(ITrigger trigger, bool designTime);
 }

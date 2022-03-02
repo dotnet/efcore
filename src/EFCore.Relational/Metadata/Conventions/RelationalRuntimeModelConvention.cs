@@ -137,6 +137,23 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
             annotations[RelationalAnnotationNames.ViewSchema] = entityType.GetViewSchema();
             annotations[RelationalAnnotationNames.SqlQuery] = entityType.GetSqlQuery();
             annotations[RelationalAnnotationNames.FunctionName] = entityType.GetFunctionName();
+
+            if (annotations.TryGetValue(RelationalAnnotationNames.Triggers, out var triggers))
+            {
+                var runtimeTriggers = new SortedDictionary<string, ITrigger>(StringComparer.Ordinal);
+                foreach (var (key, trigger) in (SortedDictionary<string, ITrigger>)triggers!)
+                {
+                    var runtimeTrigger = Create(trigger, runtimeEntityType);
+                    runtimeTriggers[key] = runtimeTrigger;
+
+                    CreateAnnotations(
+                        trigger, runtimeTrigger,
+                        static (convention, annotations, source, target, runtime)
+                            => convention.ProcessTriggerAnnotations(annotations, source, target, runtime));
+                }
+
+                annotations[RelationalAnnotationNames.Triggers] = runtimeTriggers;
+            }
         }
     }
 
@@ -366,5 +383,23 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         {
             annotations.Remove(RelationalAnnotationNames.ForeignKeyMappings);
         }
+    }
+
+    private static RuntimeTrigger Create(ITrigger trigger, RuntimeEntityType runtimeEntityType)
+        => new(runtimeEntityType, trigger.ModelName, trigger.Name, trigger.TableName, trigger.TableSchema);
+
+    /// <summary>
+    ///     Updates the function annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="trigger">The source trigger.</param>
+    /// <param name="runtimeTrigger">The target trigger that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessTriggerAnnotations(
+        Dictionary<string, object?> annotations,
+        ITrigger trigger,
+        RuntimeTrigger runtimeTrigger,
+        bool runtime)
+    {
     }
 }

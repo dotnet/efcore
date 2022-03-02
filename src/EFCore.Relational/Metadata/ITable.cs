@@ -54,6 +54,11 @@ public interface ITable : ITableBase
     IEnumerable<ICheckConstraint> CheckConstraints { get; }
 
     /// <summary>
+    ///     Gets the triggers for this table.
+    /// </summary>
+    IEnumerable<ITrigger> Triggers { get; }
+
+    /// <summary>
     ///     Gets the comment for this table.
     /// </summary>
     public virtual string? Comment

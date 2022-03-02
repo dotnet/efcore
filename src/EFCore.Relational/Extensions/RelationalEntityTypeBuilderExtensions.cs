@@ -1846,4 +1846,55 @@ public static class RelationalEntityTypeBuilderExtensions
             RelationalAnnotationNames.Comment,
             comment,
             fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures a database trigger when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The entity type builder.</param>
+    /// <param name="name">The name of the trigger.</param>
+    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
+    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the check constraint was configured, <see langword="null" /> otherwise.</returns>
+    public static IConventionTriggerBuilder? HasTrigger(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string name,
+        string? tableName,
+        string? tableSchema,
+        bool fromDataAnnotation = false)
+        => InternalTriggerBuilder.HasTrigger(
+                entityTypeBuilder.Metadata,
+                name,
+                tableName,
+                tableSchema,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+            ?.Builder;
+
+    /// <summary>
+    ///     Returns a value indicating whether the trigger can be configured.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+    /// <param name="name">The name of the trigger.</param>
+    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
+    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    public static bool CanHaveTrigger(
+        this IConventionEntityTypeBuilder entityTypeBuilder,
+        string name,
+        string? tableName,
+        string? tableSchema,
+        bool fromDataAnnotation = false)
+        => InternalTriggerBuilder.CanHaveTrigger(
+            entityTypeBuilder.Metadata,
+            name,
+            tableName,
+            tableSchema,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }
