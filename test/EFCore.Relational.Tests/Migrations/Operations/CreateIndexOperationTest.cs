@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 public class CreateIndexOperationTest
 {
-    [Fact]
+    [ConditionalFact]
     public void IsDescending_count_matches_column_count()
     {
         var operation = new CreateIndexOperation();

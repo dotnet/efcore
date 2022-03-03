@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 public class MigrationsBundleTest
 {
-    [Fact]
+    [ConditionalFact]
     public void Short_names_are_unique()
     {
         foreach (var command in GetCommands())
@@ -24,7 +24,7 @@ public class MigrationsBundleTest
         }
     }
 
-    [Fact]
+    [ConditionalFact]
     public void Long_names_are_unique()
     {
         foreach (var command in GetCommands())
@@ -41,7 +41,7 @@ public class MigrationsBundleTest
         }
     }
 
-    [Fact]
+    [ConditionalFact]
     public void HandleResponseFiles_is_true()
     {
         var app = new CommandLineApplication { Name = "efbundle" };
@@ -50,7 +50,7 @@ public class MigrationsBundleTest
         Assert.True(app.HandleResponseFiles);
     }
 
-    [Fact]
+    [ConditionalFact]
     public void AllowArgumentSeparator_is_true()
     {
         var app = new CommandLineApplication { Name = "efbundle" };

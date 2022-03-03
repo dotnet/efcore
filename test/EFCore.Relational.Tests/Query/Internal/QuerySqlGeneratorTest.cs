@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 public class QuerySqlGeneratorTest
 {
-    [Theory]
+    [ConditionalTheory]
     [InlineData("INSERT something")]
     [InlineData("SELECTANDSOMEOTHERSTUFF")]
     [InlineData("SELECT")]
@@ -29,7 +29,7 @@ public class QuerySqlGeneratorTest
                 () => CreateDummyQuerySqlGenerator().CheckComposableSql(sql.Replace("SELECT", "WITH"))).Message);
     }
 
-    [Theory]
+    [ConditionalTheory]
     [InlineData("SELECT something")]
     [InlineData("   SELECT something")]
     [InlineData("-- comment\n SELECT something")]

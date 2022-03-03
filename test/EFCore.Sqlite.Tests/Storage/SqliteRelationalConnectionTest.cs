@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteRelationalConnectionTest
 {
-    [Fact]
+    [ConditionalFact]
     public void Sets_DefaultTimeout_when_connectionString()
     {
         var services = SqliteTestHelpers.Instance.CreateContextServices(
@@ -20,7 +20,7 @@ public class SqliteRelationalConnectionTest
         Assert.Equal(42, connection.DefaultTimeout);
     }
 
-    [Fact]
+    [ConditionalFact]
     public void Sets_DefaultTimeout_when_connection()
     {
         var originalConnection = new SqliteConnection("Data Source=:memory:") { DefaultTimeout = 21 };
