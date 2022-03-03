@@ -1314,6 +1314,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         public string B { get; set; }
     }
 
+    [PrimaryKey(nameof(Id1), nameof(Id2))]
     private class Root23687
     {
         public int Id1 { get; set; }
@@ -1331,7 +1332,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 .UseInMemoryDatabase("23687");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Root23687>().HasKey(e => new { e.Id1, e.Id2 });
+            => modelBuilder.Entity<Root23687>();
     }
 
     #endregion

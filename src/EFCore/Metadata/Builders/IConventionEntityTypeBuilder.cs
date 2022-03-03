@@ -231,6 +231,18 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     IConventionKeyBuilder? PrimaryKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Sets the properties that make up the primary key for this entity type.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the primary key.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>An object that can be used to configure the primary key.</returns>
+    /// <returns>
+    ///     An object that can be used to configure the primary key if it was set on the entity type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionKeyBuilder? PrimaryKey(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
     /// </summary>
     /// <param name="properties">The properties that make up the primary key.</param>

@@ -1561,6 +1561,7 @@ public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
+    [PrimaryKey(nameof(Id))]
     protected class PostWriteOnly : IPostAccessor
     {
         private int _id;
@@ -2073,7 +2074,6 @@ public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
                 modelBuilder.Entity<PostWriteOnly>(
                     b =>
                     {
-                        b.HasKey("Id");
                         b.Property("Title");
                         b.Property("BlogId");
                     });

@@ -198,6 +198,16 @@ public class PropertyAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void KeyAttribute_does_not_throw_when_setting_composite_primary_key_with_PrimaryKey_attribute()
+    {
+        var model = new MyContext().Model;
+
+        Assert.Equal(2, model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties.Count);
+        Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties[0].Name);
+        Assert.Equal("Id", model.FindEntityType(typeof(B2)).FindPrimaryKey().Properties[1].Name);
+    }
+
+    [ConditionalFact]
     public void KeyAttribute_throws_when_setting_key_in_derived_type()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity>();
@@ -789,6 +799,16 @@ public class PropertyAttributeConventionTest
         public int MyPrimaryKey { get; set; }
     }
 
+    [PrimaryKey(nameof(MyPrimaryKey), nameof(Id))]
+    private class B2
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Key]
+        public int MyPrimaryKey { get; set; }
+    }
+
     public class F
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
@@ -853,7 +873,9 @@ public class PropertyAttributeConventionTest
                 .UseInMemoryDatabase(nameof(MyContext));
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<B>().HasKey(
-                e => new { e.MyPrimaryKey, e.Id });
+        {
+            modelBuilder.Entity<B>().HasKey(e => new { e.MyPrimaryKey, e.Id });
+            modelBuilder.Entity<B2>();
+        }
     }
 }

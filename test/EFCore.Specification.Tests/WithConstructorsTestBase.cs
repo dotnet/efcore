@@ -754,6 +754,7 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
         }
     }
 
+    [PrimaryKey(nameof(_blogId))]
     protected class Blog
     {
         private readonly int _blogId;
@@ -1615,7 +1616,6 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
             modelBuilder.Entity<Blog>(
                 b =>
                 {
-                    b.HasKey("_blogId");
                     b.Property(e => e.Title);
                 });
 
