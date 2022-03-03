@@ -109,7 +109,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
         if (modificationCommands[0].Entries.SelectMany(e => e.EntityType.GetAllBaseTypesInclusive())
             .Any(e => e.IsMemoryOptimized()))
         {
-            requiresTransaction = false;
+            requiresTransaction = modificationCommands.Count > 1;
 
             if (!writableOperations.Any(o => o.IsRead && o.IsKey))
             {
