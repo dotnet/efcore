@@ -1,11 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.SaveChangesScenariosModel;
+namespace Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 #nullable enable
 
-public class SaveChangesData : IEquatable<SaveChangesData>
+public class StoreValueGenerationData : IEquatable<StoreValueGenerationData>
 {
     // Generated on add (except for WithNoDatabaseGenerated2)
     public int Id { get; set; }
@@ -16,7 +16,7 @@ public class SaveChangesData : IEquatable<SaveChangesData>
     // Not generated, except for for WithAllDatabaseGenerated
     public int Data2 { get; set; }
 
-    public bool Equals(SaveChangesData? other)
+    public bool Equals(StoreValueGenerationData? other)
         => other is not null
             && (ReferenceEquals(this, other)
                 || (Id == other.Id

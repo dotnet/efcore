@@ -5,10 +5,10 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class SaveChangesScenariosSqliteTest : SaveChangesScenariosTestBase<
-    SaveChangesScenariosSqliteTest.SaveChangesScenariosSqliteFixture>
+public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
+    StoreValueGenerationSqliteTest.StoreValueGenerationSqliteFixture>
 {
-    public SaveChangesScenariosSqliteTest(SaveChangesScenariosSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    public StoreValueGenerationSqliteTest(StoreValueGenerationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
@@ -362,7 +362,7 @@ SELECT changes();");
 
     #endregion Two operations with different entity types
 
-    public class SaveChangesScenariosSqliteFixture : SaveChangesScenariosFixtureBase
+    public class StoreValueGenerationSqliteFixture : StoreValueGenerationFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

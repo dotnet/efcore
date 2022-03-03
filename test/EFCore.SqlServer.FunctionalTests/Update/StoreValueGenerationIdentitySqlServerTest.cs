@@ -1,17 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.SaveChangesScenariosModel;
-
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class SaveChangesScenariosSequenceSqlServerTest : SaveChangesScenariosTestBase<
-    SaveChangesScenariosSequenceSqlServerTest.SaveChangesScenariosSequenceSqlServerFixture>
+public class StoreValueGenerationIdentitySqlServerTest : StoreValueGenerationTestBase<
+    StoreValueGenerationIdentitySqlServerTest.StoreValueGenerationIdentitySqlServerFixture>
 {
-    public SaveChangesScenariosSequenceSqlServerTest(
-        SaveChangesScenariosSequenceSqlServerFixture fixture,
+    public StoreValueGenerationIdentitySqlServerTest(
+        StoreValueGenerationIdentitySqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -36,13 +34,11 @@ public class SaveChangesScenariosSequenceSqlServerTest : SaveChangesScenariosTes
             @"@p0='1000'
 
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 VALUES (@p0);
-SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_with_no_generated_values(bool async)
@@ -66,13 +62,11 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 DEFAULT VALUES;
-SELECT [t].[Id], [t].[Data1], [t].[Data2] FROM [WithAllDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Modify_with_generated_values(bool async)
@@ -80,7 +74,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
         await base.Modify_with_generated_values(async);
 
         AssertSql(
-            @"@p1='5'
+            @"@p1='1'
 @p0='1000'
 
 SET NOCOUNT ON;
@@ -112,7 +106,7 @@ SELECT @@ROWCOUNT;");
         await base.Delete(async);
 
         AssertSql(
-            @"@p0='5'
+            @"@p0='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -133,24 +127,20 @@ SELECT @@ROWCOUNT;");
             @"@p0='1000'
 
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 VALUES (@p0);
-SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);",
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             //
             @"@p0='1001'
 
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 VALUES (@p0);
-SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_Add_with_same_entity_type_and_no_generated_values(bool async)
@@ -183,22 +173,18 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 DEFAULT VALUES;
-SELECT [t].[Id], [t].[Data1], [t].[Data2] FROM [WithAllDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);",
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             //
             @"SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 DEFAULT VALUES;
-SELECT [t].[Id], [t].[Data1], [t].[Data2] FROM [WithAllDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Modify_Modify_with_same_entity_type_and_generated_values(bool async)
@@ -206,7 +192,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
         await base.Modify_Modify_with_same_entity_type_and_generated_values(async);
 
         AssertSql(
-            @"@p1='5'
+            @"@p1='1'
 @p0='1000'
 
 SET NOCOUNT ON;
@@ -216,7 +202,7 @@ SELECT [Data1]
 FROM [WithSomeDatabaseGenerated]
 WHERE @@ROWCOUNT = 1 AND [Id] = @p1;",
             //
-            @"@p1='6'
+            @"@p1='2'
 @p0='1001'
 
 SET NOCOUNT ON;
@@ -258,7 +244,7 @@ SELECT @@ROWCOUNT;");
         await base.Delete_Delete_with_same_entity_type(async);
 
         AssertSql(
-            @"@p0='5'
+            @"@p0='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -266,7 +252,7 @@ DELETE FROM [WithSomeDatabaseGenerated]
 WHERE [Id] = @p0;
 SELECT @@ROWCOUNT;",
             //
-            @"@p0='6'
+            @"@p0='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -287,24 +273,20 @@ SELECT @@ROWCOUNT;");
             @"@p0='1000'
 
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithSomeDatabaseGenerated] ([Data2])
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 VALUES (@p0);
-SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);",
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             //
             @"@p0='1001'
 
 SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithSomeDatabaseGenerated2] ([Data2])
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 VALUES (@p0);
-SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated2] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1]
+FROM [WithSomeDatabaseGenerated2]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Add_Add_with_different_entity_types_and_no_generated_values(bool async)
@@ -337,22 +319,18 @@ VALUES (@p0, @p1, @p2);");
 
         AssertSql(
             @"SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 DEFAULT VALUES;
-SELECT [t].[Id], [t].[Data1], [t].[Data2] FROM [WithAllDatabaseGenerated] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);",
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             //
             @"SET NOCOUNT ON;
-DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated2]
-OUTPUT INSERTED.[Id]
-INTO @inserted0
 DEFAULT VALUES;
-SELECT [t].[Id], [t].[Data1], [t].[Data2] FROM [WithAllDatabaseGenerated2] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
+SELECT [Id], [Data1], [Data2]
+FROM [WithAllDatabaseGenerated2]
+WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
     }
 
     public override async Task Modify_Modify_with_different_entity_types_and_generated_values(bool async)
@@ -360,7 +338,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);");
         await base.Modify_Modify_with_different_entity_types_and_generated_values(async);
 
         AssertSql(
-            @"@p1='5'
+            @"@p1='1'
 @p0='1000'
 
 SET NOCOUNT ON;
@@ -370,7 +348,7 @@ SELECT [Data1]
 FROM [WithSomeDatabaseGenerated]
 WHERE @@ROWCOUNT = 1 AND [Id] = @p1;",
             //
-            @"@p1='8'
+            @"@p1='2'
 @p0='1001'
 
 SET NOCOUNT ON;
@@ -411,7 +389,7 @@ SELECT @@ROWCOUNT;");
         await base.Delete_Delete_with_different_entity_types(async);
 
         AssertSql(
-            @"@p0='5'
+            @"@p0='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -419,7 +397,7 @@ DELETE FROM [WithSomeDatabaseGenerated]
 WHERE [Id] = @p0;
 SELECT @@ROWCOUNT;",
             //
-            @"@p0='8'
+            @"@p0='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
@@ -445,33 +423,14 @@ SELECT @@ROWCOUNT;");
         }
     }
 
-    public class SaveChangesScenariosSequenceSqlServerFixture : SaveChangesScenariosFixtureBase
+    public class StoreValueGenerationIdentitySqlServerFixture : StoreValueGenerationFixtureBase
     {
-        protected override string StoreName { get; } = "SaveChangesScenariosSequenceTest";
+        private string? _identityResetCommand;
+
+        protected override string StoreName { get; } = "StoreValueGenerationIdentityTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.HasSequence<int>("Ids");
-
-            foreach (var name in new[]
-                     {
-                         nameof(SaveChangesScenariosContext.WithSomeDatabaseGenerated),
-                         nameof(SaveChangesScenariosContext.WithSomeDatabaseGenerated2),
-                         nameof(SaveChangesScenariosContext.WithAllDatabaseGenerated),
-                         nameof(SaveChangesScenariosContext.WithAllDatabaseGenerated2)
-                     })
-            {
-                modelBuilder
-                    .SharedTypeEntity<SaveChangesData>(name)
-                    .Property(w => w.Id)
-                    .HasDefaultValueSql("NEXT VALUE FOR [Ids]");
-            }
-        }
 
         public override void Reseed()
         {
@@ -484,8 +443,30 @@ SELECT @@ROWCOUNT;");
         {
             base.Clean(context);
 
-            // Reset the sequence values since we assert on them
-            context.Database.ExecuteSqlRaw("ALTER SEQUENCE [Ids] RESTART WITH 1");
+            // Reset the IDENTITY values since we assert on them
+            context.Database.ExecuteSqlRaw(GetIdentityResetCommand());
+        }
+
+        private string GetIdentityResetCommand()
+        {
+            if (_identityResetCommand is not null)
+            {
+                return _identityResetCommand;
+            }
+
+            var context = CreateContext();
+            var builder = new StringBuilder();
+
+            var tablesWithIdentity = context.Model.GetEntityTypes()
+                .Where(e => e.GetProperties().Any(p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                .Select(e => e.GetTableName());
+
+            foreach (var table in tablesWithIdentity)
+            {
+                builder.AppendLine($"DBCC CHECKIDENT ('{table}', RESEED, 0);");
+            }
+
+            return _identityResetCommand = builder.ToString();
         }
     }
 }

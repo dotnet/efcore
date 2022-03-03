@@ -1,16 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.SaveChangesScenariosModel;
+using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public abstract class SaveChangesScenariosTestBase<TFixture> : IClassFixture<TFixture>
-    where TFixture : SaveChangesScenariosFixtureBase
+public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFixture>
+    where TFixture : StoreValueGenerationFixtureBase
 {
-    protected SaveChangesScenariosTestBase(TFixture fixture)
+    protected StoreValueGenerationTestBase(TFixture fixture)
     {
         Fixture = fixture;
 
@@ -151,8 +151,8 @@ public abstract class SaveChangesScenariosTestBase<TFixture> : IClassFixture<TFi
                 _ => throw new ArgumentOutOfRangeException(nameof(generatedValues))
             };
 
-        SaveChangesData first;
-        SaveChangesData? second;
+        StoreValueGenerationData first;
+        StoreValueGenerationData? second;
 
         switch (firstOperationType)
         {
@@ -160,15 +160,15 @@ public abstract class SaveChangesScenariosTestBase<TFixture> : IClassFixture<TFi
                 switch (generatedValues)
                 {
                     case GeneratedValues.Some:
-                        first = new SaveChangesData { Data2 = 1000 };
+                        first = new StoreValueGenerationData { Data2 = 1000 };
                         firstDbSet.Add(first);
                         break;
                     case GeneratedValues.None:
-                        first = new SaveChangesData { Id = 100, Data1 = 1000, Data2 = 1000 };
+                        first = new StoreValueGenerationData { Id = 100, Data1 = 1000, Data2 = 1000 };
                         firstDbSet.Add(first);
                         break;
                     case GeneratedValues.All:
-                        first = new SaveChangesData();
+                        first = new StoreValueGenerationData();
                         firstDbSet.Add(first);
                         break;
                     default:
@@ -218,15 +218,15 @@ public abstract class SaveChangesScenariosTestBase<TFixture> : IClassFixture<TFi
                 switch (generatedValues)
                 {
                     case GeneratedValues.Some:
-                        second = new SaveChangesData { Data2 = 1001 };
+                        second = new StoreValueGenerationData { Data2 = 1001 };
                         secondDbSet!.Add(second);
                         break;
                     case GeneratedValues.None:
-                        second = new SaveChangesData { Id = 101, Data1 = 1001, Data2 = 1001 };
+                        second = new StoreValueGenerationData { Id = 101, Data1 = 1001, Data2 = 1001 };
                         secondDbSet!.Add(second);
                         break;
                     case GeneratedValues.All:
-                        second = new SaveChangesData();
+                        second = new StoreValueGenerationData();
                         secondDbSet!.Add(second);
                         break;
                     default:
@@ -359,7 +359,7 @@ public abstract class SaveChangesScenariosTestBase<TFixture> : IClassFixture<TFi
 
     protected TFixture Fixture { get; }
 
-    protected SaveChangesScenariosContext CreateContext()
+    protected StoreValueGenerationContext CreateContext()
         => Fixture.CreateContext();
 
     public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
