@@ -75,7 +75,7 @@ public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateS
             if (writableOperations.Count == 0
                 || readOperations.Count == 0)
             {
-                requiresTransaction = false;
+                requiresTransaction = modificationCommands.Count > 1;
                 foreach (var modification in modificationCommands)
                 {
                     AppendInsertOperation(commandStringBuilder, modification, commandPosition, out var localRequiresTransaction);
