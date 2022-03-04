@@ -25,6 +25,7 @@ public class ReaderModificationCommandBatchTest
         batch.ShouldValidateSql = true;
 
         batch.AddCommand(command);
+        batch.Complete();
 
         Assert.Equal(2, batch.ModificationCommands.Count);
         Assert.Same(command, batch.ModificationCommands[0]);
@@ -42,6 +43,7 @@ public class ReaderModificationCommandBatchTest
         batch.ShouldValidateSql = true;
 
         batch.AddCommand(command);
+        batch.Complete();
 
         Assert.Equal(1, batch.ModificationCommands.Count);
         Assert.Equal(".", batch.CommandText);
@@ -58,6 +60,7 @@ public class ReaderModificationCommandBatchTest
         batch.ShouldValidateSql = false;
 
         batch.AddCommand(command);
+        batch.Complete();
 
         Assert.Equal(1, batch.ModificationCommands.Count);
         Assert.Equal(".", batch.CommandText);
@@ -75,6 +78,7 @@ public class ReaderModificationCommandBatchTest
             RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
         var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
         batch.AddCommand(command);
+        batch.Complete();
 
         batch.UpdateCachedCommandTextBase(0);
 
@@ -96,6 +100,7 @@ public class ReaderModificationCommandBatchTest
         batch.AddCommand(command);
 
         batch.UpdateCachedCommandTextBase(0);
+        batch.Complete();
 
         Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(1, fakeSqlGenerator.AppendUpdateOperationCalls);
@@ -115,6 +120,7 @@ public class ReaderModificationCommandBatchTest
         batch.AddCommand(command);
 
         batch.UpdateCachedCommandTextBase(0);
+        batch.Complete();
 
         Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
         Assert.Equal(1, fakeSqlGenerator.AppendDeleteOperationCalls);
@@ -133,6 +139,7 @@ public class ReaderModificationCommandBatchTest
         var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
         batch.AddCommand(command);
         batch.AddCommand(command);
+        batch.Complete();
 
         Assert.Equal("..", batch.CommandText);
 
@@ -153,6 +160,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         await batch.ExecuteAsync(connection);
 
@@ -175,6 +183,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         await batch.ExecuteAsync(connection);
 
@@ -198,6 +207,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         await batch.ExecuteAsync(connection);
 
@@ -220,6 +230,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         await batch.ExecuteAsync(connection);
 
@@ -243,6 +254,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         await batch.ExecuteAsync(connection);
 
@@ -265,6 +277,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         var exception = async
             ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
@@ -289,6 +302,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         var exception = async
             ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
@@ -316,6 +330,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         var actualException = async
             ? await Assert.ThrowsAsync<DbUpdateException>(() => batch.ExecuteAsync(connection))
@@ -343,6 +358,7 @@ public class ReaderModificationCommandBatchTest
 
         var batch = new ModificationCommandBatchFake();
         batch.AddCommand(command);
+        batch.Complete();
 
         var actualException = async
             ? await Assert.ThrowsAsync<OperationCanceledException>(() => batch.ExecuteAsync(connection))
@@ -393,6 +409,8 @@ public class ReaderModificationCommandBatchTest
                         false, true, false, false, true)
                 }));
 
+        batch.Complete();
+
         var storeCommand = batch.CreateStoreCommandBase();
 
         Assert.Equal(2, storeCommand.RelationalCommand.Parameters.Count);
@@ -430,6 +448,8 @@ public class ReaderModificationCommandBatchTest
                         sensitiveLoggingEnabled: true)
                 }));
 
+        batch.Complete();
+
         var storeCommand = batch.CreateStoreCommandBase();
 
         Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
@@ -465,6 +485,8 @@ public class ReaderModificationCommandBatchTest
                         sensitiveLoggingEnabled: true)
                 }));
 
+        batch.Complete();
+
         var storeCommand = batch.CreateStoreCommandBase();
 
         Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
@@ -499,6 +521,8 @@ public class ReaderModificationCommandBatchTest
                         valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
                         sensitiveLoggingEnabled: true)
                 }));
+
+        batch.Complete();
 
         var storeCommand = batch.CreateStoreCommandBase();
 
@@ -536,6 +560,8 @@ public class ReaderModificationCommandBatchTest
                         valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
                         sensitiveLoggingEnabled: true)
                 }));
+
+        batch.Complete();
 
         var storeCommand = batch.CreateStoreCommandBase();
 
@@ -626,7 +652,7 @@ public class ReaderModificationCommandBatchTest
         }
 
         public string CommandText
-            => GetCommandText();
+            => CachedCommandText.ToString();
 
         public bool ShouldAddCommand { get; set; }
 

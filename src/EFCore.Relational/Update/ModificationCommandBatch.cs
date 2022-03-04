@@ -34,6 +34,16 @@ public abstract class ModificationCommandBatch
     public abstract bool AddCommand(IReadOnlyModificationCommand modificationCommand);
 
     /// <summary>
+    ///     Indicates that no more commands will be added to this batch, and prepares it for execution.
+    /// </summary>
+    public abstract void Complete();
+
+    /// <summary>
+    ///     Indicates whether the batch requires a transaction in order to execute correctly.
+    /// </summary>
+    public abstract bool RequiresTransaction { get; }
+
+    /// <summary>
     ///     Sends insert/update/delete commands to the database.
     /// </summary>
     /// <param name="connection">The database connection to use.</param>

@@ -53,11 +53,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
     public virtual ResultSetMapping AppendInsertOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         var name = command.TableName;
         var schema = command.Schema;
@@ -72,8 +74,12 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         {
             var keyOperations = operations.Where(o => o.IsKey).ToList();
 
+            requiresTransaction = true;
+
             return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
         }
+
+        requiresTransaction = false;
 
         return ResultSetMapping.NoResultSet;
     }
@@ -84,11 +90,13 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
     public virtual ResultSetMapping AppendUpdateOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         var name = command.TableName;
         var schema = command.Schema;
@@ -104,8 +112,12 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
         {
             var keyOperations = operations.Where(o => o.IsKey).ToList();
 
+            requiresTransaction = true;
+
             return AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
         }
+
+        requiresTransaction = false;
 
         return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
     }
@@ -116,17 +128,21 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     /// <param name="command">The command that represents the delete operation.</param>
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
+    /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
     public virtual ResultSetMapping AppendDeleteOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
-        int commandPosition)
+        int commandPosition,
+        out bool requiresTransaction)
     {
         var name = command.TableName;
         var schema = command.Schema;
         var conditionOperations = command.ColumnModifications.Where(o => o.IsCondition).ToList();
 
         AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
+
+        requiresTransaction = false;
 
         return AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
     }
@@ -527,6 +543,14 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     /// </summary>
     /// <param name="commandStringBuilder">The builder to which the SQL should be appended.</param>
     public virtual void AppendBatchHeader(StringBuilder commandStringBuilder)
+    {
+    }
+
+    /// <summary>
+    ///     Prepends a SQL command for turning on autocommit mode in the database, in case it is off.
+    /// </summary>
+    /// <param name="commandStringBuilder">The builder to which the SQL should be prepended.</param>
+    public virtual void PrependEnsureAutocommit(StringBuilder commandStringBuilder)
     {
     }
 

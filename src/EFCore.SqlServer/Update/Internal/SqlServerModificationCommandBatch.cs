@@ -85,7 +85,8 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     {
         if (--_commandsLeftToLengthCheck < 0)
         {
-            var commandTextLength = GetCommandText().Length;
+            UpdateCachedCommandText();
+            var commandTextLength = CachedCommandText.Length;
             if (commandTextLength >= MaxScriptLength)
             {
                 return false;
@@ -138,28 +139,24 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     protected override void ResetCommandText()
     {
         base.ResetCommandText();
+
         _bulkInsertCommands.Clear();
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override string GetCommandText()
-        => base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
-
-    private string GetBulkInsertCommandText(int lastIndex)
+    private void AppendBulkInsertCommandText(int lastIndex)
     {
         if (_bulkInsertCommands.Count == 0)
         {
-            return string.Empty;
+            return;
         }
 
-        var stringBuilder = new StringBuilder();
+        var wasCachedCommandTextEmpty = IsCachedCommandTextEmpty;
+
         var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
-            stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
+            CachedCommandText, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count, out var requiresTransaction);
+
+        SetRequiresTransaction(!wasCachedCommandTextEmpty || requiresTransaction);
+
         for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
         {
             CommandResultSet[i] = resultSetMapping;
@@ -169,8 +166,19 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         {
             CommandResultSet[lastIndex - 1] = ResultSetMapping.LastInResultSet;
         }
+    }
 
-        return stringBuilder.ToString();
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void UpdateCachedCommandText()
+    {
+        base.UpdateCachedCommandText();
+
+        AppendBulkInsertCommandText(ModificationCommands.Count);
     }
 
     /// <summary>
@@ -188,7 +196,9 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             if (_bulkInsertCommands.Count > 0
                 && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
             {
-                CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
+                // The new Add command cannot be added to the pending bulk insert commands (e.g. different table).
+                // Write out the pending commands before starting a new pending chain.
+                AppendBulkInsertCommandText(commandPosition);
                 _bulkInsertCommands.Clear();
             }
 
@@ -198,8 +208,14 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
         }
         else
         {
-            CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
-            _bulkInsertCommands.Clear();
+            // If we have any pending bulk insert commands, write them out before the next non-Add command
+            if (_bulkInsertCommands.Count > 0)
+            {
+                // Note that we don't care about the transactionality of the bulk insert SQL, since there's the additional non-Add
+                // command coming right afterwards, and so a transaction is required in any case.
+                AppendBulkInsertCommandText(commandPosition);
+                _bulkInsertCommands.Clear();
+            }
 
             base.UpdateCachedCommandText(commandPosition);
         }

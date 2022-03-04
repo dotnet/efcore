@@ -2189,7 +2189,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies)
             .BatchCommands(entries, updateAdapter);
 
-        foreach (var commandBatch in commandBatches)
+        foreach (var (commandBatch, _) in commandBatches)
         {
             InsertDataOperation? batchInsertOperation = null;
             foreach (var command in commandBatch.ModificationCommands)

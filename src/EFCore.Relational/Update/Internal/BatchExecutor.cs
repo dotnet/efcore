@@ -49,9 +49,18 @@ public class BatchExecutor : IBatchExecutor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int Execute(
-        IEnumerable<ModificationCommandBatch> commandBatches,
+        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
         IRelationalConnection connection)
     {
+        using var batchEnumerator = commandBatches.GetEnumerator();
+
+        if (!batchEnumerator.MoveNext())
+        {
+            return 0;
+        }
+
+        var (batch, hasMoreBatches) = batchEnumerator.Current;
+
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
         var beganTransaction = false;
@@ -62,7 +71,9 @@ public class BatchExecutor : IBatchExecutor
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                && CurrentContext.Context.Database.AutoTransactionsEnabled
+                // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
+                && (hasMoreBatches || batch.RequiresTransaction))
             {
                 transaction = connection.BeginTransaction();
                 beganTransaction = true;
@@ -79,11 +90,13 @@ public class BatchExecutor : IBatchExecutor
                 }
             }
 
-            foreach (var batch in commandBatches)
+            do
             {
+                batch = batchEnumerator.Current.Batch;
                 batch.Execute(connection);
                 rowsAffected += batch.ModificationCommands.Count;
             }
+            while (batchEnumerator.MoveNext());
 
             if (beganTransaction)
             {
@@ -143,10 +156,19 @@ public class BatchExecutor : IBatchExecutor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task<int> ExecuteAsync(
-        IEnumerable<ModificationCommandBatch> commandBatches,
+        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
     {
+        using var batchEnumerator = commandBatches.GetEnumerator();
+
+        if (!batchEnumerator.MoveNext())
+        {
+            return 0;
+        }
+
+        var (batch, hasMoreBatches) = batchEnumerator.Current;
+
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
         var beganTransaction = false;
@@ -157,7 +179,9 @@ public class BatchExecutor : IBatchExecutor
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                && CurrentContext.Context.Database.AutoTransactionsEnabled
+                // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
+                && (hasMoreBatches || batch.RequiresTransaction))
             {
                 transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                 beganTransaction = true;
@@ -174,11 +198,13 @@ public class BatchExecutor : IBatchExecutor
                 }
             }
 
-            foreach (var batch in commandBatches)
+            do
             {
+                batch = batchEnumerator.Current.Batch;
                 await batch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 rowsAffected += batch.ModificationCommands.Count;
             }
+            while (batchEnumerator.MoveNext());
 
             if (beganTransaction)
             {
