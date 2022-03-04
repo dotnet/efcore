@@ -1459,6 +1459,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        private readonly static bool _useOldBehavior27455 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27455", out var enabled27455) && enabled27455;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1485,7 +1488,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (property.IsKey()
                         && property.IsForeignKey()
-                        && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+                        && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown)
+                        && (_useOldBehavior27455 || !IsStoreGenerated(property)))
                     {
                         throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                     }
