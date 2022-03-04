@@ -1276,7 +1276,7 @@ public class ModelSnapshotSqlServerTest
                 );
             });
 
-    [Fact]
+    [ConditionalFact]
     public void HasNoKey_is_handled()
         => Test(
             builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),

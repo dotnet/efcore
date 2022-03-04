@@ -133,7 +133,7 @@ public class DbSetTest
             Assert.Throws<ObjectDisposedException>(() => context.Set<Category>()).Message);
     }
 
-    [Fact]
+    [ConditionalFact]
     public void Direct_use_of_Set_for_shared_type_throws_if_context_disposed()
     {
         var context = new EarlyLearningCenter();

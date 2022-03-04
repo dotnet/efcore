@@ -14,7 +14,7 @@ public class SqlServerMigrationsAnnotationProviderTest
         _annotations = new SqlServerAnnotationProvider(new RelationalAnnotationProviderDependencies());
     }
 
-    [Fact]
+    [ConditionalFact]
     public void For_property_handles_identity_annotations()
     {
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();

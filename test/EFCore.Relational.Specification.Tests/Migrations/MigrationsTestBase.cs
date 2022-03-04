@@ -935,7 +935,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Null(column.Comment);
             });
 
-    [Fact]
+    [ConditionalFact]
     public virtual Task Alter_column_set_collation()
         => Test(
             builder => builder.Entity("People").Property<string>("Name"),
@@ -951,7 +951,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 }
             });
 
-    [Fact]
+    [ConditionalFact]
     public virtual Task Alter_column_reset_collation()
         => Test(
             builder => builder.Entity("People").Property<string>("Name"),
