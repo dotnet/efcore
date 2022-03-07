@@ -104,4 +104,35 @@ public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvide
                 table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
         }
     }
+
+    /// <inheritdoc />
+    public override IEnumerable<IAnnotation> ForRename(IColumn column)
+    {
+        if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+        {
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableName,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+            yield return new Annotation(
+                SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                column.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+
+            if (column[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                    periodStartColumnName);
+            }
+
+            if (column[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
+            {
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                    periodEndColumnName);
+            }
+        }
+    }
 }

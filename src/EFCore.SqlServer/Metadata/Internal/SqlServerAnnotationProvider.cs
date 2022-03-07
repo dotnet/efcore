@@ -264,13 +264,12 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
                 ? periodEndProperty.GetColumnName(storeObjectIdentifier)
                 : periodEndPropertyName;
 
-            if (column.Name == periodStartColumnName
-                || column.Name == periodEndColumnName)
-            {
-                yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
-                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
-                yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
-            }
+            // TODO: issue #27459 - we want to avoid having those annotations on every column
+            yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+            yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
+            yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetHistoryTableSchema());
+            yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
+            yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
         }
     }
 }

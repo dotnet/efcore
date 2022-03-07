@@ -2355,21 +2355,47 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         // if only difference is in temporal annotations being removed or history table changed etc - we can ignore this operation
                         if (!CanSkipAlterColumnOperation(alterColumnOperation.OldColumn, alterColumnOperation))
                         {
+                            operations.Add(operation);
+
                             // when modifying a period column, we need to perform the operations as a normal column first, and only later enable period
                             // removing the period information now, so that when we generate SQL that modifies the column we won't be making them auto generated as period
                             // (making column auto generated is not allowed in ALTER COLUMN statement)
                             // in later operation we enable the period and the period columns get set to auto generated automatically
-                            if (alterColumnOperation[SqlServerAnnotationNames.IsTemporal] as bool? == true
-                                && alterColumnOperation.OldColumn[SqlServerAnnotationNames.IsTemporal] is null)
+                            //
+                            // if the column is not period we just remove temporal information - it's no longer needed and could affect the generated sql
+                            // we will generate all the necessary operations involved with temporal tables here
+                            alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.IsTemporal);
+                            alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+                            alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                            alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName);
+                            alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+
+                            // this is the case where we are not converting from normal table to temporal
+                            // just a normal modification to a column on a temporal table
+                            // in that case we need to double check if we need have disabled versioning earlier in this migration
+                            // if so, we need to mirror the operation to the history table
+                            if (alterColumnOperation.OldColumn[SqlServerAnnotationNames.IsTemporal] as bool? == true)
                             {
-                                alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.IsTemporal);
-                                alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
-                                alterColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                                alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.IsTemporal);
+                                alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+                                alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                                alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName);
+                                alterColumnOperation.OldColumn.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+
+                                if (versioningMap.ContainsKey((table, schema)))
+                                {
+                                    var alterHistoryTableColumn = CopyColumnOperation<AlterColumnOperation>(alterColumnOperation);
+                                    alterHistoryTableColumn.Table = historyTableName!;
+                                    alterHistoryTableColumn.Schema = historyTableSchema;
+                                    alterHistoryTableColumn.OldColumn = CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
+                                    alterHistoryTableColumn.OldColumn.Table = historyTableName!;
+                                    alterHistoryTableColumn.OldColumn.Schema = historyTableSchema;
+
+                                    operations.Add(alterHistoryTableColumn);
+                                }
 
                                 // TODO: test what happens if default value just changes (from temporal to temporal)
                             }
-
-                            operations.Add(operation);
                         }
 
                         break;
@@ -2396,6 +2422,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         break;
 
                     case AddColumnOperation addColumnOperation:
+                        operations.Add(addColumnOperation);
+
                         // when adding a period column, we need to add it as a normal column first, and only later enable period
                         // removing the period information now, so that when we generate SQL that adds the column we won't be making them auto generated as period
                         // it won't work, unless period is enabled
@@ -2403,6 +2431,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         if (addColumnOperation[SqlServerAnnotationNames.IsTemporal] as bool? == true)
                         {
                             addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.IsTemporal);
+                            addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName);
+                            addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema);
                             addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
                             addColumnOperation.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
 
@@ -2411,14 +2441,48 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             {
                                 addColumnOperation.DefaultValue = DateTime.MaxValue;
                             }
+
+                            // when adding (non-period) column to an exisiting temporal table we need to check if we have disabled the period
+                            // due to some other operations in the same migration (e.g. delete column)
+                            // if so, we need to also add the same column to history table
+                            if (addColumnOperation.Name != periodStartColumnName
+                                && addColumnOperation.Name != periodEndColumnName)
+                            {
+                                if (versioningMap.ContainsKey((table, schema)))
+                                {
+                                    var addHistoryTableColumnOperation = CopyColumnOperation<AddColumnOperation>(addColumnOperation);
+                                    addHistoryTableColumnOperation.Table = historyTableName!;
+                                    addHistoryTableColumnOperation.Schema = historyTableSchema;
+
+                                    operations.Add(addHistoryTableColumnOperation);
+                                }
+                            }
                         }
 
-                        operations.Add(addColumnOperation);
+                        break;
+
+                    case RenameColumnOperation renameColumnOperation:
+                        operations.Add(renameColumnOperation);
+
+                        // if we disabled period for the temporal table and now we are renaming the column,
+                        // we need to also rename this same column in history table
+                        if (versioningMap.ContainsKey((table, schema)))
+                        {
+                            var renameHistoryTableColumnOperation = new RenameColumnOperation
+                            {
+                                IsDestructiveChange = renameColumnOperation.IsDestructiveChange,
+                                Name = renameColumnOperation.Name,
+                                NewName = renameColumnOperation.NewName,
+                                Table = historyTableName!,
+                                Schema = historyTableSchema
+                            };
+
+                            operations.Add(renameHistoryTableColumnOperation);
+                        }
+
                         break;
 
                     default:
-                        // CreateTableOperation
-                        // RenameColumnOperation
                         operations.Add(operation);
                         break;
                 }
@@ -2607,6 +2671,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 && ColumnOperationsOnlyDifferByTemporalTableAnnotation(first, second)
                 && ColumnOperationsOnlyDifferByTemporalTableAnnotation(second, first);
 
+        // don't compare name, table or schema - they are not being set in the model differ (since they should always be the same)
         static bool ColumnPropertiesAreTheSame(ColumnOperation first, ColumnOperation second)
             => first.ClrType == second.ClrType
                 && first.Collation == second.Collation
@@ -2650,6 +2715,40 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     || a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName
                     || a.Name == SqlServerAnnotationNames.TemporalPeriodStartColumnName
                     || a.Name == SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+        }
+
+        static TOperation CopyColumnOperation<TOperation>(ColumnOperation source)
+            where TOperation : ColumnOperation, new()
+        {
+            var result = new TOperation
+            {
+                ClrType = source.ClrType,
+                Collation = source.Collation,
+                ColumnType = source.ColumnType,
+                Comment = source.Comment,
+                ComputedColumnSql = source.ComputedColumnSql,
+                DefaultValue = source.DefaultValue,
+                DefaultValueSql = source.DefaultValueSql,
+                IsDestructiveChange = source.IsDestructiveChange,
+                IsFixedLength = source.IsFixedLength,
+                IsNullable = source.IsNullable,
+                IsRowVersion = source.IsRowVersion,
+                IsStored = source.IsStored,
+                IsUnicode = source.IsUnicode,
+                MaxLength = source.MaxLength,
+                Name = source.Name,
+                Precision = source.Precision,
+                Scale = source.Scale,
+                Table = source.Table,
+                Schema = source.Schema
+            };
+
+            foreach (var annotation in source.GetAnnotations())
+            {
+                result.AddAnnotation(annotation.Name, annotation.Value);
+            }
+
+            return result;
         }
     }
 }
