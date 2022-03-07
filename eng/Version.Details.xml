@@ -38,14 +38,6 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>e24f66dff0770eee344038da8c12476d8c450c41</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="7.0.0-preview.2.22152.2" Pinned="True">
-      <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>e24f66dff0770eee344038da8c12476d8c450c41</Sha>
-    </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="7.0.0-preview.2.22152.2" Pinned="True">
-      <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>e24f66dff0770eee344038da8c12476d8c450c41</Sha>
-    </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
     <Dependency Name="Microsoft.DotNet.Arcade.Sdk" Version="7.0.0-beta.22171.2">
