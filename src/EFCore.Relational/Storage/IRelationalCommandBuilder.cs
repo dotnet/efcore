@@ -31,6 +31,13 @@ public interface IRelationalCommandBuilder
     IRelationalCommandBuilder AddParameter(IRelationalParameter parameter);
 
     /// <summary>
+    ///     Removes the parameter with the given index from this command.
+    /// </summary>
+    /// <param name="index">The index of the parameter to be removed.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    IRelationalCommandBuilder RemoveParameterAt(int index);
+
+    /// <summary>
     ///     The source for <see cref="RelationalTypeMapping" />s to use.
     /// </summary>
     [Obsolete("Code trying to add parameter should add type mapped parameter using TypeMappingSource directly.")]

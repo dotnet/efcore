@@ -28,19 +28,11 @@ public class SingularModificationCommandBatch : AffectedCountModificationCommand
     }
 
     /// <summary>
-    ///     Only returns <see langword="true" /> if the no command has already been added.
-    /// </summary>
-    /// <param name="modificationCommand">The command to potentially add.</param>
-    /// <returns><see langword="true" /> if no command has already been added.</returns>
-    protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
-        => ModificationCommands.Count == 0;
-
-    /// <summary>
-    ///     Returns <see langword="true" /> since only a single command is generated so the command text must be valid.
+    ///     Returns <see langword="true" /> only when the batch contains a single command.
     /// </summary>
     /// <returns>
-    ///     <see langword="true" />
+    ///     <see langword="true" /> when the batch contains a single command, <see langword="false" /> otherwise.
     /// </returns>
-    protected override bool IsCommandTextValid()
-        => true;
+    protected override bool IsValid()
+        => ModificationCommands.Count == 1;
 }

@@ -184,6 +184,13 @@ public class SqlServerDatabaseCreatorTest
             return this;
         }
 
+        public IRelationalCommandBuilder RemoveParameterAt(int index)
+        {
+            _parameters.RemoveAt(index);
+
+            return this;
+        }
+
         public IRelationalTypeMappingSource TypeMappingSource
             => null;
 

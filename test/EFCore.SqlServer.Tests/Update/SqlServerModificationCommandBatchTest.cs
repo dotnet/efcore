@@ -14,13 +14,58 @@ public class SqlServerModificationCommandBatchTest
     [ConditionalFact]
     public void AddCommand_returns_false_when_max_batch_size_is_reached()
     {
-        var typeMapper = new SqlServerTypeMappingSource(
-            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+        var batch = CreateBatch(maxBatchSize: 1);
 
-        var logger = new FakeRelationalCommandDiagnosticsLogger();
+        var firstCommand = CreateModificationCommand("T1", null, false);
+        Assert.True(batch.TryAddCommand(firstCommand));
+        Assert.False(batch.TryAddCommand(CreateModificationCommand("T1", null, false)));
 
-        var batch = new SqlServerModificationCommandBatch(
+        Assert.Same(firstCommand, Assert.Single(batch.ModificationCommands));
+    }
+
+    [ConditionalFact]
+    public void AddCommand_returns_false_when_max_parameters_are_reached()
+    {
+        var typeMapper = CreateTypeMappingSource();
+        var intMapping = typeMapper.FindMapping(typeof(int));
+        var paramIndex = 0;
+
+        var batch = CreateBatch();
+
+        var command = CreateModificationCommand("T1", null, false);
+        for (var i = 0; i < 2098; i++)
+        {
+            command.AddColumnModification(CreateModificationParameters("col" + i));
+        }
+        Assert.True(batch.TryAddCommand(command));
+
+        var secondCommand = CreateModificationCommand("T2", null, false);
+        secondCommand.AddColumnModification(CreateModificationParameters("col"));
+        Assert.False(batch.TryAddCommand(secondCommand));
+        Assert.Same(command, Assert.Single(batch.ModificationCommands));
+        Assert.Equal(2098, batch.ParameterValues.Count);
+
+        ColumnModificationParameters CreateModificationParameters(string columnName)
+            => new()
+            {
+                ColumnName = columnName,
+                ColumnType = "integer",
+                TypeMapping = intMapping,
+                IsWrite = true,
+                OriginalValue = 8,
+                GenerateParameterName = () => "p" + paramIndex++
+            };
+    }
+
+    private class FakeDbContext : DbContext
+    {
+    }
+
+    private static TestSqlServerModificationCommandBatch CreateBatch(int? maxBatchSize = null)
+    {
+        var typeMapper = CreateTypeMappingSource();
+
+        return new TestSqlServerModificationCommandBatch(
             new ModificationCommandBatchFactoryDependencies(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
@@ -37,32 +82,30 @@ public class SqlServerModificationCommandBatchTest
                     new RelationalValueBufferFactoryDependencies(
                         typeMapper, new CoreSingletonOptions())),
                 new CurrentDbContext(new FakeDbContext()),
-                logger),
-            1);
-
-        Assert.True(
-            batch.AddCommand(
-                CreateModificationCommand("T1", null, false)));
-        Assert.False(
-            batch.AddCommand(
-                CreateModificationCommand("T1", null, false)));
+                new FakeRelationalCommandDiagnosticsLogger()),
+            maxBatchSize);
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private static SqlServerTypeMappingSource CreateTypeMappingSource()
+        => new(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     private static IModificationCommand CreateModificationCommand(
         string name,
         string schema,
         bool sensitiveLoggingEnabled)
+        => new ModificationCommandFactory().CreateModificationCommand(
+            new ModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
+
+    private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
     {
-        var modificationCommandParameters = new ModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled);
+        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize)
+            : base(dependencies, maxBatchSize)
+        {
+        }
 
-        var modificationCommand = new ModificationCommandFactory().CreateModificationCommand(
-            modificationCommandParameters);
-
-        return modificationCommand;
+        public new Dictionary<string, object> ParameterValues
+            => base.ParameterValues;
     }
 }
