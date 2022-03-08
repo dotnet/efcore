@@ -512,6 +512,45 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity));
         }
 
+#nullable enable
+        protected class CompositePrincipal
+        {
+            public int Id { get; set; }
+            public int? CurrentNumber { get; set; }
+            public CompositeDependent? Current { get; set; }
+            public ICollection<CompositeDependent> Periods { get; } = new HashSet<CompositeDependent>();
+        }
+
+        protected class CompositeDependent
+        {
+            public int PrincipalId { get; set; }
+            public int Number { get; set; }
+            public CompositePrincipal? Principal { get; set; }
+        }
+#nullable disable
+
+        [ConditionalFact]
+        public virtual void Store_generated_values_are_propagated_with_composite_key_cycles()
+        {
+            var id = 0;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var period = new CompositeDependent
+                    {
+                        Number = 1,
+                        Principal = new CompositePrincipal()
+                    };
+
+                    context.Add(period);
+                    context.SaveChanges();
+
+                    id = period.PrincipalId;
+                },
+                context => Assert.Equal(1, context.Set<CompositeDependent>().Single(e => e.PrincipalId == id).Number));
+        }
+
         protected class NonStoreGenDependent
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -1947,10 +1986,30 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<OptionalProduct>();
                 modelBuilder.Entity<StoreGenPrincipal>();
 
-                modelBuilder.Entity<NonStoreGenDependent>()
-                    .Property(e => e.HasTemp)
-                    .ValueGeneratedOnAddOrUpdate()
-                    .HasValueGenerator<TemporaryIntValueGenerator>();
+                modelBuilder.Entity<NonStoreGenDependent>(eb =>
+                {
+                    eb.Property(e => e.HasTemp)
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasValueGenerator<TemporaryIntValueGenerator>();
+                });
+
+                modelBuilder.Entity<CompositePrincipal>(entity =>
+                {
+                    entity.HasKey(x => x.Id);
+                    entity.Property(x => x.Id)
+                        .ValueGeneratedOnAdd();
+                    entity.HasOne(x => x.Current)
+                        .WithOne()
+                        .HasForeignKey<CompositePrincipal>(x => new { x.Id, x.CurrentNumber });
+                });
+
+                modelBuilder.Entity<CompositeDependent>(entity =>
+                {
+                    entity.HasKey(x => new { x.PrincipalId, x.Number });
+                    entity.HasOne(x => x.Principal)
+                        .WithMany(x => x.Periods)
+                        .HasForeignKey(x => x.PrincipalId);
+                });
             }
         }
     }
