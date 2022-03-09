@@ -34,15 +34,14 @@ public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGen
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ValueGenerator Create(
+    public virtual ValueGenerator? TryCreate(
         IProperty property,
+        Type type,
         SqlServerSequenceValueGeneratorState generatorState,
         ISqlServerConnection connection,
         IRawSqlCommandBuilder rawSqlCommandBuilder,
         IRelationalCommandDiagnosticsLogger commandLogger)
     {
-        var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
         if (type == typeof(long))
         {
             return new SqlServerSequenceHiLoValueGenerator<long>(
@@ -103,8 +102,6 @@ public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGen
                 rawSqlCommandBuilder, _sqlGenerator, generatorState, connection, commandLogger);
         }
 
-        throw new ArgumentException(
-            CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+        return null;
     }
 }

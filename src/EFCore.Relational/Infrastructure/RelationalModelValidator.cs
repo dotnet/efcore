@@ -1034,7 +1034,7 @@ public class RelationalModelValidator : ModelValidator
         in StoreObjectIdentifier storeObject)
     {
         var value = property.GetDefaultValue(storeObject);
-        var converter = property.GetValueConverter() ?? property.FindRelationalTypeMapping(storeObject)?.Converter;
+        var converter = property.FindRelationalTypeMapping(storeObject)?.Converter;
 
         return converter != null
             ? converter.ConvertToProvider(value)

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 /// <summary>
@@ -66,26 +68,6 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
         {
             var mapping = property.GetTypeMapping();
             factory = mapping.ValueGeneratorFactory;
-
-            if (factory == null)
-            {
-                var converter = mapping.Converter;
-
-                if (converter != null)
-                {
-                    var type = converter.ProviderClrType.UnwrapNullableType();
-                    if (!type.IsInteger()
-                        && !type.IsEnum
-                        && type != typeof(decimal))
-                    {
-                        throw new NotSupportedException(
-                            CoreStrings.ValueGenWithConversion(
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                converter.GetType().ShortDisplayName()));
-                    }
-                }
-            }
         }
 
         return factory?.Invoke(property, entityType);
@@ -103,23 +85,41 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     public virtual ValueGenerator Create(IProperty property, IEntityType entityType)
     {
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
-        if (propertyType == typeof(Guid))
+        var generator = FindForType(property, entityType, propertyType);
+        if (generator != null)
         {
-            return new GuidValueGenerator();
+            return generator;
         }
 
-        if (propertyType == typeof(string))
+        var converter = property.GetTypeMapping().Converter;
+        if (converter != null
+            && converter.ProviderClrType != propertyType)
         {
-            return new StringValueGenerator();
-        }
-
-        if (propertyType == typeof(byte[]))
-        {
-            return new BinaryValueGenerator();
+            generator = FindForType(property, entityType, converter.ProviderClrType);
+            if (generator != null)
+            {
+                return generator.WithConverter(converter);
+            }
         }
 
         throw new NotSupportedException(
             CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
     }
+
+
+    /// <summary>
+    /// XX
+    /// </summary>
+    /// <param name="property">Y</param>
+    /// <param name="entityType">X</param>
+    /// <param name="clrType">X</param>
+    /// <returns>X</returns>
+    protected virtual ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+        => clrType == typeof(Guid)
+            ? new GuidValueGenerator()
+            : clrType == typeof(string)
+                ? new StringValueGenerator()
+                : clrType == typeof(byte[])
+                    ? new BinaryValueGenerator()
+                    : null;
 }

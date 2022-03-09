@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-
-namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
+namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,17 +9,23 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteAnnotationProvider : RelationalAnnotationProvider
+public class ConvertedValueGenerator : ValueGenerator
 {
+    private readonly ValueGenerator _providerGenerator;
+    private readonly ValueConverter _converter;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-        : base(dependencies)
+    public ConvertedValueGenerator(
+        ValueGenerator providerGenerator,
+        ValueConverter converter)
     {
+        _providerGenerator = providerGenerator;
+        _converter = converter;
     }
 
     /// <summary>
@@ -30,14 +34,8 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
-    {
-        if (model.Tables.SelectMany(t => t.Columns).Any(
-                c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
-        {
-            yield return new Annotation(SqliteAnnotationNames.InitSpatialMetaData, true);
-        }
-    }
+    protected override object? NextValue(EntityEntry entry)
+        => _converter.ConvertFromProvider(_providerGenerator.Next(entry));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,29 +43,24 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
-    {
-        // Model validation ensures that these facets are the same on all mapped properties
-        var property = column.PropertyMappings.First().Property;
-        // Only return auto increment for integer single column primary key
-        var primaryKey = property.DeclaringEntityType.FindPrimaryKey();
-        if (primaryKey != null
-            && primaryKey.Properties.Count == 1
-            && primaryKey.Properties[0] == property
-            && property.ValueGenerated == ValueGenerated.OnAdd
-            && property.ClrType.UnwrapNullableType().IsInteger()
-            && !HasConverter(property))
-        {
-            yield return new Annotation(SqliteAnnotationNames.Autoincrement, true);
-        }
+    public override async ValueTask<object?> NextAsync(EntityEntry entry, CancellationToken cancellationToken = default)
+        => _converter.ConvertFromProvider(await _providerGenerator.NextAsync(entry, cancellationToken).ConfigureAwait(false));
 
-        var srid = property.GetSrid();
-        if (srid != null)
-        {
-            yield return new Annotation(SqliteAnnotationNames.Srid, srid);
-        }
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool GeneratesTemporaryValues
+        => _providerGenerator.GeneratesTemporaryValues;
 
-    private static bool HasConverter(IProperty property)
-        => property.FindTypeMapping()?.Converter != null;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool GeneratesStableValues
+        => _providerGenerator.GeneratesStableValues;
 }

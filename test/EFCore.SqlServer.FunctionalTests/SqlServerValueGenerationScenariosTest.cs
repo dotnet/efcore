@@ -1500,7 +1500,7 @@ END");
                     v => v.Value,
                     v => new NeedsConverter(v),
                     new ValueComparer<NeedsConverter>(
-                        (l, r) => l.Value == r.Value,
+                        (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
                         v => v.Value.GetHashCode(),
                         v => new NeedsConverter(v.Value)))
                 .HasDefaultValue(new NeedsConverter(999));
