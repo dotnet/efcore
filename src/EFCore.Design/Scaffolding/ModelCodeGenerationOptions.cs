@@ -73,4 +73,10 @@ public class ModelCodeGenerationOptions
     /// </summary>
     /// <value name="connectionString">The connection string. </value>
     public virtual string? ConnectionString { get; set; }
+
+    /// <summary>
+    /// Gets or sets the root project directory.
+    /// </summary>
+    /// <value>The directory.</value>
+    public virtual string? ProjectDir { get; set; }
 }

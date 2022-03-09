@@ -96,7 +96,8 @@ public class DatabaseOperations
                 UseNullableReferenceTypes = _nullable,
                 ContextDir = MakeDirRelative(outputDir, outputContextDir),
                 ContextName = dbContextClassName,
-                SuppressOnConfiguring = suppressOnConfiguring
+                SuppressOnConfiguring = suppressOnConfiguring,
+                ProjectDir = _projectDir
             });
 
         return scaffolder.Save(

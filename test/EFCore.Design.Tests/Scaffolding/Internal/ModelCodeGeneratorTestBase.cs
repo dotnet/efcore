@@ -28,7 +28,8 @@ public abstract class ModelCodeGeneratorTestBase
         AddScaffoldingServices(services);
 
         var generator = services.BuildServiceProvider(validateScopes: true)
-            .GetRequiredService<IModelCodeGenerator>();
+            .GetServices<IModelCodeGenerator>()
+            .Last(g => g is CSharpModelGenerator);
 
         options.ModelNamespace ??= "TestNamespace";
         options.ContextName = "TestDbContext";

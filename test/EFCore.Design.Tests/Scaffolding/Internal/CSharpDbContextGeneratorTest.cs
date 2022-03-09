@@ -191,7 +191,8 @@ namespace TestNamespace
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider(validateScopes: true)
-                .GetRequiredService<IModelCodeGenerator>();
+                .GetServices<IModelCodeGenerator>()
+                .Last(g => g is CSharpModelGenerator);
 
             Assert.StartsWith(
                 CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ContextName), "options"),
@@ -217,7 +218,8 @@ namespace TestNamespace
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider(validateScopes: true)
-                .GetRequiredService<IModelCodeGenerator>();
+                .GetServices<IModelCodeGenerator>()
+                .Last(g => g is CSharpModelGenerator);
 
             var scaffoldedModel = generator.GenerateModel(
                 new Model(),

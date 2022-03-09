@@ -53,6 +53,7 @@ public class CSharpModelGeneratorTest
             .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
             .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
             .BuildServiceProvider(validateScopes: true)
-            .GetRequiredService<IModelCodeGenerator>();
+            .GetServices<IModelCodeGenerator>()
+            .Last(g => g is CSharpModelGenerator);
     }
 }

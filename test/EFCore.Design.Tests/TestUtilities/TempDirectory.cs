@@ -15,6 +15,9 @@ public class TempDirectory : IDisposable
 
     public string Path { get; }
 
+    public static implicit operator string(TempDirectory dir)
+        => dir.Path;
+
     public void Dispose()
         => Directory.Delete(Path, recursive: true);
 }

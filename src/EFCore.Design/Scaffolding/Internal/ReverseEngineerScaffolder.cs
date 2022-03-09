@@ -114,7 +114,7 @@ public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
                 : DefaultDbContextName;
         }
 
-        var codeGenerator = ModelCodeGeneratorSelector.Select(codeOptions.Language);
+        var codeGenerator = ModelCodeGeneratorSelector.Select(codeOptions);
 
         return codeGenerator.GenerateModel(model, codeOptions);
     }
