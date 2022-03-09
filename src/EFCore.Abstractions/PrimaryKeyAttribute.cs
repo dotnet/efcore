@@ -20,7 +20,7 @@ public sealed class PrimaryKeyAttribute : Attribute
     /// <summary>
     ///     Initializes a new instance of the <see cref="PrimaryKeyAttribute" /> class.
     /// </summary>
-    /// <param name="propertyNames">The properties which constitute the index, in order (there must be at least one).</param>
+    /// <param name="propertyNames">The properties which constitute the primary key, in order (there must be at least one).</param>
     public PrimaryKeyAttribute(params string[] propertyNames)
     {
         Check.NotEmpty(propertyNames, nameof(propertyNames));
