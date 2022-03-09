@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -74,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
+        private readonly static bool _useOldBehavior27455 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27455", out var enabled27455) && enabled27455;
+                            
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -83,7 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool RequiresValueGenerator(this IReadOnlyProperty property)
             => (property.ValueGenerated.ForAdd()
                     && property.IsKey()
-                    && (!property.IsForeignKey() || property.IsForeignKeyToSelf()))
+                    && (!property.IsForeignKey()
+                        || property.IsForeignKeyToSelf()
+                        || (!_useOldBehavior27455
+                            && property.GetContainingForeignKeys().All(fk => fk.Properties.Any(p => p != property && p.IsNullable)))))
                 || property.GetValueGeneratorFactory() != null;
 
         /// <summary>

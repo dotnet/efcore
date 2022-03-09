@@ -228,6 +228,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.HasTemp).HasDefaultValue(777);
 
+                modelBuilder.Entity<CompositePrincipal>().Property(e => e.Id).UseIdentityColumn();
+
                 base.OnModelCreating(modelBuilder, context);
             }
         }
