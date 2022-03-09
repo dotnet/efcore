@@ -30,7 +30,7 @@ public sealed class PrimaryKeyAttribute : Attribute
     }
 
     /// <summary>
-    ///     The properties which constitute the index, in order.
+    ///     The properties which constitute the primary key, in order.
     /// </summary>
     public IReadOnlyList<string> PropertyNames { get; }
 }
