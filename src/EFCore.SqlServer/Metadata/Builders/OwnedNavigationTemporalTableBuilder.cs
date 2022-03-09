@@ -35,11 +35,7 @@ public class OwnedNavigationTemporalTableBuilder
     /// <param name="name">The name of the history table.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual OwnedNavigationTemporalTableBuilder UseHistoryTable(string name)
-    {
-        _referenceOwnershipBuilder.OwnedEntityType.SetHistoryTableName(name);
-
-        return this;
-    }
+        => UseHistoryTable(name, null);
 
     /// <summary>
     ///     Configures a history table for the entity mapped to a temporal table.

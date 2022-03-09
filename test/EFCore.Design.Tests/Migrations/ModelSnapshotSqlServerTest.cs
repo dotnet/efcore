@@ -2085,7 +2085,7 @@ public class ModelSnapshotSqlServerTest
                     "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
-                Assert.Equal(6, annotations.Count);
+                Assert.Equal(7, annotations.Count);
                 Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
                 Assert.Contains(
                     annotations,
@@ -2147,7 +2147,7 @@ public class ModelSnapshotSqlServerTest
                     "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
                 var annotations = temporalEntity.GetAnnotations().ToList();
 
-                Assert.Equal(6, annotations.Count);
+                Assert.Equal(7, annotations.Count);
                 Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
                 Assert.Contains(
                     annotations,

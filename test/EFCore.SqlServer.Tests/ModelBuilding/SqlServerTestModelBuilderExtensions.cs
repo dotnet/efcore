@@ -44,25 +44,6 @@ public static class SqlServerTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> ToTable<TEntity>(
-        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        Action<RelationalModelBuilderTest.TestTableBuilder<TEntity>> buildAction)
-        where TEntity : class
-    {
-        switch (builder)
-        {
-            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.ToTable(b => buildAction(new RelationalModelBuilderTest.GenericTestTableBuilder<TEntity>(b)));
-                break;
-            case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
-                nongenericBuilder.Instance.ToTable(
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestTableBuilder<TEntity>(b)));
-                break;
-        }
-
-        return builder;
-    }
-
     public static RelationalModelBuilderTest.TestTableBuilder<TEntity> IsTemporal<TEntity>(
         this RelationalModelBuilderTest.TestTableBuilder<TEntity> builder,
         bool temporal = true)

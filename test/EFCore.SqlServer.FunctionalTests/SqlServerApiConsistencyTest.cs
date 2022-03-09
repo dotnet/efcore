@@ -30,7 +30,14 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions),
-            typeof(SqlServerServiceCollectionExtensions)
+            typeof(SqlServerServiceCollectionExtensions),
+            typeof(SqlServerDbFunctionsExtensions),
+            typeof(OwnedNavigationTemporalPeriodPropertyBuilder),
+            typeof(TemporalPeriodPropertyBuilder),
+            typeof(OwnedNavigationTemporalTableBuilder),
+            typeof(OwnedNavigationTemporalTableBuilder<>),
+            typeof(TemporalTableBuilder),
+            typeof(TemporalTableBuilder<>)
         };
 
         public override

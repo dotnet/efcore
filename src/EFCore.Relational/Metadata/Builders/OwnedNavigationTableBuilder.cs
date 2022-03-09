@@ -18,10 +18,22 @@ public class OwnedNavigationTableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public OwnedNavigationTableBuilder(OwnedNavigationBuilder ownedNavigationBuilder)
+    public OwnedNavigationTableBuilder(string? name, string? schema, OwnedNavigationBuilder ownedNavigationBuilder)
     {
+        Name = name;
+        Schema = schema;
         OwnedNavigationBuilder = ownedNavigationBuilder;
     }
+
+    /// <summary>
+    ///     The specified table name.
+    /// </summary>
+    public virtual string? Name { get; }
+
+    /// <summary>
+    ///     The specified table schema.
+    /// </summary>
+    public virtual string? Schema { get; }
 
     /// <summary>
     ///     The entity type being configured.

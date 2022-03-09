@@ -19,7 +19,7 @@ public class TableBuilder<TEntity> : TableBuilder
     /// </summary>
     [EntityFrameworkInternal]
     public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
-        : base(entityTypeBuilder)
+        : base(name, schema, entityTypeBuilder)
     {
     }
 

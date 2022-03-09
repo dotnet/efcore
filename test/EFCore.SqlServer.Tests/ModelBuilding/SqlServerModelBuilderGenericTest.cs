@@ -639,7 +639,13 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             modelBuilder.Entity<Book>(
                 bb =>
                 {
-                    bb.ToTable("BT", "BS", t => t.ExcludeFromMigrations());
+                    bb.ToTable("BT", "BS", t =>
+                    {
+                        t.ExcludeFromMigrations();
+
+                        Assert.Equal("BT", t.Name);
+                        Assert.Equal("BS", t.Schema);
+                    });
                     bb.OwnsOne(
                         b => b.AlternateLabel, tb =>
                         {
@@ -652,7 +658,13 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
                                 l => l.AnotherBookLabel, ab =>
                                 {
                                     ab.Ignore(l => l.Book);
-                                    ab.ToTable("AT1", "AS1", t => t.ExcludeFromMigrations(false));
+                                    ab.ToTable("AT1", "AS1", t =>
+                                    {
+                                        t.ExcludeFromMigrations(false);
+
+                                        Assert.Equal("AT1", t.Name);
+                                        Assert.Equal("AS1", t.Schema);
+                                    });
                                     ab.OwnsOne(s => s.SpecialBookLabel)
                                         .ToTable("ST11", "SS11")
                                         .Ignore(l => l.Book)
@@ -934,7 +946,12 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
-            modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.Entity<Customer>().ToTable(tb =>
+            {
+                tb.IsTemporal();
+                Assert.Null(tb.Name);
+                Assert.Null(tb.Schema);
+            });
             modelBuilder.FinalizeModel();
 
             var entity = model.FindEntityType(typeof(Customer));
@@ -1251,7 +1268,6 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
         where TEntity : class
     {
         public abstract TestTemporalTableBuilder<TEntity> UseHistoryTable(string name, string schema);
-
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
     }
@@ -1265,9 +1281,9 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             TemporalTableBuilder = temporalTableBuilder;
         }
 
-        protected TemporalTableBuilder<TEntity> TemporalTableBuilder { get; }
+        private TemporalTableBuilder<TEntity> TemporalTableBuilder { get; }
 
-        public TemporalTableBuilder<TEntity> Instance
+        TemporalTableBuilder<TEntity> IInfrastructure<TemporalTableBuilder<TEntity>>.Instance
             => TemporalTableBuilder;
 
         protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder<TEntity> tableBuilder)
@@ -1291,9 +1307,9 @@ public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
             TemporalTableBuilder = temporalTableBuilder;
         }
 
-        protected TemporalTableBuilder TemporalTableBuilder { get; }
+        private TemporalTableBuilder TemporalTableBuilder { get; }
 
-        public TemporalTableBuilder Instance
+        TemporalTableBuilder IInfrastructure<TemporalTableBuilder>.Instance
             => TemporalTableBuilder;
 
         protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder temporalTableBuilder)

@@ -18,8 +18,8 @@ public class OwnedNavigationTableBuilder<TEntity> : OwnedNavigationTableBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public OwnedNavigationTableBuilder(OwnedNavigationBuilder referenceOwnershipBuilder)
-        : base(referenceOwnershipBuilder)
+    public OwnedNavigationTableBuilder(string? name, string? schema, OwnedNavigationBuilder referenceOwnershipBuilder)
+        : base(name, schema, referenceOwnershipBuilder)
     {
     }
 
