@@ -271,7 +271,7 @@
     <value>There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.</value>
   </data>
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
-    <value>The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys configured by placing the [PrimaryKey] on the entity type class, or by using 'HasKey' in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' has multiple properties with the [Key] attribute. Composite primary keys configured by placing the [PrimaryKey] attribute on the entity type class, or by using 'HasKey' in 'OnModelCreating'.</value>
   </data>
   <data name="ConcurrentMethodInvocation" xml:space="preserve">
     <value>A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.</value>
