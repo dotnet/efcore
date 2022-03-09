@@ -32,7 +32,7 @@ public class KeyAttributeConvention
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => CheckAttributesAndEnsurePrimaryKey((EntityType)entityTypeBuilder.Metadata, null, false);
+        => CheckAttributesAndEnsurePrimaryKey((EntityType)entityTypeBuilder.Metadata, null, shouldThrow: false);
 
     /// <inheritdoc />
     public virtual void ProcessEntityTypeBaseTypeChanged(
@@ -46,7 +46,7 @@ public class KeyAttributeConvention
             return;
         }
 
-        CheckAttributesAndEnsurePrimaryKey((EntityType)entityTypeBuilder.Metadata, null, false);
+        CheckAttributesAndEnsurePrimaryKey((EntityType)entityTypeBuilder.Metadata, null, shouldThrow: false);
     }
 
     /// <inheritdoc />
@@ -87,14 +87,14 @@ public class KeyAttributeConvention
             return false;
         }
 
-        var primaryKeyAttributeExists = CheckPrimaryKeyAttributesAndEnsurePrimaryKey(entityType, shouldThrow);
-        var currentKey = entityType.FindPrimaryKey();
+        var primaryKeyAttributeExists = CheckPrimaryKeyAttributeAndEnsurePrimaryKey(entityType, shouldThrow);
 
         if (!primaryKeyAttributeExists
             && propertyBuilder != null)
         {
             var properties = new List<string> { propertyBuilder.Metadata.Name };
 
+            var currentKey = entityType.FindPrimaryKey();
             if (currentKey != null
                 && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
             {
@@ -124,7 +124,7 @@ public class KeyAttributeConvention
         var entityTypes = modelBuilder.Metadata.GetEntityTypes();
         foreach (var entityType in entityTypes)
         {
-            var primaryKeyAttributeExits = CheckAttributesAndEnsurePrimaryKey((EntityType)entityType, null, true);
+            var primaryKeyAttributeExits = CheckAttributesAndEnsurePrimaryKey((EntityType)entityType, null, shouldThrow: true);
 
             if (entityType.BaseType == null)
             {
@@ -147,33 +147,36 @@ public class KeyAttributeConvention
                             entityType.DisplayName(), entityType.GetRootType().DisplayName()));
                 }
 
-                foreach (var declaredProperty in entityType.GetDeclaredProperties())
+                if (!Attribute.IsDefined(entityType.ClrType, typeof(PrimaryKeyAttribute), inherit: true))
                 {
-                    var memberInfo = declaredProperty.GetIdentifyingMemberInfo();
-
-                    if (memberInfo != null
-                        && Attribute.IsDefined(memberInfo, typeof(KeyAttribute), inherit: true))
+                    foreach (var declaredProperty in entityType.GetDeclaredProperties())
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.KeyAttributeOnDerivedEntity(
-                                entityType.DisplayName(), declaredProperty.Name, entityType.GetRootType().DisplayName()));
+                        var memberInfo = declaredProperty.GetIdentifyingMemberInfo();
+
+                        if (memberInfo != null
+                            && Attribute.IsDefined(memberInfo, typeof(KeyAttribute), inherit: true))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.KeyAttributeOnDerivedEntity(
+                                    entityType.DisplayName(), declaredProperty.Name, entityType.GetRootType().DisplayName()));
+                        }
                     }
                 }
             }
         }
     }
 
-    private static bool CheckPrimaryKeyAttributesAndEnsurePrimaryKey(
+    private static bool CheckPrimaryKeyAttributeAndEnsurePrimaryKey(
         IConventionEntityType entityType,
         bool shouldThrow)
     {
-        var primaryKeyAttribute = entityType.ClrType.GetCustomAttributes<PrimaryKeyAttribute>(true).FirstOrDefault();
+        var primaryKeyAttribute = entityType.ClrType.GetCustomAttributes<PrimaryKeyAttribute>(inherit: true).FirstOrDefault();
         if (primaryKeyAttribute == null)
         {
             return false;
         }
 
-        if (entityType.ClrType.GetCustomAttributes<KeylessAttribute>(true).Any())
+        if (entityType.ClrType.GetCustomAttributes<KeylessAttribute>(inherit: true).Any())
         {
             throw new InvalidOperationException(
                 CoreStrings.ConflictingKeylessAndPrimaryKeyAttributes(entityType.DisplayName()));
@@ -206,53 +209,39 @@ public class KeyAttributeConvention
             }
             catch (InvalidOperationException exception)
             {
-                CheckMissingProperties(primaryKeyAttribute, entityType, exception);
+                foreach (var propertyName in primaryKeyAttribute.PropertyNames)
+                {
+                    var property = entityType.FindProperty(propertyName);
+                    if (property == null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.PrimaryKeyDefinedOnNonExistentProperty(
+                                entityType.DisplayName(),
+                                primaryKeyAttribute.PropertyNames.Format(),
+                                propertyName),
+                            exception);
+                    }
+                }
 
                 throw;
             }
         }
 
-        if (keyBuilder == null)
+        if (keyBuilder == null
+            && shouldThrow)
         {
-            CheckIgnoredProperties(primaryKeyAttribute, entityType);
+            foreach (var propertyName in primaryKeyAttribute.PropertyNames)
+            {
+                if (entityType.Builder.IsIgnored(propertyName, fromDataAnnotation: true))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PrimaryKeyDefinedOnIgnoredProperty(
+                            entityType.DisplayName(),
+                            propertyName));
+                }
+            }
         }
 
         return true;
-    }
-
-    private static void CheckIgnoredProperties(
-        PrimaryKeyAttribute primaryKeyAttribute,
-        IConventionEntityType entityType)
-    {
-        foreach (var propertyName in primaryKeyAttribute.PropertyNames)
-        {
-            if (entityType.Builder.IsIgnored(propertyName, fromDataAnnotation: true))
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PrimaryKeyDefinedOnIgnoredProperty(
-                        entityType.DisplayName(),
-                        propertyName));
-            }
-        }
-    }
-
-    private static void CheckMissingProperties(
-        PrimaryKeyAttribute primaryKeyAttribute,
-        IConventionEntityType entityType,
-        InvalidOperationException innerException)
-    {
-        foreach (var propertyName in primaryKeyAttribute.PropertyNames)
-        {
-            var property = entityType.FindProperty(propertyName);
-            if (property == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PrimaryKeyDefinedOnNonExistentProperty(
-                        entityType.DisplayName(),
-                        primaryKeyAttribute.PropertyNames.Format(),
-                        propertyName),
-                    innerException);
-            }
-        }
     }
 }

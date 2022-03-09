@@ -240,7 +240,7 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     ///     An object that can be used to configure the primary key if it was set on the entity type,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionKeyBuilder? PrimaryKey(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+    IConventionKeyBuilder? PrimaryKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.

@@ -33,7 +33,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     /// </summary>
     [DebuggerStepThrough]
     IConventionKeyBuilder? IConventionEntityTypeBuilder.PrimaryKey(
-        IReadOnlyList<string> propertyNames,
+        IReadOnlyList<string>? propertyNames,
         bool fromDataAnnotation)
         => PrimaryKey(
             propertyNames,

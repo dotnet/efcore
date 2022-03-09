@@ -89,8 +89,8 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
 
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(propertyDiscoveryConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(servicePropertyDiscoveryConvention);
-        conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyDiscoveryConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyAttributeConvention);
+        conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyDiscoveryConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(indexAttributeConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(inversePropertyAttributeConvention);
         conventionSet.EntityTypeBaseTypeChangedConventions.Add(relationshipDiscoveryConvention);

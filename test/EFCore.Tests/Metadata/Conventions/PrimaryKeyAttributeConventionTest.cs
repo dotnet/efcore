@@ -55,17 +55,14 @@ public class PrimaryKeyAttributeConventionTest
     }
 
     [ConditionalFact]
-    public void PrimaryKeyAttribute_with_no_property_names_throws()
+    public void PrimaryKeyAttribute_with_null_properties_array_throws()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-        Assert.Equal(
-            AbstractionsStrings.CollectionArgumentIsEmpty("propertyNames"),
-            Assert.Throws<ArgumentException>(
-                () => modelBuilder.Entity<EntityWithInvalidEmptyPrimaryKey>()).Message);
+        Assert.Throws<ArgumentNullException>(() => modelBuilder.Entity<EntityWithInvalidNullAdditionalProperties>());
     }
 
-    [InlineData(typeof(EntityWithInvalidNullPrimaryKeyProperty))]
+    [InlineData(typeof(EntityWithInvalidNullAdditionalProperty))]
     [InlineData(typeof(EntityWithInvalidEmptyPrimaryKeyProperty))]
     [InlineData(typeof(EntityWithInvalidWhiteSpacePrimaryKeyProperty))]
     [ConditionalTheory]
@@ -74,7 +71,7 @@ public class PrimaryKeyAttributeConventionTest
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         Assert.Equal(
-            AbstractionsStrings.CollectionArgumentHasEmptyElements("propertyNames"),
+            AbstractionsStrings.CollectionArgumentHasEmptyElements("additionalPropertyNames"),
             Assert.Throws<ArgumentException>(
                 () => modelBuilder.Entity(entityTypeWithInvalidPrimaryKey)).Message);
     }
@@ -254,16 +251,16 @@ public class PrimaryKeyAttributeConventionTest
         public int D { get; set; }
     }
 
-    [PrimaryKey]
-    private class EntityWithInvalidEmptyPrimaryKey
+    [PrimaryKey(nameof(A), null!)]
+    private class EntityWithInvalidNullAdditionalProperties
     {
         public int Id { get; set; }
         public int A { get; set; }
         public int B { get; set; }
     }
 
-    [PrimaryKey(nameof(A), null!)]
-    private class EntityWithInvalidNullPrimaryKeyProperty
+    [PrimaryKey(nameof(A), nameof(B), null!)]
+    private class EntityWithInvalidNullAdditionalProperty
     {
         public int Id { get; set; }
         public int A { get; set; }

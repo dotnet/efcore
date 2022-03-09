@@ -224,6 +224,18 @@ public class PropertyAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void KeyAttribute_does_not_throw_when_setting_key_in_derived_type_when_base_has_PrimaryKeyAttribute()
+    {
+        var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity2>();
+        var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity2), ConfigurationSource.Explicit).Metadata;
+        derivedEntityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Explicit);
+
+        derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
+
+        Validate(derivedEntityTypeBuilder);
+    }
+
+    [ConditionalFact]
     public void KeyAttribute_allows_composite_key_with_inheritance()
     {
         var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeKeyDerivedEntity>();
@@ -860,6 +872,20 @@ public class PropertyAttributeConventionTest
 
     private class CompositeKeyDerivedEntity : BaseEntity
     {
+    }
+
+    [PrimaryKey(nameof(Name))]
+    private class BaseEntity2
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
+    private class DerivedEntity2 : BaseEntity2
+    {
+        [Key]
+        public int Number { get; set; }
     }
 
     private static ModelBuilder CreateModelBuilder()

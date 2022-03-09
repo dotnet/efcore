@@ -6,13 +6,19 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-///     Specifies a primary key for the entity type mapped to this CLR type. This attribute can be used for both keys made up of a
-///     single property, and for composite keys made up of multiple properties. `System.ComponentModel.DataAnnotations.KeyAttribute`
-///     can be used instead for single-property keys, in which case the behavior is identical. If both attributes are used, then
-///     this attribute takes precedence.
+///     Specifies a primary key for the entity type mapped to this CLR type.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+///     <para>
+///         This attribute can be used for both keys made up of a
+///         single property, and for composite keys made up of multiple properties. `System.ComponentModel.DataAnnotations.KeyAttribute`
+///         can be used instead for single-property keys, in which case the behavior is identical. If both attributes are used, then
+///         this attribute takes precedence.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+///         examples.
+///     </para>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class PrimaryKeyAttribute : Attribute
@@ -20,13 +26,15 @@ public sealed class PrimaryKeyAttribute : Attribute
     /// <summary>
     ///     Initializes a new instance of the <see cref="PrimaryKeyAttribute" /> class.
     /// </summary>
-    /// <param name="propertyNames">The properties which constitute the primary key, in order (there must be at least one).</param>
-    public PrimaryKeyAttribute(params string[] propertyNames)
+    /// <param name="propertyName">The first (or only) property in the primary key.</param>
+    /// <param name="additionalPropertyNames">The additional properties which constitute the primary key, if any, in order.</param>
+    public PrimaryKeyAttribute(string propertyName, params string[] additionalPropertyNames)
     {
-        Check.NotEmpty(propertyNames, nameof(propertyNames));
-        Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
+        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
 
-        PropertyNames = propertyNames.ToList();
+        PropertyNames = new List<string> { propertyName };
+        ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
     }
 
     /// <summary>
